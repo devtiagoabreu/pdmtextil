@@ -95,3 +95,15 @@ git add src/types/next-auth.d.ts src/lib/auth.ts
 git commit -m "fix: corrige tipagem customizada do next-auth adicionando a propriedade role"
 git push
 
+Isso mesmo! O Vercel está exibindo a página raiz padrão do Next.js porque o componente de Login que nós criamos no Bloco 1.3 foi colocado na rota específica /login.
+
+Se você adicionar /login no final da sua URL do Vercel (ex: https://seu-dominio.vercel.app/login), você verá a nossa tela de login!
+
+Para deixar o sistema perfeito e redirecionar automaticamente quem acessar a página inicial (/) direto para o /login, eu acabei de sobrescrever o arquivo src/app/page.tsx. Agora ele tem apenas um comando de redirecionamento automático.
+
+Você pode fazer um commit rápido para atualizar isso no Vercel:
+
+bash
+git add src/app/page.tsx
+git commit -m "feat: redireciona raiz para tela de login"
+git push
