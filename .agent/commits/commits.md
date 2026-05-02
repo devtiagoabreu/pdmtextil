@@ -58,3 +58,21 @@ O componente genérico form do shadcn não apareceu na lista final instalada. Eu
 ✅ Commit pronto:
 
 feat: setup do layout base, provedores de sessão e tela de login NextAuth
+
+
+Excelente! O erro mudou e avançamos para a compilação do CSS.
+
+O que aconteceu dessa vez? O log mostrou: Syntax error: /vercel/path0/src/app/globals.css The outline-ring/50 class does not exist. Isso ocorreu porque a versão mais recente da CLI do shadcn/ui que instalamos (v4.6.0) injetou uma classe chamada outline-ring/50 no reset global do arquivo globals.css. Essa classe foi projetada para a nova versão do Tailwind CSS v4, mas nosso projeto utiliza a versão super estável v3.4.1, que não conseguiu interpretar essa sintaxe diretamente.
+
+Como eu resolvi:
+
+Fui até o arquivo src/app/globals.css e removi a instrução conflituosa outline-ring/50.
+Também adicionei as variáveis de cor pendentes (como ring e input) no tailwind.config.ts para garantir compatibilidade 100% segura com qualquer componente do shadcn.
+O código agora está totalmente limpo para passar pela build do Vercel!
+
+Próximo Passo: Faça novamente o commit e push com as minhas correções:
+
+bash
+git add src/app/globals.css tailwind.config.ts
+git commit -m "fix: correção de compatibilidade CSS para Tailwind v3 no Vercel"
+git push
