@@ -2,7 +2,7 @@
 
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { briefingTecelagemSchema, BriefingTecelagem } from "@/types/briefing"
+import { briefingTecelagemSchema, BriefingTecelagem, SEGMENTOS, TECNOLOGIAS, LIGAMENTO, TIPOS_ACABAMENTO } from "@/types/briefing"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -17,377 +17,599 @@ interface BriefingTecelagemFormProps {
   onBack: () => void
 }
 
-const CARACTERISTICAS_OPCOES = [
-  { id: "respiravel", label: "Respirável" },
-  { id: "secagem_rapida", label: "Secagem Rápida" },
-  { id: "antiodor", label: "Antiodor" },
-  { id: "anti_pilling", label: "Anti-pilling" },
-]
+const SEGMENTOS_LABELS: Record<string, string> = {
+  UNIFORME_CORPORATIVO: "Uniforme Corporativo",
+  LENCOL_HOSPITALAR: "Lençol Hospitalar",
+  LENCOL_CAMA_RESIDENCIAL: "Lençol de Cama Residencial",
+  FORRO_MODA: "Forro de Moda",
+  ESTOFADO_MOVEIS: "Estofado de Móveis",
+  CORTINA: "Cortina",
+  LATERAL_COLCHAO: "Lateral de Colchão",
+  BAG: "Bag / Bolsas",
+  ACESSORIOS: "Acessórios",
+  DECORACAO: "Decoração",
+  INDUSTRIAL: "Industrial",
+  OUTROS: "Outros",
+}
+
+const TECNOLOGIAS_LABELS: Record<string, string> = {
+  ANTIBACTERIANO: "Antibacteriano",
+  ANTIFLAMAS: "Antiflamas",
+  ANTIODOR: "Antiodor",
+  ANTI_PILLING: "Anti-pilling",
+  PROTECAO_UV: "Proteção UV",
+  RESPIRABILIDADE: "Respirabilidade",
+  SECAGEM_RAPIDA: "Secagem Rápida",
+  TERMOREGULACAO: "Termorregulação",
+  IMPERMEAVEL: "Impermeável",
+  RESISTENTE_ABRASÃO: "Resistente à Abrasão",
+  SOFT_TOUCH: "Soft Touch",
+  HYDRARE: "HydraRe",
+  OUTROS: "Outros",
+}
+
+const LIGAMENTO_LABELS: Record<string, string> = {
+  TAFETAN: "Taftan",
+  SARJA: "Sarja",
+  RIBANA: "Ribana",
+  CETIM: "Cetim",
+  OXFORD: "Oxford",
+  DOBRADINHA: "Dobradinha",
+  MALHA: "Malha",
+  OUTROS: "Outros",
+}
+
+const TIPOS_ACABAMENTO_LABELS: Record<string, string> = {
+  SANFORIZADO: "Sanforizado",
+  MERCERIZADO: "Mercerizado",
+  RESINADO: "Resinado",
+  AMACIADO: "Amaciado",
+  ESFOLHADO: "Esfoliado",
+  BRILHO: "Brilho",
+  FOSCO: "Fosco",
+  TEXTURIZADO: "Texturizado",
+  ESTAMPADO: "Estampado",
+  TINGIDO: "Tingido",
+  OUTROS: "Outros",
+}
 
 export function BriefingTecelagemForm({ initialData, onNext, onBack }: BriefingTecelagemFormProps) {
   const { register, control, handleSubmit, formState: { errors } } = useForm<BriefingTecelagem>({
     resolver: zodResolver(briefingTecelagemSchema),
     defaultValues: initialData || {
-      usoFinal: {
-        ambiente: [],
-        condicoesEspeciais: [],
-      },
-      performance: {
-        caracteristicas: [],
-      },
-      composicao: {
-        elastano: false,
-      }
+      aplicacao: { segmentos: [] },
+      tecnologias: { requeridas: [] },
+      performance: {},
+      acabamento: { tipos: [] },
+      cores: {},
+      comercial: {},
     } as any,
   })
 
   return (
     <form onSubmit={handleSubmit(onNext)} className="space-y-8 mt-6 pb-24">
-      {/* SEÇÃO 1: USO FINAL */}
+      {/* SEÇÃO 1: APLICAÇÃO / USO FINAL */}
       <section className="space-y-4">
-        <h2 className="text-xl font-semibold border-b pb-2">1. Uso Final</h2>
+        <h2 className="text-xl font-semibold border-b pb-2">1. Aplicação / Uso Final</h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-3">
-            <Label>Tipo de Uniforme *</Label>
-            <Controller
-              name="usoFinal.tipoUniforme"
-              control={control}
-              render={({ field }) => (
-                <RadioGroup onValueChange={field.onChange} defaultValue={field.value}>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="OPERACIONAL_PESADO" id="t_op" />
-                    <Label htmlFor="t_op">Operacional Pesado</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="PROFISSIONAL_TECNICO" id="t_pt" />
-                    <Label htmlFor="t_pt">Profissional Técnico</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="CORPORATIVO" id="t_corp" />
-                    <Label htmlFor="t_corp">Corporativo</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="ESPORTIVO_ATIVO" id="t_esp" />
-                    <Label htmlFor="t_esp">Esportivo / Ativo</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="SAUDE_HOSPITALAR" id="t_sau" />
-                    <Label htmlFor="t_sau">Saúde / Hospitalar</Label>
-                  </div>
-                </RadioGroup>
-              )}
-            />
-            {errors.usoFinal?.tipoUniforme && <p className="text-sm text-destructive">{errors.usoFinal.tipoUniforme.message}</p>}
-          </div>
-
-          <div className="space-y-3">
-            <Label>Temperatura *</Label>
-            <Controller
-              name="usoFinal.temperatura"
-              control={control}
-              render={({ field }) => (
-                <RadioGroup onValueChange={field.onChange} defaultValue={field.value}>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="CALOR_INTENSO" id="temp_calor" />
-                    <Label htmlFor="temp_calor">Calor Intenso</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="AMBIENTE_CONTROLADO" id="temp_ac" />
-                    <Label htmlFor="temp_ac">Ambiente Controlado</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="FRIO" id="temp_frio" />
-                    <Label htmlFor="temp_frio">Frio</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="VARIADO" id="temp_var" />
-                    <Label htmlFor="temp_var">Variado</Label>
-                  </div>
-                </RadioGroup>
-              )}
-            />
-            {errors.usoFinal?.temperatura && <p className="text-sm text-destructive">{errors.usoFinal.temperatura.message}</p>}
-          </div>
-
-          <div className="space-y-3">
-            <Label>Ambiente *</Label>
-            <Controller
-              name="usoFinal.ambiente"
-              control={control}
-              render={({ field }) => (
-                <div className="space-y-2">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox id="amb_int" 
-                      checked={field.value?.includes("INTERNO")}
-                      onCheckedChange={(checked) => {
-                        return checked
-                          ? field.onChange([...(field.value || []), "INTERNO"])
-                          : field.onChange(field.value?.filter((val) => val !== "INTERNO"))
-                      }}
-                    />
-                    <Label htmlFor="amb_int">Interno</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox id="amb_ext" 
-                      checked={field.value?.includes("EXTERNO")}
-                      onCheckedChange={(checked) => {
-                        return checked
-                          ? field.onChange([...(field.value || []), "EXTERNO"])
-                          : field.onChange(field.value?.filter((val) => val !== "EXTERNO"))
-                      }}
-                    />
-                    <Label htmlFor="amb_ext">Externo</Label>
-                  </div>
-                </div>
-              )}
-            />
-            {errors.usoFinal?.ambiente && <p className="text-sm text-destructive">{errors.usoFinal.ambiente.message}</p>}
-          </div>
-
-          <div className="space-y-3">
-            <Label>Abrasão *</Label>
-            <Controller
-              name="usoFinal.abrasao"
-              control={control}
-              render={({ field }) => (
-                <RadioGroup onValueChange={field.onChange} defaultValue={field.value}>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="BAIXA" id="abr_b" />
-                    <Label htmlFor="abr_b">Baixa (Escritório)</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="MEDIA" id="abr_m" />
-                    <Label htmlFor="abr_m">Média (Logística)</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="ALTA" id="abr_a" />
-                    <Label htmlFor="abr_a">Alta (Indústria)</Label>
-                  </div>
-                </RadioGroup>
-              )}
-            />
-            {errors.usoFinal?.abrasao && <p className="text-sm text-destructive">{errors.usoFinal.abrasao.message}</p>}
-          </div>
-        </div>
-      </section>
-
-      {/* SEÇÃO 2: PERFORMANCE */}
-      <section className="space-y-4">
-        <h2 className="text-xl font-semibold border-b pb-2">2. Performance</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-3">
-            <Label>Características * (mínimo 1)</Label>
-            <Controller
-              name="performance.caracteristicas"
-              control={control}
-              render={({ field }) => (
-                <div className="space-y-2">
-                  {CARACTERISTICAS_OPCOES.map((item) => (
-                    <div key={item.id} className="flex items-center space-x-2">
-                      <Checkbox id={item.id} 
-                        checked={field.value?.includes(item.id)}
-                        onCheckedChange={(checked) => {
-                          return checked
-                            ? field.onChange([...(field.value || []), item.id])
-                            : field.onChange(field.value?.filter((val) => val !== item.id))
-                        }}
-                      />
-                      <Label htmlFor={item.id}>{item.label}</Label>
-                    </div>
-                  ))}
-                </div>
-              )}
-            />
-            {errors.performance?.caracteristicas && <p className="text-sm text-destructive">{errors.performance.caracteristicas.message}</p>}
-          </div>
-        </div>
-      </section>
-
-      {/* SEÇÃO 3 & 4 & 5: GRAMATURA, TOQUE, VISUAL */}
-      <section className="space-y-4">
-        <h2 className="text-xl font-semibold border-b pb-2">3, 4 e 5. Propriedades Físicas</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="space-y-3">
-            <Label>Gramatura *</Label>
-            <Controller
-              name="gramatura"
-              control={control}
-              render={({ field }) => (
-                <RadioGroup onValueChange={field.onChange} defaultValue={field.value}>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="LEVE" id="g_leve" />
-                    <Label htmlFor="g_leve">Leve</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="MEDIO" id="g_medio" />
-                    <Label htmlFor="g_medio">Médio (180-250 g/m²)</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="PESADO" id="g_pesado" />
-                    <Label htmlFor="g_pesado">Pesado</Label>
-                  </div>
-                </RadioGroup>
-              )}
-            />
-            {errors.gramatura && <p className="text-sm text-destructive">{errors.gramatura.message}</p>}
-          </div>
-
-          <div className="space-y-3">
-            <Label>Toque *</Label>
-            <Controller
-              name="toque"
-              control={control}
-              render={({ field }) => (
-                <RadioGroup onValueChange={field.onChange} defaultValue={field.value}>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="TECNICO_SECO" id="tq_tec" />
-                    <Label htmlFor="tq_tec">Técnico / Seco</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="MACIO_CONFORTO" id="tq_mac" />
-                    <Label htmlFor="tq_mac">Macio / Conforto</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="ESTRUTURADO" id="tq_est" />
-                    <Label htmlFor="tq_est">Estruturado</Label>
-                  </div>
-                </RadioGroup>
-              )}
-            />
-            {errors.toque && <p className="text-sm text-destructive">{errors.toque.message}</p>}
-          </div>
-
-          <div className="space-y-3">
-            <Label>Acabamento Visual *</Label>
-            <Controller
-              name="visual.acabamento"
-              control={control}
-              render={({ field }) => (
-                <RadioGroup onValueChange={field.onChange} defaultValue={field.value}>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="FOSCO" id="v_fos" />
-                    <Label htmlFor="v_fos">Fosco</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="LEVEMENTE_BRILHANTE" id="v_lb" />
-                    <Label htmlFor="v_lb">Levemente Brilhante</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="ALTO_BRILHO" id="v_ab" />
-                    <Label htmlFor="v_ab">Alto Brilho</Label>
-                  </div>
-                </RadioGroup>
-              )}
-            />
-            {errors.visual?.acabamento && <p className="text-sm text-destructive">{errors.visual.acabamento.message}</p>}
-          </div>
-        </div>
-
-        <div className="space-y-3 mt-4">
-          <Label>Estilo do Visual *</Label>
+        <div className="space-y-3">
+          <Label>Segmento de Uso *</Label>
           <Controller
-            name="visual.estilo"
+            name="aplicacao.segmentos"
             control={control}
             render={({ field }) => (
-              <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex gap-4 flex-wrap">
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="ESPORTIVO" id="e_esp" />
-                  <Label htmlFor="e_esp">Esportivo</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="SOCIAL" id="e_soc" />
-                  <Label htmlFor="e_soc">Social</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="TECNICO" id="e_tec" />
-                  <Label htmlFor="e_tec">Técnico</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="CASUAL" id="e_cas" />
-                  <Label htmlFor="e_cas">Casual</Label>
-                </div>
-              </RadioGroup>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {SEGMENTOS.map((segmento) => (
+                  <div key={segmento} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={segmento}
+                      checked={field.value?.includes(segmento)}
+                      onCheckedChange={(checked) => {
+                        return checked
+                          ? field.onChange([...(field.value || []), segmento])
+                          : field.onChange(field.value?.filter((val) => val !== segmento))
+                      }}
+                    />
+                    <Label htmlFor={segmento} className="text-sm font-normal cursor-pointer">
+                      {SEGMENTOS_LABELS[segmento]}
+                    </Label>
+                  </div>
+                ))}
+              </div>
             )}
           />
-          {errors.visual?.estilo && <p className="text-sm text-destructive">{errors.visual.estilo.message}</p>}
+          {errors.aplicacao?.segmentos && (
+            <p className="text-sm text-red-500">{errors.aplicacao.segmentos.message}</p>
+          )}
+        </div>
+
+        <div className="space-y-3">
+          <Label>Descrição da Aplicação</Label>
+          <Textarea
+            {...register("aplicacao.descricaoAplicacao")}
+            placeholder="Descreva como o tecido será utilizado..."
+            rows={3}
+          />
+        </div>
+
+        <div className="space-y-3">
+          <Label>Outros Segmentos</Label>
+          <Input
+            {...register("aplicacao.outrosSegmentos")}
+            placeholder="Descreva outros segmentos não listados..."
+          />
         </div>
       </section>
 
       <Separator />
 
-      {/* SEÇÃO 6, 7, 8: COMPOSIÇÃO, CORES E PREÇO */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold border-b pb-2">6. Composição</h2>
+      {/* SEÇÃO 2: REQUISITOS TÉCNICOS DO TECIDO */}
+      <section className="space-y-4">
+        <h2 className="text-xl font-semibold border-b pb-2">2. Requisitos Técnicos do Tecido</h2>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-3">
-            <Label>Sugestão Urdume</Label>
-            <Input {...register("composicao.urdume")} placeholder="Ex: Poliéster 100%" />
-          </div>
-          <div className="space-y-3">
-            <Label>Sugestão Trama</Label>
-            <Input {...register("composicao.trama")} placeholder="Ex: Algodão 20/1" />
-          </div>
-          <div className="flex items-center space-x-2 pt-2">
+            <Label>Tipo de Tecido *</Label>
             <Controller
-              name="composicao.elastano"
+              name="requisitosTecnicos.tipoTecido"
               control={control}
               render={({ field }) => (
-                <Checkbox id="c_el" checked={field.value} onCheckedChange={field.onChange} />
+                <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex gap-4">
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="PLANO" id="tecido_plano" />
+                    <Label htmlFor="tecido_plano" className="cursor-pointer">Tecido Plano</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="MALHA" id="tecido_malha" />
+                    <Label htmlFor="tecido_malha" className="cursor-pointer">Malha</Label>
+                  </div>
+                </RadioGroup>
               )}
             />
-            <Label htmlFor="c_el">Com Elastano</Label>
+            {errors.requisitosTecnicos?.tipoTecido && (
+              <p className="text-sm text-red-500">{errors.requisitosTecnicos.tipoTecido.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-3">
+            <Label>Ligamento</Label>
+            <Controller
+              name="requisitosTecnicos.ligamento"
+              control={control}
+              render={({ field }) => (
+                <select
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  value={field.value || ""}
+                  onChange={field.onChange}
+                >
+                  <option value="">Selecione...</option>
+                  {LIGAMENTO.map((l) => (
+                    <option key={l} value={l}>{LIGAMENTO_LABELS[l]}</option>
+                  ))}
+                </select>
+              )}
+            />
+          </div>
+
+          <div className="space-y-3">
+            <Label>Composição</Label>
+            <Input
+              {...register("requisitosTecnicos.composicao")}
+              placeholder="Ex: 100% Poliéter, 65% Poliéter / 35% Algodão"
+            />
+          </div>
+
+          <div className="space-y-3">
+            <Label>Largura (cm)</Label>
+            <div className="flex gap-2">
+              <Input
+                type="number"
+                {...register("requisitosTecnicos.larguraMinima")}
+                placeholder="Mín"
+                className="w-full"
+              />
+              <Input
+                type="number"
+                {...register("requisitosTecnicos.larguraMaxima")}
+                placeholder="Máx"
+                className="w-full"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <Label>Gramatura (g/m²)</Label>
+            <div className="flex gap-2">
+              <Input
+                type="number"
+                {...register("requisitosTecnicos.gramaturaMinima")}
+                placeholder="Mín"
+                className="w-full"
+              />
+              <Input
+                type="number"
+                {...register("requisitosTecnicos.gramaturaMaxima")}
+                placeholder="Máx"
+                className="w-full"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <Label>Densidade Urdume</Label>
+            <Input
+              {...register("requisitosTecnicos.densidadeUrdume")}
+              placeholder="Ex: 60 fios/cm"
+            />
+          </div>
+
+          <div className="space-y-3">
+            <Label>Densidade Trama</Label>
+            <Input
+              {...register("requisitosTecnicos.densidadeTrama")}
+              placeholder="Ex: 40 pasadas/cm"
+            />
           </div>
         </div>
+      </section>
 
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold border-b pb-2">7. Cores</h2>
+      <Separator />
+
+      {/* SEÇÃO 3: TECNOLOGIAS */}
+      <section className="space-y-4">
+        <h2 className="text-xl font-semibold border-b pb-2">3. Tecnologias</h2>
+        
+        <div className="space-y-3">
+          <Label>Tecnologias Requeridas</Label>
           <Controller
-            name="cores.tipo"
+            name="tecnologias.requeridas"
             control={control}
             render={({ field }) => (
-              <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="space-y-2">
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="SOLIDAS" id="c_sol" />
-                  <Label htmlFor="c_sol">Cores Sólidas (Padrão)</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="DESENVOLVIMENTO_EXCLUSIVO" id="c_exc" />
-                  <Label htmlFor="c_exc">Desenvolvimento Exclusivo</Label>
-                </div>
-              </RadioGroup>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {TECNOLOGIAS.map((tec) => (
+                  <div key={tec} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={tec}
+                      checked={field.value?.includes(tec)}
+                      onCheckedChange={(checked) => {
+                        return checked
+                          ? field.onChange([...(field.value || []), tec])
+                          : field.onChange(field.value?.filter((val) => val !== tec))
+                      }}
+                    />
+                    <Label htmlFor={tec} className="text-sm font-normal cursor-pointer">
+                      {TECNOLOGIAS_LABELS[tec]}
+                    </Label>
+                  </div>
+                ))}
+              </div>
             )}
           />
-          {errors.cores?.tipo && <p className="text-sm text-destructive">{errors.cores.tipo.message}</p>}
-          <div className="space-y-2 mt-4">
-            <Label>Observações sobre cores</Label>
-            <Textarea {...register("cores.observacoes")} placeholder="Ex: Tons pastéis..." />
-          </div>
         </div>
 
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold border-b pb-2">8. Preço</h2>
-          <Controller
-            name="preco"
-            control={control}
-            render={({ field }) => (
-              <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="space-y-2">
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="ECONOMICO" id="p_eco" />
-                  <Label htmlFor="p_eco">Econômico</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="INTERMEDIARIO" id="p_int" />
-                  <Label htmlFor="p_int">Intermediário</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="PREMIUM" id="p_pre" />
-                  <Label htmlFor="p_pre">Premium</Label>
-                </div>
-              </RadioGroup>
-            )}
+        <div className="space-y-3">
+          <Label>Outras Tecnologias</Label>
+          <Input
+            {...register("tecnologias.outrasTecnologias")}
+            placeholder="Descreva outras tecnologias não listadas..."
           />
-          {errors.preco && <p className="text-sm text-destructive">{errors.preco.message}</p>}
+        </div>
+      </section>
+
+      <Separator />
+
+      {/* SEÇÃO 4: PERFORMANCE */}
+      <section className="space-y-4">
+        <h2 className="text-xl font-semibold border-b pb-2">4. Performance</h2>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-3">
+            <Label>Resistência à Abrasão *</Label>
+            <Controller
+              name="performance.resistenciaAbrasao"
+              control={control}
+              render={({ field }) => (
+                <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="BAIXA" id="abr_baixa" />
+                    <Label htmlFor="abr_baixa" className="cursor-pointer">Baixa (escritório, uso leve)</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="MEDIA" id="abr_media" />
+                    <Label htmlFor="abr_media" className="cursor-pointer">Média (logística, uso moderado)</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="ALTA" id="abr_alta" />
+                    <Label htmlFor="abr_alta" className="cursor-pointer">Alta (indústria, uso intenso)</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="MUITO_ALTA" id="abr_muito_alta" />
+                    <Label htmlFor="abr_muito_alta" className="cursor-pointer">Muito Alta (uso extremo)</Label>
+                  </div>
+                </RadioGroup>
+              )}
+            />
+            {errors.performance?.resistenciaAbrasao && (
+              <p className="text-sm text-red-500">{errors.performance.resistenciaAbrasao.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-3">
+            <Label>Resistência na Lavagem</Label>
+            <div className="space-y-2">
+              <div className="flex items-center space-x-2">
+                <Controller
+                  name="performance.resistenciaLavagem"
+                  control={control}
+                  render={({ field }) => (
+                    <Checkbox
+                      id="res_lav"
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  )}
+                />
+                <Label htmlFor="res_lav" className="cursor-pointer">Resistência à Lavagem</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Controller
+                  name="performance.resistenciaSecagem"
+                  control={control}
+                  render={({ field }) => (
+                    <Checkbox
+                      id="res_sec"
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  )}
+                />
+                <Label htmlFor="res_sec" className="cursor-pointer">Resistência à Secagem</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Controller
+                  name="performance.resistenciaPassagem"
+                  control={control}
+                  render={({ field }) => (
+                    <Checkbox
+                      id="res_pass"
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  )}
+                />
+                <Label htmlFor="res_pass" className="cursor-pointer">Resistência à Passagem</Label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <Separator />
+
+      {/* SEÇÃO 5: ACABAMENTO */}
+      <section className="space-y-4">
+        <h2 className="text-xl font-semibold border-b pb-2">5. Acabamento</h2>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-3">
+            <Label>Tipos de Acabamento *</Label>
+            <Controller
+              name="acabamento.tipos"
+              control={control}
+              render={({ field }) => (
+                <div className="grid grid-cols-2 gap-3">
+                  {TIPOS_ACABAMENTO.map((tipo) => (
+                    <div key={tipo} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`acab_${tipo}`}
+                        checked={field.value?.includes(tipo)}
+                        onCheckedChange={(checked) => {
+                          return checked
+                            ? field.onChange([...(field.value || []), tipo])
+                            : field.onChange(field.value?.filter((val) => val !== tipo))
+                        }}
+                      />
+                      <Label htmlFor={`acab_${tipo}`} className="text-sm font-normal cursor-pointer">
+                        {TIPOS_ACABAMENTO_LABELS[tipo]}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              )}
+            />
+            {errors.acabamento?.tipos && (
+              <p className="text-sm text-red-500">{errors.acabamento.tipos.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-3">
+            <Label>Nível de Brilho *</Label>
+            <Controller
+              name="acabamento.nivelBrilho"
+              control={control}
+              render={({ field }) => (
+                <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="FOSCO" id="brilho_fosco" />
+                    <Label htmlFor="brilho_fosco" className="cursor-pointer">Fosco</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="SEMI_FOSCO" id="brilho_semi" />
+                    <Label htmlFor="brilho_semi" className="cursor-pointer">Semi-Fosco</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="BRILHANTE" id="brilho_brilhante" />
+                    <Label htmlFor="brilho_brilhante" className="cursor-pointer">Brilhante</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="ALTO_BRILHO" id="brilho_alto" />
+                    <Label htmlFor="brilho_alto" className="cursor-pointer">Alto Brilho</Label>
+                  </div>
+                </RadioGroup>
+              )}
+            />
+            {errors.acabamento?.nivelBrilho && (
+              <p className="text-sm text-red-500">{errors.acabamento.nivelBrilho.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-3">
+            <Label>Toque *</Label>
+            <Controller
+              name="acabamento.toque"
+              control={control}
+              render={({ field }) => (
+                <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="SECO" id="toque_seco" />
+                    <Label htmlFor="toque_seco" className="cursor-pointer">Seco / Técnico</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="MACIO" id="toque_macio" />
+                    <Label htmlFor="toque_macio" className="cursor-pointer">Macio</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="SUAVE" id="toque_suave" />
+                    <Label htmlFor="toque_suave" className="cursor-pointer">Suave</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="ESTRUTURADO" id="toque_estruturado" />
+                    <Label htmlFor="toque_estruturado" className="cursor-pointer">Estruturado</Label>
+                  </div>
+                </RadioGroup>
+              )}
+            />
+            {errors.acabamento?.toque && (
+              <p className="text-sm text-red-500">{errors.acabamento.toque.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-3">
+            <Label>Textura</Label>
+            <Textarea
+              {...register("acabamento.textura")}
+              placeholder="Descreva texturas especiais..."
+              rows={3}
+            />
+          </div>
+        </div>
+      </section>
+
+      <Separator />
+
+      {/* SEÇÃO 6: CORES */}
+      <section className="space-y-4">
+        <h2 className="text-xl font-semibold border-b pb-2">6. Cores</h2>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-3">
+            <Label>Padrão de Cores *</Label>
+            <Controller
+              name="cores.tipo"
+              control={control}
+              render={({ field }) => (
+                <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="SOLIDAS" id="cor_solidas" />
+                    <Label htmlFor="cor_solidas" className="cursor-pointer">Cores Sólidas (Padrão)</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="ESTAMPADAS" id="cor_estampadas" />
+                    <Label htmlFor="cor_estampadas" className="cursor-pointer">Estampadas</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="FANTASIA" id="cor_fantasia" />
+                    <Label htmlFor="cor_fantasia" className="cursor-pointer">Fantasia</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="DESENVOLVIMENTO_EXCLUSIVO" id="cor_exclusivo" />
+                    <Label htmlFor="cor_exclusivo" className="cursor-pointer">Desenvolvimento Exclusivo</Label>
+                  </div>
+                </RadioGroup>
+              )}
+            />
+            {errors.cores?.tipo && (
+              <p className="text-sm text-red-500">{errors.cores.tipo.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-3">
+            <Label>Paleta Preferencial</Label>
+            <Input
+              {...register("cores.paletaPreferencial")}
+              placeholder="Ex: Tons pastel, cores frias..."
+            />
+          </div>
+
+          <div className="space-y-3">
+            <Label>Cores Específicas</Label>
+            <Textarea
+              {...register("cores.coresEspecificas")}
+              placeholder="Liste as cores específicas..."
+              rows={2}
+            />
+          </div>
+        </div>
+      </section>
+
+      <Separator />
+
+      {/* SEÇÃO 7: COMERCIAL */}
+      <section className="space-y-4">
+        <h2 className="text-xl font-semibold border-b pb-2">7. Comercial</h2>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-3">
+            <Label>Target de Preço *</Label>
+            <Controller
+              name="comercial.targetPreco"
+              control={control}
+              render={({ field }) => (
+                <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="ECONOMICO" id="preco_economico" />
+                    <Label htmlFor="preco_economico" className="cursor-pointer">Econômico</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="INTERMEDIARIO" id="preco_intermediario" />
+                    <Label htmlFor="preco_intermediario" className="cursor-pointer">Intermediário</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="PREMIUM" id="preco_premium" />
+                    <Label htmlFor="preco_premium" className="cursor-pointer">Premium</Label>
+                  </div>
+                </RadioGroup>
+              )}
+            />
+            {errors.comercial?.targetPreco && (
+              <p className="text-sm text-red-500">{errors.comercial.targetPreco.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-3">
+            <Label>Quantidade Estimada</Label>
+            <Input
+              {...register("comercial.quantidadeEstimada")}
+              placeholder="Ex: 5.000 metros"
+            />
+          </div>
+
+          <div className="space-y-3">
+            <Label>Prazo de Entrega</Label>
+            <Input
+              {...register("comercial.prazoEntrega")}
+              placeholder="Ex: 30 dias"
+            />
+          </div>
+
+          <div className="space-y-3">
+            <Label>Observações</Label>
+            <Textarea
+              {...register("comercial.observacoes")}
+              placeholder="Outras informações relevantes..."
+              rows={3}
+            />
+          </div>
         </div>
       </section>
 
