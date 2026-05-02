@@ -15,11 +15,13 @@ import {
   Database,
   BarChart3,
   X,
+  Building2,
 } from "lucide-react"
 
 const navItems = {
   COMERCIAL: [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/comercial/clientes", label: "Clientes", icon: Building2 },
     { href: "/comercial/solicitacoes", label: "Minhas Solicitações", icon: FileText },
     { href: "/comercial/solicitacoes/nova", label: "Nova Solicitação", icon: PlusCircle },
   ],

@@ -15,19 +15,15 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
-
-const MOCK_CLIENTES = [
-  { nome: "Moda Fitness SA", cnpj: "12.345.678/0001-90" },
-  { nome: "Texsport Confecções Ltda", cnpj: "23.456.789/0001-01" },
-  { nome: "Vestech Industrial GmbH", cnpj: "34.567.890/0001-12" },
-  { nome: "Urban Wear Brasil", cnpj: "45.678.901/0001-23" },
-  { nome: "Estilothread GmbH", cnpj: "56.789.012/0001-34" },
-  { nome: "Malhasul SA", cnpj: "67.890.123/0001-45" },
-  { nome: "Tecelajemitt GmbH", cnpj: "78.901.234/0001-56" },
-  { nome: "Fábrica de Tecidos Horizonte", cnpj: "89.012.345/0001-67" },
-  { nome: "Indústria Têxtil São José", cnpj: "90.123.456/0001-78" },
-  { nome: "Têxtil Premium Ltda", cnpj: "01.234.567/0001-89" },
-]
+import { ClienteAutocomplete } from "@/components/forms/ClienteAutocomplete"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog"
 import { toast } from "sonner"
 
 const STEPS = [
@@ -50,6 +46,16 @@ export default function NovaSolicitacaoPage() {
   } as any)
   const [briefingData, setBriefingData] = useState<Partial<BriefingTecelagem>>({})
   const [anexosData, setAnexosData] = useState<AnexoDraft[]>([])
+  const [showNovoCliente, setShowNovoCliente] = useState(false)
+  const [novoClienteData, setNovoClienteData] = useState({
+    nome: "",
+    cnpj: "",
+    razaoSocial: "",
+    email: "",
+    telefone: "",
+    contato: "",
+  })
+  const [isCriandoCliente, setIsCriandoCliente] = useState(false)
 
   // STEP 1 FORM
   const { register, handleSubmit, control, formState: { errors }, setValue, watch } = useForm<DadosComerciais>({
@@ -65,6 +71,30 @@ export default function NovaSolicitacaoPage() {
   const onStep2Submit = (data: BriefingTecelagem) => {
     setBriefingData(data)
     setStep(3)
+  }
+
+  const handleNovoCliente = async () => {
+    try {
+      setIsCriandoCliente(true)
+      const res = await fetch("/api/clientes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(novoClienteData),
+      })
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.error || "Erro ao criar cliente")
+      }
+      const cliente = await res.json()
+      setComercialData((prev) => ({ ...prev, cliente: cliente.nome, cnpj: cliente.cnpj }))
+      setShowNovoCliente(false)
+      setNovoClienteData({ nome: "", cnpj: "", razaoSocial: "", email: "", telefone: "", contato: "" })
+      toast.success("Cliente criado com sucesso!")
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao criar cliente.")
+    } finally {
+      setIsCriandoCliente(false)
+    }
   }
 
   const handleFinalSubmit = async () => {
@@ -170,7 +200,7 @@ export default function NovaSolicitacaoPage() {
                 )}
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2 md:col-span-2">
                 <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
                   Cliente <span className="text-red-500">*</span>
                 </Label>
@@ -178,32 +208,22 @@ export default function NovaSolicitacaoPage() {
                   name="cliente"
                   control={control}
                   render={({ field }) => (
-                    <Select onValueChange={(value) => {
-                      field.onChange(value)
-                      const cliente = MOCK_CLIENTES.find(c => c.nome === value)
-                      if (cliente) setValue("cnpj", cliente.cnpj)
-                    }} value={field.value}>
-                      <SelectTrigger className={errors.cliente ? "border-red-500" : ""}>
-                        <SelectValue placeholder="Selecione o cliente..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {MOCK_CLIENTES.map((c) => (
-                          <SelectItem key={c.cnpj} value={c.nome}>
-                            {c.nome} ({c.cnpj})
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <ClienteAutocomplete
+                      value={field.value}
+                      onChange={field.onChange}
+                      onSelect={(cliente) => setValue("cnpj", cliente.cnpj)}
+                      onNovoCliente={() => setShowNovoCliente(true)}
+                      error={errors.cliente?.message}
+                      cnpjValue={comercialData.cnpj}
+                      onCnpjChange={(val) => setComercialData((prev) => ({ ...prev, cnpj: val }))}
+                    />
                   )}
                 />
-                {errors.cliente && (
-                  <p className="text-xs text-red-500 mt-1">{errors.cliente.message}</p>
-                )}
               </div>
 
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">CNPJ</Label>
-                <Input {...register("cnpj")} placeholder="00.000.000/0000-00" />
+                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Nome do Projeto</Label>
+                <Input {...register("projeto")} placeholder="Ex: Coleção Inverno 2027" />
               </div>
 
               <div className="space-y-2">
@@ -266,6 +286,79 @@ export default function NovaSolicitacaoPage() {
           </div>
         )}
       </div>
+
+      <Dialog open={showNovoCliente} onOpenChange={setShowNovoCliente}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Novo Cliente</DialogTitle>
+            <DialogDescription>
+              Cadastre um novo cliente para usar na solicitação.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="novo-nome">Nome / Fantasia *</Label>
+              <Input
+                id="novo-nome"
+                value={novoClienteData.nome}
+                onChange={(e) => setNovoClienteData((p) => ({ ...p, nome: e.target.value }))}
+                placeholder="Ex: Moda Fitness SA"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="novo-cnpj">CNPJ *</Label>
+              <Input
+                id="novo-cnpj"
+                value={novoClienteData.cnpj}
+                onChange={(e) => setNovoClienteData((p) => ({ ...p, cnpj: e.target.value }))}
+                placeholder="00.000.000/0001-00"
+                className="font-mono"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="novo-razao">Razão Social</Label>
+              <Input
+                id="novo-razao"
+                value={novoClienteData.razaoSocial}
+                onChange={(e) => setNovoClienteData((p) => ({ ...p, razaoSocial: e.target.value }))}
+                placeholder="Razão Social completa"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="novo-email">Email</Label>
+                <Input
+                  id="novo-email"
+                  type="email"
+                  value={novoClienteData.email}
+                  onChange={(e) => setNovoClienteData((p) => ({ ...p, email: e.target.value }))}
+                  placeholder="contato@email.com"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="novo-telefone">Telefone</Label>
+                <Input
+                  id="novo-telefone"
+                  value={novoClienteData.telefone}
+                  onChange={(e) => setNovoClienteData((p) => ({ ...p, telefone: e.target.value }))}
+                  placeholder="(11) 99999-9999"
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowNovoCliente(false)}>
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleNovoCliente}
+              disabled={isCriandoCliente || !novoClienteData.nome.trim() || !novoClienteData.cnpj.trim()}
+            >
+              {isCriandoCliente ? "Criando..." : "Criar Cliente"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
