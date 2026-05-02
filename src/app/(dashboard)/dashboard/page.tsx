@@ -76,7 +76,7 @@ export default async function DashboardPage() {
               </div>
             </Link>
 
-            <div className="group flex items-center gap-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 opacity-60 cursor-not-allowed">
+            <div className="flex items-center gap-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 opacity-60 cursor-not-allowed">
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400">
                 <BarChart3 size={24} />
               </div>
@@ -89,7 +89,7 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      {/* Recent activity placeholder */}
+      {/* Recent activity */}
       <div>
         <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-3">Atividades Recentes</h2>
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
