@@ -1,3 +1,8 @@
+# pdmtprotextil personal
+neon_connectionstring.md
+.agent/skills/*.*
+.agent/prompts/*.*
+
 # Logs
 logs
 *.log
