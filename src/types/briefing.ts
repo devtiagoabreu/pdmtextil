@@ -5,7 +5,7 @@ export const dadosComerciaisSchema = z.object({
   tipo: z.enum(["DESENVOLVIMENTO_TECELAGEM", "DESENVOLVIMENTO_BENEFICIAMENTO"], {
     required_error: "O tipo de solicitação é obrigatório",
   }),
-  cliente: z.string().min(3, "O nome do cliente é obrigatório"),
+  cliente: z.string().min(1, "Selecione um cliente"),
   cnpj: z.string().optional(),
   projeto: z.string().optional(),
   prazoDesejado: z.string().optional(), // Pode ser tipado como date depois se usar DatePicker
