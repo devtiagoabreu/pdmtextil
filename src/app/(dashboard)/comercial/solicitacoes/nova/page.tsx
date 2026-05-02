@@ -15,6 +15,19 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
+
+const MOCK_CLIENTES = [
+  { nome: "Moda Fitness SA", cnpj: "12.345.678/0001-90" },
+  { nome: "Texsport Confecções Ltda", cnpj: "23.456.789/0001-01" },
+  { nome: "Vestech Industrial GmbH", cnpj: "34.567.890/0001-12" },
+  { nome: "Urban Wear Brasil", cnpj: "45.678.901/0001-23" },
+  { nome: "Estilothread GmbH", cnpj: "56.789.012/0001-34" },
+  { nome: "Malhasul SA", cnpj: "67.890.123/0001-45" },
+  { nome: "Tecelajemitt GmbH", cnpj: "78.901.234/0001-56" },
+  { nome: "Fábrica de Tecidos Horizonte", cnpj: "89.012.345/0001-67" },
+  { nome: "Indústria Têxtil São José", cnpj: "90.123.456/0001-78" },
+  { nome: "Têxtil Premium Ltda", cnpj: "01.234.567/0001-89" },
+]
 import { toast } from "sonner"
 
 const STEPS = [
@@ -161,10 +174,27 @@ export default function NovaSolicitacaoPage() {
                 <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
                   Cliente <span className="text-red-500">*</span>
                 </Label>
-                <Input
-                  {...register("cliente")}
-                  placeholder="Nome da empresa ou marca"
-                  className={errors.cliente ? "border-red-500" : ""}
+                <Controller
+                  name="cliente"
+                  control={control}
+                  render={({ field }) => (
+                    <Select onValueChange={(value) => {
+                      field.onChange(value)
+                      const cliente = MOCK_CLIENTES.find(c => c.nome === value)
+                      if (cliente) setValue("cnpj", cliente.cnpj)
+                    }} value={field.value}>
+                      <SelectTrigger className={errors.cliente ? "border-red-500" : ""}>
+                        <SelectValue placeholder="Selecione o cliente..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {MOCK_CLIENTES.map((c) => (
+                          <SelectItem key={c.cnpj} value={c.nome}>
+                            {c.nome} ({c.cnpj})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
                 />
                 {errors.cliente && (
                   <p className="text-xs text-red-500 mt-1">{errors.cliente.message}</p>
