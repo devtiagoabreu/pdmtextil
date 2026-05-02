@@ -1,5 +1,5 @@
 ```markdown
-# 🧵 PDM Pro Moda - Sistema de Gestão de Desenvolvimento Têxtil
+# 🧵 PDM Pro Têxtil - Sistema de Gestão de Desenvolvimento Têxtil
 
 [![Next.js](https://img.shields.io/badge/Next.js-14.2-black?logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue?logo=typescript)](https://www.typescriptlang.org/)
@@ -11,7 +11,7 @@
 
 ## 📋 Sobre o Projeto
 
-O **PDM Pro Moda** é um sistema completo de gestão de desenvolvimento de produtos têxteis, projetado para conectar os departamentos **Comercial**, **Desenvolvimento (Tecelagem e Beneficiamento)** e **PCP**, eliminando retrabalhos e garantindo rastreabilidade completa das solicitações.
+O **PDM Pro Têxtil** é um sistema completo de gestão de desenvolvimento de produtos têxteis, projetado para conectar os departamentos **Comercial**, **Desenvolvimento (Tecelagem e Beneficiamento)** e **PCP**, eliminando retrabalhos e garantindo rastreabilidade completa das solicitações.
 
 ### 🎯 Problemas que Resolve
 
@@ -141,11 +141,11 @@ RESEND_API_KEY="re_api_key"
 
 | Email | Senha | Perfil |
 |-------|-------|--------|
-| comercial@promoda.com | 123456 | COMERCIAL |
-| tecelagem@promoda.com | 123456 | TECELAGEM |
-| beneficiamento@promoda.com | 123456 | BENEFICIAMENTO |
-| pcp@promoda.com | 123456 | PCP |
-| admin@promoda.com | 123456 | ADMIN |
+| comercial@pdmprotextil.com.br | 123456 | COMERCIAL |
+| tecelagem@pdmprotextil.com.br | 123456 | TECELAGEM |
+| beneficiamento@pdmprotextil.com.br | 123456 | BENEFICIAMENTO |
+| pcp@pdmprotextil.com.br | 123456 | PCP |
+| admin@pdmprotextil.com.br | 123456 | ADMIN |
 
 ## 📚 Documentação
 
@@ -181,11 +181,11 @@ Este projeto foi construído sobre os alicerces do **[Apontador](https://github.
 🚀 Especialista em Next.js | 🏭 Indústria 4.0 Têxtil | ☁️ Serverless
 ```
 
-> *"O Apontador provou que é possível integrar Next.js com Systêxtil no chão de fábrica. O PDM Pro Moda é a continuação natural dessa jornada, resolvendo agora o início do processo - do briefing à aprovação."*
+> *"O Apontador provou que é possível integrar Next.js com Systêxtil no chão de fábrica. O PDM Pro Têxtil é a continuação natural dessa jornada, resolvendo agora o início do processo - do briefing à aprovação."*
 
 ### 🎨 Stack Base (inspirada no Apontador)
 
-| Tecnologia | Uso no PDM Pro Moda |
+| Tecnologia | Uso no PDM Pro Têxtil |
 |------------|---------------------|
 | Next.js 14 App Router | Framework principal |
 | TypeScript | Tipagem segura |
@@ -198,9 +198,9 @@ Este projeto foi construído sobre os alicerces do **[Apontador](https://github.
 ## 📧 Contato
 
 **Pro Moda Têxtil**
-- 📍 Localização: [Sua cidade, Estado]
-- 📧 Email: contato@promoda.com.br
-- 🌐 Website: www.promoda.com.br
+- 📍 Localização: SBO, SP]
+- 📧 Email: contato@pdmprotextil.com.br
+- 🌐 Website: www.pdmprotextil.com.br
 
 ---
 
