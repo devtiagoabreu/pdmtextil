@@ -1,0 +1,21 @@
+feat(bloco-1.5): API de solicitacoes + lista + formulario conectado
+
+API Routes criadas:
+- POST /api/solicitacoes: cria solicitacao com validacao de sessao,
+  insere no banco via Drizzle, registra historico inicial, salva links
+- GET  /api/solicitacoes: lista filtrada por perfil (COMERCIAL ve as proprias,
+  TECELAGEM/BENEFICIAMENTO ve por tipo, ADMIN ve tudo)
+- GET  /api/solicitacoes/[id]: detalhe com join de usuario e lista de anexos
+- PATCH /api/solicitacoes/[id]: adiciona comentario ao historico
+- PATCH /api/solicitacoes/[id]/status: muda status com controle de perfil
+  (COMERCIAL nao pode alterar status), registra historico de mudanca
+
+Frontend:
+- nova/page.tsx: substituido mock por chamada real POST /api/solicitacoes
+  com tratamento de erros e toast de sucesso/erro
+- comercial/solicitacoes/page.tsx [NOVO]: pagina de lista com:
+  - Tabela responsiva (desktop) + cards (mobile)
+  - Badges de status coloridos por estado
+  - Filtro automatico por perfil (server-side)
+  - Estado vazio com CTA para criar solicitacao
+  - Links para detalhe de cada solicitacao

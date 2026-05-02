@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { useForm } from "react-hook-form"
+import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { FileText, ClipboardList, Paperclip, CheckCircle } from "lucide-react"
 
@@ -13,7 +13,7 @@ import { AnexosUpload, AnexoDraft } from "@/components/forms/AnexosUpload"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 
 const STEPS = [
@@ -32,7 +32,7 @@ export default function NovaSolicitacaoPage() {
   const [anexosData, setAnexosData] = useState<AnexoDraft[]>([])
 
   // STEP 1 FORM
-  const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<DadosComerciais>({
+  const { register, handleSubmit, control, formState: { errors }, setValue, watch } = useForm<DadosComerciais>({
     resolver: zodResolver(dadosComerciaisSchema),
     defaultValues: comercialData as any,
   })
@@ -118,52 +118,77 @@ export default function NovaSolicitacaoPage() {
         })}
       </div>
 
-      <div className="bg-card border rounded-lg shadow-sm p-6 md:p-8">
+      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm p-6 md:p-8">
         {step === 1 && (
           <form onSubmit={handleSubmit(onStep1Submit)} className="space-y-6">
-            <h2 className="text-xl font-semibold border-b pb-2">Dados do Cliente</h2>
+            <h2 className="text-xl font-semibold border-b border-slate-200 dark:border-slate-700 pb-3 text-slate-800 dark:text-slate-100">
+              Dados do Cliente
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-3">
-                <Label>Tipo de Solicitação *</Label>
-                <Select 
-                  defaultValue={watch("tipo")} 
-                  onValueChange={(val) => setValue("tipo", val as any, { shouldValidate: true })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o tipo..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="DESENVOLVIMENTO_TECELAGEM">Desenvolvimento de Tecido</SelectItem>
-                    <SelectItem value="DESENVOLVIMENTO_BENEFICIAMENTO">Desenvolvimento de Beneficiamento</SelectItem>
-                  </SelectContent>
-                </Select>
-                {errors.tipo && <p className="text-sm text-destructive">{errors.tipo.message}</p>}
+              {/* Tipo — Controller para garantir integração com react-hook-form */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Tipo de Solicitação <span className="text-red-500">*</span>
+                </Label>
+                <Controller
+                  name="tipo"
+                  control={control}
+                  render={({ field }) => (
+                    <select
+                      {...field}
+                      className={cn(
+                        "w-full h-10 rounded-lg border px-3 py-2 text-sm bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 outline-none transition-colors",
+                        "focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+                        errors.tipo
+                          ? "border-red-500"
+                          : "border-slate-200 dark:border-slate-700"
+                      )}
+                    >
+                      <option value="">Selecione o tipo...</option>
+                      <option value="DESENVOLVIMENTO_TECELAGEM">Desenvolvimento de Tecido (Tecelagem)</option>
+                      <option value="DESENVOLVIMENTO_BENEFICIAMENTO">Desenvolvimento de Beneficiamento</option>
+                    </select>
+                  )}
+                />
+                {errors.tipo && (
+                  <p className="text-xs text-red-500 mt-1">{errors.tipo.message}</p>
+                )}
               </div>
 
-              <div className="space-y-3">
-                <Label>Cliente *</Label>
-                <Input {...register("cliente")} placeholder="Nome da empresa ou marca" />
-                {errors.cliente && <p className="text-sm text-destructive">{errors.cliente.message}</p>}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Cliente <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  {...register("cliente")}
+                  placeholder="Nome da empresa ou marca"
+                  className={errors.cliente ? "border-red-500" : ""}
+                />
+                {errors.cliente && (
+                  <p className="text-xs text-red-500 mt-1">{errors.cliente.message}</p>
+                )}
               </div>
 
-              <div className="space-y-3">
-                <Label>CNPJ</Label>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">CNPJ</Label>
                 <Input {...register("cnpj")} placeholder="00.000.000/0000-00" />
               </div>
 
-              <div className="space-y-3">
-                <Label>Nome do Projeto</Label>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Nome do Projeto</Label>
                 <Input {...register("projeto")} placeholder="Ex: Coleção Inverno 2027" />
               </div>
 
-              <div className="space-y-3">
-                <Label>Prazo Desejado</Label>
-                <Input type="date" {...register("prazoDesejado")} />
+              <div className="space-y-2 md:col-span-2">
+                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Prazo Desejado</Label>
+                <Input type="date" {...register("prazoDesejado")} className="max-w-xs" />
               </div>
             </div>
 
-            <div className="flex justify-end pt-6 border-t mt-8">
-              <Button type="submit">Continuar para Briefing →</Button>
+            <div className="flex justify-end pt-6 border-t border-slate-200 dark:border-slate-700 mt-8">
+              <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white">
+                Continuar para Briefing →
+              </Button>
             </div>
           </form>
         )}
