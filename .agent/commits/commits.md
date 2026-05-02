@@ -107,3 +107,46 @@ bash
 git add src/app/page.tsx
 git commit -m "feat: redireciona raiz para tela de login"
 git push
+
+
+---
+
+📦 BLOCO 1.4: Layout do Dashboard + Tela de Nova Solicitação
+🗓️ Data: 02/05/2026
+
+✅ O que foi feito:
+
+CORREÇÕES DE BUILD (Windows + Node v22):
+  - postcss.config.mjs → postcss.config.cjs (CommonJS para compatibilidade)
+  - next.config.mjs → next.config.js (CommonJS)
+  - tailwind.config.ts → tailwind.config.js (CommonJS com cores do sidebar)
+  - zod@4 → zod@3 (compatibilidade com @hookform/resolvers@3)
+  - Removidas importações @import "tw-animate-css" e "shadcn/tailwind.css" incompatíveis com Tailwind v3
+  - globals.css convertido de OKLCH para HSL (Tailwind v3)
+
+LAYOUT (seguindo skill 007_layout.md):
+  - src/app/globals.css — Inter via Google Fonts, animações fade-in/slide-in, dark mode HSL
+  - src/components/providers.tsx — ThemeProvider (next-themes) + SessionProvider integrados
+  - src/components/layout/theme-toggle.tsx — Toggle light/dark/system
+  - src/components/layout/header.tsx — Busca, painel de notificações, ThemeToggle, menu do usuário
+  - src/components/layout/sidebar.tsx — Responsiva: fixed desktop, overlay mobile, nav por perfil
+  - src/components/layout/mobile-bottom-nav.tsx — Navegação inferior mobile por perfil
+  - src/app/(dashboard)/layout.tsx — Client component com estado de sidebar mobile
+  - src/app/(dashboard)/page.tsx — Dashboard com cards stats, ações rápidas, design system
+
+NOVA SOLICITAÇÃO:
+  - src/types/briefing.ts — Schemas Zod (DadosComerciais + BriefingTecelagem com 8 seções)
+  - src/components/forms/BriefingTecelagemForm.tsx — Formulário com todas as 8 seções
+  - src/components/forms/AnexosUpload.tsx — Drag & Drop + links externos (UI sem upload real)
+  - src/app/(dashboard)/comercial/solicitacoes/nova/page.tsx — Wizard de 3 passos
+
+🔧 Dependências instaladas:
+  - zod@3 (downgrade de v4)
+  - @hookform/resolvers@3 (compatível com zod@3)
+  - Componentes shadcn: radio-group, checkbox, textarea, separator
+
+⚠️ Atenção:
+  - O submit do Passo 3 ainda é um mock (console.log) — API real será implementada no Bloco 1.5
+  - O upload de arquivos (Vercel Blob) também será integrado no Bloco 1.6
+  - O Dashboard mostra contadores zerados — serão conectados à API no Bloco 1.7
+
