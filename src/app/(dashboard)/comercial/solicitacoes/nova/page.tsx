@@ -50,24 +50,32 @@ export default function NovaSolicitacaoPage() {
   const handleFinalSubmit = async () => {
     try {
       setIsSubmitting(true)
-      
-      // Montar payload final (simulação de POST por enquanto)
+
       const payload = {
-        ...comercialData,
+        tipo: comercialData.tipo,
+        cliente: comercialData.cliente,
+        cnpj: comercialData.cnpj || null,
+        projeto: comercialData.projeto || null,
+        prazoDesejado: comercialData.prazoDesejado || null,
         briefing: briefingData,
         anexos: anexosData,
       }
-      
-      console.log("Enviando Payload:", payload)
-      // TODO: Conectar com a API POST /api/solicitacoes no Bloco 1.5
 
-      // Mock de sucesso
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-      
-      toast.success("Solicitação criada com sucesso!")
+      const res = await fetch("/api/solicitacoes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      })
+
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.error || "Erro ao criar solicitação")
+      }
+
+      toast.success("Solicitação criada com sucesso! 🎉")
       router.push("/comercial/solicitacoes")
-    } catch (error) {
-      toast.error("Erro ao criar solicitação.")
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao criar solicitação.")
       console.error(error)
     } finally {
       setIsSubmitting(false)
