@@ -76,3 +76,22 @@ bash
 git add src/app/globals.css tailwind.config.ts
 git commit -m "fix: correção de compatibilidade CSS para Tailwind v3 no Vercel"
 git push
+
+
+Chegamos na última etapa do build, a checagem do TypeScript! O Vercel acusou o seguinte erro: Type error: Property 'role' does not exist on type 'User | AdapterUser'.
+
+O que aconteceu? O TypeScript é rigoroso: o pacote next-auth possui uma tipagem padrão de User que contém apenas name, email e image. Como nós adicionamos a propriedade customizada role no nosso banco de dados e tentamos usá-la nos callbacks da sessão (token.role = user.role), o TypeScript barrou a compilação porque ele não "conhecia" essa propriedade. Além disso, houve um conflito de tipos de versão entre o next-auth (v4) e o @auth/drizzle-adapter (que usa tipos do v5 core).
+
+Como eu resolvi:
+
+Criei um arquivo src/types/next-auth.d.ts onde fiz a "extensão" oficial dos tipos do NextAuth. Ensinei ao TypeScript que o nosso User, a Session e o JWT agora possuem sim o campo id e role.
+Em src/lib/auth.ts, utilizei a asserção as any no adapter para ignorar a incompatibilidade milimétrica de versões entre as bibliotecas.
+Eu já rodei o verificador de tipos localmente (npx tsc) e ele retornou Zero Erros!
+
+Próximo Passo: Faça o commit e o push novamente:
+
+bash
+git add src/types/next-auth.d.ts src/lib/auth.ts
+git commit -m "fix: corrige tipagem customizada do next-auth adicionando a propriedade role"
+git push
+
