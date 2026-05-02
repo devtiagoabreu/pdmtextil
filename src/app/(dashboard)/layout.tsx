@@ -1,34 +1,18 @@
-"use client"
+import { getServerSession } from "next-auth"
+import { redirect } from "next/navigation"
+import { authOptions } from "@/lib/auth"
+import { DashboardShell } from "@/components/layout/dashboard-shell"
 
-import { useState } from "react"
-import { Header } from "@/components/layout/header"
-import { Sidebar } from "@/components/layout/sidebar"
-import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav"
-
-// This layout uses a client wrapper because Sidebar/Header need client state
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  return <DashboardLayoutClient>{children}</DashboardLayoutClient>
-}
+  const session = await getServerSession(authOptions)
 
-function DashboardLayoutClient({ children }: { children: React.ReactNode }) {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  if (!session) {
+    redirect("/login")
+  }
 
-  return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
-      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      <div className="lg:pl-64">
-        <Header onMenuClick={() => setSidebarOpen(true)} />
-        <main className="animate-fade-in p-4 md:p-6 pb-20 lg:pb-6">
-          <div className="mx-auto max-w-7xl">
-            {children}
-          </div>
-        </main>
-        <MobileBottomNav />
-      </div>
-    </div>
-  )
+  return <DashboardShell>{children}</DashboardShell>
 }

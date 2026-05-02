@@ -1,0 +1,27 @@
+feat(bloco-1.4): layout do dashboard + wizard de nova solicitacao
+
+CORRECOES DE BUILD (Windows + Node v22):
+- postcss.config.mjs -> postcss.config.cjs (CommonJS)
+- next.config.mjs -> next.config.js (CommonJS)
+- tailwind.config.ts -> tailwind.config.js (CommonJS com sidebar colors)
+- zod@4 -> zod@3 + @hookform/resolvers@3 (compatibilidade)
+- globals.css: remove @import tw-animate-css e shadcn/tailwind.css
+- globals.css: converte cores OKLCH para HSL (Tailwind v3)
+
+LAYOUT (skill 007_layout.md):
+- globals.css: Inter font, animacoes fade-in/slide-in, dark mode completo
+- providers.tsx: ThemeProvider (next-themes) + SessionProvider
+- theme-toggle.tsx: toggle light/dark/system
+- header.tsx: busca, painel notificacoes, menu usuario expandido
+- sidebar.tsx: fixed desktop, overlay mobile, nav por perfil com indicador
+- mobile-bottom-nav.tsx: navegacao inferior mobile por perfil
+- (dashboard)/layout.tsx: client component com estado de sidebar mobile
+- (dashboard)/page.tsx: cards stats, acoes rapidas, design system
+
+NOVA SOLICITACAO:
+- types/briefing.ts: schemas Zod (DadosComerciais + BriefingTecelagem 8 secoes)
+- BriefingTecelagemForm.tsx: formulario 8 secoes com react-hook-form
+- AnexosUpload.tsx: drag-and-drop UI + suporte a links externos
+- comercial/solicitacoes/nova/page.tsx: wizard 3 passos (submit mock)
+
+Dependencias: zod@3, @hookform/resolvers@3, shadcn: radio-group, checkbox, textarea, separator
