@@ -13,6 +13,7 @@ import { AnexosUpload, AnexoDraft } from "@/components/forms/AnexosUpload"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 
@@ -27,7 +28,13 @@ export default function NovaSolicitacaoPage() {
   const [step, setStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
   
-  const [comercialData, setComercialData] = useState<Partial<DadosComerciais>>({})
+  const [comercialData, setComercialData] = useState<DadosComerciais>({
+    tipo: undefined,
+    cliente: "",
+    cnpj: "",
+    projeto: "",
+    prazoDesejado: "",
+  } as any)
   const [briefingData, setBriefingData] = useState<Partial<BriefingTecelagem>>({})
   const [anexosData, setAnexosData] = useState<AnexoDraft[]>([])
 
@@ -125,7 +132,7 @@ export default function NovaSolicitacaoPage() {
               Dados do Cliente
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Tipo — Controller para garantir integração com react-hook-form */}
+              {/* Tipo usando Select do shadcn */}
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
                   Tipo de Solicitação <span className="text-red-500">*</span>
@@ -134,20 +141,15 @@ export default function NovaSolicitacaoPage() {
                   name="tipo"
                   control={control}
                   render={({ field }) => (
-                    <select
-                      {...field}
-                      className={cn(
-                        "w-full h-10 rounded-lg border px-3 py-2 text-sm bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 outline-none transition-colors",
-                        "focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
-                        errors.tipo
-                          ? "border-red-500"
-                          : "border-slate-200 dark:border-slate-700"
-                      )}
-                    >
-                      <option value="">Selecione o tipo...</option>
-                      <option value="DESENVOLVIMENTO_TECELAGEM">Desenvolvimento de Tecido (Tecelagem)</option>
-                      <option value="DESENVOLVIMENTO_BENEFICIAMENTO">Desenvolvimento de Beneficiamento</option>
-                    </select>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger className={errors.tipo ? "border-red-500" : ""}>
+                        <SelectValue placeholder="Selecione o tipo..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="DESENVOLVIMENTO_TECELAGEM">Desenvolvimento de Tecido (Tecelagem)</SelectItem>
+                        <SelectItem value="DESENVOLVIMENTO_BENEFICIAMENTO">Desenvolvimento de Beneficiamento</SelectItem>
+                      </SelectContent>
+                    </Select>
                   )}
                 />
                 {errors.tipo && (
