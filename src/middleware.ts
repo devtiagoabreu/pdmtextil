@@ -20,4 +20,4 @@ export default withAuth(
   { callbacks: { authorized: ({ token }) => !!token } }
 )
 
-export const config = { matcher: ["/comercial/:path*", "/tecelagem/:path*", "/beneficiamento/:path*", "/dashboard/:path*", "/api/solicitacoes/:path*"] }
+export const config = { matcher: ["/dashboard", "/dashboard/:path*", "/comercial/:path*", "/tecelagem/:path*", "/beneficiamento/:path*", "/api/solicitacoes/:path*"] }
