@@ -130,14 +130,14 @@ if (isLoading) {
                       <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">
                         {s.createdAt ? new Date(s.createdAt).toLocaleDateString("pt-BR") : "—"}
                       </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <Link
-                            href={`/comercial/solicitacoes/${s.id}`}
-                            className="flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline text-xs font-medium"
-                          >
-                            Editar
-                          </Link>
+<td className="px-4 py-3">
+                          <div className="flex items-center gap-2">
+                            <Link
+                              href={`/comercial/solicitacoes/${s.id}`}
+                              className="flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline text-xs font-medium"
+                            >
+                              Ver
+                            </Link>
                           <button
                             onClick={(e) => {
                               e.preventDefault()

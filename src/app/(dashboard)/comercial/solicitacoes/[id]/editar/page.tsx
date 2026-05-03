@@ -72,9 +72,13 @@ export default function EditarSolicitacaoPage() {
         
         const data = await res.json()
         
+        const tipoValue = data.tipo?.replace("DESENVOLVIMENTO_", "") === "TECELAGEM" 
+          ? "DESENVOLVIMENTO_TECELAGEM" 
+          : "DESENVOLVIMENTO_BENEFICIAMENTO"
+        
         setComercialData({
-          tipo: data.tipo,
-          cliente: data.cliente,
+          tipo: tipoValue,
+          cliente: data.cliente || "",
           cnpj: data.cnpj || "",
           projeto: data.projeto || "",
           prazoDesejado: data.prazoDesejado ? new Date(data.prazoDesejado).toISOString().split('T')[0] : "",
@@ -95,6 +99,16 @@ export default function EditarSolicitacaoPage() {
       loadSolicitacao()
     }
   }, [id, router])
+
+  useEffect(() => {
+    if (!loading && comercialData.tipo) {
+      setValue("tipo", comercialData.tipo)
+      setValue("cliente", comercialData.cliente)
+      setValue("cnpj", comercialData.cnpj)
+      setValue("projeto", comercialData.projeto)
+      setValue("prazoDesejado", comercialData.prazoDesejado)
+    }
+  }, [loading, comercialData, setValue])
 
   const onStep1Submit = (data: DadosComerciais) => {
     setComercialData(data)
