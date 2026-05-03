@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query"
 import Link from "next/link"
+import { useState, useEffect } from "react"
 import { PlusCircle, FileText, Clock, Pencil, Trash2 } from "lucide-react"
 
 const STATUS_CONFIG: Record<string, { label: string; classes: string }> = {
@@ -21,17 +22,31 @@ const TIPO_CONFIG: Record<string, string> = {
 
 async function fetchSolicitacoes() {
   const res = await fetch("/api/solicitacoes")
-  if (!res.ok) throw new Error("Falha ao carregar")
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error(err.error || "Falha ao carregar")
+  }
   return res.json()
 }
 
 export default function ListaSolicitacoesPage() {
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
   const { data: lista, isLoading, error } = useQuery({
     queryKey: ["solicitacoes"],
     queryFn: fetchSolicitacoes,
+    retry: 1,
   })
 
-  if (isLoading) {
+  if (!mounted) {
+    return null
+  }
+
+if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
@@ -40,6 +55,18 @@ export default function ListaSolicitacoesPage() {
   }
 
   if (error) {
+    return (
+      <div className="text-center py-20">
+        <p className="text-red-500 mb-2">Erro ao carregar solicitações</p>
+        <p className="text-sm text-slate-500">Tente fazer login novamente</p>
+        <Link href="/login" className="text-blue-600 hover:underline mt-2 inline-block">
+          Ir para login
+        </Link>
+      </div>
+    )
+  }
+
+  if (!lista || !Array.isArray(lista)) {
     return (
       <div className="text-center py-20">
         <p className="text-red-500">Erro ao carregar solicitações</p>
