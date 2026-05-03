@@ -1,11 +1,10 @@
 "use client"
 
-import { use } from "react"
 import { useState, useEffect } from "react"
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { useQuery, useMutation } from "@tanstack/react-query"
+import { useRouter, useParams } from "next/navigation"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { ArrowLeft, Clock, User, Building2, FileText, Pencil, Trash2, X } from "lucide-react"
+import { ArrowLeft, FileText, Pencil, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 
 const STATUS_CONFIG: Record<string, { label: string; classes: string }> = {
@@ -26,16 +25,21 @@ async function fetchSolicitacao(id: string) {
   return res.json()
 }
 
-export default function DetalheSolicitacaoPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params)
+export default function DetalheSolicitacaoPage() {
+  const params = useParams()
   const router = useRouter()
-  const queryClient = useQueryClient()
-  const [editando, setEditando] = useState(false)
+  const id = params.id as string
+  const [mounted, setMounted] = useState(false)
   const [form, setForm] = useState<any>({})
   
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
   const { data: sol, isLoading, error } = useQuery({
     queryKey: ["solicitacao", id],
     queryFn: () => fetchSolicitacao(id),
+    enabled: mounted && !!id,
   })
 
   const deleteMutate = useMutation({
@@ -50,6 +54,10 @@ export default function DetalheSolicitacaoPage({ params }: { params: Promise<{ i
   useEffect(() => {
     if (sol) setForm(sol)
   }, [sol])
+
+  if (!mounted) {
+    return null
+  }
 
   if (isLoading) {
     return (
@@ -155,32 +163,11 @@ export default function DetalheSolicitacaoPage({ params }: { params: Promise<{ i
               </pre>
             </div>
           )}
-
-          {sol.anexos && sol.anexos.length > 0 && (
-            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
-              <h2 className="text-lg font-semibold mb-4">Anexos</h2>
-              <ul className="space-y-2">
-                {sol.anexos.map((a: any) => (
-                  <li key={a.id}>
-                    <a
-                      href={a.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:underline flex items-center gap-2"
-                    >
-                      {a.titulo}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
         </div>
 
         <div className="space-y-6">
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <Clock size={20} />
               Histórico
             </h2>
             {sol.historicoComunicacao && sol.historicoComunicacao.length > 0 ? (
@@ -197,14 +184,6 @@ export default function DetalheSolicitacaoPage({ params }: { params: Promise<{ i
             ) : (
               <p className="text-sm text-slate-500">Sem histórico</p>
             )}
-          </div>
-
-          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
-            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <User size={20} />
-              Solicitante
-            </h2>
-            <p className="font-medium">{sol.solicitanteNome || "—"}</p>
           </div>
         </div>
       </div>
