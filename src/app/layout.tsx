@@ -8,6 +8,7 @@ export const metadata: Metadata = {
 };
 
 import { Providers } from "@/components/providers";
+import { QueryProvider } from "@/components/query-provider";
 
 import { Toaster } from "@/components/ui/sonner";
 
@@ -19,7 +20,11 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className="font-sans" suppressHydrationWarning>
       <body className="min-h-screen bg-slate-50 dark:bg-slate-950">
-        <Providers>{children}</Providers>
+        <Providers>
+          <QueryProvider>
+            {children}
+          </QueryProvider>
+        </Providers>
         <Toaster />
       </body>
     </html>
