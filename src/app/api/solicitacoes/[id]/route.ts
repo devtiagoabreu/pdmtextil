@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { solicitacoes } from "@/lib/db/schema/solicitacoes"
 import { eq } from "drizzle-orm"
@@ -32,13 +34,54 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const session = await getServerSession(authOptions)
+    if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
+
     const { id } = await params
     const body = await req.json()
+
+    const resultado = await db
+      .select()
+      .from(solicitacoes)
+      .where(eq(solicitacoes.id, parseInt(id)))
+      .limit(1)
+
+    if (!resultado[0]) {
+      return NextResponse.json({ error: "Solicitação não encontrado" }, { status: 404 })
+    }
+
+    const solicitacaoAntiga = resultado[0]
+    const historicoAntigo = solicitacaoAntiga.historicoComunicacao || []
+    
+    const alteracoes: string[] = []
+    if (body.cliente && body.cliente !== solicitacaoAntiga.cliente) {
+      alteracoes.push(`Cliente: ${solicitacaoAntiga.cliente} → ${body.cliente}`)
+    }
+    if (body.projeto && body.projeto !== solicitacaoAntiga.projeto) {
+      alteracoes.push(`Projeto: ${solicitacaoAntiga.projeto || '-'} → ${body.projeto}`)
+    }
+    if (body.status && body.status !== solicitacaoAntiga.status) {
+      alteracoes.push(`Status: ${solicitacaoAntiga.status} → ${body.status}`)
+    }
+    if (body.briefing && JSON.stringify(body.briefing) !== JSON.stringify(solicitacaoAntiga.briefing)) {
+      alteracoes.push("Briefing atualizado")
+    }
+
+    const novoHistorico = [
+      ...historicoAntigo,
+      {
+        data: new Date().toISOString(),
+        usuario: session.user?.name || "Usuário",
+        acao: alteracoes.length > 0 ? "ALTERACAO" : "ATUALIZACAO",
+        mensagens: alteracoes,
+      }
+    ]
 
     const [solicitacaoAtualizada] = await db
       .update(solicitacoes)
       .set({
         ...body,
+        historicoComunicacao: novoHistorico,
         updatedAt: new Date(),
       })
       .where(eq(solicitacoes.id, parseInt(id)))
