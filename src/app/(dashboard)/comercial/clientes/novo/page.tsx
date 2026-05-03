@@ -38,11 +38,21 @@ export default function NovoClientePage() {
 
     setIsSubmitting(true)
     try {
-      await new Promise((r) => setTimeout(r, 500))
+      const res = await fetch("/api/clientes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      })
+
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.error || "Erro ao cadastrar")
+      }
+
       toast.success("Cliente cadastrado com sucesso!")
       router.push("/comercial/clientes")
-    } catch {
-      toast.error("Erro ao cadastrar cliente")
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao cadastrar cliente")
     } finally {
       setIsSubmitting(false)
     }

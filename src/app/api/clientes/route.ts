@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
 import { clientes } from "@/lib/db/schema/clientes"
-import { ilike, or, desc } from "drizzle-orm"
+import { ilike, or, desc, eq } from "drizzle-orm"
 
 export async function GET(req: NextRequest) {
   try {
@@ -58,6 +58,16 @@ export async function POST(req: NextRequest) {
     }
     if (!cnpj?.trim()) {
       return NextResponse.json({ error: "CNPJ é obrigatório" }, { status: 400 })
+    }
+
+    const existente = await db
+      .select()
+      .from(clientes)
+      .where(eq(clientes.cnpj, cnpj.trim()))
+      .limit(1)
+
+    if (existente[0]) {
+      return NextResponse.json({ error: "CNPJ já cadastrado" }, { status: 409 })
     }
 
     console.log("[POST /api/clientes] inserting:", { nome, cnpj })
