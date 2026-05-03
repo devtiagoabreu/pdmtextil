@@ -51,7 +51,7 @@ export async function PUT(
     }
 
     const solicitacaoAntiga = resultado[0]
-    const historicoAntigo = solicitacaoAntiga.historicoComunicacao || []
+    const historicoAntigo: any[] = (solicitacaoAntiga.historicoComunicacao as any[]) || []
     
     const alteracoes: string[] = []
     if (body.cliente && body.cliente !== solicitacaoAntiga.cliente) {
