@@ -113,21 +113,19 @@ export default function EditarSolicitacaoPage() {
     setStep(2)
   }
 
-  const onStep2Submit = async (data: BriefingTecelagem) => {
+const onStep2Submit = async (data: BriefingTecelagem) => {
     setBriefingData(data)
     
-setIsSubmitting(true)
+    setIsSubmitting(true)
     try {
-      const currentData = watch()
-      const prazo = currentData.prazoDesejado || comercialData.prazoDesejado
       const payload = {
-          tipo: currentData.tipo || comercialData.tipo,
-          cliente: currentData.cliente || comercialData.cliente,
-          cnpj: currentData.cnpj || comercialData.cnpj || null,
-          projeto: currentData.projeto || comercialData.projeto || null,
-          prazoDesejado: prazo ? new Date(prazo) : null,
-          briefing: data,
-        }
+        tipo: comercialData.tipo,
+        cliente: comercialData.cliente,
+        cnpj: comercialData.cnpj || null,
+        projeto: comercialData.projeto || null,
+        prazoDesejado: comercialData.prazoDesejado ? new Date(comercialData.prazoDesejado) : null,
+        briefing: data,
+      }
 
       const res = await fetch(`/api/solicitacoes/${id}`, {
         method: "PUT",
@@ -324,14 +322,12 @@ setIsSubmitting(true)
                 ← Voltar para Briefing
               </Button>
               <Button onClick={() => {
-                const currentData = watch()
-                const prazo = currentData.prazoDesejado || comercialData.prazoDesejado
                 const payload = {
-                  tipo: currentData.tipo || comercialData.tipo,
-                  cliente: currentData.cliente || comercialData.cliente,
-                  cnpj: currentData.cnpj || comercialData.cnpj || null,
-                  projeto: currentData.projeto || comercialData.projeto || null,
-                  prazoDesejado: prazo ? new Date(prazo) : null,
+                  tipo: comercialData.tipo,
+                  cliente: comercialData.cliente,
+                  cnpj: comercialData.cnpj || null,
+                  projeto: comercialData.projeto || null,
+                  prazoDesejado: comercialData.prazoDesejado ? new Date(comercialData.prazoDesejado) : null,
                   briefing: briefingData,
                 }
                 
