@@ -72,9 +72,7 @@ export default function EditarSolicitacaoPage() {
         
         const data = await res.json()
         
-        const tipoValue = data.tipo?.replace("DESENVOLVIMENTO_", "") === "TECELAGEM" 
-          ? "DESENVOLVIMENTO_TECELAGEM" 
-          : "DESENVOLVIMENTO_BENEFICIAMENTO"
+        const tipoValue = data.tipo || "DESENVOLVIMENTO_TECELAGEM"
         
         setComercialData({
           tipo: tipoValue,
@@ -115,21 +113,19 @@ export default function EditarSolicitacaoPage() {
     setStep(2)
   }
 
-  const onStep2Submit = (data: BriefingTecelagem) => {
+  const onStep2Submit = async (data: BriefingTecelagem) => {
     setBriefingData(data)
-    handleSalvar()
-  }
-
-  const handleSalvar = async () => {
+    
     setIsSubmitting(true)
     try {
+      const currentData = watch()
       const payload = {
-        tipo: comercialData.tipo,
-        cliente: comercialData.cliente,
-        cnpj: comercialData.cnpj || null,
-        projeto: comercialData.projeto || null,
-        prazoDesejado: comercialData.prazoDesejado ? new Date(comercialData.prazoDesejado) : null,
-        briefing: briefingData,
+        tipo: currentData.tipo || comercialData.tipo,
+        cliente: currentData.cliente || comercialData.cliente,
+        cnpj: currentData.cnpj || comercialData.cnpj || null,
+        projeto: currentData.projeto || comercialData.projeto || null,
+        prazoDesejado: currentData.prazoDesejado || comercialData.prazoDesejado ? new Date(currentData.prazoDesejado || comercialData.prazoDesejado) : null,
+        briefing: data,
       }
 
       const res = await fetch(`/api/solicitacoes/${id}`, {
@@ -326,7 +322,33 @@ export default function EditarSolicitacaoPage() {
               <Button variant="outline" onClick={() => setStep(2)}>
                 ← Voltar para Briefing
               </Button>
-              <Button onClick={handleSalvar} disabled={isSubmitting}>
+              <Button onClick={() => {
+                const currentData = watch()
+                const payload = {
+                  tipo: currentData.tipo || comercialData.tipo,
+                  cliente: currentData.cliente || comercialData.cliente,
+                  cnpj: currentData.cnpj || comercialData.cnpj || null,
+                  projeto: currentData.projeto || comercialData.projeto || null,
+                  prazoDesejado: currentData.prazoDesejado || comercialData.prazoDesejado ? new Date(currentData.prazoDesejado || comercialData.prazoDesejado) : null,
+                  briefing: briefingData,
+                }
+                
+                setIsSubmitting(true)
+                fetch(`/api/solicitacoes/${id}`, {
+                  method: "PUT",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify(payload),
+                }).then((res) => {
+                  if (res.ok) {
+                    toast.success("Solicitação salva com sucesso!")
+                    router.push(`/comercial/solicitacoes/${id}`)
+                  } else {
+                    throw new Error("Erro")
+                  }
+                }).catch(() => {
+                  toast.error("Erro ao salvar")
+                }).finally(() => setIsSubmitting(false))
+              }} disabled={isSubmitting}>
                 {isSubmitting ? "Salvando..." : "Salvar Alterações"}
               </Button>
             </div>
