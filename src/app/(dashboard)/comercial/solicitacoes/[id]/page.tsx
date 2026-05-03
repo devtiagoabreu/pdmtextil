@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useQuery, useMutation } from "@tanstack/react-query"
 import { useRouter, useParams } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, FileText, Pencil, Trash2 } from "lucide-react"
+import { ArrowLeft, FileText, Pencil, Trash2, Printer } from "lucide-react"
 import { toast } from "sonner"
 
 const STATUS_CONFIG: Record<string, { label: string; classes: string }> = {
@@ -19,8 +19,78 @@ const TIPO_CONFIG: Record<string, string> = {
   DESENVOLVIMENTO_BENEFICIAMENTO: "Desenvolvimento Beneficiamento",
 }
 
+const SEGMENTOS_LABELS: Record<string, string> = {
+  UNIFORME_CORPORATIVO: "Uniforme Corporativo",
+  LENCOL_HOSPITALAR: "Lençol Hospitalar",
+  LENCOL_CAMA_RESIDENCIAL: "Lençol de Cama Residencial",
+  ROUPA_INTIMA: "Roupa Íntima",
+  ROUPA_BANHO: "Roupa de Banho",
+  ROUPA_MODA: "Roupa Moda",
+  CALCADO: "Calçado",
+  LINHA_MESA: "Linha de Mesa",
+  COLCHAO: "Colchão",
+  FORRO_MODA: "Forro de Moda",
+  ESTOFADO_MOVEIS: "Estofado de Móveis",
+  CORTINA: "Cortina",
+  BAG: "Bag / Bolsas",
+  ACESSORIOS: "Acessórios",
+  DECORACAO: "Decoração",
+  INDUSTRIAL: "Industrial",
+  OUTROS: "Outros",
+}
+
+const TECNOLOGIAS_LABELS: Record<string, string> = {
+  ANTIBACTERIANO: "Antibacteriano",
+  ANTIFLAMAS: "Antiflamas",
+  ANTIODOR: "Antiodor",
+  ANTI_PILLING: "Anti-pilling",
+  PROTECAO_UV: "Proteção UV",
+  RESPIRABILIDADE: "Respirabilidade",
+  SECAGEM_RAPIDA: "Secagem Rápida",
+  TERMOREGULACAO: "Termorregulação",
+  IMPERMEAVEL: "Impermeável",
+  RESISTENTE_ABRASÃO: "Resistente à Abrasão",
+  SOFT_TOUCH: "Soft Touch",
+  HYDRARE: "HydraRe",
+  OUTROS: "Outros",
+}
+
+const ABRASAO_LABELS: Record<string, string> = {
+  BAIXA: "Baixa (escritório, uso leve)",
+  MEDIA: "Média (logística, uso moderado)",
+  ALTA: "Alta (indústria, uso intenso)",
+  MUITO_ALTA: "Muito Alta (uso extremo)",
+}
+
+const BRILHO_LABELS: Record<string, string> = {
+  FOSCO: "Fosco",
+  SEMI_FOSCO: "Semi-Fosco",
+  BRILHANTE: "Brilhante",
+  ALTO_BRILHO: "Alto Brilho",
+}
+
+const TOQUE_LABELS: Record<string, string> = {
+  SECO: "Seco / Técnico",
+  MACIO: "Macio",
+  SUAVE: "Suave",
+  ESTRUTURADO: "Estruturado",
+}
+
+const CORES_LABELS: Record<string, string> = {
+  SOLIDAS: "Cores Sólidas",
+  ESTAMPADAS: "Estampadas",
+  FANTASIA: "Fantasia",
+  DESENVOLVIMENTO_EXCLUSIVO: "Desenvolvimento Exclusivo",
+}
+
+const PRECO_LABELS: Record<string, string> = {
+  ECONOMICO: "Econômico",
+  INTERMEDIARIO: "Intermediário",
+  PREMIUM: "Premium",
+}
+
 async function fetchSolicitacao(id: string) {
-  const res = await fetch(`/api/solicitacoes/${id}`)
+  const res = await fetch(`/api/solicitacoes/${id}?t=${Date.now()}`)
   if (!res.ok) throw new Error("Falha ao carregar solicitação")
   return res.json()
 }
@@ -30,13 +100,12 @@ export default function DetalheSolicitacaoPage() {
   const router = useRouter()
   const id = params.id as string
   const [mounted, setMounted] = useState(false)
-  const [form, setForm] = useState<any>({})
   
   useEffect(() => {
     setMounted(true)
   }, [])
 
-  const { data: sol, isLoading, error } = useQuery({
+  const { data: sol, isLoading, error, refetch } = useQuery({
     queryKey: ["solicitacao", id],
     queryFn: () => fetchSolicitacao(id),
     enabled: mounted && !!id,
@@ -50,10 +119,6 @@ export default function DetalheSolicitacaoPage() {
     },
     onError: () => toast.error("Erro ao excluir"),
   })
-
-  useEffect(() => {
-    if (sol) setForm(sol)
-  }, [sol])
 
   if (!mounted) {
     return null
@@ -79,6 +144,21 @@ export default function DetalheSolicitacaoPage() {
   }
 
   const statusCfg = STATUS_CONFIG[sol.status] ?? { label: sol.status, classes: "bg-slate-100 text-slate-600" }
+  const briefing = sol.briefing || {}
+
+  const handleImprimir = () => {
+    window.print()
+  }
+
+  const renderSegmentos = (segmentos: string[]) => {
+    if (!segmentos || !Array.isArray(segmentos)) return "—"
+    return segmentos.map(s => SEGMENTOS_LABELS[s] || s).join(", ")
+  }
+
+  const renderTecnologias = (tecnologias: string[]) => {
+    if (!tecnologias || !Array.isArray(tecnologias)) return "—"
+    return tecnologias.map(t => TECNOLOGIAS_LABELS[t] || t).join(", ")
+  }
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -90,6 +170,12 @@ export default function DetalheSolicitacaoPage() {
           <ArrowLeft size={18} />
           Voltar
         </Link>
+        <button
+          onClick={() => refetch()}
+          className="text-sm text-blue-600 hover:underline"
+        >
+          Atualizar
+        </button>
       </div>
 
       <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
@@ -111,6 +197,13 @@ export default function DetalheSolicitacaoPage() {
             Editar
           </Link>
           <button
+            onClick={handleImprimir}
+            className="inline-flex items-center gap-1 px-3 py-1.5 text-sm bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700"
+          >
+            <Printer size={14} />
+            Imprimir
+          </button>
+          <button
             onClick={() => {
               if (confirm("Tem certeza que deseja excluir esta solicitação?")) {
                 deleteMutate.mutate()
@@ -124,70 +217,136 @@ export default function DetalheSolicitacaoPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
-          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
-            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <FileText size={20} />
-              Dados Comerciais
-            </h2>
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <p className="text-slate-500 dark:text-slate-400">Tipo</p>
-                <p className="font-medium">{TIPO_CONFIG[sol.tipo] || sol.tipo}</p>
+      <div className="print:block" id="ficha-impressao">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-6">
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
+              <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <FileText size={20} />
+                Dados Comerciais
+              </h2>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p className="text-slate-500 dark:text-slate-400">Tipo</p>
+                  <p className="font-medium">{TIPO_CONFIG[sol.tipo] || sol.tipo}</p>
+                </div>
+                <div>
+                  <p className="text-slate-500 dark:text-slate-400">Cliente</p>
+                  <p className="font-medium">{sol.cliente || "—"}</p>
+                </div>
+                <div>
+                  <p className="text-slate-500 dark:text-slate-400">CNPJ</p>
+                  <p className="font-medium">{sol.cnpj || "—"}</p>
+                </div>
+                <div>
+                  <p className="text-slate-500 dark:text-slate-400">Projeto</p>
+                  <p className="font-medium">{sol.projeto || "—"}</p>
+                </div>
+                <div>
+                  <p className="text-slate-500 dark:text-slate-400">Prazo Desejado</p>
+                  <p className="font-medium">
+                    {sol.prazoDesejado ? new Date(sol.prazoDesejado).toLocaleDateString("pt-BR") : "—"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-slate-500 dark:text-slate-400">Criado em</p>
+                  <p className="font-medium">
+                    {sol.createdAt ? new Date(sol.createdAt).toLocaleDateString("pt-BR") : "—"}
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="text-slate-500 dark:text-slate-400">Cliente</p>
-                <p className="font-medium">{sol.cliente || "—"}</p>
-              </div>
-              <div>
-                <p className="text-slate-500 dark:text-slate-400">CNPJ</p>
-                <p className="font-medium">{sol.cnpj || "—"}</p>
-              </div>
-              <div>
-                <p className="text-slate-500 dark:text-slate-400">Prazo Desejado</p>
-                <p className="font-medium">
-                  {sol.prazoDesejado ? new Date(sol.prazoDesejado).toLocaleDateString("pt-BR") : "—"}
-                </p>
-              </div>
-              <div>
-                <p className="text-slate-500 dark:text-slate-400">Criado em</p>
-                <p className="font-medium">
-                  {sol.createdAt ? new Date(sol.createdAt).toLocaleDateString("pt-BR") : "—"}
-                </p>
+            </div>
+
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
+              <h2 className="text-lg font-semibold mb-4">Briefing Técnico</h2>
+              
+              <div className="space-y-6">
+                <div>
+                  <h3 className="font-medium text-slate-700 dark:text-slate-300 border-b pb-1 mb-2">1. Aplicação / Uso Final</h3>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div><span className="text-slate-500">Segmentos:</span> <span className="font-medium">{renderSegmentos(briefing.aplicacao?.segmentos)}</span></div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="font-medium text-slate-700 dark:text-slate-300 border-b pb-1 mb-2">2. Requisitos Técnicos</h3>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div><span className="text-slate-500">Tipo Tecido:</span> <span className="font-medium">{briefing.requisitosTecnicos?.tipoTecido || "—"}</span></div>
+                    <div><span className="text-slate-500">Composição:</span> <span className="font-medium">{briefing.requisitosTecnicos?.composicao || "—"}</span></div>
+                    <div><span className="text-slate-500">Gramatura:</span> <span className="font-medium">{briefing.requisitosTecnicos?.gramaturaMinima} - {briefing.requisitosTecnicos?.gramaturaMaxima} g/m²</span></div>
+                    <div><span className="text-slate-500">Largura:</span> <span className="font-medium">{briefing.requisitosTecnicos?.larguraMinima} - {briefing.requisitosTecnicos?.larguraMaxima} cm</span></div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="font-medium text-slate-700 dark:text-slate-300 border-b pb-1 mb-2">3. Tecnologias</h3>
+                  <div className="text-sm">
+                    <span className="font-medium">{renderTecnologias(briefing.tecnologias?.requeridas)}</span>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="font-medium text-slate-700 dark:text-slate-300 border-b pb-1 mb-2">4. Performance</h3>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div><span className="text-slate-500">Resistência Abrasão:</span> <span className="font-medium">{ABRASAO_LABELS[briefing.performance?.resistenciaAbrasao] || briefing.performance?.resistenciaAbrasao || "—"}</span></div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="font-medium text-slate-700 dark:text-slate-300 border-b pb-1 mb-2">5. Acabamento</h3>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div><span className="text-slate-500">Brilho:</span> <span className="font-medium">{BRILHO_LABELS[briefing.acabamento?.nivelBrilho] || briefing.acabamento?.nivelBrilho || "—"}</span></div>
+                    <div><span className="text-slate-500">Toque:</span> <span className="font-medium">{TOQUE_LABELS[briefing.acabamento?.toque] || briefing.acabamento?.toque || "—"}</span></div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="font-medium text-slate-700 dark:text-slate-300 border-b pb-1 mb-2">6. Cores</h3>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div><span className="text-slate-500">Tipo:</span> <span className="font-medium">{CORES_LABELS[briefing.cores?.tipo] || briefing.cores?.tipo || "—"}</span></div>
+                    <div><span className="text-slate-500">Paleta:</span> <span className="font-medium">{briefing.cores?.paletaPreferencial || "—"}</span></div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="font-medium text-slate-700 dark:text-slate-300 border-b pb-1 mb-2">7. Comercial</h3>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div><span className="text-slate-500">Target Preço:</span> <span className="font-medium">{PRECO_LABELS[briefing.comercial?.targetPreco] || briefing.comercial?.targetPreco || "—"}</span></div>
+                    <div><span className="text-slate-500">Quantidade:</span> <span className="font-medium">{briefing.comercial?.quantidadeEstimada || "—"}</span></div>
+                    <div><span className="text-slate-500">Prazo Entrega:</span> <span className="font-medium">{briefing.comercial?.prazoEntrega || "—"}</span></div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
-          {sol.briefing && (
+          <div className="space-y-6">
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
-              <h2 className="text-lg font-semibold mb-4">Briefing</h2>
-              <pre className="text-sm text-slate-600 dark:text-slate-300 whitespace-pre-wrap font-mono bg-slate-50 dark:bg-slate-800 p-4 rounded-lg overflow-x-auto">
-                {JSON.stringify(sol.briefing, null, 2)}
-              </pre>
+              <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                Histórico
+              </h2>
+              {sol.historicoComunicacao && sol.historicoComunicacao.length > 0 ? (
+                <div className="space-y-4 max-h-96 overflow-y-auto">
+                  {sol.historicoComunicacao.map((h: any, idx: number) => (
+                    <div key={idx} className="border-l-2 border-slate-200 dark:border-slate-700 pl-3">
+                      <p className="text-sm font-medium">{h.acao}</p>
+                      {h.mensagens && h.mensagens.length > 0 && (
+                        <ul className="text-xs text-slate-600 mt-1">
+                          {h.mensagens.map((m: string, i: number) => (
+                            <li key={i}>• {m}</li>
+                          ))}
+                        </ul>
+                      )}
+                      <p className="text-xs text-slate-500 mt-1">
+                        {h.usuario} - {h.data ? new Date(h.data).toLocaleString("pt-BR") : ""}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-slate-500">Sem histórico</p>
+              )}
             </div>
-          )}
-        </div>
-
-        <div className="space-y-6">
-          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
-            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              Histórico
-            </h2>
-            {sol.historicoComunicacao && sol.historicoComunicacao.length > 0 ? (
-              <div className="space-y-4">
-                {sol.historicoComunicacao.map((h: any, idx: number) => (
-                  <div key={idx} className="border-l-2 border-slate-200 dark:border-slate-700 pl-3">
-                    <p className="text-sm font-medium">{h.mensagem || h.acao}</p>
-                    <p className="text-xs text-slate-500">
-                      {h.usuario} - {new Date(h.data).toLocaleString("pt-BR")}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-slate-500">Sem histórico</p>
-            )}
           </div>
         </div>
       </div>

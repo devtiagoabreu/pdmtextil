@@ -112,3 +112,11 @@
     display: none;
   }
 }
+
+@media print {
+  .no-print { display: none !important; }
+  body { background: white !important; color: black !important; }
+  .print\:block { display: block !important; }
+  .rounded-xl { border: 1px solid #ccc !important; }
+  .dark .rounded-xl { border-color #333 !important; }
+}
