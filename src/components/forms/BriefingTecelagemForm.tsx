@@ -21,10 +21,14 @@ const SEGMENTOS_LABELS: Record<string, string> = {
   UNIFORME_CORPORATIVO: "Uniforme Corporativo",
   LENCOL_HOSPITALAR: "Lençol Hospitalar",
   LENCOL_CAMA_RESIDENCIAL: "Lençol de Cama Residencial",
+  ROUPA_INTIMA: "Roupa Íntima",
+  ROUPA_BANHO: "Roupa de Banho",
+  CALCADO: "Calçado",
+  LINHA_MESA: "Linha de Mesa",
+  COLCHAO: "Colchão",
   FORRO_MODA: "Forro de Moda",
   ESTOFADO_MOVEIS: "Estofado de Móveis",
   CORTINA: "Cortina",
-  LATERAL_COLCHAO: "Lateral de Colchão",
   BAG: "Bag / Bolsas",
   ACESSORIOS: "Acessórios",
   DECORACAO: "Decoração",
@@ -154,10 +158,14 @@ export function BriefingTecelagemForm({ initialData, onNext, onBack }: BriefingT
               name="requisitosTecnicos.tipoTecido"
               control={control}
               render={({ field }) => (
-                <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex gap-4">
+                <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex gap-4 flex-wrap">
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="PLANO" id="tecido_plano" />
                     <Label htmlFor="tecido_plano" className="cursor-pointer">Tecido Plano</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="JACQUARD" id="tecido_jacquard" />
+                    <Label htmlFor="tecido_jacquard" className="cursor-pointer">Jacquard</Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="MALHA" id="tecido_malha" />

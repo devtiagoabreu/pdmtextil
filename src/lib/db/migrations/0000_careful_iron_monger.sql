@@ -1,3 +1,20 @@
+CREATE TABLE "clientes" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"nome" varchar(200) NOT NULL,
+	"cnpj" varchar(18) NOT NULL,
+	"razao_social" varchar(250),
+	"email" varchar(150),
+	"telefone" varchar(20),
+	"contato" varchar(100),
+	"endereco" varchar(300),
+	"cidade" varchar(100),
+	"uf" varchar(2),
+	"ativo" boolean DEFAULT true,
+	"created_at" timestamp DEFAULT now(),
+	"updated_at" timestamp DEFAULT now(),
+	CONSTRAINT "clientes_cnpj_unique" UNIQUE("cnpj")
+);
+--> statement-breakpoint
 CREATE TABLE "anexos" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"solicitacao_id" integer NOT NULL,
