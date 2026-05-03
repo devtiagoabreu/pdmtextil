@@ -183,7 +183,6 @@ export default async function ListaSolicitacoesPage() {
                         {s.createdAt ? new Date(s.createdAt).toLocaleDateString("pt-BR") : "—"}
                       </p>
                     </div>
-                    <ChevronRight size={16} className="text-slate-400" />
                   </Link>
                 )
               })}
