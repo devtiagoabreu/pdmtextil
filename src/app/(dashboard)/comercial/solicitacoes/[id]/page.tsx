@@ -1,9 +1,11 @@
 "use client"
 
 import { use } from "react"
-import { useQuery } from "@tanstack/react-query"
+import { useState, useEffect } from "react"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import Link from "next/link"
-import { ArrowLeft, Clock, User, Building2, Calendar, FileText, Send } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { ArrowLeft, Clock, User, Building2, FileText, Pencil, Trash2, X } from "lucide-react"
 import { toast } from "sonner"
 
 const STATUS_CONFIG: Record<string, { label: string; classes: string }> = {
@@ -26,11 +28,28 @@ async function fetchSolicitacao(id: string) {
 
 export default function DetalheSolicitacaoPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
+  const router = useRouter()
+  const queryClient = useQueryClient()
+  const [editando, setEditando] = useState(false)
+  const [form, setForm] = useState<any>({})
   
   const { data: sol, isLoading, error } = useQuery({
     queryKey: ["solicitacao", id],
     queryFn: () => fetchSolicitacao(id),
   })
+
+  const deleteMutate = useMutation({
+    mutationFn: () => fetch(`/api/solicitacoes/${id}`, { method: "DELETE" }),
+    onSuccess: () => {
+      toast.success("Solicitação excluída")
+      router.push("/comercial/solicitacoes")
+    },
+    onError: () => toast.error("Erro ao excluir"),
+  })
+
+  useEffect(() => {
+    if (sol) setForm(sol)
+  }, [sol])
 
   if (isLoading) {
     return (
@@ -72,9 +91,29 @@ export default function DetalheSolicitacaoPage({ params }: { params: Promise<{ i
           </h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1">{sol.projeto || "Sem projeto"}</p>
         </div>
-        <span className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${statusCfg.classes}`}>
-          {statusCfg.label}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${statusCfg.classes}`}>
+            {statusCfg.label}
+          </span>
+          <Link
+            href={`/comercial/solicitacoes/${id}/editar`}
+            className="inline-flex items-center gap-1 px-3 py-1.5 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            <Pencil size={14} />
+            Editar
+          </Link>
+          <button
+            onClick={() => {
+              if (confirm("Tem certeza que deseja excluir esta solicitação?")) {
+                deleteMutate.mutate()
+              }
+            }}
+            className="inline-flex items-center gap-1 px-3 py-1.5 text-sm bg-red-100 text-red-700 rounded-lg hover:bg-red-200"
+          >
+            <Trash2 size={14} />
+            Excluir
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
