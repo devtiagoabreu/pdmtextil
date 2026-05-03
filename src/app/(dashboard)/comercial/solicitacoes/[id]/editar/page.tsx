@@ -116,10 +116,11 @@ export default function EditarSolicitacaoPage() {
   const onStep2Submit = async (data: BriefingTecelagem) => {
     setBriefingData(data)
     
-    setIsSubmitting(true)
+setIsSubmitting(true)
     try {
+      const currentData = watch()
       const prazo = currentData.prazoDesejado || comercialData.prazoDesejado
-        const payload = {
+      const payload = {
           tipo: currentData.tipo || comercialData.tipo,
           cliente: currentData.cliente || comercialData.cliente,
           cnpj: currentData.cnpj || comercialData.cnpj || null,
