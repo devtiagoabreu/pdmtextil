@@ -52,7 +52,6 @@ export async function POST(req: NextRequest) {
     console.log("[POST /api/clientes] body:", body)
 
     const { nome, cnpj, razaoSocial, email, telefone, contato, endereco, cidade, uf } = body
-    const { nome, cnpj, razaoSocial, email, telefone, contato, endereco, cidade, uf } = body
 
     if (!nome?.trim()) {
       return NextResponse.json({ error: "Nome é obrigatório" }, { status: 400 })
