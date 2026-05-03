@@ -118,15 +118,15 @@ export default function EditarSolicitacaoPage() {
     
     setIsSubmitting(true)
     try {
-      const currentData = watch()
-      const payload = {
-        tipo: currentData.tipo || comercialData.tipo,
-        cliente: currentData.cliente || comercialData.cliente,
-        cnpj: currentData.cnpj || comercialData.cnpj || null,
-        projeto: currentData.projeto || comercialData.projeto || null,
-        prazoDesejado: currentData.prazoDesejado || comercialData.prazoDesejado ? new Date(currentData.prazoDesejado || comercialData.prazoDesejado) : null,
-        briefing: data,
-      }
+      const prazo = currentData.prazoDesejado || comercialData.prazoDesejado
+        const payload = {
+          tipo: currentData.tipo || comercialData.tipo,
+          cliente: currentData.cliente || comercialData.cliente,
+          cnpj: currentData.cnpj || comercialData.cnpj || null,
+          projeto: currentData.projeto || comercialData.projeto || null,
+          prazoDesejado: prazo ? new Date(prazo) : null,
+          briefing: data,
+        }
 
       const res = await fetch(`/api/solicitacoes/${id}`, {
         method: "PUT",
@@ -324,12 +324,13 @@ export default function EditarSolicitacaoPage() {
               </Button>
               <Button onClick={() => {
                 const currentData = watch()
+                const prazo = currentData.prazoDesejado || comercialData.prazoDesejado
                 const payload = {
                   tipo: currentData.tipo || comercialData.tipo,
                   cliente: currentData.cliente || comercialData.cliente,
                   cnpj: currentData.cnpj || comercialData.cnpj || null,
                   projeto: currentData.projeto || comercialData.projeto || null,
-                  prazoDesejado: currentData.prazoDesejado || comercialData.prazoDesejado ? new Date(currentData.prazoDesejado || comercialData.prazoDesejado) : null,
+                  prazoDesejado: prazo ? new Date(prazo) : null,
                   briefing: briefingData,
                 }
                 
