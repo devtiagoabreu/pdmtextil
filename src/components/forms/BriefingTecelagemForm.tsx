@@ -23,6 +23,7 @@ const SEGMENTOS_LABELS: Record<string, string> = {
   LENCOL_CAMA_RESIDENCIAL: "Lençol de Cama Residencial",
   ROUPA_INTIMA: "Roupa Íntima",
   ROUPA_BANHO: "Roupa de Banho",
+  ROUPA_MODA: "Roupa Moda",
   CALCADO: "Calçado",
   LINHA_MESA: "Linha de Mesa",
   COLCHAO: "Colchão",
