@@ -5,7 +5,7 @@ import { solicitacoes } from "@/lib/db/schema/solicitacoes"
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq, desc, and } from "drizzle-orm"
 import Link from "next/link"
-import { PlusCircle, FileText, Clock, ChevronRight } from "lucide-react"
+import { PlusCircle, FileText, Clock } from "lucide-react"
 
 const STATUS_CONFIG: Record<string, { label: string; classes: string }> = {
   PENDENTE:       { label: "Pendente",       classes: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400" },
@@ -129,12 +129,27 @@ export default async function ListaSolicitacoesPage() {
                           {s.createdAt ? new Date(s.createdAt).toLocaleDateString("pt-BR") : "—"}
                         </td>
                         <td className="px-4 py-3">
-                          <Link
-                            href={`/comercial/solicitacoes/${s.id}`}
-                            className="flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline text-xs font-medium"
-                          >
-                            Ver <ChevronRight size={14} />
-                          </Link>
+                          <div className="flex items-center gap-2">
+                            <Link
+                              href={`/comercial/solicitacoes/${s.id}`}
+                              className="flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline text-xs font-medium"
+                            >
+                              Editar
+                            </Link>
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault()
+                                if (confirm("Excluir solicitação?")) {
+                                  fetch(`/api/solicitacoes/${s.id}`, { method: "DELETE" })
+                                    .then(() => window.location.reload())
+                                    .catch(() => alert("Erro ao excluir"))
+                                }
+                              }}
+                              className="text-red-600 dark:text-red-400 hover:underline text-xs font-medium"
+                            >
+                              Excluir
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     )
