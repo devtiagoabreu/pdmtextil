@@ -137,6 +137,10 @@ export default function DetalheSolicitacaoPage() {
                 <p className="font-medium">{TIPO_CONFIG[sol.tipo] || sol.tipo}</p>
               </div>
               <div>
+                <p className="text-slate-500 dark:text-slate-400">Cliente</p>
+                <p className="font-medium">{sol.cliente || "—"}</p>
+              </div>
+              <div>
                 <p className="text-slate-500 dark:text-slate-400">CNPJ</p>
                 <p className="font-medium">{sol.cnpj || "—"}</p>
               </div>
