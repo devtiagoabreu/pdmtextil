@@ -9,6 +9,7 @@ import Link from "next/link"
 
 import { dadosComerciaisSchema, DadosComerciais, BriefingTecelagem } from "@/types/briefing"
 import { BriefingTecelagemForm } from "@/components/forms/BriefingTecelagemForm"
+import { AnexosUpload, AnexoDraft } from "@/components/forms/AnexosUpload"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -48,6 +49,7 @@ export default function EditarSolicitacaoPage() {
     prazoDesejado: "",
   } as any)
   const [briefingData, setBriefingData] = useState<Partial<BriefingTecelagem>>({})
+  const [anexosData, setAnexosData] = useState<AnexoDraft[]>([])
   const [showNovoCliente, setShowNovoCliente] = useState(false)
   const [novoClienteData, setNovoClienteData] = useState({
     nome: "",
@@ -85,6 +87,15 @@ export default function EditarSolicitacaoPage() {
         if (data.briefing) {
           setBriefingData(data.briefing)
         }
+        
+        if (data.anexos && data.anexos.length > 0) {
+          setAnexosData(data.anexos.map((a: any) => ({
+            id: String(a.id),
+            link: a.url,
+            tipo: "LINK",
+            nome: a.titulo,
+          })))
+        }
       } catch (err) {
         toast.error("Erro ao carregar solicitação")
         router.push("/comercial/solicitacoes")
@@ -115,7 +126,10 @@ export default function EditarSolicitacaoPage() {
 
 const onStep2Submit = async (data: BriefingTecelagem) => {
     setBriefingData(data)
-    
+    setStep(3)
+  }
+
+  const handleFinalSubmit = async () => {
     setIsSubmitting(true)
     try {
       const payload = {
@@ -124,7 +138,8 @@ const onStep2Submit = async (data: BriefingTecelagem) => {
         cnpj: comercialData.cnpj || null,
         projeto: comercialData.projeto || null,
         prazoDesejado: comercialData.prazoDesejado ? new Date(comercialData.prazoDesejado) : null,
-        briefing: data,
+        briefing: briefingData,
+        anexos: anexosData,
       }
 
       const res = await fetch(`/api/solicitacoes/${id}`, {
@@ -303,17 +318,23 @@ const onStep2Submit = async (data: BriefingTecelagem) => {
 
         {step === 3 && (
           <div className="space-y-6">
-            <h2 className="text-xl font-semibold border-b pb-2">Salvar Alterações</h2>
+            <h2 className="text-xl font-semibold border-b pb-2">Links e Salvar</h2>
             <p className="text-sm text-muted-foreground">
-              Revise as alterações antes de salvar.
+              Edite os links de referência e salve a solicitação.
             </p>
             
+            <AnexosUpload 
+              anexos={anexosData} 
+              onChange={setAnexosData} 
+            />
+
             <div className="bg-muted/50 p-4 rounded-lg mt-8 border border-border">
               <h3 className="font-semibold mb-2">Resumo da Solicitação</h3>
               <ul className="space-y-1 text-sm">
                 <li><span className="font-medium">Cliente:</span> {comercialData.cliente}</li>
                 <li><span className="font-medium">Projeto:</span> {comercialData.projeto || "N/A"}</li>
                 <li><span className="font-medium">Tipo:</span> {comercialData.tipo?.replace("DESENVOLVIMENTO_", "")}</li>
+                <li><span className="font-medium">Total de Links:</span> {anexosData.length}</li>
               </ul>
             </div>
 
@@ -321,32 +342,7 @@ const onStep2Submit = async (data: BriefingTecelagem) => {
               <Button variant="outline" onClick={() => setStep(2)}>
                 ← Voltar para Briefing
               </Button>
-              <Button onClick={() => {
-                const payload = {
-                  tipo: comercialData.tipo,
-                  cliente: comercialData.cliente,
-                  cnpj: comercialData.cnpj || null,
-                  projeto: comercialData.projeto || null,
-                  prazoDesejado: comercialData.prazoDesejado ? new Date(comercialData.prazoDesejado) : null,
-                  briefing: briefingData,
-                }
-                
-                setIsSubmitting(true)
-                fetch(`/api/solicitacoes/${id}`, {
-                  method: "PUT",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify(payload),
-                }).then((res) => {
-                  if (res.ok) {
-                    toast.success("Solicitação salva com sucesso!")
-                    router.push(`/comercial/solicitacoes/${id}`)
-                  } else {
-                    throw new Error("Erro")
-                  }
-                }).catch(() => {
-                  toast.error("Erro ao salvar")
-                }).finally(() => setIsSubmitting(false))
-              }} disabled={isSubmitting}>
+              <Button onClick={handleFinalSubmit} disabled={isSubmitting}>
                 {isSubmitting ? "Salvando..." : "Salvar Alterações"}
               </Button>
             </div>

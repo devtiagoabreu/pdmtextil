@@ -3,6 +3,7 @@ import * as z from "zod";
 export const dadosComerciaisSchema = z.object({
   tipo: z.enum(["DESENVOLVIMENTO_TECELAGEM", "DESENVOLVIMENTO_BENEFICIAMENTO"], {
     required_error: "O tipo de solicitação é obrigatório",
+    invalid_type_error: "O tipo de solicitação é inválido",
   }),
   cliente: z.string().min(1, "Selecione ou digite um cliente"),
   cnpj: z.string().optional(),
@@ -105,6 +106,7 @@ export const briefingTecelagemSchema = z.object({
     ligamento: z.string().optional(),
     tipoTecido: z.enum(["PLANO", "JACQUARD", "MALHA"], {
       required_error: "Selecione o tipo de tecido",
+      invalid_type_error: "Selecione o tipo de tecido",
     }),
   }),
 
@@ -116,6 +118,7 @@ export const briefingTecelagemSchema = z.object({
   performance: z.object({
     resistenciaAbrasao: z.enum(["BAIXA", "MEDIA", "ALTA", "MUITO_ALTA"], {
       required_error: "Selecione resistência à abrasão",
+      invalid_type_error: "Selecione resistência à abrasão",
     }),
     resistenciaLavagem: z.boolean().default(false),
     resistenciaSecagem: z.boolean().default(false),
@@ -127,9 +130,11 @@ export const briefingTecelagemSchema = z.object({
     tipos: z.array(z.string()).min(1, "Selecione pelo menos um tipo de acabamento"),
     nivelBrilho: z.enum(["FOSCO", "SEMI_FOSCO", "BRILHANTE", "ALTO_BRILHO"], {
       required_error: "Selecione o nível de brilho",
+      invalid_type_error: "Selecione o nível de brilho",
     }),
     toque: z.enum(["SECO", "MACIO", "SUAVE", "ESTRUTURADO"], {
       required_error: "Selecione o toque desejado",
+      invalid_type_error: "Selecione o toque desejado",
     }),
     textura: z.string().optional(),
   }),
@@ -137,6 +142,7 @@ export const briefingTecelagemSchema = z.object({
   cores: z.object({
     tipo: z.enum(["SOLIDAS", "ESTAMPADAS", "FANTASIA", "DESENVOLVIMENTO_EXCLUSIVO"], {
       required_error: "Selecione o padrão de cores",
+      invalid_type_error: "Selecione o padrão de cores",
     }),
     paletaPreferencial: z.string().optional(),
     coresEspecificas: z.string().optional(),
@@ -146,6 +152,7 @@ export const briefingTecelagemSchema = z.object({
   comercial: z.object({
     targetPreco: z.enum(["ECONOMICO", "INTERMEDIARIO", "PREMIUM"], {
       required_error: "Selecione o target de preço",
+      invalid_type_error: "Selecione o target de preço",
     }),
     quantidadeEstimada: z.string().optional(),
     prazoEntrega: z.string().optional(),
