@@ -288,7 +288,10 @@ const onStep2Submit = async (data: BriefingTecelagem) => {
                       onNovoCliente={() => setShowNovoCliente(true)}
                       error={errors.cliente?.message}
                       cnpjValue={comercialData.cnpj}
-                      onCnpjChange={(val) => setComercialData((prev) => ({ ...prev, cnpj: val }))}
+                      onCnpjChange={(val) => {
+                        setComercialData((prev) => ({ ...prev, cnpj: val }))
+                        setValue("cnpj", val)
+                      }}
                     />
                   )}
                 />
@@ -336,9 +339,9 @@ const onStep2Submit = async (data: BriefingTecelagem) => {
             <div className="bg-muted/50 p-4 rounded-lg mt-8 border border-border">
               <h3 className="font-semibold mb-2">Resumo da Solicitação</h3>
               <ul className="space-y-1 text-sm">
-                <li><span className="font-medium">Cliente:</span> {comercialData.cliente}</li>
-                <li><span className="font-medium">Projeto:</span> {comercialData.projeto || "N/A"}</li>
-                <li><span className="font-medium">Tipo:</span> {comercialData.tipo?.replace("DESENVOLVIMENTO_", "")}</li>
+                <li><span className="font-medium">Cliente:</span> {watch("cliente") || comercialData.cliente || "—"}</li>
+                <li><span className="font-medium">Projeto:</span> {watch("projeto") || comercialData.projeto || "N/A"}</li>
+                <li><span className="font-medium">Tipo:</span> {(watch("tipo") || comercialData.tipo)?.replace("DESENVOLVIMENTO_", "") || "—"}</li>
                 <li><span className="font-medium">Total de Links:</span> {anexosData.length}</li>
               </ul>
             </div>
