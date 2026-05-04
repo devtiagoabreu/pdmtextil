@@ -175,3 +175,16 @@ NOVA SOLICITAÇÃO:
 
 ✅ Commit pronto:
 `fix: corrige payload nulo no POST/PUT lendo valores diretamente do react-hook-form`
+
+---
+
+📦 BLOCO BUGS FIX 3: CNPJ manual e Resumo desatualizado
+🗓️ Data: 04/05/2026
+
+✅ O que foi feito:
+
+- **Bug 2 — CNPJ digitado manualmente não chegava ao RHF:** O `ClienteAutocomplete` gerenciava o CNPJ digitado manualmente apenas via `onCnpjChange → setComercialData`, nunca chamando `setValue("cnpj", val)` do RHF. Com isso, `getValues().cnpj` retornava `""` quando o usuário digitava o CNPJ à mão (sem selecionar da lista). Corrigido em `nova/page.tsx` e `editar/page.tsx` adicionando `setValue("cnpj", val)` dentro do `onCnpjChange`.
+- **Bug 3 — Resumo do Passo 3 exibia dados desatualizados:** O bloco de resumo lia `comercialData` (estado React), que só era atualizado ao clicar em "Continuar" no Step 1. Se o usuário editava um campo e avançava diretamente, o resumo mostrava os valores antigos. Corrigido usando `watch("cliente")`, `watch("projeto")` e `watch("tipo")` do RHF, com fallback para `comercialData`.
+
+✅ Commit pronto:
+`fix: sincroniza cnpj manual ao rhf e corrige resumo do passo 3 com dados em tempo real`
