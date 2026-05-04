@@ -106,7 +106,7 @@ export default function NovaSolicitacaoPage() {
         cliente: comercialData.cliente,
         cnpj: comercialData.cnpj || null,
         projeto: comercialData.projeto || null,
-        prazoDesejado: comercialData.prazoDesejado || null,
+        prazoDesejado: comercialData.prazoDesejado ? `${comercialData.prazoDesejado}T12:00:00Z` : null,
         briefing: briefingData,
         anexos: anexosData,
       }

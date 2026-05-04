@@ -81,7 +81,7 @@ export default function EditarSolicitacaoPage() {
           cliente: data.cliente || "",
           cnpj: data.cnpj || "",
           projeto: data.projeto || "",
-          prazoDesejado: data.prazoDesejado ? new Date(data.prazoDesejado).toISOString().split('T')[0] : "",
+          prazoDesejado: data.prazoDesejado ? data.prazoDesejado.split('T')[0] : "",
         })
         
         if (data.briefing) {
@@ -137,7 +137,7 @@ const onStep2Submit = async (data: BriefingTecelagem) => {
         cliente: comercialData.cliente,
         cnpj: comercialData.cnpj || null,
         projeto: comercialData.projeto || null,
-        prazoDesejado: comercialData.prazoDesejado ? new Date(comercialData.prazoDesejado) : null,
+        prazoDesejado: comercialData.prazoDesejado ? `${comercialData.prazoDesejado}T12:00:00Z` : null,
         briefing: briefingData,
         anexos: anexosData,
       }
