@@ -135,12 +135,15 @@ const onStep2Submit = async (data: BriefingTecelagem) => {
       // Lê valores diretamente do RHF (sempre atualizados, independente do passo atual)
       const rhfValues = getValues()
 
+      // Usa RHF como fonte primária, com fallback para o estado comercialData
+      const prazo = rhfValues.prazoDesejado || comercialData.prazoDesejado || ""
+
       const payload = {
         tipo: rhfValues.tipo || comercialData.tipo,
         cliente: rhfValues.cliente || comercialData.cliente,
         cnpj: rhfValues.cnpj || comercialData.cnpj || null,
         projeto: rhfValues.projeto || comercialData.projeto || null,
-        prazoDesejado: rhfValues.prazoDesejado ? `${rhfValues.prazoDesejado}T12:00:00Z` : null,
+        prazoDesejado: prazo ? `${prazo}T12:00:00Z` : null,
         briefing: briefingData,
         anexos: anexosData,
       }
