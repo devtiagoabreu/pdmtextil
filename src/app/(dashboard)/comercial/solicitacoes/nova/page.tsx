@@ -63,6 +63,15 @@ export default function NovaSolicitacaoPage() {
     defaultValues: comercialData as any,
   })
 
+  // Sincroniza RHF -> comercialData em tempo real
+  const watchedValues = watch()
+  useEffect(() => {
+    const subscription = watch((value) => {
+      setComercialData(prev => ({ ...prev, ...value }))
+    })
+    return () => subscription.unsubscribe()
+  }, [watch])
+
   const onStep1Submit = (data: DadosComerciais) => {
     setComercialData(data)
     setStep(2)
@@ -101,19 +110,13 @@ export default function NovaSolicitacaoPage() {
     try {
       setIsSubmitting(true)
 
-      // Lê valores diretamente do RHF (sempre atualizados, independente do passo atual)
-      const rhfValues = getValues()
-
-      // Usa RHF como fonte primária, com fallback para o estado comercialData
-      // (garantia caso o campo não tenha sido registrado pelo RHF em algum step)
-      const prazo = rhfValues.prazoDesejado || comercialData.prazoDesejado || ""
-
+      // A fonte da verdade agora é o comercialData (que está sincronizado via watch)
       const payload = {
-        tipo: rhfValues.tipo || comercialData.tipo,
-        cliente: rhfValues.cliente || comercialData.cliente,
-        cnpj: rhfValues.cnpj || comercialData.cnpj || null,
-        projeto: rhfValues.projeto || comercialData.projeto || null,
-        prazoDesejado: prazo ? `${prazo}T12:00:00Z` : null,
+        tipo: watchedValues.tipo || comercialData.tipo,
+        cliente: watchedValues.cliente || comercialData.cliente,
+        cnpj: watchedValues.cnpj || comercialData.cnpj || null,
+        projeto: watchedValues.projeto || comercialData.projeto || null,
+        prazoDesejado: (watchedValues.prazoDesejado || comercialData.prazoDesejado) ? `${watchedValues.prazoDesejado || comercialData.prazoDesejado}T12:00:00Z` : null,
         briefing: briefingData,
         anexos: anexosData,
       }
