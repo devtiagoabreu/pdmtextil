@@ -197,10 +197,11 @@ NOVA SOLICITAÇÃO:
 ✅ O que foi feito:
 
 - **Bug Crítico — `prazoDesejado` não era gravado no banco via PUT:** O handler `PUT /api/solicitacoes/[id]` fazia `const { anexos, ...updateData } = body` e depois `db.update().set({ ...updateData })`, ou seja, passava o body inteiro (como objeto JS puro com strings) diretamente para o Drizzle. O Drizzle **não converte strings automaticamente** para o tipo `timestamp` do Postgres — isso causava falha silenciosa e o campo voltava como `null`.
-- **Bug no Frontend (Nova/Edição):** O payload de envio (`handleFinalSubmit`) não tinha fallback para `comercialData.prazoDesejado` caso o RHF (`getValues()`) estivesse vazio (comum quando o usuário não clica em "Continuar" no Step 1). Isso afetava tanto o INSERT quanto o UPDATE.
+- **Bug no Frontend (Perda de Dados no Payload):** Mesmo com o fallback anterior, campos como `projeto` e `prazoDesejado` podiam chegar `null` no payload se o usuário não disparasse o `onStep1Submit`. Isso acontecia porque o RHF (`getValues()`) às vezes perdia o rastreamento de campos escondidos via CSS e o estado local `comercialData` estava desatualizado.
 - **Correções Aplicadas:**
-    1. **API (PUT):** Refatorado para usar mapeamento explícito de campos com `new Date()` (igual ao POST), evitando falhas com spreads do body.
-    2. **Frontend:** Adicionado `const prazo = rhfValues.prazoDesejado || comercialData.prazoDesejado` como fonte de dados segura no payload final.
+    1. **Sincronização em Tempo Real:** Adicionado um `useEffect` com `watch()` no componente pai que sincroniza o estado `comercialData` imediatamente a cada tecla digitada nos inputs do Step 1.
+    2. **Single Source of Truth:** O payload final agora utiliza preferencialmente os valores observados via `watch()` e `comercialData`, garantindo integridade total dos dados do Passo 1 no envio final.
+    3. **API (PUT):** Refatorado para usar mapeamento explícito de campos com `new Date()` (igual ao POST).
 
 ✅ Commit pronto:
-`fix: adiciona fallback para comercialData.prazoDesejado no payload de criacao e edicao`
+`fix: sincroniza comercialData com RHF em tempo real para evitar perda de dados no payload`
