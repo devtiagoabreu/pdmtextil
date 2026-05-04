@@ -191,15 +191,16 @@ NOVA SOLICITAÇÃO:
 
 ---
 
-📦 BLOCO BUGS FIX 4: Campo de data não salva no banco (PUT)
+📦 BLOCO BUGS FIX 4: Campo de data não salva no banco (POST/PUT)
 🗓️ Data: 04/05/2026
 
 ✅ O que foi feito:
 
-- **Bug Crítico — `prazoDesejado` não era gravado no banco via PUT:** O handler `PUT /api/solicitacoes/[id]` fazia `const { anexos, ...updateData } = body` e depois `db.update().set({ ...updateData })`, ou seja, passava o body inteiro (como objeto JS puro com strings) diretamente para o Drizzle. O Drizzle **não converte strings automaticamente** para o tipo `timestamp` do Postgres — isso causava falha silenciosa e o campo voltava como `null`. O POST funcionava porque mapeava os campos explicitamente com `new Date(prazoDesejado)`.
-- **Correção:** O PUT foi refatorado para usar mapeamento explícito de cada campo (igual ao POST), com `setValues.prazoDesejado = body.prazoDesejado ? new Date(body.prazoDesejado) : null`. Adicionados logs de debug focados (`BODY` e `setValues.prazoDesejado`) para facilitar rastreamento futuro.
-- **Banco de dados e Schema Drizzle:** Verificados e estão corretos — coluna `prazo_desejado timestamp` existe na migração e no schema.
-- **Frontend (nova e editar):** Verificados e estão corretos — payload envia `"YYYY-MM-DDT12:00:00Z"` via `getValues()` do RHF.
+- **Bug Crítico — `prazoDesejado` não era gravado no banco via PUT:** O handler `PUT /api/solicitacoes/[id]` fazia `const { anexos, ...updateData } = body` e depois `db.update().set({ ...updateData })`, ou seja, passava o body inteiro (como objeto JS puro com strings) diretamente para o Drizzle. O Drizzle **não converte strings automaticamente** para o tipo `timestamp` do Postgres — isso causava falha silenciosa e o campo voltava como `null`.
+- **Bug no Frontend (Nova/Edição):** O payload de envio (`handleFinalSubmit`) não tinha fallback para `comercialData.prazoDesejado` caso o RHF (`getValues()`) estivesse vazio (comum quando o usuário não clica em "Continuar" no Step 1). Isso afetava tanto o INSERT quanto o UPDATE.
+- **Correções Aplicadas:**
+    1. **API (PUT):** Refatorado para usar mapeamento explícito de campos com `new Date()` (igual ao POST), evitando falhas com spreads do body.
+    2. **Frontend:** Adicionado `const prazo = rhfValues.prazoDesejado || comercialData.prazoDesejado` como fonte de dados segura no payload final.
 
 ✅ Commit pronto:
-`fix: refatora PUT com mapeamento explicito de campos e conversao correta de prazoDesejado`
+`fix: adiciona fallback para comercialData.prazoDesejado no payload de criacao e edicao`
