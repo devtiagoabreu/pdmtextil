@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useQuery, useMutation } from "@tanstack/react-query"
 import { useRouter, useParams } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, FileText, Pencil, Trash2, Printer } from "lucide-react"
+import { ArrowLeft, FileText, Pencil, Trash2, Printer, Link as LinkIcon } from "lucide-react"
 import { toast } from "sonner"
 
 const STATUS_CONFIG: Record<string, { label: string; classes: string }> = {
@@ -321,6 +321,29 @@ export default function DetalheSolicitacaoPage() {
           </div>
 
           <div className="space-y-6">
+            {sol.anexos && sol.anexos.length > 0 && (
+              <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
+                <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <LinkIcon size={20} className="text-blue-500" />
+                  Links e Referências
+                </h2>
+                <ul className="space-y-3">
+                  {sol.anexos.map((anexo: any) => (
+                    <li key={anexo.id} className="text-sm border-b border-slate-100 dark:border-slate-800 pb-2 last:border-0 last:pb-0">
+                      <a 
+                        href={anexo.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="font-medium text-blue-600 hover:underline flex items-center gap-2"
+                      >
+                        {anexo.titulo || anexo.url}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
               <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 Histórico

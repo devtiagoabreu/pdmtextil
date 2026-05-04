@@ -1,8 +1,7 @@
 "use client"
 
 import { useState, useCallback } from "react"
-import { useDropzone } from "react-dropzone"
-import { UploadCloud, Link as LinkIcon, X, File as FileIcon } from "lucide-react"
+import { Link as LinkIcon, X, File as FileIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -24,17 +23,7 @@ export function AnexosUpload({ anexos, onChange }: AnexosUploadProps) {
   const [linkInput, setLinkInput] = useState("")
   const [linkNome, setLinkNome] = useState("")
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    const newAnexos = acceptedFiles.map((file) => ({
-      id: Math.random().toString(36).substr(2, 9),
-      file,
-      tipo: "ARQUIVO",
-      nome: file.name,
-    }))
-    onChange([...anexos, ...newAnexos])
-  }, [anexos, onChange])
-
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop })
+  // Removido onDrop e useDropzone
 
   const handleAddLink = () => {
     if (!linkInput) return
@@ -55,16 +44,10 @@ export function AnexosUpload({ anexos, onChange }: AnexosUploadProps) {
 
   return (
     <div className="space-y-6">
-      <div 
-        {...getRootProps()} 
-        className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
-          isDragActive ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
-        }`}
-      >
-        <input {...getInputProps()} />
-        <UploadCloud className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-        <p className="text-lg font-medium">Arraste arquivos aqui ou clique para selecionar</p>
-        <p className="text-sm text-muted-foreground mt-1">Imagens, PDFs, documentos (Máx 10MB)</p>
+      <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 text-center">
+        <LinkIcon className="mx-auto h-10 w-10 text-blue-500 mb-3" />
+        <p className="text-lg font-medium text-slate-800 dark:text-slate-200">Adicione Links de Referência</p>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Insira links do Google Drive, Pinterest, YouTube ou referências externas.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end bg-muted/30 p-4 rounded-lg border">
