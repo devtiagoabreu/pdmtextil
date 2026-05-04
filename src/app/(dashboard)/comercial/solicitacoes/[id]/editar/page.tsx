@@ -61,7 +61,7 @@ export default function EditarSolicitacaoPage() {
   })
   const [isCriandoCliente, setIsCriandoCliente] = useState(false)
 
-  const { register, handleSubmit, control, formState: { errors }, setValue, watch } = useForm<DadosComerciais>({
+  const { register, handleSubmit, control, formState: { errors }, setValue, watch, getValues } = useForm<DadosComerciais>({
     resolver: zodResolver(dadosComerciaisSchema),
     defaultValues: comercialData as any,
   })
@@ -132,12 +132,15 @@ const onStep2Submit = async (data: BriefingTecelagem) => {
   const handleFinalSubmit = async () => {
     setIsSubmitting(true)
     try {
+      // Lê valores diretamente do RHF (sempre atualizados, independente do passo atual)
+      const rhfValues = getValues()
+
       const payload = {
-        tipo: comercialData.tipo,
-        cliente: comercialData.cliente,
-        cnpj: comercialData.cnpj || null,
-        projeto: comercialData.projeto || null,
-        prazoDesejado: comercialData.prazoDesejado ? `${comercialData.prazoDesejado}T12:00:00Z` : null,
+        tipo: rhfValues.tipo || comercialData.tipo,
+        cliente: rhfValues.cliente || comercialData.cliente,
+        cnpj: rhfValues.cnpj || comercialData.cnpj || null,
+        projeto: rhfValues.projeto || comercialData.projeto || null,
+        prazoDesejado: rhfValues.prazoDesejado ? `${rhfValues.prazoDesejado}T12:00:00Z` : null,
         briefing: briefingData,
         anexos: anexosData,
       }

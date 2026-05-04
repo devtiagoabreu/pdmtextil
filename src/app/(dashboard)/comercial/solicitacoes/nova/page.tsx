@@ -58,7 +58,7 @@ export default function NovaSolicitacaoPage() {
   const [isCriandoCliente, setIsCriandoCliente] = useState(false)
 
   // STEP 1 FORM
-  const { register, handleSubmit, control, formState: { errors }, setValue, watch } = useForm<DadosComerciais>({
+  const { register, handleSubmit, control, formState: { errors }, setValue, watch, getValues } = useForm<DadosComerciais>({
     resolver: zodResolver(dadosComerciaisSchema),
     defaultValues: comercialData as any,
   })
@@ -101,12 +101,15 @@ export default function NovaSolicitacaoPage() {
     try {
       setIsSubmitting(true)
 
+      // Lê valores diretamente do RHF (sempre atualizados, independente do passo atual)
+      const rhfValues = getValues()
+
       const payload = {
-        tipo: comercialData.tipo,
-        cliente: comercialData.cliente,
-        cnpj: comercialData.cnpj || null,
-        projeto: comercialData.projeto || null,
-        prazoDesejado: comercialData.prazoDesejado ? `${comercialData.prazoDesejado}T12:00:00Z` : null,
+        tipo: rhfValues.tipo || comercialData.tipo,
+        cliente: rhfValues.cliente || comercialData.cliente,
+        cnpj: rhfValues.cnpj || comercialData.cnpj || null,
+        projeto: rhfValues.projeto || comercialData.projeto || null,
+        prazoDesejado: rhfValues.prazoDesejado ? `${rhfValues.prazoDesejado}T12:00:00Z` : null,
         briefing: briefingData,
         anexos: anexosData,
       }

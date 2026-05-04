@@ -162,3 +162,16 @@ NOVA SOLICITAÇÃO:
 
 ✅ Commit pronto:
 `fix: corrige perda de estado no formulario multi-step e adiciona logs de debug`
+
+---
+
+📦 BLOCO BUGS FIX 2: Payload POST/PUT com dados nulos
+🗓️ Data: 04/05/2026
+
+✅ O que foi feito:
+
+- **Causa raiz identificada:** Com a técnica CSS `hidden/block`, o `<form onSubmit={handleSubmit(...)}>` do Passo 1 nunca é disparado ao ir direto para o Passo 3. Logo o `comercialData` (state) nunca recebia os valores do React Hook Form (RHF). O payload era construído lendo `comercialData` — que permanecia com os valores iniciais vazios/null.
+- **Correção (nova/page.tsx e editar/page.tsx):** Extraído `getValues()` do RHF e usado diretamente na construção do payload, com fallback para `comercialData`. Agora `prazoDesejado`, `projeto`, `cnpj`, `tipo` e `cliente` chegam corretamente no POST e PUT.
+
+✅ Commit pronto:
+`fix: corrige payload nulo no POST/PUT lendo valores diretamente do react-hook-form`
