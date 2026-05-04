@@ -3,6 +3,7 @@ neon_connectionstring.md
 .agent/skills/*.*
 .agent/prompts/*.*
 links-uteis.md
+scratch/
 
 # Logs
 logs
