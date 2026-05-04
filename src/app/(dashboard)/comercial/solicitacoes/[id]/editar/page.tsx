@@ -142,6 +142,8 @@ const onStep2Submit = async (data: BriefingTecelagem) => {
         anexos: anexosData,
       }
 
+      console.log("=== SENDING PUT PAYLOAD ===", payload);
+
       const res = await fetch(`/api/solicitacoes/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -238,7 +240,7 @@ const onStep2Submit = async (data: BriefingTecelagem) => {
       </div>
 
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm p-6 md:p-8">
-        {step === 1 && (
+        <div className={step === 1 ? "block" : "hidden"}>
           <form onSubmit={handleSubmit(onStep1Submit)} className="space-y-6">
             <h2 className="text-xl font-semibold border-b border-slate-200 dark:border-slate-700 pb-3 text-slate-800 dark:text-slate-100">
               Dados do Cliente
@@ -306,17 +308,17 @@ const onStep2Submit = async (data: BriefingTecelagem) => {
               </Button>
             </div>
           </form>
-        )}
+        </div>
 
-        {step === 2 && (
+        <div className={step === 2 ? "block" : "hidden"}>
           <BriefingTecelagemForm 
             initialData={briefingData as any}
             onNext={onStep2Submit} 
             onBack={() => setStep(1)} 
           />
-        )}
+        </div>
 
-        {step === 3 && (
+        <div className={step === 3 ? "block" : "hidden"}>
           <div className="space-y-6">
             <h2 className="text-xl font-semibold border-b pb-2">Links e Salvar</h2>
             <p className="text-sm text-muted-foreground">
@@ -347,7 +349,7 @@ const onStep2Submit = async (data: BriefingTecelagem) => {
               </Button>
             </div>
           </div>
-        )}
+        </div>
       </div>
 
       <Dialog open={showNovoCliente} onOpenChange={setShowNovoCliente}>

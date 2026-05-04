@@ -150,3 +150,15 @@ NOVA SOLICITAÇÃO:
   - O upload de arquivos (Vercel Blob) também será integrado no Bloco 1.6
   - O Dashboard mostra contadores zerados — serão conectados à API no Bloco 1.7.
 
+---
+
+📦 BLOCO BUGS: Correções de Estado e Perda de Dados
+🗓️ Data: 04/05/2026
+
+✅ O que foi feito:
+
+- **Correção da Perda de Dados no Wizard (Prazo de Entrega):** O formulário de Nova/Edição de Solicitação perdia os dados preenchidos no Passo 2 se o usuário retornasse ao Passo 1 sem avançar. A renderização condicional (`{step === 1 && ...}`) foi substituída pela ocultação via CSS (`className={step === 1 ? "block" : "hidden"}`), garantindo que o estado do React Hook Form seja preservado em todos os passos.
+- **Logs de Debugging (API):** Adicionados `console.log` na API (`/api/solicitacoes` e `/api/solicitacoes/[id]`) e no client-side para rastrear o payload exato enviado para o banco de dados.
+
+✅ Commit pronto:
+`fix: corrige perda de estado no formulario multi-step e adiciona logs de debug`

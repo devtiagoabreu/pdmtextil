@@ -47,6 +47,7 @@ export async function PUT(
 
     const { id } = await params
     const body = await req.json()
+    console.log("=== PUT /api/solicitacoes/[id] ===", JSON.stringify(body, null, 2))
 
     const resultado = await db
       .select()
