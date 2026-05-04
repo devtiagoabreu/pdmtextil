@@ -148,5 +148,5 @@ NOVA SOLICITAÇÃO:
 ⚠️ Atenção:
   - O submit do Passo 3 ainda é um mock (console.log) — API real será implementada no Bloco 1.5
   - O upload de arquivos (Vercel Blob) também será integrado no Bloco 1.6
-  - O Dashboard mostra contadores zerados — serão conectados à API no Bloco 1.7
+  - O Dashboard mostra contadores zerados — serão conectados à API no Bloco 1.7.
 
