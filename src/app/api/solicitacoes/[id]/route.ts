@@ -47,7 +47,15 @@ export async function PUT(
 
     const { id } = await params
     const body = await req.json()
-    console.log("=== PUT /api/solicitacoes/[id] ===", JSON.stringify(body, null, 2))
+    console.log("=== PUT /api/solicitacoes/[id] BODY ===", JSON.stringify({
+      tipo: body.tipo,
+      cliente: body.cliente,
+      cnpj: body.cnpj,
+      projeto: body.projeto,
+      prazoDesejado: body.prazoDesejado,
+      hasBriefing: !!body.briefing,
+      anexosCount: body.anexos?.length ?? 0,
+    }, null, 2))
 
     const resultado = await db
       .select()
@@ -56,7 +64,7 @@ export async function PUT(
       .limit(1)
 
     if (!resultado[0]) {
-      return NextResponse.json({ error: "Solicitação não encontrado" }, { status: 404 })
+      return NextResponse.json({ error: "Solicitação não encontrada" }, { status: 404 })
     }
 
     const solicitacaoAntiga = resultado[0]
@@ -66,14 +74,25 @@ export async function PUT(
     if (body.cliente && body.cliente !== solicitacaoAntiga.cliente) {
       alteracoes.push(`Cliente: ${solicitacaoAntiga.cliente} → ${body.cliente}`)
     }
-    if (body.projeto && body.projeto !== solicitacaoAntiga.projeto) {
-      alteracoes.push(`Projeto: ${solicitacaoAntiga.projeto || '-'} → ${body.projeto}`)
+    if (body.projeto !== undefined && body.projeto !== solicitacaoAntiga.projeto) {
+      alteracoes.push(`Projeto: ${solicitacaoAntiga.projeto || '-'} → ${body.projeto || '-'}`)
     }
     if (body.status && body.status !== solicitacaoAntiga.status) {
       alteracoes.push(`Status: ${solicitacaoAntiga.status} → ${body.status}`)
     }
     if (body.briefing && JSON.stringify(body.briefing) !== JSON.stringify(solicitacaoAntiga.briefing)) {
       alteracoes.push("Briefing atualizado")
+    }
+    if (body.prazoDesejado !== undefined) {
+      const prazoAntigoStr = solicitacaoAntiga.prazoDesejado
+        ? new Date(solicitacaoAntiga.prazoDesejado).toISOString().split("T")[0]
+        : null
+      const prazoNovoStr = body.prazoDesejado
+        ? new Date(body.prazoDesejado).toISOString().split("T")[0]
+        : null
+      if (prazoAntigoStr !== prazoNovoStr) {
+        alteracoes.push(`Prazo Desejado: ${prazoAntigoStr || '-'} → ${prazoNovoStr || '-'}`)
+      }
     }
 
     const novoHistorico = [
@@ -86,24 +105,35 @@ export async function PUT(
       }
     ]
 
-    const { anexos: anexosList, ...updateData } = body
-
-    if (updateData.prazoDesejado) {
-      updateData.prazoDesejado = new Date(updateData.prazoDesejado)
-    } else {
-      updateData.prazoDesejado = null
+    // Mapeamento explícito — NUNCA use spread do body diretamente no Drizzle.
+    // Isso garante que cada campo seja tipado corretamente antes de ir ao banco.
+    const setValues: Record<string, any> = {
+      historicoComunicacao: novoHistorico,
+      updatedAt: new Date(),
     }
+
+    if (body.tipo !== undefined)     setValues.tipo     = body.tipo
+    if (body.cliente !== undefined)  setValues.cliente  = body.cliente
+    if (body.cnpj !== undefined)     setValues.cnpj     = body.cnpj || null
+    if (body.projeto !== undefined)  setValues.projeto  = body.projeto || null
+    if (body.status !== undefined)   setValues.status   = body.status
+    if (body.briefing !== undefined) setValues.briefing = body.briefing
+
+    // Converte prazoDesejado: string ISO → Date para o Drizzle / Postgres timestamp
+    if (body.prazoDesejado !== undefined) {
+      setValues.prazoDesejado = body.prazoDesejado ? new Date(body.prazoDesejado) : null
+    }
+
+    console.log("=== PUT setValues.prazoDesejado ===", setValues.prazoDesejado?.toISOString?.() ?? null)
 
     const [solicitacaoAtualizada] = await db
       .update(solicitacoes)
-      .set({
-        ...updateData,
-        historicoComunicacao: novoHistorico,
-        updatedAt: new Date(),
-      })
+      .set(setValues)
       .where(eq(solicitacoes.id, parseInt(id)))
       .returning()
 
+    // Atualiza anexos: apaga os antigos e reinsere
+    const { anexos: anexosList } = body
     if (anexosList !== undefined) {
       await db.delete(anexos).where(eq(anexos.solicitacaoId, parseInt(id)))
       if (anexosList.length > 0) {
