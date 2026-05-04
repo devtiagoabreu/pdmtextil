@@ -188,3 +188,18 @@ NOVA SOLICITAÇÃO:
 
 ✅ Commit pronto:
 `fix: sincroniza cnpj manual ao rhf e corrige resumo do passo 3 com dados em tempo real`
+
+---
+
+📦 BLOCO BUGS FIX 4: Campo de data não salva no banco (PUT)
+🗓️ Data: 04/05/2026
+
+✅ O que foi feito:
+
+- **Bug Crítico — `prazoDesejado` não era gravado no banco via PUT:** O handler `PUT /api/solicitacoes/[id]` fazia `const { anexos, ...updateData } = body` e depois `db.update().set({ ...updateData })`, ou seja, passava o body inteiro (como objeto JS puro com strings) diretamente para o Drizzle. O Drizzle **não converte strings automaticamente** para o tipo `timestamp` do Postgres — isso causava falha silenciosa e o campo voltava como `null`. O POST funcionava porque mapeava os campos explicitamente com `new Date(prazoDesejado)`.
+- **Correção:** O PUT foi refatorado para usar mapeamento explícito de cada campo (igual ao POST), com `setValues.prazoDesejado = body.prazoDesejado ? new Date(body.prazoDesejado) : null`. Adicionados logs de debug focados (`BODY` e `setValues.prazoDesejado`) para facilitar rastreamento futuro.
+- **Banco de dados e Schema Drizzle:** Verificados e estão corretos — coluna `prazo_desejado timestamp` existe na migração e no schema.
+- **Frontend (nova e editar):** Verificados e estão corretos — payload envia `"YYYY-MM-DDT12:00:00Z"` via `getValues()` do RHF.
+
+✅ Commit pronto:
+`fix: refatora PUT com mapeamento explicito de campos e conversao correta de prazoDesejado`
