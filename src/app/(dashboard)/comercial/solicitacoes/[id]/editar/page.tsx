@@ -153,6 +153,7 @@ export default function EditarSolicitacaoPage() {
   }
 
 const onStep2Submit = async (data: BriefingTecelagem) => {
+    console.log("=== STEP 2 SUBMIT DATA ===", JSON.stringify(data, null, 2))
     setBriefingData(data)
     setStep(3)
   }
