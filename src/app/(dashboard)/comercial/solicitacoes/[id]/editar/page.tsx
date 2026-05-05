@@ -39,7 +39,8 @@ export default function EditarSolicitacaoPage() {
   
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(true)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isLoaded, setIsLoaded] = useState(false)
+  const [tipoKey, setTipoKey] = useState(0)
   
   const [comercialData, setComercialData] = useState<DadosComerciais>({
     tipo: undefined,
@@ -111,6 +112,8 @@ export default function EditarSolicitacaoPage() {
         router.push("/comercial/solicitacoes")
       } finally {
         setLoading(false)
+        setIsLoaded(true)
+        setTipoKey(prev => prev + 1) // Force re-render
       }
     }
     
@@ -121,13 +124,13 @@ export default function EditarSolicitacaoPage() {
 
   // Avisa se tem anexos ao carregar
   useEffect(() => {
-    if (!loading && anexosData.length > 0) {
+    if (isLoaded && anexosData.length > 0) {
       toast.warning("Esta solicitação possui links anexados. Para.editá-los, você precisará deletá-los primeiro e recriar após salvar.")
     }
-  }, [loading, anexosData])
+  }, [isLoaded, anexosData])
 
   useEffect(() => {
-    if (!loading && comercialData.tipo) {
+    if (isLoaded && comercialData.tipo) {
       console.log("=== SETTING TIPO VALUE ===", comercialData.tipo)
       setValue("tipo", comercialData.tipo as any)
       setValue("cliente", comercialData.cliente)
@@ -135,7 +138,7 @@ export default function EditarSolicitacaoPage() {
       setValue("projeto", comercialData.projeto)
       setValue("prazoDesejado", comercialData.prazoDesejado)
     }
-  }, [loading, comercialData, setValue])
+  }, [isLoaded, comercialData, setValue])
 
   const onStep1Submit = (data: DadosComerciais) => {
     setComercialData(data)
@@ -229,7 +232,7 @@ const onStep2Submit = async (data: BriefingTecelagem) => {
 
   return (
     <div className="max-w-4xl mx-auto py-8">
-      <div className="mb-6">
+      <div className="mb-6 flex items-center justify-between">
         <Link
           href={`/comercial/solicitacoes/${id}`}
           className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900"
@@ -237,6 +240,13 @@ const onStep2Submit = async (data: BriefingTecelagem) => {
           <ArrowLeft size={16} />
           Voltar para Detalhes
         </Link>
+        <Button 
+          variant="outline" 
+          onClick={() => router.push(`/comercial/solicitacoes/${id}`)}
+          className="text-sm"
+        >
+          Cancelar
+        </Button>
       </div>
 
       <div className="mb-8">
@@ -287,6 +297,7 @@ const onStep2Submit = async (data: BriefingTecelagem) => {
                 <Controller
                   name="tipo"
                   control={control}
+                  key={tipoKey}
                   render={({ field }) => (
                     <Select 
                       onValueChange={(val) => {
