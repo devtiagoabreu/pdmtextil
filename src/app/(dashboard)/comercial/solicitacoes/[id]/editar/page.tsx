@@ -95,6 +95,8 @@ export default function EditarSolicitacaoPage() {
           projeto: data.projeto || "",
           prazoDesejado: data.prazoDesejado ? data.prazoDesejado.split('T')[0] : "",
         })
+
+        setValue("tipo", tipoValue, { shouldValidate: false })
         
         if (data.briefing) {
           setBriefingData(data.briefing)
@@ -243,7 +245,7 @@ const onStep2Submit = async (data: BriefingTecelagem) => {
         </Link>
         <Button 
           variant="outline" 
-          onClick={() => router.push(`/comercial/solicitacoes/${id}`)}
+          onClick={() => router.push("/comercial/solicitacoes")}
           className="text-sm"
         >
           Cancelar
