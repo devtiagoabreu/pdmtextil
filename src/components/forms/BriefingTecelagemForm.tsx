@@ -106,8 +106,11 @@ export function BriefingTecelagemForm({ initialData, onNext, onBack }: BriefingT
 
   const onSubmitDebug = (data: BriefingTecelagem) => {
     console.log("=== BRIEFING FORM SUBMIT DATA ===", JSON.stringify(data, null, 2))
+    console.log("=== FORM VALUES (getValues) ===", JSON.stringify(getValues(), null, 2))
     onNext(data)
   }
+
+  const { register, control, handleSubmit, formState: { errors }, getValues } = useForm<BriefingTecelagem>({
 
   return (
     <form onSubmit={handleSubmit(onSubmitDebug)} className="space-y-8 mt-6 pb-24">
