@@ -215,7 +215,7 @@ export default function NovaSolicitacaoPage() {
                         field.onChange(val)
                         setComercialData(prev => ({ ...prev, tipo: val as any }))
                       }} 
-                      value={field.value}
+                      defaultValue={field.value}
                     >
                       <SelectTrigger className={errors.tipo ? "border-red-500" : ""}>
                         <SelectValue placeholder="Selecione o tipo..." />

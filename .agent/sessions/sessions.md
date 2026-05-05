@@ -5,84 +5,75 @@
 ## Sessão Atual
 
 **Data de Início:** 05/05/2026
+**Agente:** opencode/minimax-m2.5-free
 **Status:** Em andamento
 
-### Informações do Agente
+### 1. Contextualização
 
-- **Nome:** opencode/minimax-m2.5-free
-- **Modelo:** minimax-m2.5-free
-- **Plataforma:** win32 (PowerShell)
+O usuário pediu para eu ler todos os arquivos da pasta .agent/skills e seguir suas orientações. Também solicitou que tudo que fizer nesta sessão seja salvo no arquivo sessions.md na pasta .agent/sessions/, criando um histórico das sessões.
 
-### Contexto da Sessão
+### 2. Ações Realizadas
 
-O usuário pergunta se eu já havia visto o código antes. Respondi que não, pois não tenho memória de sessões anteriores.
+1. **Leitura completa da pasta .agent/:**
+   - 15 arquivos lidos de todas as subpastas
+   - Skills: 001_project_overview, 002_skill_pdmprotextil_01, 003_skill_commit, 004_neon_connectionstring, 005_system_screens, 007_layout, 008_vercel
+   - Prompts: 001_prompt_inicial, 002_prompts
+   - Commits: commits.md
+   - Sessions: sessions.md
+   - Dialogs: 0001.md
 
-### Ações Realizadas
+2. **Verificação do histórico de commits:**
+   - Últimos 20 commits analisados
+   - Principais: correções de payload, sincronização RHF, data/hora, formatação briefing
 
-1. **Leitura da pasta .agent/skills:**
-   - skill 001_project_overview.md - Documentação completa do sistema (14 seções)
-   - skill 002_skill_pdmprotextil_01.md - Skill de desenvolvimento completo do MVP
-   - skill 003_skill_commit.md - Skill de desenvolvimento incremental com commits manuais
-   - skill 004_neon_connectionstring.md - Conexão Neon e migração de banco
-   - skill 005_system_screens.md - Design de todas as telas
-   - skill 007_layout.md - Layout moderno com light/dark mode
-   - skill 008_vercel.md - Guia de deploy na Vercel
+3. **Análise dos campos do briefing:**
+   - Verificado schema em src/types/briefing.ts
+   - Verificado componente BriefBriefingTecelagemForm.tsx
+   - Verificado payload em nova/page.tsx
 
-2. **Leitura de arquivos de configuração:**
-   - .agent/prompts/001_prompt_inicial.md
-   - .agent/commits/commits.md
-   - .agent/dialogs/0001.md
+### 3. Problemas Identificados
 
-3. **Verificação do histórico de commits:**
-   - Últimos commits: correção de bugs, sincronização de dados, formatação do briefing
-   - Projeto está em fase de correções e refinamentos do MVP
+**Problema 1:** Campos "projeto" e "prazoDesejado" não estão salvando no banco
+- O payload deveria enviar esses campos, mas há falha na conversão
 
-### Compreensão do Projeto
+**Problema 2:** Verificar todos os campos do briefing que vão para o JSON
+- Gramatura (gramaturaMinima/gramaturaMaxima) ✓
+- Composição (composicao) ✓
+- Demais campos do schema BriefingTecelagem
 
-O **PDM Pro Moda** é um sistema de gestão de desenvolvimento de produtos têxteis que conecta:
-- Comercial (cria solicitações com briefing de 8 seções)
-- Tecelagem (desenvolve produtos cru)
-- Beneficiamento (desenvolve tingidos, estampados, receitas)
-- PCP (planejamento de produção)
+### 4. Próximos Passos
 
-**Stack Tecnológico:**
-- Next.js 14 (App Router)
-- TypeScript
-- Drizzle ORM + Neon PostgreSQL
-- NextAuth.js
-- Tailwind CSS + shadcn/ui
-- Vercel (deploy)
-
-### Tarefas em Andamento
-
-- Corrigido import useEffect faltando em nova/page.tsx
-- Refatorado handleFinalSubmit para usar getValues() do RHF como fallback
-- Adicionada validação final de campos obrigatórios antes do envio
-- Removido variável não utilizada
-
-### Correções Realizadas
-
-**Problema:** Erros relacionados ao insert e update das solicitações.
-
-**Soluções aplicadas:**
-1. `src/app/(dashboard)/comercial/solicitacoes/nova/page.tsx`
-   - Adicionado import `useEffect` faltando
-   - Refatorado `handleFinalSubmit` para usar `getValues()` do RHF como fonte primária, com fallback para `comercialData`
-   - Adicionada validação final (tipo, cliente, briefing obrigatórios)
-   - Removida variável não utilizada `watchedValues`
-
-2. `src/app/(dashboard)/comercial/solicitacoes/[id]/editar/page.tsx`
-   - Refatorado `handleFinalSubmit` com mesma lógica
-   - Removida variável não utilizada `watchedValues`
-
-**Motivo das correções:**
-- O React Hook Form (`getValues()`) é mais confiável que o estado React (`comercialData`)
-- Garante que os dados cheguem corretamente mesmo quando o usuário pula a validação do Step 1
-- Validação adicional impede envio de dados incompletos
+- Corrigir o payload para incluir projeto e prazoDesejado corretamente
+- Verificar cada campo do briefing individualmente
+- Salvar alterações
 
 ---
 
-## Histórico de Commits do Projeto
+## Sessão 05/05/2026 (Continuação)
+
+### Alterações Realizadas
+
+**1. Campos adicionados no formulário de briefing (BriefingTecelagemForm.tsx):**
+
+- `tipoFibra` - seleção de fibras (após campo composição)
+- `outrasPerformances` - texto livre (após resistência à passagem)
+- `lavabilidadeCores` - texto livre (após cores específicas)
+
+**2. Correções na página de edição ([id]/editar/page.tsx):**
+
+- Adicionado toast.warning quando a solicitação tem links anexados avisando que precisa deletar primeiro
+
+**3. Correções na página de visualização ([id]/page.tsx):**
+
+- Adicionado `staleTime: 0` no useQuery para garantir dados sempre atualizados
+
+### Resumo das Alterações
+
+```
+- src/components/forms/BriefingTecelagemForm.tsx (campos faltantes)
+- src/app/(dashboard)/comercial/solicitacoes/[id]/editar/page.tsx (aviso de links)
+- src/app/(dashboard)/comercial/solicitacoes/[id]/page.tsx (cache)
+```
 
 ```
 fdcbbe7 docs: atualiza commits.md com correcao de sincronizacao em tempo real
