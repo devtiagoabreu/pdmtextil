@@ -160,9 +160,18 @@ export default function NovaSolicitacaoPage() {
 
   return (
     <div className="max-w-4xl mx-auto py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight">Nova Solicitação</h1>
-        <p className="text-muted-foreground mt-2">Crie uma nova solicitação de desenvolvimento têxtil.</p>
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Nova Solicitação</h1>
+          <p className="text-muted-foreground mt-2">Crie uma nova solicitação de desenvolvimento têxtil.</p>
+        </div>
+        <Button 
+          variant="outline" 
+          onClick={() => router.push("/comercial/solicitacoes")}
+          className="text-sm"
+        >
+          Cancelar
+        </Button>
       </div>
 
       {/* PROGRESS BAR */}
