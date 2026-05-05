@@ -61,6 +61,7 @@ export default function EditarSolicitacaoPage() {
     contato: "",
   })
   const [isCriandoCliente, setIsCriandoCliente] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const { register, handleSubmit, control, formState: { errors }, setValue, watch, getValues } = useForm<DadosComerciais>({
     resolver: zodResolver(dadosComerciaisSchema),
