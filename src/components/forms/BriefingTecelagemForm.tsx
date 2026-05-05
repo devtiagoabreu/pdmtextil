@@ -92,7 +92,6 @@ const TIPO_FIBRA_LABELS: Record<string, string> = {
 }
 
 export function BriefingTecelagemForm({ initialData, onNext, onBack }: BriefingTecelagemFormProps) {
-  console.log("=== BRIEFING FORM INITIAL DATA ===", JSON.stringify(initialData, null, 2))
   const { register, control, handleSubmit, formState: { errors } } = useForm<BriefingTecelagem>({
     resolver: zodResolver(briefingTecelagemSchema),
     defaultValues: initialData || {

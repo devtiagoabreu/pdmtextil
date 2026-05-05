@@ -136,24 +136,12 @@ export default function EditarSolicitacaoPage() {
     }
   }, [isLoaded, anexosData])
 
-  useEffect(() => {
-    if (isLoaded && comercialData.tipo) {
-      console.log("=== SETTING TIPO VALUE ===", comercialData.tipo)
-      setValue("tipo", comercialData.tipo as any)
-      setValue("cliente", comercialData.cliente)
-      setValue("cnpj", comercialData.cnpj)
-      setValue("projeto", comercialData.projeto)
-      setValue("prazoDesejado", comercialData.prazoDesejado)
-    }
-  }, [isLoaded, comercialData, setValue])
-
   const onStep1Submit = (data: DadosComerciais) => {
     setComercialData(data)
     setStep(2)
   }
 
 const onStep2Submit = async (data: BriefingTecelagem) => {
-    console.log("=== STEP 2 SUBMIT DATA ===", JSON.stringify(data, null, 2))
     setBriefingData(data)
     setStep(3)
   }
