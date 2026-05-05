@@ -67,7 +67,6 @@ export default function EditarSolicitacaoPage() {
   })
 
   // Sincroniza RHF -> comercialData em tempo real
-  const watchedValues = watch()
   useEffect(() => {
     const subscription = watch((value) => {
       setComercialData(prev => ({ ...prev, ...value }))
@@ -141,18 +140,33 @@ const onStep2Submit = async (data: BriefingTecelagem) => {
   const handleFinalSubmit = async () => {
     setIsSubmitting(true)
     try {
-      // A fonte da verdade agora é o comercialData (que está sincronizado via watch)
+      // Usa getValues() do RHF como fonte primária (mais confiável), com fallback para comercialData
+      const rhfValues = getValues()
+      
       const payload = {
-        tipo: watchedValues.tipo || comercialData.tipo,
-        cliente: watchedValues.cliente || comercialData.cliente,
-        cnpj: watchedValues.cnpj || comercialData.cnpj || null,
-        projeto: watchedValues.projeto || comercialData.projeto || null,
-        prazoDesejado: (watchedValues.prazoDesejado || comercialData.prazoDesejado) ? `${watchedValues.prazoDesejado || comercialData.prazoDesejado}T12:00:00Z` : null,
+        tipo: rhfValues.tipo || comercialData.tipo,
+        cliente: rhfValues.cliente || comercialData.cliente,
+        cnpj: rhfValues.cnpj || comercialData.cnpj || null,
+        projeto: rhfValues.projeto || comercialData.projeto || null,
+        prazoDesejado: (rhfValues.prazoDesejado || comercialData.prazoDesejado) 
+          ? `${rhfValues.prazoDesejado || comercialData.prazoDesejado}T12:00:00Z` 
+          : null,
         briefing: briefingData,
         anexos: anexosData,
       }
 
-      console.log("=== SENDING PUT PAYLOAD ===", payload);
+      // Validação final antes do envio
+      if (!payload.tipo) {
+        throw new Error("Tipo de solicitação é obrigatório")
+      }
+      if (!payload.cliente) {
+        throw new Error("Cliente é obrigatório")
+      }
+      if (!payload.briefing || Object.keys(payload.briefing).length === 0) {
+        throw new Error("Briefing é obrigatório")
+      }
+
+      console.log("=== SENDING PUT PAYLOAD ===", JSON.stringify(payload, null, 2))
 
       const res = await fetch(`/api/solicitacoes/${id}`, {
         method: "PUT",
@@ -264,7 +278,13 @@ const onStep2Submit = async (data: BriefingTecelagem) => {
                   name="tipo"
                   control={control}
                   render={({ field }) => (
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select 
+                      onValueChange={(val) => {
+                        field.onChange(val)
+                        setComercialData(prev => ({ ...prev, tipo: val as any }))
+                      }} 
+                      value={field.value}
+                    >
                       <SelectTrigger className={errors.tipo ? "border-red-500" : ""}>
                         <SelectValue placeholder="Selecione o tipo..." />
                       </SelectTrigger>
@@ -290,14 +310,20 @@ const onStep2Submit = async (data: BriefingTecelagem) => {
                   render={({ field }) => (
                     <ClienteAutocomplete
                       value={field.value}
-                      onChange={field.onChange}
-                      onSelect={(cliente) => setValue("cnpj", cliente.cnpj)}
+                      onChange={(val) => {
+                        field.onChange(val)
+                        setComercialData(prev => ({ ...prev, cliente: val }))
+                      }}
+                      onSelect={(cliente) => {
+                        setValue("cnpj", cliente.cnpj)
+                        setComercialData(prev => ({ ...prev, cnpj: cliente.cnpj }))
+                      }}
                       onNovoCliente={() => setShowNovoCliente(true)}
                       error={errors.cliente?.message}
                       cnpjValue={comercialData.cnpj}
                       onCnpjChange={(val) => {
-                        setComercialData((prev) => ({ ...prev, cnpj: val }))
                         setValue("cnpj", val)
+                        setComercialData((prev) => ({ ...prev, cnpj: val }))
                       }}
                     />
                   )}
@@ -306,12 +332,39 @@ const onStep2Submit = async (data: BriefingTecelagem) => {
 
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Nome do Projeto</Label>
-                <Input {...register("projeto")} placeholder="Ex: Coleção Inverno 2027" />
+                <Controller
+                  name="projeto"
+                  control={control}
+                  render={({ field }) => (
+                    <Input 
+                      {...field} 
+                      placeholder="Ex: Coleção Inverno 2027" 
+                      onChange={(e) => {
+                        field.onChange(e)
+                        setComercialData(prev => ({ ...prev, projeto: e.target.value }))
+                      }}
+                    />
+                  )}
+                />
               </div>
 
               <div className="space-y-2 md:col-span-2">
                 <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Prazo Desejado</Label>
-                <Input type="date" {...register("prazoDesejado")} className="max-w-xs" />
+                <Controller
+                  name="prazoDesejado"
+                  control={control}
+                  render={({ field }) => (
+                    <Input 
+                      type="date" 
+                      {...field} 
+                      className="max-w-xs" 
+                      onChange={(e) => {
+                        field.onChange(e)
+                        setComercialData(prev => ({ ...prev, prazoDesejado: e.target.value }))
+                      }}
+                    />
+                  )}
+                />
               </div>
             </div>
 
