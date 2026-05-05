@@ -2,7 +2,7 @@
 
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { briefingTecelagemSchema, BriefingTecelagem, SEGMENTOS, TECNOLOGIAS, LIGAMENTO, TIPOS_ACABAMENTO } from "@/types/briefing"
+import { briefingTecelagemSchema, BriefingTecelagem, SEGMENTOS, TECNOLOGIAS, LIGAMENTO, TIPOS_ACABAMENTO, TIPO_FIBRA } from "@/types/briefing"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -75,6 +75,19 @@ const TIPOS_ACABAMENTO_LABELS: Record<string, string> = {
   TEXTURIZADO: "Texturizado",
   ESTAMPADO: "Estampado",
   TINGIDO: "Tingido",
+  OUTROS: "Outros",
+}
+
+const TIPO_FIBRA_LABELS: Record<string, string> = {
+  POLIESTER: "Poliéster",
+  ALGODAO: "Algodão",
+  LINHO: "Linho",
+  VISCOSE: "Viscose",
+  MODAL: "Modal",
+  ACRILICO: "Acrílico",
+  NYLON: "Nylon",
+  LINHA_RECICLADA: "Linha Reciclada",
+  ORGANICO: "Orgânico",
   OUTROS: "Outros",
 }
 
@@ -205,6 +218,34 @@ export function BriefingTecelagemForm({ initialData, onNext, onBack }: BriefingT
             <Input
               {...register("requisitosTecnicos.composicao")}
               placeholder="Ex: 100% Poliéter, 65% Poliéter / 35% Algodão"
+            />
+          </div>
+
+          <div className="space-y-3">
+            <Label>Tipo de Fibra</Label>
+            <Controller
+              name="requisitosTecnicos.tipoFibra"
+              control={control}
+              render={({ field }) => (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {TIPO_FIBRA.map((fibra) => (
+                    <div key={fibra} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={fibra}
+                        checked={field.value?.includes(fibra)}
+                        onCheckedChange={(checked) => {
+                          return checked
+                            ? field.onChange([...(field.value || []), fibra])
+                            : field.onChange(field.value?.filter((val) => val !== fibra))
+                        }}
+                      />
+                      <Label htmlFor={fibra} className="text-sm font-normal cursor-pointer">
+                        {TIPO_FIBRA_LABELS[fibra]}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              )}
             />
           </div>
 
@@ -390,6 +431,14 @@ export function BriefingTecelagemForm({ initialData, onNext, onBack }: BriefingT
               </div>
             </div>
           </div>
+
+          <div className="space-y-3">
+            <Label>Outras Performances</Label>
+            <Input
+              {...register("performance.outrasPerformances")}
+              placeholder="Descreva outras performances especiais..."
+            />
+          </div>
         </div>
       </section>
 
@@ -556,6 +605,14 @@ export function BriefingTecelagemForm({ initialData, onNext, onBack }: BriefingT
               {...register("cores.coresEspecificas")}
               placeholder="Liste as cores específicas..."
               rows={2}
+            />
+          </div>
+
+          <div className="space-y-3">
+            <Label>Lavabilidade das Cores</Label>
+            <Input
+              {...register("cores.lavabilidadeCores")}
+              placeholder="Ex: Resistente à lavação, solidez..."
             />
           </div>
         </div>

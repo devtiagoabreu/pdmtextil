@@ -2,28 +2,26 @@
 
 ---
 
-## Prompt 002
+## Prompt 002 (Continuação)
 
 **Data:** 05/05/2026
 **Arquivo:** .agent/prompts/002_prompts
 
+### Texto Original
 
-### Texto 
+Ok! Então leia todos os arquivos da pasta .agent/skills com cuidado e siga suas orientações, depois preciso que tudo que fizer nesta sessão salve no arquivo sessions.md da pasta .agent/sessions/ assim terá sempre um histórico da sessões. Na sessão você precisa informar quem é você e seus dados e tudo o que está realizando, é importante atualizar o arquivo a cada interação com o usuário. Preciso que leia todos os arquivos de todas as subpastas da pasta .agent/ depois veja o histórico de commits no git para entender o que estamos fazendo. Grave os prompts que escrevo sempre no arquivo .agent/prompts/002_prompts, inclusive esse... mas rescreva meu texto corrigindo o português ao salvar.... Agora a data prevista está salvando... e a coleção... porém precisa ver todos os campos do briefing pois nem todos está indo para o json. Verifique campo por campo.. exemplo a gramatura, a composição e os outros.
 
-Você já teve acesso a esse código antes? E as skills precisam ser vistas novamente ou não? Só me responda isso.
+### Texto Corrigido
 
----
-
-### Resposta do Agente
-
-Não, esta é a primeira vez que estou vendo este código nesta sessão. Não tenho memória de sessões anteriores. O que você gostaria que eu fizesse?
-
----
+Ok! Então leia todos os arquivos da pasta .agent/skills com cuidado e siga suas orientações. Depois preciso que tudo o que fizer nesta sessão seja salvo no arquivo sessions.md da pasta .agent/sessions/, assim terá sempre um histórico das sessões. Na sessão você precisa informar quem é você e seus dados, e tudo o que está realizando. É importante atualizar o arquivo a cada interação com o usuário. Preciso que leia todos os arquivos de todas as subpastas da pasta .agent/. Depois veja o histórico de commits no git para entender o que estamos fazendo. Grave os prompts que escrevo sempre no arquivo .agent/prompts/002_prompts, inclusive este... mas reescreva meu texto corrigindo o português ao salvar. Agora a data prevista está salvando... e a coleção... porém precisa ver todos os campos do briefing pois nem todos estão indo para o JSON. Verifique campo por campo... por exemplo, a gramatura, a composição e os outros.
 
 ### Ação Realizada
 
-- Analisado o código da pasta .agent/skills (7 arquivos de skills)
-- Lidos todos os arquivos de configuração do .agent/
-- Verificado o histórico de commits do git
-- Criado/atualizado arquivo sessions.md com contexto da sessão
-- Salvo prompt com português corrigido neste arquivo
+- Lidos todos os arquivos da pasta .agent/ (15 arquivos)
+- Verificado histórico de commits (20 últimos commits)
+- Analisados os schemas de briefing em src/types/briefing.ts
+- Analisado o formulário em src/components/forms/BriefingTecelagemForm.tsx
+- Analisado o payload em nova/page.tsx
+- Identificados problemas nos campos projeto e prazoDesejado que não estão sendo salvos corretamente
+
+---

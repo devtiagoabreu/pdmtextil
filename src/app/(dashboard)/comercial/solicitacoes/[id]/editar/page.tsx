@@ -82,6 +82,8 @@ export default function EditarSolicitacaoPage() {
         
         const data = await res.json()
         
+        console.log("=== LOADING SOLICITACAO ===", data.tipo)
+        
         const tipoValue = data.tipo || "DESENVOLVIMENTO_TECELAGEM"
         
         setComercialData({
@@ -117,9 +119,17 @@ export default function EditarSolicitacaoPage() {
     }
   }, [id, router])
 
+  // Avisa se tem anexos ao carregar
+  useEffect(() => {
+    if (!loading && anexosData.length > 0) {
+      toast.warning("Esta solicitação possui links anexados. Para.editá-los, você precisará deletá-los primeiro e recriar após salvar.")
+    }
+  }, [loading, anexosData])
+
   useEffect(() => {
     if (!loading && comercialData.tipo) {
-      setValue("tipo", comercialData.tipo)
+      console.log("=== SETTING TIPO VALUE ===", comercialData.tipo)
+      setValue("tipo", comercialData.tipo as any)
       setValue("cliente", comercialData.cliente)
       setValue("cnpj", comercialData.cnpj)
       setValue("projeto", comercialData.projeto)
@@ -283,7 +293,7 @@ const onStep2Submit = async (data: BriefingTecelagem) => {
                         field.onChange(val)
                         setComercialData(prev => ({ ...prev, tipo: val as any }))
                       }} 
-                      value={field.value}
+                      defaultValue={field.value}
                     >
                       <SelectTrigger className={errors.tipo ? "border-red-500" : ""}>
                         <SelectValue placeholder="Selecione o tipo..." />

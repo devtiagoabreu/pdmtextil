@@ -109,6 +109,7 @@ export default function DetalheSolicitacaoPage() {
     queryKey: ["solicitacao", id],
     queryFn: () => fetchSolicitacao(id),
     enabled: mounted && !!id,
+    staleTime: 0,
   })
 
   const deleteMutate = useMutation({
