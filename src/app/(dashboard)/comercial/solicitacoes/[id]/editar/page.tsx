@@ -97,6 +97,10 @@ export default function EditarSolicitacaoPage() {
         })
 
         setValue("tipo", tipoValue, { shouldValidate: false })
+        setValue("cliente", data.cliente || "", { shouldValidate: false })
+        setValue("cnpj", data.cnpj || "", { shouldValidate: false })
+        setValue("projeto", data.projeto || "", { shouldValidate: false })
+        setValue("prazoDesejado", data.prazoDesejado ? data.prazoDesejado.split('T')[0] : "", { shouldValidate: false })
         
         if (data.briefing) {
           setBriefingData(data.briefing)
