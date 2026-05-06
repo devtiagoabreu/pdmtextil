@@ -141,7 +141,12 @@ if (isLoading) {
                           <button
                             onClick={(e) => {
                               e.preventDefault()
-                              if (confirm("Excluir solicitação?")) {
+                              const temAnexos = (s as any).anexosCount > 0
+                              let mensagem = "Excluir solicitação?"
+                              if (temAnexos) {
+                                mensagem = `Esta solicitação possui ${(s as any).anexosCount} link(s) anexado(s). Ao excluir, os links também serão removidos. Continuar?`
+                              }
+                              if (confirm(mensagem)) {
                                 fetch(`/api/solicitacoes/${s.id}`, { method: "DELETE" })
                                   .then(() => window.location.reload())
                                   .catch(() => alert("Erro ao excluir"))
