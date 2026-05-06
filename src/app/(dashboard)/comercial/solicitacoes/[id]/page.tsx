@@ -477,8 +477,8 @@ export default function DetalheSolicitacaoPage() {
                 <p className="text-sm text-slate-500">Sem histórico</p>
               )}
             </div>
-          </>
-        ) : null}
+          </div>
+        </div>
       </div>
     </div>
   )
