@@ -168,9 +168,7 @@ export default function NovoFioPage() {
               <Label htmlFor="resistencia">Resistência (kgf)</Label>
               <Input 
                 id="resistencia" 
-                type="number"
-                step="0.01"
-                placeholder="Ex: 350"
+                placeholder="Ex: 350.00"
                 {...register("resistencia")}
               />
             </div>
@@ -179,9 +177,7 @@ export default function NovoFioPage() {
               <Label htmlFor="alongamento">Alongamento (%)</Label>
               <Input 
                 id="alongamento" 
-                type="number"
-                step="0.01"
-                placeholder="Ex: 5.5"
+                placeholder="Ex: 5.50"
                 {...register("alongamento")}
               />
             </div>
