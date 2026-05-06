@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useQuery, useMutation } from "@tanstack/react-query"
 import { useRouter, useParams } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, FileText, Pencil, Trash2, Printer, Link as LinkIcon } from "lucide-react"
+import { ArrowLeft, FileText, Pencil, Trash2, Printer, Link as LinkIcon, Download } from "lucide-react"
 import { toast } from "sonner"
 
 const STATUS_CONFIG: Record<string, { label: string; classes: string }> = {
@@ -89,6 +89,50 @@ const PRECO_LABELS: Record<string, string> = {
   PREMIUM: "Premium",
 }
 
+const TIPO_TECIDO_LABELS: Record<string, string> = {
+  PLANO: "Tecido Plano",
+  JACQUARD: "Jacquard",
+  MALHA: "Malha",
+}
+
+const LIGAMENTO_LABELS: Record<string, string> = {
+  TAFETAN: "Taftan",
+  SARJA: "Sarja",
+  RIBANA: "Ribana",
+  CETIM: "Cetim",
+  OXFORD: "Oxford",
+  DOBRADINHA: "Dobradinha",
+  MALHA: "Malha",
+  OUTROS: "Outros",
+}
+
+const TIPO_FIBRA_LABELS: Record<string, string> = {
+  POLIESTER: "Poliéster",
+  ALGODAO: "Algodão",
+  LINHO: "Linho",
+  VISCOSE: "Viscose",
+  MODAL: "Modal",
+  ACRILICO: "Acrílico",
+  NYLON: "Nylon",
+  LINHA_RECICLADA: "Linha Reciclada",
+  ORGANICO: "Orgânico",
+  OUTROS: "Outros",
+}
+
+const TIPOS_ACABAMENTO_LABELS: Record<string, string> = {
+  SANFORIZADO: "Sanforizado",
+  MERCERIZADO: "Mercerizado",
+  RESINADO: "Resinado",
+  AMACIADO: "Amaciado",
+  ESFOLHADO: "Esfoliado",
+  BRILHO: "Brilho",
+  FOSCO: "Fosco",
+  TEXTURIZADO: "Texturizado",
+  ESTAMPADO: "Estampado",
+  TINGIDO: "Tingido",
+  OUTROS: "Outros",
+}
+
 async function fetchSolicitacao(id: string) {
   const res = await fetch(`/api/solicitacoes/${id}?t=${Date.now()}`)
   if (!res.ok) throw new Error("Falha ao carregar solicitação")
@@ -151,6 +195,51 @@ export default function DetalheSolicitacaoPage() {
     window.print()
   }
 
+  const handleExportPdf = () => {
+    const filename = `${sol.id}-${(sol.projeto || "sem-projeto").replace(/[^a-zA-Z0-9]/g, "-")}-${new Date(sol.createdAt).toISOString().split("T")[0]}.pdf`
+    const printContent = document.getElementById("ficha-impressao")
+    if (!printContent) return
+    
+    const printWindow = window.open("", "_blank")
+    if (!printWindow) return
+    
+    const html = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>${filename}</title>
+          <style>
+            * { box-sizing: border-box; margin: 0; padding: 0; }
+            body { font-family: Arial, sans-serif; padding: 20px; color: #333; }
+            h1 { font-size: 24px; margin-bottom: 10px; }
+            h2 { font-size: 18px; margin: 20px 0 10px; border-bottom: 2px solid #333; padding-bottom: 5px; }
+            h3 { font-size: 14px; margin: 15px 0 8px; color: #555; }
+            .header { margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #333; }
+            .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .field { margin-bottom: 8px; }
+            .label { font-weight: bold; color: #555; font-size: 12px; }
+            .value { font-size: 13px; }
+            .section { margin: 20px 0; }
+            .links { list-style: none; }
+            .links li { margin: 5px 0; }
+            .links a { color: #0066cc; text-decoration: none; }
+            @media print { body { padding: 0; } }
+          </style>
+        </head>
+        <body>
+          ${printContent.innerHTML}
+        </body>
+      </html>
+    `
+    
+    printWindow.document.write(html)
+    printWindow.document.close()
+    printWindow.onload = () => {
+      printWindow.print()
+      printWindow.close()
+    }
+  }
+
   const renderSegmentos = (segmentos: string[]) => {
     if (!segmentos || !Array.isArray(segmentos)) return "—"
     return segmentos.map(s => SEGMENTOS_LABELS[s] || s).join(", ")
@@ -203,6 +292,13 @@ export default function DetalheSolicitacaoPage() {
           >
             <Printer size={14} />
             Imprimir
+          </button>
+          <button
+            onClick={handleExportPdf}
+            className="inline-flex items-center gap-1 px-3 py-1.5 text-sm bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded-lg hover:bg-green-200 dark:hover:bg-green-800"
+          >
+            <Download size={14} />
+            Exportar PDF
           </button>
           <button
             onClick={() => {
@@ -271,23 +367,30 @@ export default function DetalheSolicitacaoPage() {
                   <h3 className="font-medium text-slate-700 dark:text-slate-300 border-b pb-1 mb-2">1. Aplicação / Uso Final</h3>
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <div><span className="text-slate-500">Segmentos:</span> <span className="font-medium">{renderSegmentos(briefing.aplicacao?.segmentos)}</span></div>
+                    {briefing.aplicacao?.descricaoAplicacao && <div><span className="text-slate-500">Descrição:</span> <span className="font-medium">{briefing.aplicacao.descricaoAplicacao}</span></div>}
+                    {briefing.aplicacao?.outrosSegmentos && <div><span className="text-slate-500">Outros Segmentos:</span> <span className="font-medium">{briefing.aplicacao.outrosSegmentos}</span></div>}
                   </div>
                 </div>
 
                 <div>
                   <h3 className="font-medium text-slate-700 dark:text-slate-300 border-b pb-1 mb-2">2. Requisitos Técnicos</h3>
                   <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div><span className="text-slate-500">Tipo Tecido:</span> <span className="font-medium">{briefing.requisitosTecnicos?.tipoTecido || "—"}</span></div>
+                    <div><span className="text-slate-500">Tipo Tecido:</span> <span className="font-medium">{TIPO_TECIDO_LABELS[briefing.requisitosTecnicos?.tipoTecido] || briefing.requisitosTecnicos?.tipoTecido || "—"}</span></div>
+                    <div><span className="text-slate-500">Ligamento:</span> <span className="font-medium">{LIGAMENTO_LABELS[briefing.requisitosTecnicos?.ligamento] || briefing.requisitosTecnicos?.ligamento || "—"}</span></div>
                     <div><span className="text-slate-500">Composição:</span> <span className="font-medium">{briefing.requisitosTecnicos?.composicao || "—"}</span></div>
-                    <div><span className="text-slate-500">Gramatura:</span> <span className="font-medium">{briefing.requisitosTecnicos?.gramaturaMinima} - {briefing.requisitosTecnicos?.gramaturaMaxima} g/m²</span></div>
-                    <div><span className="text-slate-500">Largura:</span> <span className="font-medium">{briefing.requisitosTecnicos?.larguraMinima} - {briefing.requisitosTecnicos?.larguraMaxima} cm</span></div>
+                    <div><span className="text-slate-500">Tipo Fibra:</span> <span className="font-medium">{Array.isArray(briefing.requisitosTecnicos?.tipoFibra) ? briefing.requisitosTecnicos.tipoFibra.map(f => TIPO_FIBRA_LABELS[f] || f).join(", ") : "—"}</span></div>
+                    <div><span className="text-slate-500">Gramatura:</span> <span className="font-medium">{briefing.requisitosTecnicos?.gramaturaMinima || "—"} - {briefing.requisitosTecnicos?.gramaturaMaxima || "—"} g/m²</span></div>
+                    <div><span className="text-slate-500">Largura:</span> <span className="font-medium">{briefing.requisitosTecnicos?.larguraMinima || "—"} - {briefing.requisitosTecnicos?.larguraMaxima || "—"} cm</span></div>
+                    <div><span className="text-slate-500">Densidade Urdume:</span> <span className="font-medium">{briefing.requisitosTecnicos?.densidadeUrdume || "—"}</span></div>
+                    <div><span className="text-slate-500">Densidade Trama:</span> <span className="font-medium">{briefing.requisitosTecnicos?.densidadeTrama || "—"}</span></div>
                   </div>
                 </div>
 
                 <div>
                   <h3 className="font-medium text-slate-700 dark:text-slate-300 border-b pb-1 mb-2">3. Tecnologias</h3>
-                  <div className="text-sm">
-                    <span className="font-medium">{renderTecnologias(briefing.tecnologias?.requeridas)}</span>
+                  <div className="text-sm space-y-1">
+                    <div><span className="text-slate-500">Tecnologias:</span> <span className="font-medium">{renderTecnologias(briefing.tecnologias?.requeridas)}</span></div>
+                    {briefing.tecnologias?.outrasTecnologias && <div><span className="text-slate-500">Outras:</span> <span className="font-medium">{briefing.tecnologias.outrasTecnologias}</span></div>}
                   </div>
                 </div>
 
@@ -295,14 +398,20 @@ export default function DetalheSolicitacaoPage() {
                   <h3 className="font-medium text-slate-700 dark:text-slate-300 border-b pb-1 mb-2">4. Performance</h3>
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <div><span className="text-slate-500">Resistência Abrasão:</span> <span className="font-medium">{ABRASAO_LABELS[briefing.performance?.resistenciaAbrasao] || briefing.performance?.resistenciaAbrasao || "—"}</span></div>
+                    {briefing.performance?.resistenciaLavagem !== undefined && <div><span className="text-slate-500">Resist. Lavagem:</span> <span className="font-medium">{briefing.performance.resistenciaLavagem ? "Sim" : "Não"}</span></div>}
+                    {briefing.performance?.resistenciaSecagem !== undefined && <div><span className="text-slate-500">Resist. Secagem:</span> <span className="font-medium">{briefing.performance.resistenciaSecagem ? "Sim" : "Não"}</span></div>}
+                    {briefing.performance?.resistenciaPassagem !== undefined && <div><span className="text-slate-500">Resist. Passagem:</span> <span className="font-medium">{briefing.performance.resistenciaPassagem ? "Sim" : "Não"}</span></div>}
+                    {briefing.performance?.outrasPerformances && <div><span className="text-slate-500">Outras:</span> <span className="font-medium">{briefing.performance.outrasPerformances}</span></div>}
                   </div>
                 </div>
 
                 <div>
                   <h3 className="font-medium text-slate-700 dark:text-slate-300 border-b pb-1 mb-2">5. Acabamento</h3>
                   <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div><span className="text-slate-500">Tipos:</span> <span className="font-medium">{Array.isArray(briefing.acabamento?.tipos) ? briefing.acabamento.tipos.map(t => TIPOS_ACABAMENTO_LABELS[t] || t).join(", ") : "—"}</span></div>
                     <div><span className="text-slate-500">Brilho:</span> <span className="font-medium">{BRILHO_LABELS[briefing.acabamento?.nivelBrilho] || briefing.acabamento?.nivelBrilho || "—"}</span></div>
                     <div><span className="text-slate-500">Toque:</span> <span className="font-medium">{TOQUE_LABELS[briefing.acabamento?.toque] || briefing.acabamento?.toque || "—"}</span></div>
+                    {briefing.acabamento?.textura && <div><span className="text-slate-500">Textura:</span> <span className="font-medium">{briefing.acabamento.textura}</span></div>}
                   </div>
                 </div>
 
@@ -310,7 +419,9 @@ export default function DetalheSolicitacaoPage() {
                   <h3 className="font-medium text-slate-700 dark:text-slate-300 border-b pb-1 mb-2">6. Cores</h3>
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <div><span className="text-slate-500">Tipo:</span> <span className="font-medium">{CORES_LABELS[briefing.cores?.tipo] || briefing.cores?.tipo || "—"}</span></div>
-                    <div><span className="text-slate-500">Paleta:</span> <span className="font-medium">{briefing.cores?.paletaPreferencial || "—"}</span></div>
+                    {briefing.cores?.paletaPreferencial && <div><span className="text-slate-500">Paleta:</span> <span className="font-medium">{briefing.cores.paletaPreferencial}</span></div>}
+                    {briefing.cores?.coresEspecificas && <div><span className="text-slate-500">Cores Específicas:</span> <span className="font-medium">{briefing.cores.coresEspecificas}</span></div>}
+                    {briefing.cores?.lavabilidadeCores && <div><span className="text-slate-500">Lavabilidade:</span> <span className="font-medium">{briefing.cores.lavabilidadeCores}</span></div>}
                   </div>
                 </div>
 
@@ -318,8 +429,9 @@ export default function DetalheSolicitacaoPage() {
                   <h3 className="font-medium text-slate-700 dark:text-slate-300 border-b pb-1 mb-2">7. Comercial</h3>
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <div><span className="text-slate-500">Target Preço:</span> <span className="font-medium">{PRECO_LABELS[briefing.comercial?.targetPreco] || briefing.comercial?.targetPreco || "—"}</span></div>
-                    <div><span className="text-slate-500">Quantidade:</span> <span className="font-medium">{briefing.comercial?.quantidadeEstimada || "—"}</span></div>
-                    <div><span className="text-slate-500">Prazo Entrega:</span> <span className="font-medium">{briefing.comercial?.prazoEntrega || "—"}</span></div>
+                    {briefing.comercial?.quantidadeEstimada && <div><span className="text-slate-500">Quantidade:</span> <span className="font-medium">{briefing.comercial.quantidadeEstimada}</span></div>}
+                    {briefing.comercial?.prazoEntrega && <div><span className="text-slate-500">Prazo Entrega:</span> <span className="font-medium">{briefing.comercial.prazoEntrega}</span></div>}
+                    {briefing.comercial?.observacoes && <div className="col-span-2"><span className="text-slate-500">Observações:</span> <span className="font-medium">{briefing.comercial.observacoes}</span></div>}
                   </div>
                 </div>
               </div>
