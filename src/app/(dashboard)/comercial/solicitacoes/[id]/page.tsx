@@ -309,8 +309,7 @@ export default function DetalheSolicitacaoPage() {
       </div>
 
       <div className="print:block" id="ficha-impressao">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-6">
+        <div className="space-y-6">
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
               <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <FileText size={20} />
@@ -425,9 +424,7 @@ export default function DetalheSolicitacaoPage() {
                 </div>
               </div>
             </div>
-          </div>
 
-          <div className="space-y-6">
             {sol.anexos && sol.anexos.length > 0 && (
               <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
                 <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
@@ -452,7 +449,6 @@ export default function DetalheSolicitacaoPage() {
             )}
           </div>
         </div>
-      </div>
 
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
         <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
