@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Package, Building2 } from "lucide-react"
+import { Package, Building2, Users } from "lucide-react"
 
 const modulos = [
   {
@@ -15,6 +15,12 @@ const modulos = [
     descricao: "Cadastro de fornecedores",
     href: "/cadastros/fornecedores",
     icon: Building2,
+  },
+  {
+    titulo: "Clientes",
+    descricao: "Cadastro de clientes",
+    href: "/comercial/clientes",
+    icon: Users,
   },
 ]
 
