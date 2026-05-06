@@ -1,7 +1,7 @@
 "use client"
 
 import { useForm, Controller, useWatch } from "react-hook-form"
-import { useEffect } from "react"
+import { useEffect, useMemo } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { briefingTecelagemSchema, BriefingTecelagem, SEGMENTOS, TECNOLOGIAS, LIGAMENTO, TIPOS_ACABAMENTO, TIPO_FIBRA } from "@/types/briefing"
 import { Label } from "@/components/ui/label"
@@ -93,7 +93,7 @@ const TIPO_FIBRA_LABELS: Record<string, string> = {
 }
 
 export function BriefingTecelagemForm({ initialData, onNext, onBack }: BriefingTecelagemFormProps) {
-  const { register, control, handleSubmit, formState: { errors }, getValues, setValue } = useForm<BriefingTecelagem>({
+  const { register, control, handleSubmit, formState: { errors }, getValues, setValue, watch } = useForm<BriefingTecelagem>({
     resolver: zodResolver(briefingTecelagemSchema),
     defaultValues: initialData || {
       aplicacao: { segmentos: [] },
@@ -159,10 +159,82 @@ export function BriefingTecelagemForm({ initialData, onNext, onBack }: BriefingT
     }
   }, [initialData, setValue])
 
+  // Watch fields específicos para garantir captura de valores
+  const watch_composicao = watch("requisitosTecnicos.composicao")
+  const watch_larguraMin = watch("requisitosTecnicos.larguraMinima")
+  const watch_larguraMax = watch("requisitosTecnicos.larguraMaxima")
+  const watch_gramaturaMin = watch("requisitosTecnicos.gramaturaMinima")
+  const watch_gramaturaMax = watch("requisitosTecnicos.gramaturaMaxima")
+  const watch_densidadeUrdume = watch("requisitosTecnicos.densidadeUrdume")
+  const watch_densidadeTrama = watch("requisitosTecnicos.densidadeTrama")
+  const watch_outrasTecnologias = watch("tecnologias.outrasTecnologias")
+  const watch_outrasPerformances = watch("performance.outrasPerformances")
+  const watch_textura = watch("acabamento.textura")
+  const watch_paleta = watch("cores.paletaPreferencial")
+  const watch_coresEspecificas = watch("cores.coresEspecificas")
+  const watch_lavabilidade = watch("cores.lavabilidadeCores")
+  const watch_quantidade = watch("comercial.quantidadeEstimada")
+  const watch_prazoEntrega = watch("comercial.prazoEntrega")
+  const watch_observacoes = watch("comercial.observacoes")
+  const watch_descricaoApp = watch("aplicacao.descricaoAplicacao")
+  const watch_outrosSegmentos = watch("aplicacao.outrosSegmentos")
+
   const onSubmitDebug = (data: BriefingTecelagem) => {
-    console.log("=== BRIEFING FORM SUBMIT DATA ===", JSON.stringify(data, null, 2))
-    console.log("=== FORM VALUES (getValues) ===", JSON.stringify(getValues(), null, 2))
-    onNext(data)
+    // Força atualização de todos os campos antes de obter valores
+    const currentValues = getValues()
+    
+    // Cria manualmente o objeto com todos os campos
+    const completeData: BriefingTecelagem = {
+      aplicacao: {
+        segmentos: currentValues.aplicacao?.segmentos || data.aplicacao?.segmentos || [],
+        descricaoAplicacao: watch_descricaoApp,
+        outrosSegmentos: watch_outrosSegmentos,
+      },
+      requisitosTecnicos: {
+        tipoTecido: currentValues.requisitosTecnicos?.tipoTecido || data.requisitosTecnicos?.tipoTecido,
+        ligamento: currentValues.requisitosTecnicos?.ligamento || data.requisitosTecnicos?.ligamento,
+        composicao: watch_composicao,
+        tipoFibra: currentValues.requisitosTecnicos?.tipoFibra || data.requisitosTecnicos?.tipoFibra || [],
+        larguraMinima: watch_larguraMin !== undefined ? watch_larguraMin : (currentValues.requisitosTecnicos?.larguraMinima || data.requisitosTecnicos?.larguraMinima),
+        larguraMaxima: watch_larguraMax !== undefined ? watch_larguraMax : (currentValues.requisitosTecnicos?.larguraMaxima || data.requisitosTecnicos?.larguraMaxima),
+        gramaturaMinima: watch_gramaturaMin !== undefined ? watch_gramaturaMin : (currentValues.requisitosTecnicos?.gramaturaMinima || data.requisitosTecnicos?.gramaturaMinima),
+        gramaturaMaxima: watch_gramaturaMax !== undefined ? watch_gramaturaMax : (currentValues.requisitosTecnicos?.gramaturaMaxima || data.requisitosTecnicos?.gramaturaMaxima),
+        densidadeUrdume: watch_densidadeUrdume,
+        densidadeTrama: watch_densidadeTrama,
+      },
+      tecnologias: {
+        requeridas: currentValues.tecnologias?.requeridas || data.tecnologias?.requeridas || [],
+        outrasTecnologias: watch_outrasTecnologias,
+      },
+      performance: {
+        resistenciaAbrasao: currentValues.performance?.resistenciaAbrasao || data.performance?.resistenciaAbrasao,
+        resistenciaLavagem: currentValues.performance?.resistenciaLavagem || data.performance?.resistenciaLavagem,
+        resistenciaSecagem: currentValues.performance?.resistenciaSecagem || data.performance?.resistenciaSecagem,
+        resistenciaPassagem: currentValues.performance?.resistenciaPassagem || data.performance?.resistenciaPassagem,
+        outrasPerformances: watch_outrasPerformances,
+      },
+      acabamento: {
+        tipos: currentValues.acabamento?.tipos || data.acabamento?.tipos || [],
+        nivelBrilho: currentValues.acabamento?.nivelBrilho || data.acabamento?.nivelBrilho,
+        toque: currentValues.acabamento?.toque || data.acabamento?.toque,
+        textura: watch_textura,
+      },
+      cores: {
+        tipo: currentValues.cores?.tipo || data.cores?.tipo,
+        paletaPreferencial: watch_paleta,
+        coresEspecificas: watch_coresEspecificas,
+        lavabilidadeCores: watch_lavabilidade,
+      },
+      comercial: {
+        targetPreco: currentValues.comercial?.targetPreco || data.comercial?.targetPreco,
+        quantidadeEstimada: watch_quantidade,
+        prazoEntrega: watch_prazoEntrega,
+        observacoes: watch_observacoes,
+      },
+    }
+
+    console.log("=== COMPLETE SUBMIT DATA ===", JSON.stringify(completeData, null, 2))
+    onNext(completeData)
   }
 
   return (
