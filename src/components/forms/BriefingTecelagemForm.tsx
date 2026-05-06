@@ -276,18 +276,34 @@ export function BriefingTecelagemForm({ initialData, onNext, onBack }: BriefingT
 
         <div className="space-y-3">
           <Label>Descrição da Aplicação</Label>
-          <Textarea
-            {...register("aplicacao.descricaoAplicacao")}
-            placeholder="Descreva como o tecido será utilizado..."
-            rows={3}
+          <Controller
+            name="aplicacao.descricaoAplicacao"
+            control={control}
+            render={({ field }) => (
+              <Textarea
+                {...field}
+                placeholder="Descreva como o tecido será utilizado..."
+                rows={3}
+                value={field.value || ""}
+                onChange={(e) => field.onChange(e.target.value)}
+              />
+            )}
           />
         </div>
 
         <div className="space-y-3">
           <Label>Outros Segmentos</Label>
-          <Input
-            {...register("aplicacao.outrosSegmentos")}
-            placeholder="Descreva outros segmentos não listados..."
+          <Controller
+            name="aplicacao.outrosSegmentos"
+            control={control}
+            render={({ field }) => (
+              <Input
+                {...field}
+                placeholder="Descreva outros segmentos não listados..."
+                value={field.value || ""}
+                onChange={(e) => field.onChange(e.target.value)}
+              />
+            )}
           />
         </div>
       </section>
@@ -348,9 +364,17 @@ export function BriefingTecelagemForm({ initialData, onNext, onBack }: BriefingT
 
           <div className="space-y-3">
             <Label>Composição</Label>
-            <Input
-              {...register("requisitosTecnicos.composicao")}
-              placeholder="Ex: 100% Poliéter, 65% Poliéter / 35% Algodão"
+            <Controller
+              name="requisitosTecnicos.composicao"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  placeholder="Ex: 100% Poliéter, 65% Poliéter / 35% Algodão"
+                  value={field.value || ""}
+                  onChange={(e) => field.onChange(e.target.value)}
+                />
+              )}
             />
           </div>
 
@@ -385,17 +409,33 @@ export function BriefingTecelagemForm({ initialData, onNext, onBack }: BriefingT
           <div className="space-y-3">
             <Label>Largura (cm)</Label>
             <div className="flex gap-2">
-              <Input
-                type="number"
-                {...register("requisitosTecnicos.larguraMinima")}
-                placeholder="Mín"
-                className="w-full"
+              <Controller
+                name="requisitosTecnicos.larguraMinima"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    type="number"
+                    {...field}
+                    placeholder="Mín"
+                    className="w-full"
+                    value={field.value ?? ""}
+                    onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : null)}
+                  />
+                )}
               />
-              <Input
-                type="number"
-                {...register("requisitosTecnicos.larguraMaxima")}
-                placeholder="Máx"
-                className="w-full"
+              <Controller
+                name="requisitosTecnicos.larguraMaxima"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    type="number"
+                    {...field}
+                    placeholder="Máx"
+                    className="w-full"
+                    value={field.value ?? ""}
+                    onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : null)}
+                  />
+                )}
               />
             </div>
           </div>
@@ -403,34 +443,66 @@ export function BriefingTecelagemForm({ initialData, onNext, onBack }: BriefingT
           <div className="space-y-3">
             <Label>Gramatura (g/m²)</Label>
             <div className="flex gap-2">
-              <Input
-                type="number"
-                {...register("requisitosTecnicos.gramaturaMinima")}
-                placeholder="Mín"
-                className="w-full"
+              <Controller
+                name="requisitosTecnicos.gramaturaMinima"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    type="number"
+                    {...field}
+                    placeholder="Mín"
+                    className="w-full"
+                    value={field.value ?? ""}
+                    onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : null)}
+                  />
+                )}
               />
-              <Input
-                type="number"
-                {...register("requisitosTecnicos.gramaturaMaxima")}
-                placeholder="Máx"
-                className="w-full"
+              <Controller
+                name="requisitosTecnicos.gramaturaMaxima"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    type="number"
+                    {...field}
+                    placeholder="Máx"
+                    className="w-full"
+                    value={field.value ?? ""}
+                    onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : null)}
+                  />
+                )}
               />
             </div>
           </div>
 
           <div className="space-y-3">
             <Label>Densidade Urdume</Label>
-            <Input
-              {...register("requisitosTecnicos.densidadeUrdume")}
-              placeholder="Ex: 60 fios/cm"
+            <Controller
+              name="requisitosTecnicos.densidadeUrdume"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  placeholder="Ex: 60 fios/cm"
+                  value={field.value || ""}
+                  onChange={(e) => field.onChange(e.target.value)}
+                />
+              )}
             />
           </div>
 
           <div className="space-y-3">
             <Label>Densidade Trama</Label>
-            <Input
-              {...register("requisitosTecnicos.densidadeTrama")}
-              placeholder="Ex: 40 pasadas/cm"
+            <Controller
+              name="requisitosTecnicos.densidadeTrama"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  placeholder="Ex: 40 pasadas/cm"
+                  value={field.value || ""}
+                  onChange={(e) => field.onChange(e.target.value)}
+                />
+              )}
             />
           </div>
         </div>
@@ -472,9 +544,17 @@ export function BriefingTecelagemForm({ initialData, onNext, onBack }: BriefingT
 
         <div className="space-y-3">
           <Label>Outras Tecnologias</Label>
-          <Input
-            {...register("tecnologias.outrasTecnologias")}
-            placeholder="Descreva outras tecnologias não listadas..."
+          <Controller
+            name="tecnologias.outrasTecnologias"
+            control={control}
+            render={({ field }) => (
+              <Input
+                {...field}
+                placeholder="Descreva outras tecnologias não listadas..."
+                value={field.value || ""}
+                onChange={(e) => field.onChange(e.target.value)}
+              />
+            )}
           />
         </div>
       </section>
@@ -567,9 +647,17 @@ export function BriefingTecelagemForm({ initialData, onNext, onBack }: BriefingT
 
           <div className="space-y-3">
             <Label>Outras Performances</Label>
-            <Input
-              {...register("performance.outrasPerformances")}
-              placeholder="Descreva outras performances especiais..."
+            <Controller
+              name="performance.outrasPerformances"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  placeholder="Descreva outras performances especiais..."
+                  value={field.value || ""}
+                  onChange={(e) => field.onChange(e.target.value)}
+                />
+              )}
             />
           </div>
         </div>
@@ -677,10 +765,18 @@ export function BriefingTecelagemForm({ initialData, onNext, onBack }: BriefingT
 
           <div className="space-y-3">
             <Label>Textura</Label>
-            <Textarea
-              {...register("acabamento.textura")}
-              placeholder="Descreva texturas especiais..."
-              rows={3}
+            <Controller
+              name="acabamento.textura"
+              control={control}
+              render={({ field }) => (
+                <Textarea
+                  {...field}
+                  placeholder="Descreva texturas especiais..."
+                  rows={3}
+                  value={field.value || ""}
+                  onChange={(e) => field.onChange(e.target.value)}
+                />
+              )}
             />
           </div>
         </div>
@@ -726,26 +822,50 @@ export function BriefingTecelagemForm({ initialData, onNext, onBack }: BriefingT
 
           <div className="space-y-3">
             <Label>Paleta Preferencial</Label>
-            <Input
-              {...register("cores.paletaPreferencial")}
-              placeholder="Ex: Tons pastel, cores frias..."
+            <Controller
+              name="cores.paletaPreferencial"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  placeholder="Ex: Tons pastel, cores frias..."
+                  value={field.value || ""}
+                  onChange={(e) => field.onChange(e.target.value)}
+                />
+              )}
             />
           </div>
 
           <div className="space-y-3">
             <Label>Cores Específicas</Label>
-            <Textarea
-              {...register("cores.coresEspecificas")}
-              placeholder="Liste as cores específicas..."
-              rows={2}
+            <Controller
+              name="cores.coresEspecificas"
+              control={control}
+              render={({ field }) => (
+                <Textarea
+                  {...field}
+                  placeholder="Liste as cores específicas..."
+                  rows={2}
+                  value={field.value || ""}
+                  onChange={(e) => field.onChange(e.target.value)}
+                />
+              )}
             />
           </div>
 
           <div className="space-y-3">
             <Label>Lavabilidade das Cores</Label>
-            <Input
-              {...register("cores.lavabilidadeCores")}
-              placeholder="Ex: Resistente à lavação, solidez..."
+            <Controller
+              name="cores.lavabilidadeCores"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  placeholder="Ex: Resistente à lavação, solidez..."
+                  value={field.value || ""}
+                  onChange={(e) => field.onChange(e.target.value)}
+                />
+              )}
             />
           </div>
         </div>
@@ -787,26 +907,50 @@ export function BriefingTecelagemForm({ initialData, onNext, onBack }: BriefingT
 
           <div className="space-y-3">
             <Label>Quantidade Estimada</Label>
-            <Input
-              {...register("comercial.quantidadeEstimada")}
-              placeholder="Ex: 5.000 metros"
+            <Controller
+              name="comercial.quantidadeEstimada"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  placeholder="Ex: 5.000 metros"
+                  value={field.value || ""}
+                  onChange={(e) => field.onChange(e.target.value)}
+                />
+              )}
             />
           </div>
 
           <div className="space-y-3">
             <Label>Prazo de Entrega</Label>
-            <Input
-              {...register("comercial.prazoEntrega")}
-              placeholder="Ex: 30 dias"
+            <Controller
+              name="comercial.prazoEntrega"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  placeholder="Ex: 30 dias"
+                  value={field.value || ""}
+                  onChange={(e) => field.onChange(e.target.value)}
+                />
+              )}
             />
           </div>
 
           <div className="space-y-3">
             <Label>Observações</Label>
-            <Textarea
-              {...register("comercial.observacoes")}
-              placeholder="Outras informações relevantes..."
-              rows={3}
+            <Controller
+              name="comercial.observacoes"
+              control={control}
+              render={({ field }) => (
+                <Textarea
+                  {...field}
+                  placeholder="Outras informações relevantes..."
+                  rows={3}
+                  value={field.value || ""}
+                  onChange={(e) => field.onChange(e.target.value)}
+                />
+              )}
             />
           </div>
         </div>
