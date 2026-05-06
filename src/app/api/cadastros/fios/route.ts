@@ -41,7 +41,6 @@ export async function POST(req: NextRequest) {
         torcao: body.torcao || null,
         resistencia: body.resistencia || null,
         alongamento: body.alongamento || null,
-        fornecedor: body.fornecedor || null,
         observacoes: body.observacoes || null,
         ativo: body.ativo ?? true,
         criadoPor: parseInt(session.user.id),
