@@ -1,4 +1,4 @@
-import { pgTable, serial, varchar, decimal, text, boolean, integer, timestamp } from "drizzle-orm/pg-core"
+import { pgTable, serial, varchar, numeric, text, boolean, integer, timestamp } from "drizzle-orm/pg-core"
 import { usuarios } from "./usuarios"
 
 export const fios = pgTable("fios", {
@@ -10,8 +10,8 @@ export const fios = pgTable("fios", {
   composicao: varchar("composicao", { length: 200 }),
   titulo: varchar("titulo", { length: 20 }),
   torcao: varchar("torcao", { length: 20 }),
-  resistencia: decimal("resistencia", { precision: 10, scale: 2 }),
-  alongamento: decimal("alongamento", { precision: 5, scale: 2 }),
+  resistencia: numeric("resistencia", { precision: 10, scale: 2 }),
+  alongamento: numeric("alongamento", { precision: 5, scale: 2 }),
   fornecedor: varchar("fornecedor", { length: 200 }),
   observacoes: text("observacoes"),
   ativo: boolean("ativo").default(true),

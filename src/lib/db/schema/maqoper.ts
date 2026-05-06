@@ -1,12 +1,12 @@
-import { pgTable, serial, varchar, decimal, boolean } from "drizzle-orm/pg-core"
+import { pgTable, serial, varchar, numeric, boolean, text } from "drizzle-orm/pg-core"
 
 export const maquinas = pgTable("maquinas", {
   id: serial("id").primaryKey(),
   codigo: varchar("codigo", { length: 30 }).notNull().unique(),
   nome: varchar("nome", { length: 100 }).notNull(),
   tipo: varchar("tipo", { length: 50 }),
-  velocidadeMaxima: decimal("velocidade_maxima", { precision: 10, scale: 2 }),
-  capacidadeCarga: decimal("capacidade_carga", { precision: 10, scale: 2 }),
+  velocidadeMaxima: numeric("velocidade_maxima", { precision: 10, scale: 2 }),
+  capacidadeCarga: numeric("capacidade_carga", { precision: 10, scale: 2 }),
   disponivel: boolean("disponivel").default(true),
   ativo: boolean("ativo").default(true),
 })
