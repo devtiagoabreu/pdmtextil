@@ -123,7 +123,7 @@ export const briefingTecelagemSchema = z.object({
     resistenciaLavagem: z.boolean().default(false),
     resistenciaSecagem: z.boolean().default(false),
     resistenciaPassagem: z.boolean().default(false),
-    outrasPerformances: z.array(z.string()).optional(),
+    outrasPerformances: z.string().optional(),
   }),
 
   acabamento: z.object({
