@@ -53,7 +53,6 @@ export async function PUT(
         torcao: body.torcao || null,
         resistencia: body.resistencia || null,
         alongamento: body.alongamento || null,
-        fornecedor: body.fornecedor || null,
         observacoes: body.observacoes || null,
         ativo: body.ativo,
         updatedAt: new Date(),
