@@ -31,6 +31,7 @@ interface Fornecedor {
   id: number
   nome: string
   cnpj?: string
+  ativo?: boolean
 }
 
 interface FioFornecedor {
