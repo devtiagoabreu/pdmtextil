@@ -205,3 +205,39 @@ NOVA SOLICITAÇÃO:
 
 ✅ Commit pronto:
 `fix: sincroniza comercialData com RHF em tempo real para evitar perda de dados no payload`
+
+---
+
+📦 BLOCO BUGS FIX 5: Campos não carregando e loop infinito
+🗓️ Data: 05/05/2026
+
+✅ O que foi feito:
+
+- **Build falhando no Vercel:** Erro "Cannot find name 'setIsSubmitting'" — estado faltando no componente de edição
+- **Select Tipo não carregando:** Adicionado `setValue("tipo", tipoValue)` no carregamento da API
+- **Campos comerciais não carregando:** Adicionado setValue para todos os campos (cliente, cnpj, projeto, prazoDesejado)
+- **Loop infinito no useEffect:** Removido useEffect que sincronizava RHF → comercialData pois disparava re-renders constantes (setValue → watch → comercialData → setValue → repeat)
+- **Botão Cancelar:** Redireciona agora para lista `/comercial/solicitacoes`
+
+✅ Commits:
+- `fix: adiciona estado isSubmitting faltando em editar solicitacao`
+- `fix: corrige tipo não carregando e ajusta botão cancelar em editar`
+- `fix: carrega todos os campos do formulário em editar solicitacao`
+- `fix: remove loop infinito no useEffect de sincronizacao`
+
+---
+
+📦 BUGS EM ANDAMENTO: Campos de Input Text no Briefing não salvam
+🗓️ Data: 05/05/2026
+
+❌ Problema identificado:
+- Radio buttons e checkboxes funcionam corretamente
+- Inputs de texto (composição, larguraMinima/Maxima, gramaturaMinima/Maxima, prazoEntrega) NÃO são enviados no submit
+
+🔍 Debugging em andamento:
+- Adicionados logs em BriefingTecelagemForm.tsx para capturar dados no submit
+- O formulário usa `defaultValues: initialData` mas os valores alterados pelo usuário não aparecem no payload
+
+📌 Próximo passo:
+- Verificar se o problema é na captura do register() ou na inicialização do formulário
+- Possível solução: usar setValue para inicializar os campos quando initialData muda
