@@ -92,7 +92,7 @@ const TIPO_FIBRA_LABELS: Record<string, string> = {
 }
 
 export function BriefingTecelagemForm({ initialData, onNext, onBack }: BriefingTecelagemFormProps) {
-  const { register, control, handleSubmit, formState: { errors } } = useForm<BriefingTecelagem>({
+  const { register, control, handleSubmit, formState: { errors }, getValues } = useForm<BriefingTecelagem>({
     resolver: zodResolver(briefingTecelagemSchema),
     defaultValues: initialData || {
       aplicacao: { segmentos: [] },
@@ -109,8 +109,6 @@ export function BriefingTecelagemForm({ initialData, onNext, onBack }: BriefingT
     console.log("=== FORM VALUES (getValues) ===", JSON.stringify(getValues(), null, 2))
     onNext(data)
   }
-
-  const { register, control, handleSubmit, formState: { errors }, getValues } = useForm<BriefingTecelagem>({
 
   return (
     <form onSubmit={handleSubmit(onSubmitDebug)} className="space-y-8 mt-6 pb-24">
