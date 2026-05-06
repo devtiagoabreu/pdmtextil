@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useQuery, useMutation } from "@tanstack/react-query"
 import { useRouter, useParams } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, FileText, Pencil, Trash2, Printer, Link as LinkIcon, Download } from "lucide-react"
+import { ArrowLeft, FileText, Pencil, Trash2, Link as LinkIcon, Download } from "lucide-react"
 import { toast } from "sonner"
 
 const STATUS_CONFIG: Record<string, { label: string; classes: string }> = {
@@ -191,10 +191,6 @@ export default function DetalheSolicitacaoPage() {
   const statusCfg = STATUS_CONFIG[sol.status] ?? { label: sol.status, classes: "bg-slate-100 text-slate-600" }
   const briefing = sol.briefing || {}
 
-  const handleImprimir = () => {
-    window.print()
-  }
-
   const handleExportPdf = () => {
     const filename = `${sol.id}-${(sol.projeto || "sem-projeto").replace(/[^a-zA-Z0-9]/g, "-")}-${new Date(sol.createdAt).toISOString().split("T")[0]}.pdf`
     const printContent = document.getElementById("ficha-impressao")
@@ -286,13 +282,6 @@ export default function DetalheSolicitacaoPage() {
             <Pencil size={14} />
             Editar
           </Link>
-          <button
-            onClick={handleImprimir}
-            className="inline-flex items-center gap-1 px-3 py-1.5 text-sm bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700"
-          >
-            <Printer size={14} />
-            Imprimir
-          </button>
           <button
             onClick={handleExportPdf}
             className="inline-flex items-center gap-1 px-3 py-1.5 text-sm bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded-lg hover:bg-green-200 dark:hover:bg-green-800"
@@ -488,8 +477,8 @@ export default function DetalheSolicitacaoPage() {
                 <p className="text-sm text-slate-500">Sem histórico</p>
               )}
             </div>
-          </div>
-        </div>
+          </>
+        ) : null}
       </div>
     </div>
   )
