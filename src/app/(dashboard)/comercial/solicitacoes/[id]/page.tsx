@@ -242,12 +242,12 @@ export default function DetalheSolicitacaoPage() {
 
   const renderSegmentos = (segmentos: string[]) => {
     if (!segmentos || !Array.isArray(segmentos)) return "—"
-    return segmentos.map(s => SEGMENTOS_LABELS[s] || s).join(", ")
+    return segmentos.map((s: string) => SEGMENTOS_LABELS[s] || s).join(", ")
   }
 
   const renderTecnologias = (tecnologias: string[]) => {
     if (!tecnologias || !Array.isArray(tecnologias)) return "—"
-    return tecnologias.map(t => TECNOLOGIAS_LABELS[t] || t).join(", ")
+    return tecnologias.map((t: string) => TECNOLOGIAS_LABELS[t] || t).join(", ")
   }
 
   return (
@@ -408,7 +408,7 @@ export default function DetalheSolicitacaoPage() {
                 <div>
                   <h3 className="font-medium text-slate-700 dark:text-slate-300 border-b pb-1 mb-2">5. Acabamento</h3>
                   <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div><span className="text-slate-500">Tipos:</span> <span className="font-medium">{Array.isArray(briefing.acabamento?.tipos) ? briefing.acabamento.tipos.map(t => TIPOS_ACABAMENTO_LABELS[t] || t).join(", ") : "—"}</span></div>
+                    <div><span className="text-slate-500">Tipos:</span> <span className="font-medium">{Array.isArray(briefing.acabamento?.tipos) ? briefing.acabamento.tipos.map((t: string) => TIPOS_ACABAMENTO_LABELS[t] || t).join(", ") : "—"}</span></div>
                     <div><span className="text-slate-500">Brilho:</span> <span className="font-medium">{BRILHO_LABELS[briefing.acabamento?.nivelBrilho] || briefing.acabamento?.nivelBrilho || "—"}</span></div>
                     <div><span className="text-slate-500">Toque:</span> <span className="font-medium">{TOQUE_LABELS[briefing.acabamento?.toque] || briefing.acabamento?.toque || "—"}</span></div>
                     {briefing.acabamento?.textura && <div><span className="text-slate-500">Textura:</span> <span className="font-medium">{briefing.acabamento.textura}</span></div>}
