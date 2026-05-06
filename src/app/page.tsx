@@ -1,11 +1,14 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { ArrowRight, Factory, ShoppingCart, Settings, PenTool } from "lucide-react"
 
+const PDM_TOOLTIP = "PDM - Sistema de gestão de desenvolvimento de produtos têxteis que conecta os departamentos Comercial, Desenvolvimento (Tecelagem e Beneficiamento) e PCP, centralizando solicitações, fichas técnicas, receitas e roteiros de produção."
+
 export default function LandingPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const [showTooltip, setShowTooltip] = useState(false)
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -143,8 +146,12 @@ export default function LandingPage() {
 
       <div className="relative z-10 min-h-screen flex flex-col">
         <header className="px-8 py-6 flex justify-between items-center">
-          <div className="text-xl font-light tracking-[0.2em] text-slate-300">
-            PDM <span className="font-bold text-white">PRO TEXTIL</span>
+          <div className="text-xl font-light tracking-[0.2em] text-slate-300 flex items-center gap-1">
+            <span>PDM</span>
+            <span className="text-white text-2xl leading-none">.</span>
+            <span>PRO</span>
+            <span className="text-white text-2xl leading-none">.</span>
+            <span className="font-bold text-white">TEXTIL</span>
           </div>
           <Link
             href="/login"
@@ -156,14 +163,20 @@ export default function LandingPage() {
 
         <main className="flex-1 flex items-center justify-center px-6">
           <div className="text-center max-w-2xl">
-            <h1 className="text-5xl md:text-7xl font-bold text-white mb-4 tracking-tight">
-              PDM Pro Têxtil
+            <h1 
+              className="text-5xl md:text-7xl font-bold text-white mb-4 tracking-tight cursor-default"
+              onMouseEnter={() => setShowTooltip(true)}
+              onMouseLeave={() => setShowTooltip(false)}
+            >
+              PDM Pro Moda
+              {showTooltip && (
+                <div className="absolute left-1/2 -translate-x-1/2 mt-4 px-4 py-3 bg-slate-800/90 text-slate-300 text-sm rounded-lg max-w-md whitespace-pre-wrap">
+                  {PDM_TOOLTIP}
+                </div>
+              )}
             </h1>
-            <p className="text-sm text-slate-400 mb-6 font-light max-w-xl mx-auto">
-             PDM - Sistema de gestão de desenvolvimento de produtos têxteis que conecta os departamentos Comercial, Desenvolvimento (Tecelagem e Beneficiamento) e PCP, centralizando solicitações, fichas técnicas, receitas e roteiros de produção.
-            </p>
-            <p className="text-xl text-slate-500 mb-12 font-light">
-              Sistema integrado de gestão para indústria têxtil
+            <p className="text-xl text-slate-400 mb-12 font-light">
+              Sistema de gestão de desenvolvimento de produtos têxteis
             </p>
 
             <Link
