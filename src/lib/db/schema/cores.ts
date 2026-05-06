@@ -1,4 +1,4 @@
-import { pgTable, serial, varchar, boolean } from "drizzle-orm/pg-core"
+import { pgTable, serial, varchar, boolean, text } from "drizzle-orm/pg-core"
 
 export const coresSolidas = pgTable("cores_solidas", {
   id: serial("id").primaryKey(),
