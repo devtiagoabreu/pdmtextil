@@ -165,10 +165,15 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params
+    const solicitacaoId = parseInt(id)
+
+    await db
+      .delete(anexos)
+      .where(eq(anexos.solicitacaoId, solicitacaoId))
 
     await db
       .delete(solicitacoes)
-      .where(eq(solicitacoes.id, parseInt(id)))
+      .where(eq(solicitacoes.id, solicitacaoId))
 
     return NextResponse.json({ success: true })
   } catch (error) {

@@ -5,7 +5,7 @@ import { db } from "@/lib/db"
 import { solicitacoes } from "@/lib/db/schema/solicitacoes"
 import { anexos } from "@/lib/db/schema/anexos"
 import { usuarios } from "@/lib/db/schema/usuarios"
-import { eq, desc, or, and } from "drizzle-orm"
+import { eq, desc, or, and, sql } from "drizzle-orm"
 
 // GET - Listar solicitações (filtradas por perfil)
 export async function GET(req: NextRequest) {
@@ -53,6 +53,7 @@ export async function GET(req: NextRequest) {
         createdAt: solicitacoes.createdAt,
         solicitanteId: solicitacoes.solicitanteId,
         solicitanteNome: usuarios.name,
+        anexosCount: sql<number>`(SELECT count(*) FROM ${anexos} WHERE ${anexos.solicitacaoId} = ${solicitacoes.id})`,
       })
       .from(solicitacoes)
       .leftJoin(usuarios, eq(solicitacoes.solicitanteId, usuarios.id))
