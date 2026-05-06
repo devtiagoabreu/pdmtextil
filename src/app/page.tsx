@@ -159,8 +159,8 @@ export default function LandingPage() {
             <h1 className="text-5xl md:text-7xl font-bold text-white mb-4 tracking-tight">
               PDM Pro Têxtil
             </h1>
-            <p className="text-lg text-slate-400 mb-6 font-light">
-             PDM - Planejamento de Demanda de Materiais
+            <p className="text-sm text-slate-400 mb-6 font-light max-w-xl mx-auto">
+             PDM - Sistema de gestão de desenvolvimento de produtos têxteis que conecta os departamentos Comercial, Desenvolvimento (Tecelagem e Beneficiamento) e PCP, centralizando solicitações, fichas técnicas, receitas e roteiros de produção.
             </p>
             <p className="text-xl text-slate-500 mb-12 font-light">
               Sistema integrado de gestão para indústria têxtil
