@@ -100,8 +100,14 @@ export default function NovoFioPage() {
 
       if (!res.ok) throw new Error("Erro ao salvar")
 
+      const novoFio = await res.json()
       toast.success(isEditing ? "Fio atualizado" : "Fio criado")
-      router.push("/cadastros/fios")
+      
+      if (isEditing) {
+        router.push("/cadastros/fios")
+      } else {
+        router.push(`/cadastros/fios/${novoFio.id}`)
+      }
     } catch {
       toast.error("Erro ao salvar fio")
     }
@@ -273,7 +279,7 @@ export default function NovoFioPage() {
                     onChange={(e) => setSelectedFornecedor(e.target.value)}
                   >
                     <option value="">Selecione...</option>
-                    {fornecedores.filter(f => f.ativo).map(f => (
+                    {fornecedores.filter(f => f.ativo !== false).map(f => (
                       <option key={f.id} value={f.id}>{f.nome}</option>
                     ))}
                   </select>
