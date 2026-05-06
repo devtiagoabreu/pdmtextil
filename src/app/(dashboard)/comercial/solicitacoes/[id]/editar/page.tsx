@@ -135,13 +135,6 @@ export default function EditarSolicitacaoPage() {
     return () => { isMounted = false }
   }, [id])
 
-  // Avisa se tem anexos ao carregar
-  useEffect(() => {
-    if (isLoaded && anexosData.length > 0) {
-      toast.warning("Esta solicitação possui links anexados. Para.editá-los, você precisará deletá-los primeiro e recriar após salvar.")
-    }
-  }, [isLoaded, anexosData])
-
   const onStep1Submit = (data: DadosComerciais) => {
     setComercialData(data)
     setStep(2)

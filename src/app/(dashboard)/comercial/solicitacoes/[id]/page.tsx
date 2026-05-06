@@ -206,7 +206,12 @@ export default function DetalheSolicitacaoPage() {
           </button>
           <button
             onClick={() => {
-              if (confirm("Tem certeza que deseja excluir esta solicitação?")) {
+              const temAnexos = sol.anexos && sol.anexos.length > 0
+              let mensagem = "Tem certeza que deseja excluir esta solicitação?"
+              if (temAnexos) {
+                mensagem = `Esta solicitação possui ${sol.anexos.length} link(s) anexado(s). Ao excluir, os links também serão removidos. Continuar?`
+              }
+              if (confirm(mensagem)) {
                 deleteMutate.mutate()
               }
             }}
