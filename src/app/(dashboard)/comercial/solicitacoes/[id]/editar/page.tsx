@@ -40,7 +40,6 @@ export default function EditarSolicitacaoPage() {
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(true)
   const [isLoaded, setIsLoaded] = useState(false)
-  const [tipoKey, setTipoKey] = useState(0)
   
   const [comercialData, setComercialData] = useState<DadosComerciais>({
     tipo: undefined,
@@ -77,6 +76,8 @@ export default function EditarSolicitacaoPage() {
   }, [watch])
 
   useEffect(() => {
+    let isMounted = true
+    
     async function loadSolicitacao() {
       try {
         const res = await fetch(`/api/solicitacoes/${id}`)
@@ -84,7 +85,7 @@ export default function EditarSolicitacaoPage() {
         
         const data = await res.json()
         
-        console.log("=== LOADING SOLICITACAO ===", data.tipo)
+        if (!isMounted) return
         
         const tipoValue = data.tipo || "DESENVOLVIMENTO_TECELAGEM"
         
@@ -115,19 +116,24 @@ export default function EditarSolicitacaoPage() {
           })))
         }
       } catch (err) {
-        toast.error("Erro ao carregar solicitação")
-        router.push("/comercial/solicitacoes")
+        if (isMounted) {
+          toast.error("Erro ao carregar solicitação")
+          router.push("/comercial/solicitacoes")
+        }
       } finally {
-        setLoading(false)
-        setIsLoaded(true)
-        setTipoKey(prev => prev + 1) // Force re-render
+        if (isMounted) {
+          setLoading(false)
+          setIsLoaded(true)
+        }
       }
     }
     
     if (id) {
       loadSolicitacao()
     }
-  }, [id, router])
+    
+    return () => { isMounted = false }
+  }, [id])
 
   // Avisa se tem anexos ao carregar
   useEffect(() => {
@@ -141,8 +147,7 @@ export default function EditarSolicitacaoPage() {
     setStep(2)
   }
 
-const onStep2Submit = async (data: BriefingTecelagem) => {
-    console.log("=== onStep2Submit DATA ===", JSON.stringify(data, null, 2))
+const onStep2Submit = (data: BriefingTecelagem) => {
     setBriefingData(data)
     setStep(3)
   }
@@ -294,7 +299,6 @@ const onStep2Submit = async (data: BriefingTecelagem) => {
                 <Controller
                   name="tipo"
                   control={control}
-                  key={tipoKey}
                   render={({ field }) => (
                     <Select 
                       onValueChange={(val) => {
