@@ -1,14 +1,14 @@
 "use client"
 
 import Link from "next/link"
-import { Thread_Cutter, Building2 } from "lucide-react"
+import { Bobbin, Building2 } from "lucide-react"
 
 const modulos = [
   {
     titulo: "Fios",
     descricao: "Cadastro de fios têxteis",
     href: "/cadastros/fios",
-    icon: Thread_Cutter,
+    icon: Bobbin,
   },
   {
     titulo: "Fornecedores",
