@@ -1,6 +1,7 @@
 "use client"
 
-import { useForm, Controller } from "react-hook-form"
+import { useForm, Controller, useWatch } from "react-hook-form"
+import { useEffect } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { briefingTecelagemSchema, BriefingTecelagem, SEGMENTOS, TECNOLOGIAS, LIGAMENTO, TIPOS_ACABAMENTO, TIPO_FIBRA } from "@/types/briefing"
 import { Label } from "@/components/ui/label"
@@ -92,7 +93,7 @@ const TIPO_FIBRA_LABELS: Record<string, string> = {
 }
 
 export function BriefingTecelagemForm({ initialData, onNext, onBack }: BriefingTecelagemFormProps) {
-  const { register, control, handleSubmit, formState: { errors }, getValues } = useForm<BriefingTecelagem>({
+  const { register, control, handleSubmit, formState: { errors }, getValues, setValue } = useForm<BriefingTecelagem>({
     resolver: zodResolver(briefingTecelagemSchema),
     defaultValues: initialData || {
       aplicacao: { segmentos: [] },
@@ -103,6 +104,60 @@ export function BriefingTecelagemForm({ initialData, onNext, onBack }: BriefingT
       comercial: {},
     } as any,
   })
+
+  // Sincroniza initialData com o formulário
+  useEffect(() => {
+    if (!initialData) return
+    
+    // Aplicação / Uso Final
+    if (initialData.aplicacao) {
+      if (initialData.aplicacao.descricaoAplicacao !== undefined) setValue("aplicacao.descricaoAplicacao", initialData.aplicacao.descricaoAplicacao)
+      if (initialData.aplicacao.outrosSegmentos !== undefined) setValue("aplicacao.outrosSegmentos", initialData.aplicacao.outrosSegmentos)
+    }
+    
+    // Requisitos Técnicos
+    if (initialData.requisitosTecnicos) {
+      const rt = initialData.requisitosTecnicos as any
+      if (rt.composicao !== undefined) setValue("requisitosTecnicos.composicao", rt.composicao)
+      if (rt.larguraMinima !== undefined) setValue("requisitosTecnicos.larguraMinima", rt.larguraMinima)
+      if (rt.larguraMaxima !== undefined) setValue("requisitosTecnicos.larguraMaxima", rt.larguraMaxima)
+      if (rt.gramaturaMinima !== undefined) setValue("requisitosTecnicos.gramaturaMinima", rt.gramaturaMinima)
+      if (rt.gramaturaMaxima !== undefined) setValue("requisitosTecnicos.gramaturaMaxima", rt.gramaturaMaxima)
+      if (rt.densidadeUrdume !== undefined) setValue("requisitosTecnicos.densidadeUrdume", rt.densidadeUrdume)
+      if (rt.densidadeTrama !== undefined) setValue("requisitosTecnicos.densidadeTrama", rt.densidadeTrama)
+    }
+    
+    // Tecnologias
+    if (initialData.tecnologias) {
+      if (initialData.tecnologias.outrasTecnologias !== undefined) setValue("tecnologias.outrasTecnologias", initialData.tecnologias.outrasTecnologias)
+    }
+    
+    // Performance
+    if (initialData.performance) {
+      if (initialData.performance.outrasPerformances !== undefined) setValue("performance.outrasPerformances", initialData.performance.outrasPerformances)
+    }
+    
+    // Acabamento
+    if (initialData.acabamento) {
+      if (initialData.acabamento.textura !== undefined) setValue("acabamento.textura", initialData.acabamento.textura)
+    }
+    
+    // Cores
+    if (initialData.cores) {
+      const c = initialData.cores as any
+      if (c.paletaPreferencial !== undefined) setValue("cores.paletaPreferencial", c.paletaPreferencial)
+      if (c.coresEspecificas !== undefined) setValue("cores.coresEspecificas", c.coresEspecificas)
+      if (c.lavabilidadeCores !== undefined) setValue("cores.lavabilidadeCores", c.lavabilidadeCores)
+    }
+    
+    // Comercial
+    if (initialData.comercial) {
+      const com = initialData.comercial as any
+      if (com.quantidadeEstimada !== undefined) setValue("comercial.quantidadeEstimada", com.quantidadeEstimada)
+      if (com.prazoEntrega !== undefined) setValue("comercial.prazoEntrega", com.prazoEntrega)
+      if (com.observacoes !== undefined) setValue("comercial.observacoes", com.observacoes)
+    }
+  }, [initialData, setValue])
 
   const onSubmitDebug = (data: BriefingTecelagem) => {
     console.log("=== BRIEFING FORM SUBMIT DATA ===", JSON.stringify(data, null, 2))
