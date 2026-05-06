@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react"
 import Link from "next/link"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, Factory, ShoppingCart, Settings, PenTool } from "lucide-react"
 
 export default function LandingPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -143,8 +143,8 @@ export default function LandingPage() {
 
       <div className="relative z-10 min-h-screen flex flex-col">
         <header className="px-8 py-6 flex justify-between items-center">
-          <div className="text-xl font-light tracking-[0.3em] text-slate-300">
-            PDM<span className="font-bold text-white">TEXTIL</span>
+          <div className="text-xl font-light tracking-[0.2em] text-slate-300">
+            PDM <span className="font-bold text-white">PRO TEXTIL</span>
           </div>
           <Link
             href="/login"
@@ -157,10 +157,13 @@ export default function LandingPage() {
         <main className="flex-1 flex items-center justify-center px-6">
           <div className="text-center max-w-2xl">
             <h1 className="text-5xl md:text-7xl font-bold text-white mb-4 tracking-tight">
-              Pro Moda
+              PDM Pro Têxtil
             </h1>
-            <p className="text-xl text-slate-400 mb-12 font-light">
-              Sistema de gestão têxtil
+            <p className="text-lg text-slate-400 mb-6 font-light">
+             PDM - Planejamento de Demanda de Materiais
+            </p>
+            <p className="text-xl text-slate-500 mb-12 font-light">
+              Sistema integrado de gestão para indústria têxtil
             </p>
 
             <Link
@@ -171,17 +174,25 @@ export default function LandingPage() {
               <ArrowRight size={18} />
             </Link>
 
-            <div className="mt-16 grid grid-cols-3 gap-8 text-center">
-              <div>
-                <div className="text-2xl font-bold text-slate-200">PCP</div>
+            <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+              <div className="p-4 rounded-lg bg-slate-900/50 border border-slate-800">
+                <Factory className="w-8 h-8 mx-auto mb-2 text-slate-400" />
+                <div className="text-lg font-bold text-slate-200">PCP</div>
                 <div className="text-xs text-slate-500 mt-1">Planejamento</div>
               </div>
-              <div>
-                <div className="text-2xl font-bold text-slate-200">COM</div>
+              <div className="p-4 rounded-lg bg-slate-900/50 border border-slate-800">
+                <ShoppingCart className="w-8 h-8 mx-auto mb-2 text-slate-400" />
+                <div className="text-lg font-bold text-slate-200">COM</div>
                 <div className="text-xs text-slate-500 mt-1">Comercial</div>
               </div>
-              <div>
-                <div className="text-2xl font-bold text-slate-200">ADM</div>
+              <div className="p-4 rounded-lg bg-slate-900/50 border border-slate-800">
+                <PenTool className="w-8 h-8 mx-auto mb-2 text-slate-400" />
+                <div className="text-lg font-bold text-slate-200">DES</div>
+                <div className="text-xs text-slate-500 mt-1">Desenvolvimento</div>
+              </div>
+              <div className="p-4 rounded-lg bg-slate-900/50 border border-slate-800">
+                <Settings className="w-8 h-8 mx-auto mb-2 text-slate-400" />
+                <div className="text-lg font-bold text-slate-200">ADM</div>
                 <div className="text-xs text-slate-500 mt-1">Admin</div>
               </div>
             </div>
