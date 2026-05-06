@@ -163,18 +163,20 @@ export default function LandingPage() {
 
         <main className="flex-1 flex items-center justify-center px-6">
           <div className="text-center max-w-2xl">
-            <h1 
-              className="text-5xl md:text-7xl font-bold text-white mb-4 tracking-tight cursor-default"
-              onMouseEnter={() => setShowTooltip(true)}
-              onMouseLeave={() => setShowTooltip(false)}
-            >
-              PDM Pro Moda
+            <div className="relative inline-block mb-4">
+              <h1 
+                className="text-5xl md:text-7xl font-bold text-white tracking-tight cursor-default"
+                onMouseEnter={() => setShowTooltip(true)}
+                onMouseLeave={() => setShowTooltip(false)}
+              >
+                PDM Pro Moda Têxtil
+              </h1>
               {showTooltip && (
-                <div className="absolute left-1/2 -translate-x-1/2 mt-4 px-4 py-3 bg-slate-800/90 text-slate-300 text-sm rounded-lg max-w-md whitespace-pre-wrap">
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-4 py-3 bg-slate-900/90 border border-slate-700 text-white text-sm rounded-lg max-w-md whitespace-pre-wrap">
                   {PDM_TOOLTIP}
                 </div>
               )}
-            </h1>
+            </div>
             <p className="text-xl text-slate-400 mb-12 font-light">
               Sistema de gestão de desenvolvimento de produtos têxteis
             </p>
