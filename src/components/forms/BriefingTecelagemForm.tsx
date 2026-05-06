@@ -238,9 +238,7 @@ export function BriefingTecelagemForm({ initialData, onNext, onBack }: BriefingT
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmitDebug, (errors) => {
-      console.log("=== FORM ERRORS ===", errors)
-    })} className="space-y-8 mt-6 pb-24">
+    <form onSubmit={handleSubmit(onSubmitDebug)} className="space-y-8 mt-6 pb-24">
       {/* SEÇÃO 1: APLICAÇÃO / USO FINAL */}
       <section className="space-y-4">
         <h2 className="text-xl font-semibold border-b pb-2">1. Aplicação / Uso Final</h2>
