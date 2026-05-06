@@ -4,7 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { solicitacoes } from "@/lib/db/schema/solicitacoes"
 import { usuarios } from "@/lib/db/schema/usuarios"
-import { eq, and, desc, limit } from "drizzle-orm"
+import { eq, and, desc } from "drizzle-orm"
 
 export async function GET() {
   try {
