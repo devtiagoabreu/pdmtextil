@@ -44,7 +44,7 @@ const navItems = {
   ],
   ADMIN: [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/cadastros/fios", label: "Cadastros", icon: Database },
+    { href: "/cadastros", label: "Cadastros", icon: Database },
     { href: "/admin/usuarios", label: "Usuários", icon: Users },
     { href: "/admin/configuracoes", label: "Configurações", icon: Settings },
   ],
