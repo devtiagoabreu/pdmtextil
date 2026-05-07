@@ -51,6 +51,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(novoFio[0])
   } catch (error) {
     console.error("[POST /api/cadastros/fios]", error)
-    return NextResponse.json({ error: "Erro ao criar fio: " + error.message }, { status: 500 })
+    const message = error instanceof Error ? error.message : "Erro interno"
+    return NextResponse.json({ error: "Erro ao criar fio: " + message }, { status: 500 })
   }
 }
