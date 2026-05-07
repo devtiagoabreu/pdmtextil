@@ -1,12 +1,12 @@
 "use client"
 
 import Link from "next/link"
-import { Package, Building2, Users } from "lucide-react"
+import { Package, Building2, Users, Palette, Scissors, Droplets } from "lucide-react"
 
 const modulos = [
   {
     titulo: "Fios",
-    descricao: "Cadastro de fios têxteis",
+    descricao: "Cadastro de fios têxteis (Nível 7)",
     href: "/cadastros/fios",
     icon: Package,
   },
@@ -15,6 +15,24 @@ const modulos = [
     descricao: "Cadastro de fornecedores",
     href: "/cadastros/fornecedores",
     icon: Building2,
+  },
+  {
+    titulo: "Bases de Urdume",
+    descricao: "Bases de urdume (Nível 4)",
+    href: "/cadastros/bases-urdume",
+    icon: Scissors,
+  },
+  {
+    titulo: "Cores Sólidas",
+    descricao: "Cores sólidas (código 6 dígitos)",
+    href: "/cadastros/cores",
+    icon: Palette,
+  },
+  {
+    titulo: "Estampas",
+    descricao: "Estampas e desenhos",
+    href: "/cadastros/estampas",
+    icon: Droplets,
   },
   {
     titulo: "Clientes",
