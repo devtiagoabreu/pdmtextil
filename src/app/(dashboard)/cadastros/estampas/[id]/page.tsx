@@ -16,9 +16,9 @@ const estampaSchema = z.object({
   codigoDesenho: z.string().min(1, "Código do desenho é obrigatório").max(4, "Máximo 4 dígitos"),
   variante: z.string().max(2, "Máximo 2 dígitos").default("01"),
   nome: z.string().min(1, "Nome é obrigatório"),
-  tipo: z.string().optional(),
-  imagemUrl: z.string().optional(),
-  ativo: z.boolean().default(true),
+  tipo: z.string().optional().or(z.literal("")),
+  imagemUrl: z.string().optional().or(z.literal("")),
+  ativo: z.boolean(),
 })
 
 type EstampaFormData = z.infer<typeof estampaSchema>
@@ -33,7 +33,7 @@ export default function EstampaFormPage() {
 
   const { register, handleSubmit, formState: { errors }, setValue } = useForm<EstampaFormData>({
     resolver: zodResolver(estampaSchema),
-    defaultValues: { ativo: true, variante: "01" },
+    defaultValues: { ativo: true, variante: "01", codigoDesenho: "", nome: "", tipo: "", imagemUrl: "" },
   })
 
   const [loading, setLoading] = useState(false)
