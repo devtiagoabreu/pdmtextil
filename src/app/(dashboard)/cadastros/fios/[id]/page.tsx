@@ -215,9 +215,9 @@ export default function FioFormPage() {
     try {
       await fetch(`/api/cadastros/fios/${id}/fornecedores/${fid}`, { method: "DELETE" })
       setFioFornecedores(fioFornecedores.filter(f => f.id !== fid))
-      toast.success("Fornecedor removido")
+      toast.success("Fornecedor removido", { duration: 1000 })
     } catch {
-      toast.error("Erro ao remover fornecedor")
+      toast.error("Erro ao remover fornecedor", { duration: 1000 })
     }
   }
 
