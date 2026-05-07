@@ -64,29 +64,3 @@ export async function POST(
     return NextResponse.json({ error: "Erro ao adicionar fornecedor" }, { status: 500 })
   }
 }
-
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string; fornecedorId: string }> }
-) {
-  try {
-    const session = await getServerSession(authOptions)
-    if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
-
-    const { fornecedorId } = await params
-
-    const deleted = await db
-      .delete(fiosFornecedores)
-      .where(eq(fiosFornecedores.id, parseInt(fornecedorId)))
-      .returning()
-
-    if (deleted.length === 0) {
-      return NextResponse.json({ error: "Relação não encontrada" }, { status: 404 })
-    }
-
-    return NextResponse.json({ success: true })
-  } catch (error) {
-    console.error("[DELETE /api/cadastros/fios/[id]/fornecedores]", error)
-    return NextResponse.json({ error: "Erro ao remover fornecedor" }, { status: 500 })
-  }
-}
