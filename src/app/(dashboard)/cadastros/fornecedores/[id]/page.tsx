@@ -2,168 +2,253 @@
 
 import { useState, useEffect } from "react"
 import { useRouter, useParams } from "next/navigation"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { z } from "zod"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 
-const fornecedorSchema = z.object({
-  nome: z.string().min(1, "Nome é obrigatório"),
-  cnpj: z.string().optional(),
-  razaoSocial: z.string().optional(),
-  email: z.string().email("Email inválido").optional().or(z.literal("")),
-  telefone: z.string().optional(),
-  contato: z.string().optional(),
-  endereco: z.string().optional(),
-  cidade: z.string().optional(),
-  uf: z.string().optional(),
-  ativo: z.boolean().default(true),
-})
+type Fornecedor = {
+  id: number
+  nome: string
+  cnpj?: string | null
+  razaoSocial?: string | null
+  email?: string | null
+  telefone?: string | null
+  contato?: string | null
+  endereco?: string | null
+  cidade?: string | null
+  uf?: string | null
+  ativo: boolean
+}
 
-type FornecedorFormData = z.infer<typeof fornecedorSchema>
-
-export default function NovoFornecedorPage() {
+export default function FornecedorFormPage() {
   const params = useParams()
   const router = useRouter()
   const isEditing = params.id && params.id !== "novo"
-  const [loading, setLoading] = useState(isEditing)
+  const id = isEditing ? parseInt(params.id as string) : null
 
-  const { register, handleSubmit, formState: { errors }, setValue } = useForm<FornecedorFormData>({
-    resolver: zodResolver(fornecedorSchema),
-    defaultValues: { ativo: true },
+  const [fornecedor, setFornecedor] = useState<Fornecedor>({
+    id: 0,
+    nome: "",
+    cnpj: "",
+    razaoSocial: "",
+    email: "",
+    telefone: "",
+    contato: "",
+    endereco: "",
+    cidade: "",
+    uf: "",
+    ativo: true,
   })
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
 
   useEffect(() => {
-    if (isEditing && params.id) {
-      fetch(`/api/cadastros/fornecedores/${params.id}`)
+    if (isEditing && id) {
+      fetch(`/api/cadastros/fornecedores/${id}`)
         .then(res => res.json())
         .then(data => {
-          Object.keys(data).forEach(key => {
-            setValue(key as any, data[key])
+          setFornecedor({
+            id: data.id,
+            nome: data.nome || "",
+            cnpj: data.cnpj || "",
+            razaoSocial: data.razaoSocial || "",
+            email: data.email || "",
+            telefone: data.telefone || "",
+            contato: data.contato || "",
+            endereco: data.endereco || "",
+            cidade: data.cidade || "",
+            uf: data.uf || "",
+            ativo: data.ativo ?? true,
           })
         })
+        .catch(err => console.error(err))
         .finally(() => setLoading(false))
+    } else {
+      setLoading(false)
     }
-  }, [isEditing, params.id, setValue])
+  }, [id, isEditing])
 
-  const onSubmit = async (data: FornecedorFormData) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    if (!fornecedor.nome) {
+      toast.error("Nome é obrigatório")
+      return
+    }
+
+    setSaving(true)
     try {
-      const url = isEditing 
-        ? `/api/cadastros/fornecedores/${params.id}`
-        : "/api/cadastros/fornecedores"
-      
+      const url = isEditing ? `/api/cadastros/fornecedores/${id}` : "/api/cadastros/fornecedores"
       const method = isEditing ? "PUT" : "POST"
-      
+
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify(fornecedor),
       })
 
-      if (!res.ok) throw new Error("Erro ao salvar")
-
-      toast.success(isEditing ? "Fornecedor atualizado" : "Fornecedor criado")
-      router.push("/cadastros/fornecedores")
-    } catch {
-      toast.error("Erro ao salvar fornecedor")
+      if (res.ok) {
+        toast.success(isEditing ? "Fornecedor atualizado!" : "Fornecedor criado!")
+        router.push("/cadastros/fornecedores")
+      } else {
+        const err = await res.json()
+        throw new Error(err.error || "Erro ao salvar")
+      }
+    } catch (error: any) {
+      console.error(error)
+      toast.error(error.message || "Erro ao salvar fornecedor")
+    } finally {
+      setSaving(false)
     }
+  }
+
+  const handleChange = (field: keyof Fornecedor, value: string | boolean) => {
+    setFornecedor(prev => ({ ...prev, [field]: value }))
   }
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+      <div className="flex items-center justify-center p-8">
+        <Loader2 className="animate-spin text-slate-400" size={24} />
       </div>
     )
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
       <div className="flex items-center gap-4">
-        <Link 
-          href="/cadastros/fornecedores" 
-          className="rounded-md p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
-        >
-          <ArrowLeft size={20} />
+        <Link href="/cadastros/fornecedores">
+          <Button variant="ghost" size="icon">
+            <ArrowLeft size={20} />
+          </Button>
         </Link>
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
             {isEditing ? "Editar Fornecedor" : "Novo Fornecedor"}
           </h1>
-          <p className="text-sm text-slate-500">
-            {isEditing ? "Altere os dados do fornecedor" : "Cadastre um novo fornecedor"}
-          </p>
         </div>
       </div>
 
-      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <Label htmlFor="nome">Nome *</Label>
-              <Input id="nome" placeholder="Nome do fornecedor" {...register("nome")} />
-              {errors.nome && <p className="text-xs text-red-500">{errors.nome.message}</p>}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="cnpj">CNPJ</Label>
-              <Input id="cnpj" placeholder="00.000.000/0001-00" {...register("cnpj")} />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="razaoSocial">Razão Social</Label>
-              <Input id="razaoSocial" placeholder="Razão social completa" {...register("razaoSocial")} />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="contato@fornecedor.com" {...register("email")} />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="telefone">Telefone</Label>
-              <Input id="telefone" placeholder="(11) 99999-9999" {...register("telefone")} />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="contato">Pessoa de Contato</Label>
-              <Input id="contato" placeholder="Nome do contato" {...register("contato")} />
-            </div>
-
-            <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="endereco">Endereço</Label>
-              <Input id="endereco" placeholder="Endereço completo" {...register("endereco")} />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="cidade">Cidade</Label>
-              <Input id="cidade" placeholder="Cidade" {...register("cidade")} />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="uf">UF</Label>
-              <Input id="uf" placeholder="SP" maxLength={2} {...register("uf")} />
-            </div>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="nome">Nome / Fantasia *</Label>
+            <Input
+              id="nome"
+              value={fornecedor.nome}
+              onChange={e => handleChange("nome", e.target.value)}
+              placeholder="Fornecedor XYZ"
+              required
+            />
           </div>
-
-          <div className="flex items-center gap-2">
-            <input type="checkbox" id="ativo" className="rounded" {...register("ativo")} />
-            <Label htmlFor="ativo">Fornecedor ativo</Label>
+          <div className="space-y-2">
+            <Label htmlFor="cnpj">CNPJ</Label>
+            <Input
+              id="cnpj"
+              value={fornecedor.cnpj || ""}
+              onChange={e => handleChange("cnpj", e.target.value)}
+              placeholder="00.000.000/0001-00"
+            />
           </div>
+        </div>
 
-          <div className="flex justify-end gap-3 pt-6 border-t">
-            <Link href="/cadastros/fornecedores">
-              <Button type="button" variant="outline">Cancelar</Button>
-            </Link>
-            <Button type="submit">Salvar</Button>
+        <div className="space-y-2">
+          <Label htmlFor="razaoSocial">Razão Social</Label>
+          <Input
+            id="razaoSocial"
+            value={fornecedor.razaoSocial || ""}
+            onChange={e => handleChange("razaoSocial", e.target.value)}
+            placeholder="Razão social completa"
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              value={fornecedor.email || ""}
+              onChange={e => handleChange("email", e.target.value)}
+              placeholder="contato@fornecedor.com"
+            />
           </div>
-        </form>
-      </div>
+          <div className="space-y-2">
+            <Label htmlFor="telefone">Telefone</Label>
+            <Input
+              id="telefone"
+              value={fornecedor.telefone || ""}
+              onChange={e => handleChange("telefone", e.target.value)}
+              placeholder="(11) 99999-9999"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="contato">Pessoa de Contato</Label>
+          <Input
+            id="contato"
+            value={fornecedor.contato || ""}
+            onChange={e => handleChange("contato", e.target.value)}
+            placeholder="João Silva"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="endereco">Endereço</Label>
+          <Input
+            id="endereco"
+            value={fornecedor.endereco || ""}
+            onChange={e => handleChange("endereco", e.target.value)}
+            placeholder="Rua, número, bairro"
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="cidade">Cidade</Label>
+            <Input
+              id="cidade"
+              value={fornecedor.cidade || ""}
+              onChange={e => handleChange("cidade", e.target.value)}
+              placeholder="São Paulo"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="uf">UF</Label>
+            <Input
+              id="uf"
+              value={fornecedor.uf || ""}
+              onChange={e => handleChange("uf", e.target.value)}
+              placeholder="SP"
+              maxLength={2}
+            />
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            id="ativo"
+            checked={fornecedor.ativo}
+            onChange={e => handleChange("ativo", e.target.checked)}
+            className="w-4 h-4"
+          />
+          <Label htmlFor="ativo">Ativo</Label>
+        </div>
+
+        <div className="flex gap-4">
+          <Button type="submit" disabled={saving} className="gap-2">
+            {saving && <Loader2 size={16} className="animate-spin" />}
+            {isEditing ? "Atualizar" : "Criar"}
+          </Button>
+          <Link href="/cadastros/fornecedores">
+            <Button variant="outline" type="button">Cancelar</Button>
+          </Link>
+        </div>
+      </form>
     </div>
   )
 }
