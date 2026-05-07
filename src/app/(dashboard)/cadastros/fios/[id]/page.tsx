@@ -137,16 +137,13 @@ export default function FioFormPage() {
         console.error("❌ Erro da API:", err)
         throw new Error(err.error || "Erro ao salvar")
       }
-        toast.success(isEditing ? "Fio atualizado!" : "Fio criado!")
-        const novoFio = await res.json()
-        if (isEditing) {
-          router.push("/cadastros/fios")
-        } else {
-          router.push(`/cadastros/fios/${novoFio.id}`)
-        }
+      
+      toast.success(isEditing ? "Fio atualizado!" : "Fio criado!")
+      const novoFio = await res.json()
+      if (isEditing) {
+        router.push("/cadastros/fios")
       } else {
-        const err = await res.json()
-        throw new Error(err.error || "Erro ao salvar")
+        router.push(`/cadastros/fios/${novoFio.id}`)
       }
     } catch (error: any) {
       console.error(error)
