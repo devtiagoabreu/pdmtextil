@@ -110,21 +110,33 @@ export default function FioFormPage() {
       return
     }
 
+    const payload = {
+      ...fio,
+      codigoCompleto: `7.${fio.codigoFio}.XXX.000001`,
+    }
+    
+    console.log("📤 Enviando fio:", payload)
+
     setSaving(true)
     try {
       const url = isEditing ? `/api/cadastros/fios/${id}` : "/api/cadastros/fios"
       const method = isEditing ? "PUT" : "POST"
 
+      console.log("📤 URL:", url, "Method:", method)
+
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...fio,
-          codigoCompleto: `7.${fio.codigoFio}.XXX.000001`,
-        }),
+        body: JSON.stringify(payload),
       })
 
-      if (res.ok) {
+      console.log("📥 Status:", res.status)
+      
+      if (!res.ok) {
+        const err = await res.json()
+        console.error("❌ Erro da API:", err)
+        throw new Error(err.error || "Erro ao salvar")
+      }
         toast.success(isEditing ? "Fio atualizado!" : "Fio criado!")
         const novoFio = await res.json()
         if (isEditing) {
