@@ -101,6 +101,22 @@ export async function POST(req: NextRequest) {
     await db.execute(sql`ALTER TABLE "maquinas" ADD CONSTRAINT IF NOT EXISTS "maquinas_codigo_unique" UNIQUE("codigo");`).catch(() => {})
     await db.execute(sql`ALTER TABLE "operacoes" ADD CONSTRAINT IF NOT EXISTS "operacoes_codigo_unique" UNIQUE("codigo");`).catch(() => {})
 
+    // Adicionar coluna idIntegracao às tabelas
+    await db.execute(sql`ALTER TABLE proveedores ADD COLUMN IF NOT EXISTS "id_integracao" varchar(100);`).catch(() => {})
+    await db.execute(sql`ALTER TABLE fios ADD COLUMN IF NOT EXISTS "id_integracao" varchar(100);`).catch(() => {})
+    await db.execute(sql`ALTER TABLE fios_fornecedores ADD COLUMN IF NOT EXISTS "id_integracao" varchar(100);`).catch(() => {})
+    await db.execute(sql`ALTER TABLE bases_urdume ADD COLUMN IF NOT EXISTS "id_integracao" varchar(100);`).catch(() => {})
+    await db.execute(sql`ALTER TABLE cores_solidas ADD COLUMN IF NOT EXISTS "id_integracao" varchar(100);`).catch(() => {})
+    await db.execute(sql`ALTER TABLE cores_fundo ADD COLUMN IF NOT EXISTS "id_integracao" varchar(100);`).catch(() => {})
+    await db.execute(sql`ALTER TABLE estampas ADD COLUMN IF NOT EXISTS "id_integracao" varchar(100);`).catch(() => {})
+    await db.execute(sql`ALTER TABLE clientes ADD COLUMN IF NOT EXISTS "id_integracao" varchar(100);`).catch(() => {})
+    await db.execute(sql`ALTER TABLE maquinas ADD COLUMN IF NOT EXISTS "id_integracao" varchar(100);`).catch(() => {})
+    await db.execute(sql`ALTER TABLE operacoes ADD COLUMN IF NOT EXISTS "id_integracao" varchar(100);`).catch(() => {})
+    await db.execute(sql`ALTER TABLE acabamentos ADD COLUMN IF NOT EXISTS "id_integracao" varchar(100);`).catch(() => {})
+    await db.execute(sql`ALTER TABLE solicitacoes ADD COLUMN IF NOT EXISTS "id_integracao" varchar(100);`).catch(() => {})
+    await db.execute(sql`ALTER TABLE anexos ADD COLUMN IF NOT EXISTS "id_integracao" varchar(100);`).catch(() => {})
+    await db.execute(sql`ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS "id_integracao" varchar(100);`).catch(() => {})
+
     return NextResponse.json({ success: true, message: "Tabelas criadas com sucesso" })
   } catch (error) {
     console.error("[POST /api/db/migrate]", error)
