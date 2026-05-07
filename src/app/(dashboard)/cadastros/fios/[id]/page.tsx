@@ -356,16 +356,23 @@ export default function FioFormPage() {
 
           {showFornecedorForm && (
             <div className="p-4 bg-slate-50 rounded-lg space-y-4">
-              <select
-                value={selectedFornecedor}
-                onChange={e => setSelectedFornecedor(e.target.value)}
-                className="w-full p-2 rounded border"
-              >
-                <option value="">Selecione fornecedor</option>
-                {fornecedores.map(f => (
-                  <option key={f.id} value={f.id}>{f.nome}</option>
-                ))}
-              </select>
+              <div className="flex items-center justify-between">
+                <select
+                  value={selectedFornecedor}
+                  onChange={e => setSelectedFornecedor(e.target.value)}
+                  className="flex-1 p-2 rounded border"
+                >
+                  <option value="">Selecione fornecedor</option>
+                  {fornecedores.map(f => (
+                    <option key={f.id} value={f.id}>{f.nome}</option>
+                  ))}
+                </select>
+                <Link href="/cadastros/fornecedores/novo">
+                  <Button type="button" variant="outline" size="sm" className="ml-2 gap-1">
+                    <Plus size={14} /> Novo
+                  </Button>
+                </Link>
+              </div>
               <Input
                 placeholder="Código do fornecedor"
                 value={codigoFornecedor}
