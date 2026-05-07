@@ -12,6 +12,7 @@ export const anexos = pgTable("anexos", {
   nomeArquivo: varchar("nome_arquivo", { length: 255 }),
   tamanho: integer("tamanho"),
   mimeType: varchar("mime_type", { length: 100 }),
+  idIntegracao: varchar("id_integracao", { length: 100 }),
   criadoPor: integer("criado_por").references(() => usuarios.id),
   createdAt: timestamp("created_at").defaultNow(),
 })

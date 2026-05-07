@@ -9,10 +9,8 @@ export const maquinas = pgTable("maquinas", {
   capacidadeCarga: numeric("capacidade_carga", { precision: 10, scale: 2 }),
   disponivel: boolean("disponivel").default(true),
   ativo: boolean("ativo").default(true),
+  idIntegracao: varchar("id_integracao", { length: 100 }),
 })
-
-export type Maquina = typeof maquinas.$inferSelect
-export type NewMaquina = typeof maquinas.$inferInsert
 
 export const operacoes = pgTable("operacoes", {
   id: serial("id").primaryKey(),
@@ -21,7 +19,11 @@ export const operacoes = pgTable("operacoes", {
   tipo: varchar("tipo", { length: 50 }),
   descricao: text("descricao"),
   ativo: boolean("ativo").default(true),
+  idIntegracao: varchar("id_integracao", { length: 100 }),
 })
+
+export type Maquina = typeof maquinas.$inferSelect
+export type NewMaquina = typeof maquinas.$inferInsert
 
 export type Operacao = typeof operacoes.$inferSelect
 export type NewOperacao = typeof operacoes.$inferInsert

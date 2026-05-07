@@ -15,6 +15,7 @@ export const basesUrdume = pgTable("bases_urdume", {
   largura: numeric("largura", { precision: 6, scale: 2 }),
   observacoes: text("observacoes"),
   ativo: boolean("ativo").default(true),
+  idIntegracao: varchar("id_integracao", { length: 100 }),
   criadoPor: integer("criado_por").references(() => usuarios.id),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),

@@ -7,10 +7,8 @@ export const coresSolidas = pgTable("cores_solidas", {
   pantone: varchar("pantone", { length: 20 }),
   familia: varchar("familia", { length: 50 }),
   ativo: boolean("ativo").default(true),
+  idIntegracao: varchar("id_integracao", { length: 100 }),
 })
-
-export type CorSolida = typeof coresSolidas.$inferSelect
-export type NewCorSolida = typeof coresSolidas.$inferInsert
 
 export const coresFundo = pgTable("cores_fundo", {
   id: serial("id").primaryKey(),
@@ -18,7 +16,11 @@ export const coresFundo = pgTable("cores_fundo", {
   nome: varchar("nome", { length: 100 }).notNull(),
   descricao: text("descricao"),
   ativo: boolean("ativo").default(true),
+  idIntegracao: varchar("id_integracao", { length: 100 }),
 })
+
+export type CorSolida = typeof coresSolidas.$inferSelect
+export type NewCorSolida = typeof coresSolidas.$inferInsert
 
 export type CorFundo = typeof coresFundo.$inferSelect
 export type NewCorFundo = typeof coresFundo.$inferInsert

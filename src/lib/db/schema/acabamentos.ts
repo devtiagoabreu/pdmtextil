@@ -6,6 +6,7 @@ export const acabamentos = pgTable("acabamentos", {
   descricao: text("descricao"),
   categoria: varchar("categoria", { length: 50 }),
   ativo: boolean("ativo").default(true),
+  idIntegracao: varchar("id_integracao", { length: 100 }),
 })
 
 export type Acabamento = typeof acabamentos.$inferSelect

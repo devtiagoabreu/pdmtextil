@@ -8,6 +8,13 @@
       "when": 1777742972659,
       "tag": "0000_careful_iron_monger",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1778192280740,
+      "tag": "0001_past_iron_lad",
+      "breakpoints": true
     }
   ]
 }
