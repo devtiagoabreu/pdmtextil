@@ -55,6 +55,9 @@ export default function CorSolidaFormPage() {
   }, [id, isEditing, setValue])
 
   const onSubmit = async (data: CorFormData) => {
+    console.log("📤 Dados recebidos:", data)
+    console.log("📤 Erros:", JSON.stringify({ errors: data }))
+    
     setLoading(true)
     try {
       const url = isEditing ? `/api/cadastros/cores/${id}` : "/api/cadastros/cores"
@@ -67,17 +70,23 @@ export default function CorSolidaFormPage() {
         familia: data.familia || null,
       }
 
+      console.log("📤 Enviando:", JSON.stringify(payload))
+
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       })
 
+      const result = await res.json()
+      console.log("📥 Resposta:", result)
+
       if (!res.ok) throw new Error("Erro ao salvar")
 
       toast.success(isEditing ? "Cor atualizada!" : "Cor criada!")
       router.push("/cadastros/cores")
-    } catch {
+    } catch (error) {
+      console.error("❌ Erro ao salvar:", error)
       toast.error("Erro ao salvar cor")
     } finally {
       setLoading(false)
