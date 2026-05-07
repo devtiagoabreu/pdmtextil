@@ -15,9 +15,9 @@ import { toast } from "sonner"
 const corSchema = z.object({
   codigo: z.string().min(1, "Código é obrigatório").max(6, "Máximo 6 dígitos"),
   nome: z.string().min(1, "Nome é obrigatório"),
-  pantone: z.string().optional(),
-  familia: z.string().optional(),
-  ativo: z.boolean().default(true),
+  pantone: z.string().optional().or(z.literal("")),
+  familia: z.string().optional().or(z.literal("")),
+  ativo: z.boolean(),
 })
 
 type CorFormData = z.infer<typeof corSchema>
@@ -32,7 +32,7 @@ export default function CorSolidaFormPage() {
 
   const { register, handleSubmit, formState: { errors }, setValue } = useForm<CorFormData>({
     resolver: zodResolver(corSchema),
-    defaultValues: { ativo: true },
+    defaultValues: { ativo: true, codigo: "", nome: "", pantone: "", familia: "" },
   })
 
   const [loading, setLoading] = useState(false)

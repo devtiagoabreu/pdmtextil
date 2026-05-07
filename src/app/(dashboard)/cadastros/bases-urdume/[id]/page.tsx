@@ -16,13 +16,13 @@ const baseSchema = z.object({
   codigoBase: z.string().min(1, "Código é obrigatório"),
   codigoCompleto: z.string().min(1, "Código completo é obrigatório"),
   nome: z.string().min(1, "Nome é obrigatório"),
-  descricao: z.string().optional(),
-  densidade: z.string().optional(),
-  tratamentoEncolagem: z.string().optional(),
-  tensaoUrdume: z.string().optional(),
-  largura: z.string().optional(),
-  observacoes: z.string().optional(),
-  ativo: z.boolean().default(true),
+  descricao: z.string().optional().or(z.literal("")),
+  densidade: z.string().optional().or(z.literal("")),
+  tratamentoEncolagem: z.string().optional().or(z.literal("")),
+  tensaoUrdume: z.string().optional().or(z.literal("")),
+  largura: z.string().optional().or(z.literal("")),
+  observacoes: z.string().optional().or(z.literal("")),
+  ativo: z.boolean(),
 })
 
 type BaseFormData = z.infer<typeof baseSchema>
@@ -35,7 +35,18 @@ export default function BaseUrdumeFormPage() {
 
   const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<BaseFormData>({
     resolver: zodResolver(baseSchema),
-    defaultValues: { ativo: true },
+    defaultValues: { 
+      ativo: true, 
+      codigoBase: "", 
+      codigoCompleto: "", 
+      nome: "", 
+      descricao: "", 
+      densidade: "", 
+      tratamentoEncolagem: "", 
+      tensaoUrdume: "", 
+      largura: "", 
+      observacoes: "" 
+    },
   })
 
   const [loading, setLoading] = useState(false)
