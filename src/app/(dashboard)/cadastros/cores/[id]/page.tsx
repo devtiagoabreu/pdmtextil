@@ -2,9 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { useRouter, useParams } from "next/navigation"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { z } from "zod"
 import { ArrowLeft, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -12,88 +9,91 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 
-const corSchema = z.object({
-  codigo: z.string().min(1, "Código é obrigatório").max(6, "Máximo 6 dígitos"),
-  nome: z.string().min(1, "Nome é obrigatório"),
-  pantone: z.string().nullable(),
-  familia: z.string().nullable(),
-  ativo: z.coerce.boolean(),
-})
+type Cor = {
+  id: number
+  codigo: string
+  nome: string
+  pantone?: string | null
+  familia?: string | null
+  ativo: boolean
+}
 
-type CorFormData = z.infer<typeof corSchema>
-
-const FAMILIAS = ["AZUL", "VERMELHO", "VERDE", "AMARELO", "LARANJA", "ROXO", "Rosa", "PRETO", "BRANCO", "BEGE", "MARROM"]
-
-export default function CorSolidaFormPage() {
+export default function CorFormPage() {
   const router = useRouter()
   const params = useParams()
   const isEditing = params.id && params.id !== "novo"
   const id = isEditing ? parseInt(params.id as string) : null
 
-  const { register, handleSubmit, formState: { errors }, setValue } = useForm<CorFormData>({
-    resolver: zodResolver(corSchema),
-    defaultValues: { ativo: true, codigo: "", nome: "", pantone: null, familia: null },
+  const [cor, setCor] = useState<Cor>({
+    id: 0,
+    codigo: "",
+    nome: "",
+    pantone: "",
+    familia: "",
+    ativo: true,
   })
-
-  const [loading, setLoading] = useState(false)
-  const [initialLoading, setInitialLoading] = useState(isEditing)
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
 
   useEffect(() => {
     if (isEditing && id) {
       fetch(`/api/cadastros/cores/${id}`)
         .then(res => res.json())
         .then(data => {
-          setValue("codigo", data.codigo)
-          setValue("nome", data.nome)
-          setValue("pantone", data.pantone || "")
-          setValue("familia", data.familia || "")
-          setValue("ativo", data.ativo ?? true)
+          setCor({
+            id: data.id,
+            codigo: data.codigo || "",
+            nome: data.nome || "",
+            pantone: data.pantone || "",
+            familia: data.familia || "",
+            ativo: data.ativo ?? true,
+          })
         })
-        .catch(() => toast.error("Erro ao carregar dados"))
-        .finally(() => setInitialLoading(false))
+        .catch(err => console.error(err))
+        .finally(() => setLoading(false))
+    } else {
+      setLoading(false)
     }
-  }, [id, isEditing, setValue])
+  }, [id, isEditing])
 
-  const onSubmit = async (data: CorFormData) => {
-    console.log("📤 Dados recebidos:", data)
-    console.log("📤 Erros:", JSON.stringify({ errors: data }))
-    
-    setLoading(true)
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    if (!cor.codigo || !cor.nome) {
+      toast.error("Código e Nome são obrigatórios")
+      return
+    }
+
+    setSaving(true)
     try {
       const url = isEditing ? `/api/cadastros/cores/${id}` : "/api/cadastros/cores"
       const method = isEditing ? "PUT" : "POST"
 
-      // Converter null para string vazia antes de enviar
-      const payload = {
-        ...data,
-        pantone: data.pantone || null,
-        familia: data.familia || null,
-      }
-
-      console.log("📤 Enviando:", JSON.stringify(payload))
-
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(cor),
       })
 
-      const result = await res.json()
-      console.log("📥 Resposta:", result)
-
-      if (!res.ok) throw new Error("Erro ao salvar")
-
-      toast.success(isEditing ? "Cor atualizada!" : "Cor criada!")
-      router.push("/cadastros/cores")
-    } catch (error) {
-      console.error("❌ Erro ao salvar:", error)
-      toast.error("Erro ao salvar cor")
+      if (res.ok) {
+        toast.success(isEditing ? "Cor atualizada!" : "Cor criada!")
+        router.push("/cadastros/cores")
+      } else {
+        const err = await res.json()
+        throw new Error(err.error || "Erro ao salvar")
+      }
+    } catch (error: any) {
+      console.error(error)
+      toast.error(error.message || "Erro ao salvar cor")
     } finally {
-      setLoading(false)
+      setSaving(false)
     }
   }
 
-  if (initialLoading) {
+  const handleChange = (field: keyof Cor, value: string | boolean) => {
+    setCor(prev => ({ ...prev, [field]: value }))
+  }
+
+  if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
         <Loader2 className="animate-spin text-slate-400" size={24} />
@@ -116,42 +116,77 @@ export default function CorSolidaFormPage() {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="codigo">Código (6 dígitos) *</Label>
-            <Input {...register("codigo")} placeholder="0001A1" maxLength={6} />
-            {errors.codigo && <p className="text-sm text-red-500">{errors.codigo.message}</p>}
+            <Input
+              id="codigo"
+              value={cor.codigo}
+              onChange={e => handleChange("codigo", e.target.value)}
+              placeholder="0001A1"
+              maxLength={6}
+              required
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="nome">Nome *</Label>
-            <Input {...register("nome")} placeholder="Azul Marinho" />
-            {errors.nome && <p className="text-sm text-red-500">{errors.nome.message}</p>}
+            <Input
+              id="nome"
+              value={cor.nome}
+              onChange={e => handleChange("nome", e.target.value)}
+              placeholder="Azul Marinho"
+              required
+            />
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="pantone">Referência Pantone</Label>
-            <Input {...register("pantone")} placeholder="2955C" />
+            <Input
+              id="pantone"
+              value={cor.pantone || ""}
+              onChange={e => handleChange("pantone", e.target.value)}
+              placeholder="2955C"
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="familia">Família</Label>
-            <Input {...register("familia")} list="familias" placeholder="AZUL" />
+            <Input
+              id="familia"
+              value={cor.familia || ""}
+              onChange={e => handleChange("familia", e.target.value)}
+              placeholder="AZUL"
+              list="familias"
+            />
             <datalist id="familias">
-              {FAMILIAS.map(f => <option key={f} value={f} />)}
+              <option value="AZUL" />
+              <option value="VERMELHO" />
+              <option value="VERDE" />
+              <option value="AMARELO" />
+              <option value="LARANJA" />
+              <option value="ROXO" />
+              <option value="PRETO" />
+              <option value="BRANCO" />
             </datalist>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          <input type="checkbox" {...register("ativo")} id="ativo" className="w-4 h-4" />
+          <input
+            type="checkbox"
+            id="ativo"
+            checked={cor.ativo}
+            onChange={e => handleChange("ativo", e.target.checked)}
+            className="w-4 h-4"
+          />
           <Label htmlFor="ativo">Ativo</Label>
         </div>
 
         <div className="flex gap-4">
-          <Button type="submit" disabled={loading} className="gap-2">
-            {loading && <Loader2 size={16} className="animate-spin" />}
+          <Button type="submit" disabled={saving} className="gap-2">
+            {saving && <Loader2 size={16} className="animate-spin" />}
             {isEditing ? "Atualizar" : "Criar"}
           </Button>
           <Link href="/cadastros/cores">
