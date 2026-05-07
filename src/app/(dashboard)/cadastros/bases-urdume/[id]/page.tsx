@@ -16,13 +16,13 @@ const baseSchema = z.object({
   codigoBase: z.string().min(1, "Código é obrigatório"),
   codigoCompleto: z.string().min(1, "Código completo é obrigatório"),
   nome: z.string().min(1, "Nome é obrigatório"),
-  descricao: z.string().optional().or(z.literal("")),
-  densidade: z.string().optional().or(z.literal("")),
-  tratamentoEncolagem: z.string().optional().or(z.literal("")),
-  tensaoUrdume: z.string().optional().or(z.literal("")),
-  largura: z.string().optional().or(z.literal("")),
-  observacoes: z.string().optional().or(z.literal("")),
-  ativo: z.boolean(),
+  descricao: z.string().nullable(),
+  densidade: z.string().nullable(),
+  tratamentoEncolagem: z.string().nullable(),
+  tensaoUrdume: z.string().nullable(),
+  largura: z.string().nullable(),
+  observacoes: z.string().nullable(),
+  ativo: z.coerce.boolean(),
 })
 
 type BaseFormData = z.infer<typeof baseSchema>
@@ -40,12 +40,12 @@ export default function BaseUrdumeFormPage() {
       codigoBase: "", 
       codigoCompleto: "", 
       nome: "", 
-      descricao: "", 
-      densidade: "", 
-      tratamentoEncolagem: "", 
-      tensaoUrdume: "", 
-      largura: "", 
-      observacoes: "" 
+      descricao: null, 
+      densidade: null, 
+      tratamentoEncolagem: null, 
+      tensaoUrdume: null, 
+      largura: null, 
+      observacoes: null 
     },
   })
 
@@ -79,10 +79,20 @@ export default function BaseUrdumeFormPage() {
       const url = isEditing ? `/api/cadastros/bases-urdume/${id}` : "/api/cadastros/bases-urdume"
       const method = isEditing ? "PUT" : "POST"
 
+      const payload = {
+        ...data,
+        descricao: data.descricao || null,
+        densidade: data.densidade || null,
+        tratamentoEncolagem: data.tratamentoEncolagem || null,
+        tensaoUrdume: data.tensaoUrdume || null,
+        largura: data.largura || null,
+        observacoes: data.observacoes || null,
+      }
+
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify(payload),
       })
 
       if (!res.ok) throw new Error("Erro ao salvar")

@@ -15,9 +15,9 @@ import { toast } from "sonner"
 const corSchema = z.object({
   codigo: z.string().min(1, "Código é obrigatório").max(6, "Máximo 6 dígitos"),
   nome: z.string().min(1, "Nome é obrigatório"),
-  pantone: z.string().optional().or(z.literal("")),
-  familia: z.string().optional().or(z.literal("")),
-  ativo: z.boolean(),
+  pantone: z.string().nullable(),
+  familia: z.string().nullable(),
+  ativo: z.coerce.boolean(),
 })
 
 type CorFormData = z.infer<typeof corSchema>
@@ -32,7 +32,7 @@ export default function CorSolidaFormPage() {
 
   const { register, handleSubmit, formState: { errors }, setValue } = useForm<CorFormData>({
     resolver: zodResolver(corSchema),
-    defaultValues: { ativo: true, codigo: "", nome: "", pantone: "", familia: "" },
+    defaultValues: { ativo: true, codigo: "", nome: "", pantone: null, familia: null },
   })
 
   const [loading, setLoading] = useState(false)
@@ -60,10 +60,17 @@ export default function CorSolidaFormPage() {
       const url = isEditing ? `/api/cadastros/cores/${id}` : "/api/cadastros/cores"
       const method = isEditing ? "PUT" : "POST"
 
+      // Converter null para string vazia antes de enviar
+      const payload = {
+        ...data,
+        pantone: data.pantone || null,
+        familia: data.familia || null,
+      }
+
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify(payload),
       })
 
       if (!res.ok) throw new Error("Erro ao salvar")
