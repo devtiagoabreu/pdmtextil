@@ -10,10 +10,14 @@ export async function GET() {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
+    console.log("[GET /api/cadastros/fios] Buscando fios...")
+
     const lista = await db
       .select()
       .from(fios)
       .orderBy(fios.nome)
+
+    console.log("[GET /api/cadastros/fios] Encontrados:", lista.length)
 
     return NextResponse.json(lista)
   } catch (error) {
