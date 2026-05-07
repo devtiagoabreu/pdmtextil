@@ -2,9 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { useRouter, useParams } from "next/navigation"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { z } from "zod"
 import { ArrowLeft, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -12,18 +9,15 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 
-const estampaSchema = z.object({
-  codigoDesenho: z.string().min(1, "Código do desenho é obrigatório").max(4, "Máximo 4 dígitos"),
-  variante: z.string().max(2, "Máximo 2 dígitos").default("01"),
-  nome: z.string().min(1, "Nome é obrigatório"),
-  tipo: z.string().nullable(),
-  imagemUrl: z.string().nullable(),
-  ativo: z.coerce.boolean(),
-})
-
-type EstampaFormData = z.infer<typeof estampaSchema>
-
-const TIPOS = ["FLORAL", "LISTRADO", "POA", "GEOMETRICO", "ABSTRATO", "ANIMAL", "INFANTIL"]
+type Estampa = {
+  id: number
+  codigoDesenho: string
+  variante: string
+  nome: string
+  tipo?: string | null
+  imagemUrl?: string | null
+  ativo: boolean
+}
 
 export default function EstampaFormPage() {
   const router = useRouter()
@@ -31,61 +25,78 @@ export default function EstampaFormPage() {
   const isEditing = params.id && params.id !== "novo"
   const id = isEditing ? parseInt(params.id as string) : null
 
-  const { register, handleSubmit, formState: { errors }, setValue } = useForm<EstampaFormData>({
-    resolver: zodResolver(estampaSchema),
-    defaultValues: { ativo: true, variante: "01", codigoDesenho: "", nome: "", tipo: null, imagemUrl: null },
+  const [estampa, setEstampa] = useState<Estampa>({
+    id: 0,
+    codigoDesenho: "",
+    variante: "01",
+    nome: "",
+    tipo: "",
+    imagemUrl: "",
+    ativo: true,
   })
-
-  const [loading, setLoading] = useState(false)
-  const [initialLoading, setInitialLoading] = useState(isEditing)
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
 
   useEffect(() => {
     if (isEditing && id) {
       fetch(`/api/cadastros/estampas/${id}`)
         .then(res => res.json())
         .then(data => {
-          setValue("codigoDesenho", data.codigoDesenho)
-          setValue("variante", data.variante || "01")
-          setValue("nome", data.nome)
-          setValue("tipo", data.tipo || "")
-          setValue("imagemUrl", data.imagemUrl || "")
-          setValue("ativo", data.ativo ?? true)
+          setEstampa({
+            id: data.id,
+            codigoDesenho: data.codigoDesenho || "",
+            variante: data.variante || "01",
+            nome: data.nome || "",
+            tipo: data.tipo || "",
+            imagemUrl: data.imagemUrl || "",
+            ativo: data.ativo ?? true,
+          })
         })
-        .catch(() => toast.error("Erro ao carregar dados"))
-        .finally(() => setInitialLoading(false))
+        .catch(err => console.error(err))
+        .finally(() => setLoading(false))
+    } else {
+      setLoading(false)
     }
-  }, [id, isEditing, setValue])
+  }, [id, isEditing])
 
-  const onSubmit = async (data: EstampaFormData) => {
-    setLoading(true)
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    if (!estampa.codigoDesenho || !estampa.nome) {
+      toast.error("Código do Desenho e Nome são obrigatórios")
+      return
+    }
+
+    setSaving(true)
     try {
       const url = isEditing ? `/api/cadastros/estampas/${id}` : "/api/cadastros/estampas"
       const method = isEditing ? "PUT" : "POST"
 
-      const payload = {
-        ...data,
-        tipo: data.tipo || null,
-        imagemUrl: data.imagemUrl || null,
-      }
-
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(estampa),
       })
 
-      if (!res.ok) throw new Error("Erro ao salvar")
-
-      toast.success(isEditing ? "Estampa atualizada!" : "Estampa criada!")
-      router.push("/cadastros/estampas")
-    } catch {
-      toast.error("Erro ao salvar estampa")
+      if (res.ok) {
+        toast.success(isEditing ? "Estampa atualizada!" : "Estampa criada!")
+        router.push("/cadastros/estampas")
+      } else {
+        const err = await res.json()
+        throw new Error(err.error || "Erro ao salvar")
+      }
+    } catch (error: any) {
+      console.error(error)
+      toast.error(error.message || "Erro ao salvar estampa")
     } finally {
-      setLoading(false)
+      setSaving(false)
     }
   }
 
-  if (initialLoading) {
+  const handleChange = (field: keyof Estampa, value: string | boolean) => {
+    setEstampa(prev => ({ ...prev, [field]: value }))
+  }
+
+  if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
         <Loader2 className="animate-spin text-slate-400" size={24} />
@@ -108,46 +119,85 @@ export default function EstampaFormPage() {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="codigoDesenho">Código do Desenho (4 dígitos) *</Label>
-            <Input {...register("codigoDesenho")} placeholder="5001" maxLength={4} />
-            {errors.codigoDesenho && <p className="text-sm text-red-500">{errors.codigoDesenho.message}</p>}
+            <Input
+              id="codigoDesenho"
+              value={estampa.codigoDesenho}
+              onChange={e => handleChange("codigoDesenho", e.target.value)}
+              placeholder="5001"
+              maxLength={4}
+              required
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="variante">Variante</Label>
-            <Input {...register("variante")} placeholder="01" maxLength={2} />
+            <Input
+              id="variante"
+              value={estampa.variante}
+              onChange={e => handleChange("variante", e.target.value)}
+              placeholder="01"
+              maxLength={2}
+            />
           </div>
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="nome">Nome *</Label>
-          <Input {...register("nome")} placeholder="Floral Botanico" />
-          {errors.nome && <p className="text-sm text-red-500">{errors.nome.message}</p>}
+          <Input
+            id="nome"
+            value={estampa.nome}
+            onChange={e => handleChange("nome", e.target.value)}
+            placeholder="Floral Botânico"
+            required
+          />
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="tipo">Tipo</Label>
-          <Input {...register("tipo")} list="tipos" placeholder="FLORAL" />
+          <Input
+            id="tipo"
+            value={estampa.tipo || ""}
+            onChange={e => handleChange("tipo", e.target.value)}
+            placeholder="FLORAL"
+            list="tipos"
+          />
           <datalist id="tipos">
-            {TIPOS.map(t => <option key={t} value={t} />)}
+            <option value="FLORAL" />
+            <option value="LISTRADO" />
+            <option value="POA" />
+            <option value="GEOMETRICO" />
+            <option value="ABSTRATO" />
+            <option value="ANIMAL" />
           </datalist>
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="imagemUrl">URL da Imagem</Label>
-          <Input {...register("imagemUrl")} placeholder="https://..." />
+          <Input
+            id="imagemUrl"
+            value={estampa.imagemUrl || ""}
+            onChange={e => handleChange("imagemUrl", e.target.value)}
+            placeholder="https://..."
+          />
         </div>
 
         <div className="flex items-center gap-2">
-          <input type="checkbox" {...register("ativo")} id="ativo" className="w-4 h-4" />
+          <input
+            type="checkbox"
+            id="ativo"
+            checked={estampa.ativo}
+            onChange={e => handleChange("ativo", e.target.checked)}
+            className="w-4 h-4"
+          />
           <Label htmlFor="ativo">Ativo</Label>
         </div>
 
         <div className="flex gap-4">
-          <Button type="submit" disabled={loading} className="gap-2">
-            {loading && <Loader2 size={16} className="animate-spin" />}
+          <Button type="submit" disabled={saving} className="gap-2">
+            {saving && <Loader2 size={16} className="animate-spin" />}
             {isEditing ? "Atualizar" : "Criar"}
           </Button>
           <Link href="/cadastros/estampas">
