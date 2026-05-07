@@ -28,6 +28,7 @@ export async function POST(req: NextRequest) {
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
     const body = await req.json()
+    console.log("📥 API recebeu:", body)
 
     const novoFio = await db
       .insert(fios)
@@ -42,7 +43,7 @@ export async function POST(req: NextRequest) {
         resistencia: body.resistencia || null,
         alongamento: body.alongamento || null,
         observacoes: body.observacoes || null,
-        ativo: body.ativo ?? true,
+        ativo: body.ativo === true,
         criadoPor: parseInt(session.user.id),
       })
       .returning()
@@ -50,6 +51,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(novoFio[0])
   } catch (error) {
     console.error("[POST /api/cadastros/fios]", error)
-    return NextResponse.json({ error: "Erro ao criar fio" }, { status: 500 })
+    return NextResponse.json({ error: "Erro ao criar fio: " + error.message }, { status: 500 })
   }
 }
