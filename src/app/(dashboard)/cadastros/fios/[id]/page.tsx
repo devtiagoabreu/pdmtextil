@@ -376,10 +376,10 @@ export default function FioFormPage() {
           {fioFornecedores.length > 0 && (
             <div className="space-y-2 mb-4">
               {fioFornecedores.map(ff => (
-                <div key={ff.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                <div key={ff.id} className="flex items-center justify-between p-3 bg-slate-100 dark:bg-slate-800 rounded-lg">
                   <div>
                     <p className="font-medium">{ff.fornecedorNome}</p>
-                    <p className="text-sm text-slate-500">{ff.codigoFornecedor}</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">{ff.codigoFornecedor}</p>
                   </div>
                   <Button variant="ghost" size="icon" onClick={() => removeFornecedor(ff.id)}>
                     <Trash2 size={16} />
@@ -390,12 +390,12 @@ export default function FioFormPage() {
           )}
 
           {showFornecedorForm && (
-            <div className="p-4 bg-slate-50 rounded-lg space-y-4">
+            <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-lg space-y-4">
               <div className="flex items-center justify-between">
                 <select
                   value={selectedFornecedor}
                   onChange={e => setSelectedFornecedor(e.target.value)}
-                  className="flex-1 p-2 rounded border"
+                  className="flex-1 p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
                 >
                   <option value="">Selecione fornecedor</option>
                   {fornecedores.map(f => (
