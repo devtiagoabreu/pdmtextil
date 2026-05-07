@@ -2,9 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { useRouter, useParams } from "next/navigation"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { z } from "zod"
 import { ArrowLeft, Plus, Trash2, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -12,20 +9,20 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 
-const fioSchema = z.object({
-  codigoFio: z.string().min(1, "Código curto é obrigatório"),
-  nome: z.string().min(1, "Nome é obrigatório"),
-  nomeComercial: z.string().optional(),
-  composicao: z.string().optional(),
-  titulo: z.string().optional(),
-  torcao: z.string().optional(),
-  resistencia: z.string().optional(),
-  alongamento: z.string().optional(),
-  observacoes: z.string().optional(),
-  ativo: z.boolean().default(true),
-})
-
-type FioFormData = z.infer<typeof fioSchema>
+type Fio = {
+  id: number
+  codigoFio: string
+  codigoCompleto: string
+  nome: string
+  nomeComercial?: string | null
+  composicao?: string | null
+  titulo?: string | null
+  torcao?: string | null
+  resistencia?: string | null
+  alongamento?: string | null
+  observacoes?: string | null
+  ativo: boolean
+}
 
 interface Fornecedor {
   id: number
@@ -43,22 +40,34 @@ interface FioFornecedor {
   fornecedorCnpj: string
 }
 
-export default function NovoFioPage() {
+export default function FioFormPage() {
   const params = useParams()
   const router = useRouter()
   const isEditing = params.id && params.id !== "novo"
-  const [loading, setLoading] = useState(isEditing)
+  const id = isEditing ? parseInt(params.id as string) : null
+
+  const [fio, setFio] = useState<Fio>({
+    id: 0,
+    codigoFio: "",
+    codigoCompleto: "",
+    nome: "",
+    nomeComercial: "",
+    composicao: "",
+    titulo: "",
+    torcao: "",
+    resistencia: "",
+    alongamento: "",
+    observacoes: "",
+    ativo: true,
+  })
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
   
   const [fornecedores, setFornecedores] = useState<Fornecedor[]>([])
   const [fioFornecedores, setFioFornecedores] = useState<FioFornecedor[]>([])
   const [showFornecedorForm, setShowFornecedorForm] = useState(false)
   const [selectedFornecedor, setSelectedFornecedor] = useState("")
   const [codigoFornecedor, setCodigoFornecedor] = useState("")
-
-  const { register, handleSubmit, formState: { errors }, setValue } = useForm<FioFormData>({
-    resolver: zodResolver(fioSchema),
-    defaultValues: { ativo: true },
-  })
 
   useEffect(() => {
     fetch("/api/cadastros/fornecedores")
@@ -67,60 +76,86 @@ export default function NovoFioPage() {
   }, [])
 
   useEffect(() => {
-    if (isEditing && params.id) {
+    if (isEditing && id) {
       Promise.all([
-        fetch(`/api/cadastros/fios/${params.id}`).then(res => res.json()),
-        fetch(`/api/cadastros/fios/${params.id}/fornecedores`).then(res => res.json())
+        fetch(`/api/cadastros/fios/${id}`).then(res => res.json()),
+        fetch(`/api/cadastros/fios/${id}/fornecedores`).then(res => res.json())
       ]).then(([fioData, fornecedoresData]) => {
-        Object.keys(fioData).forEach(key => {
-          setValue(key as any, fioData[key])
+        setFio({
+          id: fioData.id,
+          codigoFio: fioData.codigoFio || "",
+          codigoCompleto: fioData.codigoCompleto || "",
+          nome: fioData.nome || "",
+          nomeComercial: fioData.nomeComercial || "",
+          composicao: fioData.composicao || "",
+          titulo: fioData.titulo || "",
+          torcao: fioData.torcao || "",
+          resistencia: fioData.resistencia || "",
+          alongamento: fioData.alongamento || "",
+          observacoes: fioData.observacoes || "",
+          ativo: fioData.ativo ?? true,
         })
         setFioFornecedores(fornecedoresData)
         setLoading(false)
       })
+    } else {
+      setLoading(false)
     }
-  }, [isEditing, params.id, setValue])
+  }, [id, isEditing])
 
-  const onSubmit = async (data: FioFormData) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    if (!fio.codigoFio || !fio.nome) {
+      toast.error("Código e Nome são obrigatórios")
+      return
+    }
+
+    setSaving(true)
     try {
-      const url = isEditing 
-        ? `/api/cadastros/fios/${params.id}`
-        : "/api/cadastros/fios"
-      
+      const url = isEditing ? `/api/cadastros/fios/${id}` : "/api/cadastros/fios"
       const method = isEditing ? "PUT" : "POST"
-      
+
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...data,
-          codigoCompleto: `7.${data.codigoFio}.XXX.000001`,
+          ...fio,
+          codigoCompleto: `7.${fio.codigoFio}.XXX.000001`,
         }),
       })
 
-      if (!res.ok) throw new Error("Erro ao salvar")
-
-      const novoFio = await res.json()
-      toast.success(isEditing ? "Fio atualizado" : "Fio criado")
-      
-      if (isEditing) {
-        router.push("/cadastros/fios")
+      if (res.ok) {
+        toast.success(isEditing ? "Fio atualizado!" : "Fio criado!")
+        const novoFio = await res.json()
+        if (isEditing) {
+          router.push("/cadastros/fios")
+        } else {
+          router.push(`/cadastros/fios/${novoFio.id}`)
+        }
       } else {
-        router.push(`/cadastros/fios/${novoFio.id}`)
+        const err = await res.json()
+        throw new Error(err.error || "Erro ao salvar")
       }
-    } catch {
-      toast.error("Erro ao salvar fio")
+    } catch (error: any) {
+      console.error(error)
+      toast.error(error.message || "Erro ao salvar fio")
+    } finally {
+      setSaving(false)
     }
   }
 
+  const handleChange = (field: keyof Fio, value: string | boolean) => {
+    setFio(prev => ({ ...prev, [field]: value }))
+  }
+
   const addFornecedor = async () => {
-    if (!selectedFornecedor || !isEditing || !params.id) {
+    if (!selectedFornecedor || !id) {
       toast.error("Salve o fio primeiro para adicionar fornecedores")
       return
     }
     
     try {
-      const res = await fetch(`/api/cadastros/fios/${params.id}/fornecedores`, {
+      const res = await fetch(`/api/cadastros/fios/${id}/fornecedores`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -131,7 +166,7 @@ export default function NovoFioPage() {
       
       if (!res.ok) throw new Error()
       
-      const novos = await fetch(`/api/cadastros/fios/${params.id}/fornecedores`).then(r => r.json())
+      const novos = await fetch(`/api/cadastros/fios/${id}/fornecedores`).then(r => r.json())
       setFioFornecedores(novos)
       setSelectedFornecedor("")
       setCodigoFornecedor("")
@@ -142,12 +177,12 @@ export default function NovoFioPage() {
     }
   }
 
-  const removeFornecedor = async (id: number) => {
-    if (!isEditing || !params.id) return
+  const removeFornecedor = async (fid: number) => {
+    if (!id) return
     
     try {
-      await fetch(`/api/cadastros/fios/${params.id}/fornecedores/${id}`, { method: "DELETE" })
-      setFioFornecedores(fioFornecedores.filter(f => f.id !== id))
+      await fetch(`/api/cadastros/fios/${id}/fornecedores/${fid}`, { method: "DELETE" })
+      setFioFornecedores(fioFornecedores.filter(f => f.id !== fid))
       toast.success("Fornecedor removido")
     } catch {
       toast.error("Erro ao remover fornecedor")
@@ -157,7 +192,7 @@ export default function NovoFioPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+        <Loader2 className="animate-spin text-slate-400" size={24} />
       </div>
     )
   }
@@ -165,173 +200,170 @@ export default function NovoFioPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center gap-4">
-        <Link 
-          href="/cadastros/fios" 
-          className="rounded-md p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
-        >
+        <Link href="/cadastros/fios" className="rounded-md p-2 text-slate-500 hover:bg-slate-100">
           <ArrowLeft size={20} />
         </Link>
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
             {isEditing ? "Editar Fio" : "Novo Fio"}
           </h1>
-          <p className="text-sm text-slate-500">
-            {isEditing ? "Altere os dados do fio" : "Cadastre um novo fio no sistema"}
-          </p>
         </div>
       </div>
 
-      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <Label htmlFor="codigoFio">Código Curto *</Label>
-              <Input id="codigoFio" placeholder="Ex: AL20, CO30" {...register("codigoFio")} />
-              {errors.codigoFio && <p className="text-xs text-red-500">{errors.codigoFio.message}</p>}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="nome">Nome *</Label>
-              <Input id="nome" placeholder="Ex: Algodão Brasileiro" {...register("nome")} />
-              {errors.nome && <p className="text-xs text-red-500">{errors.nome.message}</p>}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="nomeComercial">Nome Comercial</Label>
-              <Input id="nomeComercial" {...register("nomeComercial")} />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="titulo">Título</Label>
-              <Input id="titulo" placeholder="Ex: 20/1, 30/1" {...register("titulo")} />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="composicao">Composição</Label>
-              <Input id="composicao" placeholder="Ex: 100% Algodão" {...register("composicao")} />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="torcao">Torção</Label>
-              <Input id="torcao" placeholder="Ex: Z, S" {...register("torcao")} />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="resistencia">Resistência (kgf)</Label>
-              <Input id="resistencia" placeholder="Ex: 350.00" {...register("resistencia")} />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="alongamento">Alongamento (%)</Label>
-              <Input id="alongamento" placeholder="Ex: 5.50" {...register("alongamento")} />
-            </div>
-
-            <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="observacoes">Observações</Label>
-              <textarea
-                id="observacoes"
-                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
-                rows={3}
-                {...register("observacoes")}
-              />
-            </div>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="codigoFio">Código Curto *</Label>
+            <Input
+              id="codigoFio"
+              value={fio.codigoFio}
+              onChange={e => handleChange("codigoFio", e.target.value)}
+              placeholder="AL20"
+              required
+            />
           </div>
-
-          <div className="flex items-center gap-2">
-            <input type="checkbox" id="ativo" className="rounded" {...register("ativo")} />
-            <Label htmlFor="ativo">Fio ativo</Label>
+          <div className="space-y-2">
+            <Label htmlFor="nome">Nome *</Label>
+            <Input
+              id="nome"
+              value={fio.nome}
+              onChange={e => handleChange("nome", e.target.value)}
+              placeholder="Fio de Algodão"
+              required
+            />
           </div>
+        </div>
 
-          <div className="flex justify-end gap-3 pt-6 border-t">
-            <Link href="/cadastros/fios">
-              <Button type="button" variant="outline">Cancelar</Button>
-            </Link>
-            <Button type="submit">Salvar</Button>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="nomeComercial">Nome Comercial</Label>
+            <Input
+              id="nomeComercial"
+              value={fio.nomeComercial || ""}
+              onChange={e => handleChange("nomeComercial", e.target.value)}
+              placeholder="Nome comercial"
+            />
           </div>
-        </form>
-      </div>
+          <div className="space-y-2">
+            <Label htmlFor="composicao">Composição</Label>
+            <Input
+              id="composicao"
+              value={fio.composicao || ""}
+              onChange={e => handleChange("composicao", e.target.value)}
+              placeholder="100% Algodão"
+            />
+          </div>
+        </div>
 
-      {/* Seção de Fornecedores */}
+        <div className="grid grid-cols-3 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="titulo">Título</Label>
+            <Input
+              id="titulo"
+              value={fio.titulo || ""}
+              onChange={e => handleChange("titulo", e.target.value)}
+              placeholder="20/1"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="torcao">Torção</Label>
+            <Input
+              id="torcao"
+              value={fio.torcao || ""}
+              onChange={e => handleChange("torcao", e.target.value)}
+              placeholder="Z"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="resistencia">Resistência (kgf)</Label>
+            <Input
+              id="resistencia"
+              value={fio.resistencia || ""}
+              onChange={e => handleChange("resistencia", e.target.value)}
+              placeholder="120"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="observacoes">Observações</Label>
+          <Input
+            id="observacoes"
+            value={fio.observacoes || ""}
+            onChange={e => handleChange("observacoes", e.target.value)}
+            placeholder="Observações"
+          />
+        </div>
+
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            id="ativo"
+            checked={fio.ativo}
+            onChange={e => handleChange("ativo", e.target.checked)}
+            className="w-4 h-4"
+          />
+          <Label htmlFor="ativo">Ativo</Label>
+        </div>
+
+        <div className="flex gap-4">
+          <Button type="submit" disabled={saving} className="gap-2">
+            {saving && <Loader2 size={16} className="animate-spin" />}
+            {isEditing ? "Atualizar" : "Criar"}
+          </Button>
+          <Link href="/cadastros/fios">
+            <Button variant="outline" type="button">Cancelar</Button>
+          </Link>
+        </div>
+      </form>
+
       {isEditing && (
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
+        <div className="border-t pt-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold">Fornecedores</h2>
-            <Button 
-              type="button" 
-              variant="outline" 
-              size="sm" 
-              className="gap-1"
-              onClick={() => setShowFornecedorForm(!showFornecedorForm)}
-            >
-              <Plus size={14} />
-              Adicionar Fornecedor
+            <Button type="button" onClick={() => setShowFornecedorForm(true)} size="sm" className="gap-2">
+              <Plus size={16} /> Adicionar
             </Button>
           </div>
 
-          {showFornecedorForm && (
-            <div className="mb-4 p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label>Fornecedor</Label>
-                  <select 
-                    className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
-                    value={selectedFornecedor}
-                    onChange={(e) => setSelectedFornecedor(e.target.value)}
-                  >
-                    <option value="">Selecione...</option>
-                    {fornecedores.filter(f => f.ativo !== false).map(f => (
-                      <option key={f.id} value={f.id}>{f.nome}</option>
-                    ))}
-                  </select>
+          {fioFornecedores.length > 0 && (
+            <div className="space-y-2 mb-4">
+              {fioFornecedores.map(ff => (
+                <div key={ff.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                  <div>
+                    <p className="font-medium">{ff.fornecedorNome}</p>
+                    <p className="text-sm text-slate-500">{ff.codigoFornecedor}</p>
+                  </div>
+                  <Button variant="ghost" size="icon" onClick={() => removeFornecedor(ff.id)}>
+                    <Trash2 size={16} />
+                  </Button>
                 </div>
-                <div className="space-y-2">
-                  <Label>Código do Fornecedor</Label>
-                  <Input 
-                    placeholder="Código do fornecedor"
-                    value={codigoFornecedor}
-                    onChange={(e) => setCodigoFornecedor(e.target.value)}
-                  />
-                </div>
-                <div className="flex items-end gap-2">
-                  <Button type="button" onClick={addFornecedor}>Adicionar</Button>
-                  <Button type="button" variant="outline" onClick={() => setShowFornecedorForm(false)}>Cancelar</Button>
-                </div>
-              </div>
+              ))}
             </div>
           )}
 
-          {fioFornecedores.length === 0 ? (
-            <p className="text-sm text-slate-500">Nenhum fornecedor vinculado</p>
-          ) : (
-            <table className="w-full">
-              <thead className="border-b border-slate-200 dark:border-slate-800">
-                <tr>
-                  <th className="text-left text-xs font-medium text-slate-500 p-2">Fornecedor</th>
-                  <th className="text-left text-xs font-medium text-slate-500 p-2">CNPJ</th>
-                  <th className="text-left text-xs font-medium text-slate-500 p-2">Código</th>
-                  <th className="text-right text-xs font-medium text-slate-500 p-2">Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                {fioFornecedores.map((ff) => (
-                  <tr key={ff.id} className="border-b border-slate-100 dark:border-slate-800">
-                    <td className="p-2 text-sm">{ff.fornecedorNome}</td>
-                    <td className="p-2 text-sm text-slate-500">{ff.fornecedorCnpj || "—"}</td>
-                    <td className="p-2 text-sm">{ff.codigoFornecedor || "—"}</td>
-                    <td className="p-2 text-right">
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="h-6 w-6 text-red-500"
-                        onClick={() => removeFornecedor(ff.id)}
-                      >
-                        <Trash2 size={12} />
-                      </Button>
-                    </td>
-                  </tr>
+          {showFornecedorForm && (
+            <div className="p-4 bg-slate-50 rounded-lg space-y-4">
+              <select
+                value={selectedFornecedor}
+                onChange={e => setSelectedFornecedor(e.target.value)}
+                className="w-full p-2 rounded border"
+              >
+                <option value="">Selecione fornecedor</option>
+                {fornecedores.map(f => (
+                  <option key={f.id} value={f.id}>{f.nome}</option>
                 ))}
-              </tbody>
-            </table>
+              </select>
+              <Input
+                placeholder="Código do fornecedor"
+                value={codigoFornecedor}
+                onChange={e => setCodigoFornecedor(e.target.value)}
+              />
+              <div className="flex gap-2">
+                <Button onClick={addFornecedor}>Adicionar</Button>
+                <Button variant="outline" onClick={() => setShowFornecedorForm(false)}>Cancelar</Button>
+              </div>
+            </div>
           )}
         </div>
       )}
