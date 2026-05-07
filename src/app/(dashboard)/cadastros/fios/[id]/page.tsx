@@ -7,6 +7,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { toast } from "sonner"
 
 type Fio = {
@@ -40,6 +41,19 @@ interface FioFornecedor {
   fornecedorCnpj: string
 }
 
+interface NovoFornecedor {
+  nome: string
+  cnpj: string
+  razaoSocial: string
+  email: string
+  telefone: string
+  contato: string
+  endereco: string
+  cidade: string
+  uf: string
+  ativo: boolean
+}
+
 export default function FioFormPage() {
   const params = useParams()
   const router = useRouter()
@@ -68,6 +82,22 @@ export default function FioFormPage() {
   const [showFornecedorForm, setShowFornecedorForm] = useState(false)
   const [selectedFornecedor, setSelectedFornecedor] = useState("")
   const [codigoFornecedor, setCodigoFornecedor] = useState("")
+  
+  // Estados do modal de novo fornecedor
+  const [showNovoFornecedorModal, setShowNovoFornecedorModal] = useState(false)
+  const [novoFornecedor, setNovoFornecedor] = useState<NovoFornecedor>({
+    nome: "",
+    cnpj: "",
+    razaoSocial: "",
+    email: "",
+    telefone: "",
+    contato: "",
+    endereco: "",
+    cidade: "",
+    uf: "",
+    ativo: true,
+  })
+  const [savingFornecedor, setSavingFornecedor] = useState(false)
 
   useEffect(() => {
     fetch("/api/cadastros/fornecedores")
@@ -115,14 +145,10 @@ export default function FioFormPage() {
       codigoCompleto: `7.${fio.codigoFio}.XXX.000001`,
     }
     
-    console.log("📤 Enviando fio:", payload)
-
     setSaving(true)
     try {
       const url = isEditing ? `/api/cadastros/fios/${id}` : "/api/cadastros/fios"
       const method = isEditing ? "PUT" : "POST"
-
-      console.log("📤 URL:", url, "Method:", method)
 
       const res = await fetch(url, {
         method,
@@ -130,11 +156,8 @@ export default function FioFormPage() {
         body: JSON.stringify(payload),
       })
 
-      console.log("📥 Status:", res.status)
-      
       if (!res.ok) {
         const err = await res.json()
-        console.error("❌ Erro da API:", err)
         throw new Error(err.error || "Erro ao salvar")
       }
       
@@ -198,6 +221,69 @@ export default function FioFormPage() {
     }
   }
 
+  const criarFornecedor = async () => {
+    if (!novoFornecedor.nome) {
+      toast.error("Nome é obrigatório")
+      return
+    }
+
+    setSavingFornecedor(true)
+    try {
+      const res = await fetch("/api/cadastros/fornecedores", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(novoFornecedor),
+      })
+
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.error || "Erro ao criar")
+      }
+
+      const fornecedorCriado = await res.json()
+      toast.success("Fornecedor criado!")
+
+      // Atualiza lista de fornecedores
+      const novaLista = await fetch("/api/cadastros/fornecedores").then(r => r.json())
+      setFornecedores(novaLista)
+
+      // Se tem ID do fio, adiciona o fornecedor automaticamente
+      if (id && isEditing) {
+        await fetch(`/api/cadastros/fios/${id}/fornecedores`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            fornecedorId: fornecedorCriado.id,
+            codigoFornecedor: "",
+          }),
+        })
+        
+        const atualizados = await fetch(`/api/cadastros/fios/${id}/fornecedores`).then(r => r.json())
+        setFioFornecedores(atualizados)
+      }
+
+      setShowNovoFornecedorModal(false)
+      setNovoFornecedor({
+        nome: "",
+        cnpj: "",
+        razaoSocial: "",
+        email: "",
+        telefone: "",
+        contato: "",
+        endereco: "",
+        cidade: "",
+        uf: "",
+        ativo: true,
+      })
+
+    } catch (error: any) {
+      console.error(error)
+      toast.error(error.message || "Erro ao criar fornecedor")
+    } finally {
+      setSavingFornecedor(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -223,95 +309,47 @@ export default function FioFormPage() {
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="codigoFio">Código Curto *</Label>
-            <Input
-              id="codigoFio"
-              value={fio.codigoFio}
-              onChange={e => handleChange("codigoFio", e.target.value)}
-              placeholder="AL20"
-              required
-            />
+            <Input id="codigoFio" value={fio.codigoFio} onChange={e => handleChange("codigoFio", e.target.value)} placeholder="AL20" required />
           </div>
           <div className="space-y-2">
             <Label htmlFor="nome">Nome *</Label>
-            <Input
-              id="nome"
-              value={fio.nome}
-              onChange={e => handleChange("nome", e.target.value)}
-              placeholder="Fio de Algodão"
-              required
-            />
+            <Input id="nome" value={fio.nome} onChange={e => handleChange("nome", e.target.value)} placeholder="Fio de Algodão" required />
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="nomeComercial">Nome Comercial</Label>
-            <Input
-              id="nomeComercial"
-              value={fio.nomeComercial || ""}
-              onChange={e => handleChange("nomeComercial", e.target.value)}
-              placeholder="Nome comercial"
-            />
+            <Input id="nomeComercial" value={fio.nomeComercial || ""} onChange={e => handleChange("nomeComercial", e.target.value)} placeholder="Nome comercial" />
           </div>
           <div className="space-y-2">
             <Label htmlFor="composicao">Composição</Label>
-            <Input
-              id="composicao"
-              value={fio.composicao || ""}
-              onChange={e => handleChange("composicao", e.target.value)}
-              placeholder="100% Algodão"
-            />
+            <Input id="composicao" value={fio.composicao || ""} onChange={e => handleChange("composicao", e.target.value)} placeholder="100% Algodão" />
           </div>
         </div>
 
         <div className="grid grid-cols-3 gap-4">
           <div className="space-y-2">
             <Label htmlFor="titulo">Título</Label>
-            <Input
-              id="titulo"
-              value={fio.titulo || ""}
-              onChange={e => handleChange("titulo", e.target.value)}
-              placeholder="20/1"
-            />
+            <Input id="titulo" value={fio.titulo || ""} onChange={e => handleChange("titulo", e.target.value)} placeholder="20/1" />
           </div>
           <div className="space-y-2">
             <Label htmlFor="torcao">Torção</Label>
-            <Input
-              id="torcao"
-              value={fio.torcao || ""}
-              onChange={e => handleChange("torcao", e.target.value)}
-              placeholder="Z"
-            />
+            <Input id="torcao" value={fio.torcao || ""} onChange={e => handleChange("torcao", e.target.value)} placeholder="Z" />
           </div>
           <div className="space-y-2">
             <Label htmlFor="resistencia">Resistência (kgf)</Label>
-            <Input
-              id="resistencia"
-              value={fio.resistencia || ""}
-              onChange={e => handleChange("resistencia", e.target.value)}
-              placeholder="120"
-            />
+            <Input id="resistencia" value={fio.resistencia || ""} onChange={e => handleChange("resistencia", e.target.value)} placeholder="120" />
           </div>
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="observacoes">Observações</Label>
-          <Input
-            id="observacoes"
-            value={fio.observacoes || ""}
-            onChange={e => handleChange("observacoes", e.target.value)}
-            placeholder="Observações"
-          />
+          <Input id="observacoes" value={fio.observacoes || ""} onChange={e => handleChange("observacoes", e.target.value)} placeholder="Observações" />
         </div>
 
         <div className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            id="ativo"
-            checked={fio.ativo}
-            onChange={e => handleChange("ativo", e.target.checked)}
-            className="w-4 h-4"
-          />
+          <input type="checkbox" id="ativo" checked={fio.ativo} onChange={e => handleChange("ativo", e.target.checked)} className="w-4 h-4" />
           <Label htmlFor="ativo">Ativo</Label>
         </div>
 
@@ -364,17 +402,11 @@ export default function FioFormPage() {
                     <option key={f.id} value={f.id}>{f.nome}</option>
                   ))}
                 </select>
-                <Link href="/cadastros/fornecedores/novo">
-                  <Button type="button" variant="outline" size="sm" className="ml-2 gap-1">
-                    <Plus size={14} /> Novo
-                  </Button>
-                </Link>
+                <Button type="button" onClick={() => setShowNovoFornecedorModal(true)} variant="outline" size="sm" className="ml-2 gap-1">
+                  <Plus size={14} /> Novo
+                </Button>
               </div>
-              <Input
-                placeholder="Código do fornecedor"
-                value={codigoFornecedor}
-                onChange={e => setCodigoFornecedor(e.target.value)}
-              />
+              <Input placeholder="Código do fornecedor" value={codigoFornecedor} onChange={e => setCodigoFornecedor(e.target.value)} />
               <div className="flex gap-2">
                 <Button onClick={addFornecedor}>Adicionar</Button>
                 <Button variant="outline" onClick={() => setShowFornecedorForm(false)}>Cancelar</Button>
@@ -383,6 +415,58 @@ export default function FioFormPage() {
           )}
         </div>
       )}
+
+      {/* Modal para criar novo fornecedor */}
+      <Dialog open={showNovoFornecedorModal} onOpenChange={setShowNovoFornecedorModal}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Novo Fornecedor</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 max-h-[60vh] overflow-y-auto">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="novoNome">Nome / Fantasia *</Label>
+                <Input id="novoNome" value={novoFornecedor.nome} onChange={e => setNovoFornecedor(prev => ({ ...prev, nome: e.target.value }))} placeholder="Fornecedor XYZ" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="novoCnpj">CNPJ</Label>
+                <Input id="novoCnpj" value={novoFornecedor.cnpj} onChange={e => setNovoFornecedor(prev => ({ ...prev, cnpj: e.target.value }))} placeholder="00.000.000/0001-00" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="novoRazaoSocial">Razão Social</Label>
+              <Input id="novoRazaoSocial" value={novoFornecedor.razaoSocial} onChange={e => setNovoFornecedor(prev => ({ ...prev, razaoSocial: e.target.value }))} placeholder="Razão social completa" />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="novoEmail">Email</Label>
+                <Input id="novoEmail" type="email" value={novoFornecedor.email} onChange={e => setNovoFornecedor(prev => ({ ...prev, email: e.target.value }))} placeholder="contato@fornecedor.com" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="novoTelefone">Telefone</Label>
+                <Input id="novoTelefone" value={novoFornecedor.telefone} onChange={e => setNovoFornecedor(prev => ({ ...prev, telefone: e.target.value }))} placeholder="(11) 99999-9999" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="novoCidade">Cidade</Label>
+                <Input id="novoCidade" value={novoFornecedor.cidade} onChange={e => setNovoFornecedor(prev => ({ ...prev, cidade: e.target.value }))} placeholder="São Paulo" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="novoUf">UF</Label>
+                <Input id="novoUf" value={novoFornecedor.uf} onChange={e => setNovoFornecedor(prev => ({ ...prev, uf: e.target.value }))} placeholder="SP" maxLength={2} />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowNovoFornecedorModal(false)}>Cancelar</Button>
+            <Button onClick={criarFornecedor} disabled={savingFornecedor} className="gap-2">
+              {savingFornecedor && <Loader2 size={16} className="animate-spin" />}
+              Criar Fornecedor
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
