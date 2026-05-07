@@ -13,6 +13,7 @@ export const fornecedores = pgTable("fornecedores", {
   cidade: varchar("cidade", { length: 100 }),
   uf: varchar("uf", { length: 2 }),
   ativo: boolean("ativo").default(true),
+  idIntegracao: varchar("id_integracao", { length: 100 }),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 })
@@ -33,6 +34,7 @@ export const fios = pgTable("fios", {
   alongamento: numeric("alongamento", { precision: 5, scale: 2 }),
   observacoes: text("observacoes"),
   ativo: boolean("ativo").default(true),
+  idIntegracao: varchar("id_integracao", { length: 100 }),
   criadoPor: integer("criado_por").references(() => usuarios.id),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -47,6 +49,7 @@ export const fiosFornecedores = pgTable("fios_fornecedores", {
   fornecedorId: integer("fornecedor_id").notNull().references(() => fornecedores.id, { onDelete: "cascade" }),
   codigoFornecedor: varchar("codigo_fornecedor", { length: 50 }),
   observacoes: text("observacoes"),
+  idIntegracao: varchar("id_integracao", { length: 100 }),
   createdAt: timestamp("created_at").defaultNow(),
 })
 

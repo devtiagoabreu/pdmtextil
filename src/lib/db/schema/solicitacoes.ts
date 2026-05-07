@@ -15,6 +15,7 @@ export const solicitacoes = pgTable("solicitacoes", {
   observacoes: text("observacoes"),
   prazoDesejado: timestamp("prazo_desejado"),
   dataConclusao: timestamp("data_conclusao"),
+  idIntegracao: varchar("id_integracao", { length: 100 }),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 })

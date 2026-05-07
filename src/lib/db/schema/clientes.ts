@@ -12,6 +12,7 @@ export const clientes = pgTable("clientes", {
   cidade: varchar("cidade", { length: 100 }),
   uf: varchar("uf", { length: 2 }),
   ativo: boolean("ativo").default(true),
+  idIntegracao: varchar("id_integracao", { length: 100 }),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 })
