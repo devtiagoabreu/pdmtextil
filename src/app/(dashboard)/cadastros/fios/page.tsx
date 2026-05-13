@@ -7,6 +7,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
+import ImportarFios from "@/components/importar/ImportarFios"
 
 interface Fio {
   id: number
@@ -65,12 +66,15 @@ export default function FiosPage() {
             Gerencie os fios cadastrados no sistema
           </p>
         </div>
-        <Link href="/cadastros/fios/novo">
-          <Button className="gap-2">
-            <PlusCircle size={16} />
-            Novo Fio
-          </Button>
-        </Link>
+        <div className="flex gap-2">
+          <ImportarFios onImportado={() => refetch()} />
+          <Link href="/cadastros/fios/novo">
+            <Button className="gap-2">
+              <PlusCircle size={16} />
+              Novo Fio
+            </Button>
+          </Link>
+        </div>
       </div>
 
       <div className="flex items-center gap-2">
