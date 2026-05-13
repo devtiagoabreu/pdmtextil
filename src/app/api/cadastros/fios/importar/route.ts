@@ -137,6 +137,19 @@ export async function POST(req: NextRequest) {
       }
 
       try {
+        if (reg.idIntegracao) {
+          const existenteIdInt = await db
+            .select()
+            .from(fios)
+            .where(eq(fios.idIntegracao, reg.idIntegracao))
+            .limit(1)
+
+          if (existenteIdInt[0]) {
+            resultados.erros.push({ linha: i + 2, erro: `ID Integração ${reg.idIntegracao} já existe` })
+            continue
+          }
+        }
+
         const existente = await db
           .select()
           .from(fios)
