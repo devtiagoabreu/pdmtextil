@@ -54,9 +54,14 @@ export default function ImportarFios({ onImportado }: ImportarFiosProps) {
     }
   }
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
+      console.log("[ImportarFios] Arquivo selecionado:", file.name, file.size, "bytes")
+      
+      const texto = await file.text()
+      console.log("[ImportarFios] Conteúdo do arquivo (primeiros 500 chars):", texto.substring(0, 500))
+      
       setArquivoSelecionado(file)
       setResultado(null)
     }
@@ -70,6 +75,8 @@ export default function ImportarFios({ onImportado }: ImportarFiosProps) {
 
     setImportando(true)
     try {
+      console.log("[ImportarFios] Iniciando importação:", arquivoSelecionado.name)
+      
       const formData = new FormData()
       formData.append("arquivo", arquivoSelecionado)
 
@@ -79,6 +86,7 @@ export default function ImportarFios({ onImportado }: ImportarFiosProps) {
       })
 
       const dados = await res.json()
+      console.log("[ImportarFios] Resposta da API:", dados)
 
       if (!res.ok) {
         throw new Error(dados.error || "Erro ao importar")
@@ -91,6 +99,7 @@ export default function ImportarFios({ onImportado }: ImportarFiosProps) {
         onImportado()
       }
     } catch (error: any) {
+      console.error("[ImportarFios] Erro:", error)
       toast.error(error.message || "Erro ao importar arquivo")
     } finally {
       setImportando(false)
