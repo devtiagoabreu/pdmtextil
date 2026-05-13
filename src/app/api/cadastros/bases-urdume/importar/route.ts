@@ -139,14 +139,27 @@ export async function POST(req: NextRequest) {
       }
 
       try {
-        const existente = await db
+        const codigoCompletoGerado = reg.codigoCompleto || `${reg.codigoBase}.XXX.000001`
+
+        const existenteCodigoBase = await db
           .select()
           .from(basesUrdume)
           .where(eq(basesUrdume.codigoBase, reg.codigoBase))
           .limit(1)
 
-        if (existente[0]) {
-          resultados.erros.push({ linha: i + 2, erro: `Base com código ${reg.codigoBase} já existe` })
+        if (existenteCodigoBase[0]) {
+          resultados.erros.push({ linha: i + 2, erro: `Código base ${reg.codigoBase} já existe` })
+          continue
+        }
+
+        const existenteCodigoCompleto = await db
+          .select()
+          .from(basesUrdume)
+          .where(eq(basesUrdume.codigoCompleto, codigoCompletoGerado))
+          .limit(1)
+
+        if (existenteCodigoCompleto[0]) {
+          resultados.erros.push({ linha: i + 2, erro: `Código completo ${codigoCompletoGerado} já existe` })
           continue
         }
 
@@ -154,7 +167,7 @@ export async function POST(req: NextRequest) {
 
         const valores: NewBaseUrdume = {
           codigoBase: reg.codigoBase,
-          codigoCompleto: reg.codigoCompleto || `${reg.codigoBase}.XXX.000001`,
+          codigoCompleto: codigoCompletoGerado,
           nome: reg.nome,
           descricao: reg.descricao || null,
           densidade: reg.densidade || null,
@@ -172,7 +185,10 @@ export async function POST(req: NextRequest) {
         resultados.importados++
       } catch (err: any) {
         console.error(`Erro na linha ${i + 2}:`, err)
-        resultados.erros.push({ linha: i + 2, erro: err.message || "Erro desconhecido" })
+        const mensagemErro = err.code === '23505'
+          ? `Registro duplicado: ${reg.codigoBase || reg.nome}`
+          : (err.message || "Erro ao inserir registro")
+        resultados.erros.push({ linha: i + 2, erro: mensagemErro })
       }
     }
 
