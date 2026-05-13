@@ -126,13 +126,27 @@ export async function POST(req: NextRequest) {
       }
 
       try {
-        const existente = await db
+        if (reg.cnpj) {
+          const cnpjLimpo = reg.cnpj.replace(/\D/g, "")
+          const existenteCNPJ = await db
+            .select()
+            .from(fornecedores)
+            .where(eq(fornecedores.cnpj, cnpjLimpo))
+            .limit(1)
+
+          if (existenteCNPJ[0]) {
+            resultados.erros.push({ linha: i + 2, erro: `Fornecedor com CNPJ ${reg.cnpj} já existe` })
+            continue
+          }
+        }
+
+        const existenteNome = await db
           .select()
           .from(fornecedores)
           .where(eq(fornecedores.nome, reg.nome))
           .limit(1)
 
-        if (existente[0]) {
+        if (existenteNome[0]) {
           resultados.erros.push({ linha: i + 2, erro: `Fornecedor ${reg.nome} já existe` })
           continue
         }
@@ -141,7 +155,7 @@ export async function POST(req: NextRequest) {
 
         await db.insert(fornecedores).values({
           nome: reg.nome,
-          cnpj: reg.cnpj || null,
+          cnpj: reg.cnpj ? reg.cnpj.replace(/\D/g, "") : null,
           razaoSocial: reg.razaoSocial || null,
           email: reg.email || null,
           telefone: reg.telefone || null,
@@ -156,7 +170,10 @@ export async function POST(req: NextRequest) {
         resultados.importados++
       } catch (err: any) {
         console.error(`Erro na linha ${i + 2}:`, err)
-        resultados.erros.push({ linha: i + 2, erro: err.message || "Erro desconhecido" })
+        const mensagemErro = err.code === '23505'
+          ? `CNPJ ${reg.cnpj || 'desconhecido'} já cadastrado`
+          : (err.message || "Erro ao inserir registro")
+        resultados.erros.push({ linha: i + 2, erro: mensagemErro })
       }
     }
 
