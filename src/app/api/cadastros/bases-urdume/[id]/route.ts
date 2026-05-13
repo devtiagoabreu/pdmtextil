@@ -50,6 +50,7 @@ export async function PUT(
         largura: body.largura || null,
         observacoes: body.observacoes || null,
         ativo: body.ativo ?? true,
+        idIntegracao: body.idIntegracao || null,
         updatedAt: new Date(),
       })
       .where(eq(basesUrdume.id, id))

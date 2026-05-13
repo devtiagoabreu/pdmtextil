@@ -41,6 +41,7 @@ export async function POST(req: NextRequest) {
         pantone: body.pantone || null,
         familia: body.familia || null,
         ativo: body.ativo ?? true,
+        idIntegracao: body.idIntegracao || null,
       })
       .returning()
 

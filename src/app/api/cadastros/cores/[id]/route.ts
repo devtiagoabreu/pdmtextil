@@ -45,6 +45,7 @@ export async function PUT(
         pantone: body.pantone || null,
         familia: body.familia || null,
         ativo: body.ativo ?? true,
+        idIntegracao: body.idIntegracao || null,
       })
       .where(eq(coresSolidas.id, id))
       .returning()

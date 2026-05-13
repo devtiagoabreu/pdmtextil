@@ -55,6 +55,7 @@ export async function PUT(
         cidade: body.cidade || null,
         uf: body.uf || null,
         ativo: body.ativo,
+        idIntegracao: body.idIntegracao || null,
         updatedAt: new Date(),
       })
       .where(eq(fornecedores.id, parseInt(id)))
