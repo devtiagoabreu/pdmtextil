@@ -48,6 +48,7 @@ export async function POST(req: NextRequest) {
         alongamento: body.alongamento || null,
         observacoes: body.observacoes || null,
         ativo: body.ativo === true,
+        idIntegracao: body.idIntegracao || null,
         criadoPor: parseInt(session.user.id),
       })
       .returning()

@@ -17,6 +17,7 @@ type Estampa = {
   tipo?: string | null
   imagemUrl?: string | null
   ativo: boolean
+  idIntegracao?: string | null
 }
 
 export default function EstampaFormPage() {
@@ -33,6 +34,7 @@ export default function EstampaFormPage() {
     tipo: "",
     imagemUrl: "",
     ativo: true,
+    idIntegracao: "",
   })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -50,6 +52,7 @@ export default function EstampaFormPage() {
             tipo: data.tipo || "",
             imagemUrl: data.imagemUrl || "",
             ativo: data.ativo ?? true,
+            idIntegracao: data.idIntegracao || "",
           })
         })
         .catch(err => console.error(err))
@@ -184,15 +187,14 @@ export default function EstampaFormPage() {
           />
         </div>
 
-        <div className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            id="ativo"
-            checked={estampa.ativo}
-            onChange={e => handleChange("ativo", e.target.checked)}
-            className="w-4 h-4"
-          />
+<div className="flex items-center gap-2">
+          <input type="checkbox" id="ativo" checked={estampa.ativo} onChange={e => handleChange("ativo", e.target.checked)} className="w-4 h-4" />
           <Label htmlFor="ativo">Ativo</Label>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="idIntegracao">ID Integração (ERP/Systêxtil)</Label>
+          <Input id="idIntegracao" value={estampa.idIntegracao || ""} onChange={e => handleChange("idIntegracao", e.target.value)} placeholder="Código do sistema externo" />
         </div>
 
         <div className="flex gap-4">

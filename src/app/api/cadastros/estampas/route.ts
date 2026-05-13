@@ -42,6 +42,7 @@ export async function POST(req: NextRequest) {
         tipo: body.tipo || null,
         imagemUrl: body.imagemUrl || null,
         ativo: body.ativo ?? true,
+        idIntegracao: body.idIntegracao || null,
       })
       .returning()
 

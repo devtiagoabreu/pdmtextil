@@ -47,6 +47,7 @@ export async function PUT(
         tipo: body.tipo || null,
         imagemUrl: body.imagemUrl || null,
         ativo: body.ativo ?? true,
+        idIntegracao: body.idIntegracao || null,
         updatedAt: new Date(),
       })
       .where(eq(estampas.id, id))

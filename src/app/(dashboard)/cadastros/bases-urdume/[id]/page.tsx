@@ -21,6 +21,7 @@ type BaseUrdume = {
   largura?: string | null
   observacoes?: string | null
   ativo: boolean
+  idIntegracao?: string | null
 }
 
 export default function BaseFormPage() {
@@ -41,6 +42,7 @@ export default function BaseFormPage() {
     largura: "",
     observacoes: "",
     ativo: true,
+    idIntegracao: "",
   })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -62,6 +64,7 @@ export default function BaseFormPage() {
             largura: data.largura || "",
             observacoes: data.observacoes || "",
             ativo: data.ativo ?? true,
+            idIntegracao: data.idIntegracao || "",
           })
         })
         .catch(err => console.error(err))
@@ -228,15 +231,14 @@ export default function BaseFormPage() {
           />
         </div>
 
-        <div className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            id="ativo"
-            checked={base.ativo}
-            onChange={e => handleChange("ativo", e.target.checked)}
-            className="w-4 h-4"
-          />
+<div className="flex items-center gap-2">
+          <input type="checkbox" id="ativo" checked={base.ativo} onChange={e => handleChange("ativo", e.target.checked)} className="w-4 h-4" />
           <Label htmlFor="ativo">Ativo</Label>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="idIntegracao">ID Integração (ERP/Systêxtil)</Label>
+          <Input id="idIntegracao" value={base.idIntegracao || ""} onChange={e => handleChange("idIntegracao", e.target.value)} placeholder="Código do sistema externo" />
         </div>
 
         <div className="flex gap-4">

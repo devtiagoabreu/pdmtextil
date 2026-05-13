@@ -16,6 +16,7 @@ type Cor = {
   pantone?: string | null
   familia?: string | null
   ativo: boolean
+  idIntegracao?: string | null
 }
 
 export default function CorFormPage() {
@@ -31,6 +32,7 @@ export default function CorFormPage() {
     pantone: "",
     familia: "",
     ativo: true,
+    idIntegracao: "",
   })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -47,6 +49,7 @@ export default function CorFormPage() {
             pantone: data.pantone || "",
             familia: data.familia || "",
             ativo: data.ativo ?? true,
+            idIntegracao: data.idIntegracao || "",
           })
         })
         .catch(err => console.error(err))
@@ -173,15 +176,14 @@ export default function CorFormPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            id="ativo"
-            checked={cor.ativo}
-            onChange={e => handleChange("ativo", e.target.checked)}
-            className="w-4 h-4"
-          />
+<div className="flex items-center gap-2">
+          <input type="checkbox" id="ativo" checked={cor.ativo} onChange={e => handleChange("ativo", e.target.checked)} className="w-4 h-4" />
           <Label htmlFor="ativo">Ativo</Label>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="idIntegracao">ID Integração (ERP/Systêxtil)</Label>
+          <Input id="idIntegracao" value={cor.idIntegracao || ""} onChange={e => handleChange("idIntegracao", e.target.value)} placeholder="Código do sistema externo" />
         </div>
 
         <div className="flex gap-4">

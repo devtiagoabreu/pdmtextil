@@ -23,6 +23,7 @@ type Fio = {
   alongamento?: string | null
   observacoes?: string | null
   ativo: boolean
+  idIntegracao?: string | null
 }
 
 interface Fornecedor {
@@ -73,6 +74,7 @@ export default function FioFormPage() {
     alongamento: "",
     observacoes: "",
     ativo: true,
+    idIntegracao: "",
   })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -124,6 +126,7 @@ export default function FioFormPage() {
           alongamento: fioData.alongamento || "",
           observacoes: fioData.observacoes || "",
           ativo: fioData.ativo ?? true,
+          idIntegracao: fioData.idIntegracao || "",
         })
         setFioFornecedores(fornecedoresData)
         setLoading(false)
@@ -351,6 +354,11 @@ export default function FioFormPage() {
         <div className="flex items-center gap-2">
           <input type="checkbox" id="ativo" checked={fio.ativo} onChange={e => handleChange("ativo", e.target.checked)} className="w-4 h-4" />
           <Label htmlFor="ativo">Ativo</Label>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="idIntegracao">ID Integração (ERP/Systêxtil)</Label>
+          <Input id="idIntegracao" value={fio.idIntegracao || ""} onChange={e => handleChange("idIntegracao", e.target.value)} placeholder="Código do sistema externo" />
         </div>
 
         <div className="flex gap-4">

@@ -46,6 +46,7 @@ export async function POST(req: NextRequest) {
         cidade: body.cidade || null,
         uf: body.uf || null,
         ativo: body.ativo ?? true,
+        idIntegracao: body.idIntegracao || null,
       })
       .returning()
 

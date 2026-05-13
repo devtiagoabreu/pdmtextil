@@ -55,6 +55,7 @@ export async function PUT(
         alongamento: body.alongamento || null,
         observacoes: body.observacoes || null,
         ativo: body.ativo,
+        idIntegracao: body.idIntegracao || null,
         updatedAt: new Date(),
       })
       .where(eq(fios.id, parseInt(id)))
