@@ -141,6 +141,19 @@ export async function POST(req: NextRequest) {
           continue
         }
 
+        if (reg.idIntegracao) {
+          const existenteIdInt = await db
+            .select()
+            .from(estampas)
+            .where(eq(estampas.idIntegracao, reg.idIntegracao))
+            .limit(1)
+
+          if (existenteIdInt[0]) {
+            resultados.erros.push({ linha: i + 2, erro: `ID Integração ${reg.idIntegracao} já existe` })
+            continue
+          }
+        }
+
         const ativo = reg.ativo === "true" || reg.ativo === "1" || reg.ativo === "SIM"
 
         await db.insert(estampas).values({
