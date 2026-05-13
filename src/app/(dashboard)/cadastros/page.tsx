@@ -37,7 +37,7 @@ const modulos = [
   {
     titulo: "Clientes",
     descricao: "Cadastro de clientes",
-    href: "/comercial/clientes",
+    href: "/cadastros/clientes",
     icon: Users,
   },
 ]

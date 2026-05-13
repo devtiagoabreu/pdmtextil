@@ -1,15 +1,15 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { PlusCircle, Search, Pencil, Trash2, Loader2 } from "lucide-react"
+import { PlusCircle, Search, Pencil, Trash2, Loader2, Upload } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
-import ImportarFornecedores from "@/components/importar/ImportarFornecedores"
+import ImportarClientes from "@/components/importar/ImportarClientes"
 
-interface Fornecedor {
+interface Cliente {
   id: number
   nome: string
   cnpj?: string
@@ -22,36 +22,36 @@ interface Fornecedor {
   ativo: boolean
 }
 
-async function fetchFornecedores(): Promise<Fornecedor[]> {
-  const res = await fetch("/api/cadastros/fornecedores")
-  if (!res.ok) throw new Error("Falha ao carregar fornecedores")
+async function fetchClientes(): Promise<Cliente[]> {
+  const res = await fetch("/api/cadastros/clientes")
+  if (!res.ok) throw new Error("Falha ao carregar clientes")
   return res.json()
 }
 
-export default function FornecedoresPage() {
+export default function ClientesPage() {
   const [search, setSearch] = useState("")
-  
-  const { data: fornecedores = [], isLoading, refetch } = useQuery({
-    queryKey: ["fornecedores"],
-    queryFn: fetchFornecedores,
+
+  const { data: clientes = [], isLoading, refetch } = useQuery({
+    queryKey: ["clientes"],
+    queryFn: fetchClientes,
   })
 
-  const filteredFornecedores = fornecedores.filter(f => 
-    f.nome.toLowerCase().includes(search.toLowerCase()) ||
-    f.cnpj?.toLowerCase().includes(search.toLowerCase()) ||
-    f.email?.toLowerCase().includes(search.toLowerCase())
+  const filteredClientes = clientes.filter(c =>
+    c.nome.toLowerCase().includes(search.toLowerCase()) ||
+    c.cnpj?.toLowerCase().includes(search.toLowerCase()) ||
+    c.email?.toLowerCase().includes(search.toLowerCase())
   )
 
   const handleDelete = async (id: number) => {
-    if (!confirm("Tem certeza que deseja excluir este fornecedor?")) return
-    
+    if (!confirm("Tem certeza que deseja excluir este cliente?")) return
+
     try {
-      const res = await fetch(`/api/cadastros/fornecedores/${id}`, { method: "DELETE" })
+      const res = await fetch(`/api/cadastros/clientes/${id}`, { method: "DELETE" })
       if (!res.ok) throw new Error("Erro ao excluir")
-      toast.success("Fornecedor excluído com sucesso")
+      toast.success("Cliente excluído com sucesso")
       refetch()
     } catch {
-      toast.error("Erro ao excluir fornecedor")
+      toast.error("Erro ao excluir cliente")
     }
   }
 
@@ -60,18 +60,18 @@ export default function FornecedoresPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
-            Fornecedores
+            Clientes
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400">
-            Gerencie os fornecedores do sistema
+            Gerencie os clientes do sistema
           </p>
         </div>
         <div className="flex gap-2">
-          <ImportarFornecedores onImportado={() => refetch()} />
-          <Link href="/cadastros/fornecedores/novo">
+          <ImportarClientes onImportado={() => refetch()} />
+          <Link href="/cadastros/clientes/novo">
             <Button className="gap-2">
               <PlusCircle size={16} />
-              Novo Fornecedor
+              Novo Cliente
             </Button>
           </Link>
         </div>
@@ -94,9 +94,9 @@ export default function FornecedoresPage() {
           <div className="flex items-center justify-center p-8">
             <Loader2 className="animate-spin text-slate-400" size={24} />
           </div>
-        ) : filteredFornecedores.length === 0 ? (
+        ) : filteredClientes.length === 0 ? (
           <div className="p-8 text-center text-slate-500">
-            Nenhum fornecedor encontrado
+            Nenhum cliente encontrado
           </div>
         ) : (
           <table className="w-full">
@@ -112,36 +112,36 @@ export default function FornecedoresPage() {
               </tr>
             </thead>
             <tbody>
-              {filteredFornecedores.map((fornecedor) => (
-                <tr key={fornecedor.id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                  <td className="p-4 text-sm font-medium">{fornecedor.nome}</td>
-                  <td className="p-4 text-sm text-slate-500">{fornecedor.cnpj || "—"}</td>
-                  <td className="p-4 text-sm text-slate-500">{fornecedor.email || "—"}</td>
-                  <td className="p-4 text-sm text-slate-500">{fornecedor.telefone || "—"}</td>
+              {filteredClientes.map((cliente) => (
+                <tr key={cliente.id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                  <td className="p-4 text-sm font-medium">{cliente.nome}</td>
+                  <td className="p-4 text-sm text-slate-500">{cliente.cnpj || "—"}</td>
+                  <td className="p-4 text-sm text-slate-500">{cliente.email || "—"}</td>
+                  <td className="p-4 text-sm text-slate-500">{cliente.telefone || "—"}</td>
                   <td className="p-4 text-sm text-slate-500">
-                    {fornecedor.cidade && fornecedor.uf ? `${fornecedor.cidade}/${fornecedor.uf}` : "—"}
+                    {cliente.cidade && cliente.uf ? `${cliente.cidade}/${cliente.uf}` : "—"}
                   </td>
                   <td className="p-4">
                     <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
-                      fornecedor.ativo 
-                        ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" 
+                      cliente.ativo
+                        ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
                         : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
                     }`}>
-                      {fornecedor.ativo ? "Ativo" : "Inativo"}
+                      {cliente.ativo ? "Ativo" : "Inativo"}
                     </span>
                   </td>
                   <td className="p-4 text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Link href={`/cadastros/fornecedores/${fornecedor.id}`}>
+                      <Link href={`/cadastros/clientes/${cliente.id}`}>
                         <Button variant="ghost" size="icon" className="h-8 w-8">
                           <Pencil size={14} />
                         </Button>
                       </Link>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
+                      <Button
+                        variant="ghost"
+                        size="icon"
                         className="h-8 w-8 text-red-500 hover:text-red-600"
-                        onClick={() => handleDelete(fornecedor.id)}
+                        onClick={() => handleDelete(cliente.id)}
                       >
                         <Trash2 size={14} />
                       </Button>

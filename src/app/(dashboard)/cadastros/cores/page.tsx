@@ -7,6 +7,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
+import ImportarCores from "@/components/importar/ImportarCores"
 
 interface CorSolida {
   id: number
@@ -61,12 +62,15 @@ export default function CoresPage() {
             Gerencie as cores sólidas cadastradas no sistema
           </p>
         </div>
-        <Link href="/cadastros/cores/novo">
-          <Button className="gap-2">
-            <PlusCircle size={16} />
-            Nova Cor
-          </Button>
-        </Link>
+        <div className="flex gap-2">
+          <ImportarCores onImportado={() => queryClient.invalidateQueries({ queryKey: ["cores"] })} />
+          <Link href="/cadastros/cores/novo">
+            <Button className="gap-2">
+              <PlusCircle size={16} />
+              Nova Cor
+            </Button>
+          </Link>
+        </div>
       </div>
 
       <div className="flex items-center gap-2">
