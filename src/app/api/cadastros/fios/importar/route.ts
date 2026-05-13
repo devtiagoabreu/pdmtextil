@@ -18,6 +18,19 @@ interface FioImport {
   ativo?: string
 }
 
+const campoMap: Record<string, keyof FioImport> = {
+  codigofio: "codigoFio",
+  nome: "nome",
+  nomecomercial: "nomeComercial",
+  composicao: "composicao",
+  titulo: "titulo",
+  torcao: "torcao",
+  resistencia: "resistencia",
+  alongamento: "alongamento",
+  idintegracao: "idIntegracao",
+  ativo: "ativo",
+}
+
 function parseCSV(texto: string): FioImport[] {
   const textoNormalizado = texto.replace(/\r\n/g, "\n").replace(/\r/g, "\n")
   const linhas = textoNormalizado.split("\n").filter(l => l.trim())
@@ -30,13 +43,9 @@ function parseCSV(texto: string): FioImport[] {
   }
 
   const separador = texto.includes(";") ? ";" : ","
-  console.log("[parseCSV] Separador:", JSON.stringify(separador))
   
   const primeiraLinha = linhas[0]
-  console.log("[parseCSV] Primeira linha (raw):", JSON.stringify(primeiraLinha))
-  
-  const cabecalho = primeiraLinha.split(separador).map(c => c.trim().toLowerCase())
-  console.log("[parseCSV] Cabeçalho parseado:", cabecalho)
+  const cabecalhoLower = primeiraLinha.split(separador).map(c => c.trim().toLowerCase())
   
   const dados: FioImport[] = []
 
@@ -44,18 +53,17 @@ function parseCSV(texto: string): FioImport[] {
     const linha = linhas[i]
     if (!linha.trim()) continue
     
-    console.log(`[parseCSV] Linha ${i + 1} (raw):`, JSON.stringify(linha))
-    
     const valores = linha.split(separador).map(v => v.trim())
-    console.log(`[parseCSV] Valores parseados:`, valores)
     
     const item: FioImport = {}
     
-    for (let j = 0; j < cabecalho.length; j++) {
-      const campo = cabecalho[j]
+    for (let j = 0; j < cabecalhoLower.length; j++) {
+      const campoOriginal = cabecalhoLower[j]
+      const campoNormalizado = campoMap[campoOriginal]
       const valor = valores[j]
-      if (valor !== undefined && valor.length > 0) {
-        (item as any)[campo] = valor
+      
+      if (campoNormalizado && valor !== undefined && valor.length > 0) {
+        (item as any)[campoNormalizado] = valor
       }
     }
     
