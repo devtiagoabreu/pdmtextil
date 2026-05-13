@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { basesUrdume } from "@/lib/db/schema/bases-urdume"
+import type { NewBaseUrdume } from "@/lib/db/schema/bases-urdume"
 import { eq } from "drizzle-orm"
 
 interface BaseImport {
@@ -36,9 +37,9 @@ const campoMap: Record<string, keyof BaseImport> = {
 function parseCSV(texto: string): BaseImport[] {
   const textoNormalizado = texto.replace(/\r\n/g, "\n").replace(/\r/g, "\n")
   const linhas = textoNormalizado.split("\n").filter(l => l.trim())
-  
+
   console.log("[parseCSV] Total de linhas:", linhas.length)
-  
+
   if (linhas.length < 2) {
     console.log("[parseCSV] Linhas insuficientes:", linhas.length)
     return []
@@ -47,29 +48,29 @@ function parseCSV(texto: string): BaseImport[] {
   const separador = texto.includes(";") ? ";" : ","
   const primeiraLinha = linhas[0]
   const cabecalhoLower = primeiraLinha.split(separador).map(c => c.trim().toLowerCase())
-  
+
   const dados: BaseImport[] = []
 
   for (let i = 1; i < linhas.length; i++) {
     const linha = linhas[i]
     if (!linha.trim()) continue
-    
+
     const valores = linha.split(separador).map(v => v.trim())
-    
+
     const item: BaseImport = {}
-    
+
     for (let j = 0; j < cabecalhoLower.length; j++) {
       const campoOriginal = cabecalhoLower[j]
       const campoNormalizado = campoMap[campoOriginal]
       const valor = valores[j]
-      
+
       if (campoNormalizado && valor !== undefined && valor.length > 0) {
         (item as any)[campoNormalizado] = valor
       }
     }
-    
+
     console.log(`[parseCSV] Item ${i + 1}:`, item)
-    
+
     if (item.codigoBase || item.nome) {
       dados.push(item)
     }
@@ -151,7 +152,7 @@ export async function POST(req: NextRequest) {
 
         const ativo = reg.ativo === "true" || reg.ativo === "1" || reg.ativo === "SIM"
 
-        await db.insert(basesUrdume).values({
+        const valores: NewBaseUrdume = {
           codigoBase: reg.codigoBase,
           codigoCompleto: reg.codigoCompleto || `${reg.codigoBase}.XXX.000001`,
           nome: reg.nome,
@@ -164,7 +165,9 @@ export async function POST(req: NextRequest) {
           idIntegracao: reg.idIntegracao || null,
           ativo: ativo,
           criadoPor: parseInt(session.user.id),
-        })
+        }
+
+        await db.insert(basesUrdume).values(valores)
 
         resultados.importados++
       } catch (err: any) {
