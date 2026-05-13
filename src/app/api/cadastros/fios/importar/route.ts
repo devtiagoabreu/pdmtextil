@@ -19,20 +19,28 @@ interface FioImport {
 }
 
 function parseCSV(texto: string): FioImport[] {
-  const linhas = texto.split("\n").filter(l => l.trim())
+  const linhas = texto.split(/\r?\n/).filter(l => l.trim())
   if (linhas.length < 2) return []
 
   const separador = texto.includes(";") ? ";" : ","
+  
   const cabecalho = linhas[0].split(separador).map(c => c.trim().toLowerCase())
+  
   const dados: FioImport[] = []
 
   for (let i = 1; i < linhas.length; i++) {
     const valores = linhas[i].split(separador).map(v => v.trim())
+    
+    if (valores.length < 2 || (valores.length === 1 && !valores[0])) {
+      continue
+    }
+    
     const item: FioImport = {}
     
     cabecalho.forEach((campo, index) => {
-      if (valores[index]) {
-        (item as any)[campo] = valores[index]
+      const valor = valores[index]
+      if (valor && valor.length > 0) {
+        (item as any)[campo] = valor
       }
     })
     
