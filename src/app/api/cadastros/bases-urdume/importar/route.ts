@@ -37,10 +37,16 @@ function parseCSV(texto: string): BaseImport[] {
   const textoNormalizado = texto.replace(/\r\n/g, "\n").replace(/\r/g, "\n")
   const linhas = textoNormalizado.split("\n").filter(l => l.trim())
   
-  if (linhas.length < 2) return []
+  console.log("[parseCSV] Total de linhas:", linhas.length)
+  
+  if (linhas.length < 2) {
+    console.log("[parseCSV] Linhas insuficientes:", linhas.length)
+    return []
+  }
 
   const separador = texto.includes(";") ? ";" : ","
-  const cabecalho = linhas[0].split(separador).map(c => c.trim().toLowerCase())
+  const primeiraLinha = linhas[0]
+  const cabecalhoLower = primeiraLinha.split(separador).map(c => c.trim().toLowerCase())
   
   const dados: BaseImport[] = []
 
@@ -52,8 +58,8 @@ function parseCSV(texto: string): BaseImport[] {
     
     const item: BaseImport = {}
     
-    for (let j = 0; j < cabecalho.length; j++) {
-      const campoOriginal = cabecalho[j]
+    for (let j = 0; j < cabecalhoLower.length; j++) {
+      const campoOriginal = cabecalhoLower[j]
       const campoNormalizado = campoMap[campoOriginal]
       const valor = valores[j]
       
@@ -62,11 +68,14 @@ function parseCSV(texto: string): BaseImport[] {
       }
     }
     
+    console.log(`[parseCSV] Item ${i + 1}:`, item)
+    
     if (item.codigoBase || item.nome) {
       dados.push(item)
     }
   }
 
+  console.log("[parseCSV] Total de registros:", dados.length)
   return dados
 }
 
@@ -96,6 +105,9 @@ export async function POST(req: NextRequest) {
 
     const texto = await arquivo.text()
     const nomeArquivo = arquivo.name.toLowerCase()
+
+    console.log("[POST /api/cadastros/bases-urdume/importar] Arquivo:", nomeArquivo)
+    console.log("[POST /api/cadastros/bases-urdume/importar] Texto (primeiros 500 chars):", texto.substring(0, 500))
 
     let registros: BaseImport[] = []
 
@@ -144,10 +156,10 @@ export async function POST(req: NextRequest) {
           codigoCompleto: reg.codigoCompleto || `${reg.codigoBase}.XXX.000001`,
           nome: reg.nome,
           descricao: reg.descricao || null,
-          densidade: reg.densidade || null,
+          densidade: reg.densidade ? parseFloat(reg.densidade) : null,
           tratamentoEncolagem: reg.tratamentoEncolagem || null,
-          tensaoUrdume: reg.tensaoUrdume || null,
-          largura: reg.largura || null,
+          tensaoUrdume: reg.tensaoUrdume ? parseFloat(reg.tensaoUrdume) : null,
+          largura: reg.largura ? parseFloat(reg.largura) : null,
           observacoes: reg.observacoes || null,
           idIntegracao: reg.idIntegracao || null,
           ativo: ativo,
@@ -160,6 +172,8 @@ export async function POST(req: NextRequest) {
         resultados.erros.push({ linha: i + 2, erro: err.message || "Erro desconhecido" })
       }
     }
+
+    console.log("[POST /api/cadastros/bases-urdume/importar] Resultados:", resultados)
 
     return NextResponse.json({
       success: true,

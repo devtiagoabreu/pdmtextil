@@ -37,7 +37,12 @@ function parseCSV(texto: string): ClienteImport[] {
   const textoNormalizado = texto.replace(/\r\n/g, "\n").replace(/\r/g, "\n")
   const linhas = textoNormalizado.split("\n").filter(l => l.trim())
 
-  if (linhas.length < 2) return []
+  console.log("[parseCSV] Total de linhas:", linhas.length)
+
+  if (linhas.length < 2) {
+    console.log("[parseCSV] Linhas insuficientes:", linhas.length)
+    return []
+  }
 
   const separador = texto.includes(";") ? ";" : ","
   const primeiraLinha = linhas[0]
@@ -62,11 +67,14 @@ function parseCSV(texto: string): ClienteImport[] {
       }
     }
 
+    console.log(`[parseCSV] Item ${i + 1}:`, item)
+
     if (item.nome || item.cnpj) {
       dados.push(item)
     }
   }
 
+  console.log("[parseCSV] Total de registros:", dados.length)
   return dados
 }
 
@@ -96,6 +104,9 @@ export async function POST(req: NextRequest) {
 
     const texto = await arquivo.text()
     const nomeArquivo = arquivo.name.toLowerCase()
+
+    console.log("[POST /api/cadastros/clientes/importar] Arquivo:", nomeArquivo)
+    console.log("[POST /api/cadastros/clientes/importar] Texto (primeiros 500 chars):", texto.substring(0, 500))
 
     let registros: ClienteImport[] = []
 
@@ -160,6 +171,8 @@ export async function POST(req: NextRequest) {
         resultados.erros.push({ linha: i + 2, erro: err.message || "Erro desconhecido" })
       }
     }
+
+    console.log("[POST /api/cadastros/clientes/importar] Resultados:", resultados)
 
     return NextResponse.json({
       success: true,
