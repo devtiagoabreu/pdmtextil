@@ -17,6 +17,7 @@ type Cliente = {
   endereco?: string | null
   cidade?: string | null
   uf?: string | null
+  idIntegracao?: string | null
 }
 
 export default function EditarClientePage({ params }: { params: Promise<{ id: string }> }) {
@@ -76,6 +77,10 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
 
   const handleChange = (field: keyof Cliente, value: string) => {
     setCliente((prev) => prev ? { ...prev, [field]: value } : null)
+  }
+
+  const handleCheckboxChange = (field: keyof Cliente, checked: boolean) => {
+    setCliente((prev) => prev ? { ...prev, [field]: checked } : null)
   }
 
   if (loading) {
@@ -221,6 +226,19 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
                 value={cliente.endereco || ""}
                 onChange={(e) => handleChange("endereco", e.target.value)}
                 className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+              />
+            </div>
+
+            <div className="space-y-2 md:col-span-2">
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                ID Integração (ERP/WMS/CRM/OUTROS)
+              </label>
+              <input
+                type="text"
+                value={cliente.idIntegracao || ""}
+                onChange={(e) => handleChange("idIntegracao", e.target.value)}
+                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+                placeholder="Código do sistema externo"
               />
             </div>
           </div>

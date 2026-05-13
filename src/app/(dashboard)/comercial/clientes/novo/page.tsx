@@ -19,6 +19,7 @@ export default function NovoClientePage() {
     endereco: "",
     cidade: "",
     uf: "",
+    idIntegracao: "",
   })
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -142,6 +143,17 @@ export default function NovoClientePage() {
                   <option value="">Selecione</option>
                   {estados.map((e) => (<option key={e} value={e}>{e}</option>))}
                 </select>
+              </div>
+            </div>
+          </div>
+
+          <div className="border-t border-slate-200 dark:border-slate-700 pt-6">
+            <h2 className="text-lg font-semibold mb-4">Integração</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">ID Integração (ERP/WMS/CRM/OUTROS)</label>
+                <input type="text" name="idIntegracao" value={form.idIntegracao} onChange={handleChange} placeholder="Código do sistema externo"
+                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
             </div>
           </div>
