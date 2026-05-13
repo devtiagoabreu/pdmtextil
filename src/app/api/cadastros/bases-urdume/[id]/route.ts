@@ -38,6 +38,18 @@ export async function PUT(
     const id = parseInt((await params).id)
     const body = await req.json()
 
+    if (body.idIntegracao) {
+      const existenteIdInt = await db
+        .select()
+        .from(basesUrdume)
+        .where(eq(basesUrdume.idIntegracao, body.idIntegracao))
+        .limit(1)
+
+      if (existenteIdInt[0] && existenteIdInt[0].id !== id) {
+        return NextResponse.json({ error: "ID Integração já cadastrado em outra base" }, { status: 409 })
+      }
+    }
+
     const baseAtualizada = await db
       .update(basesUrdume)
       .set({

@@ -44,11 +44,34 @@ export async function PUT(
       return NextResponse.json({ error: "CNPJ é obrigatório" }, { status: 400 })
     }
 
+    const cnpjLimpo = cnpj.replace(/\D/g, "")
+    const existenteCNPJ = await db
+      .select()
+      .from(clientes)
+      .where(eq(clientes.cnpj, cnpjLimpo))
+      .limit(1)
+
+    if (existenteCNPJ[0] && existenteCNPJ[0].id !== parseInt(id)) {
+      return NextResponse.json({ error: "CNPJ já cadastrado em outro cliente" }, { status: 409 })
+    }
+
+    if (idIntegracao) {
+      const existenteIdInt = await db
+        .select()
+        .from(clientes)
+        .where(eq(clientes.idIntegracao, idIntegracao))
+        .limit(1)
+
+      if (existenteIdInt[0] && existenteIdInt[0].id !== parseInt(id)) {
+        return NextResponse.json({ error: "ID Integração já cadastrado em outro cliente" }, { status: 409 })
+      }
+    }
+
     const [clienteAtualizado] = await db
       .update(clientes)
       .set({
         nome: nome.trim(),
-        cnpj: cnpj.trim(),
+        cnpj: cnpjLimpo,
         razaoSocial: razaoSocial?.trim() || null,
         email: email?.trim() || null,
         telefone: telefone?.trim() || null,
