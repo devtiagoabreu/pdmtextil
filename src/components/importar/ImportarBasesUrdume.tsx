@@ -192,6 +192,20 @@ export default function ImportarBasesUrdume({ onImportado }: ImportarBasesUrdume
                       </span>
                     )}
                   </p>
+                  {resultado.erros.length > 0 && (
+                    <div className="mt-2 max-h-32 overflow-y-auto text-xs">
+                      {resultado.erros.slice(0, 10).map((erro, i) => (
+                        <p key={i} className="text-red-500">
+                          Linha {erro.linha}: {erro.erro}
+                        </p>
+                      ))}
+                      {resultado.erros.length > 10 && (
+                        <p className="text-slate-500 mt-1">
+                          ... e mais {resultado.erros.length - 10} erros
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
