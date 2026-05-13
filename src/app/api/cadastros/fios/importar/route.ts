@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { fios } from "@/lib/db/schema/fios"
-import { eq, and } from "drizzle-orm"
+import { eq } from "drizzle-orm"
 
 interface FioImport {
   codigoFio?: string
@@ -19,36 +19,47 @@ interface FioImport {
 }
 
 function parseCSV(texto: string): FioImport[] {
-  const linhas = texto.split(/\r?\n/).filter(l => l.trim())
-  if (linhas.length < 2) return []
+  const textoNormalizado = texto.replace(/\r\n/g, "\n").replace(/\r/g, "\n")
+  const linhas = textoNormalizado.split("\n").filter(l => l.trim())
+  
+  if (linhas.length < 2) {
+    console.log("[parseCSV] Linhas insuficientes:", linhas.length)
+    return []
+  }
 
   const separador = texto.includes(";") ? ";" : ","
   
-  const cabecalho = linhas[0].split(separador).map(c => c.trim().toLowerCase())
+  const primeiraLinha = linhas[0]
+  const cabecalho = primeiraLinha.split(separador).map(c => c.trim().toLowerCase())
+  
+  console.log("[parseCSV] Separador:", separador)
+  console.log("[parseCSV] Cabeçalho:", cabecalho)
+  console.log("[parseCSV] Total de linhas:", linhas.length)
   
   const dados: FioImport[] = []
 
   for (let i = 1; i < linhas.length; i++) {
-    const valores = linhas[i].split(separador).map(v => v.trim())
+    const linha = linhas[i]
+    if (!linha.trim()) continue
     
-    if (valores.length < 2 || (valores.length === 1 && !valores[0])) {
-      continue
-    }
+    const valores = linha.split(separador).map(v => v.trim())
     
     const item: FioImport = {}
     
-    cabecalho.forEach((campo, index) => {
-      const valor = valores[index]
-      if (valor && valor.length > 0) {
-        (item as any)[campo] = valor
+    for (let j = 0; j < cabecalho.length; j++) {
+      if (valores[j] !== undefined && valores[j] !== "") {
+        (item as any)[cabecalho[j]] = valores[j]
       }
-    })
+    }
+    
+    console.log(`[parseCSV] Linha ${i + 1}:`, item)
     
     if (item.codigoFio || item.nome) {
       dados.push(item)
     }
   }
 
+  console.log("[parseCSV] Total de registros:", dados.length)
   return dados
 }
 
@@ -78,6 +89,9 @@ export async function POST(req: NextRequest) {
 
     const texto = await arquivo.text()
     const nomeArquivo = arquivo.name.toLowerCase()
+
+    console.log("[POST /api/cadastros/fios/importar] Arquivo:", nomeArquivo)
+    console.log("[POST /api/cadastros/fios/importar] Texto (primeiros 500 chars):", texto.substring(0, 500))
 
     let registros: FioImport[] = []
 
@@ -142,6 +156,8 @@ export async function POST(req: NextRequest) {
         resultados.erros.push({ linha: i + 2, erro: err.message || "Erro desconhecido" })
       }
     }
+
+    console.log("[POST /api/cadastros/fios/importar] Resultados:", resultados)
 
     return NextResponse.json({
       success: true,
