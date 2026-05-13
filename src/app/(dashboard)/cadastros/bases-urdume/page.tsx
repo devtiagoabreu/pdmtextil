@@ -7,6 +7,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
+import ImportarBasesUrdume from "@/components/importar/ImportarBasesUrdume"
 
 interface BaseUrdume {
   id: number
@@ -64,12 +65,15 @@ export default function BasesUrdumePage() {
             Gerencie as bases de urdume cadastradas no sistema
           </p>
         </div>
-        <Link href="/cadastros/bases-urdume/novo">
-          <Button className="gap-2">
-            <PlusCircle size={16} />
-            Nova Base
-          </Button>
-        </Link>
+        <div className="flex gap-2">
+          <ImportarBasesUrdume onImportado={() => queryClient.invalidateQueries({ queryKey: ["bases-urdume"] })} />
+          <Link href="/cadastros/bases-urdume/novo">
+            <Button className="gap-2">
+              <PlusCircle size={16} />
+              Nova Base
+            </Button>
+          </Link>
+        </div>
       </div>
 
       <div className="flex items-center gap-2">

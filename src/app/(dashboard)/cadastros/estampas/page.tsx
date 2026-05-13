@@ -7,6 +7,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
+import ImportarEstampas from "@/components/importar/ImportarEstampas"
 
 interface Estampa {
   id: number
@@ -61,12 +62,15 @@ export default function EstampasPage() {
             Gerencie as estampas cadastradas no sistema
           </p>
         </div>
-        <Link href="/cadastros/estampas/novo">
-          <Button className="gap-2">
-            <PlusCircle size={16} />
-            Nova Estampa
-          </Button>
-        </Link>
+        <div className="flex gap-2">
+          <ImportarEstampas onImportado={() => queryClient.invalidateQueries({ queryKey: ["estampas"] })} />
+          <Link href="/cadastros/estampas/novo">
+            <Button className="gap-2">
+              <PlusCircle size={16} />
+              Nova Estampa
+            </Button>
+          </Link>
+        </div>
       </div>
 
       <div className="flex items-center gap-2">
