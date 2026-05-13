@@ -357,7 +357,7 @@ export default function FioFormPage() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="idIntegracao">ID Integração (ERP/Systêxtil)</Label>
+          <Label htmlFor="idIntegracao">ID Integração (ERP/WMS/CRM/OUTROS)</Label>
           <Input id="idIntegracao" value={fio.idIntegracao || ""} onChange={e => handleChange("idIntegracao", e.target.value)} placeholder="Código do sistema externo" />
         </div>
 
