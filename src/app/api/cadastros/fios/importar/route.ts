@@ -22,19 +22,21 @@ function parseCSV(texto: string): FioImport[] {
   const textoNormalizado = texto.replace(/\r\n/g, "\n").replace(/\r/g, "\n")
   const linhas = textoNormalizado.split("\n").filter(l => l.trim())
   
+  console.log("[parseCSV] Total de linhas:", linhas.length)
+  
   if (linhas.length < 2) {
     console.log("[parseCSV] Linhas insuficientes:", linhas.length)
     return []
   }
 
   const separador = texto.includes(";") ? ";" : ","
+  console.log("[parseCSV] Separador:", JSON.stringify(separador))
   
   const primeiraLinha = linhas[0]
-  const cabecalho = primeiraLinha.split(separador).map(c => c.trim().toLowerCase())
+  console.log("[parseCSV] Primeira linha (raw):", JSON.stringify(primeiraLinha))
   
-  console.log("[parseCSV] Separador:", separador)
-  console.log("[parseCSV] Cabeçalho:", cabecalho)
-  console.log("[parseCSV] Total de linhas:", linhas.length)
+  const cabecalho = primeiraLinha.split(separador).map(c => c.trim().toLowerCase())
+  console.log("[parseCSV] Cabeçalho parseado:", cabecalho)
   
   const dados: FioImport[] = []
 
@@ -42,17 +44,22 @@ function parseCSV(texto: string): FioImport[] {
     const linha = linhas[i]
     if (!linha.trim()) continue
     
+    console.log(`[parseCSV] Linha ${i + 1} (raw):`, JSON.stringify(linha))
+    
     const valores = linha.split(separador).map(v => v.trim())
+    console.log(`[parseCSV] Valores parseados:`, valores)
     
     const item: FioImport = {}
     
     for (let j = 0; j < cabecalho.length; j++) {
-      if (valores[j] !== undefined && valores[j] !== "") {
-        (item as any)[cabecalho[j]] = valores[j]
+      const campo = cabecalho[j]
+      const valor = valores[j]
+      if (valor !== undefined && valor.length > 0) {
+        (item as any)[campo] = valor
       }
     }
     
-    console.log(`[parseCSV] Linha ${i + 1}:`, item)
+    console.log(`[parseCSV] Item ${i + 1}:`, item)
     
     if (item.codigoFio || item.nome) {
       dados.push(item)
