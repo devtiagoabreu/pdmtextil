@@ -42,11 +42,36 @@ export async function PUT(
     const { id } = await params
     const body = await req.json()
 
+    if (body.cnpj) {
+      const cnpjLimpo = body.cnpj.replace(/\D/g, "")
+      const existenteCNPJ = await db
+        .select()
+        .from(fornecedores)
+        .where(eq(fornecedores.cnpj, cnpjLimpo))
+        .limit(1)
+
+      if (existenteCNPJ[0] && existenteCNPJ[0].id !== parseInt(id)) {
+        return NextResponse.json({ error: "CNPJ já cadastrado em outro fornecedor" }, { status: 409 })
+      }
+    }
+
+    if (body.idIntegracao) {
+      const existenteIdInt = await db
+        .select()
+        .from(fornecedores)
+        .where(eq(fornecedores.idIntegracao, body.idIntegracao))
+        .limit(1)
+
+      if (existenteIdInt[0] && existenteIdInt[0].id !== parseInt(id)) {
+        return NextResponse.json({ error: "ID Integração já cadastrado em outro fornecedor" }, { status: 409 })
+      }
+    }
+
     const atualizado = await db
       .update(fornecedores)
       .set({
         nome: body.nome,
-        cnpj: body.cnpj || null,
+        cnpj: body.cnpj ? body.cnpj.replace(/\D/g, "") : null,
         razaoSocial: body.razaoSocial || null,
         email: body.email || null,
         telefone: body.telefone || null,

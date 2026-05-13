@@ -42,6 +42,18 @@ export async function PUT(
     const { id } = await params
     const body = await req.json()
 
+    if (body.idIntegracao) {
+      const existenteIdInt = await db
+        .select()
+        .from(fios)
+        .where(eq(fios.idIntegracao, body.idIntegracao))
+        .limit(1)
+
+      if (existenteIdInt[0] && existenteIdInt[0].id !== parseInt(id)) {
+        return NextResponse.json({ error: "ID Integração já cadastrado em outro fio" }, { status: 409 })
+      }
+    }
+
     const atualizado = await db
       .update(fios)
       .set({
