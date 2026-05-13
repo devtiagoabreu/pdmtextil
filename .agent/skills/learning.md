@@ -1775,4 +1775,501 @@ Para cada cadastro, modificar:
 
 ---
 
+## Seção 37: Implementação Completa de Importação CSV/JSON em Massa
+
+### Tópico 37.1: Visão Geral da Implementação
+
+Esta sessão implementou importação em massa via CSV/JSON para todos os cadastros do sistema PDM Pro Têxtil.
+
+**Cadastros implementados:**
+- Fios ✅
+- Fornecedores ✅
+- Clientes ✅
+- Cores ✅
+- Estampas ✅
+- Bases de Urdume ✅
+
+### Tópico 37.2: Arquitetura de Arquivos
+
+Para cada cadastro, a estrutura de arquivos segue este padrão:
+
+```
+src/app/api/cadastros/[entidade]/
+├── modelo/route.ts       # Download do modelo CSV/JSON
+├── importar/route.ts     # Processamento do arquivo
+└── [id]/route.ts         # CRUD (GET, PUT, DELETE)
+
+src/app/(dashboard)/cadastros/[entidade]/
+└── page.tsx              # Lista com botão "Importar"
+
+src/components/importar/
+└── Importar[Entidade].tsx # Modal de importação UI
+```
+
+### Tópico 37.3: API Modelo (Download)
+
+**Arquivo:** `src/app/api/cadastros/[entidade]/modelo/route.ts`
+
+**Funcionalidades:**
+- GET com parâmetro `formato=csv` ou `formato=json`
+- Retorna CSV com separador `;` (padrão brasileiro)
+- Inclui linha de exemplo preenchida
+- Valida sessão do usuário
+
+**Exemplo de resposta CSV:**
+```csv
+codigoFio;nome;nomeComercial;composicao;ativo
+AL20;Fio Algodão 20/1;Fio Premium;100% Algodão;true
+```
+
+**Exemplo de resposta JSON:**
+```json
+{
+  "modelo": "Fios",
+  "versao": "1.0",
+  "separador": ";",
+  "campos": [...],
+  "exemplo": [...]
+}
+```
+
+---
+
+## Seção 38: Problema Crítico - camelCase vs lowercase no CSV
+
+### Tópico 38.1: O Problema
+
+O CSV gerado pelo modelo usa camelCase nos cabeçalhos:
+```
+codigoFio;nome;nomeComercial;...
+```
+
+Mas quando o JavaScript faz `.toLowerCase()`, eles se tornam:
+```
+codigofio;nome;nomecomercial;...
+```
+
+Isso causa erro na validação porque `item.codigoFio` é undefined.
+
+### Tópico 38.2: Solução - Mapa de Conversão (campoMap)
+
+```typescript
+const campoMap: Record<string, keyof EntidadeImport> = {
+  // key lowercase do CSV → value camelCase do TypeScript
+  codigofio: "codigoFio",
+  nome: "nome",
+  nomecomercial: "nomeComercial",
+  composicao: "composicao",
+  idintegracao: "idIntegracao",
+  ativo: "ativo",
+}
+```
+
+**Regras importantes:**
+1. Sempre criar o mapa mesmo para campos simples
+2. Mapear TODOS os campos do CSV
+3. Usar nomes lowercase no mapa, camelCase na interface
+
+### Tópico 38.3: Código Completo do parseCSV
+
+```typescript
+function parseCSV(texto: string): EntidadeImport[] {
+  // 1. Normalizar line endings (Windows)
+  const textoNormalizado = texto.replace(/\r\n/g, "\n").replace(/\r/g, "\n")
+  const linhas = textoNormalizado.split("\n").filter(l => l.trim())
+
+  console.log("[parseCSV] Total de linhas:", linhas.length)
+
+  if (linhas.length < 2) {
+    console.log("[parseCSV] Linhas insuficientes:", linhas.length)
+    return []
+  }
+
+  // 2. Detectar separador
+  const separador = texto.includes(";") ? ";" : ","
+  const primeiraLinha = linhas[0]
+  const cabecalhoLower = primeiraLinha.split(separador).map(c => c.trim().toLowerCase())
+
+  const dados: EntidadeImport[] = []
+
+  // 3. Iterar sobre as linhas
+  for (let i = 1; i < linhas.length; i++) {
+    const linha = linhas[i]
+    if (!linha.trim()) continue
+
+    const valores = linha.split(separador).map(v => v.trim())
+    const item: EntidadeImport = {}
+
+    // 4. Mapear campos usando campoMap
+    for (let j = 0; j < cabecalhoLower.length; j++) {
+      const campoOriginal = cabecalhoLower[j]
+      const campoNormalizado = campoMap[campoOriginal]
+      const valor = valores[j]
+
+      if (campoNormalizado && valor !== undefined && valor.length > 0) {
+        (item as any)[campoNormalizado] = valor
+      }
+    }
+
+    console.log(`[parseCSV] Item ${i + 1}:`, item)
+
+    // 5. Filtrar registros válidos
+    if (item.campoObrigatorio) {
+      dados.push(item)
+    }
+  }
+
+  console.log("[parseCSV] Total de registros:", dados.length)
+  return dados
+}
+```
+
+---
+
+## Seção 39: Validação de Duplicados
+
+### Tópico 39.1: Campos que Precisam Ser Únicos
+
+Cada tabela pode ter diferentes campos únicos:
+
+| Cadastro | Campos Únicos |
+|----------|--------------|
+| Fios | `codigoFio`, `idIntegracao` |
+| Fornecedores | `nome`, `cnpj`, `idIntegracao` |
+| Clientes | `cnpj`, `idIntegracao` |
+| Cores | `codigo`, `idIntegracao` |
+| Estampas | `codigoDesenho`, `idIntegracao` |
+| Bases Urdume | `codigoBase`, `codigoCompleto`, `idIntegracao` |
+
+### Tópico 39.2: Validação na Importação
+
+**Regra:** Verificar TODOS os campos únicos ANTES de inserir.
+
+```typescript
+// Para cada registro na importação
+for (let i = 0; i < registros.length; i++) {
+  const reg = registros[i]
+
+  // 1. Verificar campo único 1
+  if (reg.campoUnico) {
+    const existente1 = await db
+      .select()
+      .from(tabela)
+      .where(eq(tabela.campoUnico, reg.campoUnico))
+      .limit(1)
+
+    if (existente1[0]) {
+      resultados.erros.push({
+        linha: i + 2,
+        erro: `Campo ${reg.campoUnico} já existe`
+      })
+      continue
+    }
+  }
+
+  // 2. Verificar idIntegracao (se fornecido)
+  if (reg.idIntegracao) {
+    const existenteIdInt = await db
+      .select()
+      .from(tabela)
+      .where(eq(tabela.idIntegracao, reg.idIntegracao))
+      .limit(1)
+
+    if (existenteIdInt[0]) {
+      resultados.erros.push({
+        linha: i + 2,
+        erro: `ID Integração ${reg.idIntegracao} já existe`
+      })
+      continue
+    }
+  }
+
+  // 3. Inserir se passou em todas as validações
+  await db.insert(tabela).values({ ... })
+  resultados.importados++
+}
+```
+
+### Tópico 39.3: Validação no UPDATE
+
+**Regra:** Verificar duplicados IGNORANDO o registro atual.
+
+```typescript
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  const body = await req.json()
+
+  // CNPJ duplicado?
+  if (body.cnpj) {
+    const cnpjLimpo = body.cnpj.replace(/\D/g, "")
+    const existenteCNPJ = await db
+      .select()
+      .from(fornecedores)
+      .where(eq(fornecedores.cnpj, cnpjLimpo))
+      .limit(1)
+
+    // IGNORAR o registro atual (id !== parseInt(id))
+    if (existenteCNPJ[0] && existenteCNPJ[0].id !== parseInt(id)) {
+      return NextResponse.json(
+        { error: "CNPJ já cadastrado em outro fornecedor" },
+        { status: 409 }
+      )
+    }
+  }
+
+  // idIntegracao duplicado?
+  if (body.idIntegracao) {
+    const existenteIdInt = await db
+      .select()
+      .from(fornecedores)
+      .where(eq(fornecedores.idIntegracao, body.idIntegracao))
+      .limit(1)
+
+    if (existenteIdInt[0] && existenteIdInt[0].id !== parseInt(id)) {
+      return NextResponse.json(
+        { error: "ID Integração já cadastrado em outro fornecedor" },
+        { status: 409 }
+      )
+    }
+  }
+
+  // Executar update...
+}
+```
+
+### Tópico 39.4: Tratamento de Erro 409 Conflict
+
+No catch do UPDATE, tratar erro de constraint única:
+
+```typescript
+} catch (error: any) {
+  console.error("[PUT ...]", error)
+  if (error.code === "23505") {
+    return NextResponse.json({ error: "CNPJ já cadastrado" }, { status: 409 })
+  }
+  return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
+}
+```
+
+---
+
+## Seção 40: Logs de Debug para Vercel
+
+### Tópico 40.1: Por Que Logs São Essenciais
+
+Na Vercel, não há acesso ao console do browser. Os logs de servidor são a única forma de debugar erros de importação.
+
+### Tópico 40.2: Logs a Adicionar nas APIs
+
+**Na função parseCSV:**
+```typescript
+console.log("[parseCSV] Total de linhas:", linhas.length)
+console.log("[parseCSV] Separador:", separador)
+console.log(`[parseCSV] Item ${i + 1}:`, JSON.stringify(item))
+console.log("[parseCSV] Total de registros:", dados.length)
+```
+
+**Na API POST:**
+```typescript
+console.log("[POST /api/cadastros/[entidade]/importar] Arquivo:", nomeArquivo)
+console.log("[POST /api/cadastros/[entidade]/importar] Texto (primeiros 500 chars):", texto.substring(0, 500))
+console.log("[POST /api/cadastros/[entidade]/importar] Resultados:", resultados)
+```
+
+**No catch:**
+```typescript
+console.error(`Erro na linha ${i + 2}:`, err)
+```
+
+### Tópico 40.3: Acesso aos Logs
+
+1. Acesse https://vercel.com/dashboard
+2. Selecione o projeto
+3. Clique em "Logs" no menu lateral
+4. Filtre por função/serverless se necessário
+
+---
+
+## Seção 41: Componente UI de Importação
+
+### Tópico 41.1: Estrutura do Componente
+
+**Arquivo:** `src/components/importar/ImportarEntidade.tsx`
+
+**Props:**
+```typescript
+interface ImportarEntidadeProps {
+  onImportado?: () => void
+}
+```
+
+**Estado:**
+```typescript
+const [modalAberto, setModalAberto] = useState(false)
+const [importando, setImportando] = useState(false)
+const [resultado, setResultado] = useState<ResultadoImport | null>(null)
+const [arquivoSelecionado, setArquivoSelecionado] = useState<File | null>(null)
+```
+
+### Tópico 41.2: ResultadoImport Interface
+
+```typescript
+interface ResultadoImport {
+  total: number
+  importados: number
+  erros: { linha: number; erro: string }[]
+}
+```
+
+### Tópico 41.3: Exibir Erros na UI
+
+O componente DEVE exibir a lista de erros para o usuário:
+
+```tsx
+{resultado.erros.length > 0 && (
+  <div className="mt-2 max-h-32 overflow-y-auto text-xs">
+    {resultado.erros.slice(0, 10).map((erro, i) => (
+      <p key={i} className="text-red-500">
+        Linha {erro.linha}: {erro.erro}
+      </p>
+    ))}
+    {resultado.erros.length > 10 && (
+      <p className="text-slate-500 mt-1">
+        ... e mais {resultado.erros.length - 10} erros
+      </p>
+    )}
+  </div>
+)}
+```
+
+### Tópico 41.4: Botão Importar na Página
+
+Adicionar ao lado do botão "Novo":
+
+```tsx
+<div className="flex gap-2">
+  <ImportarEntidade onImportado={() => refetch()} />
+  <Link href="/cadastros/entidade/novo">
+    <Button className="gap-2">
+      <PlusCircle size={16} />
+      Novo
+    </Button>
+  </Link>
+</div>
+```
+
+---
+
+## Seção 42: Erros Comuns e Soluções
+
+### Tópico 42.1: TypeScript - Campos numeric/numeric
+
+**Erro:**
+```
+Type 'number | null' is not assignable to type 'string | null'
+```
+
+**Solução:** Campos `numeric` no Drizzle aceitam string no banco. Não usar `parseFloat()`:
+
+```typescript
+// ERRADO
+densidade: parseFloat(reg.densidade)  // retorna number
+
+// CORRETO
+densidade: reg.densidade || null  // mantém string
+```
+
+### Tópico 42.2: TypeScript - NewTypeImport
+
+**Erro:**
+```
+Object literal may only specify known properties
+```
+
+**Solução:** Usar o tipo inferido do schema:
+
+```typescript
+import type { NewEntidade } from "@/lib/db/schema/entidade"
+
+const valores: NewEntidade = {
+  campo1: reg.campo1,
+  campo2: reg.campo2,
+  // ...
+}
+```
+
+### Tópico 42.3: CNPJ com Formatação
+
+**Problema:** CNPJ pode vir formatado (12.345.678/0001-90) ou limpo (12345678000190)
+
+**Solução:** Limpar sempre antes de salvar:
+
+```typescript
+const cnpjLimpo = reg.cnpj.replace(/\D/g, "")
+
+// Na validação
+.where(eq(tabela.cnpj, cnpjLimpo))
+
+// Na inserção
+cnpj: cnpjLimpo,
+```
+
+### Tópico 42.4: Line Endings Windows
+
+**Problema:** Arquivos CSV do Excel (Windows) usam `\r\n`
+
+**Solução:** Normalizar antes do split:
+
+```typescript
+const textoNormalizado = texto.replace(/\r\n/g, "\n").replace(/\r/g, "\n")
+```
+
+---
+
+## Seção 43: Checklist para Implementar Importação
+
+### Tópico 43.1: Checklist Completo
+
+- [ ] Criar `modelo/route.ts`
+  - [ ] GET com parâmetro `formato=csv` e `formato=json`
+  - [ ] Definir campos com exemplos
+  - [ ] Criar mapa de campos (campoMap)
+  - [ ] Retornar CSV com `;`
+
+- [ ] Criar `importar/route.ts`
+  - [ ] Interface de importação
+  - [ ] função parseCSV com campoMap
+  - [ ] função parseJSON
+  - [ ] Validação de campos obrigatórios
+  - [ ] Validação de TODOS os campos únicos
+  - [ ] Inserção no banco
+  - [ ] Tratamento de erros
+  - [ ] Logs de debug
+
+- [ ] Criar `ImportarEntidade.tsx`
+  - [ ] Modal com botões CSV/JSON
+  - [ ] Upload de arquivo
+  - [ ] Exibir resultado com erros
+  - [ ] Callback `onImportado`
+
+- [ ] Adicionar botão na página
+  - [ ] Importar ao lado de Novo
+  - [ ] Passar `onImportado={() => refetch()}`
+
+- [ ] Testar
+  - [ ] Download modelo CSV
+  - [ ] Importar modelo exemplo
+  - [ ] Importar com erro (duplicado)
+  - [ ] Verificar logs na Vercel
+
+- [ ] Adicionar ao learning.md
+
+---
+
+**Última atualização:** 13/05/2026
+**Versão:** 2.3 (Importação Completa + Validação Duplicados)
+**Total de seções:** 43
+
+---
+
 **Fim do Documento**
