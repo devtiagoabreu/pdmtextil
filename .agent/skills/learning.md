@@ -1430,4 +1430,349 @@ git push --force origin main
 
 ---
 
+## Seção 34: Implementação de Importação CSV/JSON (PDM Pro Têxtil)
+
+### Tópico 34.1: Problema do camelCase vs lowercase
+
+O CSV gerado pelo modelo usa camelCase nos cabeçalhos:
+```
+codigoFio;nome;nomeComercial;...
+```
+
+Mas quando o JavaScript faz `.toLowerCase()`, eles se tornam:
+```
+codigofio;nome;nomecomercial;...
+```
+
+Isso causa erro na validação porque `item.codigoFio` é undefined (existe só `item.codigofio`).
+
+#### Solução: Mapa de Conversão
+
+```typescript
+const campoMap: Record<string, keyof FioImport> = {
+  codigofio: "codigoFio",
+  nome: "nome",
+  nomecomercial: "nomeComercial",
+  composicao: "composicao",
+  titulo: "titulo",
+  torcao: "torcao",
+  resistencia: "resistencia",
+  alongamento: "alongamento",
+  idintegracao: "idIntegracao",
+  ativo: "ativo",
+}
+
+function parseCSV(texto: string): FioImport[] {
+  // ... código ...
+  
+  for (let j = 0; j < cabecalhoLower.length; j++) {
+    const campoOriginal = cabecalhoLower[j]
+    const campoNormalizado = campoMap[campoOriginal]
+    const valor = valores[j]
+    
+    if (campoNormalizado && valor !== undefined && valor.length > 0) {
+      (item as any)[campoNormalizado] = valor
+    }
+  }
+}
+```
+
+### Tópico 34.2: Estrutura de Importação de Fios
+
+#### Arquivos Criados:
+
+| Arquivo | Descrição |
+|---------|-----------|
+| `api/cadastros/fios/modelo/route.ts` | Baixa modelo CSV ou JSON |
+| `api/cadastros/fios/importar/route.ts` | Processa arquivo CSV/JSON |
+| `components/importar/ImportarFios.tsx` | Modal de importação com UI |
+| `cadastros/fios/page.tsx` | Adicionado botão "Importar" |
+
+#### API Modelo (`/api/cadastros/fios/modelo`)
+
+**GET** com parâmetro `formato=csv` ou `formato=json`
+
+Retorna arquivo CSV com separador `;` (padrão brasileiro):
+```csv
+codigoFio;nome;nomeComercial;composicao;titulo;torcao;resistencia;alongamento;idIntegracao;ativo
+AL20;Fio Algodão 20/1;Fio Premium;100% Algodão;20/1;Z;120.50;8.5;SYS001;true
+```
+
+#### API Importar (`/api/cadastros/fios/importar`)
+
+**POST** com `FormData` contendo arquivo
+
+Aceita CSV e JSON, detecta separador automaticamente (`;` ou `,`).
+
+Retorna:
+```json
+{
+  "success": true,
+  "mensagem": "1 de 1 registros importados",
+  "total": 1,
+  "importados": 1,
+  "erros": []
+}
+```
+
+### Tópico 34.3: Componente ImportarFios
+
+**Localização:** `src/components/importar/ImportarFios.tsx`
+
+**Funcionalidades:**
+1. Modal com botões para baixar modelos (CSV e JSON)
+2. Upload de arquivo (drag & drop ou clique)
+3. Preview do arquivo selecionado
+4. Feedback visual do resultado (importados/erros)
+5. Callback `onImportado` para atualizar lista
+
+**Interface:**
+```typescript
+interface ResultadoImport {
+  total: number
+  importados: number
+  erros: { linha: number; erro: string }[]
+}
+```
+
+### Tópico 34.4: Parsing CSV Robusto
+
+#### Regras de Implementação
+
+1. **Normalizar line endings:** `texto.replace(/\r\n/g, "\n").replace(/\r/g, "\n")`
+2. **Detectar separador:** Se texto contém `;`, usar `;` senão `,`
+3. **Mapeamento de campos:** Sempre usar mapa para converter lowercase → camelCase
+4. **Filtrar linhas vazias:** `.filter(l => l.trim())`
+5. **Tratar valores undefined:** Verificar `valor !== undefined && valor.length > 0`
+
+```typescript
+function parseCSV(texto: string): FioImport[] {
+  const textoNormalizado = texto.replace(/\r\n/g, "\n").replace(/\r/g, "\n")
+  const linhas = textoNormalizado.split("\n").filter(l => l.trim())
+  
+  const separador = texto.includes(";") ? ";" : ","
+  const cabecalho = linhas[0].split(separador).map(c => c.trim().toLowerCase())
+  
+  const dados: FioImport[] = []
+  
+  for (let i = 1; i < linhas.length; i++) {
+    const valores = linhas[i].split(separador).map(v => v.trim())
+    const item: FioImport = {}
+    
+    for (let j = 0; j < cabecalho.length; j++) {
+      const campoNormalizado = campoMap[cabecalho[j]]
+      const valor = valores[j]
+      if (campoNormalizado && valor !== undefined && valor.length > 0) {
+        (item as any)[campoNormalizado] = valor
+      }
+    }
+    
+    if (item.codigoFio || item.nome) {
+      dados.push(item)
+    }
+  }
+  
+  return dados
+}
+```
+
+### Tópico 34.5: Validação e Importação
+
+```typescript
+for (let i = 0; i < registros.length; i++) {
+  const reg = registros[i]
+
+  // Verificar campos obrigatórios
+  if (!reg.codigoFio || !reg.nome) {
+    resultados.erros.push({ linha: i + 2, erro: "Código e Nome são obrigatórios" })
+    continue
+  }
+
+  // Verificar duplicado
+  const existente = await db
+    .select()
+    .from(fios)
+    .where(eq(fios.codigoFio, reg.codigoFio!))
+    .limit(1)
+
+  if (existente[0]) {
+    resultados.erros.push({ linha: i + 2, erro: `Fio com código ${reg.codigoFio} já existe` })
+    continue
+  }
+
+  // Inserir
+  await db.insert(fios).values({
+    codigoCompleto: `7.${reg.codigoFio}.XXX.000001`,
+    codigoFio: reg.codigoFio!,
+    nome: reg.nome!,
+    // ... outros campos
+  })
+
+  resultados.importados++
+}
+```
+
+### Tópico 34.6: Debugging de Importação
+
+#### Logs no Browser (Cliente)
+
+```typescript
+const handleFileChange = async (e) => {
+  const file = e.target.files?.[0]
+  if (file) {
+    console.log("[ImportarFios] Arquivo selecionado:", file.name, file.size)
+    
+    const texto = await file.text()
+    console.log("[ImportarFios] Conteúdo:", texto.substring(0, 500))
+  }
+}
+
+const handleImportar = async () => {
+  const res = await fetch("/api/cadastros/fios/importar", {
+    method: "POST",
+    body: formData,
+  })
+  
+  const dados = await res.json()
+  console.log("[ImportarFios] Resposta:", dados)
+}
+```
+
+#### Logs no Servidor (API)
+
+```typescript
+function parseCSV(texto: string): FioImport[] {
+  console.log("[parseCSV] Total de linhas:", linhas.length)
+  console.log("[parseCSV] Separador:", JSON.stringify(separador))
+  console.log("[parseCSV] Cabeçalho:", cabecalho)
+  
+  for (let i = 1; i < linhas.length; i++) {
+    console.log(`[parseCSV] Linha ${i + 1} (raw):`, JSON.stringify(linha))
+    console.log(`[parseCSV] Item ${i + 1}:`, item)
+  }
+}
+```
+
+---
+
+## Seção 35: Aprendizados de Desenvolvimento - PDM Pro Têxtil
+
+### Tópico 35.1: Lições da Sessão
+
+| Problema | Causa | Solução |
+|----------|-------|---------|
+| Importação retornava 0 registros | camelCase vs lowercase | Mapa de conversão campoMap |
+| Line endings Windows não funcionavam | `\r\n` não tratado | Regex `/\r?\n/` para split |
+| Logs no servidor essenciais | Console do browser não mostrava API | Adicionar logs no servidor |
+
+### Tópico 35.2: Regras para Implementações Futuras
+
+1. **Sempre mapear campos** quando o CSV usa camelCase:
+   ```typescript
+   const campoMap = { campominusculo: "campoMinusculo" }
+   ```
+
+2. **Normalizar line endings** antes de fazer split:
+   ```typescript
+   texto.replace(/\r\n/g, "\n").replace(/\r/g, "\n")
+   ```
+
+3. **Adicionar logs tanto no cliente quanto no servidor** para debugar problemas
+
+4. **Separador CSV padrão brasileiro** é `;` (não `,`)
+
+5. **Interface de importação deve incluir**:
+   - Botões para baixar modelos (CSV e JSON)
+   - Upload de arquivo
+   - Preview do arquivo selecionado
+   - Feedback de resultado (importados/erros)
+
+### Tópico 35.3: Checklist para Implementar Importação
+
+- [ ] Criar API modelo (`/api/cadastros/[entidade]/modelo`)
+  - [ ] GET com parâmetro `formato=csv` ou `formato=json`
+  - [ ] Retornar CSV com `;` como separador
+  - [ ] Incluir exemplo preenchido
+
+- [ ] Criar API importar (`/api/cadastros/[entidade]/importar`)
+  - [ ] POST com FormData
+  - [ ] Parser CSV com mapa de campos
+  - [ ] Parser JSON
+  - [ ] Validação de duplicados
+  - [ ] Retornar resultados com erros por linha
+
+- [ ] Criar componente `ImportarX.tsx`
+  - [ ] Modal com botões CSV/JSON
+  - [ ] Upload de arquivo
+  - [ ] Feedback visual
+
+- [ ] Adicionar botão na página da lista
+
+---
+
+## Seção 36: Campo idIntegracao - Implementação Completa
+
+### Tópico 36.1: Schema - Campo idIntegracao
+
+Todas as tabelas devem ter o campo `idIntegracao`:
+```typescript
+idIntegracao: varchar("id_integracao", { length: 100 })
+```
+
+**Tabela do Learning:**
+```
+fornecedores     ✅
+fios             ✅
+fios_fornecedores ✅
+bases_urdume     ✅
+cores_solidas    ✅
+cores_fundo      ✅
+estampas         ✅
+acabamentos      ✅
+clientes         ✅
+maquinas         ✅
+operacoes        ✅
+solicitacoes     ✅
+```
+
+### Tópico 36.2: Label Genérico
+
+O label deve ser **genérico** para permitir integração com qualquer sistema:
+```
+ID Integração (ERP/WMS/CRM/OUTROS)
+```
+
+**NÃO usar** referências específicas como `(ERP/Systêxtil)`.
+
+### Tópico 36.3: Arquivos que Precisam Ser Modificados
+
+Para cada cadastro, modificar:
+
+1. **Schema:** ✅ Já tem `idIntegracao` no banco
+2. **TypeScript type:** Adicionar ao tipo
+3. **useState inicial:** Adicionar ao estado
+4. **useEffect carregamento:** Carregar do dados
+5. **Input no formulário:** Adicionar campo
+6. **API POST:** Adicionar `idIntegracao: body.idIntegracao || null`
+7. **API PUT:** Adicionar `idIntegracao: body.idIntegracao || null`
+
+### Tópico 36.4: Cadastros com idIntegracao Implementado
+
+| Cadastro | Formulário | API POST | API PUT |
+|----------|------------|----------|---------|
+| Fios | ✅ | ✅ | ✅ |
+| Fornecedores | ✅ | ✅ | ✅ |
+| Cores | ✅ | ✅ | ✅ |
+| Estampas | ✅ | ✅ | ✅ |
+| Bases de Urdume | ✅ | ✅ | ✅ |
+| Clientes | ✅ | ✅ | ✅ |
+
+---
+
+**Última atualização:** 13/05/2026
+**Versão:** 2.2 (Importação CSV/JSON + idIntegracao)
+**Total de seções:** 36
+
+---
+
 **Fim do Documento**
