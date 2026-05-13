@@ -168,7 +168,10 @@ export async function POST(req: NextRequest) {
         resultados.importados++
       } catch (err: any) {
         console.error(`Erro na linha ${i + 2}:`, err)
-        resultados.erros.push({ linha: i + 2, erro: err.message || "Erro desconhecido" })
+        const mensagemErro = err.code === '23505'
+          ? `CNPJ ${reg.cnpj || 'desconhecido'} já cadastrado`
+          : (err.message || "Erro ao inserir registro")
+        resultados.erros.push({ linha: i + 2, erro: mensagemErro })
       }
     }
 
