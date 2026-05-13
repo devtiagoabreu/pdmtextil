@@ -35,7 +35,7 @@ export async function PUT(
     const { id } = await params
     const body = await req.json()
 
-    const { nome, cnpj, razaoSocial, email, telefone, contato, endereco, cidade, uf } = body
+    const { nome, cnpj, razaoSocial, email, telefone, contato, endereco, cidade, uf, idIntegracao } = body
 
     if (!nome?.trim()) {
       return NextResponse.json({ error: "Nome é obrigatório" }, { status: 400 })
@@ -56,6 +56,7 @@ export async function PUT(
         endereco: endereco?.trim() || null,
         cidade: cidade?.trim() || null,
         uf: uf?.trim() || null,
+        idIntegracao: idIntegracao || null,
         updatedAt: new Date(),
       })
       .where(eq(clientes.id, parseInt(id)))
