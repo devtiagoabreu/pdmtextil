@@ -6,7 +6,7 @@ import { Package, Building2, Users, Palette, Scissors, Droplets } from "lucide-r
 const modulos = [
   {
     titulo: "Fios",
-    descricao: "Cadastro de fios têxteis (Nível 7)",
+    descricao: "Cadastro de fios têxteis",
     href: "/cadastros/fios",
     icon: Package,
   },
@@ -18,13 +18,13 @@ const modulos = [
   },
   {
     titulo: "Bases de Urdume",
-    descricao: "Bases de urdume (Nível 4)",
+    descricao: "Bases de urdume",
     href: "/cadastros/bases-urdume",
     icon: Scissors,
   },
   {
     titulo: "Cores Sólidas",
-    descricao: "Cores sólidas (código 6 dígitos)",
+    descricao: "Cores sólidas",
     href: "/cadastros/cores",
     icon: Palette,
   },
