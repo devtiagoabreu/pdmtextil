@@ -331,5 +331,500 @@ Com isso, o sistema passa a ter capacidade de:
 
 ---
 
+````md
+# 🚀 SKILL DE INSIGHTS
 
+---
 
+# 0002 - DOCUMENTAÇÃO DO CADASTRO DE PRODUTO CRU (TECIDO CRU)
+
+---
+
+## 🎯 Objetivo
+
+Definir a estrutura completa do cadastro de Produto Cru (Tecido Cru), contemplando:
+
+* Desenvolvimento técnico do tecido
+* Controle de composição
+* Estrutura têxtil
+* Amostras piloto
+* Acabamentos
+* Receitas de processos
+* Integração com ERP
+* Rastreabilidade entre produto cru e produtos acabados
+
+---
+
+## 🧩 Visão Geral da Solução
+
+O módulo será responsável por controlar todo o fluxo de desenvolvimento do tecido desde a solicitação inicial até a definição dos produtos acabados integrados ao ERP.
+
+O Produto Cru será o núcleo principal da engenharia do tecido.
+
+A estrutura será composta por:
+
+### 1. Produto Cru
+
+Representa o desenvolvimento principal do tecido.
+
+### 2. Composição
+
+Define os materiais que compõem o tecido.
+
+### 3. Estrutura
+
+Define trama e urdume do tecido.
+
+### 4. Amostras de Tecido Cru
+
+Controla os testes e validações do tecido cru.
+
+### 5. Acabamentos
+
+Representa as variações industriais do produto.
+
+### 6. Amostras de Tecido Acabado
+
+Controla os testes e validações por acabamento.
+
+### 7. Receitas de Processo
+
+Define os parâmetros industriais dos acabamentos.
+
+---
+
+## 🏗️ PRINCIPAL DIFERENCIAL DA SOLUÇÃO
+
+A solução separa corretamente:
+
+❌ Produto ≠ Acabamento  
+❌ Desenvolvimento ≠ Produção  
+❌ Produto Cru ≠ Produto Acabado  
+
+✅ Produto Cru representa a engenharia base  
+✅ Acabamento representa uma variação industrial  
+✅ ERP recebe produtos separados para cada acabamento  
+
+---
+
+# 🧾 1. Cadastro de Produto Cru
+
+## 📋 Campos
+
+| Campo                     | Tipo    |
+| ------------------------- | ------- |
+| ID                        | Integer |
+| Código PDM                | Varchar |
+| Descrição                 | Varchar |
+| Solicitação Desenvolvimento | FK    |
+| Integração                | FK      |
+| ID Integração ERP (Cru)   | Varchar |
+| Status                    | Enum    |
+
+---
+
+## 🧠 Exemplo
+
+| Sistema | Código |
+| -------- | ------- |
+| PDM      | D28 |
+| ERP (Cru) | 2.K1820.CRU.000CRU |
+
+---
+
+## 🔗 Integração ERP (Produto Cru)
+
+O Produto Cru poderá possuir um código correspondente no ERP.
+
+Esse código representa o item cru integrado ao sistema externo.
+
+---
+
+# 🧬 2. Subcadastro de Composição
+
+## 📋 Campos
+
+| Campo       | Tipo    |
+| ------------ | ------- |
+| ID           | Integer |
+| Produto Cru  | FK      |
+| Material     | FK      |
+| Percentual   | Decimal |
+
+---
+
+## 🚨 Regra de Negócio
+
+👉 A soma das composições deve ser obrigatoriamente:
+
+✅ 100%
+
+---
+
+## 🧠 Exemplos
+
+* 63% Algodão + 37% Poliéster
+* 98% Algodão + 2% Elastano
+
+---
+
+# 🧵 3. Subcadastro de Estrutura
+
+## 📋 Campos
+
+| Campo         | Tipo    |
+| -------------- | ------- |
+| ID             | Integer |
+| Produto Cru    | FK      |
+| Tipo           | Enum    |
+| Fio            | FK      |
+| Base Urdume    | FK      |
+| Ordem          | Integer |
+
+---
+
+## 🧠 Estrutura do Tecido
+
+### 🔹 Trama
+
+* Pode possuir vários fios
+* Selecionados do cadastro de fios
+
+### 🔹 Urdume
+
+* Selecionado do cadastro de base de urdume
+
+---
+
+# 🧪 4. Subcadastro de Amostras de Tecido Cru
+
+## 📋 Campos
+
+| Campo        | Tipo    |
+| ------------- | ------- |
+| ID            | Integer |
+| Produto Cru   | FK      |
+| Descrição     | Varchar |
+| Data          | Date    |
+| Status        | Enum    |
+| Observações   | Text    |
+
+---
+
+## 🚨 Regra de Negócio
+
+👉 Um Produto Cru pode possuir várias amostras.
+
+👉 Apenas uma amostra pode estar aprovada.
+
+---
+
+# 📘 5. Subcadastro de Ficha Técnica
+
+## 📋 Campos (Exemplo)
+
+| Campo        | Tipo    |
+| ------------- | ------- |
+| Gramatura    | Decimal |
+| Largura      | Decimal |
+| Construção   | Varchar |
+| Densidade    | Varchar |
+| Ligamento    | Varchar |
+| Observações  | Text    |
+
+---
+
+## 🧠 Observações
+
+A ficha técnica poderá existir:
+
+* Para o Produto Cru
+* Para o Produto Acabado (futuro)
+
+---
+
+# 🎨 6. Subcadastro de Acabamentos
+
+## 📋 Campos
+
+| Campo                          | Tipo    |
+| ------------------------------ | ------- |
+| ID                             | Integer |
+| Produto Cru                    | FK      |
+| Tipo Acabamento                | Enum    |
+| Descrição                      | Varchar |
+| ID Integração ERP (Acabado)    | Varchar |
+| Possui Receita                 | Boolean |
+
+---
+
+## 🧠 Conceito
+
+Cada acabamento representa um produto acabado diferente no ERP.
+
+---
+
+## 🧠 Exemplos ERP
+
+| Tipo | Código ERP |
+|------|-------------|
+| Tinto Branco | 2.K1820.TIN.000001 |
+| Tinto Preto | 2.K1820.TIN.000008 |
+| Estampado | 2.K1820.094.500113 |
+| Termofixado | 2.K1820.TER.000001 |
+
+---
+
+## 🚨 Regra de Negócio
+
+👉 Um Produto Cru pode possuir:
+
+* Nenhum acabamento
+* Um acabamento
+* Vários acabamentos
+
+---
+
+# 🧪 7. Subcadastro de Amostras de Tecido Acabado
+
+## 📋 Campos
+
+| Campo        | Tipo    |
+| ------------- | ------- |
+| ID            | Integer |
+| Acabamento    | FK      |
+| Descrição     | Varchar |
+| Data          | Date    |
+| Status        | Enum    |
+| Observações   | Text    |
+
+---
+
+## 🚨 Regras de Negócio
+
+👉 Cada acabamento pode possuir várias amostras.
+
+👉 Apenas uma amostra pode ser aprovada por acabamento.
+
+---
+
+# ⚙️ 8. Subcadastro de Receitas de Processo
+
+## 📋 Campos
+
+| Campo          | Tipo    |
+| --------------- | ------- |
+| ID              | Integer |
+| Acabamento      | FK      |
+| Tipo Receita    | Enum    |
+| Parâmetros      | JSON    |
+
+---
+
+## 🧠 Tipos de Receita
+
+### 🔹 Tingimento
+
+* Corantes
+* Temperatura
+* Tempo
+
+---
+
+### 🔹 Estamparia
+
+* Tipo de estampa
+* Tintas
+* Quadros
+
+---
+
+### 🔹 Termofixação
+
+* Temperatura
+* Tempo
+* Pressão
+
+---
+
+## 🚨 Regra de Negócio
+
+👉 Receita pertence ao acabamento e não diretamente ao produto cru.
+
+---
+
+# 🔗 RELACIONAMENTO FINAL
+
+```text
+Produto Cru (D28)
+│
+├── ERP (CRU)
+│   └── 2.K1820.CRU.000CRU
+│
+├── Composição
+│
+├── Estrutura
+│
+├── Amostras Cru
+│   ├── Amostra 1 ❌
+│   └── Amostra 2 ✅
+│
+└── Acabamentos
+    │
+    ├── Tinto Branco
+    │   ├── ERP → 2.K1820.TIN.000001
+    │   ├── Receita
+    │   └── Amostras
+    │       ├── Teste 1 ❌
+    │       └── Teste 2 ✅
+    │
+    ├── Tinto Preto
+    │   └── ERP → 2.K1820.TIN.000008
+    │
+    ├── Estampado
+    │   └── ERP → 2.K1820.094.500113
+    │
+    └── Termofixado
+        └── ERP → 2.K1820.TER.000001
+```
+
+---
+
+# 🚨 REGRAS DE NEGÓCIO
+
+## Produto Cru
+
+* Deve possuir composição válida
+* Deve possuir estrutura
+* Pode possuir integração ERP
+* Pode possuir vários acabamentos
+* Deve possuir uma amostra aprovada
+
+---
+
+## Composição
+
+* Soma obrigatória = 100%
+
+---
+
+## Acabamentos
+
+* São opcionais
+* Representam produtos acabados
+* Cada acabamento possui código ERP próprio
+
+---
+
+## Amostras
+
+* Produto Cru → várias amostras
+* Acabamento → várias amostras
+* Apenas uma aprovada por contexto
+
+---
+
+## Receitas
+
+* Pertencem ao acabamento
+* Dependem do tipo de processo
+
+---
+
+# 🗂️ Modelagem Sugerida
+
+## PRODUTO_CRU
+
+* id
+* codigo_pdm
+* descricao
+* solicitacao_desenvolvimento_id
+* integracao_id
+* id_integracao_erp_cru
+* status
+
+---
+
+## PRODUTO_CRU_COMPOSICAO
+
+* id
+* produto_cru_id
+* material_id
+* percentual
+
+---
+
+## PRODUTO_CRU_ESTRUTURA
+
+* id
+* produto_cru_id
+* tipo
+* fio_id
+* base_urdume_id
+* ordem
+
+---
+
+## PRODUTO_CRU_AMOSTRA
+
+* id
+* produto_cru_id
+* descricao
+* status
+
+---
+
+## PRODUTO_CRU_ACABAMENTO
+
+* id
+* produto_cru_id
+* tipo_acabamento
+* descricao
+* id_integracao_erp_acabado
+
+---
+
+## PRODUTO_CRU_ACABAMENTO_AMOSTRA
+
+* id
+* acabamento_id
+* descricao
+* status
+
+---
+
+## PRODUTO_CRU_ACABAMENTO_RECEITA
+
+* id
+* acabamento_id
+* tipo_receita
+* parametros_json
+
+---
+
+# 🚀 BENEFÍCIOS DA SOLUÇÃO
+
+* Controle completo do desenvolvimento têxtil
+* Rastreabilidade entre PDM e ERP
+* Gestão de variações de acabamento
+* Controle de engenharia de produto
+* Integração com produção
+* Escalabilidade industrial
+
+---
+
+# 💡 CONCLUSÃO
+
+👉 Estamos criando uma estrutura completa de engenharia têxtil integrada ao ERP.
+
+Com isso, o sistema passa a controlar:
+
+* Desenvolvimento do tecido
+* Engenharia do produto
+* Processos industriais
+* Produtos acabados
+* Integração com ERP
+* Histórico de validações
+
+---
+````
