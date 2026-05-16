@@ -1,0 +1,129 @@
+import { NextRequest, NextResponse } from "next/server"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
+import { db } from "@/lib/db"
+import {
+  produtosCru,
+  produtoCruComposicao,
+  produtoCruEstrutura,
+  produtoCruAmostra,
+  produtoCruAcabamento,
+  produtoCruAcabamentoAmostra,
+  produtoCruAcabamentoReceita,
+} from "@/lib/db/schema/produto-cru"
+import { eq, and } from "drizzle-orm"
+
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
+
+    const id = parseInt((await params).id)
+    const produto = await db.select().from(produtosCru).where(eq(produtosCru.id, id)).limit(1)
+
+    if (!produto[0]) {
+      return NextResponse.json({ error: "Produto não encontrado" }, { status: 404 })
+    }
+
+    const composicao = await db.select().from(produtoCruComposicao).where(eq(produtoCruComposicao.produtoCruId, id))
+    const estrutura = await db.select().from(produtoCruEstrutura).where(eq(produtoCruEstrutura.produtoCruId, id))
+    const amostras = await db.select().from(produtoCruAmostra).where(eq(produtoCruAmostra.produtoCruId, id))
+    const acabamentos = await db.select().from(produtoCruAcabamento).where(eq(produtoCruAcabamento.produtoCruId, id))
+
+    const acabamentosCompletos = await Promise.all(
+      acabamentos.map(async (acab) => {
+        const amostrasAcab = await db
+          .select()
+          .from(produtoCruAcabamentoAmostra)
+          .where(eq(produtoCruAcabamentoAmostra.acabamentoId, acab.id))
+        const receitas = await db
+          .select()
+          .from(produtoCruAcabamentoReceita)
+          .where(eq(produtoCruAcabamentoReceita.acabamentoId, acab.id))
+        return { ...acab, amostras: amostrasAcab, receitas }
+      })
+    )
+
+    return NextResponse.json({
+      ...produto[0],
+      composicao,
+      estrutura,
+      amostras,
+      acabamentos: acabamentosCompletos,
+    })
+  } catch (error) {
+    console.error("[GET /api/cadastros/produto-cru/[id]]", error)
+    return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
+  }
+}
+
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
+
+    const id = parseInt((await params).id)
+    const body = await req.json()
+
+    if (body.idIntegracao) {
+      const existente = await db
+        .select()
+        .from(produtosCru)
+        .where(eq(produtosCru.idIntegracao, body.idIntegracao))
+        .limit(1)
+
+      if (existente[0] && existente[0].id !== id) {
+        return NextResponse.json({ error: "ID Integração já cadastrado em outro produto" }, { status: 409 })
+      }
+    }
+
+    const atualizado = await db
+      .update(produtosCru)
+      .set({
+        codigoPdm: body.codigoPdm,
+        descricao: body.descricao,
+        solicitacaoDesenvolvimentoId: body.solicitacaoDesenvolvimentoId || null,
+        status: body.status || "DESENVOLVIMENTO",
+        fichaTecnica: body.fichaTecnica || null,
+        ativo: body.ativo ?? true,
+        idIntegracaoErpCru: body.idIntegracaoErpCru || null,
+        idIntegracao: body.idIntegracao || null,
+        updatedAt: new Date(),
+      })
+      .where(eq(produtosCru.id, id))
+      .returning()
+
+    if (!atualizado[0]) {
+      return NextResponse.json({ error: "Produto não encontrado" }, { status: 404 })
+    }
+
+    return NextResponse.json(atualizado[0])
+  } catch (error) {
+    console.error("[PUT /api/cadastros/produto-cru/[id]]", error)
+    return NextResponse.json({ error: "Erro ao atualizar produto" }, { status: 500 })
+  }
+}
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
+
+    const id = parseInt((await params).id)
+    await db.delete(produtosCru).where(eq(produtosCru.id, id))
+
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error("[DELETE /api/cadastros/produto-cru/[id]]", error)
+    return NextResponse.json({ error: "Erro ao excluir produto" }, { status: 500 })
+  }
+}
