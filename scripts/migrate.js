@@ -144,6 +144,7 @@ async function migrate() {
         produto_cru_id integer NOT NULL REFERENCES produtos_cru(id) ON DELETE CASCADE,
         descricao varchar(500),
         status varchar(30) DEFAULT 'PENDENTE',
+        motivo_aprovacao text,
         observacoes text,
         data timestamp DEFAULT now(),
         created_at timestamp DEFAULT now()
@@ -169,6 +170,7 @@ async function migrate() {
         acabamento_id integer NOT NULL REFERENCES produto_cru_acabamento(id) ON DELETE CASCADE,
         descricao varchar(500),
         status varchar(30) DEFAULT 'PENDENTE',
+        motivo_aprovacao text,
         observacoes text,
         data timestamp DEFAULT now(),
         created_at timestamp DEFAULT now()
@@ -185,6 +187,11 @@ async function migrate() {
       )
     `
     console.log("✓ Tabela produto_cru_acabamento_receita criada")
+    
+    await sql`ALTER TABLE produto_cru_amostra ADD COLUMN IF NOT EXISTS motivo_aprovacao TEXT`
+    console.log("✓ Coluna motivo_aprovacao em produto_cru_amostra")
+    await sql`ALTER TABLE produto_cru_acabamento_amostra ADD COLUMN IF NOT EXISTS motivo_aprovacao TEXT`
+    console.log("✓ Coluna motivo_aprovacao em produto_cru_acabamento_amostra")
     
     console.log("\n✅ Migration concluída com sucesso!")
     

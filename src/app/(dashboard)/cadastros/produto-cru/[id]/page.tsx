@@ -48,6 +48,7 @@ interface Amostra {
   id: number
   descricao?: string
   status: string
+  motivoAprovacao?: string
   observacoes?: string
   data: string
 }
@@ -66,6 +67,7 @@ interface AcabamentoAmostra {
   id: number
   descricao?: string
   status: string
+  motivoAprovacao?: string
   observacoes?: string
   data: string
 }
@@ -138,6 +140,13 @@ export default function ProdutoCruFormPage() {
 
   const [novaAmostraAcabDescricao, setNovaAmostraAcabDescricao] = useState("")
   const [novoReceitaTipo, setNovoReceitaTipo] = useState("TINGIMENTO")
+
+  const [motivoModal, setMotivoModal] = useState<{
+    open: boolean
+    target: { type: "amostra" | "acabamento"; id: number; acabamentoId?: number }
+    novoStatus: string
+  }>({ open: false, target: null as any, novoStatus: "" })
+  const [motivoText, setMotivoText] = useState("")
 
   useEffect(() => {
     fetch("/api/cadastros/fios")
@@ -331,14 +340,30 @@ export default function ProdutoCruFormPage() {
 
   const updateStatusAmostra = async (aid: number, status: string) => {
     if (!id) return
+
+    if (status === "APROVADO" || status === "REPROVADO") {
+      setMotivoText("")
+      setMotivoModal({ open: true, target: { type: "amostra", id: aid }, novoStatus: status })
+      return
+    }
+
+    await confirmUpdateStatusAmostra(aid, status)
+  }
+
+  const confirmUpdateStatusAmostra = async (aid: number, status: string, motivo?: string) => {
+    if (!id) return
     try {
       const res = await fetch(`/api/cadastros/produto-cru/${id}/amostras/${aid}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
+        body: JSON.stringify({ status, motivoAprovacao: motivo }),
       })
-      if (!res.ok) throw new Error()
-      setAmostras(amostras.map(a => a.id === aid ? { ...a, status } : a))
+      if (!res.ok) {
+        const err = await res.json()
+        toast.error(err.error || "Erro ao atualizar status")
+        return
+      }
+      setAmostras(amostras.map(a => a.id === aid ? { ...a, status, motivoAprovacao: motivo } : a))
       toast.success("Status atualizado")
     } catch {
       toast.error("Erro ao atualizar status")
@@ -413,18 +438,35 @@ export default function ProdutoCruFormPage() {
 
   const updateStatusAmostraAcabamento = async (acabamentoId: number, asid: number, status: string) => {
     if (!id) return
+
+    if (status === "APROVADO" || status === "REPROVADO") {
+      setMotivoText("")
+      setMotivoModal({ open: true, target: { type: "acabamento", id: asid, acabamentoId }, novoStatus: status })
+      return
+    }
+
+    await confirmUpdateStatusAmostraAcabamento(acabamentoId, asid, status)
+  }
+
+  const confirmUpdateStatusAmostraAcabamento = async (acabamentoId: number, asid: number, status: string, motivo?: string) => {
+    if (!id) return
     try {
       const res = await fetch(`/api/cadastros/produto-cru/${id}/acabamentos/${acabamentoId}/amostras/${asid}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
+        body: JSON.stringify({ status, motivoAprovacao: motivo }),
       })
-      if (!res.ok) throw new Error()
+      if (!res.ok) {
+        const err = await res.json()
+        toast.error(err.error || "Erro ao atualizar status")
+        return
+      }
       setAcabamentos(acabamentos.map(a =>
         a.id === acabamentoId
-          ? { ...a, amostras: a.amostras.map(as => as.id === asid ? { ...as, status } : as) }
+          ? { ...a, amostras: a.amostras.map(as => as.id === asid ? { ...as, status, motivoAprovacao: motivo } : as) }
           : a
       ))
+      toast.success("Status atualizado")
     } catch {
       toast.error("Erro ao atualizar status")
     }
@@ -696,27 +738,32 @@ export default function ProdutoCruFormPage() {
 
             {amostras.length > 0 && (
               <div className="space-y-2">
-                {amostras.map(a => (
-                  <div key={a.id} className="flex items-center justify-between p-3 bg-slate-100 dark:bg-slate-800 rounded-lg">
-                    <div>
-                      <p className="font-medium">{a.descricao || "Sem descrição"}</p>
-                      <p className="text-sm text-slate-500">
-                        <select
-                          value={a.status}
-                          onChange={e => updateStatusAmostra(a.id, e.target.value)}
-                          className={`text-xs rounded-full px-2 py-0.5 border-0 font-medium mr-2 cursor-pointer ${
-                            a.status === "APROVADO" ? "bg-green-100 text-green-700" :
-                            a.status === "REPROVADO" ? "bg-red-100 text-red-700" :
-                            "bg-yellow-100 text-yellow-700"
-                          }`}
-                        >
-                          {STATUS_AMOSTRA.map(s => (
-                            <option key={s} value={s} className="bg-white text-slate-900">{s}</option>
-                          ))}
-                        </select>
-                        {a.observacoes}
-                      </p>
-                    </div>
+                  {amostras.map(a => (
+                    <div key={a.id} className="flex items-center justify-between p-3 bg-slate-100 dark:bg-slate-800 rounded-lg">
+                      <div>
+                        <p className="font-medium">{a.descricao || "Sem descrição"}</p>
+                        <p className="text-sm text-slate-500">
+                          <select
+                            value={a.status}
+                            onChange={e => updateStatusAmostra(a.id, e.target.value)}
+                            className={`text-xs rounded-full px-2 py-0.5 border-0 font-medium mr-2 cursor-pointer ${
+                              a.status === "APROVADO" ? "bg-green-100 text-green-700" :
+                              a.status === "REPROVADO" ? "bg-red-100 text-red-700" :
+                              "bg-yellow-100 text-yellow-700"
+                            }`}
+                          >
+                            {STATUS_AMOSTRA.map(s => (
+                              <option key={s} value={s} className="bg-white text-slate-900">{s}</option>
+                            ))}
+                          </select>
+                          {a.motivoAprovacao && (
+                            <span className="text-xs text-slate-400 italic ml-1">Motivo: {a.motivoAprovacao}</span>
+                          )}
+                          {a.observacoes && !a.motivoAprovacao && (
+                            <span className="text-xs text-slate-400 ml-1">{a.observacoes}</span>
+                          )}
+                        </p>
+                      </div>
                     <Button variant="ghost" size="icon" onClick={() => removeAmostra(a.id)}>
                       <Trash2 size={16} />
                     </Button>
@@ -775,7 +822,12 @@ export default function ProdutoCruFormPage() {
                           </div>
                           {acab.amostras.map(as => (
                             <div key={as.id} className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-800/50 rounded mb-1">
-                              <span className="text-sm">{as.descricao || "Sem descrição"}</span>
+                              <div className="flex-1 min-w-0">
+                                <span className="text-sm">{as.descricao || "Sem descrição"}</span>
+                                {as.motivoAprovacao && (
+                                  <p className="text-xs text-slate-400 italic truncate">Motivo: {as.motivoAprovacao}</p>
+                                )}
+                              </div>
                               <div className="flex items-center gap-2">
                                 <select
                                   value={as.status}
@@ -856,6 +908,51 @@ export default function ProdutoCruFormPage() {
                 <Input value={novoAcabamentoErp} onChange={e => setNovoAcabamentoErp(e.target.value)} placeholder="2.K1820.TIN.000001" />
               </div>
               <Button onClick={addAcabamento} size="sm"><Plus size={16} /> Acabamento</Button>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {motivoModal.open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-xl p-6 w-full max-w-md mx-4 space-y-4">
+            <h3 className="text-lg font-semibold">
+              {motivoModal.novoStatus === "APROVADO" ? "Aprovar" : "Reprovar"} Amostra
+            </h3>
+            <p className="text-sm text-slate-500">
+              {motivoModal.novoStatus === "APROVADO"
+                ? "Informe o motivo da aprovação"
+                : "Informe o motivo da reprovação"}
+            </p>
+            <textarea
+              value={motivoText}
+              onChange={e => setMotivoText(e.target.value)}
+              className="w-full p-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 min-h-[100px] resize-y"
+              placeholder="Motivo / Observação *"
+              autoFocus
+            />
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setMotivoModal({ ...motivoModal, open: false })}
+              >
+                Cancelar
+              </Button>
+              <Button
+                disabled={!motivoText.trim()}
+                onClick={async () => {
+                  const { target, novoStatus } = motivoModal
+                  if (target.type === "amostra") {
+                    await confirmUpdateStatusAmostra(target.id, novoStatus, motivoText.trim())
+                  } else {
+                    await confirmUpdateStatusAmostraAcabamento(target.acabamentoId!, target.id, novoStatus, motivoText.trim())
+                  }
+                  setMotivoModal({ ...motivoModal, open: false })
+                }}
+                className={motivoModal.novoStatus === "APROVADO" ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"}
+              >
+                {motivoModal.novoStatus === "APROVADO" ? "Aprovar" : "Reprovar"}
+              </Button>
             </div>
           </div>
         </div>
