@@ -9,6 +9,12 @@ import { toast } from "sonner"
 import { Plus, Pencil, Trash2, Loader2, Search } from "lucide-react"
 import Link from "next/link"
 
+interface Role {
+  id: number
+  name: string
+  label: string
+}
+
 interface Usuario {
   id: number
   email: string
@@ -19,11 +25,10 @@ interface Usuario {
   createdAt: string
 }
 
-const ROLES = ["COMERCIAL", "TECELAGEM", "BENEFICIAMENTO", "PCP", "ADMIN"]
-
 export default function UsuariosPage() {
   const router = useRouter()
   const [usuarios, setUsuarios] = useState<Usuario[]>([])
+  const [roles, setRoles] = useState<Role[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
 
@@ -36,12 +41,14 @@ export default function UsuariosPage() {
 
   const fetchUsuarios = async () => {
     try {
-      const res = await fetch("/api/admin/usuarios")
-      if (!res.ok) throw new Error()
-      const data = await res.json()
-      setUsuarios(data)
+      const [usuariosRes, rolesRes] = await Promise.all([
+        fetch("/api/admin/usuarios"),
+        fetch("/api/admin/roles"),
+      ])
+      if (usuariosRes.ok) setUsuarios(await usuariosRes.json())
+      if (rolesRes.ok) setRoles(await rolesRes.json())
     } catch {
-      toast.error("Erro ao carregar usuários")
+      toast.error("Erro ao carregar dados")
     } finally {
       setLoading(false)
     }
@@ -133,7 +140,7 @@ export default function UsuariosPage() {
               <Label>Perfil</Label>
               <select value={novoRole} onChange={e => setNovoRole(e.target.value)}
                 className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600">
-                {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
+                {roles.filter(r => r.ativo).map(r => <option key={r.name} value={r.name}>{r.label}</option>)}
               </select>
             </div>
           </div>
@@ -181,7 +188,7 @@ export default function UsuariosPage() {
                   <td className="p-3 text-sm text-slate-600 dark:text-slate-400">{u.email}</td>
                   <td className="p-3">
                     <span className="inline-block rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 px-2 py-0.5 text-xs font-medium">
-                      {u.role}
+                      {roles.find(r => r.name === u.role)?.label || u.role}
                     </span>
                   </td>
                   <td className="p-3">
