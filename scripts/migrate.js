@@ -97,6 +97,95 @@ async function migrate() {
     `
     console.log("✓ Tabela operacoes criada")
     
+    // Produtos Cru
+    await sql`
+      CREATE TABLE IF NOT EXISTS produtos_cru (
+        id serial PRIMARY KEY,
+        codigo_pdm varchar(30) NOT NULL UNIQUE,
+        descricao varchar(500) NOT NULL,
+        solicitacao_desenvolvimento_id integer REFERENCES solicitacoes(id),
+        status varchar(30) NOT NULL DEFAULT 'DESENVOLVIMENTO',
+        ficha_tecnica jsonb,
+        ativo boolean DEFAULT true,
+        id_integracao_erp_cru varchar(100),
+        id_integracao varchar(100),
+        criado_por integer REFERENCES usuarios(id),
+        created_at timestamp DEFAULT now(),
+        updated_at timestamp DEFAULT now()
+      )
+    `
+    console.log("✓ Tabela produtos_cru criada")
+    
+    await sql`
+      CREATE TABLE IF NOT EXISTS produto_cru_composicao (
+        id serial PRIMARY KEY,
+        produto_cru_id integer NOT NULL REFERENCES produtos_cru(id) ON DELETE CASCADE,
+        material varchar(200) NOT NULL,
+        percentual numeric(5,2) NOT NULL
+      )
+    `
+    console.log("✓ Tabela produto_cru_composicao criada")
+    
+    await sql`
+      CREATE TABLE IF NOT EXISTS produto_cru_estrutura (
+        id serial PRIMARY KEY,
+        produto_cru_id integer NOT NULL REFERENCES produtos_cru(id) ON DELETE CASCADE,
+        tipo varchar(20) NOT NULL,
+        fio_id integer REFERENCES fios(id),
+        base_urdume_id integer REFERENCES bases_urdume(id),
+        ordem integer
+      )
+    `
+    console.log("✓ Tabela produto_cru_estrutura criada")
+    
+    await sql`
+      CREATE TABLE IF NOT EXISTS produto_cru_amostra (
+        id serial PRIMARY KEY,
+        produto_cru_id integer NOT NULL REFERENCES produtos_cru(id) ON DELETE CASCADE,
+        descricao varchar(500),
+        status varchar(30) DEFAULT 'PENDENTE',
+        observacoes text,
+        data timestamp DEFAULT now(),
+        created_at timestamp DEFAULT now()
+      )
+    `
+    console.log("✓ Tabela produto_cru_amostra criada")
+    
+    await sql`
+      CREATE TABLE IF NOT EXISTS produto_cru_acabamento (
+        id serial PRIMARY KEY,
+        produto_cru_id integer NOT NULL REFERENCES produtos_cru(id) ON DELETE CASCADE,
+        tipo_acabamento varchar(50) NOT NULL,
+        descricao varchar(500),
+        id_integracao_erp_acabado varchar(100),
+        possui_receita boolean DEFAULT false
+      )
+    `
+    console.log("✓ Tabela produto_cru_acabamento criada")
+    
+    await sql`
+      CREATE TABLE IF NOT EXISTS produto_cru_acabamento_amostra (
+        id serial PRIMARY KEY,
+        acabamento_id integer NOT NULL REFERENCES produto_cru_acabamento(id) ON DELETE CASCADE,
+        descricao varchar(500),
+        status varchar(30) DEFAULT 'PENDENTE',
+        observacoes text,
+        data timestamp DEFAULT now(),
+        created_at timestamp DEFAULT now()
+      )
+    `
+    console.log("✓ Tabela produto_cru_acabamento_amostra criada")
+    
+    await sql`
+      CREATE TABLE IF NOT EXISTS produto_cru_acabamento_receita (
+        id serial PRIMARY KEY,
+        acabamento_id integer NOT NULL REFERENCES produto_cru_acabamento(id) ON DELETE CASCADE,
+        tipo_receita varchar(50) NOT NULL,
+        parametros jsonb DEFAULT '{}'::jsonb
+      )
+    `
+    console.log("✓ Tabela produto_cru_acabamento_receita criada")
+    
     console.log("\n✅ Migration concluída com sucesso!")
     
   } catch (error) {
