@@ -13,6 +13,7 @@ interface Role {
   id: number
   name: string
   label: string
+  ativo: boolean
 }
 
 interface Usuario {
