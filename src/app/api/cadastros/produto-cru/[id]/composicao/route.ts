@@ -39,7 +39,7 @@ export async function POST(
       .values({
         produtoCruId: id,
         material: body.material,
-        percentual,
+        percentual: body.percentual,
       })
       .returning()
 
