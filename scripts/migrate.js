@@ -223,6 +223,34 @@ async function migrate() {
     `
     console.log("✓ Tabela notificacoes criada")
     
+    await sql`
+      CREATE TABLE IF NOT EXISTS roles (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(50) NOT NULL UNIQUE,
+        label VARCHAR(100) NOT NULL,
+        description TEXT,
+        permissions JSONB DEFAULT '{}'::jsonb,
+        ativo BOOLEAN DEFAULT true,
+        created_at TIMESTAMP DEFAULT now(),
+        updated_at TIMESTAMP DEFAULT now()
+      )
+    `
+    console.log("✓ Tabela roles criada")
+    
+    const existingRoles = await sql`SELECT count(*) FROM roles`
+    if (existingRoles[0].count === "0") {
+      await sql`INSERT INTO roles (name, label, description, permissions) VALUES
+        ('COMERCIAL', 'Comercial', 'Acesso ao módulo comercial e solicitações', '{"solicitacoes":"criar","clientes":"visualizar"}'::jsonb),
+        ('QUALIDADE', 'Qualidade', 'Aprovação e controle de qualidade', '{"amostras":"aprovar"}'::jsonb),
+        ('TECELAGEM', 'Tecelagem', 'Acesso ao módulo de tecelagem', '{"produtos":"gerenciar"}'::jsonb),
+        ('BENEFICIAMENTO', 'Beneficiamento', 'Acesso ao módulo de beneficiamento', '{"produtos":"gerenciar","receitas":"gerenciar"}'::jsonb),
+        ('PCP', 'PCP', 'Planejamento e controle de produção', '{"producao":"gerenciar"}'::jsonb),
+        ('DESENVOLVIMENTO', 'Desenvolvimento', 'Desenvolvimento de novos produtos', '{"produtos":"criar"}'::jsonb),
+        ('ADMIN', 'Administrador', 'Acesso total ao sistema', '{"admin":"tudo"}'::jsonb)
+      `
+      console.log("✓ Roles padrão inseridas")
+    }
+
     console.log("\n✅ Migration concluída com sucesso!")
     
   } catch (error) {

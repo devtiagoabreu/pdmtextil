@@ -9,7 +9,12 @@ import { toast } from "sonner"
 import { ArrowLeft, Loader2 } from "lucide-react"
 import Link from "next/link"
 
-const ROLES = ["COMERCIAL", "TECELAGEM", "BENEFICIAMENTO", "PCP", "ADMIN"]
+interface Role {
+  id: number
+  name: string
+  label: string
+  ativo: boolean
+}
 
 export default function EditarUsuarioPage() {
   const params = useParams()
@@ -23,17 +28,21 @@ export default function EditarUsuarioPage() {
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [roles, setRoles] = useState<Role[]>([])
 
   useEffect(() => {
-    fetch(`/api/admin/usuarios/${id}`)
-      .then(res => res.json())
-      .then(data => {
-        setName(data.name || "")
-        setEmail(data.email || "")
-        setRole(data.role || "COMERCIAL")
-        setAtivo(data.ativo ?? true)
+    Promise.all([
+      fetch(`/api/admin/usuarios/${id}`).then(r => r.json()),
+      fetch("/api/admin/roles").then(r => r.json()),
+    ])
+      .then(([userData, rolesData]) => {
+        setName(userData.name || "")
+        setEmail(userData.email || "")
+        setRole(userData.role || "COMERCIAL")
+        setAtivo(userData.ativo ?? true)
+        setRoles(Array.isArray(rolesData) ? rolesData : [])
       })
-      .catch(() => toast.error("Erro ao carregar usuário"))
+      .catch(() => toast.error("Erro ao carregar dados"))
       .finally(() => setLoading(false))
   }, [id])
 
@@ -91,7 +100,7 @@ export default function EditarUsuarioPage() {
           <Label>Perfil (Role)</Label>
           <select value={role} onChange={e => setRole(e.target.value)}
             className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600">
-            {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
+            {roles.filter(r => r.ativo).map(r => <option key={r.name} value={r.name}>{r.label}</option>)}
           </select>
         </div>
         <div className="flex items-center gap-2">
