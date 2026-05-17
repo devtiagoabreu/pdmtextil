@@ -329,6 +329,22 @@ export default function ProdutoCruFormPage() {
     }
   }
 
+  const updateStatusAmostra = async (aid: number, status: string) => {
+    if (!id) return
+    try {
+      const res = await fetch(`/api/cadastros/produto-cru/${id}/amostras/${aid}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      })
+      if (!res.ok) throw new Error()
+      setAmostras(amostras.map(a => a.id === aid ? { ...a, status } : a))
+      toast.success("Status atualizado")
+    } catch {
+      toast.error("Erro ao atualizar status")
+    }
+  }
+
   const addAcabamento = async () => {
     if (!id) { toast.error("Salve o produto primeiro"); return }
     try {
@@ -392,6 +408,25 @@ export default function ProdutoCruFormPage() {
       ))
     } catch {
       toast.error("Erro ao remover amostra")
+    }
+  }
+
+  const updateStatusAmostraAcabamento = async (acabamentoId: number, asid: number, status: string) => {
+    if (!id) return
+    try {
+      const res = await fetch(`/api/cadastros/produto-cru/${id}/acabamentos/${acabamentoId}/amostras/${asid}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      })
+      if (!res.ok) throw new Error()
+      setAcabamentos(acabamentos.map(a =>
+        a.id === acabamentoId
+          ? { ...a, amostras: a.amostras.map(as => as.id === asid ? { ...as, status } : as) }
+          : a
+      ))
+    } catch {
+      toast.error("Erro ao atualizar status")
     }
   }
 
@@ -666,11 +701,19 @@ export default function ProdutoCruFormPage() {
                     <div>
                       <p className="font-medium">{a.descricao || "Sem descrição"}</p>
                       <p className="text-sm text-slate-500">
-                        <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium mr-2 ${
-                          a.status === "APROVADO" ? "bg-green-100 text-green-700" :
-                          a.status === "REPROVADO" ? "bg-red-100 text-red-700" :
-                          "bg-yellow-100 text-yellow-700"
-                        }`}>{a.status}</span>
+                        <select
+                          value={a.status}
+                          onChange={e => updateStatusAmostra(a.id, e.target.value)}
+                          className={`text-xs rounded-full px-2 py-0.5 border-0 font-medium mr-2 cursor-pointer ${
+                            a.status === "APROVADO" ? "bg-green-100 text-green-700" :
+                            a.status === "REPROVADO" ? "bg-red-100 text-red-700" :
+                            "bg-yellow-100 text-yellow-700"
+                          }`}
+                        >
+                          {STATUS_AMOSTRA.map(s => (
+                            <option key={s} value={s} className="bg-white text-slate-900">{s}</option>
+                          ))}
+                        </select>
                         {a.observacoes}
                       </p>
                     </div>
@@ -734,11 +777,19 @@ export default function ProdutoCruFormPage() {
                             <div key={as.id} className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-800/50 rounded mb-1">
                               <span className="text-sm">{as.descricao || "Sem descrição"}</span>
                               <div className="flex items-center gap-2">
-                                <span className={`text-xs rounded-full px-2 py-0.5 ${
-                                  as.status === "APROVADO" ? "bg-green-100 text-green-700" :
-                                  as.status === "REPROVADO" ? "bg-red-100 text-red-700" :
-                                  "bg-yellow-100 text-yellow-700"
-                                }`}>{as.status}</span>
+                                <select
+                                  value={as.status}
+                                  onChange={e => updateStatusAmostraAcabamento(acab.id, as.id, e.target.value)}
+                                  className={`text-xs rounded-full px-2 py-0.5 border-0 font-medium cursor-pointer ${
+                                    as.status === "APROVADO" ? "bg-green-100 text-green-700" :
+                                    as.status === "REPROVADO" ? "bg-red-100 text-red-700" :
+                                    "bg-yellow-100 text-yellow-700"
+                                  }`}
+                                >
+                                  {STATUS_AMOSTRA.map(s => (
+                                    <option key={s} value={s} className="bg-white text-slate-900">{s}</option>
+                                  ))}
+                                </select>
                                 <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeAmostraAcabamento(acab.id, as.id)}>
                                   <Trash2 size={12} />
                                 </Button>
