@@ -25,6 +25,7 @@ export default function RolesPage() {
   const [label, setLabel] = useState("")
   const [description, setDescription] = useState("")
   const [saving, setSaving] = useState(false)
+  const [editAtivo, setEditAtivo] = useState(true)
 
   const fetchRoles = async () => {
     try {
@@ -43,22 +44,34 @@ export default function RolesPage() {
     setName("")
     setLabel("")
     setDescription("")
+    setEditAtivo(true)
+  }
+
+  const handleEdit = (r: Role) => {
+    setEditId(r.id)
+    setName(r.name)
+    setLabel(r.label)
+    setDescription(r.description || "")
+    setEditAtivo(r.ativo)
+    setShowForm(true)
   }
 
   const handleSave = async () => {
     if (!name || !label) { toast.error("Nome e label são obrigatórios"); return }
     setSaving(true)
     try {
-      const res = await fetch("/api/admin/roles", {
-        method: "POST",
+      const url = editId ? `/api/admin/roles/${editId}` : "/api/admin/roles"
+      const method = editId ? "PUT" : "POST"
+      const res = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, label, description }),
+        body: JSON.stringify({ name, label, description, ativo: editAtivo }),
       })
       if (!res.ok) {
         const err = await res.json()
         throw new Error(err.error || "Erro")
       }
-      toast.success("Role criada!")
+      toast.success(editId ? "Role atualizada!" : "Role criada!")
       resetForm()
       fetchRoles()
     } catch (err: any) {
@@ -86,8 +99,8 @@ export default function RolesPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Nome (código) *</Label>
-              <Input value={name} onChange={e => setName(e.target.value)} placeholder="EX: SUPERVISOR" />
-              <p className="text-xs text-slate-400">Será convertido para maiúsculas. Use para referência no sistema.</p>
+              <Input value={name} onChange={e => setName(e.target.value)} placeholder="EX: SUPERVISOR" disabled={!!editId} />
+              <p className="text-xs text-slate-400">Será convertido para maiúsculas. Não pode ser alterado após criar.</p>
             </div>
             <div className="space-y-2">
               <Label>Label (exibição) *</Label>
@@ -96,6 +109,10 @@ export default function RolesPage() {
             <div className="space-y-2 md:col-span-2">
               <Label>Descrição</Label>
               <Input value={description} onChange={e => setDescription(e.target.value)} placeholder="O que este perfil pode fazer?" />
+            </div>
+            <div className="flex items-center gap-2">
+              <input type="checkbox" id="editAtivo" checked={editAtivo} onChange={e => setEditAtivo(e.target.checked)} className="w-4 h-4" />
+              <Label htmlFor="editAtivo">Role Ativa</Label>
             </div>
           </div>
           <div className="flex gap-2">
@@ -119,6 +136,7 @@ export default function RolesPage() {
                 <th className="text-left p-3 text-sm font-medium text-slate-600 dark:text-slate-400">Label</th>
                 <th className="text-left p-3 text-sm font-medium text-slate-600 dark:text-slate-400">Descrição</th>
                 <th className="text-left p-3 text-sm font-medium text-slate-600 dark:text-slate-400">Status</th>
+                <th className="text-right p-3 text-sm font-medium text-slate-600 dark:text-slate-400">Ações</th>
               </tr>
             </thead>
             <tbody className="divide-y dark:divide-slate-800">
@@ -133,6 +151,11 @@ export default function RolesPage() {
                     }`}>
                       {r.ativo ? "Ativo" : "Inativo"}
                     </span>
+                  </td>
+                  <td className="p-3 text-right">
+                    <Button variant="ghost" size="sm" onClick={() => handleEdit(r)} className="gap-1">
+                      <Pencil size={14} /> Editar
+                    </Button>
                   </td>
                 </tr>
               ))}
