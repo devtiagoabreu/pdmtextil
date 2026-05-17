@@ -5,6 +5,39 @@ import { db } from "@/lib/db"
 import { produtoCruAcabamentoAmostra } from "@/lib/db/schema/produto-cru"
 import { eq, and } from "drizzle-orm"
 
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string; aid: string; asid: string }> }
+) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
+
+    const { aid, asid } = await params
+    const body = await req.json()
+
+    const atualizado = await db
+      .update(produtoCruAcabamentoAmostra)
+      .set({
+        descricao: body.descricao,
+        status: body.status,
+        observacoes: body.observacoes || null,
+      })
+      .where(
+        and(
+          eq(produtoCruAcabamentoAmostra.id, parseInt(asid)),
+          eq(produtoCruAcabamentoAmostra.acabamentoId, parseInt(aid))
+        )
+      )
+      .returning()
+
+    return NextResponse.json(atualizado[0])
+  } catch (error) {
+    console.error("[PUT /api/cadastros/produto-cru/[id]/acabamentos/[aid]/amostras/[asid]]", error)
+    return NextResponse.json({ error: "Erro ao atualizar amostra" }, { status: 500 })
+  }
+}
+
 export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string; aid: string; asid: string }> }
