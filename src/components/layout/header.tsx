@@ -1,25 +1,67 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { signOut, useSession } from "next-auth/react"
-import { Bell, Search, Menu, User, LogOut, Settings } from "lucide-react"
+import { Bell, Search, Menu, User, LogOut, Settings, CheckCheck, Loader2 } from "lucide-react"
+import Link from "next/link"
 import { ThemeToggle } from "./theme-toggle"
 
 interface HeaderProps {
   onMenuClick?: () => void
 }
 
-const notifications = [
-  { id: 1, title: "Nova solicitação #125", time: "5 min atrás", read: false },
-  { id: 2, title: "Solicitação #124 aprovada", time: "1 hora atrás", read: false },
-]
+interface Notificacao {
+  id: number
+  tipo: string
+  mensagem: string
+  link?: string
+  lida: boolean
+  createdAt: string
+}
 
 export function Header({ onMenuClick }: HeaderProps) {
   const { data: session } = useSession()
   const [showNotifications, setShowNotifications] = useState(false)
   const [showUserMenu, setShowUserMenu] = useState(false)
+  const [notificacoes, setNotificacoes] = useState<Notificacao[]>([])
+  const [loadingNotif, setLoadingNotif] = useState(false)
 
-  const unreadCount = notifications.filter((n) => !n.read).length
+  const fetchNotificacoes = useCallback(async () => {
+    setLoadingNotif(true)
+    try {
+      const res = await fetch("/api/notificacoes?naoLidas=true&limit=10")
+      if (res.ok) setNotificacoes(await res.json())
+    } catch {} finally {
+      setLoadingNotif(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchNotificacoes()
+    const interval = setInterval(fetchNotificacoes, 30000)
+    return () => clearInterval(interval)
+  }, [fetchNotificacoes])
+
+  const marcarLidas = async () => {
+    await fetch("/api/notificacoes", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ marcarTodas: true }),
+    })
+    setNotificacoes([])
+  }
+
+  const unreadCount = notificacoes.length
+
+  const formatTime = (dateStr: string) => {
+    const diff = Date.now() - new Date(dateStr).getTime()
+    const mins = Math.floor(diff / 60000)
+    if (mins < 1) return "agora"
+    if (mins < 60) return `${mins} min atrás`
+    const hours = Math.floor(mins / 60)
+    if (hours < 24) return `${hours}h atrás`
+    return new Date(dateStr).toLocaleDateString("pt-BR")
+  }
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:border-slate-800 dark:bg-slate-950/95 px-4 md:px-6">
@@ -50,12 +92,14 @@ export function Header({ onMenuClick }: HeaderProps) {
         {/* Notifications */}
         <div className="relative">
           <button
-            onClick={() => { setShowNotifications(!showNotifications); setShowUserMenu(false) }}
+            onClick={() => { setShowNotifications(!showNotifications); setShowUserMenu(false); if (!showNotifications) fetchNotificacoes() }}
             className="relative rounded-md p-2 text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition-colors"
           >
             <Bell size={20} />
             {unreadCount > 0 && (
-              <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-red-500 animate-pulse" />
+              <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white animate-pulse">
+                {unreadCount > 9 ? "9+" : unreadCount}
+              </span>
             )}
           </button>
 
@@ -63,25 +107,30 @@ export function Header({ onMenuClick }: HeaderProps) {
             <div className="absolute right-0 mt-2 w-80 rounded-xl border bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900 animate-fade-in z-50">
               <div className="border-b p-3 font-semibold text-sm dark:border-slate-700 flex items-center justify-between">
                 <span>Notificações</span>
-                {unreadCount > 0 && (
-                  <span className="text-xs bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-300 rounded-full px-2 py-0.5">
-                    {unreadCount} novas
-                  </span>
-                )}
+                <div className="flex items-center gap-2">
+                  {unreadCount > 0 && (
+                    <>
+                      <span className="text-xs bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-300 rounded-full px-2 py-0.5">
+                        {unreadCount}
+                      </span>
+                      <button onClick={marcarLidas} className="text-xs text-blue-600 hover:text-blue-700 flex items-center gap-1">
+                        <CheckCheck size={14} /> Ler tudo
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
               <div className="max-h-80 overflow-y-auto divide-y dark:divide-slate-800">
-                {notifications.map((n) => (
-                  <div
-                    key={n.id}
-                    className={`p-3 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer ${
-                      !n.read ? "bg-blue-50/60 dark:bg-blue-950/30" : ""
-                    }`}
-                  >
-                    {!n.read && (
-                      <span className="inline-block w-2 h-2 rounded-full bg-blue-500 mr-2 mb-0.5" />
-                    )}
-                    <p className="text-sm font-medium text-slate-800 dark:text-slate-200">{n.title}</p>
-                    <p className="text-xs text-slate-500 mt-0.5">{n.time}</p>
+                {loadingNotif && notificacoes.length === 0 && (
+                  <div className="p-6 text-center"><Loader2 size={20} className="animate-spin mx-auto text-slate-400" /></div>
+                )}
+                {!loadingNotif && notificacoes.length === 0 && (
+                  <div className="p-6 text-center text-sm text-slate-500">Nenhuma notificação</div>
+                )}
+                {notificacoes.map(n => (
+                  <div key={n.id} className="p-3 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                    <p className="text-sm font-medium text-slate-800 dark:text-slate-200">{n.mensagem}</p>
+                    <p className="text-xs text-slate-500 mt-0.5">{formatTime(n.createdAt)}</p>
                   </div>
                 ))}
               </div>
@@ -113,14 +162,16 @@ export function Header({ onMenuClick }: HeaderProps) {
                 </span>
               </div>
               <div className="p-2">
-                <button className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors">
+                <Link href="/perfil" className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors">
                   <User size={16} />
                   Meu Perfil
-                </button>
-                <button className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors">
-                  <Settings size={16} />
-                  Configurações
-                </button>
+                </Link>
+                {session?.user?.role === "ADMIN" && (
+                  <Link href="/admin/configuracoes" className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors">
+                    <Settings size={16} />
+                    Configurações
+                  </Link>
+                )}
                 <hr className="my-1 dark:border-slate-700" />
                 <button
                   onClick={() => signOut({ callbackUrl: "/login" })}

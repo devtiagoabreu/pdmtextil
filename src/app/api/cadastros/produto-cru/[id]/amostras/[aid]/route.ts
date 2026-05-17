@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { produtoCruAmostra } from "@/lib/db/schema/produto-cru"
 import { eq, and } from "drizzle-orm"
+import { notificar } from "@/lib/notificar"
 
 const ROLES_APROVACAO = ["COMERCIAL", "QUALIDADE", "ADMIN"]
 
@@ -15,7 +16,7 @@ export async function PUT(
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
-    const { aid } = await params
+    const { id, aid } = await params
     const body = await req.json()
 
     const role = session.user.role as string
@@ -39,6 +40,15 @@ export async function PUT(
       })
       .where(eq(produtoCruAmostra.id, parseInt(aid)))
       .returning()
+
+    if (isAprovacao && atualizado[0]) {
+      notificar(
+        body.status === "APROVADO" ? "AMOSTRA_APROVADA" : "AMOSTRA_REPROVADA",
+        `Amostra #${aid} do produto cru #${id} foi ${body.status === "APROVADO" ? "aprovada" : "reprovada"} por ${session.user.name}${body.motivoAprovacao ? ` — Motivo: ${body.motivoAprovacao}` : ""}`,
+        `/cadastros/produto-cru/${id}`,
+        session.user.name
+      )
+    }
 
     return NextResponse.json(atualizado[0])
   } catch (error) {
