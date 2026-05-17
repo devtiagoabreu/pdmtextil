@@ -16,6 +16,7 @@ import {
   BarChart3,
   X,
   Building2,
+  Send,
 } from "lucide-react"
 
 const navItems = {
@@ -46,6 +47,7 @@ const navItems = {
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { href: "/cadastros", label: "Cadastros", icon: Database },
     { href: "/admin/usuarios", label: "Usuários", icon: Users },
+    { href: "/admin/email-massa", label: "Email em Massa", icon: Send },
     { href: "/admin/configuracoes", label: "Configurações", icon: Settings },
   ],
 } as const

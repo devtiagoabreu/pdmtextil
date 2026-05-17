@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useSession } from "next-auth/react"
-import { LayoutDashboard, FileText, PlusCircle, Package, User, Factory } from "lucide-react"
+import { LayoutDashboard, FileText, PlusCircle, Package, User, Factory, Settings, Users, Send } from "lucide-react"
 
 const mobileNavItems = {
   COMERCIAL: [
@@ -22,6 +22,12 @@ const mobileNavItems = {
     { href: "/dashboard", icon: LayoutDashboard, label: "Início" },
     { href: "/beneficiamento/solicitacoes", icon: FileText, label: "Solicitações" },
     { href: "/beneficiamento/produtos", icon: Factory, label: "Produtos" },
+    { href: "/perfil", icon: User, label: "Perfil" },
+  ],
+  ADMIN: [
+    { href: "/dashboard", icon: LayoutDashboard, label: "Início" },
+    { href: "/admin/usuarios", icon: Users, label: "Usuários" },
+    { href: "/admin/configuracoes", icon: Settings, label: "Config" },
     { href: "/perfil", icon: User, label: "Perfil" },
   ],
 } as const

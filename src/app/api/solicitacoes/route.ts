@@ -6,6 +6,7 @@ import { solicitacoes } from "@/lib/db/schema/solicitacoes"
 import { anexos } from "@/lib/db/schema/anexos"
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq, desc, or, and, sql } from "drizzle-orm"
+import { notificar } from "@/lib/notificar"
 
 // GET - Listar solicitações (filtradas por perfil)
 export async function GET(req: NextRequest) {
@@ -130,6 +131,13 @@ export async function POST(req: NextRequest) {
         )
       }
     }
+
+    notificar(
+      "SOLICITACAO_CRIADA",
+      `Nova solicitação #${novaSolicitacao.id} criada por ${session.user.name} — ${solicitacaoData.cliente}${solicitacaoData.projeto ? ` (${solicitacaoData.projeto})` : ""}`,
+      `/comercial/solicitacoes/${novaSolicitacao.id}`,
+      session.user.name
+    )
 
     return NextResponse.json(novaSolicitacao, { status: 201 })
   } catch (error) {
