@@ -39,13 +39,13 @@ export async function POST(
       .values({
         produtoCruId: id,
         material: body.material,
-        percentual: body.percentual,
+        percentual,
       })
       .returning()
 
     return NextResponse.json(novo[0])
-  } catch (error) {
+  } catch (error: any) {
     console.error("[POST /api/cadastros/produto-cru/[id]/composicao]", error)
-    return NextResponse.json({ error: "Erro ao adicionar composição" }, { status: 500 })
+    return NextResponse.json({ error: "Erro ao adicionar composição", detalhe: error?.message || String(error) }, { status: 500 })
   }
 }
