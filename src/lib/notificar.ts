@@ -4,7 +4,7 @@ import { usuarios } from "./db/schema/usuarios"
 import { eq } from "drizzle-orm"
 import { sendEmail } from "./email"
 
-export async function notificar(tipo: string, mensagem: string, link?: string, usuarioNome?: string) {
+export async function notificar(tipo: string, mensagem: string, link?: string, usuarioNome?: string | null) {
   const todosUsuarios = await db.select({ id: usuarios.id, name: usuarios.name, email: usuarios.email }).from(usuarios).where(eq(usuarios.ativo, true))
 
   const notificacoesData: NewNotificacao[] = todosUsuarios.map(u => ({
