@@ -305,6 +305,13 @@ async function migrate() {
     `
     console.log("✓ Tabela produto_cru_receita_item criada")
 
+    await sql`ALTER TABLE produtos_cru ADD COLUMN IF NOT EXISTS links JSONB DEFAULT '[]'::jsonb`
+    console.log("✓ Coluna links em produtos_cru")
+    await sql`ALTER TABLE produto_cru_amostra ADD COLUMN IF NOT EXISTS links JSONB DEFAULT '[]'::jsonb`
+    console.log("✓ Coluna links em produto_cru_amostra")
+    await sql`ALTER TABLE produto_cru_acabamento_amostra ADD COLUMN IF NOT EXISTS links JSONB DEFAULT '[]'::jsonb`
+    console.log("✓ Coluna links em produto_cru_acabamento_amostra")
+
     console.log("\n✅ Migration concluída com sucesso!")
     
   } catch (error) {
