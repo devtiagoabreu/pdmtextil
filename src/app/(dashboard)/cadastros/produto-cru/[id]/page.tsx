@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 import { ReceitaDialog } from "@/components/receita/acabamento-receita-dialog"
+import { LinksEditor } from "@/components/links/LinksEditor"
 
 type FichaTecnica = {
   gramatura?: string
@@ -26,6 +27,7 @@ type ProdutoCru = {
   solicitacaoDesenvolvimentoId?: number | null
   status: string
   fichaTecnica?: FichaTecnica | null
+  links?: { url: string; descricao: string }[]
   ativo: boolean
   idIntegracaoErpCru?: string | null
   idIntegracao?: string | null
@@ -51,6 +53,7 @@ interface Amostra {
   status: string
   motivoAprovacao?: string
   observacoes?: string
+  links?: { url: string; descricao: string }[]
   data: string
 }
 
@@ -69,6 +72,7 @@ interface AcabamentoAmostra {
   status: string
   motivoAprovacao?: string
   observacoes?: string
+  links?: { url: string; descricao: string }[]
   data: string
 }
 
@@ -96,6 +100,7 @@ export default function ProdutoCruFormPage() {
     solicitacaoDesenvolvimentoId: null,
     status: "DESENVOLVIMENTO",
     fichaTecnica: null,
+    links: [],
     ativo: true,
     idIntegracaoErpCru: "",
     idIntegracao: "",
@@ -131,6 +136,9 @@ export default function ProdutoCruFormPage() {
   const [expandedAmostraForm, setExpandedAmostraForm] = useState<number | null>(null)
 
   const [novaAmostraAcabDescricao, setNovaAmostraAcabDescricao] = useState("")
+
+  const [amostraLinksAberta, setAmostraLinksAberta] = useState<number | null>(null)
+  const [acabAmostraLinksAberta, setAcabAmostraLinksAberta] = useState<string | null>(null)
 
   const [motivoModal, setMotivoModal] = useState<{
     open: boolean
@@ -169,6 +177,7 @@ export default function ProdutoCruFormPage() {
             solicitacaoDesenvolvimentoId: data.solicitacaoDesenvolvimentoId || null,
             status: data.status || "DESENVOLVIMENTO",
             fichaTecnica: data.fichaTecnica || null,
+            links: data.links || [],
             ativo: data.ativo ?? true,
             idIntegracaoErpCru: data.idIntegracaoErpCru || "",
             idIntegracao: data.idIntegracao || "",
@@ -374,6 +383,38 @@ export default function ProdutoCruFormPage() {
     }
   }
 
+  const saveAmostraLinks = async (amostraId: number, links: { url: string; descricao: string }[]) => {
+    if (!id) return
+    try {
+      const res = await fetch(`/api/cadastros/produto-cru/${id}/amostras/${amostraId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ links }),
+      })
+      if (res.ok) {
+        setAmostras(amostras.map(a => a.id === amostraId ? { ...a, links } : a))
+      }
+    } catch {}
+  }
+
+  const saveAcabAmostraLinks = async (acabamentoId: number, amostraId: number, links: { url: string; descricao: string }[]) => {
+    if (!id) return
+    try {
+      const res = await fetch(`/api/cadastros/produto-cru/${id}/acabamentos/${acabamentoId}/amostras/${amostraId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ links }),
+      })
+      if (res.ok) {
+        setAcabamentos(acabamentos.map(a =>
+          a.id === acabamentoId
+            ? { ...a, amostras: a.amostras.map(as => as.id === amostraId ? { ...as, links } : as) }
+            : a
+        ))
+      }
+    } catch {}
+  }
+
   const addAmostra = async () => {
     if (!id) { toast.error("Salve o produto primeiro"); return }
     try {
@@ -567,6 +608,13 @@ export default function ProdutoCruFormPage() {
           </div>
         </div>
 
+        <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-4 space-y-4">
+          <LinksEditor
+            links={produto.links || []}
+            onChange={links => setProduto(prev => ({ ...prev, links }))}
+          />
+        </div>
+
         <div className="flex items-center gap-2">
           <input type="checkbox" id="ativo" checked={produto.ativo} onChange={e => handleChange("ativo", e.target.checked)} className="w-4 h-4" />
           <Label htmlFor="ativo">Ativo</Label>
@@ -693,35 +741,50 @@ export default function ProdutoCruFormPage() {
             {amostras.length > 0 && (
               <div className="space-y-2">
                   {amostras.map(a => (
-                    <div key={a.id} className="flex items-center justify-between p-3 bg-slate-100 dark:bg-slate-800 rounded-lg">
-                      <div>
-                        <p className="font-medium">{a.descricao || "Sem descrição"}</p>
-                        <p className="text-sm text-slate-500">
-                          <select
-                            value={a.status}
-                            onChange={e => updateStatusAmostra(a.id, e.target.value)}
-                            className={`text-xs rounded-full px-2 py-0.5 border-0 font-medium mr-2 cursor-pointer ${
-                              a.status === "APROVADO" ? "bg-green-100 text-green-700" :
-                              a.status === "REPROVADO" ? "bg-red-100 text-red-700" :
-                              "bg-yellow-100 text-yellow-700"
-                            }`}
-                          >
-                            {STATUS_AMOSTRA.map(s => (
-                              <option key={s} value={s} className="bg-white text-slate-900">{s}</option>
-                            ))}
-                          </select>
-                          {a.motivoAprovacao && (
-                            <span className="text-xs text-slate-400 italic ml-1">Motivo: {a.motivoAprovacao}</span>
-                          )}
-                          {a.observacoes && !a.motivoAprovacao && (
-                            <span className="text-xs text-slate-400 ml-1">{a.observacoes}</span>
-                          )}
-                        </p>
+                    <div key={a.id}>
+                      <div className="flex items-center justify-between p-3 bg-slate-100 dark:bg-slate-800 rounded-lg">
+                        <div>
+                          <p className="font-medium">{a.descricao || "Sem descrição"}</p>
+                          <p className="text-sm text-slate-500">
+                            <select
+                              value={a.status}
+                              onChange={e => updateStatusAmostra(a.id, e.target.value)}
+                              className={`text-xs rounded-full px-2 py-0.5 border-0 font-medium mr-2 cursor-pointer ${
+                                a.status === "APROVADO" ? "bg-green-100 text-green-700" :
+                                a.status === "REPROVADO" ? "bg-red-100 text-red-700" :
+                                "bg-yellow-100 text-yellow-700"
+                              }`}
+                            >
+                              {STATUS_AMOSTRA.map(s => (
+                                <option key={s} value={s} className="bg-white text-slate-900">{s}</option>
+                              ))}
+                            </select>
+                            {a.motivoAprovacao && (
+                              <span className="text-xs text-slate-400 italic ml-1">Motivo: {a.motivoAprovacao}</span>
+                            )}
+                            {a.observacoes && !a.motivoAprovacao && (
+                              <span className="text-xs text-slate-400 ml-1">{a.observacoes}</span>
+                            )}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Button variant="ghost" size="sm" className="text-xs" onClick={() => setAmostraLinksAberta(amostraLinksAberta === a.id ? null : a.id)}>
+                            Links {a.links?.length ? `(${a.links.length})` : ""}
+                          </Button>
+                          <Button variant="ghost" size="icon" onClick={() => removeAmostra(a.id)}>
+                            <Trash2 size={16} />
+                          </Button>
+                        </div>
                       </div>
-                    <Button variant="ghost" size="icon" onClick={() => removeAmostra(a.id)}>
-                      <Trash2 size={16} />
-                    </Button>
-                  </div>
+                      {amostraLinksAberta === a.id && (
+                        <div className="ml-4 mt-1 p-3 bg-white dark:bg-slate-800 rounded-lg border">
+                          <LinksEditor
+                            links={a.links || []}
+                            onChange={links => saveAmostraLinks(a.id, links)}
+                          />
+                        </div>
+                      )}
+                    </div>
                 ))}
               </div>
             )}
@@ -774,34 +837,49 @@ export default function ProdutoCruFormPage() {
                               <Plus size={14} /> Amostra
                             </Button>
                           </div>
-                          {acab.amostras.map(as => (
-                            <div key={as.id} className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-800/50 rounded mb-1">
-                              <div className="flex-1 min-w-0">
-                                <span className="text-sm">{as.descricao || "Sem descrição"}</span>
-                                {as.motivoAprovacao && (
-                                  <p className="text-xs text-slate-400 italic truncate">Motivo: {as.motivoAprovacao}</p>
-                                )}
+                          {acab.amostras.map(as => {
+                            const key = `${acab.id}-${as.id}`
+                            return (
+                            <div key={as.id}>
+                              <div className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-800/50 rounded mb-1">
+                                <div className="flex-1 min-w-0">
+                                  <span className="text-sm">{as.descricao || "Sem descrição"}</span>
+                                  {as.motivoAprovacao && (
+                                    <p className="text-xs text-slate-400 italic truncate">Motivo: {as.motivoAprovacao}</p>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <Button variant="ghost" size="sm" className="text-xs h-6" onClick={() => setAcabAmostraLinksAberta(acabAmostraLinksAberta === key ? null : key)}>
+                                    Links {as.links?.length ? `(${as.links.length})` : ""}
+                                  </Button>
+                                  <select
+                                    value={as.status}
+                                    onChange={e => updateStatusAmostraAcabamento(acab.id, as.id, e.target.value)}
+                                    className={`text-xs rounded-full px-2 py-0.5 border-0 font-medium cursor-pointer ${
+                                      as.status === "APROVADO" ? "bg-green-100 text-green-700" :
+                                      as.status === "REPROVADO" ? "bg-red-100 text-red-700" :
+                                      "bg-yellow-100 text-yellow-700"
+                                    }`}
+                                  >
+                                    {STATUS_AMOSTRA.map(s => (
+                                      <option key={s} value={s} className="bg-white text-slate-900">{s}</option>
+                                    ))}
+                                  </select>
+                                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeAmostraAcabamento(acab.id, as.id)}>
+                                    <Trash2 size={12} />
+                                  </Button>
+                                </div>
                               </div>
-                              <div className="flex items-center gap-2">
-                                <select
-                                  value={as.status}
-                                  onChange={e => updateStatusAmostraAcabamento(acab.id, as.id, e.target.value)}
-                                  className={`text-xs rounded-full px-2 py-0.5 border-0 font-medium cursor-pointer ${
-                                    as.status === "APROVADO" ? "bg-green-100 text-green-700" :
-                                    as.status === "REPROVADO" ? "bg-red-100 text-red-700" :
-                                    "bg-yellow-100 text-yellow-700"
-                                  }`}
-                                >
-                                  {STATUS_AMOSTRA.map(s => (
-                                    <option key={s} value={s} className="bg-white text-slate-900">{s}</option>
-                                  ))}
-                                </select>
-                                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeAmostraAcabamento(acab.id, as.id)}>
-                                  <Trash2 size={12} />
-                                </Button>
-                              </div>
+                              {acabAmostraLinksAberta === key && (
+                                <div className="ml-4 mb-2 p-3 bg-white dark:bg-slate-800 rounded-lg border">
+                                  <LinksEditor
+                                    links={as.links || []}
+                                    onChange={links => saveAcabAmostraLinks(acab.id, as.id, links)}
+                                  />
+                                </div>
+                              )}
                             </div>
-                          ))}
+                            )})}
                           {expandedAmostraForm === acab.id && (
                             <div className="flex gap-2 mt-2">
                               <Input value={novaAmostraAcabDescricao} onChange={e => setNovaAmostraAcabDescricao(e.target.value)} placeholder="Descrição da amostra" />

@@ -37,6 +37,7 @@ export async function PUT(
         status: body.status,
         motivoAprovacao: isAprovacao ? body.motivoAprovacao : body.motivoAprovacao || null,
         observacoes: body.observacoes || null,
+        links: body.links || [],
       })
       .where(
         and(

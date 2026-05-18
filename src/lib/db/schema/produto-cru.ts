@@ -18,6 +18,7 @@ export const produtosCru = pgTable("produtos_cru", {
     ligamento?: string
     observacoes?: string
   }>(),
+  links: jsonb("links").$type<{ url: string; descricao: string }[]>().default([]),
   ativo: boolean("ativo").default(true),
   idIntegracaoErpCru: varchar("id_integracao_erp_cru", { length: 100 }),
   idIntegracao: varchar("id_integracao", { length: 100 }),
@@ -58,6 +59,7 @@ export const produtoCruAmostra = pgTable("produto_cru_amostra", {
   status: varchar("status", { length: 30 }).default("PENDENTE"),
   motivoAprovacao: text("motivo_aprovacao"),
   observacoes: text("observacoes"),
+  links: jsonb("links").$type<{ url: string; descricao: string }[]>().default([]),
   data: timestamp("data").defaultNow(),
   createdAt: timestamp("created_at").defaultNow(),
 })
@@ -84,6 +86,7 @@ export const produtoCruAcabamentoAmostra = pgTable("produto_cru_acabamento_amost
   status: varchar("status", { length: 30 }).default("PENDENTE"),
   motivoAprovacao: text("motivo_aprovacao"),
   observacoes: text("observacoes"),
+  links: jsonb("links").$type<{ url: string; descricao: string }[]>().default([]),
   data: timestamp("data").defaultNow(),
   createdAt: timestamp("created_at").defaultNow(),
 })

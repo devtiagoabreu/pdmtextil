@@ -37,6 +37,7 @@ export async function POST(req: NextRequest) {
         solicitacaoDesenvolvimentoId: body.solicitacaoDesenvolvimentoId || null,
         status: body.status || "DESENVOLVIMENTO",
         fichaTecnica: body.fichaTecnica || null,
+        links: body.links || [],
         ativo: body.ativo ?? true,
         idIntegracaoErpCru: body.idIntegracaoErpCru || null,
         idIntegracao: body.idIntegracao || null,
