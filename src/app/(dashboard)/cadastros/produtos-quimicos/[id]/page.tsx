@@ -125,6 +125,12 @@ export default function ProdutoQuimicoFormPage() {
               <Label>Descrição</Label>
               <Textarea value={form.descricao} onChange={update("descricao")} />
             </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>ID Integração (ERP)</Label>
+                <Input value={form.idIntegracao} onChange={update("idIntegracao")} placeholder="Código no sistema externo" />
+              </div>
+            </div>
             <div className="space-y-2">
               <Label>Observações</Label>
               <Textarea value={form.observacoes} onChange={update("observacoes")} />
@@ -148,6 +154,10 @@ export default function ProdutoQuimicoFormPage() {
             <div className="space-y-2">
               <Label>pH</Label>
               <Input type="number" step="0.1" value={form.ph} onChange={update("ph")} />
+            </div>
+            <div className="space-y-2">
+              <Label>Ficha de Segurança (URL)</Label>
+              <Input value={form.fichaSeguranca} onChange={update("fichaSeguranca")} placeholder="Link para ficha de segurança" />
             </div>
           </CardContent>
         </Card>
