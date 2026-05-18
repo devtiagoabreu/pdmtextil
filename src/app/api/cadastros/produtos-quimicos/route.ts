@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { produtosQuimicos } from "@/lib/db/schema/produtos-quimicos"
-import { eq, or, ilike } from "drizzle-orm"
+import { or, ilike } from "drizzle-orm"
 
 export async function GET(req: NextRequest) {
   try {
@@ -13,14 +13,14 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url)
     const search = searchParams.get("search")
 
-    let query = db.select().from(produtosQuimicos).orderBy(produtosQuimicos.nome)
+    let lista
     if (search) {
-      query = db.select().from(produtosQuimicos).where(
+      lista = await db.select().from(produtosQuimicos).where(
         or(ilike(produtosQuimicos.nome, `%${search}%`), ilike(produtosQuimicos.codigo, `%${search}%`))
       ).orderBy(produtosQuimicos.nome)
+    } else {
+      lista = await db.select().from(produtosQuimicos).orderBy(produtosQuimicos.nome)
     }
-
-    const lista = await query
     return NextResponse.json(lista)
   } catch (error) {
     console.error("[GET /api/cadastros/produtos-quimicos]", error)

@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { produtoCruReceita as receitas } from "@/lib/db/schema"
-import { eq, desc } from "drizzle-orm"
+import { eq } from "drizzle-orm"
 
 export async function GET(
   req: NextRequest,
