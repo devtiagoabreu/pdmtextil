@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Código e nome são obrigatórios" }, { status: 400 })
     }
 
-    const [novo] = await db.insert(produtosQuimicos).values({
+    const novo = await db.insert(produtosQuimicos).values({
       codigo: body.codigo,
       nome: body.nome,
       descricao: body.descricao || null,
@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
       criadoPor: parseInt(session.user.id),
     }).returning()
 
-    return NextResponse.json(novo[0])
+    return NextResponse.json(Array.isArray(novo) ? novo[0] : novo)
   } catch (error: any) {
     if (error.message?.includes("duplicate")) {
       return NextResponse.json({ error: "Código já existe" }, { status: 400 })
