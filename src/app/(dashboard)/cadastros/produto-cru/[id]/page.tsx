@@ -332,38 +332,6 @@ export default function ProdutoCruFormPage() {
     }
   }
 
-  const addReceita = async (acabamentoId: number) => {
-    if (!id) return
-    try {
-      const res = await fetch(`/api/cadastros/produto-cru/${id}/acabamentos/${acabamentoId}/receitas`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tipoReceita: novoReceitaTipo }),
-      })
-      if (!res.ok) throw new Error()
-      const item = await res.json()
-      setAcabamentos(acabamentos.map(a =>
-        a.id === acabamentoId ? { ...a, receitas: [...a.receitas, item] } : a
-      ))
-      setExpandedReceitaForm(null)
-      toast.success("Receita adicionada")
-    } catch {
-      toast.error("Erro ao adicionar receita")
-    }
-  }
-
-  const removeReceita = async (acabamentoId: number, rid: number) => {
-    if (!id) return
-    try {
-      await fetch(`/api/cadastros/produto-cru/${id}/acabamentos/${acabamentoId}/receitas/${rid}`, { method: "DELETE" })
-      setAcabamentos(acabamentos.map(a =>
-        a.id === acabamentoId ? { ...a, receitas: a.receitas.filter(r => r.id !== rid) } : a
-      ))
-    } catch {
-      toast.error("Erro ao remover receita")
-    }
-  }
-
   const totalPercentual = composicao.reduce((sum, c) => sum + parseFloat(c.percentual || "0"), 0)
   const percentualValido = Math.abs(totalPercentual - 100) < 0.01
 
