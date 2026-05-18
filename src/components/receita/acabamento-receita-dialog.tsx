@@ -1,11 +1,11 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Plus, Trash2, Loader2 } from "lucide-react"
+import { Plus, Trash2, Loader2, Copy, Printer } from "lucide-react"
 import { toast } from "sonner"
 
 type Receita = {
@@ -13,6 +13,8 @@ type Receita = {
   amostraId: number
   descricao: string
   instrucoes: string | null
+  versao: number
+  receitaOriginalId: number | null
 }
 
 type ReceitaItem = {
@@ -51,6 +53,7 @@ export function ReceitaDialog({
   open: boolean
   onClose: () => void
 }) {
+  const [receitas, setReceitas] = useState<Receita[]>([])
   const [receita, setReceita] = useState<Receita | null>(null)
   const [itens, setItens] = useState<ReceitaItem[]>([])
   const [loading, setLoading] = useState(true)
@@ -64,6 +67,8 @@ export function ReceitaDialog({
   const [novoUnidade, setNovoUnidade] = useState("g/L")
   const [novoQtd, setNovoQtd] = useState("")
   const [novoEstagio, setNovoEstagio] = useState("A")
+
+  const printRef = useRef<HTMLDivElement>(null)
 
   const baseUrl = `/api/cadastros/produto-cru/${produtoCruId}/acabamentos/${acabamentoId}/amostras/${amostraId}/receitas`
 
@@ -81,13 +86,10 @@ export function ReceitaDialog({
     try {
       const res = await fetch(baseUrl)
       const list: Receita[] = await res.json()
+      setReceitas(list)
       if (list.length > 0) {
-        const r = list[0]
-        setReceita(r)
-        setEditDescricao(r.descricao)
-        setEditInstrucoes(r.instrucoes || "")
-        const itRes = await fetch(`${baseUrl}/${r.id}/itens`)
-        if (itRes.ok) setItens(await itRes.json())
+        const latest = list.reduce((a, b) => a.versao > b.versao ? a : b)
+        selectReceita(latest)
       } else {
         setReceita(null)
         setEditDescricao("")
@@ -101,6 +103,19 @@ export function ReceitaDialog({
     }
   }
 
+  async function selectReceita(r: Receita) {
+    setReceita(r)
+    setEditDescricao(r.descricao)
+    setEditInstrucoes(r.instrucoes || "")
+    const itRes = await fetch(`${baseUrl}/${r.id}/itens`)
+    if (itRes.ok) setItens(await itRes.json())
+  }
+
+  function isLatest(): boolean {
+    if (!receita) return true
+    return !receitas.some(r => r.id !== receita.id && r.versao > receita.versao)
+  }
+
   async function createReceita() {
     if (!editDescricao) { toast.error("Informe a descrição da receita"); return }
     setSaving(true)
@@ -112,6 +127,7 @@ export function ReceitaDialog({
       })
       if (!res.ok) throw new Error()
       const r = await res.json()
+      setReceitas(prev => [...prev, r])
       setReceita(r)
       toast.success("Receita criada")
     } catch {
@@ -136,6 +152,48 @@ export function ReceitaDialog({
     } finally {
       setSaving(false)
     }
+  }
+
+  async function duplicateReceita() {
+    if (!receita) return
+    setSaving(true)
+    try {
+      const res = await fetch(`${baseUrl}/${receita.id}/duplicar`, { method: "POST" })
+      if (!res.ok) throw new Error()
+      const nova = await res.json()
+      toast.success(`Versão ${nova.versao} criada!`)
+      await load()
+    } catch {
+      toast.error("Erro ao duplicar")
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  function printReceita() {
+    if (!receita) return
+    const html = document.getElementById("print-receita-content")?.innerHTML
+    if (!html) return
+
+    const w = window.open("", "_blank")
+    if (!w) return
+    w.document.write(`
+      <html><head><title>${receita.descricao}</title>
+      <style>
+        body { font-family: Arial, sans-serif; padding: 40px; color: #1e293b; }
+        h1 { font-size: 20px; margin-bottom: 4px; }
+        .version { color: #64748b; font-size: 12px; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+        th { background: #f1f5f9; text-align: left; padding: 8px 12px; font-size: 12px; text-transform: uppercase; color: #475569; }
+        td { padding: 8px 12px; border-bottom: 1px solid #e2e8f0; font-size: 13px; }
+        .instrucoes { margin-top: 24px; padding: 16px; background: #f8fafc; border-radius: 8px; white-space: pre-wrap; font-size: 13px; }
+        .footer { margin-top: 32px; font-size: 11px; color: #94a3b8; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 16px; }
+      </style></head><body>${html}
+      <div class="footer">Sistema PDM Têxtil — ${new Date().toLocaleDateString("pt-BR")}</div>
+      </body></html>
+    `)
+    w.document.close()
+    w.print()
   }
 
   async function addItem() {
@@ -179,11 +237,20 @@ export function ReceitaDialog({
 
   if (!open) return null
 
+  const latest = isLatest()
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="bg-white dark:bg-slate-900 rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col">
         <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="text-lg font-semibold">Receita de Beneficiamento</h2>
+          <div className="flex items-center gap-3">
+            <h2 className="text-lg font-semibold">Receita de Beneficiamento</h2>
+            {receita && (
+              <span className="text-xs bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded-full font-mono">
+                v{receita.versao}
+              </span>
+            )}
+          </div>
           <Button variant="ghost" onClick={onClose}>X</Button>
         </div>
 
@@ -192,6 +259,28 @@ export function ReceitaDialog({
             <div className="flex justify-center py-8"><Loader2 className="animate-spin" /></div>
           ) : (
             <>
+              {receitas.length > 1 && (
+                <div className="flex items-center gap-2">
+                  <Label className="text-xs whitespace-nowrap">Versões:</Label>
+                  <select
+                    value={receita?.id || ""}
+                    onChange={e => {
+                      const r = receitas.find(r => r.id === parseInt(e.target.value))
+                      if (r) selectReceita(r)
+                    }}
+                    className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-sm"
+                  >
+                    {[...receitas]
+                      .sort((a, b) => b.versao - a.versao)
+                      .map(r => (
+                        <option key={r.id} value={r.id}>
+                          v{r.versao} — {r.descricao.slice(0, 60)}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+              )}
+
               <div className="space-y-3">
                 <div className="space-y-1">
                   <Label>Descrição da Receita</Label>
@@ -201,15 +290,23 @@ export function ReceitaDialog({
                   <Label>Instruções</Label>
                   <Textarea value={editInstrucoes} onChange={e => setEditInstrucoes(e.target.value)} />
                 </div>
-                <div>
+                <div className="flex gap-2">
                   {!receita ? (
                     <Button size="sm" onClick={createReceita} disabled={saving}>
                       <Plus size={14} className="mr-1" /> Criar Receita
                     </Button>
                   ) : (
-                    <Button size="sm" variant="outline" onClick={updateReceita} disabled={saving}>
-                      Salvar Receita
-                    </Button>
+                    <>
+                      <Button size="sm" variant="outline" onClick={updateReceita} disabled={saving || !latest}>
+                        Salvar
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={duplicateReceita} disabled={saving}>
+                        <Copy size={14} className="mr-1" /> Duplicar v{receita.versao + 1}
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={printReceita}>
+                        <Printer size={14} className="mr-1" /> Imprimir
+                      </Button>
+                    </>
                   )}
                 </div>
               </div>
@@ -228,51 +325,59 @@ export function ReceitaDialog({
                               {item.quantidadeMetro} {item.unidade}
                               {item.ordem > 0 && <span className="text-xs text-slate-400 ml-1">(ordem {item.ordem})</span>}
                             </span>
-                            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeItem(item.id)}>
-                              <Trash2 size={12} />
-                            </Button>
+                            {latest && (
+                              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeItem(item.id)}>
+                                <Trash2 size={12} />
+                              </Button>
+                            )}
                           </div>
                         ))}
                       </div>
                     )}
 
-                    <div className="grid grid-cols-6 gap-2 items-end">
-                      <div className="space-y-1 col-span-2">
-                        <Label className="text-xs">Produto Químico</Label>
-                        <select value={novoQuimicoId} onChange={e => setNovoQuimicoId(e.target.value)}
-                          className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-sm">
-                          <option value="">Nenhum</option>
-                          {quimicos.map(q => (
-                            <option key={q.id} value={q.id}>{q.codigo} - {q.nome}</option>
-                          ))}
-                        </select>
+                    {latest ? (
+                      <div className="grid grid-cols-6 gap-2 items-end">
+                        <div className="space-y-1 col-span-2">
+                          <Label className="text-xs">Produto Químico</Label>
+                          <select value={novoQuimicoId} onChange={e => setNovoQuimicoId(e.target.value)}
+                            className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-sm">
+                            <option value="">Nenhum</option>
+                            {quimicos.map(q => (
+                              <option key={q.id} value={q.id}>{q.codigo} - {q.nome}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs">Descrição</Label>
+                          <Input size={4} value={novoDescricao} onChange={e => setNovoDescricao(e.target.value)} placeholder="ou manual" />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs">Unid.</Label>
+                          <select value={novoUnidade} onChange={e => setNovoUnidade(e.target.value)}
+                            className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-sm">
+                            {UNIDADES.map(u => <option key={u} value={u}>{u}</option>)}
+                          </select>
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs">Qtd/m</Label>
+                          <Input type="number" step="0.0001" value={novoQtd} onChange={e => setNovoQtd(e.target.value)} />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs">Estágio</Label>
+                          <select value={novoEstagio} onChange={e => setNovoEstagio(e.target.value)}
+                            className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-sm">
+                            {ESTAGIOS.map(s => <option key={s} value={s}>{s}</option>)}
+                          </select>
+                        </div>
                       </div>
-                      <div className="space-y-1">
-                        <Label className="text-xs">Descrição</Label>
-                        <Input size={4} value={novoDescricao} onChange={e => setNovoDescricao(e.target.value)} placeholder="ou manual" />
-                      </div>
-                      <div className="space-y-1">
-                        <Label className="text-xs">Unid.</Label>
-                        <select value={novoUnidade} onChange={e => setNovoUnidade(e.target.value)}
-                          className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-sm">
-                          {UNIDADES.map(u => <option key={u} value={u}>{u}</option>)}
-                        </select>
-                      </div>
-                      <div className="space-y-1">
-                        <Label className="text-xs">Qtd/m</Label>
-                        <Input type="number" step="0.0001" value={novoQtd} onChange={e => setNovoQtd(e.target.value)} />
-                      </div>
-                      <div className="space-y-1">
-                        <Label className="text-xs">Estágio</Label>
-                        <select value={novoEstagio} onChange={e => setNovoEstagio(e.target.value)}
-                          className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-sm">
-                          {ESTAGIOS.map(s => <option key={s} value={s}>{s}</option>)}
-                        </select>
-                      </div>
-                    </div>
-                    <Button size="sm" className="mt-2" onClick={addItem} disabled={saving}>
-                      <Plus size={14} className="mr-1" /> Adicionar Item
-                    </Button>
+                    ) : (
+                      <p className="text-xs text-slate-400 italic">Versões anteriores são somente leitura. Duplique para criar uma nova versão.</p>
+                    )}
+                    {latest && (
+                      <Button size="sm" className="mt-2" onClick={addItem} disabled={saving}>
+                        <Plus size={14} className="mr-1" /> Adicionar Item
+                      </Button>
+                    )}
                   </div>
 
                   {receita.instrucoes && (
@@ -286,6 +391,32 @@ export function ReceitaDialog({
             </>
           )}
         </div>
+      </div>
+
+      <div id="print-receita-content" ref={printRef} className="hidden">
+        {receita && (
+          <>
+            <h1>{receita.descricao}</h1>
+            <div className="version">Versão {receita.versao}</div>
+            {itens.length > 0 && (
+              <table>
+                <thead><tr><th>Estágio</th><th>Produto</th><th>Qtd/m</th><th>Unidade</th><th>Ordem</th></tr></thead>
+                <tbody>
+                  {[...itens].sort((a, b) => a.ordem - b.ordem).map(item => (
+                    <tr key={item.id}>
+                      <td>[{item.estagio}]</td>
+                      <td>{item.quimicoNome || item.descricao || "—"}</td>
+                      <td>{item.quantidadeMetro}</td>
+                      <td>{item.unidade}</td>
+                      <td>{item.ordem}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+            {receita.instrucoes && <div className="instrucoes">{receita.instrucoes}</div>}
+          </>
+        )}
       </div>
     </div>
   )

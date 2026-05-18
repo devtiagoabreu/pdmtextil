@@ -280,11 +280,15 @@ async function migrate() {
         amostra_id INTEGER NOT NULL REFERENCES produto_cru_acabamento_amostra(id) ON DELETE CASCADE,
         descricao VARCHAR(500) NOT NULL,
         instrucoes TEXT,
+        versao INTEGER NOT NULL DEFAULT 1,
+        receita_original_id INTEGER,
         created_at TIMESTAMP DEFAULT now(),
         updated_at TIMESTAMP DEFAULT now()
       )
     `
     console.log("✓ Tabela produto_cru_receita criada")
+    await sql`ALTER TABLE produto_cru_receita ADD COLUMN IF NOT EXISTS versao INTEGER NOT NULL DEFAULT 1`
+    await sql`ALTER TABLE produto_cru_receita ADD COLUMN IF NOT EXISTS receita_original_id INTEGER`
     
     await sql`
       CREATE TABLE IF NOT EXISTS produto_cru_receita_item (
