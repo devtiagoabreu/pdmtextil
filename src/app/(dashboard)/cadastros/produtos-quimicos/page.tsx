@@ -14,6 +14,7 @@ type ProdutoQuimico = {
   categoria: string | null
   unidadePadrao: string
   tipo: string | null
+  idIntegracao: string | null
   ativo: boolean | null
 }
 
@@ -86,7 +87,7 @@ export default function ProdutosQuimicosPage() {
               <th className="text-left p-3 font-medium">Nome</th>
               <th className="text-left p-3 font-medium">Categoria</th>
               <th className="text-left p-3 font-medium">Unidade</th>
-              <th className="text-left p-3 font-medium">Tipo</th>
+              <th className="text-left p-3 font-medium">ID Integração</th>
               <th className="text-left p-3 font-medium">Ativo</th>
             </tr>
           </thead>
@@ -101,7 +102,7 @@ export default function ProdutosQuimicosPage() {
                 <td className="p-3">{item.nome}</td>
                 <td className="p-3 text-slate-500">{item.categoria || "—"}</td>
                 <td className="p-3">{item.unidadePadrao}</td>
-                <td className="p-3 text-slate-500">{item.tipo || "—"}</td>
+                <td className="p-3 font-mono text-xs text-slate-500">{item.idIntegracao || "—"}</td>
                 <td className="p-3">
                   <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
                     item.ativo ? "bg-green-100 text-green-700" : "bg-slate-100 text-slate-500"
