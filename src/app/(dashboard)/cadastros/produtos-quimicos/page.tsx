@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -23,6 +23,7 @@ export default function ProdutosQuimicosPage() {
   const [data, setData] = useState<ProdutoQuimico[]>([])
   const [search, setSearch] = useState("")
   const [importing, setImporting] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     fetchData()
@@ -50,17 +51,16 @@ export default function ProdutosQuimicosPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Produtos Químicos</h1>
         <div className="flex gap-2">
-          <label className="cursor-pointer">
-            <Button variant="outline" disabled={importing}>
-              <span><Upload className="h-4 w-4 mr-1" /> Importar</span>
-            </Button>
-            <input
-              type="file"
-              className="hidden"
-              accept=".csv,.json"
-              onChange={(e) => e.target.files?.[0] && handleImport(e.target.files[0])}
-            />
-          </label>
+          <Button variant="outline" disabled={importing} onClick={() => fileInputRef.current?.click()}>
+            <Upload className="h-4 w-4 mr-1" /> Importar
+          </Button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            className="hidden"
+            accept=".csv,.json"
+            onChange={(e) => e.target.files?.[0] && handleImport(e.target.files[0])}
+          />
           <Button onClick={() => router.push("/cadastros/produtos-quimicos/novo")}>
             <Plus className="h-4 w-4 mr-1" /> Novo
           </Button>

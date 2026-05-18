@@ -3,12 +3,11 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { produtosQuimicos } from "@/lib/db/schema/produtos-quimicos"
-import { eq } from "drizzle-orm"
 
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session || (session.user as any).role !== "ADMIN") {
+    if (!session) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
@@ -28,8 +27,8 @@ export async function POST(req: NextRequest) {
       for (const item of Array.isArray(data) ? data : [data]) {
         try {
           await db.insert(produtosQuimicos).values({
-            codigo: item.codigo || item.codigo,
-            nome: item.nome || item.nome,
+            codigo: item.codigo,
+            nome: item.nome,
             descricao: item.descricao || null,
             categoria: item.categoria || null,
             unidadePadrao: item.unidadePadrao || "kg",
@@ -37,6 +36,7 @@ export async function POST(req: NextRequest) {
             concentracao: item.concentracao || null,
             densidade: item.densidade || null,
             ph: item.ph || null,
+            idIntegracao: item.idIntegracao || null,
             ativo: true,
             criadoPor: parseInt(session.user.id),
           })
@@ -46,8 +46,12 @@ export async function POST(req: NextRequest) {
         }
       }
     } else {
-      for (const line of lines) {
-        const parts = line.split(";")
+      const headerLine = lines[0].toLowerCase()
+      const delimiter = headerLine.includes(";") ? ";" : ","
+      const startIndex = headerLine.includes("codigo") || headerLine.includes("código") || headerLine.includes("nome") ? 1 : 0
+
+      for (let i = startIndex; i < lines.length; i++) {
+        const parts = lines[i].split(delimiter)
         if (parts.length < 2) continue
         try {
           await db.insert(produtosQuimicos).values({
@@ -57,6 +61,8 @@ export async function POST(req: NextRequest) {
             categoria: parts[3]?.trim() || null,
             unidadePadrao: parts[4]?.trim() || "kg",
             tipo: parts[5]?.trim() || null,
+            concentracao: parts[6]?.trim() || null,
+            idIntegracao: parts[7]?.trim() || null,
             ativo: true,
             criadoPor: parseInt(session.user.id),
           })
