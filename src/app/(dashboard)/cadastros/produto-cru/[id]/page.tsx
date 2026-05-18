@@ -72,12 +72,6 @@ interface AcabamentoAmostra {
   data: string
 }
 
-interface Receita {
-  id: number
-  tipoReceita: string
-  parametros: Record<string, unknown>
-} /* deprecated, kept for type compat */
-
 const STATUS_OPTIONS = [
   { value: "DESENVOLVIMENTO", label: "Em Desenvolvimento" },
   { value: "APROVADO", label: "Aprovado" },
@@ -88,7 +82,6 @@ const STATUS_OPTIONS = [
 const TIPO_ESTRUTURA = ["TRAMA", "URDUME"]
 const STATUS_AMOSTRA = ["PENDENTE", "APROVADO", "REPROVADO"]
 const TIPO_ACABAMENTO = ["TINGIMENTO", "ESTAMPARIA", "TERMOFIXACAO", "LAVAGEM", "OUTRO"]
-const TIPO_RECEITA = ["TINGIMENTO", "ESTAMPARIA", "TERMOFIXACAO"]
 
 export default function ProdutoCruFormPage() {
   const router = useRouter()
@@ -343,6 +336,139 @@ export default function ProdutoCruFormPage() {
     )
   }
 
+  const updateStatusAmostra = async (amostraId: number, novoStatus: string) => {
+    const allow = ["APROVADO", "REPROVADO"]
+    if (allow.includes(novoStatus)) {
+      setMotivoModal({ open: true, target: { type: "amostra", id: amostraId }, novoStatus })
+    } else {
+      await confirmUpdateStatusAmostra(amostraId, novoStatus)
+    }
+  }
+
+  const updateStatusAmostraAcabamento = async (acabamentoId: number, asid: number, novoStatus: string) => {
+    const allow = ["APROVADO", "REPROVADO"]
+    if (allow.includes(novoStatus)) {
+      setMotivoModal({ open: true, target: { type: "acabamento", id: asid, acabamentoId }, novoStatus })
+    } else {
+      await confirmUpdateStatusAmostraAcabamento(acabamentoId, asid, novoStatus)
+    }
+  }
+
+  const confirmUpdateStatusAmostra = async (amostraId: number, status: string, motivo?: string) => {
+    if (!id) return
+    try {
+      const res = await fetch(`/api/cadastros/produto-cru/${id}/amostras/${amostraId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status, motivoAprovacao: motivo }),
+      })
+      if (!res.ok) {
+        const err = await res.json()
+        toast.error(err.error || "Erro ao atualizar status")
+        return
+      }
+      setAmostras(amostras.map(a => a.id === amostraId ? { ...a, status, motivoAprovacao: motivo } : a))
+      toast.success("Status atualizado")
+    } catch {
+      toast.error("Erro ao atualizar status")
+    }
+  }
+
+  const addAmostra = async () => {
+    if (!id) { toast.error("Salve o produto primeiro"); return }
+    try {
+      const res = await fetch(`/api/cadastros/produto-cru/${id}/amostras`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ descricao: novaAmostraDescricao || null, observacoes: novaAmostraObs || null }),
+      })
+      if (!res.ok) throw new Error()
+      const item = await res.json()
+      setAmostras([...amostras, item])
+      setNovaAmostraDescricao("")
+      setNovaAmostraObs("")
+      toast.success("Amostra adicionada")
+    } catch {
+      toast.error("Erro ao adicionar amostra")
+    }
+  }
+
+  const removeAmostra = async (amostraId: number) => {
+    if (!id) return
+    try {
+      await fetch(`/api/cadastros/produto-cru/${id}/amostras/${amostraId}`, { method: "DELETE" })
+      setAmostras(amostras.filter(a => a.id !== amostraId))
+    } catch {
+      toast.error("Erro ao remover amostra")
+    }
+  }
+
+  const addAcabamento = async () => {
+    if (!id) { toast.error("Salve o produto primeiro"); return }
+    try {
+      const res = await fetch(`/api/cadastros/produto-cru/${id}/acabamentos`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tipoAcabamento: novoAcabamentoTipo,
+          descricao: novoAcabamentoDescricao || null,
+          idIntegracaoErpAcabado: novoAcabamentoErp || null,
+        }),
+      })
+      if (!res.ok) throw new Error()
+      const item = await res.json()
+      setAcabamentos([...acabamentos, { ...item, amostras: [], receitas: undefined }])
+      setNovoAcabamentoDescricao("")
+      setNovoAcabamentoErp("")
+      toast.success("Acabamento adicionado")
+    } catch {
+      toast.error("Erro ao adicionar acabamento")
+    }
+  }
+
+  const removeAcabamento = async (acabamentoId: number) => {
+    if (!id) return
+    try {
+      await fetch(`/api/cadastros/produto-cru/${id}/acabamentos/${acabamentoId}`, { method: "DELETE" })
+      setAcabamentos(acabamentos.filter(a => a.id !== acabamentoId))
+    } catch {
+      toast.error("Erro ao remover acabamento")
+    }
+  }
+
+  const addAmostraAcabamento = async (acabamentoId: number) => {
+    if (!id) return
+    try {
+      const res = await fetch(`/api/cadastros/produto-cru/${id}/acabamentos/${acabamentoId}/amostras`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ descricao: novaAmostraAcabDescricao || null }),
+      })
+      if (!res.ok) throw new Error()
+      const item = await res.json()
+      setAcabamentos(acabamentos.map(a =>
+        a.id === acabamentoId ? { ...a, amostras: [...a.amostras, item] } : a
+      ))
+      setNovaAmostraAcabDescricao("")
+      setExpandedAmostraForm(null)
+      toast.success("Amostra adicionada")
+    } catch {
+      toast.error("Erro ao adicionar amostra")
+    }
+  }
+
+  const removeAmostraAcabamento = async (acabamentoId: number, asid: number) => {
+    if (!id) return
+    try {
+      await fetch(`/api/cadastros/produto-cru/${id}/acabamentos/${acabamentoId}/amostras/${asid}`, { method: "DELETE" })
+      setAcabamentos(acabamentos.map(a =>
+        a.id === acabamentoId ? { ...a, amostras: a.amostras.filter(as => as.id !== asid) } : a
+      ))
+    } catch {
+      toast.error("Erro ao remover amostra")
+    }
+  }
+
   return (
     <div className="max-w-3xl mx-auto space-y-6 animate-fade-in">
       <div className="flex items-center gap-4">
@@ -466,6 +592,7 @@ export default function ProdutoCruFormPage() {
             <Button variant="outline" type="button">Cancelar</Button>
           </Link>
         </div>
+      </form>
 
       {isEditing && (
         <div className="space-y-8 border-t pt-6">
@@ -734,7 +861,7 @@ export default function ProdutoCruFormPage() {
           </div>
         </div>
       )}
-      
+
       {motivoModal.open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-xl p-6 w-full max-w-md mx-4 space-y-4">
@@ -789,6 +916,6 @@ export default function ProdutoCruFormPage() {
           onClose={() => setReceitaDialog(null)}
         />
       )}
-    </form>
+    </div>
   )
 }
