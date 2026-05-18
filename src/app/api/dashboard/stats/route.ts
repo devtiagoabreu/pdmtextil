@@ -3,7 +3,20 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { solicitacoes } from "@/lib/db/schema/solicitacoes"
+import { produtosCru } from "@/lib/db/schema/produto-cru"
 import { eq, and, gte, lte, sql } from "drizzle-orm"
+
+function buildConditions(role: string, userId: number) {
+  const conditions: any[] = []
+  if (role === "COMERCIAL") {
+    conditions.push(eq(solicitacoes.solicitanteId, userId))
+  } else if (role === "TECELAGEM") {
+    conditions.push(eq(solicitacoes.tipo, "DESENVOLVIMENTO_TECELAGEM"))
+  } else if (role === "BENEFICIAMENTO") {
+    conditions.push(eq(solicitacoes.tipo, "DESENVOLVIMENTO_BENEFICIAMENTO"))
+  }
+  return conditions
+}
 
 export async function GET() {
   try {
@@ -17,20 +30,11 @@ export async function GET() {
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
     const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59)
 
-    let conditions: any[] = []
+    const roleConditions = buildConditions(role, userId)
 
-    if (role === "COMERCIAL") {
-      conditions.push(eq(solicitacoes.solicitanteId, userId))
-    } else if (role === "TECELAGEM") {
-      conditions.push(eq(solicitacoes.tipo, "DESENVOLVIMENTO_TECELAGEM"))
-    } else if (role === "BENEFICIAMENTO") {
-      conditions.push(eq(solicitacoes.tipo, "DESENVOLVIMENTO_BENEFICIAMENTO"))
-    }
-
-    conditions.push(gte(solicitacoes.createdAt, startOfMonth))
-    conditions.push(lte(solicitacoes.createdAt, endOfMonth))
-
-    const where = conditions.length > 0 ? and(...conditions) : undefined
+    // Current month stats
+    const monthConditions = [...roleConditions, gte(solicitacoes.createdAt, startOfMonth), lte(solicitacoes.createdAt, endOfMonth)]
+    const monthWhere = monthConditions.length > 0 ? and(...monthConditions) : undefined
 
     const stats = await db
       .select({
@@ -40,15 +44,58 @@ export async function GET() {
         concluidas: sql<number>`count(*) filter (where ${solicitacoes.status} = 'CONCLUIDO')`,
       })
       .from(solicitacoes)
-      .where(where)
+      .where(monthWhere)
 
     const result = stats[0] || { total: 0, pendentes: 0, emAnalise: 0, concluidas: 0 }
+
+    // Monthly trend (last 6 months)
+    const trendData: { mes: string; total: number }[] = []
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+      const start = new Date(d.getFullYear(), d.getMonth(), 1)
+      const end = new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59)
+      const trendConditions = [...roleConditions, gte(solicitacoes.createdAt, start), lte(solicitacoes.createdAt, end)]
+      const trendWhere = trendConditions.length > 0 ? and(...trendConditions) : undefined
+      const [row] = await db.select({ total: sql<number>`count(*)` }).from(solicitacoes).where(trendWhere)
+      trendData.push({
+        mes: d.toLocaleDateString("pt-BR", { month: "short", year: "2-digit" }),
+        total: row?.total || 0,
+      })
+    }
+
+    // Status distribution (all time)
+    const statusAllConditions = roleConditions.length > 0 ? and(...roleConditions) : undefined
+    const statusDist = await db
+      .select({
+        status: solicitacoes.status,
+        total: sql<number>`count(*)`,
+      })
+      .from(solicitacoes)
+      .where(statusAllConditions)
+      .groupBy(solicitacoes.status)
+
+    // Tipo distribution (all time)
+    const tipoDist = await db
+      .select({
+        tipo: solicitacoes.tipo,
+        total: sql<number>`count(*)`,
+      })
+      .from(solicitacoes)
+      .where(statusAllConditions)
+      .groupBy(solicitacoes.tipo)
+
+    // Produto-cru count
+    const [prodCount] = await db.select({ total: sql<number>`count(*)` }).from(produtosCru)
 
     return NextResponse.json({
       totalEsteMes: result.total,
       pendentes: result.pendentes,
       emAnalise: result.emAnalise,
       concluidas: result.concluidas,
+      monthlyTrend: trendData,
+      statusDistribution: statusDist,
+      tipoDistribution: tipoDist,
+      totalProdutosCru: prodCount?.total || 0,
     })
   } catch (error) {
     console.error("[GET /api/dashboard/stats]", error)

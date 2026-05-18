@@ -2,15 +2,40 @@
 
 import { useEffect, useState } from "react"
 import { useSession } from "next-auth/react"
-import { FileText, PlusCircle, BarChart3, Clock } from "lucide-react"
+import { FileText, PlusCircle, BarChart3, Clock, Package } from "lucide-react"
 import Link from "next/link"
+import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts"
+
+const STATUS_COLORS: Record<string, string> = {
+  PENDENTE: "#f59e0b",
+  EM_ANALISE: "#3b82f6",
+  AGUARDANDO_INFO: "#8b5cf6",
+  CONCLUIDO: "#22c55e",
+}
+
+const STATUS_LABELS: Record<string, string> = {
+  PENDENTE: "Pendente",
+  EM_ANALISE: "Em Análise",
+  AGUARDANDO_INFO: "Aguard. Info",
+  CONCLUIDO: "Concluído",
+}
+
+const TIPO_LABELS: Record<string, string> = {
+  DESENVOLVIMENTO_TECELAGEM: "Tecelagem",
+  DESENVOLVIMENTO_BENEFICIAMENTO: "Beneficiamento",
+}
+
+const TIPO_COLORS: Record<string, string> = {
+  DESENVOLVIMENTO_TECELAGEM: "#06b6d4",
+  DESENVOLVIMENTO_BENEFICIAMENTO: "#f97316",
+}
 
 export default function DashboardPage() {
   const { data: session } = useSession()
   const firstName = session?.user?.name?.split(" ")[0] || "Usuário"
   const role = session?.user?.role
 
-  const [stats, setStats] = useState({ totalEsteMes: 0, pendentes: 0, emAnalise: 0, concluidas: 0 })
+  const [stats, setStats] = useState<any>(null)
   const [atividades, setAtividades] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -21,10 +46,8 @@ export default function DashboardPage() {
           fetch("/api/dashboard/stats"),
           fetch("/api/dashboard/atividades"),
         ])
-        const statsData = await statsRes.json()
-        const atividadesData = await atividadesRes.json()
-        setStats(statsData)
-        setAtividades(atividadesData)
+        if (statsRes.ok) setStats(await statsRes.json())
+        if (atividadesRes.ok) setAtividades(await atividadesRes.json())
       } catch (error) {
         console.error("Erro ao buscar dados do dashboard:", error)
       } finally {
@@ -42,21 +65,10 @@ export default function DashboardPage() {
     year: "numeric",
   })
 
-  const statusLabels: Record<string, string> = {
-    PENDENTE: "Pendente",
-    EM_ANALISE: "Em Análise",
-    AGUARDANDO_INFO: "Aguard. Info",
-    CONCLUIDO: "Concluído",
-  }
-
-  const tipoLabels: Record<string, string> = {
-    DESENVOLVIMENTO_TECELAGEM: "Tecelagem",
-    DESENVOLVIMENTO_BENEFICIAMENTO: "Beneficiamento",
-  }
+  const formatTooltip = (value: number) => [value, "solicitações"]
 
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Page header */}
       <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
@@ -68,120 +80,174 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Stats cards */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        {loading ? (
-          <div className="col-span-4 text-center py-4 text-slate-500">Carregando...</div>
-        ) : (
-        [
-          { label: "Total este mês", value: stats.totalEsteMes, color: "text-slate-700 dark:text-slate-200", bg: "bg-slate-100 dark:bg-slate-800" },
-          { label: "Pendentes", value: stats.pendentes, color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-50 dark:bg-amber-950/50" },
-          { label: "Em Análise", value: stats.emAnalise, color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-50 dark:bg-blue-950/50" },
-          { label: "Concluídas", value: stats.concluidas, color: "text-green-600 dark:text-green-400", bg: "bg-green-50 dark:bg-green-950/50" },
-        ].map((stat) => (
-          <div key={stat.label} className={`rounded-xl border border-slate-200 dark:border-slate-800 ${stat.bg} p-4 card-hover`}>
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{stat.label}</p>
-            <p className={`text-3xl font-bold mt-1 ${stat.color}`}>{stat.value}</p>
+      {loading ? (
+        <div className="text-center py-8 text-slate-500">Carregando...</div>
+      ) : (
+        <>
+          {/* Stats cards */}
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
+            {[
+              { label: "Total este mês", value: stats?.totalEsteMes ?? 0, color: "text-slate-700 dark:text-slate-200", bg: "bg-slate-100 dark:bg-slate-800" },
+              { label: "Pendentes", value: stats?.pendentes ?? 0, color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-50 dark:bg-amber-950/50" },
+              { label: "Em Análise", value: stats?.emAnalise ?? 0, color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-50 dark:bg-blue-950/50" },
+              { label: "Concluídas", value: stats?.concluidas ?? 0, color: "text-green-600 dark:text-green-400", bg: "bg-green-50 dark:bg-green-950/50" },
+              { label: "Produtos CAD", value: stats?.totalProdutosCru ?? 0, color: "text-cyan-600 dark:text-cyan-400", bg: "bg-cyan-50 dark:bg-cyan-950/50" },
+            ].map((stat) => (
+              <div key={stat.label} className={`rounded-xl border border-slate-200 dark:border-slate-800 ${stat.bg} p-4 card-hover`}>
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{stat.label}</p>
+                <p className={`text-3xl font-bold mt-1 ${stat.color}`}>{stat.value}</p>
+              </div>
+            ))}
           </div>
-        ))
-        )}
-      </div>
 
-      {/* Quick actions */}
-      {(role === "COMERCIAL" || role === "ADMIN") && (
-        <div>
-          <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-3">Ações Rápidas</h2>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <Link
-              href="/comercial/solicitacoes/nova"
-              className="group flex items-center gap-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 card-hover hover:border-blue-300 dark:hover:border-blue-700 transition-all"
-            >
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform">
-                <PlusCircle size={24} />
-              </div>
-              <div>
-                <p className="font-semibold text-slate-800 dark:text-slate-100">Nova Solicitação</p>
-                <p className="text-sm text-slate-500 dark:text-slate-400">Criar novo briefing</p>
-              </div>
-            </Link>
+          {/* Charts row */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {/* Monthly trend */}
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
+              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">Solicitações por Mês</h3>
+              <ResponsiveContainer width="100%" height={240}>
+                <LineChart data={stats?.monthlyTrend || []}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                  <XAxis dataKey="mes" tick={{ fontSize: 11 }} stroke="#94a3b8" />
+                  <YAxis allowDecimals={false} tick={{ fontSize: 11 }} stroke="#94a3b8" />
+                  <Tooltip formatter={formatTooltip} />
+                  <Line type="monotone" dataKey="total" stroke="#6366f1" strokeWidth={2} dot={{ fill: "#6366f1", r: 4 }} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
 
-            <Link
-              href="/comercial/solicitacoes"
-              className="group flex items-center gap-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 card-hover hover:border-purple-300 dark:hover:border-purple-700 transition-all"
-            >
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-400 group-hover:scale-110 transition-transform">
-                <FileText size={24} />
-              </div>
-              <div>
-                <p className="font-semibold text-slate-800 dark:text-slate-100">Ver Solicitações</p>
-                <p className="text-sm text-slate-500 dark:text-slate-400">Todas as solicitações</p>
-              </div>
-            </Link>
+            {/* Status distribution */}
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
+              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">Distribuição por Status</h3>
+              <ResponsiveContainer width="100%" height={240}>
+                <PieChart>
+                  <Pie
+                    data={(stats?.statusDistribution || []).map((s: any) => ({
+                      name: STATUS_LABELS[s.status] || s.status,
+                      value: s.total,
+                    }))}
+                    cx="50%" cy="50%" innerRadius={50} outerRadius={90}
+                    dataKey="value" label={({ name, value }) => `${name}: ${value}`}
+                  >
+                    {(stats?.statusDistribution || []).map((s: any) => (
+                      <Cell key={s.status} fill={STATUS_COLORS[s.status] || "#94a3b8"} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
 
-            <div className="flex items-center gap-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 opacity-60 cursor-not-allowed">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400">
-                <BarChart3 size={24} />
+            {/* Tipo distribution */}
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
+              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">Solicitações por Tipo</h3>
+              <ResponsiveContainer width="100%" height={200}>
+                <BarChart data={(stats?.tipoDistribution || []).map((s: any) => ({
+                  name: TIPO_LABELS[s.tipo] || s.tipo,
+                  total: s.total,
+                }))}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                  <XAxis dataKey="name" tick={{ fontSize: 11 }} stroke="#94a3b8" />
+                  <YAxis allowDecimals={false} tick={{ fontSize: 11 }} stroke="#94a3b8" />
+                  <Tooltip formatter={formatTooltip} />
+                  <Bar dataKey="total" radius={[4, 4, 0, 0]}>
+                    {(stats?.tipoDistribution || []).map((s: any) => (
+                      <Cell key={s.tipo} fill={TIPO_COLORS[s.tipo] || "#6366f1"} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* Quick actions */}
+            {(role === "COMERCIAL" || role === "ADMIN") && (
+              <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
+                <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">Ações Rápidas</h3>
+                <div className="grid grid-cols-1 gap-3">
+                  <Link href="/comercial/solicitacoes/nova"
+                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400">
+                      <PlusCircle size={20} />
+                    </div>
+                    <div>
+                      <p className="font-medium text-sm text-slate-800 dark:text-slate-100">Nova Solicitação</p>
+                      <p className="text-xs text-slate-500">Criar novo briefing</p>
+                    </div>
+                  </Link>
+                  <Link href="/comercial/solicitacoes"
+                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-400">
+                      <FileText size={20} />
+                    </div>
+                    <div>
+                      <p className="font-medium text-sm text-slate-800 dark:text-slate-100">Ver Solicitações</p>
+                      <p className="text-xs text-slate-500">Todas as solicitações</p>
+                    </div>
+                  </Link>
+                  <Link href="/cadastros/produto-cru"
+                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-cyan-100 dark:bg-cyan-900 text-cyan-600 dark:text-cyan-400">
+                      <Package size={20} />
+                    </div>
+                    <div>
+                      <p className="font-medium text-sm text-slate-800 dark:text-slate-100">Produtos Cru</p>
+                      <p className="text-xs text-slate-500">Gerenciar fichas técnicas</p>
+                    </div>
+                  </Link>
+                </div>
               </div>
-              <div>
-                <p className="font-semibold text-slate-800 dark:text-slate-100">Relatórios</p>
-                <p className="text-sm text-slate-500 dark:text-slate-400">Em breve</p>
-              </div>
+            )}
+          </div>
+
+          {/* Recent activity */}
+          <div>
+            <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-3">Atividades Recentes</h2>
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
+              {atividades.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-16 text-center">
+                  <Clock className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
+                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nenhuma atividade recente</p>
+                  <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">As solicitações criadas aparecerão aqui</p>
+                </div>
+              ) : (
+                <table className="w-full">
+                  <thead className="border-b border-slate-200 dark:border-slate-800">
+                    <tr>
+                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">ID</th>
+                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Tipo</th>
+                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Cliente</th>
+                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Status</th>
+                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Data</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {atividades.map((item, i) => (
+                      <tr key={item.id || i} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                        <td className="p-4 text-sm font-medium">#{item.id}</td>
+                        <td className="p-4 text-sm">{TIPO_LABELS[item.tipo] || item.tipo}</td>
+                        <td className="p-4 text-sm">{item.cliente}</td>
+                        <td className="p-4 text-sm">
+                          <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
+                            item.status === "PENDENTE" ? "bg-amber-100 text-amber-700" :
+                            item.status === "EM_ANALISE" ? "bg-blue-100 text-blue-700" :
+                            item.status === "CONCLUIDO" ? "bg-green-100 text-green-700" :
+                            "bg-slate-100 text-slate-700"
+                          }`}>
+                            {STATUS_LABELS[item.status] || item.status}
+                          </span>
+                        </td>
+                        <td className="p-4 text-sm text-slate-500">
+                          {item.createdAt ? new Date(item.createdAt).toLocaleDateString("pt-BR") : "—"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
           </div>
-        </div>
+        </>
       )}
-
-      {/* Recent activity */}
-      <div>
-        <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-3">Atividades Recentes</h2>
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
-          {loading ? (
-            <div className="flex flex-col items-center justify-center py-16 text-center">
-              <p className="text-sm text-slate-500">Carregando...</p>
-            </div>
-          ) : atividades.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-center">
-              <Clock className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
-              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nenhuma atividade recente</p>
-              <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">As solicitações criadas aparecerão aqui</p>
-            </div>
-          ) : (
-            <table className="w-full">
-              <thead className="border-b border-slate-200 dark:border-slate-800">
-                <tr>
-                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">ID</th>
-                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Tipo</th>
-                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Cliente</th>
-                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Status</th>
-                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Data</th>
-                </tr>
-              </thead>
-              <tbody>
-                {atividades.map((item) => (
-                  <tr key={item.id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                    <td className="p-4 text-sm font-medium">#{item.id}</td>
-                    <td className="p-4 text-sm">{tipoLabels[item.tipo] || item.tipo}</td>
-                    <td className="p-4 text-sm">{item.cliente}</td>
-                    <td className="p-4 text-sm">
-                      <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
-                        item.status === "PENDENTE" ? "bg-amber-100 text-amber-700" :
-                        item.status === "EM_ANALISE" ? "bg-blue-100 text-blue-700" :
-                        item.status === "CONCLUIDO" ? "bg-green-100 text-green-700" :
-                        "bg-slate-100 text-slate-700"
-                      }`}>
-                        {statusLabels[item.status] || item.status}
-                      </span>
-                    </td>
-                    <td className="p-4 text-sm text-slate-500">
-                      {item.createdAt ? new Date(item.createdAt).toLocaleDateString("pt-BR") : "—"}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
-      </div>
     </div>
   )
 }

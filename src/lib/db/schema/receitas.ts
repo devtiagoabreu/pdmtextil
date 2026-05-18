@@ -7,6 +7,8 @@ export const produtoCruReceita = pgTable("produto_cru_receita", {
   amostraId: integer("amostra_id").notNull().references(() => produtoCruAcabamentoAmostra.id, { onDelete: "cascade" }),
   descricao: varchar("descricao", { length: 500 }).notNull(),
   instrucoes: text("instrucoes"),
+  versao: integer("versao").notNull().default(1),
+  receitaOriginalId: integer("receita_original_id"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 })
