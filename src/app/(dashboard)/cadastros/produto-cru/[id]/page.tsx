@@ -466,7 +466,6 @@ export default function ProdutoCruFormPage() {
             <Button variant="outline" type="button">Cancelar</Button>
           </Link>
         </div>
-      </form>
 
       {isEditing && (
         <div className="space-y-8 border-t pt-6">
