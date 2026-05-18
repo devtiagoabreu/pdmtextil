@@ -44,7 +44,16 @@ export default function EmailMassaPage() {
       })
       const data = await res.json()
       if (res.ok) {
-        toast.success(`Emails enviados! Clientes: ${data.totalClientes || 0}, Usuários: ${data.totalUsuarios || 0}`)
+        if (data.enviados > 0) {
+          const msg = `Enviados: ${data.enviados} de ${data.total}`
+          toast.success(msg)
+        } else {
+          toast.error(`Nenhum email enviado (0 de ${data.total})`)
+        }
+        if (data.erros && data.erros.length > 0) {
+          console.warn("[EMAIL-MASSA] Erros:", data.erros)
+          toast.warning(`${data.erros.length} erro(s) ao enviar. Verifique o console.`)
+        }
       } else {
         toast.error(data.error || "Erro ao enviar")
       }

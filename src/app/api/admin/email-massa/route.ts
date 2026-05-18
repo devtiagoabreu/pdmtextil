@@ -21,49 +21,68 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Para, assunto e conteúdo são obrigatórios" }, { status: 400 })
     }
 
-    const destinatarios: string[] = []
-
     if (para === "clientes") {
       const lista = await db.select({ email: clientes.email, nome: clientes.nome }).from(clientes).where(eq(clientes.ativo, true))
+      let enviados = 0
+      let total = 0
+      const erros: string[] = []
       for (const c of lista) {
         const emails = parseEmails(c.email)
-        if (emails.length > 0) {
+        for (const addr of emails) {
+          total++
           const personalizado = html.replace(/\[NOME\]/g, c.nome || "Cliente")
-          await sendEmail({ to: emails, subject: assunto, html: personalizado })
+          const result = await sendEmail({ to: addr, subject: assunto, html: personalizado })
+          enviados += result.sent
+          if (result.error) erros.push(`${addr}: ${result.error}`)
         }
       }
-      return NextResponse.json({ success: true, totalClientes: lista.length })
+      return NextResponse.json({ success: enviados > 0, total: total, enviados, erros: erros.slice(0, 10) })
     }
 
     if (para === "usuarios") {
       const lista = await db.select({ email: usuarios.email, name: usuarios.name }).from(usuarios).where(eq(usuarios.ativo, true))
+      let enviados = 0
+      let total = 0
+      const erros: string[] = []
       for (const u of lista) {
         if (u.email && u.email.includes("@")) {
+          total++
           const personalizado = html.replace(/\[NOME\]/g, u.name || "Usuário")
-          await sendEmail({ to: u.email, subject: assunto, html: personalizado })
+          const result = await sendEmail({ to: u.email, subject: assunto, html: personalizado })
+          enviados += result.sent
+          if (result.error) erros.push(`${u.email}: ${result.error}`)
         }
       }
-      return NextResponse.json({ success: true, totalUsuarios: lista.length })
+      return NextResponse.json({ success: enviados > 0, total, enviados, erros: erros.slice(0, 10) })
     }
 
     if (para === "todos") {
       const clientesLista = await db.select({ email: clientes.email, nome: clientes.nome }).from(clientes).where(eq(clientes.ativo, true))
       const usuariosLista = await db.select({ email: usuarios.email, name: usuarios.name }).from(usuarios).where(eq(usuarios.ativo, true))
+      let enviados = 0
+      let total = 0
+      const erros: string[] = []
 
       for (const c of clientesLista) {
         const emails = parseEmails(c.email)
-        if (emails.length > 0) {
+        for (const addr of emails) {
+          total++
           const personalizado = html.replace(/\[NOME\]/g, c.nome || "Cliente")
-          await sendEmail({ to: emails, subject: assunto, html: personalizado })
+          const result = await sendEmail({ to: addr, subject: assunto, html: personalizado })
+          enviados += result.sent
+          if (result.error) erros.push(`${addr}: ${result.error}`)
         }
       }
       for (const u of usuariosLista) {
         if (u.email && u.email.includes("@")) {
+          total++
           const personalizado = html.replace(/\[NOME\]/g, u.name || "Usuário")
-          await sendEmail({ to: u.email, subject: assunto, html: personalizado })
+          const result = await sendEmail({ to: u.email, subject: assunto, html: personalizado })
+          enviados += result.sent
+          if (result.error) erros.push(`${u.email}: ${result.error}`)
         }
       }
-      return NextResponse.json({ success: true, totalClientes: clientesLista.length, totalUsuarios: usuariosLista.length })
+      return NextResponse.json({ success: enviados > 0, total, enviados, erros: erros.slice(0, 10) })
     }
 
     return NextResponse.json({ error: "Tipo de destinatário inválido" }, { status: 400 })
