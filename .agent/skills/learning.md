@@ -662,11 +662,13 @@ Este arquivo contém todos os aprendizados do desenvolvimento do projeto PDM Pro
 
  | Data | Alteração |
  |------|-----------|
- | 07/05/2026 | Consolidados arquivos 009 e 009_009 em um único arquivo |
- | 06/05/2026 | Adicionadas seções 9-11 sobre landing page, módulos de cadastros e relacionamentos N:N |
- | 06/05/2026 | Adicionados aprendizados sobre ícones lucide-react (Thread, Bobbin, Package) |
- | 06/05/2026 | Adicionado aprendizado sobre campos em schemas vs APIs (fornecedor obsoleto) |
- | 06/05/2026 | Adicionado aprendizado sobre interfaces TypeScript vs API Response (ativo) |
+| 17/05/2026 | Adicionadas sessões 5-10 no histórico + documentação da refatoração produtos químicos |
+| 13/05/2026 | Adicionadas seções 35-43 sobre importação CSV/JSON, validação duplicados, UI |
+| 07/05/2026 | Consolidados arquivos 009 e 009_009 em um único arquivo |
+| 06/05/2026 | Adicionadas seções 9-11 sobre landing page, módulos de cadastros e relacionamentos N:N |
+| 06/05/2026 | Adicionados aprendizados sobre ícones lucide-react (Thread, Bobbin, Package) |
+| 06/05/2026 | Adicionado aprendizado sobre campos em schemas vs APIs (fornecedor obsoleto) |
+| 06/05/2026 | Adicionado aprendizado sobre interfaces TypeScript vs API Response (ativo) |
 
 ---
 
@@ -736,6 +738,94 @@ Removida a segunda declaração duplicada, consolidada em uma única chamada com
 1. Consolidados arquivos de aprendizado (009 e 009_009)
 2. Consolidados arquivos de prompts
 3. Criado arquivo prompts.md unificado
+
+---
+
+### Sessão 5: Dashboard Dados Reais + Cadastros Base (05-07/05/2026)
+
+**Agente:** opencode/minimax-m2.5-free
+**Status:** Completo
+
+#### Ações Realizadas
+1. Dashboard passa a consumir dados reais do banco
+2. CRUD completo de Fios, Fornecedores, Cores, Estampas, Bases de Urdume
+3. Relação N:N Fios-Fornecedores com tabela de junção
+4. Landing page com animação canvas de tear e tooltip
+5. Adoção de padrão simples (sem Zod/RHF) para formulários de cadastro
+6. Script de migration manual via Node.js (devido a PowerShell restrito)
+
+---
+
+### Sessão 6: idIntegracao + Importação CSV/JSON (07-08/05/2026)
+
+**Agente:** opencode/minimax-m2.5-free
+**Status:** Completo
+
+#### Ações Realizadas
+1. Campo `idIntegracao` adicionado em todas as tabelas (varchar 100)
+2. API de migração manual via Node.js/postgres driver
+3. Importação CSV/JSON em massa para todos os cadastros
+4. Componentes modais `ImportarX.tsx` para cada entidade
+5. Validação de duplicados (campos únicos + idIntegracao + CNPJ)
+6. Logs de debug no servidor para troubleshooting na Vercel
+
+---
+
+### Sessão 7: Módulo Produto Cru (09-13/05/2026)
+
+**Agente:** opencode/minimax-m2.5-free
+**Status:** Completo
+
+#### Ações Realizadas
+1. Schema completo de Produto Cru (7 tabelas)
+2. Páginas de cadastro com formulário completo
+3. Seletor de status nas amostras (tecido cru e acabamento)
+4. Motivo obrigatório ao aprovar/reprovar amostras com restrição por role
+5. Vinculação de produtos cru na solicitação
+6. Correções de JSX e Drizzle type inference
+
+---
+
+### Sessão 8: Notificações, Email e Admin (13/05/2026)
+
+**Agente:** opencode/minimax-m2.5-free
+**Status:** Completo
+
+#### Ações Realizadas
+1. Sistema de notificações intra-sistema via polling
+2. Sino no header com badge de não lidas
+3. Configuração SMTP no admin
+4. Disparo de email em massa
+5. Gerenciamento de usuários e roles (CRUD completo)
+6. Correção nodemailer@7 para compatibilidade com @auth/core
+
+---
+
+### Sessão 9: Produtos Químicos + Receitas de Beneficiamento (13-17/05/2026)
+
+**Agente:** opencode/minimax-m2.5-free
+**Status:** Completo
+
+#### Ações Realizadas
+1. Schema e CRUD de `produtos_quimicos` com idIntegracao
+2. API de importação CSV/JSON para produtos químicos
+3. Schema `produto_cru_receita` e `produto_cru_receita_item`
+4. Modal `ReceitaDialog` para criar/editar receitas por amostra
+5. Correções de build Vercel: Next.js 14.2.0, Drizzle type inference, JSX
+
+---
+
+### Sessão 10: Refatoração Produtos Químicos (17/05/2026)
+
+**Agente:** opencode/big-pickle (atual)
+**Status:** Completo
+
+#### Ações Realizadas
+1. Criado componente `ImportarProdutosQuimicos.tsx` seguindo o padrão de `ImportarFios.tsx`
+2. Substituído botão import inline por modal-componente com upload de arquivo e feedback visual
+3. Reescrita da página de listagem de produtos químicos para usar `useQuery` e estilo idêntico ao de fios (tabela com ações, busca, dark mode)
+4. Adicionado Delete com confirmação e toast
+5. Commit e push para main
 
 ---
 
@@ -1243,6 +1333,12 @@ Unificação de arquivos de aprendizado e prompts em único arquivo.
 | 07/05/2026 | 96afe63 | Módulo fornecedores |
 | 07/05/2026 | 374a1c5 | Dashboard dados reais |
 | 07/05/2026 | 4582d13 | Landing page tooltip |
+| 08/05/2026 | 0c67ca0 | Importação CSV/JSON em massa |
+| 08/05/2026 | 51cc67a | idIntegracao em todos CRUDs |
+| 09/05/2026 | 4f2a067 | Módulo Produto Cru |
+| 13/05/2026 | fbd87a7 | Notificações + Email + Admin |
+| 13/05/2026 | 4c7b333 | Receitas + Produtos Químicos |
+| 17/05/2026 | 53b6aa3 | Refatoração página produtos químicos |
 
 ---
 
@@ -2266,8 +2362,8 @@ const textoNormalizado = texto.replace(/\r\n/g, "\n").replace(/\r/g, "\n")
 
 ---
 
-**Última atualização:** 13/05/2026
-**Versão:** 2.3 (Importação Completa + Validação Duplicados)
+**Última atualização:** 17/05/2026
+**Versão:** 2.4 (Importação CSV/JSON + Modulo Produto Cru + Notificações + Admin + Produtos Químicos + Receitas + Refatoração)
 **Total de seções:** 43
 
 ---
