@@ -4,9 +4,7 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Search, Plus, Upload, Download } from "lucide-react"
-import { DataTable } from "@/components/ui/data-table"
-import { Badge } from "@/components/ui/badge"
+import { Search, Plus, Upload } from "lucide-react"
 
 type ProdutoQuimico = {
   id: number
@@ -52,7 +50,7 @@ export default function ProdutosQuimicosPage() {
         <h1 className="text-2xl font-bold">Produtos Químicos</h1>
         <div className="flex gap-2">
           <label className="cursor-pointer">
-            <Button variant="outline" disabled={importing} asChild>
+            <Button variant="outline" disabled={importing}>
               <span><Upload className="h-4 w-4 mr-1" /> Importar</span>
             </Button>
             <input
@@ -80,26 +78,49 @@ export default function ProdutosQuimicosPage() {
         </div>
       </div>
 
-      <DataTable
-        columns={[
-          { header: "Código", accessorKey: "codigo" },
-          { header: "Nome", accessorKey: "nome" },
-          { header: "Categoria", accessorKey: "categoria" },
-          { header: "Unidade", accessorKey: "unidadePadrao" },
-          { header: "Tipo", accessorKey: "tipo" },
-          {
-            header: "Ativo",
-            accessorKey: "ativo",
-            cell: ({ row }) => (
-              <Badge variant={row.original.ativo ? "default" : "secondary"}>
-                {row.original.ativo ? "Ativo" : "Inativo"}
-              </Badge>
-            ),
-          },
-        ]}
-        data={data}
-        onRowClick={(row) => router.push(`/cadastros/produtos-quimicos/${row.id}`)}
-      />
+      <div className="border rounded-lg overflow-hidden">
+        <table className="w-full text-sm">
+          <thead className="bg-slate-50 dark:bg-slate-800">
+            <tr>
+              <th className="text-left p-3 font-medium">Código</th>
+              <th className="text-left p-3 font-medium">Nome</th>
+              <th className="text-left p-3 font-medium">Categoria</th>
+              <th className="text-left p-3 font-medium">Unidade</th>
+              <th className="text-left p-3 font-medium">Tipo</th>
+              <th className="text-left p-3 font-medium">Ativo</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y">
+            {data.map((item) => (
+              <tr
+                key={item.id}
+                className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                onClick={() => router.push(`/cadastros/produtos-quimicos/${item.id}`)}
+              >
+                <td className="p-3 font-mono text-xs">{item.codigo}</td>
+                <td className="p-3">{item.nome}</td>
+                <td className="p-3 text-slate-500">{item.categoria || "—"}</td>
+                <td className="p-3">{item.unidadePadrao}</td>
+                <td className="p-3 text-slate-500">{item.tipo || "—"}</td>
+                <td className="p-3">
+                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                    item.ativo ? "bg-green-100 text-green-700" : "bg-slate-100 text-slate-500"
+                  }`}>
+                    {item.ativo ? "Ativo" : "Inativo"}
+                  </span>
+                </td>
+              </tr>
+            ))}
+            {data.length === 0 && (
+              <tr>
+                <td colSpan={6} className="p-6 text-center text-slate-400">
+                  Nenhum produto químico encontrado
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }
