@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Package, Building2, Users, Palette, Scissors, Droplets, Layers } from "lucide-react"
+import { Package, Building2, Users, Palette, Scissors, Droplets, Layers, FlaskConical } from "lucide-react"
 
 const modulos = [
   {
@@ -45,6 +45,12 @@ const modulos = [
     descricao: "Produtos cru (tecidos) - engenharia têxtil",
     href: "/cadastros/produto-cru",
     icon: Layers,
+  },
+  {
+    titulo: "Produtos Químicos",
+    descricao: "Produtos químicos para beneficiamento",
+    href: "/cadastros/produtos-quimicos",
+    icon: FlaskConical,
   },
 ]
 
