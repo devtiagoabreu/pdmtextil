@@ -248,8 +248,58 @@ async function migrate() {
         ('DESENVOLVIMENTO', 'Desenvolvimento', 'Desenvolvimento de novos produtos', '{"produtos":"criar"}'::jsonb),
         ('ADMIN', 'Administrador', 'Acesso total ao sistema', '{"admin":"tudo"}'::jsonb)
       `
-      console.log("✓ Roles padrão inseridas")
     }
+    console.log("✓ Roles padrão inseridas")
+    
+    await sql`
+      CREATE TABLE IF NOT EXISTS produtos_quimicos (
+        id SERIAL PRIMARY KEY,
+        codigo VARCHAR(50) NOT NULL UNIQUE,
+        nome VARCHAR(200) NOT NULL,
+        descricao TEXT,
+        categoria VARCHAR(100),
+        unidade_padrao VARCHAR(20) NOT NULL DEFAULT 'kg',
+        tipo VARCHAR(50),
+        concentracao VARCHAR(50),
+        densidade NUMERIC(8,4),
+        ph NUMERIC(4,1),
+        observacoes TEXT,
+        ficha_seguranca VARCHAR(500),
+        id_integracao VARCHAR(100),
+        ativo BOOLEAN DEFAULT true,
+        criado_por INTEGER REFERENCES usuarios(id),
+        created_at TIMESTAMP DEFAULT now(),
+        updated_at TIMESTAMP DEFAULT now()
+      )
+    `
+    console.log("✓ Tabela produtos_quimicos criada")
+    
+    await sql`
+      CREATE TABLE IF NOT EXISTS produto_cru_receita (
+        id SERIAL PRIMARY KEY,
+        amostra_id INTEGER NOT NULL REFERENCES produto_cru_acabamento_amostra(id) ON DELETE CASCADE,
+        descricao VARCHAR(500) NOT NULL,
+        instrucoes TEXT,
+        created_at TIMESTAMP DEFAULT now(),
+        updated_at TIMESTAMP DEFAULT now()
+      )
+    `
+    console.log("✓ Tabela produto_cru_receita criada")
+    
+    await sql`
+      CREATE TABLE IF NOT EXISTS produto_cru_receita_item (
+        id SERIAL PRIMARY KEY,
+        receita_id INTEGER NOT NULL REFERENCES produto_cru_receita(id) ON DELETE CASCADE,
+        quimico_id INTEGER REFERENCES produtos_quimicos(id) ON DELETE SET NULL,
+        descricao VARCHAR(300),
+        unidade VARCHAR(20) NOT NULL DEFAULT 'g/L',
+        quantidade_metro NUMERIC(10,4) NOT NULL,
+        estagio VARCHAR(10) NOT NULL DEFAULT 'A',
+        ordem INTEGER NOT NULL DEFAULT 1,
+        created_at TIMESTAMP DEFAULT now()
+      )
+    `
+    console.log("✓ Tabela produto_cru_receita_item criada")
 
     console.log("\n✅ Migration concluída com sucesso!")
     

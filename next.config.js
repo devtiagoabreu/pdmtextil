@@ -1,10 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['vercel-blob.com'],
+    remotePatterns: [
+      { protocol: 'https', hostname: 'vercel-blob.com' },
+    ],
   },
-  experimental: {
-    serverComponentsExternalPackages: ['bcryptjs'],
+  serverExternalPackages: ['bcryptjs'],
+  turbopack: {
+    root: process.cwd(),
   },
 }
 

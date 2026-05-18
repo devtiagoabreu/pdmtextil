@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from "react"
 import { useRouter, useParams } from "next/navigation"
-import { ArrowLeft, Plus, Trash2, Loader2, ChevronDown, ChevronRight } from "lucide-react"
+import { ArrowLeft, Plus, Trash2, Loader2, ChevronDown, ChevronRight, FlaskConical } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
+import { ReceitaDialog } from "@/components/receita/acabamento-receita-dialog"
 
 type FichaTecnica = {
   gramatura?: string
@@ -60,7 +61,6 @@ interface Acabamento {
   idIntegracaoErpAcabado?: string
   possuiReceita: boolean
   amostras: AcabamentoAmostra[]
-  receitas: Receita[]
 }
 
 interface AcabamentoAmostra {
@@ -76,7 +76,7 @@ interface Receita {
   id: number
   tipoReceita: string
   parametros: Record<string, unknown>
-}
+} /* deprecated, kept for type compat */
 
 const STATUS_OPTIONS = [
   { value: "DESENVOLVIMENTO", label: "Em Desenvolvimento" },
@@ -136,10 +136,8 @@ export default function ProdutoCruFormPage() {
 
   const [expandedAcabamento, setExpandedAcabamento] = useState<number | null>(null)
   const [expandedAmostraForm, setExpandedAmostraForm] = useState<number | null>(null)
-  const [expandedReceitaForm, setExpandedReceitaForm] = useState<number | null>(null)
 
   const [novaAmostraAcabDescricao, setNovaAmostraAcabDescricao] = useState("")
-  const [novoReceitaTipo, setNovoReceitaTipo] = useState("TINGIMENTO")
 
   const [motivoModal, setMotivoModal] = useState<{
     open: boolean
@@ -147,6 +145,7 @@ export default function ProdutoCruFormPage() {
     novoStatus: string
   }>({ open: false, target: null as any, novoStatus: "" })
   const [motivoText, setMotivoText] = useState("")
+  const [receitaDialog, setReceitaDialog] = useState<{ amostraId: number; acabamentoId: number } | null>(null)
 
   useEffect(() => {
     fetch("/api/cadastros/fios")
@@ -184,7 +183,7 @@ export default function ProdutoCruFormPage() {
           setComposicao(data.composicao || [])
           setEstrutura(data.estrutura || [])
           setAmostras(data.amostras || [])
-          setAcabamentos(data.acabamentos || [])
+          setAcabamentos(data.acabamentos?.map((a: any) => ({ ...a, receitas: undefined })) || [])
         })
         .catch(err => console.error(err))
         .finally(() => setLoading(false))
@@ -307,145 +306,6 @@ export default function ProdutoCruFormPage() {
     } catch {
       toast.error("Erro ao remover estrutura")
     }
-  }
-
-  const addAmostra = async () => {
-    if (!id) { toast.error("Salve o produto primeiro"); return }
-    try {
-      const res = await fetch(`/api/cadastros/produto-cru/${id}/amostras`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ descricao: novaAmostraDescricao, observacoes: novaAmostraObs }),
-      })
-      if (!res.ok) throw new Error()
-      const item = await res.json()
-      setAmostras([...amostras, item])
-      setNovaAmostraDescricao("")
-      setNovaAmostraObs("")
-      toast.success("Amostra adicionada")
-    } catch {
-      toast.error("Erro ao adicionar amostra")
-    }
-  }
-
-  const removeAmostra = async (aid: number) => {
-    if (!id) return
-    try {
-      await fetch(`/api/cadastros/produto-cru/${id}/amostras/${aid}`, { method: "DELETE" })
-      setAmostras(amostras.filter(a => a.id !== aid))
-    } catch {
-      toast.error("Erro ao remover amostra")
-    }
-  }
-
-  const updateStatusAmostra = async (aid: number, status: string) => {
-    if (!id) return
-
-    if (status === "APROVADO" || status === "REPROVADO") {
-      setMotivoText("")
-      setMotivoModal({ open: true, target: { type: "amostra", id: aid }, novoStatus: status })
-      return
-    }
-
-    await confirmUpdateStatusAmostra(aid, status)
-  }
-
-  const confirmUpdateStatusAmostra = async (aid: number, status: string, motivo?: string) => {
-    if (!id) return
-    try {
-      const res = await fetch(`/api/cadastros/produto-cru/${id}/amostras/${aid}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status, motivoAprovacao: motivo }),
-      })
-      if (!res.ok) {
-        const err = await res.json()
-        toast.error(err.error || "Erro ao atualizar status")
-        return
-      }
-      setAmostras(amostras.map(a => a.id === aid ? { ...a, status, motivoAprovacao: motivo } : a))
-      toast.success("Status atualizado")
-    } catch {
-      toast.error("Erro ao atualizar status")
-    }
-  }
-
-  const addAcabamento = async () => {
-    if (!id) { toast.error("Salve o produto primeiro"); return }
-    try {
-      const res = await fetch(`/api/cadastros/produto-cru/${id}/acabamentos`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          tipoAcabamento: novoAcabamentoTipo,
-          descricao: novoAcabamentoDescricao,
-          idIntegracaoErpAcabado: novoAcabamentoErp,
-        }),
-      })
-      if (!res.ok) throw new Error()
-      const item = await res.json()
-      setAcabamentos([...acabamentos, { ...item, amostras: [], receitas: [] }])
-      setNovoAcabamentoDescricao("")
-      setNovoAcabamentoErp("")
-      toast.success("Acabamento adicionado")
-    } catch {
-      toast.error("Erro ao adicionar acabamento")
-    }
-  }
-
-  const removeAcabamento = async (aid: number) => {
-    if (!id) return
-    try {
-      await fetch(`/api/cadastros/produto-cru/${id}/acabamentos/${aid}`, { method: "DELETE" })
-      setAcabamentos(acabamentos.filter(a => a.id !== aid))
-    } catch {
-      toast.error("Erro ao remover acabamento")
-    }
-  }
-
-  const addAmostraAcabamento = async (acabamentoId: number) => {
-    if (!id) return
-    try {
-      const res = await fetch(`/api/cadastros/produto-cru/${id}/acabamentos/${acabamentoId}/amostras`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ descricao: novaAmostraAcabDescricao }),
-      })
-      if (!res.ok) throw new Error()
-      const item = await res.json()
-      setAcabamentos(acabamentos.map(a =>
-        a.id === acabamentoId ? { ...a, amostras: [...a.amostras, item] } : a
-      ))
-      setNovaAmostraAcabDescricao("")
-      setExpandedAmostraForm(null)
-      toast.success("Amostra adicionada")
-    } catch {
-      toast.error("Erro ao adicionar amostra")
-    }
-  }
-
-  const removeAmostraAcabamento = async (acabamentoId: number, asid: number) => {
-    if (!id) return
-    try {
-      await fetch(`/api/cadastros/produto-cru/${id}/acabamentos/${acabamentoId}/amostras/${asid}`, { method: "DELETE" })
-      setAcabamentos(acabamentos.map(a =>
-        a.id === acabamentoId ? { ...a, amostras: a.amostras.filter(as => as.id !== asid) } : a
-      ))
-    } catch {
-      toast.error("Erro ao remover amostra")
-    }
-  }
-
-  const updateStatusAmostraAcabamento = async (acabamentoId: number, asid: number, status: string) => {
-    if (!id) return
-
-    if (status === "APROVADO" || status === "REPROVADO") {
-      setMotivoText("")
-      setMotivoModal({ open: true, target: { type: "acabamento", id: asid, acabamentoId }, novoStatus: status })
-      return
-    }
-
-    await confirmUpdateStatusAmostraAcabamento(acabamentoId, asid, status)
   }
 
   const confirmUpdateStatusAmostraAcabamento = async (acabamentoId: number, asid: number, status: string, motivo?: string) => {
@@ -856,33 +716,28 @@ export default function ProdutoCruFormPage() {
                           )}
                         </div>
 
-                        <div>
-                          <div className="flex items-center justify-between mb-2">
-                            <h3 className="text-sm font-medium">Receitas de Processo</h3>
-                            <Button size="sm" variant="outline" onClick={() => setExpandedReceitaForm(expandedReceitaForm === acab.id ? null : acab.id)}>
-                              <Plus size={14} /> Receita
-                            </Button>
-                          </div>
-                          {acab.receitas.map(r => (
-                            <div key={r.id} className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-800/50 rounded mb-1">
-                              <span className="text-sm">{r.tipoReceita}</span>
-                              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeReceita(acab.id, r.id)}>
-                                <Trash2 size={12} />
-                              </Button>
-                            </div>
-                          ))}
-                          {expandedReceitaForm === acab.id && (
-                            <div className="flex gap-2 mt-2 items-end">
-                              <div className="space-y-1">
-                                <Label className="text-xs">Tipo</Label>
-                                <select value={novoReceitaTipo} onChange={e => setNovoReceitaTipo(e.target.value)}
-                                  className="p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-sm">
-                                  {TIPO_RECEITA.map(t => <option key={t} value={t}>{t}</option>)}
-                                </select>
+                        <div className="mt-3 border-t pt-3">
+                          <h3 className="text-sm font-medium mb-2">Receitas de Beneficiamento</h3>
+                          <div className="space-y-1">
+                            {acab.amostras.map(as => (
+                              <div key={as.id} className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-800/50 rounded text-sm">
+                                <span className="text-slate-600">
+                                  {as.descricao || `Amostra #${as.id}`}
+                                  <span className={`ml-2 text-xs font-medium px-1.5 py-0.5 rounded ${
+                                    as.status === "APROVADO" ? "bg-green-100 text-green-700" :
+                                    as.status === "REPROVADO" ? "bg-red-100 text-red-700" :
+                                    "bg-yellow-100 text-yellow-700"
+                                  }`}>{as.status}</span>
+                                </span>
+                                <Button size="sm" variant="ghost" onClick={() => setReceitaDialog({ acabamentoId: acab.id, amostraId: as.id })}>
+                                  <FlaskConical size={14} className="mr-1" /> Receita
+                                </Button>
                               </div>
-                              <Button size="sm" onClick={() => addReceita(acab.id)}>Adicionar</Button>
-                            </div>
-                          )}
+                            ))}
+                            {acab.amostras.length === 0 && (
+                              <p className="text-xs text-slate-400 italic">Nenhuma amostra ainda</p>
+                            )}
+                          </div>
                         </div>
                       </div>
                     )}
@@ -957,6 +812,16 @@ export default function ProdutoCruFormPage() {
           </div>
         </div>
       )}
-    </div>
+
+      {receitaDialog && id && (
+        <ReceitaDialog
+          produtoCruId={id}
+          acabamentoId={receitaDialog.acabamentoId}
+          amostraId={receitaDialog.amostraId}
+          open={!!receitaDialog}
+          onClose={() => setReceitaDialog(null)}
+        />
+      )}
+    </form>
   )
 }
