@@ -1,602 +1,862 @@
 {
-  "E:\\dev\\pdmtextil\\src\\middleware.ts": {
-    "mtime": 1778269451.92977,
-    "ast_hash": "88fb654c83b9c6c64e187f66c6504262",
-    "semantic_hash": "88fb654c83b9c6c64e187f66c6504262"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\layout.tsx": {
-    "mtime": 1778269451.912812,
-    "ast_hash": "efaa55a208849188c9c201293d4c1b6a",
-    "semantic_hash": "efaa55a208849188c9c201293d4c1b6a"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\page.tsx": {
-    "mtime": 1778327582.8529267,
-    "ast_hash": "8ad2e0d70abc9332d0110d6189d0b559",
-    "semantic_hash": "8ad2e0d70abc9332d0110d6189d0b559"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\(dashboard)\\layout.tsx": {
-    "mtime": 1778269451.9032733,
-    "ast_hash": "1a1cfa654f08001679b0159c84c7fab6",
-    "semantic_hash": "1a1cfa654f08001679b0159c84c7fab6"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\(dashboard)\\cadastros\\page.tsx": {
-    "mtime": 1778698237.1328316,
-    "ast_hash": "ecf8da3944be7e26f7aa75f9904a2db7",
-    "semantic_hash": "ecf8da3944be7e26f7aa75f9904a2db7"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\(dashboard)\\cadastros\\bases-urdume\\page.tsx": {
-    "mtime": 1778698112.9962983,
-    "ast_hash": "8e6d82c3d1cd142ba1e724323d7bd296",
-    "semantic_hash": "8e6d82c3d1cd142ba1e724323d7bd296"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\(dashboard)\\cadastros\\bases-urdume\\[id]\\page.tsx": {
-    "mtime": 1778689669.1394508,
-    "ast_hash": "831e1495a3304d011b8a3dbbe45f3673",
-    "semantic_hash": "831e1495a3304d011b8a3dbbe45f3673"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\(dashboard)\\cadastros\\clientes\\page.tsx": {
-    "mtime": 1778698226.030626,
-    "ast_hash": "289fe100ab640392bf6b5683fef84150",
-    "semantic_hash": "289fe100ab640392bf6b5683fef84150"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\(dashboard)\\cadastros\\cores\\page.tsx": {
-    "mtime": 1778698108.200886,
-    "ast_hash": "6bed4463e0eed98301373f5085729764",
-    "semantic_hash": "6bed4463e0eed98301373f5085729764"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\(dashboard)\\cadastros\\cores\\[id]\\page.tsx": {
-    "mtime": 1778689666.0488613,
-    "ast_hash": "70e5016644a21558abb7eda298f0c5c0",
-    "semantic_hash": "70e5016644a21558abb7eda298f0c5c0"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\(dashboard)\\cadastros\\estampas\\page.tsx": {
-    "mtime": 1778698109.4891772,
-    "ast_hash": "2c22ece2f2b3d5f05af205a1d9dd72e8",
-    "semantic_hash": "2c22ece2f2b3d5f05af205a1d9dd72e8"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\(dashboard)\\cadastros\\estampas\\[id]\\page.tsx": {
-    "mtime": 1778689667.6400473,
-    "ast_hash": "4729d2416284a75abef2d8694a25167d",
-    "semantic_hash": "4729d2416284a75abef2d8694a25167d"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\(dashboard)\\cadastros\\fios\\page.tsx": {
-    "mtime": 1778692241.995632,
-    "ast_hash": "194607a9b164470c3551e78e1775e6cb",
-    "semantic_hash": "194607a9b164470c3551e78e1775e6cb"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\(dashboard)\\cadastros\\fios\\[id]\\page.tsx": {
-    "mtime": 1778689663.299136,
-    "ast_hash": "242b68871bc1a201877a47baeccd1d69",
-    "semantic_hash": "242b68871bc1a201877a47baeccd1d69"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\(dashboard)\\cadastros\\fornecedores\\page.tsx": {
-    "mtime": 1778698106.661211,
-    "ast_hash": "71f04e257c49633f819f0e0e5abdbda2",
-    "semantic_hash": "71f04e257c49633f819f0e0e5abdbda2"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\(dashboard)\\cadastros\\fornecedores\\[id]\\page.tsx": {
-    "mtime": 1778689664.7231667,
-    "ast_hash": "99b1417b9b22d0e2dc07b06abe3a1f52",
-    "semantic_hash": "99b1417b9b22d0e2dc07b06abe3a1f52"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\(dashboard)\\comercial\\clientes\\page.tsx": {
-    "mtime": 1778269451.9007673,
-    "ast_hash": "106c0adbab73a9f45be7b8e561323a5a",
-    "semantic_hash": "106c0adbab73a9f45be7b8e561323a5a"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\(dashboard)\\comercial\\clientes\\novo\\page.tsx": {
-    "mtime": 1778690130.8718188,
-    "ast_hash": "cdb8b94bf6de423158cbc26f2cfa5a09",
-    "semantic_hash": "cdb8b94bf6de423158cbc26f2cfa5a09"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\(dashboard)\\comercial\\clientes\\[id]\\page.tsx": {
-    "mtime": 1778690083.227284,
-    "ast_hash": "65b359c668c3e223a165e2d3da0df59f",
-    "semantic_hash": "65b359c668c3e223a165e2d3da0df59f"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\(dashboard)\\comercial\\solicitacoes\\page.tsx": {
-    "mtime": 1778269451.902768,
-    "ast_hash": "8176f27011d107115e5e597022940e99",
-    "semantic_hash": "8176f27011d107115e5e597022940e99"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\(dashboard)\\comercial\\solicitacoes\\nova\\page.tsx": {
-    "mtime": 1778269451.901767,
-    "ast_hash": "0c36b6bb873189a40a240a66b4966776",
-    "semantic_hash": "0c36b6bb873189a40a240a66b4966776"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\(dashboard)\\comercial\\solicitacoes\\[id]\\page.tsx": {
-    "mtime": 1778269451.901767,
-    "ast_hash": "eb15fa955444b4471959274d8afa09bc",
-    "semantic_hash": "eb15fa955444b4471959274d8afa09bc"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\(dashboard)\\comercial\\solicitacoes\\[id]\\editar\\page.tsx": {
-    "mtime": 1778269451.901767,
-    "ast_hash": "05f98f346f27d8e4aa1028e11d664b98",
-    "semantic_hash": "05f98f346f27d8e4aa1028e11d664b98"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\(dashboard)\\dashboard\\page.tsx": {
-    "mtime": 1778269451.9032733,
-    "ast_hash": "282e1c74139c6a2ab96738ef336fa45e",
-    "semantic_hash": "282e1c74139c6a2ab96738ef336fa45e"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\(dashboard)\\perfil\\page.tsx": {
-    "mtime": 1778269451.9032733,
-    "ast_hash": "4575b3dca82351e0294e410dad950745",
-    "semantic_hash": "4575b3dca82351e0294e410dad950745"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\api\\auth\\[...nextauth]\\route.ts": {
-    "mtime": 1778269451.9032733,
-    "ast_hash": "74a46f78493dd727c8668105699c026c",
-    "semantic_hash": "74a46f78493dd727c8668105699c026c"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\api\\cadastros\\bases-urdume\\route.ts": {
-    "mtime": 1778689082.156494,
-    "ast_hash": "e22f503261c6fa673b2f9df4a4e54c0d",
-    "semantic_hash": "e22f503261c6fa673b2f9df4a4e54c0d"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\api\\cadastros\\bases-urdume\\importar\\route.ts": {
-    "mtime": 1778704067.519838,
-    "ast_hash": "0adf1b0875710c244f02f40b3d6ea6d7",
-    "semantic_hash": "0adf1b0875710c244f02f40b3d6ea6d7"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\api\\cadastros\\bases-urdume\\modelo\\route.ts": {
-    "mtime": 1778698015.6204343,
-    "ast_hash": "634494e6e2fe0eecdc26fc085c0c4f3a",
-    "semantic_hash": "634494e6e2fe0eecdc26fc085c0c4f3a"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\api\\cadastros\\bases-urdume\\[id]\\route.ts": {
-    "mtime": 1778704805.0421357,
-    "ast_hash": "0c6bd576c4f0b69dd4922b8f25c79215",
-    "semantic_hash": "0c6bd576c4f0b69dd4922b8f25c79215"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\api\\cadastros\\clientes\\importar\\route.ts": {
-    "mtime": 1778704063.8371627,
-    "ast_hash": "e7dceae126847c137bdc472ed6ebb5be",
-    "semantic_hash": "e7dceae126847c137bdc472ed6ebb5be"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\api\\cadastros\\clientes\\modelo\\route.ts": {
-    "mtime": 1778698191.168681,
-    "ast_hash": "8ac420cc46ceb6f439fc043333a36b01",
-    "semantic_hash": "8ac420cc46ceb6f439fc043333a36b01"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\api\\cadastros\\cores\\route.ts": {
-    "mtime": 1778689015.3374703,
-    "ast_hash": "dc59b6bd99db0ed829e790fee9ee584f",
-    "semantic_hash": "dc59b6bd99db0ed829e790fee9ee584f"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\api\\cadastros\\cores\\importar\\route.ts": {
-    "mtime": 1778704075.6570122,
-    "ast_hash": "a290282992767db6f147383602c2fdc2",
-    "semantic_hash": "a290282992767db6f147383602c2fdc2"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\api\\cadastros\\cores\\modelo\\route.ts": {
-    "mtime": 1778697961.0396123,
-    "ast_hash": "31cb2649d4cd6af2b88431e457d2d43f",
-    "semantic_hash": "31cb2649d4cd6af2b88431e457d2d43f"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\api\\cadastros\\cores\\[id]\\route.ts": {
-    "mtime": 1778704799.5747607,
-    "ast_hash": "917fdd07da7460f426fe41c501351c13",
-    "semantic_hash": "917fdd07da7460f426fe41c501351c13"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\api\\cadastros\\estampas\\route.ts": {
-    "mtime": 1778689048.4861507,
-    "ast_hash": "f0ab7ed8985d8913b11546d6196f8315",
-    "semantic_hash": "f0ab7ed8985d8913b11546d6196f8315"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\api\\cadastros\\estampas\\importar\\route.ts": {
-    "mtime": 1778704065.7119236,
-    "ast_hash": "de33264844ddc8b8ebfa038a76977e2b",
-    "semantic_hash": "de33264844ddc8b8ebfa038a76977e2b"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\api\\cadastros\\estampas\\modelo\\route.ts": {
-    "mtime": 1778697990.2063081,
-    "ast_hash": "b8fd98945524a1193978a6f08a1c01e2",
-    "semantic_hash": "b8fd98945524a1193978a6f08a1c01e2"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\api\\cadastros\\estampas\\[id]\\route.ts": {
-    "mtime": 1778704802.289454,
-    "ast_hash": "1be0d439cc6f6adddf65b1eacc6b176c",
-    "semantic_hash": "1be0d439cc6f6adddf65b1eacc6b176c"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\api\\cadastros\\fios\\route.ts": {
-    "mtime": 1778688896.983806,
-    "ast_hash": "e51210d78f2c4e0eb9c0b53afa900f4f",
-    "semantic_hash": "e51210d78f2c4e0eb9c0b53afa900f4f"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\api\\cadastros\\fios\\importar\\route.ts": {
-    "mtime": 1778704060.1285224,
-    "ast_hash": "c2edda34a6a1eca625cdf7e0632557d5",
-    "semantic_hash": "c2edda34a6a1eca625cdf7e0632557d5"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\api\\cadastros\\fios\\modelo\\route.ts": {
-    "mtime": 1778693212.7873776,
-    "ast_hash": "91f862c03c37da0a9ee42fcec71ec5d8",
-    "semantic_hash": "91f862c03c37da0a9ee42fcec71ec5d8"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\api\\cadastros\\fios\\[id]\\route.ts": {
-    "mtime": 1778704796.911486,
-    "ast_hash": "461074f451527a5c11c7e0f894d351b3",
-    "semantic_hash": "461074f451527a5c11c7e0f894d351b3"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\api\\cadastros\\fios\\[id]\\fornecedores\\route.ts": {
-    "mtime": 1778269567.691161,
-    "ast_hash": "c55c68a39d3d0fbe74cb0961664f52d9",
-    "semantic_hash": "c55c68a39d3d0fbe74cb0961664f52d9"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\api\\cadastros\\fios\\[id]\\fornecedores\\[fid]\\route.ts": {
-    "mtime": 1778269567.6906366,
-    "ast_hash": "3750ed4b3db1893dc081bfe24ca8b87e",
-    "semantic_hash": "3750ed4b3db1893dc081bfe24ca8b87e"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\api\\cadastros\\fornecedores\\route.ts": {
-    "mtime": 1778688950.501991,
-    "ast_hash": "cf75782e5edbd3d8303a4f74a388891f",
-    "semantic_hash": "cf75782e5edbd3d8303a4f74a388891f"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\api\\cadastros\\fornecedores\\importar\\route.ts": {
-    "mtime": 1778704062.131024,
-    "ast_hash": "58784bd4de0b7b9f218a42257dcb5113",
-    "semantic_hash": "58784bd4de0b7b9f218a42257dcb5113"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\api\\cadastros\\fornecedores\\modelo\\route.ts": {
-    "mtime": 1778697936.6162713,
-    "ast_hash": "a19d4fc3ee717ee0ca693770843a50d8",
-    "semantic_hash": "a19d4fc3ee717ee0ca693770843a50d8"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\api\\cadastros\\fornecedores\\[id]\\route.ts": {
-    "mtime": 1778704780.8751962,
-    "ast_hash": "845b3752711f438f6bf2a551a594f3ed",
-    "semantic_hash": "845b3752711f438f6bf2a551a594f3ed"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\api\\clientes\\route.ts": {
-    "mtime": 1778690090.903462,
-    "ast_hash": "865c69b80b5224a3873f6ad117434e1a",
-    "semantic_hash": "865c69b80b5224a3873f6ad117434e1a"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\api\\clientes\\importar\\route.ts": {
-    "mtime": 1778698082.3102949,
-    "ast_hash": "640af0434849c9d7bbe87a7769146e2a",
-    "semantic_hash": "640af0434849c9d7bbe87a7769146e2a"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\api\\clientes\\modelo\\route.ts": {
-    "mtime": 1778698077.1836915,
-    "ast_hash": "17b72929c6d5189b8b9b6ddd7103813c",
-    "semantic_hash": "17b72929c6d5189b8b9b6ddd7103813c"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\api\\clientes\\[id]\\route.ts": {
-    "mtime": 1778704788.339923,
-    "ast_hash": "3dfd5b5ea1f3ffd82052b8ab3a826b06",
-    "semantic_hash": "3dfd5b5ea1f3ffd82052b8ab3a826b06"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\api\\dashboard\\atividades\\route.ts": {
-    "mtime": 1778269451.9087737,
-    "ast_hash": "b9132b4b791f913bdd0a1e6ba01df043",
-    "semantic_hash": "b9132b4b791f913bdd0a1e6ba01df043"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\api\\dashboard\\stats\\route.ts": {
-    "mtime": 1778269451.9087737,
-    "ast_hash": "be713b810ef8aa6f9d513f29db9754ca",
-    "semantic_hash": "be713b810ef8aa6f9d513f29db9754ca"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\api\\db\\add-id-integracao\\route.ts": {
-    "mtime": 1778269567.6916955,
-    "ast_hash": "887c83dd5f18d6b6c1199f8f75acf4a4",
-    "semantic_hash": "887c83dd5f18d6b6c1199f8f75acf4a4"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\api\\db\\migrate\\route.ts": {
-    "mtime": 1778269567.6927044,
-    "ast_hash": "52f514ad08d00934fe4f0d6b5ac07952",
-    "semantic_hash": "52f514ad08d00934fe4f0d6b5ac07952"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\api\\db\\migrate-add-columns\\route.ts": {
-    "mtime": 1778269567.6916955,
-    "ast_hash": "dc25e3a9f9cc8a9e2889868838887ccc",
-    "semantic_hash": "dc25e3a9f9cc8a9e2889868838887ccc"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\api\\db\\seed-cadastros\\route.ts": {
-    "mtime": 1778269567.6927044,
-    "ast_hash": "38abe02524e0c0379f284f78cb6ccf5c",
-    "semantic_hash": "38abe02524e0c0379f284f78cb6ccf5c"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\api\\solicitacoes\\route.ts": {
-    "mtime": 1778269451.9108043,
-    "ast_hash": "2570eae01a426e61252b6197f9f0b6b4",
-    "semantic_hash": "2570eae01a426e61252b6197f9f0b6b4"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\api\\solicitacoes\\[id]\\route.ts": {
-    "mtime": 1778269451.9108043,
-    "ast_hash": "127671c0f30c322630d5a6c524801ea3",
-    "semantic_hash": "127671c0f30c322630d5a6c524801ea3"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\api\\solicitacoes\\[id]\\status\\route.ts": {
-    "mtime": 1778269451.9108043,
-    "ast_hash": "2d3628515b72d9d9559113e3539fa2d6",
-    "semantic_hash": "2d3628515b72d9d9559113e3539fa2d6"
-  },
-  "E:\\dev\\pdmtextil\\src\\app\\login\\page.tsx": {
-    "mtime": 1778269451.913318,
-    "ast_hash": "8f8d87db8eb2a29efb00acda2d2f5ea0",
-    "semantic_hash": "8f8d87db8eb2a29efb00acda2d2f5ea0"
-  },
-  "E:\\dev\\pdmtextil\\src\\components\\providers.tsx": {
-    "mtime": 1778269451.917338,
-    "ast_hash": "06477da44462ba70ed6ab269641d215e",
-    "semantic_hash": "06477da44462ba70ed6ab269641d215e"
-  },
-  "E:\\dev\\pdmtextil\\src\\components\\query-provider.tsx": {
-    "mtime": 1778269451.917338,
-    "ast_hash": "1b229dd1b0c764409ca81c38734112d5",
-    "semantic_hash": "1b229dd1b0c764409ca81c38734112d5"
-  },
-  "E:\\dev\\pdmtextil\\src\\components\\forms\\AnexosUpload.tsx": {
-    "mtime": 1778269451.9143276,
-    "ast_hash": "aebfa2a7e1bfc748891ba4c427ba7100",
-    "semantic_hash": "aebfa2a7e1bfc748891ba4c427ba7100"
-  },
-  "E:\\dev\\pdmtextil\\src\\components\\forms\\BriefingTecelagemForm.tsx": {
-    "mtime": 1778269451.9153268,
-    "ast_hash": "7872f5217ea5719bd5fe408666340b22",
-    "semantic_hash": "7872f5217ea5719bd5fe408666340b22"
-  },
-  "E:\\dev\\pdmtextil\\src\\components\\forms\\ClienteAutocomplete.tsx": {
-    "mtime": 1778269451.9153268,
-    "ast_hash": "09598a6ded64dc3fcb749d07c9423832",
-    "semantic_hash": "09598a6ded64dc3fcb749d07c9423832"
-  },
-  "E:\\dev\\pdmtextil\\src\\components\\importar\\ImportarBasesUrdume.tsx": {
-    "mtime": 1778703304.9518535,
-    "ast_hash": "42fde813aef71150eb6333030778c0b5",
-    "semantic_hash": "42fde813aef71150eb6333030778c0b5"
-  },
-  "E:\\dev\\pdmtextil\\src\\components\\importar\\ImportarClientes.tsx": {
-    "mtime": 1778698213.1723895,
-    "ast_hash": "c1ff2335e262117e7c8507501efad0dd",
-    "semantic_hash": "c1ff2335e262117e7c8507501efad0dd"
-  },
-  "E:\\dev\\pdmtextil\\src\\components\\importar\\ImportarCores.tsx": {
-    "mtime": 1778697978.7073498,
-    "ast_hash": "91bf50384e67485f50ea8b0bc2d54d8a",
-    "semantic_hash": "91bf50384e67485f50ea8b0bc2d54d8a"
-  },
-  "E:\\dev\\pdmtextil\\src\\components\\importar\\ImportarEstampas.tsx": {
-    "mtime": 1778703312.4039237,
-    "ast_hash": "12496187fd58df12fbee03ce524a05b9",
-    "semantic_hash": "12496187fd58df12fbee03ce524a05b9"
-  },
-  "E:\\dev\\pdmtextil\\src\\components\\importar\\ImportarFios.tsx": {
-    "mtime": 1778696212.2865272,
-    "ast_hash": "78ed34321a20a35d8caeaa7ba8e2ed30",
-    "semantic_hash": "78ed34321a20a35d8caeaa7ba8e2ed30"
-  },
-  "E:\\dev\\pdmtextil\\src\\components\\importar\\ImportarFornecedores.tsx": {
-    "mtime": 1778697952.4417,
-    "ast_hash": "e463b1071e5d63016f93c1d6cbde4ed1",
-    "semantic_hash": "e463b1071e5d63016f93c1d6cbde4ed1"
-  },
-  "E:\\dev\\pdmtextil\\src\\components\\layout\\dashboard-shell.tsx": {
-    "mtime": 1778269451.915833,
-    "ast_hash": "89a9409d37a3a634c7b437f6cfce0342",
-    "semantic_hash": "89a9409d37a3a634c7b437f6cfce0342"
-  },
-  "E:\\dev\\pdmtextil\\src\\components\\layout\\header.tsx": {
-    "mtime": 1778269451.915833,
-    "ast_hash": "eb9d42b1bdc31a6e7037b451001332bc",
-    "semantic_hash": "eb9d42b1bdc31a6e7037b451001332bc"
-  },
-  "E:\\dev\\pdmtextil\\src\\components\\layout\\mobile-bottom-nav.tsx": {
-    "mtime": 1778269451.915833,
-    "ast_hash": "b4fd8646f8be783b91c5877d523422ee",
-    "semantic_hash": "b4fd8646f8be783b91c5877d523422ee"
-  },
-  "E:\\dev\\pdmtextil\\src\\components\\layout\\sidebar.tsx": {
-    "mtime": 1778269451.915833,
-    "ast_hash": "3b110f7d170f2b5c90c08dbbf77f3e40",
-    "semantic_hash": "3b110f7d170f2b5c90c08dbbf77f3e40"
-  },
-  "E:\\dev\\pdmtextil\\src\\components\\layout\\theme-toggle.tsx": {
-    "mtime": 1778269451.915833,
-    "ast_hash": "837f96c5117ae853a28b0570502944a8",
-    "semantic_hash": "837f96c5117ae853a28b0570502944a8"
-  },
-  "E:\\dev\\pdmtextil\\src\\components\\ui\\button.tsx": {
-    "mtime": 1778269451.9178572,
-    "ast_hash": "705bf3552a39e0c722665ccbecb30654",
-    "semantic_hash": "705bf3552a39e0c722665ccbecb30654"
-  },
-  "E:\\dev\\pdmtextil\\src\\components\\ui\\card.tsx": {
-    "mtime": 1778269451.9178572,
-    "ast_hash": "77a10bd948ca424972a28e704a3df604",
-    "semantic_hash": "77a10bd948ca424972a28e704a3df604"
-  },
-  "E:\\dev\\pdmtextil\\src\\components\\ui\\checkbox.tsx": {
-    "mtime": 1778269451.9178572,
-    "ast_hash": "752adab59f662a7fb2f37bdb77e097fe",
-    "semantic_hash": "752adab59f662a7fb2f37bdb77e097fe"
-  },
-  "E:\\dev\\pdmtextil\\src\\components\\ui\\dialog.tsx": {
-    "mtime": 1778269451.9188652,
-    "ast_hash": "d9618a63d34473ec512321cc12d43692",
-    "semantic_hash": "d9618a63d34473ec512321cc12d43692"
-  },
-  "E:\\dev\\pdmtextil\\src\\components\\ui\\dropdown-menu.tsx": {
-    "mtime": 1778269451.9188652,
-    "ast_hash": "e6107cbb2088437e76a858f75b5a0280",
-    "semantic_hash": "e6107cbb2088437e76a858f75b5a0280"
-  },
-  "E:\\dev\\pdmtextil\\src\\components\\ui\\input.tsx": {
-    "mtime": 1778269451.9188652,
-    "ast_hash": "0607b02d99a2e92f9509223f36ccc6ec",
-    "semantic_hash": "0607b02d99a2e92f9509223f36ccc6ec"
-  },
-  "E:\\dev\\pdmtextil\\src\\components\\ui\\label.tsx": {
-    "mtime": 1778269451.9197793,
-    "ast_hash": "a70440da86bfc6a07f15197cca48cb08",
-    "semantic_hash": "a70440da86bfc6a07f15197cca48cb08"
-  },
-  "E:\\dev\\pdmtextil\\src\\components\\ui\\popover.tsx": {
-    "mtime": 1778269451.9201725,
-    "ast_hash": "3cb9c412624579717c4ad67965d80a1c",
-    "semantic_hash": "3cb9c412624579717c4ad67965d80a1c"
-  },
-  "E:\\dev\\pdmtextil\\src\\components\\ui\\radio-group.tsx": {
-    "mtime": 1778269451.9201725,
-    "ast_hash": "8041aba80ff68e508d5644024571b439",
-    "semantic_hash": "8041aba80ff68e508d5644024571b439"
-  },
-  "E:\\dev\\pdmtextil\\src\\components\\ui\\select.tsx": {
-    "mtime": 1778269451.9206424,
-    "ast_hash": "ab95f478cb74d1906b07425c15b124cc",
-    "semantic_hash": "ab95f478cb74d1906b07425c15b124cc"
-  },
-  "E:\\dev\\pdmtextil\\src\\components\\ui\\separator.tsx": {
-    "mtime": 1778269451.9209585,
-    "ast_hash": "3de2dca3e47ab29c4b1f632671545628",
-    "semantic_hash": "3de2dca3e47ab29c4b1f632671545628"
-  },
-  "E:\\dev\\pdmtextil\\src\\components\\ui\\sonner.tsx": {
-    "mtime": 1778269451.9209585,
-    "ast_hash": "f46214bc2a6a5153a6e04fad523d5587",
-    "semantic_hash": "f46214bc2a6a5153a6e04fad523d5587"
-  },
-  "E:\\dev\\pdmtextil\\src\\components\\ui\\tabs.tsx": {
-    "mtime": 1778269451.9215376,
-    "ast_hash": "429035bc858475cd3bcedbb08a5ba8da",
-    "semantic_hash": "429035bc858475cd3bcedbb08a5ba8da"
-  },
-  "E:\\dev\\pdmtextil\\src\\components\\ui\\textarea.tsx": {
-    "mtime": 1778269451.921854,
-    "ast_hash": "d448d2a90e48542e51b93a1189127bf2",
-    "semantic_hash": "d448d2a90e48542e51b93a1189127bf2"
-  },
-  "E:\\dev\\pdmtextil\\src\\lib\\auth.ts": {
-    "mtime": 1778269451.921854,
-    "ast_hash": "1ddc07b113e6417f8309930246c4da95",
-    "semantic_hash": "1ddc07b113e6417f8309930246c4da95"
-  },
-  "E:\\dev\\pdmtextil\\src\\lib\\utils.ts": {
-    "mtime": 1778269451.92977,
-    "ast_hash": "5a6fd53fdcf2be529e9cc0b718fde352",
-    "semantic_hash": "5a6fd53fdcf2be529e9cc0b718fde352"
-  },
-  "E:\\dev\\pdmtextil\\src\\lib\\db\\index.ts": {
-    "mtime": 1778269451.921854,
-    "ast_hash": "15c491d2fb27cd8f508ed60aafe25b5a",
-    "semantic_hash": "15c491d2fb27cd8f508ed60aafe25b5a"
-  },
-  "E:\\dev\\pdmtextil\\src\\lib\\db\\seed.ts": {
-    "mtime": 1778269451.9282637,
-    "ast_hash": "f9629a029bf08e36295c2f4a929ba617",
-    "semantic_hash": "f9629a029bf08e36295c2f4a929ba617"
-  },
-  "E:\\dev\\pdmtextil\\src\\lib\\db\\migrations\\0000_careful_iron_monger.sql": {
-    "mtime": 1778269451.921854,
-    "ast_hash": "9b674ead20688b5f612c9a5873fca6a7",
-    "semantic_hash": "9b674ead20688b5f612c9a5873fca6a7"
-  },
-  "E:\\dev\\pdmtextil\\src\\lib\\db\\migrations\\0001_new_tables.sql": {
-    "mtime": 1778269451.921854,
-    "ast_hash": "7bd55866157457b6400488ae5d6997ef",
-    "semantic_hash": "7bd55866157457b6400488ae5d6997ef"
-  },
-  "E:\\dev\\pdmtextil\\src\\lib\\db\\migrations\\0001_past_iron_lad.sql": {
-    "mtime": 1778269567.6927044,
-    "ast_hash": "e4ce96480cde90fddd4d2e9cbb991758",
-    "semantic_hash": "e4ce96480cde90fddd4d2e9cbb991758"
-  },
-  "E:\\dev\\pdmtextil\\src\\lib\\db\\migrations\\0002_add_id_integracao.sql": {
-    "mtime": 1778269567.6937025,
-    "ast_hash": "a9b4f89c999845360bf4312769ec5d22",
-    "semantic_hash": "a9b4f89c999845360bf4312769ec5d22"
-  },
-  "E:\\dev\\pdmtextil\\src\\lib\\db\\migrations\\0002_cadastros.sql": {
-    "mtime": 1778269567.6937025,
-    "ast_hash": "bb9457028da4136b071f6756e6368d7f",
-    "semantic_hash": "bb9457028da4136b071f6756e6368d7f"
-  },
-  "E:\\dev\\pdmtextil\\src\\lib\\db\\migrations\\0003_add_id_integracao_colunas.sql": {
-    "mtime": 1778269567.6937025,
-    "ast_hash": "bb5ac08108d2ff08a8626079fd01e54c",
-    "semantic_hash": "bb5ac08108d2ff08a8626079fd01e54c"
-  },
-  "E:\\dev\\pdmtextil\\src\\lib\\db\\migrations\\meta\\0000_snapshot.json": {
-    "mtime": 1778269451.921854,
-    "ast_hash": "6a18ddb547d3a93e08cddbd2cae6d434",
-    "semantic_hash": "6a18ddb547d3a93e08cddbd2cae6d434"
-  },
-  "E:\\dev\\pdmtextil\\src\\lib\\db\\migrations\\meta\\0001_snapshot.json": {
-    "mtime": 1778269567.6937025,
-    "ast_hash": "4f67db309247b463501b3f44e2497135",
-    "semantic_hash": "4f67db309247b463501b3f44e2497135"
-  },
-  "E:\\dev\\pdmtextil\\src\\lib\\db\\migrations\\meta\\_journal.json": {
-    "mtime": 1778269567.694706,
-    "ast_hash": "504527e048b878c19d6c57ad058e7216",
-    "semantic_hash": "504527e048b878c19d6c57ad058e7216"
-  },
-  "E:\\dev\\pdmtextil\\src\\lib\\db\\schema\\acabamentos.ts": {
-    "mtime": 1778269567.694706,
-    "ast_hash": "3885e77aa57e99ffce6aabe0ef4ecc5b",
-    "semantic_hash": "3885e77aa57e99ffce6aabe0ef4ecc5b"
-  },
-  "E:\\dev\\pdmtextil\\src\\lib\\db\\schema\\anexos.ts": {
-    "mtime": 1778269567.694706,
-    "ast_hash": "4e6817df4db5efe57f849ab11d8bd178",
-    "semantic_hash": "4e6817df4db5efe57f849ab11d8bd178"
-  },
-  "E:\\dev\\pdmtextil\\src\\lib\\db\\schema\\bases-urdume.ts": {
-    "mtime": 1778269567.694706,
-    "ast_hash": "a9d72d67a407bfb3d43490ea94bd24e8",
-    "semantic_hash": "a9d72d67a407bfb3d43490ea94bd24e8"
-  },
-  "E:\\dev\\pdmtextil\\src\\lib\\db\\schema\\clientes.ts": {
-    "mtime": 1778269567.694706,
-    "ast_hash": "3aef151edb5f1fbe24df04eae4d14596",
-    "semantic_hash": "3aef151edb5f1fbe24df04eae4d14596"
-  },
-  "E:\\dev\\pdmtextil\\src\\lib\\db\\schema\\cores.ts": {
-    "mtime": 1778269567.6962109,
-    "ast_hash": "e3a725482125131b8430cf6b4119fd00",
-    "semantic_hash": "e3a725482125131b8430cf6b4119fd00"
-  },
-  "E:\\dev\\pdmtextil\\src\\lib\\db\\schema\\estampas.ts": {
-    "mtime": 1778269567.6962109,
-    "ast_hash": "c5c58619ebc6d22945fa76ad7f5f5e4d",
-    "semantic_hash": "c5c58619ebc6d22945fa76ad7f5f5e4d"
-  },
-  "E:\\dev\\pdmtextil\\src\\lib\\db\\schema\\fios.ts": {
-    "mtime": 1778269567.697221,
-    "ast_hash": "b25ae3a246318723000c7564ad4836f2",
-    "semantic_hash": "b25ae3a246318723000c7564ad4836f2"
-  },
-  "E:\\dev\\pdmtextil\\src\\lib\\db\\schema\\index.ts": {
-    "mtime": 1778269451.9282637,
-    "ast_hash": "ad57bda868a57df1743a5ea0766fe92f",
-    "semantic_hash": "ad57bda868a57df1743a5ea0766fe92f"
-  },
-  "E:\\dev\\pdmtextil\\src\\lib\\db\\schema\\maqoper.ts": {
-    "mtime": 1778269567.697221,
-    "ast_hash": "c4c462891400af264695143e100c4f22",
-    "semantic_hash": "c4c462891400af264695143e100c4f22"
-  },
-  "E:\\dev\\pdmtextil\\src\\lib\\db\\schema\\solicitacoes.ts": {
-    "mtime": 1778269567.698221,
-    "ast_hash": "438aaa0b8eb517aa228211105776c160",
-    "semantic_hash": "438aaa0b8eb517aa228211105776c160"
-  },
-  "E:\\dev\\pdmtextil\\src\\lib\\db\\schema\\usuarios.ts": {
-    "mtime": 1778269567.6986525,
-    "ast_hash": "8a43739e1d7b42fedc454a70e7a72e91",
-    "semantic_hash": "8a43739e1d7b42fedc454a70e7a72e91"
-  },
-  "E:\\dev\\pdmtextil\\src\\types\\briefing.ts": {
-    "mtime": 1778269451.92977,
-    "ast_hash": "b276d9875e3cf01f47d4b30c97868cf0",
-    "semantic_hash": "b276d9875e3cf01f47d4b30c97868cf0"
-  },
-  "E:\\dev\\pdmtextil\\src\\types\\next-auth.d.ts": {
-    "mtime": 1778269451.92977,
-    "ast_hash": "e382b911653dcda61428f3ae80a6857f",
-    "semantic_hash": "e382b911653dcda61428f3ae80a6857f"
+  "D:\\Tiago\\dev\\pdmtextil\\src\\middleware.ts": {
+    "mtime": 1778894003.599789,
+    "ast_hash": "9f30ec1cf989a27b23d8e82289108876",
+    "semantic_hash": "9f30ec1cf989a27b23d8e82289108876"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\layout.tsx": {
+    "mtime": 1778894002.0525932,
+    "ast_hash": "d7b811d2443a962a54bd955dcee82e4a",
+    "semantic_hash": "d7b811d2443a962a54bd955dcee82e4a"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\page.tsx": {
+    "mtime": 1778894002.068237,
+    "ast_hash": "3900829dad6ddd7a46525847ed2ff1f0",
+    "semantic_hash": "3900829dad6ddd7a46525847ed2ff1f0"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\(dashboard)\\layout.tsx": {
+    "mtime": 1778894001.5994668,
+    "ast_hash": "669cde18fe819ed5922d1ef8fcfe2d68",
+    "semantic_hash": "669cde18fe819ed5922d1ef8fcfe2d68"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\(dashboard)\\admin\\configuracoes\\page.tsx": {
+    "mtime": 1779054484.2839625,
+    "ast_hash": "46ea2435c319e9e6534487723efcbd65",
+    "semantic_hash": "46ea2435c319e9e6534487723efcbd65"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\(dashboard)\\admin\\email-massa\\page.tsx": {
+    "mtime": 1779054630.8847017,
+    "ast_hash": "3228f93692b48d4e4410c6ce5837f3dc",
+    "semantic_hash": "3228f93692b48d4e4410c6ce5837f3dc"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\(dashboard)\\admin\\roles\\page.tsx": {
+    "mtime": 1779058807.9170969,
+    "ast_hash": "9a296caa66bcd4fd62f1d509b748a76c",
+    "semantic_hash": "9a296caa66bcd4fd62f1d509b748a76c"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\(dashboard)\\admin\\usuarios\\page.tsx": {
+    "mtime": 1779058546.7247572,
+    "ast_hash": "b078bdf4be6608d5a0f88c65305123d5",
+    "semantic_hash": "b078bdf4be6608d5a0f88c65305123d5"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\(dashboard)\\admin\\usuarios\\[id]\\page.tsx": {
+    "mtime": 1779058232.4154234,
+    "ast_hash": "58e540918311f254012b9e8515257d8b",
+    "semantic_hash": "58e540918311f254012b9e8515257d8b"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\(dashboard)\\cadastros\\page.tsx": {
+    "mtime": 1779064943.1996372,
+    "ast_hash": "12276b917dfed626a17f4f29d78dd3a5",
+    "semantic_hash": "12276b917dfed626a17f4f29d78dd3a5"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\(dashboard)\\cadastros\\bases-urdume\\page.tsx": {
+    "mtime": 1778894001.5528977,
+    "ast_hash": "f4f622d9fea165961a891bc95719d601",
+    "semantic_hash": "f4f622d9fea165961a891bc95719d601"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\(dashboard)\\cadastros\\bases-urdume\\[id]\\page.tsx": {
+    "mtime": 1778894001.5528977,
+    "ast_hash": "625c280c21982c655ff43ac25a2e6fe0",
+    "semantic_hash": "625c280c21982c655ff43ac25a2e6fe0"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\(dashboard)\\cadastros\\clientes\\page.tsx": {
+    "mtime": 1778894001.5682173,
+    "ast_hash": "249caf787b7defde472549081fef4fda",
+    "semantic_hash": "249caf787b7defde472549081fef4fda"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\(dashboard)\\cadastros\\cores\\page.tsx": {
+    "mtime": 1778894001.5682173,
+    "ast_hash": "70275e0bdf4b3e47c0cbd9e277981213",
+    "semantic_hash": "70275e0bdf4b3e47c0cbd9e277981213"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\(dashboard)\\cadastros\\cores\\[id]\\page.tsx": {
+    "mtime": 1778894001.5682173,
+    "ast_hash": "1574b6df12c08705a5bd3f64b52d027d",
+    "semantic_hash": "1574b6df12c08705a5bd3f64b52d027d"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\(dashboard)\\cadastros\\estampas\\page.tsx": {
+    "mtime": 1778894001.5682173,
+    "ast_hash": "3fe223148e5fa713b67478dea38fb93e",
+    "semantic_hash": "3fe223148e5fa713b67478dea38fb93e"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\(dashboard)\\cadastros\\estampas\\[id]\\page.tsx": {
+    "mtime": 1778894001.5682173,
+    "ast_hash": "45e1558cdd8223dfa9f7cffcba3b60be",
+    "semantic_hash": "45e1558cdd8223dfa9f7cffcba3b60be"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\(dashboard)\\cadastros\\fios\\page.tsx": {
+    "mtime": 1778894001.5838437,
+    "ast_hash": "8d8d1611eb25682154236159f092db47",
+    "semantic_hash": "8d8d1611eb25682154236159f092db47"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\(dashboard)\\cadastros\\fios\\[id]\\page.tsx": {
+    "mtime": 1778894001.5682173,
+    "ast_hash": "40eaa2c15d56ecac6bce3e1cebd27dc8",
+    "semantic_hash": "40eaa2c15d56ecac6bce3e1cebd27dc8"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\(dashboard)\\cadastros\\fornecedores\\page.tsx": {
+    "mtime": 1778894001.5838437,
+    "ast_hash": "f50fa5860cb8b43e1030c4e571e56296",
+    "semantic_hash": "f50fa5860cb8b43e1030c4e571e56296"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\(dashboard)\\cadastros\\fornecedores\\[id]\\page.tsx": {
+    "mtime": 1778894001.5838437,
+    "ast_hash": "26cc2c2a5586df2fd59e6bd5739ba1be",
+    "semantic_hash": "26cc2c2a5586df2fd59e6bd5739ba1be"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\(dashboard)\\cadastros\\produto-cru\\page.tsx": {
+    "mtime": 1778896327.3161693,
+    "ast_hash": "2903ff9dbc8449c6580a5b46c10a24b3",
+    "semantic_hash": "2903ff9dbc8449c6580a5b46c10a24b3"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\(dashboard)\\cadastros\\produto-cru\\[id]\\page.tsx": {
+    "mtime": 1779065929.11644,
+    "ast_hash": "d26e5f928a41096a96f2b99fdefd165f",
+    "semantic_hash": "d26e5f928a41096a96f2b99fdefd165f"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\(dashboard)\\cadastros\\produtos-quimicos\\page.tsx": {
+    "mtime": 1779067369.365879,
+    "ast_hash": "d09d914ed10efbb86f2835e98c0577dd",
+    "semantic_hash": "d09d914ed10efbb86f2835e98c0577dd"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\(dashboard)\\cadastros\\produtos-quimicos\\[id]\\page.tsx": {
+    "mtime": 1779066974.7819953,
+    "ast_hash": "4e5fe1064f98030d91b6c792c204a6cb",
+    "semantic_hash": "4e5fe1064f98030d91b6c792c204a6cb"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\(dashboard)\\comercial\\clientes\\page.tsx": {
+    "mtime": 1778894001.5838437,
+    "ast_hash": "e7c94fac9c7ad311c4b83ab9bd6281ea",
+    "semantic_hash": "e7c94fac9c7ad311c4b83ab9bd6281ea"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\(dashboard)\\comercial\\clientes\\novo\\page.tsx": {
+    "mtime": 1778894001.5838437,
+    "ast_hash": "22180dc5e4c941aed6c5056d5884fad9",
+    "semantic_hash": "22180dc5e4c941aed6c5056d5884fad9"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\(dashboard)\\comercial\\clientes\\[id]\\page.tsx": {
+    "mtime": 1778894001.5838437,
+    "ast_hash": "35c62ffdccc4310f151296cf736d2355",
+    "semantic_hash": "35c62ffdccc4310f151296cf736d2355"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\(dashboard)\\comercial\\solicitacoes\\page.tsx": {
+    "mtime": 1778894001.5994668,
+    "ast_hash": "888231e0fde9fd9e86940e5f76bbfaf7",
+    "semantic_hash": "888231e0fde9fd9e86940e5f76bbfaf7"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\(dashboard)\\comercial\\solicitacoes\\nova\\page.tsx": {
+    "mtime": 1778894001.5994668,
+    "ast_hash": "a5959c596457e9bee2ffc868b13fda2d",
+    "semantic_hash": "a5959c596457e9bee2ffc868b13fda2d"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\(dashboard)\\comercial\\solicitacoes\\[id]\\page.tsx": {
+    "mtime": 1779062794.8012476,
+    "ast_hash": "6d8bd5a85fb131793a72880d6290e156",
+    "semantic_hash": "6d8bd5a85fb131793a72880d6290e156"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\(dashboard)\\comercial\\solicitacoes\\[id]\\editar\\page.tsx": {
+    "mtime": 1778894001.5994668,
+    "ast_hash": "e825cbfab295f3aa60cf302ff422690f",
+    "semantic_hash": "e825cbfab295f3aa60cf302ff422690f"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\(dashboard)\\dashboard\\page.tsx": {
+    "mtime": 1778894001.5994668,
+    "ast_hash": "a6306a81ea8fdd597e28db52fabd8506",
+    "semantic_hash": "a6306a81ea8fdd597e28db52fabd8506"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\(dashboard)\\perfil\\page.tsx": {
+    "mtime": 1778894001.83386,
+    "ast_hash": "af03a527c2db26b612cbaf46f58339a3",
+    "semantic_hash": "af03a527c2db26b612cbaf46f58339a3"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\admin\\config\\email-teste\\route.ts": {
+    "mtime": 1779054407.8166332,
+    "ast_hash": "b504df3dff28a559d073fa7effd5f18f",
+    "semantic_hash": "b504df3dff28a559d073fa7effd5f18f"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\admin\\config\\smtp\\route.ts": {
+    "mtime": 1779054405.5508153,
+    "ast_hash": "a87fc3e033ee7ddb861897c11f685daf",
+    "semantic_hash": "a87fc3e033ee7ddb861897c11f685daf"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\admin\\email-massa\\route.ts": {
+    "mtime": 1779054431.5504858,
+    "ast_hash": "7e512c5917ee6a27110cb2810cbd97a8",
+    "semantic_hash": "7e512c5917ee6a27110cb2810cbd97a8"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\admin\\roles\\route.ts": {
+    "mtime": 1779058185.816306,
+    "ast_hash": "8adb5c8ced92275eb7dafe8fe6741141",
+    "semantic_hash": "8adb5c8ced92275eb7dafe8fe6741141"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\admin\\roles\\[id]\\route.ts": {
+    "mtime": 1779058776.250937,
+    "ast_hash": "ca24445efe1c44af9e52af469700f95b",
+    "semantic_hash": "ca24445efe1c44af9e52af469700f95b"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\admin\\usuarios\\route.ts": {
+    "mtime": 1779054410.4009392,
+    "ast_hash": "308b4dfd2b9d20b91989ee212967f629",
+    "semantic_hash": "308b4dfd2b9d20b91989ee212967f629"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\admin\\usuarios\\[id]\\route.ts": {
+    "mtime": 1779054420.8669143,
+    "ast_hash": "fd0c8b5ce1a29809d7fbf4e1f9818656",
+    "semantic_hash": "fd0c8b5ce1a29809d7fbf4e1f9818656"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\auth\\[...nextauth]\\route.ts": {
+    "mtime": 1778894001.83386,
+    "ast_hash": "b987a2133fbda106e25753f586818773",
+    "semantic_hash": "b987a2133fbda106e25753f586818773"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\cadastros\\bases-urdume\\route.ts": {
+    "mtime": 1778894001.8807242,
+    "ast_hash": "14242fa674f8b0002cacd68f135ac3e8",
+    "semantic_hash": "14242fa674f8b0002cacd68f135ac3e8"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\cadastros\\bases-urdume\\importar\\route.ts": {
+    "mtime": 1778894001.8653977,
+    "ast_hash": "136546af26d502f72cac1f308734d853",
+    "semantic_hash": "136546af26d502f72cac1f308734d853"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\cadastros\\bases-urdume\\modelo\\route.ts": {
+    "mtime": 1778894001.8807242,
+    "ast_hash": "67e69ef2ccf8be9dbae2f8409f512e00",
+    "semantic_hash": "67e69ef2ccf8be9dbae2f8409f512e00"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\cadastros\\bases-urdume\\[id]\\route.ts": {
+    "mtime": 1778894001.8653977,
+    "ast_hash": "c4d5fca9fe3ed2f7a0e6172dc0706019",
+    "semantic_hash": "c4d5fca9fe3ed2f7a0e6172dc0706019"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\cadastros\\clientes\\importar\\route.ts": {
+    "mtime": 1778894001.8807242,
+    "ast_hash": "536fb1cdca1f1e0277116a797e1f94b3",
+    "semantic_hash": "536fb1cdca1f1e0277116a797e1f94b3"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\cadastros\\clientes\\modelo\\route.ts": {
+    "mtime": 1778894001.8807242,
+    "ast_hash": "d4e3337fe4a3f29b3a563869a0d9690e",
+    "semantic_hash": "d4e3337fe4a3f29b3a563869a0d9690e"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\cadastros\\cores\\route.ts": {
+    "mtime": 1778894001.8963425,
+    "ast_hash": "0e9856ff6ca07d9aacb6b2b4518db297",
+    "semantic_hash": "0e9856ff6ca07d9aacb6b2b4518db297"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\cadastros\\cores\\importar\\route.ts": {
+    "mtime": 1778894001.8807242,
+    "ast_hash": "7fef85f2d6d0980d68fbc1e392e1b6b5",
+    "semantic_hash": "7fef85f2d6d0980d68fbc1e392e1b6b5"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\cadastros\\cores\\modelo\\route.ts": {
+    "mtime": 1778894001.8963425,
+    "ast_hash": "ac37a8b2de25f047c9ad7e5ed0a9a365",
+    "semantic_hash": "ac37a8b2de25f047c9ad7e5ed0a9a365"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\cadastros\\cores\\[id]\\route.ts": {
+    "mtime": 1778894001.8807242,
+    "ast_hash": "2bbfc6bccc058d2e922e2b1c1577af6c",
+    "semantic_hash": "2bbfc6bccc058d2e922e2b1c1577af6c"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\cadastros\\estampas\\route.ts": {
+    "mtime": 1778894001.9120188,
+    "ast_hash": "05af719e9791675ff10f12c393df76a7",
+    "semantic_hash": "05af719e9791675ff10f12c393df76a7"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\cadastros\\estampas\\importar\\route.ts": {
+    "mtime": 1778894001.9120188,
+    "ast_hash": "e8fb214dd95446312651a6a5cd3ba756",
+    "semantic_hash": "e8fb214dd95446312651a6a5cd3ba756"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\cadastros\\estampas\\modelo\\route.ts": {
+    "mtime": 1778894001.9120188,
+    "ast_hash": "ebb296a86052a28e3da8235929f74cc3",
+    "semantic_hash": "ebb296a86052a28e3da8235929f74cc3"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\cadastros\\estampas\\[id]\\route.ts": {
+    "mtime": 1778894001.9120188,
+    "ast_hash": "e980a8e3789754253454a8364a7de65c",
+    "semantic_hash": "e980a8e3789754253454a8364a7de65c"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\cadastros\\fios\\route.ts": {
+    "mtime": 1778894001.9903705,
+    "ast_hash": "faf9eaf625324a75e2d28d5c4bad9681",
+    "semantic_hash": "faf9eaf625324a75e2d28d5c4bad9681"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\cadastros\\fios\\importar\\route.ts": {
+    "mtime": 1778894001.9275928,
+    "ast_hash": "340004831d8b85cf0a3c1b2a1b08e99b",
+    "semantic_hash": "340004831d8b85cf0a3c1b2a1b08e99b"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\cadastros\\fios\\modelo\\route.ts": {
+    "mtime": 1778894001.9903705,
+    "ast_hash": "f6788f37687ef1df7efb70373e89fa2c",
+    "semantic_hash": "f6788f37687ef1df7efb70373e89fa2c"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\cadastros\\fios\\[id]\\route.ts": {
+    "mtime": 1778894001.9275928,
+    "ast_hash": "eb22d1a42483eb21622f7cf62051b44f",
+    "semantic_hash": "eb22d1a42483eb21622f7cf62051b44f"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\cadastros\\fios\\[id]\\fornecedores\\route.ts": {
+    "mtime": 1778894001.9275928,
+    "ast_hash": "655eadfabe2ce97e4caa53bd0d5768fe",
+    "semantic_hash": "655eadfabe2ce97e4caa53bd0d5768fe"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\cadastros\\fios\\[id]\\fornecedores\\[fid]\\route.ts": {
+    "mtime": 1778894001.9275928,
+    "ast_hash": "b5346b75762d93399abf2b6651b9f5b4",
+    "semantic_hash": "b5346b75762d93399abf2b6651b9f5b4"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\cadastros\\fornecedores\\route.ts": {
+    "mtime": 1778894002.0057187,
+    "ast_hash": "11e1a52705ebf185bb2fa72b357144bb",
+    "semantic_hash": "11e1a52705ebf185bb2fa72b357144bb"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\cadastros\\fornecedores\\importar\\route.ts": {
+    "mtime": 1778894002.0057187,
+    "ast_hash": "f83ee441ed4321314000ee33593a1ceb",
+    "semantic_hash": "f83ee441ed4321314000ee33593a1ceb"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\cadastros\\fornecedores\\modelo\\route.ts": {
+    "mtime": 1778894002.0057187,
+    "ast_hash": "59a92d0e6c0a4b31f67ada7cfb09abef",
+    "semantic_hash": "59a92d0e6c0a4b31f67ada7cfb09abef"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\cadastros\\fornecedores\\[id]\\route.ts": {
+    "mtime": 1778894001.9903705,
+    "ast_hash": "8ef55c49257eafac8d516be59d4c8930",
+    "semantic_hash": "8ef55c49257eafac8d516be59d4c8930"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\cadastros\\produto-cru\\route.ts": {
+    "mtime": 1778896270.106053,
+    "ast_hash": "96d62e277a1e6224c501ca0b50409fca",
+    "semantic_hash": "96d62e277a1e6224c501ca0b50409fca"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\cadastros\\produto-cru\\[id]\\route.ts": {
+    "mtime": 1778896276.9970663,
+    "ast_hash": "a9d351ca7e79dd64819475c918f75c95",
+    "semantic_hash": "a9d351ca7e79dd64819475c918f75c95"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\cadastros\\produto-cru\\[id]\\acabamentos\\route.ts": {
+    "mtime": 1778896300.806004,
+    "ast_hash": "2170125ee84514a2725b89b42873f41f",
+    "semantic_hash": "2170125ee84514a2725b89b42873f41f"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\cadastros\\produto-cru\\[id]\\acabamentos\\[aid]\\route.ts": {
+    "mtime": 1778896302.6469297,
+    "ast_hash": "2aaff3557ad1db61966261b1ddd496e1",
+    "semantic_hash": "2aaff3557ad1db61966261b1ddd496e1"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\cadastros\\produto-cru\\[id]\\acabamentos\\[aid]\\amostras\\route.ts": {
+    "mtime": 1779054550.4003394,
+    "ast_hash": "20069b03a19a3c2c635cd3f12c988ff5",
+    "semantic_hash": "20069b03a19a3c2c635cd3f12c988ff5"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\cadastros\\produto-cru\\[id]\\acabamentos\\[aid]\\amostras\\[asid]\\route.ts": {
+    "mtime": 1779054583.6004155,
+    "ast_hash": "ecbbd8e1e6f676869906a17ab6bb9bbd",
+    "semantic_hash": "ecbbd8e1e6f676869906a17ab6bb9bbd"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\cadastros\\produto-cru\\[id]\\acabamentos\\[aid]\\amostras\\[asid]\\receitas\\route.ts": {
+    "mtime": 1779066045.5158284,
+    "ast_hash": "4cf5429baf5993fca59c7943c8d3959c",
+    "semantic_hash": "4cf5429baf5993fca59c7943c8d3959c"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\cadastros\\produto-cru\\[id]\\acabamentos\\[aid]\\amostras\\[asid]\\receitas\\[rid]\\route.ts": {
+    "mtime": 1779066190.5008621,
+    "ast_hash": "31bdd351c5c10f70a05cf58cff2124d3",
+    "semantic_hash": "31bdd351c5c10f70a05cf58cff2124d3"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\cadastros\\produto-cru\\[id]\\acabamentos\\[aid]\\amostras\\[asid]\\receitas\\[rid]\\itens\\route.ts": {
+    "mtime": 1779066047.1007857,
+    "ast_hash": "6e4f819d4846a286c20da97d6f4740d4",
+    "semantic_hash": "6e4f819d4846a286c20da97d6f4740d4"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\cadastros\\produto-cru\\[id]\\acabamentos\\[aid]\\amostras\\[asid]\\receitas\\[rid]\\itens\\[iid]\\route.ts": {
+    "mtime": 1779066047.8810174,
+    "ast_hash": "0f8493cb3ebf394b278b3f2d2ee38000",
+    "semantic_hash": "0f8493cb3ebf394b278b3f2d2ee38000"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\cadastros\\produto-cru\\[id]\\acabamentos\\[aid]\\receitas\\route.ts": {
+    "mtime": 1778896310.5771277,
+    "ast_hash": "b757475724ccd6f4cb848d58b9ca5d1c",
+    "semantic_hash": "b757475724ccd6f4cb848d58b9ca5d1c"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\cadastros\\produto-cru\\[id]\\acabamentos\\[aid]\\receitas\\[rid]\\route.ts": {
+    "mtime": 1778896312.469187,
+    "ast_hash": "982524b7f98b5cc6a11c0c7acaa13d6a",
+    "semantic_hash": "982524b7f98b5cc6a11c0c7acaa13d6a"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\cadastros\\produto-cru\\[id]\\amostras\\route.ts": {
+    "mtime": 1779054526.8842185,
+    "ast_hash": "869cd6e960d6b61c8881e96c31ab507a",
+    "semantic_hash": "869cd6e960d6b61c8881e96c31ab507a"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\cadastros\\produto-cru\\[id]\\amostras\\[aid]\\route.ts": {
+    "mtime": 1779054570.8313591,
+    "ast_hash": "c50be119d4548de445cfdce901c23944",
+    "semantic_hash": "c50be119d4548de445cfdce901c23944"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\cadastros\\produto-cru\\[id]\\composicao\\route.ts": {
+    "mtime": 1779047490.6006036,
+    "ast_hash": "07dd16dfad5c55ec258f792898afc4ad",
+    "semantic_hash": "07dd16dfad5c55ec258f792898afc4ad"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\cadastros\\produto-cru\\[id]\\composicao\\[cid]\\route.ts": {
+    "mtime": 1778896284.619295,
+    "ast_hash": "21e8d6df7bdf999fc7493d0abba2d49f",
+    "semantic_hash": "21e8d6df7bdf999fc7493d0abba2d49f"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\cadastros\\produto-cru\\[id]\\estrutura\\route.ts": {
+    "mtime": 1778896287.3805294,
+    "ast_hash": "93c2788b1985788f3d21765936cfb3da",
+    "semantic_hash": "93c2788b1985788f3d21765936cfb3da"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\cadastros\\produto-cru\\[id]\\estrutura\\[eid]\\route.ts": {
+    "mtime": 1778896289.1820135,
+    "ast_hash": "e7a2fdff9ea3b79c312c7c40f1126bd2",
+    "semantic_hash": "e7a2fdff9ea3b79c312c7c40f1126bd2"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\cadastros\\produtos-quimicos\\route.ts": {
+    "mtime": 1779066299.2007456,
+    "ast_hash": "508198a965a28c68881a20f31e85a250",
+    "semantic_hash": "508198a965a28c68881a20f31e85a250"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\cadastros\\produtos-quimicos\\import\\route.ts": {
+    "mtime": 1779067116.7342422,
+    "ast_hash": "935e7aed6d0559ce290ce57c5fbdf7f9",
+    "semantic_hash": "935e7aed6d0559ce290ce57c5fbdf7f9"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\cadastros\\produtos-quimicos\\[id]\\route.ts": {
+    "mtime": 1779064683.5507493,
+    "ast_hash": "64d60822a9e8800a43a5f47d162cab3e",
+    "semantic_hash": "64d60822a9e8800a43a5f47d162cab3e"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\clientes\\route.ts": {
+    "mtime": 1778894002.0213518,
+    "ast_hash": "84b30c427154905a9bc2b6ecdb3793f8",
+    "semantic_hash": "84b30c427154905a9bc2b6ecdb3793f8"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\clientes\\importar\\route.ts": {
+    "mtime": 1778894002.0057187,
+    "ast_hash": "9b3c5b62c1d429f13530359fd2956a10",
+    "semantic_hash": "9b3c5b62c1d429f13530359fd2956a10"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\clientes\\modelo\\route.ts": {
+    "mtime": 1778894002.0057187,
+    "ast_hash": "9c5caccb724bd4d2e3021653993a0517",
+    "semantic_hash": "9c5caccb724bd4d2e3021653993a0517"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\clientes\\[id]\\route.ts": {
+    "mtime": 1778894002.0057187,
+    "ast_hash": "53b68cc88cb718566fb67ca012bf9b41",
+    "semantic_hash": "53b68cc88cb718566fb67ca012bf9b41"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\dashboard\\atividades\\route.ts": {
+    "mtime": 1778894002.0213518,
+    "ast_hash": "3473aa9532d6231ad17286a4b3caaf2b",
+    "semantic_hash": "3473aa9532d6231ad17286a4b3caaf2b"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\dashboard\\stats\\route.ts": {
+    "mtime": 1778894002.0213518,
+    "ast_hash": "5170bba084a7de145ed29819e9c8d7a9",
+    "semantic_hash": "5170bba084a7de145ed29819e9c8d7a9"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\db\\add-id-integracao\\route.ts": {
+    "mtime": 1778894002.0213518,
+    "ast_hash": "00a457d426d3170fdff0a9509d670131",
+    "semantic_hash": "00a457d426d3170fdff0a9509d670131"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\db\\migrate\\route.ts": {
+    "mtime": 1778894002.0369778,
+    "ast_hash": "bf818df44abc8a8d76c47914bd4d7402",
+    "semantic_hash": "bf818df44abc8a8d76c47914bd4d7402"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\db\\migrate-add-columns\\route.ts": {
+    "mtime": 1778894002.0213518,
+    "ast_hash": "42f2f9d98dc1b5a481b75516be84ba04",
+    "semantic_hash": "42f2f9d98dc1b5a481b75516be84ba04"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\db\\seed-cadastros\\route.ts": {
+    "mtime": 1778894002.0369778,
+    "ast_hash": "00306243b040220d6e01c6e299814e34",
+    "semantic_hash": "00306243b040220d6e01c6e299814e34"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\notificacoes\\route.ts": {
+    "mtime": 1779054427.3843045,
+    "ast_hash": "a07885e66c539a55d42876cb1fb3572a",
+    "semantic_hash": "a07885e66c539a55d42876cb1fb3572a"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\solicitacoes\\route.ts": {
+    "mtime": 1779054515.050902,
+    "ast_hash": "2fa16e18a7daf78c5565fc4fe90537dd",
+    "semantic_hash": "2fa16e18a7daf78c5565fc4fe90537dd"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\solicitacoes\\[id]\\route.ts": {
+    "mtime": 1778894002.0525932,
+    "ast_hash": "a1b150644dfbfd98016ae2713b22d118",
+    "semantic_hash": "a1b150644dfbfd98016ae2713b22d118"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\solicitacoes\\[id]\\produtos-cru\\route.ts": {
+    "mtime": 1779062663.4662232,
+    "ast_hash": "0d6f2ee8c3b5a2eed5f57af23b680c4d",
+    "semantic_hash": "0d6f2ee8c3b5a2eed5f57af23b680c4d"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\api\\solicitacoes\\[id]\\status\\route.ts": {
+    "mtime": 1778894002.0525932,
+    "ast_hash": "d00c938b145251862f6d3c61e94dd4f2",
+    "semantic_hash": "d00c938b145251862f6d3c61e94dd4f2"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\app\\login\\page.tsx": {
+    "mtime": 1778894002.0525932,
+    "ast_hash": "8451b5d757b60207d805917a77e22def",
+    "semantic_hash": "8451b5d757b60207d805917a77e22def"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\components\\providers.tsx": {
+    "mtime": 1778894002.2400916,
+    "ast_hash": "fc96f2b21e97b707238b099991c032d8",
+    "semantic_hash": "fc96f2b21e97b707238b099991c032d8"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\components\\query-provider.tsx": {
+    "mtime": 1778894002.381038,
+    "ast_hash": "df0dcdf38837643e819c0e63db629515",
+    "semantic_hash": "df0dcdf38837643e819c0e63db629515"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\components\\forms\\AnexosUpload.tsx": {
+    "mtime": 1778894002.068237,
+    "ast_hash": "bc4fc4f22fa97070e789e7ec471118af",
+    "semantic_hash": "bc4fc4f22fa97070e789e7ec471118af"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\components\\forms\\BriefingTecelagemForm.tsx": {
+    "mtime": 1778894002.068237,
+    "ast_hash": "a4b5d4bfdb98ccdfee3c30a9f4b9696c",
+    "semantic_hash": "a4b5d4bfdb98ccdfee3c30a9f4b9696c"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\components\\forms\\ClienteAutocomplete.tsx": {
+    "mtime": 1778894002.209169,
+    "ast_hash": "4e7246dc229b12c3cf3f6b1088b1a2a8",
+    "semantic_hash": "4e7246dc229b12c3cf3f6b1088b1a2a8"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\components\\importar\\ImportarBasesUrdume.tsx": {
+    "mtime": 1778894002.209169,
+    "ast_hash": "4696d51de7d6b5f555ee55491660c0f3",
+    "semantic_hash": "4696d51de7d6b5f555ee55491660c0f3"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\components\\importar\\ImportarClientes.tsx": {
+    "mtime": 1778894002.209169,
+    "ast_hash": "39b37de52c1f8e4f87d5a38062f4c4a3",
+    "semantic_hash": "39b37de52c1f8e4f87d5a38062f4c4a3"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\components\\importar\\ImportarCores.tsx": {
+    "mtime": 1778894002.2245927,
+    "ast_hash": "df98466765baf672bc2e49a357b7452e",
+    "semantic_hash": "df98466765baf672bc2e49a357b7452e"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\components\\importar\\ImportarEstampas.tsx": {
+    "mtime": 1778894002.2245927,
+    "ast_hash": "03d6b2945f3de86303c43914bbc2cd98",
+    "semantic_hash": "03d6b2945f3de86303c43914bbc2cd98"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\components\\importar\\ImportarFios.tsx": {
+    "mtime": 1778894002.2245927,
+    "ast_hash": "84d0a40eb35d71f47b5081fa56ffcbe9",
+    "semantic_hash": "84d0a40eb35d71f47b5081fa56ffcbe9"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\components\\importar\\ImportarFornecedores.tsx": {
+    "mtime": 1778894002.2245927,
+    "ast_hash": "1b9000e7109e1b3d2b925d3fcb81d7fb",
+    "semantic_hash": "1b9000e7109e1b3d2b925d3fcb81d7fb"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\components\\importar\\ImportarProdutosQuimicos.tsx": {
+    "mtime": 1779067357.1343217,
+    "ast_hash": "b91279f8553502214e1d1a9affb3df05",
+    "semantic_hash": "b91279f8553502214e1d1a9affb3df05"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\components\\layout\\dashboard-shell.tsx": {
+    "mtime": 1778894002.2245927,
+    "ast_hash": "ac52f8d01750bd176e66facb797cc956",
+    "semantic_hash": "ac52f8d01750bd176e66facb797cc956"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\components\\layout\\header.tsx": {
+    "mtime": 1779054504.8998513,
+    "ast_hash": "c41f2b0b28456712701be8bf49cf98a5",
+    "semantic_hash": "c41f2b0b28456712701be8bf49cf98a5"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\components\\layout\\mobile-bottom-nav.tsx": {
+    "mtime": 1779054642.6843753,
+    "ast_hash": "2675da8fd23b8ae14017a0be4e16cfa5",
+    "semantic_hash": "2675da8fd23b8ae14017a0be4e16cfa5"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\components\\layout\\sidebar.tsx": {
+    "mtime": 1779058251.7251947,
+    "ast_hash": "48b06d9da48d684d2f0cacf7650725a6",
+    "semantic_hash": "48b06d9da48d684d2f0cacf7650725a6"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\components\\layout\\theme-toggle.tsx": {
+    "mtime": 1778894002.2400916,
+    "ast_hash": "78fb0a98e5e9ee9c9bba9dc849e93cf3",
+    "semantic_hash": "78fb0a98e5e9ee9c9bba9dc849e93cf3"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\components\\receita\\acabamento-receita-dialog.tsx": {
+    "mtime": 1779064817.9002829,
+    "ast_hash": "8964175e8eca472c652da0a952950862",
+    "semantic_hash": "8964175e8eca472c652da0a952950862"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\components\\ui\\button.tsx": {
+    "mtime": 1778894002.427916,
+    "ast_hash": "fa7dc9bec92a2ea0344e2a5c4738514f",
+    "semantic_hash": "fa7dc9bec92a2ea0344e2a5c4738514f"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\components\\ui\\card.tsx": {
+    "mtime": 1778894002.427916,
+    "ast_hash": "ee74a83be6bb8fc3473cb6cceffe8813",
+    "semantic_hash": "ee74a83be6bb8fc3473cb6cceffe8813"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\components\\ui\\checkbox.tsx": {
+    "mtime": 1778894002.427916,
+    "ast_hash": "6e4d81205d4cc08e79b9da14cf7c4317",
+    "semantic_hash": "6e4d81205d4cc08e79b9da14cf7c4317"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\components\\ui\\dialog.tsx": {
+    "mtime": 1778894002.427916,
+    "ast_hash": "89fd7888d5bbc59f2eae651ffc05fc70",
+    "semantic_hash": "89fd7888d5bbc59f2eae651ffc05fc70"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\components\\ui\\dropdown-menu.tsx": {
+    "mtime": 1778894002.427916,
+    "ast_hash": "89728fd5784555d58a9ad1c72b6a803d",
+    "semantic_hash": "89728fd5784555d58a9ad1c72b6a803d"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\components\\ui\\input.tsx": {
+    "mtime": 1778894002.427916,
+    "ast_hash": "da33823853390b57ac04230a67657585",
+    "semantic_hash": "da33823853390b57ac04230a67657585"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\components\\ui\\label.tsx": {
+    "mtime": 1778894002.4432175,
+    "ast_hash": "ed79a93777c1e0f0337c6b3943290998",
+    "semantic_hash": "ed79a93777c1e0f0337c6b3943290998"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\components\\ui\\popover.tsx": {
+    "mtime": 1778894002.474658,
+    "ast_hash": "281919586b057bfc5561b52d871c32f9",
+    "semantic_hash": "281919586b057bfc5561b52d871c32f9"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\components\\ui\\radio-group.tsx": {
+    "mtime": 1778894002.474658,
+    "ast_hash": "015270ae2e4001d59d8ff997747eb5bb",
+    "semantic_hash": "015270ae2e4001d59d8ff997747eb5bb"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\components\\ui\\select.tsx": {
+    "mtime": 1778894002.474658,
+    "ast_hash": "fc7d964889fe17cca9fc412266dba5d1",
+    "semantic_hash": "fc7d964889fe17cca9fc412266dba5d1"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\components\\ui\\separator.tsx": {
+    "mtime": 1778894002.490094,
+    "ast_hash": "bb51ace4279e49d0a4628fafa6ea10b9",
+    "semantic_hash": "bb51ace4279e49d0a4628fafa6ea10b9"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\components\\ui\\sonner.tsx": {
+    "mtime": 1778894002.5528972,
+    "ast_hash": "7005ed2984ab498ef51f3ed910e1abf2",
+    "semantic_hash": "7005ed2984ab498ef51f3ed910e1abf2"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\components\\ui\\tabs.tsx": {
+    "mtime": 1778894002.5528972,
+    "ast_hash": "aa67dc7b086fe22106b124f2c5a7fd3b",
+    "semantic_hash": "aa67dc7b086fe22106b124f2c5a7fd3b"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\components\\ui\\textarea.tsx": {
+    "mtime": 1778894002.5528972,
+    "ast_hash": "378ccca2b6eee051a23c1e6d7bc80952",
+    "semantic_hash": "378ccca2b6eee051a23c1e6d7bc80952"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\lib\\auth.ts": {
+    "mtime": 1778894003.1932209,
+    "ast_hash": "865dbb6df7af7708684f3ff2be5211cc",
+    "semantic_hash": "865dbb6df7af7708684f3ff2be5211cc"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\lib\\email.ts": {
+    "mtime": 1779054386.6342974,
+    "ast_hash": "3e84b0099d670fd50a7b215b2c9aea98",
+    "semantic_hash": "3e84b0099d670fd50a7b215b2c9aea98"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\lib\\notificar.ts": {
+    "mtime": 1779056189.0168984,
+    "ast_hash": "109f16669f8a8c6d79ec128602173040",
+    "semantic_hash": "109f16669f8a8c6d79ec128602173040"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\lib\\utils.ts": {
+    "mtime": 1778894003.552643,
+    "ast_hash": "1d8011eb18769078bf77502b220daa5e",
+    "semantic_hash": "1d8011eb18769078bf77502b220daa5e"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\lib\\db\\index.ts": {
+    "mtime": 1778894003.1932209,
+    "ast_hash": "bc4359ede252ef2d6da9d0c52417ed20",
+    "semantic_hash": "bc4359ede252ef2d6da9d0c52417ed20"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\lib\\db\\seed.ts": {
+    "mtime": 1778894003.552643,
+    "ast_hash": "97d12c8486a4c4eb4731e9919d8c5e05",
+    "semantic_hash": "97d12c8486a4c4eb4731e9919d8c5e05"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\lib\\db\\migrations\\0000_careful_iron_monger.sql": {
+    "mtime": 1778894003.3185217,
+    "ast_hash": "4dab9e0e05ee42b2178be83453a874de",
+    "semantic_hash": "4dab9e0e05ee42b2178be83453a874de"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\lib\\db\\migrations\\0001_new_tables.sql": {
+    "mtime": 1778894003.3185217,
+    "ast_hash": "c5302eeba13266136275209d264b150b",
+    "semantic_hash": "c5302eeba13266136275209d264b150b"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\lib\\db\\migrations\\0001_past_iron_lad.sql": {
+    "mtime": 1778894003.3185217,
+    "ast_hash": "4f2c3c854187bf1a777b7b3f85b0711a",
+    "semantic_hash": "4f2c3c854187bf1a777b7b3f85b0711a"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\lib\\db\\migrations\\0002_add_id_integracao.sql": {
+    "mtime": 1778894003.333842,
+    "ast_hash": "f251e07a4d62df1ccea21e8d5f389243",
+    "semantic_hash": "f251e07a4d62df1ccea21e8d5f389243"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\lib\\db\\migrations\\0002_cadastros.sql": {
+    "mtime": 1778894003.333842,
+    "ast_hash": "7f9a7307d9bb5d975bb130446fa54925",
+    "semantic_hash": "7f9a7307d9bb5d975bb130446fa54925"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\lib\\db\\migrations\\0003_add_id_integracao_colunas.sql": {
+    "mtime": 1778894003.333842,
+    "ast_hash": "833da9950610824b2a7ecfbebc24e1bb",
+    "semantic_hash": "833da9950610824b2a7ecfbebc24e1bb"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\lib\\db\\migrations\\0004_produto_cru.sql": {
+    "mtime": 1779046763.0156183,
+    "ast_hash": "6cb409568b5a12b5f48275713b40beac",
+    "semantic_hash": "6cb409568b5a12b5f48275713b40beac"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\lib\\db\\migrations\\0005_motivo_aprovacao.sql": {
+    "mtime": 1779048438.11652,
+    "ast_hash": "ce486e91b4b68907369eb1369ce84289",
+    "semantic_hash": "ce486e91b4b68907369eb1369ce84289"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\lib\\db\\migrations\\0005_notificacoes_email.sql": {
+    "mtime": 1779054589.6341288,
+    "ast_hash": "595f79ed70ff1b579bcb00e567593b53",
+    "semantic_hash": "595f79ed70ff1b579bcb00e567593b53"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\lib\\db\\migrations\\meta\\0000_snapshot.json": {
+    "mtime": 1778894003.333842,
+    "ast_hash": "8e0047dbfa99d4f060d31b8b9162b806",
+    "semantic_hash": "8e0047dbfa99d4f060d31b8b9162b806"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\lib\\db\\migrations\\meta\\0001_snapshot.json": {
+    "mtime": 1778894003.333842,
+    "ast_hash": "1c9a505576880e9b51299762b329d545",
+    "semantic_hash": "1c9a505576880e9b51299762b329d545"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\lib\\db\\migrations\\meta\\_journal.json": {
+    "mtime": 1778894003.333842,
+    "ast_hash": "63db85e7c77d4f72e390e86b6f88f01c",
+    "semantic_hash": "63db85e7c77d4f72e390e86b6f88f01c"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\lib\\db\\schema\\acabamentos.ts": {
+    "mtime": 1778894003.412269,
+    "ast_hash": "f01e87f0f3c275b7168e9da40ce18954",
+    "semantic_hash": "f01e87f0f3c275b7168e9da40ce18954"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\lib\\db\\schema\\anexos.ts": {
+    "mtime": 1778894003.4591472,
+    "ast_hash": "3e55d87aedc559b9a71cf9d357938650",
+    "semantic_hash": "3e55d87aedc559b9a71cf9d357938650"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\lib\\db\\schema\\bases-urdume.ts": {
+    "mtime": 1778894003.4591472,
+    "ast_hash": "c36d9cc67d8cba376fd9bf702ac65b9b",
+    "semantic_hash": "c36d9cc67d8cba376fd9bf702ac65b9b"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\lib\\db\\schema\\clientes.ts": {
+    "mtime": 1778894003.4744701,
+    "ast_hash": "90ab12af692b3e3b5c7cec69e8059d1b",
+    "semantic_hash": "90ab12af692b3e3b5c7cec69e8059d1b"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\lib\\db\\schema\\cores.ts": {
+    "mtime": 1778894003.4744701,
+    "ast_hash": "3433218254992a0f19e467bcdb35391d",
+    "semantic_hash": "3433218254992a0f19e467bcdb35391d"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\lib\\db\\schema\\email-config.ts": {
+    "mtime": 1779054375.3842273,
+    "ast_hash": "d74aacd7736eff8ea356f0282b9c7f2e",
+    "semantic_hash": "d74aacd7736eff8ea356f0282b9c7f2e"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\lib\\db\\schema\\estampas.ts": {
+    "mtime": 1778894003.4744701,
+    "ast_hash": "7e53f0f229af8656bd4e69cc88fb7286",
+    "semantic_hash": "7e53f0f229af8656bd4e69cc88fb7286"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\lib\\db\\schema\\fios.ts": {
+    "mtime": 1778894003.4744701,
+    "ast_hash": "59d323fdc0cd83d94a5703774a0dcf83",
+    "semantic_hash": "59d323fdc0cd83d94a5703774a0dcf83"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\lib\\db\\schema\\index.ts": {
+    "mtime": 1779064618.050511,
+    "ast_hash": "f1cfd4ad1b6ccea2282b4c669bf62c6d",
+    "semantic_hash": "f1cfd4ad1b6ccea2282b4c669bf62c6d"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\lib\\db\\schema\\maqoper.ts": {
+    "mtime": 1778894003.5372865,
+    "ast_hash": "f3fb3b2992952a32b6bf9ed962b1579d",
+    "semantic_hash": "f3fb3b2992952a32b6bf9ed962b1579d"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\lib\\db\\schema\\notificacoes.ts": {
+    "mtime": 1779054376.5498178,
+    "ast_hash": "a8781966cf59ebcd7967715337574b6d",
+    "semantic_hash": "a8781966cf59ebcd7967715337574b6d"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\lib\\db\\schema\\produto-cru.ts": {
+    "mtime": 1779048433.381966,
+    "ast_hash": "62ec15b4aa61874e011f1fc892ff6904",
+    "semantic_hash": "62ec15b4aa61874e011f1fc892ff6904"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\lib\\db\\schema\\produtos-quimicos.ts": {
+    "mtime": 1779065156.1004157,
+    "ast_hash": "b39fda7980db9266c1274aaa750d5360",
+    "semantic_hash": "b39fda7980db9266c1274aaa750d5360"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\lib\\db\\schema\\receitas.ts": {
+    "mtime": 1779064608.6927834,
+    "ast_hash": "3acd2f00d7a1dc5808a247e87203b1a5",
+    "semantic_hash": "3acd2f00d7a1dc5808a247e87203b1a5"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\lib\\db\\schema\\roles.ts": {
+    "mtime": 1779058162.101027,
+    "ast_hash": "42d7f75a2f5c12d2384f576ab15883e9",
+    "semantic_hash": "42d7f75a2f5c12d2384f576ab15883e9"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\lib\\db\\schema\\solicitacoes.ts": {
+    "mtime": 1778894003.5372865,
+    "ast_hash": "d37e6b01c04ec2600235b2281b5b5c87",
+    "semantic_hash": "d37e6b01c04ec2600235b2281b5b5c87"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\lib\\db\\schema\\usuarios.ts": {
+    "mtime": 1778894003.5372865,
+    "ast_hash": "3d14a812ebb37d8c9cb0b03949de8466",
+    "semantic_hash": "3d14a812ebb37d8c9cb0b03949de8466"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\types\\briefing.ts": {
+    "mtime": 1778894003.6151,
+    "ast_hash": "6f229b9ede60df8c9a515ce09d5a0d0a",
+    "semantic_hash": "6f229b9ede60df8c9a515ce09d5a0d0a"
+  },
+  "D:\\Tiago\\dev\\pdmtextil\\src\\types\\next-auth.d.ts": {
+    "mtime": 1778894003.6151,
+    "ast_hash": "e7e45ada7b78890c2a36596bda014d62",
+    "semantic_hash": "e7e45ada7b78890c2a36596bda014d62"
   }
 }
