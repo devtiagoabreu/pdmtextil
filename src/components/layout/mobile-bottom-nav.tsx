@@ -8,7 +8,7 @@ import { LayoutDashboard, FileText, PlusCircle, Package, User, Factory, Settings
 const mobileNavItems = {
   COMERCIAL: [
     { href: "/dashboard", icon: LayoutDashboard, label: "Início" },
-    { href: "/comercial/solicitacoes", icon: FileText, label: "Lista" },
+    { href: "/comercial/solicitacoes", icon: FileText, label: "Solicitações" },
     { href: "/comercial/solicitacoes/nova", icon: PlusCircle, label: "Novo" },
     { href: "/perfil", icon: User, label: "Perfil" },
   ],
@@ -26,8 +26,8 @@ const mobileNavItems = {
   ],
   ADMIN: [
     { href: "/dashboard", icon: LayoutDashboard, label: "Início" },
+    { href: "/comercial/solicitacoes", icon: FileText, label: "Solicitações" },
     { href: "/admin/usuarios", icon: Users, label: "Usuários" },
-    { href: "/admin/configuracoes", icon: Settings, label: "Config" },
     { href: "/perfil", icon: User, label: "Perfil" },
   ],
 } as const

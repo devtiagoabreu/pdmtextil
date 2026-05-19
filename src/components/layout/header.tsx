@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { signOut, useSession } from "next-auth/react"
 import { Bell, Search, Menu, User, LogOut, Settings, CheckCheck, Loader2 } from "lucide-react"
 import Link from "next/link"
@@ -36,6 +36,20 @@ export function Header({ onMenuClick }: HeaderProps) {
     }
   }, [])
 
+  const notifRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
+        setShowNotifications(false)
+      }
+    }
+    if (showNotifications) {
+      document.addEventListener("mousedown", handleClickOutside)
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [showNotifications])
+
   useEffect(() => {
     fetchNotificacoes()
     const interval = setInterval(fetchNotificacoes, 30000)
@@ -49,6 +63,7 @@ export function Header({ onMenuClick }: HeaderProps) {
       body: JSON.stringify({ marcarTodas: true }),
     })
     setNotificacoes([])
+    setShowNotifications(false)
   }
 
   const unreadCount = notificacoes.length
@@ -104,7 +119,7 @@ export function Header({ onMenuClick }: HeaderProps) {
           </button>
 
           {showNotifications && (
-            <div className="absolute right-0 mt-2 w-80 rounded-xl border bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900 animate-fade-in z-50">
+            <div ref={notifRef} className="absolute right-0 mt-2 w-80 rounded-xl border bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900 animate-fade-in z-50">
               <div className="border-b p-3 font-semibold text-sm dark:border-slate-700 flex items-center justify-between">
                 <span>Notificações</span>
                 <div className="flex items-center gap-2">
