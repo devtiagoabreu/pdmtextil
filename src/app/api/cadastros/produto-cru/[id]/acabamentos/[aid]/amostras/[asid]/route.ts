@@ -47,13 +47,22 @@ export async function PUT(
       )
       .returning()
 
-    if (isAprovacao && atualizado[0]) {
-      notificar(
-        body.status === "APROVADO" ? "AMOSTRA_APROVADA" : "AMOSTRA_REPROVADA",
-        `Amostra de acabamento #${asid} (acabamento #${aid}) do produto cru #${id} foi ${body.status === "APROVADO" ? "aprovada" : "reprovada"} por ${session.user.name}${body.motivoAprovacao ? ` — Motivo: ${body.motivoAprovacao}` : ""}`,
-        `/cadastros/produto-cru/${id}`,
-        session.user.name
-      )
+    if (atualizado[0]) {
+      if (isAprovacao) {
+        notificar(
+          body.status === "APROVADO" ? "AMOSTRA_APROVADA" : "AMOSTRA_REPROVADA",
+          `Amostra de acabamento #${asid} (acabamento #${aid}) do produto cru #${id} foi ${body.status === "APROVADO" ? "aprovada" : "reprovada"} por ${session.user.name}${body.motivoAprovacao ? ` — Motivo: ${body.motivoAprovacao}` : ""}`,
+          `/cadastros/produto-cru/${id}`,
+          session.user.name
+        )
+      } else {
+        notificar(
+          "AMOSTRA_ATUALIZADA",
+          `Amostra de acabamento #${asid} (acabamento #${aid}) do produto cru #${id} foi editada por ${session.user.name}`,
+          `/cadastros/produto-cru/${id}`,
+          session.user.name
+        )
+      }
     }
 
     return NextResponse.json(atualizado[0])
@@ -71,7 +80,15 @@ export async function DELETE(
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
-    const { aid, asid } = await params
+    const { id, aid, asid } = await params
+
+    notificar(
+      "AMOSTRA_EXCLUIDA",
+      `Amostra de acabamento #${asid} (acabamento #${aid}) do produto cru #${id} foi excluída por ${session.user.name}`,
+      `/cadastros/produto-cru/${id}`,
+      session.user.name
+    )
+
     await db
       .delete(produtoCruAcabamentoAmostra)
       .where(

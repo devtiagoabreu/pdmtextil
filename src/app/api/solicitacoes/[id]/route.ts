@@ -140,6 +140,13 @@ export async function PUT(
         `/comercial/solicitacoes/${id}`,
         session.user.name
       )
+    } else if (alteracoes.length > 0) {
+      notificar(
+        "SOLICITACAO_ATUALIZADA",
+        `Solicitação #${id} foi editada por ${session.user.name} — ${alteracoes[0]}${alteracoes.length > 1 ? ` e mais ${alteracoes.length - 1} alterações` : ""}`,
+        `/comercial/solicitacoes/${id}`,
+        session.user.name
+      )
     }
 
     // Atualiza anexos: apaga os antigos e reinsere
@@ -174,8 +181,19 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const session = await getServerSession(authOptions)
+
     const { id } = await params
     const solicitacaoId = parseInt(id)
+
+    if (session) {
+      notificar(
+        "SOLICITACAO_EXCLUIDA",
+        `Solicitação #${id} foi excluída por ${session.user.name}`,
+        "/comercial/solicitacoes",
+        session.user.name
+      )
+    }
 
     await db
       .delete(anexos)

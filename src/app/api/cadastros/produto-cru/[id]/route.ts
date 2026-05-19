@@ -12,6 +12,7 @@ import {
   produtoCruAcabamentoReceita,
 } from "@/lib/db/schema/produto-cru"
 import { eq, and } from "drizzle-orm"
+import { notificar } from "@/lib/notificar"
 
 export async function GET(
   req: NextRequest,
@@ -120,6 +121,14 @@ export async function DELETE(
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
     const id = parseInt((await params).id)
+
+    notificar(
+      "PRODUTO_CRU_EXCLUIDO",
+      `Produto cru #${id} foi excluído por ${session.user.name}`,
+      "/cadastros/produto-cru",
+      session.user.name
+    )
+
     await db.delete(produtosCru).where(eq(produtosCru.id, id))
 
     return NextResponse.json({ success: true })
