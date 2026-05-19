@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react"
 import { useSession } from "next-auth/react"
-import { FileText, PlusCircle, BarChart3, Clock, Package } from "lucide-react"
+import { FileText, PlusCircle, Clock, Package } from "lucide-react"
 import Link from "next/link"
-import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts"
+import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 
 const STATUS_COLORS: Record<string, string> = {
   PENDENTE: "#f59e0b",
@@ -65,7 +65,7 @@ export default function DashboardPage() {
     year: "numeric",
   })
 
-  const formatTooltip = (value: number) => [value, "solicitações"]
+  const formatTooltip = (value: string | number) => `${value} solicitações`
 
   return (
     <div className="space-y-6 animate-fade-in">
