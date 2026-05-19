@@ -65,8 +65,6 @@ export default function DashboardPage() {
     year: "numeric",
   })
 
-  const formatTooltip = (value: string | number) => `${value} solicitações`
-
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
@@ -110,7 +108,7 @@ export default function DashboardPage() {
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                   <XAxis dataKey="mes" tick={{ fontSize: 11 }} stroke="#94a3b8" />
                   <YAxis allowDecimals={false} tick={{ fontSize: 11 }} stroke="#94a3b8" />
-                  <Tooltip formatter={formatTooltip} />
+                  <Tooltip formatter={(value: any) => `${value || 0} solicitações`} />
                   <Line type="monotone" dataKey="total" stroke="#6366f1" strokeWidth={2} dot={{ fill: "#6366f1", r: 4 }} />
                 </LineChart>
               </ResponsiveContainer>
@@ -149,7 +147,7 @@ export default function DashboardPage() {
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                   <XAxis dataKey="name" tick={{ fontSize: 11 }} stroke="#94a3b8" />
                   <YAxis allowDecimals={false} tick={{ fontSize: 11 }} stroke="#94a3b8" />
-                  <Tooltip formatter={formatTooltip} />
+                  <Tooltip formatter={(value: any) => `${value || 0} solicitações`} />
                   <Bar dataKey="total" radius={[4, 4, 0, 0]}>
                     {(stats?.tipoDistribution || []).map((s: any) => (
                       <Cell key={s.tipo} fill={TIPO_COLORS[s.tipo] || "#6366f1"} />
