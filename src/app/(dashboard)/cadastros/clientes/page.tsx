@@ -68,7 +68,7 @@ export default function ClientesPage() {
         </div>
         <div className="flex gap-2">
           <ImportarClientes onImportado={() => refetch()} />
-          <Link href="/cadastros/clientes/novo">
+          <Link href="/comercial/clientes/novo">
             <Button className="gap-2">
               <PlusCircle size={16} />
               Novo Cliente
@@ -132,7 +132,7 @@ export default function ClientesPage() {
                   </td>
                   <td className="p-4 text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Link href={`/cadastros/clientes/${cliente.id}`}>
+                      <Link href={`/comercial/clientes/${cliente.id}`}>
                         <Button variant="ghost" size="icon" className="h-8 w-8">
                           <Pencil size={14} />
                         </Button>
