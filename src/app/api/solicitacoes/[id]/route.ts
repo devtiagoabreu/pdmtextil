@@ -5,6 +5,7 @@ import { db } from "@/lib/db"
 import { solicitacoes } from "@/lib/db/schema/solicitacoes"
 import { anexos } from "@/lib/db/schema/anexos"
 import { eq } from "drizzle-orm"
+import { notificar } from "@/lib/notificar"
 
 export async function GET(
   req: NextRequest,
@@ -131,6 +132,15 @@ export async function PUT(
       .set(setValues)
       .where(eq(solicitacoes.id, parseInt(id)))
       .returning()
+
+    if (body.status && body.status !== solicitacaoAntiga.status && (body.status === "APROVADO" || body.status === "REPROVADO")) {
+      notificar(
+        body.status === "APROVADO" ? "SOLICITACAO_APROVADA" : "SOLICITACAO_REPROVADA",
+        `Solicitação #${id} foi ${body.status === "APROVADO" ? "aprovada" : "reprovada"} por ${session.user.name}${alteracoes.length > 0 ? ` — ${alteracoes[0]}` : ""}`,
+        `/comercial/solicitacoes/${id}`,
+        session.user.name
+      )
+    }
 
     // Atualiza anexos: apaga os antigos e reinsere
     const { anexos: anexosList } = body

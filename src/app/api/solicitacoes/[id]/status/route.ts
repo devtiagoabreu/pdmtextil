@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { solicitacoes } from "@/lib/db/schema/solicitacoes"
 import { eq } from "drizzle-orm"
+import { notificar } from "@/lib/notificar"
 
 const STATUS_VALIDOS = [
   "PENDENTE",
@@ -77,6 +78,15 @@ export async function PATCH(
       .set(updateData)
       .where(eq(solicitacoes.id, id))
       .returning()
+
+    if (status === "APROVADO" || status === "REPROVADO") {
+      notificar(
+        status === "APROVADO" ? "SOLICITACAO_APROVADA" : "SOLICITACAO_REPROVADA",
+        `Solicitação #${id} foi ${status === "APROVADO" ? "aprovada" : "reprovada"} por ${session.user.name}${comentario ? ` — ${comentario}` : ""}`,
+        `/comercial/solicitacoes/${id}`,
+        session.user.name
+      )
+    }
 
     return NextResponse.json(atualizada)
   } catch (error) {
