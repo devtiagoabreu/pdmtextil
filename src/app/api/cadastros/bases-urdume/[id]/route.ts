@@ -53,6 +53,8 @@ export async function PUT(
     const baseAtualizada = await db
       .update(basesUrdume)
       .set({
+        codigoBase: body.codigoBase,
+        codigoCompleto: body.codigoCompleto,
         nome: body.nome,
         descricao: body.descricao || null,
         composicaoFios: body.composicaoFios || null,
