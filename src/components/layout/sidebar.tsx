@@ -23,29 +23,31 @@ import {
 const navItems = {
   COMERCIAL: [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/comercial/solicitacoes", label: "Solicitações", icon: FileText },
     { href: "/comercial/clientes", label: "Clientes", icon: Building2 },
-    { href: "/comercial/solicitacoes", label: "Minhas Solicitações", icon: FileText },
     { href: "/comercial/solicitacoes/nova", label: "Nova Solicitação", icon: PlusCircle },
   ],
   TECELAGEM: [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/tecelagem/solicitacoes", label: "Solicitações Recebidas", icon: FileText },
+    { href: "/tecelagem/solicitacoes", label: "Solicitações", icon: FileText },
     { href: "/tecelagem/produtos-cru", label: "Produtos Cru", icon: Factory },
   ],
   BENEFICIAMENTO: [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/beneficiamento/solicitacoes", label: "Solicitações Recebidas", icon: FileText },
+    { href: "/beneficiamento/solicitacoes", label: "Solicitações", icon: FileText },
     { href: "/beneficiamento/produtos", label: "Produtos", icon: FlaskConical },
     { href: "/beneficiamento/receitas", label: "Receitas", icon: Database },
     { href: "/beneficiamento/roteiros", label: "Roteiros", icon: BarChart3 },
   ],
   PCP: [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/pcp/solicitacoes", label: "Solicitações", icon: FileText },
     { href: "/pcp/solicitacoes/amostras", label: "Amostras", icon: Package },
     { href: "/pcp/solicitacoes/producao", label: "Produção", icon: Factory },
   ],
   ADMIN: [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/comercial/solicitacoes", label: "Solicitações", icon: FileText },
     { href: "/cadastros", label: "Cadastros", icon: Database },
     { href: "/admin/usuarios", label: "Usuários", icon: Users },
     { href: "/admin/roles", label: "Perfis (Roles)", icon: Shield },
