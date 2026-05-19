@@ -21,20 +21,21 @@ export async function notificar(tipo: string, mensagem: string, link?: string, u
 
   const emailsValidos = todosUsuarios.map(u => u.email).filter((e): e is string => !!e && e.includes("@"))
   if (emailsValidos.length > 0) {
-    try {
-      await sendEmail({
-        to: emailsValidos,
-        subject: `[PDM Têxtil] ${mensagem}`,
-        html: `<div style="font-family:Arial,sans-serif;padding:20px;max-width:600px">
+    const result = await sendEmail({
+      to: emailsValidos,
+      subject: `[PDM Têxtil] ${mensagem}`,
+      html: `<div style="font-family:Arial,sans-serif;padding:20px;max-width:600px">
 <h2 style="color:#1e3a5f">PDM Têxtil</h2>
 <p>${mensagem}</p>
 ${link ? `<p><a href="${link}" style="background:#1e3a5f;color:#fff;padding:10px 20px;text-decoration:none;border-radius:6px;display:inline-block">Ver detalhes</a></p>` : ""}
 <hr style="border:none;border-top:1px solid #e2e8f0;margin:20px 0" />
 <p style="color:#94a3b8;font-size:12px">Sistema PDM Têxtil</p>
 </div>`,
-      })
-    } catch (err) {
-      console.error("[NOTIFICAR] Erro ao enviar email em massa:", err)
+    })
+    if (result.error) {
+      console.error(`[NOTIFICAR] Email enviado para ${result.sent} de ${emailsValidos.length} usuários. Erro: ${result.error}`)
+    } else {
+      console.log(`[NOTIFICAR] Email enviado com sucesso para ${result.sent} usuários`)
     }
   }
 

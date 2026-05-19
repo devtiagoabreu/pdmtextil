@@ -53,24 +53,21 @@ export async function sendEmail(params: {
   })
 
   const toList = Array.isArray(params.to) ? params.to : [params.to]
-  let sent = 0
-  let lastError: string | null = null
+  if (toList.length === 0) return { sent: 0, error: "Nenhum destinatário" }
 
-  for (const addr of toList) {
-    try {
-      await t.sendMail({
-        from: `"${cfg.fromName || "PDM Têxtil"}" <${cfg.user}>`,
-        to: addr,
-        subject: params.subject,
-        html: params.html,
-      })
-      sent++
-    } catch (err: any) {
-      lastError = err.message || "Erro ao enviar email"
-      console.error(`[EMAIL] Falha ao enviar para ${addr}:`, err.message)
-    }
+  try {
+    await t.sendMail({
+      from: `"${cfg.fromName || "PDM Têxtil"}" <${cfg.user}>`,
+      to: cfg.user,
+      bcc: toList.filter(a => a !== cfg.user),
+      subject: params.subject,
+      html: params.html,
+    })
+    t.close()
+    return { sent: toList.length, error: null }
+  } catch (err: any) {
+    t.close()
+    console.error("[EMAIL] Erro no envio BCC:", err.message)
+    return { sent: 0, error: err.message || "Erro ao enviar email" }
   }
-
-  t.close()
-  return { sent, error: lastError }
 }
