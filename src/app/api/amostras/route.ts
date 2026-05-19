@@ -1,0 +1,52 @@
+import { NextResponse } from "next/server"
+import { db } from "@/lib/db"
+import { produtosCru, produtoCruAmostra, produtoCruAcabamento, produtoCruAcabamentoAmostra } from "@/lib/db/schema/produto-cru"
+import { eq } from "drizzle-orm"
+
+export async function GET() {
+  try {
+    const amostrasCru = await db
+      .select({
+        id: produtoCruAmostra.id,
+        produtoCruId: produtoCruAmostra.produtoCruId,
+        descricao: produtoCruAmostra.descricao,
+        status: produtoCruAmostra.status,
+        motivoAprovacao: produtoCruAmostra.motivoAprovacao,
+        observacoes: produtoCruAmostra.observacoes,
+        data: produtoCruAmostra.data,
+        createdAt: produtoCruAmostra.createdAt,
+        produtoCodigo: produtosCru.codigoPdm,
+        produtoDescricao: produtosCru.descricao,
+      })
+      .from(produtoCruAmostra)
+      .innerJoin(produtosCru, eq(produtoCruAmostra.produtoCruId, produtosCru.id))
+      .orderBy(produtoCruAmostra.createdAt)
+
+    const amostrasAcabamento = await db
+      .select({
+        id: produtoCruAcabamentoAmostra.id,
+        acabamentoId: produtoCruAcabamentoAmostra.acabamentoId,
+        descricao: produtoCruAcabamentoAmostra.descricao,
+        status: produtoCruAcabamentoAmostra.status,
+        motivoAprovacao: produtoCruAcabamentoAmostra.motivoAprovacao,
+        observacoes: produtoCruAcabamentoAmostra.observacoes,
+        data: produtoCruAcabamentoAmostra.data,
+        createdAt: produtoCruAcabamentoAmostra.createdAt,
+        produtoCodigo: produtosCru.codigoPdm,
+        produtoDescricao: produtosCru.descricao,
+        acabamentoDescricao: produtoCruAcabamento.descricao,
+      })
+      .from(produtoCruAcabamentoAmostra)
+      .innerJoin(produtoCruAcabamento, eq(produtoCruAcabamentoAmostra.acabamentoId, produtoCruAcabamento.id))
+      .innerJoin(produtosCru, eq(produtoCruAcabamento.produtoCruId, produtosCru.id))
+      .orderBy(produtoCruAcabamentoAmostra.createdAt)
+
+    return NextResponse.json({
+      tecidoCru: amostrasCru.map(a => ({ ...a, tipoAmostra: "TECIDO_CRU" })),
+      acabamento: amostrasAcabamento.map(a => ({ ...a, tipoAmostra: "ACABAMENTO" })),
+    })
+  } catch (error) {
+    console.error("[GET /api/amostras]", error)
+    return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
+  }
+}

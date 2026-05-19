@@ -3,31 +3,43 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useSession } from "next-auth/react"
-import { LayoutDashboard, FileText, PlusCircle, Package, User, Factory, Settings, Users, Send } from "lucide-react"
+import { LayoutDashboard, FileText, PlusCircle, Package, User, Factory, Settings, Users, Send, ClipboardList } from "lucide-react"
 
 const mobileNavItems = {
   COMERCIAL: [
     { href: "/dashboard", icon: LayoutDashboard, label: "Início" },
     { href: "/comercial/solicitacoes", icon: FileText, label: "Solicitações" },
-    { href: "/comercial/solicitacoes/nova", icon: PlusCircle, label: "Novo" },
+    { href: "/amostras", icon: ClipboardList, label: "Amostras" },
     { href: "/perfil", icon: User, label: "Perfil" },
   ],
   TECELAGEM: [
     { href: "/dashboard", icon: LayoutDashboard, label: "Início" },
     { href: "/tecelagem/solicitacoes", icon: FileText, label: "Solicitações" },
-    { href: "/tecelagem/produtos-cru", icon: Package, label: "Produtos" },
+    { href: "/amostras", icon: ClipboardList, label: "Amostras" },
     { href: "/perfil", icon: User, label: "Perfil" },
   ],
   BENEFICIAMENTO: [
     { href: "/dashboard", icon: LayoutDashboard, label: "Início" },
     { href: "/beneficiamento/solicitacoes", icon: FileText, label: "Solicitações" },
-    { href: "/beneficiamento/produtos", icon: Factory, label: "Produtos" },
+    { href: "/amostras", icon: ClipboardList, label: "Amostras" },
+    { href: "/perfil", icon: User, label: "Perfil" },
+  ],
+  DESENVOLVIMENTO: [
+    { href: "/dashboard", icon: LayoutDashboard, label: "Início" },
+    { href: "/comercial/solicitacoes", icon: FileText, label: "Solicitações" },
+    { href: "/amostras", icon: ClipboardList, label: "Amostras" },
+    { href: "/perfil", icon: User, label: "Perfil" },
+  ],
+  PCP: [
+    { href: "/dashboard", icon: LayoutDashboard, label: "Início" },
+    { href: "/pcp/solicitacoes", icon: FileText, label: "Solicitações" },
+    { href: "/amostras", icon: ClipboardList, label: "Amostras" },
     { href: "/perfil", icon: User, label: "Perfil" },
   ],
   ADMIN: [
     { href: "/dashboard", icon: LayoutDashboard, label: "Início" },
     { href: "/comercial/solicitacoes", icon: FileText, label: "Solicitações" },
-    { href: "/admin/usuarios", icon: Users, label: "Usuários" },
+    { href: "/amostras", icon: ClipboardList, label: "Amostras" },
     { href: "/perfil", icon: User, label: "Perfil" },
   ],
 } as const
