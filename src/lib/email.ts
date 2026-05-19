@@ -58,8 +58,7 @@ export async function sendEmail(params: {
   try {
     await t.sendMail({
       from: `"${cfg.fromName || "PDM Têxtil"}" <${cfg.user}>`,
-      to: cfg.user,
-      bcc: toList.filter(a => a !== cfg.user),
+      to: toList.join(", "),
       subject: params.subject,
       html: params.html,
     })
@@ -67,7 +66,7 @@ export async function sendEmail(params: {
     return { sent: toList.length, error: null }
   } catch (err: any) {
     t.close()
-    console.error("[EMAIL] Erro no envio BCC:", err.message)
+    console.error("[EMAIL] Erro no envio:", err.message)
     return { sent: 0, error: err.message || "Erro ao enviar email" }
   }
 }
