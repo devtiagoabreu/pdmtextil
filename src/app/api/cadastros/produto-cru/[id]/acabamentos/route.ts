@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { produtoCruAcabamento } from "@/lib/db/schema/produto-cru"
 import { eq } from "drizzle-orm"
+import { notificar } from "@/lib/notificar"
 
 export async function GET(
   req: NextRequest,
@@ -44,6 +45,13 @@ export async function POST(
         possuiReceita: body.possuiReceita ?? false,
       })
       .returning()
+
+    notificar(
+      "ACABAMENTO_CRIADO",
+      `Novo acabamento #${novo[0].id} adicionado ao produto cru #${id} por ${session.user.name}${body.descricao ? ` — ${body.descricao}` : ""}`,
+      `/cadastros/produto-cru/${id}`,
+      session.user.name
+    )
 
     return NextResponse.json(novo[0])
   } catch (error) {

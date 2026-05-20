@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { produtoCruAcabamento } from "@/lib/db/schema/produto-cru"
 import { eq, and } from "drizzle-orm"
+import { notificar } from "@/lib/notificar"
 
 export async function DELETE(
   req: NextRequest,
@@ -14,6 +15,14 @@ export async function DELETE(
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
     const { id, aid } = await params
+
+    notificar(
+      "ACABAMENTO_EXCLUIDO",
+      `Acabamento #${aid} do produto cru #${id} foi excluído por ${session.user.name}`,
+      `/cadastros/produto-cru/${id}`,
+      session.user.name
+    )
+
     await db
       .delete(produtoCruAcabamento)
       .where(
