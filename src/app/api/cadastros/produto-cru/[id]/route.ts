@@ -105,6 +105,13 @@ export async function PUT(
       return NextResponse.json({ error: "Produto não encontrado" }, { status: 404 })
     }
 
+    notificar(
+      "PRODUTO_CRU_ATUALIZADO",
+      `Produto cru #${id} atualizado por ${session.user.name}`,
+      `/cadastros/produto-cru/${id}`,
+      session.user.name
+    )
+
     return NextResponse.json(atualizado[0])
   } catch (error) {
     console.error("[PUT /api/cadastros/produto-cru/[id]]", error)
