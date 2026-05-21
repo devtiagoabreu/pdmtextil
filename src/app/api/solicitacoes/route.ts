@@ -5,7 +5,7 @@ import { db } from "@/lib/db"
 import { solicitacoes } from "@/lib/db/schema/solicitacoes"
 import { anexos } from "@/lib/db/schema/anexos"
 import { usuarios } from "@/lib/db/schema/usuarios"
-import { eq, desc, or, and, sql } from "drizzle-orm"
+import { eq, desc, and, sql } from "drizzle-orm"
 import { notificar } from "@/lib/notificar"
 
 // GET - Listar solicitações (filtradas por perfil)
@@ -18,24 +18,7 @@ export async function GET(req: NextRequest) {
     const status = searchParams.get("status")
     const tipo = searchParams.get("tipo")
 
-    const role = session.user.role
-    const userId = parseInt(session.user.id)
-
     let conditions: any[] = []
-
-    // COMERCIAL só vê as próprias solicitações
-    if (role === "COMERCIAL") {
-      conditions.push(eq(solicitacoes.solicitanteId, userId))
-    }
-    // TECELAGEM só vê solicitações de tecelagem
-    if (role === "TECELAGEM") {
-      conditions.push(eq(solicitacoes.tipo, "DESENVOLVIMENTO_TECELAGEM"))
-    }
-    // BENEFICIAMENTO só vê solicitações de beneficiamento
-    if (role === "BENEFICIAMENTO") {
-      conditions.push(eq(solicitacoes.tipo, "DESENVOLVIMENTO_BENEFICIAMENTO"))
-    }
-    // ADMIN vê tudo
 
     if (status) conditions.push(eq(solicitacoes.status, status))
     if (tipo) conditions.push(eq(solicitacoes.tipo, tipo))
