@@ -168,6 +168,15 @@ export async function POST(req: NextRequest) {
       BEGIN
         ALTER TABLE bases_urdume ALTER COLUMN densidade TYPE numeric(8,2);
       END $$`,
+      // seed default permissions for existing roles
+      `UPDATE roles SET permissions = '{
+  "SOLICITACOES": ["VIEW", "INSERT", "UPDATE", "DELETE"],
+  "PRODUTO_CRU": ["VIEW", "INSERT", "UPDATE", "DELETE"],
+  "CADASTROS": ["VIEW", "INSERT", "UPDATE", "DELETE"],
+  "AMOSTRAS": ["VIEW", "INSERT", "UPDATE", "DELETE"],
+  "USUARIOS": ["VIEW", "INSERT", "UPDATE", "DELETE"],
+  "CONFIGURACOES": ["VIEW", "INSERT", "UPDATE", "DELETE"]
+}'::jsonb, updated_at = NOW() WHERE ativo = true`,
     ]
 
     const results = []
