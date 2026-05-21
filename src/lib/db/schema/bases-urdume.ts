@@ -8,7 +8,7 @@ export const basesUrdume = pgTable("bases_urdume", {
   codigoBase: varchar("codigo_base", { length: 10 }).notNull().unique(),
   nome: varchar("nome", { length: 200 }).notNull(),
   descricao: text("descricao"),
-  fios: numeric("fios", { precision: 6, scale: 2 }),
+  densidade: numeric("densidade", { precision: 6, scale: 2 }),
   tratamento: varchar("tratamento", { length: 100 }),
   tensaoUrdume: numeric("tensao_urdume", { precision: 6, scale: 2 }),
   largura: numeric("largura", { precision: 6, scale: 2 }),

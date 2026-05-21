@@ -114,13 +114,6 @@ export async function POST(req: NextRequest) {
           ALTER TABLE usuarios ADD COLUMN "id_integracao" varchar(100);
         END IF;
       END $$`,
-      // bases_urdume: rename densidade -> fios
-      `DO $$
-      BEGIN
-        IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'bases_urdume' AND column_name = 'densidade') THEN
-          ALTER TABLE bases_urdume RENAME COLUMN densidade TO fios;
-        END IF;
-      END $$`,
       // bases_urdume: rename tratamento_encolagem -> tratamento
       `DO $$
       BEGIN

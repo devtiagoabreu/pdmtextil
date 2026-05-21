@@ -15,7 +15,7 @@ type BaseUrdume = {
   codigoCompleto: string
   nome: string
   descricao?: string | null
-  fios?: string | null
+  densidade?: string | null
   tratamento?: string | null
   tensaoUrdume?: string | null
   largura?: string | null
@@ -48,7 +48,7 @@ export default function BaseFormPage() {
     codigoCompleto: "",
     nome: "",
     descricao: "",
-    fios: "",
+    densidade: "",
     tratamento: "",
     tensaoUrdume: "",
     largura: "",
@@ -84,7 +84,7 @@ export default function BaseFormPage() {
               codigoCompleto: data.codigoCompleto || "",
               nome: data.nome || "",
               descricao: data.descricao || "",
-              fios: data.fios || "",
+              densidade: data.densidade || "",
               tratamento: data.tratamento || "",
               tensaoUrdume: data.tensaoUrdume || "",
               largura: data.largura || "",
@@ -284,11 +284,11 @@ export default function BaseFormPage() {
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="fios">Quantidade de Fios</Label>
+            <Label htmlFor="densidade">Densidade (Qtde Fios)</Label>
             <Input
-              id="fios"
-              value={base.fios || ""}
-              onChange={e => handleChange("fios", e.target.value)}
+              id="densidade"
+              value={base.densidade || ""}
+              onChange={e => handleChange("densidade", e.target.value)}
               placeholder="30"
             />
           </div>
