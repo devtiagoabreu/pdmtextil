@@ -73,6 +73,13 @@ export async function PUT(
     const id = parseInt((await params).id)
     const body = await req.json()
 
+    // Apenas COMERCIAL e ADMIN podem aprovar/reprovar produto
+    if (body.status === "APROVADO" || body.status === "REPROVADO") {
+      if (session.user.role !== "COMERCIAL" && session.user.role !== "ADMIN") {
+        return NextResponse.json({ error: "Apenas COMERCIAL e ADMIN podem aprovar/reprovar produtos" }, { status: 403 })
+      }
+    }
+
     if (body.idIntegracao) {
       const existente = await db
         .select()
@@ -106,17 +113,17 @@ export async function PUT(
       return NextResponse.json({ error: "Produto não encontrado" }, { status: 404 })
     }
 
-    // Se produto foi aprovado, atualiza solicitação vinculada para FINALIZADA_PARA_PRODUCAO
-    if (body.status === "APROVADO" && body.solicitacaoDesenvolvimentoId) {
+    // Se COMERCIAL aprovou produto, atualiza solicitação vinculada para CONCLUIDO
+    if (body.status === "APROVADO" && body.solicitacaoDesenvolvimentoId && (session.user.role === "COMERCIAL" || session.user.role === "ADMIN")) {
       const solicitacaoId = Number(body.solicitacaoDesenvolvimentoId)
       try {
         await db
           .update(solicitacoes)
-          .set({ status: "FINALIZADA_PARA_PRODUCAO", updatedAt: new Date() })
+          .set({ status: "CONCLUIDO", dataConclusao: new Date(), updatedAt: new Date() })
           .where(eq(solicitacoes.id, solicitacaoId))
         notificar(
           "SOLICITACAO_ATUALIZADA",
-          `Produto cru #${id} aprovado — Solicitação #${solicitacaoId} finalizada para produção por ${session.user.name}`,
+          `Produto cru #${id} aprovado por ${session.user.name} — Solicitação #${solicitacaoId} concluída`,
           `/comercial/solicitacoes/${solicitacaoId}`,
           session.user.name
         )
@@ -146,6 +153,9 @@ export async function DELETE(
   try {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
+    if (session.user.role !== "ADMIN") {
+      return NextResponse.json({ error: "Apenas administradores podem excluir produtos" }, { status: 403 })
+    }
 
     const id = parseInt((await params).id)
 
