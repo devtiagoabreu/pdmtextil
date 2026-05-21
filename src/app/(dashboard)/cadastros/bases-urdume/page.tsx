@@ -18,6 +18,7 @@ interface BaseUrdume {
   densidade?: string
   tratamento?: string
   largura?: string
+  idIntegracao?: string
   ativo: boolean
   createdAt: string
 }
@@ -106,6 +107,7 @@ export default function BasesUrdumePage() {
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Densidade</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Largura</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Tratamento</th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">ID Integração</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Status</th>
                 <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Ações</th>
               </tr>
@@ -118,6 +120,7 @@ export default function BasesUrdumePage() {
                   <td className="p-4 text-sm text-slate-500">{base.densidade || "—"}</td>
                   <td className="p-4 text-sm text-slate-500">{base.largura || "—"}</td>
                   <td className="p-4 text-sm text-slate-500">{base.tratamento || "—"}</td>
+                  <td className="p-4 text-sm text-slate-500">{base.idIntegracao || "—"}</td>
                   <td className="p-4">
                     <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
                       base.ativo 
