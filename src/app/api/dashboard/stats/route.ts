@@ -33,13 +33,13 @@ export async function GET() {
       .select({
         total: sql<number>`count(*)`,
         pendentes: sql<number>`count(*) filter (where ${solicitacoes.status} = 'PENDENTE')`,
-        emAnalise: sql<number>`count(*) filter (where ${solicitacoes.status} = 'EM_ANALISE')`,
+        emDesenvolvimento: sql<number>`count(*) filter (where ${solicitacoes.status} = 'EM_DESENVOLVIMENTO')`,
         concluidas: sql<number>`count(*) filter (where ${solicitacoes.status} = 'CONCLUIDO')`,
       })
       .from(solicitacoes)
       .where(monthWhere)
 
-    const result = stats[0] || { total: 0, pendentes: 0, emAnalise: 0, concluidas: 0 }
+    const result = stats[0] || { total: 0, pendentes: 0, emDesenvolvimento: 0, concluidas: 0 }
 
     // Monthly trend (last 6 months)
     const trendData: { mes: string; total: number }[] = []
@@ -83,7 +83,7 @@ export async function GET() {
     return NextResponse.json({
       totalEsteMes: result.total,
       pendentes: result.pendentes,
-      emAnalise: result.emAnalise,
+      emDesenvolvimento: result.emDesenvolvimento,
       concluidas: result.concluidas,
       monthlyTrend: trendData,
       statusDistribution: statusDist,

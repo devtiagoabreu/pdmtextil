@@ -8,15 +8,21 @@ import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Cart
 
 const STATUS_COLORS: Record<string, string> = {
   PENDENTE: "#f59e0b",
-  EM_ANALISE: "#3b82f6",
-  AGUARDANDO_INFO: "#8b5cf6",
+  EM_DESENVOLVIMENTO: "#6366f1",
+  AGUARDANDO_INFO: "#ea580c",
+  APROVADO: "#14b8a6",
+  REPROVADO: "#ef4444",
+  EM_PRODUCAO: "#a855f7",
   CONCLUIDO: "#22c55e",
 }
 
 const STATUS_LABELS: Record<string, string> = {
   PENDENTE: "Pendente",
-  EM_ANALISE: "Em Análise",
+  EM_DESENVOLVIMENTO: "Em Desenvolvimento",
   AGUARDANDO_INFO: "Aguard. Info",
+  APROVADO: "Aprovado",
+  REPROVADO: "Reprovado",
+  EM_PRODUCAO: "Em Produção",
   CONCLUIDO: "Concluído",
 }
 
@@ -86,7 +92,7 @@ export default function DashboardPage() {
             {[
               { label: "Total este mês", value: stats?.totalEsteMes ?? 0, color: "text-slate-700 dark:text-slate-200", bg: "bg-slate-100 dark:bg-slate-800" },
               { label: "Pendentes", value: stats?.pendentes ?? 0, color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-50 dark:bg-amber-950/50" },
-              { label: "Em Análise", value: stats?.emAnalise ?? 0, color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-50 dark:bg-blue-950/50" },
+              { label: "Em Desenvolvimento", value: stats?.emDesenvolvimento ?? 0, color: "text-indigo-600 dark:text-indigo-400", bg: "bg-indigo-50 dark:bg-indigo-950/50" },
               { label: "Concluídas", value: stats?.concluidas ?? 0, color: "text-green-600 dark:text-green-400", bg: "bg-green-50 dark:bg-green-950/50" },
               { label: "Produtos CAD", value: stats?.totalProdutosCru ?? 0, color: "text-cyan-600 dark:text-cyan-400", bg: "bg-cyan-50 dark:bg-cyan-950/50" },
             ].map((stat) => (
@@ -224,7 +230,9 @@ export default function DashboardPage() {
                         <td className="p-4 text-sm">
                           <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
                             item.status === "PENDENTE" ? "bg-amber-100 text-amber-700" :
-                            item.status === "EM_ANALISE" ? "bg-blue-100 text-blue-700" :
+                            item.status === "EM_DESENVOLVIMENTO" ? "bg-indigo-100 text-indigo-700" :
+                            item.status === "APROVADO" ? "bg-teal-100 text-teal-700" :
+                            item.status === "REPROVADO" ? "bg-red-100 text-red-700" :
                             item.status === "CONCLUIDO" ? "bg-green-100 text-green-700" :
                             "bg-slate-100 text-slate-700"
                           }`}>

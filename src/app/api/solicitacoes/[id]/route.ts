@@ -120,12 +120,9 @@ export async function PUT(
     if (body.status !== undefined)   setValues.status   = body.status
     if (body.briefing !== undefined) setValues.briefing = body.briefing
 
-    // Auto-altera status para EM_DESENVOLVIMENTO se não foi explicitamente alterado
-    if (body.status === undefined) {
-      const statusesQueAvancam = ["PENDENTE", "EM_ANALISE", "AGUARDANDO_INFO"]
-      if (statusesQueAvancam.includes(solicitacaoAntiga.status)) {
-        setValues.status = "EM_DESENVOLVIMENTO"
-      }
+    // Auto-altera status para EM_DESENVOLVIMENTO se usuario for DESENVOLVIMENTO
+    if (body.status === undefined && session.user.role === "DESENVOLVIMENTO") {
+      setValues.status = "EM_DESENVOLVIMENTO"
     }
 
     // Converte prazoDesejado: string ISO → Date para o Drizzle / Postgres timestamp
@@ -190,6 +187,10 @@ export async function DELETE(
 ) {
   try {
     const session = await getServerSession(authOptions)
+    if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
+    if (session.user.role !== "ADMIN") {
+      return NextResponse.json({ error: "Apenas administradores podem excluir solicitações" }, { status: 403 })
+    }
 
     const { id } = await params
     const solicitacaoId = parseInt(id)
