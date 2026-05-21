@@ -97,9 +97,9 @@ export async function PUT(
     }
 
     return NextResponse.json(baseAtualizada[0])
-  } catch (error) {
-    console.error("[PUT /api/cadastros/bases-urdume/[id]]", error)
-    return NextResponse.json({ error: "Erro ao atualizar base" }, { status: 500 })
+  } catch (error: any) {
+    console.error("[PUT /api/cadastros/bases-urdume/[id]]", error?.message || error)
+    return NextResponse.json({ error: `Erro ao atualizar base: ${error?.message || error}` }, { status: 500 })
   }
 }
 
@@ -115,8 +115,8 @@ export async function DELETE(
     await db.delete(basesUrdume).where(eq(basesUrdume.id, id))
 
     return NextResponse.json({ success: true })
-  } catch (error) {
-    console.error("[DELETE /api/cadastros/bases-urdume/[id]]", error)
-    return NextResponse.json({ error: "Erro ao excluir base" }, { status: 500 })
+  } catch (error: any) {
+    console.error("[DELETE /api/cadastros/bases-urdume/[id]]", error?.message || error)
+    return NextResponse.json({ error: `Erro ao excluir base: ${error?.message || error}` }, { status: 500 })
   }
 }

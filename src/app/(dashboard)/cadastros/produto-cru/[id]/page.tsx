@@ -128,8 +128,11 @@ export default function ProdutoCruFormPage() {
   const [novoAcabamentoDescricao, setNovoAcabamentoDescricao] = useState("")
   const [novoAcabamentoErp, setNovoAcabamentoErp] = useState("")
 
-  const [fios, setFios] = useState<{ id: number; nome: string }[]>([])
-  const [basesUrdume, setBasesUrdume] = useState<{ id: number; nome: string }[]>([])
+  const [fios, setFios] = useState<{ id: number; codigoFio: string; nome: string; idIntegracao: string | null }[]>([])
+  const [basesUrdume, setBasesUrdume] = useState<{ id: number; nome: string; idIntegracao: string | null }[]>([])
+
+  const fioLabel = (f: typeof fios[0]) => [f.codigoFio, f.idIntegracao, f.nome].filter(Boolean).join(" — ")
+  const baseLabel = (b: typeof basesUrdume[0]) => [b.idIntegracao, b.nome].filter(Boolean).join(" — ")
   const [solicitacoes, setSolicitacoes] = useState<{ id: number; cliente: string; projeto: string }[]>([])
 
   const [expandedAcabamento, setExpandedAcabamento] = useState<number | null>(null)
@@ -687,9 +690,9 @@ export default function ProdutoCruFormPage() {
                   <div key={e.id} className="flex items-center justify-between p-3 bg-slate-100 dark:bg-slate-800 rounded-lg">
                     <span>
                       {e.tipo} — {e.tipo === "TRAMA"
-                        ? `Fio #${e.fioId || "—"}`
-                        : `Base Urdume #${e.baseUrdumeId || "—"}`
-                      }
+                      ? (fios.find(f => f.id === e.fioId) ? fioLabel(fios.find(f => f.id === e.fioId)!) : `Fio #${e.fioId || "—"}`)
+                      : (basesUrdume.find(b => b.id === e.baseUrdumeId) ? baseLabel(basesUrdume.find(b => b.id === e.baseUrdumeId)!) : `Base Urdume #${e.baseUrdumeId || "—"}`)
+                    }
                       {e.ordem ? ` (Ordem: ${e.ordem})` : ""}
                     </span>
                     <Button variant="ghost" size="icon" onClick={() => removeEstrutura(e.id)}>
@@ -714,7 +717,7 @@ export default function ProdutoCruFormPage() {
                   <select value={novaEstruturaFioId} onChange={e => setNovaEstruturaFioId(e.target.value)}
                     className="p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600">
                     <option value="">Selecione</option>
-                    {fios.map(f => <option key={f.id} value={f.id}>{f.nome}</option>)}
+                    {fios.map(f => <option key={f.id} value={f.id}>{fioLabel(f)}</option>)}
                   </select>
                 </div>
               ) : (
@@ -723,7 +726,7 @@ export default function ProdutoCruFormPage() {
                   <select value={novaEstruturaBaseUrdumeId} onChange={e => setNovaEstruturaBaseUrdumeId(e.target.value)}
                     className="p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600">
                     <option value="">Selecione</option>
-                    {basesUrdume.map(b => <option key={b.id} value={b.id}>{b.nome}</option>)}
+                    {basesUrdume.map(b => <option key={b.id} value={b.id}>{baseLabel(b)}</option>)}
                   </select>
                 </div>
               )}
