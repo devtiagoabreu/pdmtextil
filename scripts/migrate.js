@@ -105,7 +105,7 @@ async function migrate() {
         codigo_base varchar(10) NOT NULL UNIQUE,
         nome varchar(200) NOT NULL,
         descricao text,
-        fios numeric(6,2),
+        densidade numeric(6,2),
         tratamento varchar(100),
         tensao_urdume numeric(6,2),
         largura numeric(6,2),

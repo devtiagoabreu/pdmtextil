@@ -1,12 +1,5 @@
--- Migration: Rename fields in bases_urdume and create base_urdume_fios table
+-- Migration: Rename tratamento_encolagem to tratamento, drop composicao_fios, create base_urdume_fios
 -- Run this on your Neon database
-
-DO $$
-BEGIN
-  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'bases_urdume' AND column_name = 'densidade') THEN
-    ALTER TABLE bases_urdume RENAME COLUMN densidade TO fios;
-  END IF;
-END $$;
 
 DO $$
 BEGIN

@@ -70,7 +70,7 @@ export async function PUT(
         codigoCompleto: body.codigoCompleto,
         nome: body.nome,
         descricao: body.descricao || null,
-        fios: body.fios || null,
+        densidade: body.densidade || null,
         tratamento: body.tratamento || null,
         tensaoUrdume: body.tensaoUrdume || null,
         largura: body.largura || null,
