@@ -11,6 +11,11 @@ const STATUS_CONFIG: Record<string, { label: string; classes: string }> = {
   PENDENTE:       { label: "Pendente",       classes: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400" },
   EM_ANALISE:     { label: "Em Análise",     classes: "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-400" },
   AGUARDANDO_INFO:{ label: "Aguard. Info",   classes: "bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-400" },
+  EM_DESENVOLVIMENTO: { label: "Em Desenvolvimento", classes: "bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-400" },
+  APROVADO:       { label: "Aprovado",       classes: "bg-teal-100 text-teal-700 dark:bg-teal-950 dark:text-teal-400" },
+  REPROVADO:      { label: "Reprovado",      classes: "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400" },
+  FINALIZADA_PARA_PRODUCAO: { label: "Finalizada p/ Produção", classes: "bg-cyan-100 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-400" },
+  EM_PRODUCAO:    { label: "Em Produção",    classes: "bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-400" },
   CONCLUIDO:      { label: "Concluído",      classes: "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400" },
 }
 

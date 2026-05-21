@@ -11,6 +11,7 @@ import {
   produtoCruAcabamentoAmostra,
   produtoCruAcabamentoReceita,
 } from "@/lib/db/schema/produto-cru"
+import { solicitacoes } from "@/lib/db/schema/solicitacoes"
 import { eq, and } from "drizzle-orm"
 import { notificar } from "@/lib/notificar"
 
@@ -103,6 +104,25 @@ export async function PUT(
 
     if (!atualizado[0]) {
       return NextResponse.json({ error: "Produto não encontrado" }, { status: 404 })
+    }
+
+    // Se produto foi aprovado, atualiza solicitação vinculada para FINALIZADA_PARA_PRODUCAO
+    if (body.status === "APROVADO" && body.solicitacaoDesenvolvimentoId) {
+      const solicitacaoId = Number(body.solicitacaoDesenvolvimentoId)
+      try {
+        await db
+          .update(solicitacoes)
+          .set({ status: "FINALIZADA_PARA_PRODUCAO", updatedAt: new Date() })
+          .where(eq(solicitacoes.id, solicitacaoId))
+        notificar(
+          "SOLICITACAO_ATUALIZADA",
+          `Produto cru #${id} aprovado — Solicitação #${solicitacaoId} finalizada para produção por ${session.user.name}`,
+          `/comercial/solicitacoes/${solicitacaoId}`,
+          session.user.name
+        )
+      } catch (err) {
+        console.error("[PUT /api/cadastros/produto-cru/[id]] erro ao atualizar solicitação", err)
+      }
     }
 
     notificar(

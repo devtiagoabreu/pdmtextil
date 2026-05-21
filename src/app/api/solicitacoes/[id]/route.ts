@@ -120,6 +120,14 @@ export async function PUT(
     if (body.status !== undefined)   setValues.status   = body.status
     if (body.briefing !== undefined) setValues.briefing = body.briefing
 
+    // Auto-altera status para EM_DESENVOLVIMENTO se não foi explicitamente alterado
+    if (body.status === undefined) {
+      const statusesQueAvancam = ["PENDENTE", "EM_ANALISE", "AGUARDANDO_INFO"]
+      if (statusesQueAvancam.includes(solicitacaoAntiga.status)) {
+        setValues.status = "EM_DESENVOLVIMENTO"
+      }
+    }
+
     // Converte prazoDesejado: string ISO → Date para o Drizzle / Postgres timestamp
     if (body.prazoDesejado !== undefined) {
       setValues.prazoDesejado = body.prazoDesejado ? new Date(body.prazoDesejado) : null

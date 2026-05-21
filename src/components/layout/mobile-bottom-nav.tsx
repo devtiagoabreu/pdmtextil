@@ -3,59 +3,24 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useSession } from "next-auth/react"
-import { LayoutDashboard, FileText, PlusCircle, Package, User, Factory, Settings, Users, Send, ClipboardList } from "lucide-react"
+import { LayoutDashboard, FileText, ClipboardList, User } from "lucide-react"
 
-const mobileNavItems = {
-  COMERCIAL: [
-    { href: "/dashboard", icon: LayoutDashboard, label: "Início" },
-    { href: "/comercial/solicitacoes", icon: FileText, label: "Solicitações" },
-    { href: "/amostras", icon: ClipboardList, label: "Amostras" },
-    { href: "/perfil", icon: User, label: "Perfil" },
-  ],
-  TECELAGEM: [
-    { href: "/dashboard", icon: LayoutDashboard, label: "Início" },
-    { href: "/comercial/solicitacoes", icon: FileText, label: "Solicitações" },
-    { href: "/amostras", icon: ClipboardList, label: "Amostras" },
-    { href: "/perfil", icon: User, label: "Perfil" },
-  ],
-  BENEFICIAMENTO: [
-    { href: "/dashboard", icon: LayoutDashboard, label: "Início" },
-    { href: "/comercial/solicitacoes", icon: FileText, label: "Solicitações" },
-    { href: "/amostras", icon: ClipboardList, label: "Amostras" },
-    { href: "/perfil", icon: User, label: "Perfil" },
-  ],
-  DESENVOLVIMENTO: [
-    { href: "/dashboard", icon: LayoutDashboard, label: "Início" },
-    { href: "/comercial/solicitacoes", icon: FileText, label: "Solicitações" },
-    { href: "/amostras", icon: ClipboardList, label: "Amostras" },
-    { href: "/perfil", icon: User, label: "Perfil" },
-  ],
-  PCP: [
-    { href: "/dashboard", icon: LayoutDashboard, label: "Início" },
-    { href: "/comercial/solicitacoes", icon: FileText, label: "Solicitações" },
-    { href: "/amostras", icon: ClipboardList, label: "Amostras" },
-    { href: "/perfil", icon: User, label: "Perfil" },
-  ],
-  ADMIN: [
-    { href: "/dashboard", icon: LayoutDashboard, label: "Início" },
-    { href: "/comercial/solicitacoes", icon: FileText, label: "Solicitações" },
-    { href: "/amostras", icon: ClipboardList, label: "Amostras" },
-    { href: "/perfil", icon: User, label: "Perfil" },
-  ],
-} as const
-
-type NavRole = keyof typeof mobileNavItems
+const mobileNavItems = [
+  { href: "/dashboard", icon: LayoutDashboard, label: "Início" },
+  { href: "/comercial/solicitacoes", icon: FileText, label: "Solicitações" },
+  { href: "/amostras", icon: ClipboardList, label: "Amostras" },
+  { href: "/perfil", icon: User, label: "Perfil" },
+] as const
 
 export function MobileBottomNav() {
   const pathname = usePathname()
   const { data: session } = useSession()
-  const role = (session?.user?.role as NavRole) || "COMERCIAL"
-  const items = mobileNavItems[role] || mobileNavItems.COMERCIAL
+  if (!session) return null
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-40 border-t bg-white/95 backdrop-blur dark:border-slate-800 dark:bg-slate-950/95 lg:hidden">
       <div className="flex justify-around py-2">
-        {items.map((item) => {
+        {mobileNavItems.map((item) => {
           const isActive = pathname === item.href || pathname?.startsWith(item.href + "/")
           const Icon = item.icon
           return (

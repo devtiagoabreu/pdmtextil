@@ -21,58 +21,22 @@ import {
   ClipboardList,
 } from "lucide-react"
 
-const navItems = {
-  COMERCIAL: [
-    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/comercial/solicitacoes", label: "Solicitações", icon: FileText },
-    { href: "/comercial/solicitacoes/nova", label: "Nova Solicitação", icon: PlusCircle },
-    { href: "/comercial/clientes", label: "Clientes", icon: Building2 },
-    { href: "/amostras", label: "Amostras", icon: ClipboardList },
-    { href: "/cadastros", label: "Cadastros", icon: Database },
-    { href: "/cadastros/produto-cru", label: "Produtos Cru", icon: Factory },
-  ],
-  TECELAGEM: [
-    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/comercial/solicitacoes", label: "Solicitações", icon: FileText },
-    { href: "/amostras", label: "Amostras", icon: ClipboardList },
-    { href: "/tecelagem/produtos-cru", label: "Produtos Cru", icon: Factory },
-  ],
-  BENEFICIAMENTO: [
-    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/comercial/solicitacoes", label: "Solicitações", icon: FileText },
-    { href: "/amostras", label: "Amostras", icon: ClipboardList },
-    { href: "/beneficiamento/produtos", label: "Produtos", icon: FlaskConical },
-    { href: "/beneficiamento/receitas", label: "Receitas", icon: Database },
-    { href: "/beneficiamento/roteiros", label: "Roteiros", icon: BarChart3 },
-  ],
-  DESENVOLVIMENTO: [
-    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/comercial/solicitacoes", label: "Solicitações", icon: FileText },
-    { href: "/amostras", label: "Amostras", icon: ClipboardList },
-    { href: "/cadastros", label: "Cadastros", icon: Database },
-    { href: "/cadastros/produto-cru", label: "Produtos Cru", icon: Factory },
-  ],
-  PCP: [
-    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/comercial/solicitacoes", label: "Solicitações", icon: FileText },
-    { href: "/amostras", label: "Amostras", icon: ClipboardList },
-    { href: "/cadastros", label: "Cadastros", icon: Database },
-    { href: "/cadastros/produto-cru", label: "Produtos Cru", icon: Factory },
-    { href: "/pcp/solicitacoes/producao", label: "Produção", icon: Factory },
-  ],
-  ADMIN: [
-    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/comercial/solicitacoes", label: "Solicitações", icon: FileText },
-    { href: "/amostras", label: "Amostras", icon: ClipboardList },
-    { href: "/cadastros", label: "Cadastros", icon: Database },
-    { href: "/admin/usuarios", label: "Usuários", icon: Users },
-    { href: "/admin/roles", label: "Perfis (Roles)", icon: Shield },
-    { href: "/admin/email-massa", label: "Email em Massa", icon: Send },
-    { href: "/admin/configuracoes", label: "Configurações", icon: Settings },
-  ],
-} as const
+const adminItems = [
+  { href: "/admin/usuarios", label: "Usuários", icon: Users },
+  { href: "/admin/roles", label: "Perfis (Roles)", icon: Shield },
+  { href: "/admin/email-massa", label: "Email em Massa", icon: Send },
+  { href: "/admin/configuracoes", label: "Configurações", icon: Settings },
+] as const
 
-type NavRole = keyof typeof navItems
+const baseNav = [
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/comercial/solicitacoes", label: "Solicitações", icon: FileText },
+  { href: "/comercial/solicitacoes/nova", label: "Nova Solicitação", icon: PlusCircle },
+  { href: "/comercial/clientes", label: "Clientes", icon: Building2 },
+  { href: "/amostras", label: "Amostras", icon: ClipboardList },
+  { href: "/cadastros", label: "Cadastros", icon: Database },
+  { href: "/cadastros/produto-cru", label: "Produtos Cru", icon: Factory },
+] as const
 
 interface SidebarProps {
   isOpen: boolean
@@ -82,8 +46,8 @@ interface SidebarProps {
 function SidebarContent({ onClose }: { onClose?: () => void }) {
   const pathname = usePathname()
   const { data: session } = useSession()
-  const role = (session?.user?.role as NavRole) || "COMERCIAL"
-  const items = navItems[role] || navItems.COMERCIAL
+  const isAdmin = session?.user?.role === "ADMIN"
+  const items = isAdmin ? [...baseNav, ...adminItems] : baseNav
 
   return (
     <div className="flex h-full flex-col bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800">
