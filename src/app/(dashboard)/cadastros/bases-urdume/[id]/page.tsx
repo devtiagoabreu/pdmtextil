@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useRouter, useParams } from "next/navigation"
-import { ArrowLeft, Loader2 } from "lucide-react"
+import { ArrowLeft, Loader2, Plus, X, Search } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,13 +15,25 @@ type BaseUrdume = {
   codigoCompleto: string
   nome: string
   descricao?: string | null
-  densidade?: string | null
-  tratamentoEncolagem?: string | null
+  fios?: string | null
+  tratamento?: string | null
   tensaoUrdume?: string | null
   largura?: string | null
   observacoes?: string | null
   ativo: boolean
   idIntegracao?: string | null
+}
+
+type FioOption = {
+  id: number
+  codigoFio: string
+  nome: string
+}
+
+type FioSelecionado = {
+  fioId: number
+  fioNome: string
+  fioCodigo: string
 }
 
 export default function BaseFormPage() {
@@ -36,42 +48,66 @@ export default function BaseFormPage() {
     codigoCompleto: "",
     nome: "",
     descricao: "",
-    densidade: "",
-    tratamentoEncolagem: "",
+    fios: "",
+    tratamento: "",
     tensaoUrdume: "",
     largura: "",
     observacoes: "",
     ativo: true,
     idIntegracao: "",
   })
+  const [fiosSelecionados, setFiosSelecionados] = useState<FioSelecionado[]>([])
+  const [fiosDisponiveis, setFiosDisponiveis] = useState<FioOption[]>([])
+  const [fioSearch, setFioSearch] = useState("")
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
-    if (isEditing && id) {
-      fetch(`/api/cadastros/bases-urdume/${id}`)
-        .then(res => res.json())
-        .then(data => {
-          setBase({
-            id: data.id,
-            codigoBase: data.codigoBase || "",
-            codigoCompleto: data.codigoCompleto || "",
-            nome: data.nome || "",
-            descricao: data.descricao || "",
-            densidade: data.densidade || "",
-            tratamentoEncolagem: data.tratamentoEncolagem || "",
-            tensaoUrdume: data.tensaoUrdume || "",
-            largura: data.largura || "",
-            observacoes: data.observacoes || "",
-            ativo: data.ativo ?? true,
-            idIntegracao: data.idIntegracao || "",
-          })
-        })
-        .catch(err => console.error(err))
-        .finally(() => setLoading(false))
-    } else {
-      setLoading(false)
+    async function load() {
+      try {
+        const [fiosRes] = await Promise.all([
+          fetch("/api/cadastros/fios"),
+        ])
+
+        if (fiosRes.ok) {
+          const fios: FioOption[] = await fiosRes.json()
+          setFiosDisponiveis(fios.filter(f => f.id))
+        }
+
+        if (isEditing && id) {
+          const baseRes = await fetch(`/api/cadastros/bases-urdume/${id}`)
+          if (baseRes.ok) {
+            const data = await baseRes.json()
+            setBase({
+              id: data.id,
+              codigoBase: data.codigoBase || "",
+              codigoCompleto: data.codigoCompleto || "",
+              nome: data.nome || "",
+              descricao: data.descricao || "",
+              fios: data.fios || "",
+              tratamento: data.tratamento || "",
+              tensaoUrdume: data.tensaoUrdume || "",
+              largura: data.largura || "",
+              observacoes: data.observacoes || "",
+              ativo: data.ativo ?? true,
+              idIntegracao: data.idIntegracao || "",
+            })
+            if (data.fiosLista) {
+              setFiosSelecionados(data.fiosLista.map((f: any) => ({
+                fioId: f.fioId,
+                fioNome: f.fioNome || "",
+                fioCodigo: f.fioCodigo || "",
+              })))
+            }
+          }
+        }
+      } catch (err) {
+        console.error(err)
+      } finally {
+        setLoading(false)
+      }
     }
+    load()
   }, [id, isEditing])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -89,7 +125,10 @@ export default function BaseFormPage() {
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(base),
+        body: JSON.stringify({
+          ...base,
+          fiosLista: fiosSelecionados.map(f => ({ fioId: f.fioId })),
+        }),
       })
 
       if (res.ok) {
@@ -110,6 +149,22 @@ export default function BaseFormPage() {
   const handleChange = (field: keyof BaseUrdume, value: string | boolean) => {
     setBase(prev => ({ ...prev, [field]: value }))
   }
+
+  const adicionarFio = (fio: FioOption) => {
+    if (fiosSelecionados.some(f => f.fioId === fio.id)) return
+    setFiosSelecionados(prev => [...prev, { fioId: fio.id, fioNome: fio.nome, fioCodigo: fio.codigoFio }])
+    setFioSearch("")
+  }
+
+  const removerFio = (fioId: number) => {
+    setFiosSelecionados(prev => prev.filter(f => f.fioId !== fioId))
+  }
+
+  const fiosFiltrados = fiosDisponiveis.filter(f =>
+    !fiosSelecionados.some(s => s.fioId === f.id) &&
+    (f.nome.toLowerCase().includes(fioSearch.toLowerCase()) ||
+     f.codigoFio.toLowerCase().includes(fioSearch.toLowerCase()))
+  ).slice(0, 10)
 
   if (loading) {
     return (
@@ -179,13 +234,61 @@ export default function BaseFormPage() {
           />
         </div>
 
+        <div className="space-y-3">
+          <Label>Fios que compõem o urdume</Label>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+            <Input
+              placeholder="Buscar fio para adicionar..."
+              value={fioSearch}
+              onChange={e => setFioSearch(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+          {fioSearch && (
+            <div className="rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 max-h-48 overflow-y-auto">
+              {fiosFiltrados.length === 0 ? (
+                <p className="p-3 text-sm text-slate-400">Nenhum fio encontrado</p>
+              ) : (
+                fiosFiltrados.map(fio => (
+                  <button
+                    key={fio.id}
+                    type="button"
+                    className="w-full text-left px-3 py-2 text-sm hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2"
+                    onClick={() => adicionarFio(fio)}
+                  >
+                    <Plus size={14} className="text-slate-400" />
+                    <span className="font-medium">{fio.codigoFio}</span>
+                    <span className="text-slate-500">{fio.nome}</span>
+                  </button>
+                ))
+              )}
+            </div>
+          )}
+          {fiosSelecionados.length > 0 && (
+            <div className="space-y-1">
+              {fiosSelecionados.map(fio => (
+                <div key={fio.fioId} className="flex items-center justify-between rounded-md border border-slate-200 dark:border-slate-700 px-3 py-2">
+                  <div className="text-sm">
+                    <span className="font-medium">{fio.fioCodigo}</span>
+                    <span className="text-slate-500 ml-2">{fio.fioNome}</span>
+                  </div>
+                  <button type="button" onClick={() => removerFio(fio.fioId)} className="text-red-400 hover:text-red-600">
+                    <X size={16} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="densidade">Densidade (fios/cm)</Label>
+            <Label htmlFor="fios">Quantidade de Fios</Label>
             <Input
-              id="densidade"
-              value={base.densidade || ""}
-              onChange={e => handleChange("densidade", e.target.value)}
+              id="fios"
+              value={base.fios || ""}
+              onChange={e => handleChange("fios", e.target.value)}
               placeholder="30"
             />
           </div>
@@ -202,12 +305,12 @@ export default function BaseFormPage() {
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="tratamentoEncolagem">Tratamento de Encolagem</Label>
+            <Label htmlFor="tratamento">Tratamento</Label>
             <Input
-              id="tratamentoEncolagem"
-              value={base.tratamentoEncolagem || ""}
-              onChange={e => handleChange("tratamentoEncolagem", e.target.value)}
-              placeholder="Mercerização"
+              id="tratamento"
+              value={base.tratamento || ""}
+              onChange={e => handleChange("tratamento", e.target.value)}
+              placeholder="Engomagem"
             />
           </div>
           <div className="space-y-2">
@@ -231,7 +334,7 @@ export default function BaseFormPage() {
           />
         </div>
 
-<div className="flex items-center gap-2">
+        <div className="flex items-center gap-2">
           <input type="checkbox" id="ativo" checked={base.ativo} onChange={e => handleChange("ativo", e.target.checked)} className="w-4 h-4" />
           <Label htmlFor="ativo">Ativo</Label>
         </div>
