@@ -14,13 +14,13 @@ const mobileNavItems = {
   ],
   TECELAGEM: [
     { href: "/dashboard", icon: LayoutDashboard, label: "Início" },
-    { href: "/tecelagem/solicitacoes", icon: FileText, label: "Solicitações" },
+    { href: "/comercial/solicitacoes", icon: FileText, label: "Solicitações" },
     { href: "/amostras", icon: ClipboardList, label: "Amostras" },
     { href: "/perfil", icon: User, label: "Perfil" },
   ],
   BENEFICIAMENTO: [
     { href: "/dashboard", icon: LayoutDashboard, label: "Início" },
-    { href: "/beneficiamento/solicitacoes", icon: FileText, label: "Solicitações" },
+    { href: "/comercial/solicitacoes", icon: FileText, label: "Solicitações" },
     { href: "/amostras", icon: ClipboardList, label: "Amostras" },
     { href: "/perfil", icon: User, label: "Perfil" },
   ],
@@ -32,7 +32,7 @@ const mobileNavItems = {
   ],
   PCP: [
     { href: "/dashboard", icon: LayoutDashboard, label: "Início" },
-    { href: "/pcp/solicitacoes", icon: FileText, label: "Solicitações" },
+    { href: "/comercial/solicitacoes", icon: FileText, label: "Solicitações" },
     { href: "/amostras", icon: ClipboardList, label: "Amostras" },
     { href: "/perfil", icon: User, label: "Perfil" },
   ],

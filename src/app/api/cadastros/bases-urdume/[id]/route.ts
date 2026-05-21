@@ -4,7 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { basesUrdume, baseUrdumeFios } from "@/lib/db/schema/bases-urdume"
 import { fios } from "@/lib/db/schema/fios"
-import { eq, and } from "drizzle-orm"
+import { eq } from "drizzle-orm"
 
 export async function GET(
   req: NextRequest,

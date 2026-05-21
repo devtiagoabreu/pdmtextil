@@ -33,13 +33,13 @@ const navItems = {
   ],
   TECELAGEM: [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/tecelagem/solicitacoes", label: "Solicitações", icon: FileText },
+    { href: "/comercial/solicitacoes", label: "Solicitações", icon: FileText },
     { href: "/amostras", label: "Amostras", icon: ClipboardList },
     { href: "/tecelagem/produtos-cru", label: "Produtos Cru", icon: Factory },
   ],
   BENEFICIAMENTO: [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/beneficiamento/solicitacoes", label: "Solicitações", icon: FileText },
+    { href: "/comercial/solicitacoes", label: "Solicitações", icon: FileText },
     { href: "/amostras", label: "Amostras", icon: ClipboardList },
     { href: "/beneficiamento/produtos", label: "Produtos", icon: FlaskConical },
     { href: "/beneficiamento/receitas", label: "Receitas", icon: Database },
@@ -54,7 +54,7 @@ const navItems = {
   ],
   PCP: [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/pcp/solicitacoes", label: "Solicitações", icon: FileText },
+    { href: "/comercial/solicitacoes", label: "Solicitações", icon: FileText },
     { href: "/amostras", label: "Amostras", icon: ClipboardList },
     { href: "/cadastros", label: "Cadastros", icon: Database },
     { href: "/cadastros/produto-cru", label: "Produtos Cru", icon: Factory },

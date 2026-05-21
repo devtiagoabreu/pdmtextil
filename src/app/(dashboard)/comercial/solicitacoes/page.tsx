@@ -109,6 +109,7 @@ if (isLoading) {
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">ID</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Tipo</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Cliente</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Criado por</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Status</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Data</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Ações</th>
@@ -122,6 +123,7 @@ if (isLoading) {
                       <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-slate-200">#{s.id}</td>
                       <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">{TIPO_CONFIG[s.tipo] || s.tipo}</td>
                       <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-slate-200">{s.cliente}</td>
+                      <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">{s.solicitanteNome || "—"}</td>
                       <td className="px-4 py-3">
                         <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${statusCfg.classes}`}>
                           {statusCfg.label}

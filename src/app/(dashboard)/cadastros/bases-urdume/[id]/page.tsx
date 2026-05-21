@@ -99,6 +99,37 @@ export default function BaseFormPage() {
                 fioCodigo: f.fioCodigo || "",
               })))
             }
+          } else {
+            const err = await baseRes.json().catch(() => ({ error: "Erro ao carregar" }))
+            toast.error(err.error || "Erro ao carregar base")
+          }
+        }
+
+        if (isEditing && id) {
+          const baseRes = await fetch(`/api/cadastros/bases-urdume/${id}`)
+          if (baseRes.ok) {
+            const data = await baseRes.json()
+            setBase({
+              id: data.id,
+              codigoBase: data.codigoBase || "",
+              codigoCompleto: data.codigoCompleto || "",
+              nome: data.nome || "",
+              descricao: data.descricao || "",
+              densidade: data.densidade || "",
+              tratamento: data.tratamento || "",
+              tensaoUrdume: data.tensaoUrdume || "",
+              largura: data.largura || "",
+              observacoes: data.observacoes || "",
+              ativo: data.ativo ?? true,
+              idIntegracao: data.idIntegracao || "",
+            })
+            if (data.fiosLista) {
+              setFiosSelecionados(data.fiosLista.map((f: any) => ({
+                fioId: f.fioId,
+                fioNome: f.fioNome || "",
+                fioCodigo: f.fioCodigo || "",
+              })))
+            }
           }
         }
       } catch (err) {
