@@ -16,6 +16,7 @@ import {
   Send,
   Shield,
   ClipboardList,
+  Lock,
 } from "lucide-react"
 
 const adminItems = [
@@ -23,6 +24,7 @@ const adminItems = [
   { href: "/admin/roles", label: "Perfis (Roles)", icon: Shield },
   { href: "/admin/email-massa", label: "Email em Massa", icon: Send },
   { href: "/admin/configuracoes", label: "Configurações", icon: Settings },
+  { href: "/admin/configuracoes/permissoes", label: "Permissões", icon: Lock },
 ] as const
 
 const baseNav = [
