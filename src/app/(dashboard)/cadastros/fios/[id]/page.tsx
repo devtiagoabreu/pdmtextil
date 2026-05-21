@@ -165,12 +165,7 @@ export default function FioFormPage() {
       }
       
       toast.success(isEditing ? "Fio atualizado!" : "Fio criado!")
-      const novoFio = await res.json()
-      if (isEditing) {
-        router.push("/cadastros/fios")
-      } else {
-        router.push(`/cadastros/fios/${novoFio.id}`)
-      }
+      router.push("/cadastros/fios")
     } catch (error: any) {
       console.error(error)
       toast.error(error.message || "Erro ao salvar fio")

@@ -15,6 +15,7 @@ interface CorSolida {
   nome: string
   pantone?: string
   familia?: string
+  idIntegracao?: string
   ativo: boolean
 }
 
@@ -103,6 +104,7 @@ export default function CoresPage() {
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Cor</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Pantone</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Família</th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">ID Integração</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Status</th>
                 <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Ações</th>
               </tr>
@@ -120,6 +122,7 @@ export default function CoresPage() {
                   </td>
                   <td className="p-4 text-sm text-slate-500">{cor.pantone || "—"}</td>
                   <td className="p-4 text-sm text-slate-500">{cor.familia || "—"}</td>
+                  <td className="p-4 text-sm font-mono text-xs text-slate-500">{cor.idIntegracao || "—"}</td>
                   <td className="p-4">
                     <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
                       cor.ativo 

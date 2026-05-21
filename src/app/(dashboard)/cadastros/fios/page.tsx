@@ -18,6 +18,7 @@ interface Fio {
   composicao?: string
   titulo?: string
   fornecedor?: string
+  idIntegracao?: string
   ativo: boolean
   createdAt: string
 }
@@ -107,6 +108,7 @@ export default function FiosPage() {
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Título</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Composição</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Fornecedor</th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">ID Integração</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Status</th>
                 <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Ações</th>
               </tr>
@@ -119,6 +121,7 @@ export default function FiosPage() {
                   <td className="p-4 text-sm text-slate-500">{fio.titulo || "—"}</td>
                   <td className="p-4 text-sm text-slate-500">{fio.composicao || "—"}</td>
                   <td className="p-4 text-sm text-slate-500">{fio.fornecedor || "—"}</td>
+                  <td className="p-4 text-sm font-mono text-xs text-slate-500">{fio.idIntegracao || "—"}</td>
                   <td className="p-4">
                     <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
                       fio.ativo 

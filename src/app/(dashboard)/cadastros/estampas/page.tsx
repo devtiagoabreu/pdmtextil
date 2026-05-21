@@ -16,6 +16,7 @@ interface Estampa {
   nome: string
   tipo?: string
   imagemUrl?: string
+  idIntegracao?: string
   ativo: boolean
 }
 
@@ -102,6 +103,7 @@ export default function EstampasPage() {
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Variante</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Nome</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Tipo</th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">ID Integração</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Status</th>
                 <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Ações</th>
               </tr>
@@ -113,6 +115,7 @@ export default function EstampasPage() {
                   <td className="p-4 text-sm font-mono">{estampa.variante}</td>
                   <td className="p-4 text-sm">{estampa.nome}</td>
                   <td className="p-4 text-sm text-slate-500">{estampa.tipo || "—"}</td>
+                  <td className="p-4 text-sm font-mono text-xs text-slate-500">{estampa.idIntegracao || "—"}</td>
                   <td className="p-4">
                     <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
                       estampa.ativo 
