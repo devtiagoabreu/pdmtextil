@@ -11,8 +11,8 @@ interface BaseImport {
   codigoCompleto?: string
   nome?: string
   descricao?: string
-  densidade?: string
-  tratamentoEncolagem?: string
+  fios?: string
+  tratamento?: string
   tensaoUrdume?: string
   largura?: string
   observacoes?: string
@@ -25,8 +25,8 @@ const campoMap: Record<string, keyof BaseImport> = {
   codigocompleto: "codigoCompleto",
   nome: "nome",
   descricao: "descricao",
-  densidade: "densidade",
-  tratamentoencolagem: "tratamentoEncolagem",
+  fios: "fios",
+  tratamento: "tratamento",
   tensaourdume: "tensaoUrdume",
   largura: "largura",
   observacoes: "observacoes",
@@ -183,8 +183,8 @@ export async function POST(req: NextRequest) {
           codigoCompleto: codigoCompletoGerado,
           nome: reg.nome,
           descricao: reg.descricao || null,
-          densidade: reg.densidade || null,
-          tratamentoEncolagem: reg.tratamentoEncolagem || null,
+          fios: reg.fios || null,
+          tratamento: reg.tratamento || null,
           tensaoUrdume: reg.tensaoUrdume || null,
           largura: reg.largura || null,
           observacoes: reg.observacoes || null,

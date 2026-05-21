@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
-import { basesUrdume } from "@/lib/db/schema/bases-urdume"
-import { eq } from "drizzle-orm"
+import { basesUrdume, baseUrdumeFios } from "@/lib/db/schema/bases-urdume"
+import { fios } from "@/lib/db/schema/fios"
+import { eq, and } from "drizzle-orm"
 
 export async function GET(
   req: NextRequest,
@@ -20,7 +21,19 @@ export async function GET(
       return NextResponse.json({ error: "Base não encontrada" }, { status: 404 })
     }
 
-    return NextResponse.json(base[0])
+    const fiosLista = await db
+      .select({
+        id: baseUrdumeFios.id,
+        fioId: baseUrdumeFios.fioId,
+        fioNome: fios.nome,
+        fioCodigo: fios.codigoFio,
+      })
+      .from(baseUrdumeFios)
+      .leftJoin(fios, eq(baseUrdumeFios.fioId, fios.id))
+      .where(eq(baseUrdumeFios.baseUrdumeId, id))
+      .orderBy(baseUrdumeFios.id)
+
+    return NextResponse.json({ ...base[0], fiosLista })
   } catch (error) {
     console.error("[GET /api/cadastros/bases-urdume/[id]]", error)
     return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
@@ -57,9 +70,8 @@ export async function PUT(
         codigoCompleto: body.codigoCompleto,
         nome: body.nome,
         descricao: body.descricao || null,
-        composicaoFios: body.composicaoFios || null,
-        densidade: body.densidade || null,
-        tratamentoEncolagem: body.tratamentoEncolagem || null,
+        fios: body.fios || null,
+        tratamento: body.tratamento || null,
         tensaoUrdume: body.tensaoUrdume || null,
         largura: body.largura || null,
         observacoes: body.observacoes || null,
@@ -72,6 +84,16 @@ export async function PUT(
 
     if (!baseAtualizada[0]) {
       return NextResponse.json({ error: "Base não encontrada" }, { status: 404 })
+    }
+
+    if (body.fiosLista && Array.isArray(body.fiosLista)) {
+      await db.delete(baseUrdumeFios).where(eq(baseUrdumeFios.baseUrdumeId, id))
+      for (const fio of body.fiosLista) {
+        await db.insert(baseUrdumeFios).values({
+          baseUrdumeId: id,
+          fioId: fio.fioId,
+        })
+      }
     }
 
     return NextResponse.json(baseAtualizada[0])

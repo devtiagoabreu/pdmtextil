@@ -96,7 +96,39 @@ async function migrate() {
       )
     `
     console.log("✓ Tabela operacoes criada")
-    
+
+    // Bases Urdume
+    await sql`
+      CREATE TABLE IF NOT EXISTS bases_urdume (
+        id serial PRIMARY KEY,
+        codigo_completo varchar(30) NOT NULL UNIQUE,
+        codigo_base varchar(10) NOT NULL UNIQUE,
+        nome varchar(200) NOT NULL,
+        descricao text,
+        fios numeric(6,2),
+        tratamento varchar(100),
+        tensao_urdume numeric(6,2),
+        largura numeric(6,2),
+        observacoes text,
+        ativo boolean DEFAULT true,
+        id_integracao varchar(100),
+        criado_por integer REFERENCES usuarios(id),
+        created_at timestamp DEFAULT now(),
+        updated_at timestamp DEFAULT now()
+      )
+    `
+    console.log("✓ Tabela bases_urdume criada")
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS base_urdume_fios (
+        id serial PRIMARY KEY,
+        base_urdume_id integer NOT NULL REFERENCES bases_urdume(id) ON DELETE CASCADE,
+        fio_id integer NOT NULL REFERENCES fios(id),
+        created_at timestamp DEFAULT now()
+      )
+    `
+    console.log("✓ Tabela base_urdume_fios criada")
+
     // Produtos Cru
     await sql`
       CREATE TABLE IF NOT EXISTS produtos_cru (

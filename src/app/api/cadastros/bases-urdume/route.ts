@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
-import { basesUrdume } from "@/lib/db/schema/bases-urdume"
+import { basesUrdume, baseUrdumeFios } from "@/lib/db/schema/bases-urdume"
 import { eq } from "drizzle-orm"
 
 export async function GET() {
@@ -10,14 +10,10 @@ export async function GET() {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
-    console.log("[GET /api/cadastros/bases-urdume] Buscando bases...")
-
     const lista = await db
       .select()
       .from(basesUrdume)
       .orderBy(basesUrdume.nome)
-
-    console.log("[GET /api/cadastros/bases-urdume] Encontrados:", lista.length)
 
     return NextResponse.json(lista)
   } catch (error) {
@@ -40,9 +36,8 @@ export async function POST(req: NextRequest) {
         codigoBase: body.codigoBase,
         nome: body.nome,
         descricao: body.descricao || null,
-        composicaoFios: body.composicaoFios || null,
-        densidade: body.densidade || null,
-        tratamentoEncolagem: body.tratamentoEncolagem || null,
+        fios: body.fios || null,
+        tratamento: body.tratamento || null,
         tensaoUrdume: body.tensaoUrdume || null,
         largura: body.largura || null,
         observacoes: body.observacoes || null,
@@ -51,6 +46,17 @@ export async function POST(req: NextRequest) {
         criadoPor: parseInt(session.user.id),
       })
       .returning()
+
+    const baseId = novaBase[0].id
+
+    if (body.fiosLista && Array.isArray(body.fiosLista)) {
+      for (const fio of body.fiosLista) {
+        await db.insert(baseUrdumeFios).values({
+          baseUrdumeId: baseId,
+          fioId: fio.fioId,
+        })
+      }
+    }
 
     return NextResponse.json(novaBase[0])
   } catch (error: any) {

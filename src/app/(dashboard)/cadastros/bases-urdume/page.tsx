@@ -15,8 +15,8 @@ interface BaseUrdume {
   codigoBase: string
   nome: string
   descricao?: string
-  densidade?: string
-  tratamentoEncolagem?: string
+  fios?: string
+  tratamento?: string
   largura?: string
   ativo: boolean
   createdAt: string
@@ -103,7 +103,7 @@ export default function BasesUrdumePage() {
               <tr>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Código</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Nome</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Densidade</th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Fios</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Largura</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Tratamento</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Status</th>
@@ -115,9 +115,9 @@ export default function BasesUrdumePage() {
                 <tr key={base.id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
                   <td className="p-4 text-sm font-medium">{base.codigoBase}</td>
                   <td className="p-4 text-sm">{base.nome}</td>
-                  <td className="p-4 text-sm text-slate-500">{base.densidade || "—"}</td>
+                  <td className="p-4 text-sm text-slate-500">{base.fios || "—"}</td>
                   <td className="p-4 text-sm text-slate-500">{base.largura || "—"}</td>
-                  <td className="p-4 text-sm text-slate-500">{base.tratamentoEncolagem || "—"}</td>
+                  <td className="p-4 text-sm text-slate-500">{base.tratamento || "—"}</td>
                   <td className="p-4">
                     <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
                       base.ativo 
