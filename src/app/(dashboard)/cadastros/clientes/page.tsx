@@ -19,6 +19,7 @@ interface Cliente {
   contato?: string
   cidade?: string
   uf?: string
+  idIntegracao?: string
   ativo: boolean
 }
 
@@ -107,6 +108,7 @@ export default function ClientesPage() {
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Email</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Telefone</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Cidade/UF</th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">ID Integração</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Status</th>
                 <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Ações</th>
               </tr>
@@ -121,6 +123,7 @@ export default function ClientesPage() {
                   <td className="p-4 text-sm text-slate-500">
                     {cliente.cidade && cliente.uf ? `${cliente.cidade}/${cliente.uf}` : "—"}
                   </td>
+                  <td className="p-4 text-sm font-mono text-xs text-slate-500">{cliente.idIntegracao || "—"}</td>
                   <td className="p-4">
                     <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
                       cliente.ativo
