@@ -57,14 +57,18 @@ export async function PUT(
     const atualizado = await db
       .update(fios)
       .set({
+        codigoCompleto: body.codigoCompleto,
         codigoFio: body.codigoFio,
         nome: body.nome,
         nomeComercial: body.nomeComercial || null,
         composicao: body.composicao || null,
         titulo: body.titulo || null,
+        titulagemReal: body.titulagemReal || null,
+        ncm: body.ncm || null,
         torcao: body.torcao || null,
         resistencia: body.resistencia || null,
         alongamento: body.alongamento || null,
+        links: body.links || null,
         observacoes: body.observacoes || null,
         ativo: body.ativo,
         idIntegracao: body.idIntegracao || null,

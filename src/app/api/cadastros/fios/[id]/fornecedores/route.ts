@@ -21,6 +21,7 @@ export async function GET(
         fioId: fiosFornecedores.fioId,
         fornecedorId: fiosFornecedores.fornecedorId,
         codigoFornecedor: fiosFornecedores.codigoFornecedor,
+        valorUnitario: fiosFornecedores.valorUnitario,
         observacoes: fiosFornecedores.observacoes,
         createdAt: fiosFornecedores.createdAt,
         fornecedorNome: fornecedores.nome,
@@ -54,6 +55,7 @@ export async function POST(
         fioId: parseInt(id),
         fornecedorId: body.fornecedorId,
         codigoFornecedor: body.codigoFornecedor || null,
+        valorUnitario: body.valorUnitario || null,
         observacoes: body.observacoes || null,
       })
       .returning()

@@ -1,4 +1,4 @@
-import { pgTable, serial, varchar, boolean, text, integer, timestamp, numeric } from "drizzle-orm/pg-core"
+import { pgTable, serial, varchar, boolean, text, integer, timestamp, numeric, jsonb } from "drizzle-orm/pg-core"
 import { usuarios } from "./usuarios"
 
 export const fornecedores = pgTable("fornecedores", {
@@ -29,9 +29,12 @@ export const fios = pgTable("fios", {
   nomeComercial: varchar("nome_comercial", { length: 200 }),
   composicao: varchar("composicao", { length: 200 }),
   titulo: varchar("titulo", { length: 20 }),
+  titulagemReal: varchar("titulagem_real", { length: 20 }),
+  ncm: varchar("ncm", { length: 10 }),
   torcao: varchar("torcao", { length: 20 }),
   resistencia: numeric("resistencia", { precision: 10, scale: 2 }),
   alongamento: numeric("alongamento", { precision: 5, scale: 2 }),
+  links: jsonb("links").$type<{ url: string; descricao: string }[]>().default([]),
   observacoes: text("observacoes"),
   ativo: boolean("ativo").default(true),
   idIntegracao: varchar("id_integracao", { length: 100 }),
@@ -48,6 +51,7 @@ export const fiosFornecedores = pgTable("fios_fornecedores", {
   fioId: integer("fio_id").notNull().references(() => fios.id, { onDelete: "cascade" }),
   fornecedorId: integer("fornecedor_id").notNull().references(() => fornecedores.id, { onDelete: "cascade" }),
   codigoFornecedor: varchar("codigo_fornecedor", { length: 50 }),
+  valorUnitario: numeric("valor_unitario", { precision: 10, scale: 2 }),
   observacoes: text("observacoes"),
   idIntegracao: varchar("id_integracao", { length: 100 }),
   createdAt: timestamp("created_at").defaultNow(),
