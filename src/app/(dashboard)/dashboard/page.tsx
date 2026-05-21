@@ -33,7 +33,6 @@ const TIPO_COLORS: Record<string, string> = {
 export default function DashboardPage() {
   const { data: session } = useSession()
   const firstName = session?.user?.name?.split(" ")[0] || "Usuário"
-  const role = session?.user?.role
 
   const [stats, setStats] = useState<any>(null)
   const [atividades, setAtividades] = useState<any[]>([])
@@ -158,8 +157,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Quick actions */}
-            {(role === "COMERCIAL" || role === "ADMIN") && (
-              <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
                 <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">Ações Rápidas</h3>
                 <div className="grid grid-cols-1 gap-3">
                   <Link href="/comercial/solicitacoes/nova"
@@ -192,9 +190,8 @@ export default function DashboardPage() {
                       <p className="text-xs text-slate-500">Gerenciar fichas técnicas</p>
                     </div>
                   </Link>
-                </div>
               </div>
-            )}
+            </div>
           </div>
 
           {/* Recent activity */}

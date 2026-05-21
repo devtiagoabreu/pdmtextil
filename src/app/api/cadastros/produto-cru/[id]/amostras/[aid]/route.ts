@@ -6,8 +6,6 @@ import { produtoCruAmostra } from "@/lib/db/schema/produto-cru"
 import { eq, and } from "drizzle-orm"
 import { notificar } from "@/lib/notificar"
 
-const ROLES_APROVACAO = ["COMERCIAL", "QUALIDADE", "ADMIN"]
-
 export async function PUT(
   req: NextRequest,
   { params }: { params: Promise<{ id: string; aid: string }> }
@@ -19,12 +17,7 @@ export async function PUT(
     const { id, aid } = await params
     const body = await req.json()
 
-    const role = session.user.role as string
     const isAprovacao = body.status === "APROVADO" || body.status === "REPROVADO"
-
-    if (isAprovacao && !ROLES_APROVACAO.includes(role)) {
-      return NextResponse.json({ error: "Apenas COMERCIAL, QUALIDADE e ADMIN podem aprovar/reprovar amostras" }, { status: 403 })
-    }
 
     if (isAprovacao && !body.motivoAprovacao?.trim()) {
       return NextResponse.json({ error: "Motivo é obrigatório para aprovar ou reprovar" }, { status: 400 })

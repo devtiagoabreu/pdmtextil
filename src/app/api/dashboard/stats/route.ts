@@ -8,13 +8,6 @@ import { eq, and, gte, lte, sql } from "drizzle-orm"
 
 function buildConditions(role: string, userId: number) {
   const conditions: any[] = []
-  if (role === "COMERCIAL") {
-    conditions.push(eq(solicitacoes.solicitanteId, userId))
-  } else if (role === "TECELAGEM") {
-    conditions.push(eq(solicitacoes.tipo, "DESENVOLVIMENTO_TECELAGEM"))
-  } else if (role === "BENEFICIAMENTO") {
-    conditions.push(eq(solicitacoes.tipo, "DESENVOLVIMENTO_BENEFICIAMENTO"))
-  }
   return conditions
 }
 

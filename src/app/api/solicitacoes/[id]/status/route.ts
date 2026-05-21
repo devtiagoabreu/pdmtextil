@@ -18,7 +18,7 @@ const STATUS_VALIDOS = [
   "CONCLUIDO",
 ]
 
-// PATCH - Mudar status da solicitação (restrito a TECELAGEM, BENEFICIAMENTO, ADMIN)
+// PATCH - Mudar status da solicitação
 export async function PATCH(
   req: NextRequest,
   { params }: { params: { id: string } }
@@ -26,11 +26,6 @@ export async function PATCH(
   try {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
-
-    const role = session.user.role
-    if (role === "COMERCIAL") {
-      return NextResponse.json({ error: "Sem permissão para alterar status" }, { status: 403 })
-    }
 
     const id = parseInt(params.id)
     if (isNaN(id)) return NextResponse.json({ error: "ID inválido" }, { status: 400 })

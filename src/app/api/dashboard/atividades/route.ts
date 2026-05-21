@@ -11,18 +11,7 @@ export async function GET() {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
-    const userId = parseInt(session.user.id)
-    const role = session.user.role
-
     let conditions: any[] = []
-
-    if (role === "COMERCIAL") {
-      conditions.push(eq(solicitacoes.solicitanteId, userId))
-    } else if (role === "TECELAGEM") {
-      conditions.push(eq(solicitacoes.tipo, "DESENVOLVIMENTO_TECELAGEM"))
-    } else if (role === "BENEFICIAMENTO") {
-      conditions.push(eq(solicitacoes.tipo, "DESENVOLVIMENTO_BENEFICIAMENTO"))
-    }
 
     const where = conditions.length > 0 ? and(...conditions) : undefined
 
