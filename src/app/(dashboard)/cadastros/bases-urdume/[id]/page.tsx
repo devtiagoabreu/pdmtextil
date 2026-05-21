@@ -153,13 +153,16 @@ export default function BaseFormPage() {
       const url = isEditing ? `/api/cadastros/bases-urdume/${id}` : "/api/cadastros/bases-urdume"
       const method = isEditing ? "PUT" : "POST"
 
+      const body = {
+        ...base,
+        densidade: base.densidade ? base.densidade.trim() : "",
+        fiosLista: fiosSelecionados.map(f => ({ fioId: f.fioId })),
+      }
+
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...base,
-          fiosLista: fiosSelecionados.map(f => ({ fioId: f.fioId })),
-        }),
+        body: JSON.stringify(body),
       })
 
       if (res.ok) {

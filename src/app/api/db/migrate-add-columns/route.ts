@@ -163,6 +163,11 @@ export async function POST(req: NextRequest) {
           ALTER TABLE fios_fornecedores ADD COLUMN valor_unitario numeric(10,2);
         END IF;
       END $$`,
+      // densidade numeric(6,2) -> numeric(8,2)
+      `DO $$
+      BEGIN
+        ALTER TABLE bases_urdume ALTER COLUMN densidade TYPE numeric(8,2);
+      END $$`,
     ]
 
     const results = []
