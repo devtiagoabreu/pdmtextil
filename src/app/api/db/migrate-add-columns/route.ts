@@ -135,6 +135,34 @@ export async function POST(req: NextRequest) {
         fio_id INTEGER NOT NULL REFERENCES fios(id),
         created_at TIMESTAMP DEFAULT NOW()
       )`,
+      // fios: add titulagem_real
+      `DO $$
+      BEGIN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'fios' AND column_name = 'titulagem_real') THEN
+          ALTER TABLE fios ADD COLUMN titulagem_real varchar(20);
+        END IF;
+      END $$`,
+      // fios: add ncm
+      `DO $$
+      BEGIN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'fios' AND column_name = 'ncm') THEN
+          ALTER TABLE fios ADD COLUMN ncm varchar(10);
+        END IF;
+      END $$`,
+      // fios: add links
+      `DO $$
+      BEGIN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'fios' AND column_name = 'links') THEN
+          ALTER TABLE fios ADD COLUMN links jsonb DEFAULT '[]';
+        END IF;
+      END $$`,
+      // fios_fornecedores: add valor_unitario
+      `DO $$
+      BEGIN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'fios_fornecedores' AND column_name = 'valor_unitario') THEN
+          ALTER TABLE fios_fornecedores ADD COLUMN valor_unitario numeric(10,2);
+        END IF;
+      END $$`,
     ]
 
     const results = []

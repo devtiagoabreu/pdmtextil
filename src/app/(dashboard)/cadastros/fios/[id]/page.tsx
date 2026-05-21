@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useRouter, useParams } from "next/navigation"
-import { ArrowLeft, Plus, Trash2, Loader2 } from "lucide-react"
+import { ArrowLeft, Plus, Trash2, Loader2, Link as LinkIcon, X } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -18,9 +18,12 @@ type Fio = {
   nomeComercial?: string | null
   composicao?: string | null
   titulo?: string | null
+  titulagemReal?: string | null
+  ncm?: string | null
   torcao?: string | null
   resistencia?: string | null
   alongamento?: string | null
+  links?: { url: string; descricao: string }[] | null
   observacoes?: string | null
   ativo: boolean
   idIntegracao?: string | null
@@ -37,6 +40,7 @@ interface FioFornecedor {
   id: number
   fornecedorId: number
   codigoFornecedor: string
+  valorUnitario: string
   observacoes: string
   fornecedorNome: string
   fornecedorCnpj: string
@@ -69,9 +73,12 @@ export default function FioFormPage() {
     nomeComercial: "",
     composicao: "",
     titulo: "",
+    titulagemReal: "",
+    ncm: "",
     torcao: "",
     resistencia: "",
     alongamento: "",
+    links: [],
     observacoes: "",
     ativo: true,
     idIntegracao: "",
@@ -84,6 +91,7 @@ export default function FioFormPage() {
   const [showFornecedorForm, setShowFornecedorForm] = useState(false)
   const [selectedFornecedor, setSelectedFornecedor] = useState("")
   const [codigoFornecedor, setCodigoFornecedor] = useState("")
+  const [valorUnitario, setValorUnitario] = useState("")
   
   // Estados do modal de novo fornecedor
   const [showNovoFornecedorModal, setShowNovoFornecedorModal] = useState(false)
@@ -100,6 +108,23 @@ export default function FioFormPage() {
     ativo: true,
   })
   const [savingFornecedor, setSavingFornecedor] = useState(false)
+  const [novoLink, setNovoLink] = useState({ url: "", descricao: "" })
+
+  const adicionarLink = () => {
+    if (!novoLink.url) return
+    setFio(prev => ({
+      ...prev,
+      links: [...(prev.links || []), { url: novoLink.url, descricao: novoLink.descricao }],
+    }))
+    setNovoLink({ url: "", descricao: "" })
+  }
+
+  const removerLink = (idx: number) => {
+    setFio(prev => ({
+      ...prev,
+      links: (prev.links || []).filter((_, i) => i !== idx),
+    }))
+  }
 
   useEffect(() => {
     fetch("/api/cadastros/fornecedores")
@@ -121,9 +146,12 @@ export default function FioFormPage() {
           nomeComercial: fioData.nomeComercial || "",
           composicao: fioData.composicao || "",
           titulo: fioData.titulo || "",
+          titulagemReal: fioData.titulagemReal || "",
+          ncm: fioData.ncm || "",
           torcao: fioData.torcao || "",
           resistencia: fioData.resistencia || "",
           alongamento: fioData.alongamento || "",
+          links: fioData.links || [],
           observacoes: fioData.observacoes || "",
           ativo: fioData.ativo ?? true,
           idIntegracao: fioData.idIntegracao || "",
@@ -143,10 +171,7 @@ export default function FioFormPage() {
       return
     }
 
-    const payload = {
-      ...fio,
-      codigoCompleto: `7.${fio.codigoFio}.XXX.000001`,
-    }
+    const payload = { ...fio }
     
     setSaving(true)
     try {
@@ -175,7 +200,15 @@ export default function FioFormPage() {
   }
 
   const handleChange = (field: keyof Fio, value: string | boolean) => {
-    setFio(prev => ({ ...prev, [field]: value }))
+    if (field === "codigoFio") {
+      setFio(prev => ({
+        ...prev,
+        codigoFio: value as string,
+        codigoCompleto: `7.${value}.XXX.000001`,
+      }))
+    } else {
+      setFio(prev => ({ ...prev, [field]: value }))
+    }
   }
 
   const addFornecedor = async () => {
@@ -191,6 +224,7 @@ export default function FioFormPage() {
         body: JSON.stringify({
           fornecedorId: parseInt(selectedFornecedor),
           codigoFornecedor,
+          valorUnitario: valorUnitario || null,
         }),
       })
       
@@ -332,6 +366,17 @@ export default function FioFormPage() {
             <Input id="titulo" value={fio.titulo || ""} onChange={e => handleChange("titulo", e.target.value)} placeholder="20/1" />
           </div>
           <div className="space-y-2">
+            <Label htmlFor="titulagemReal">Titulagem Real</Label>
+            <Input id="titulagemReal" value={fio.titulagemReal || ""} onChange={e => handleChange("titulagemReal", e.target.value)} placeholder="19.5" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="ncm">NCM</Label>
+            <Input id="ncm" value={fio.ncm || ""} onChange={e => handleChange("ncm", e.target.value)} placeholder="5205.11.00" />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
             <Label htmlFor="torcao">Torção</Label>
             <Input id="torcao" value={fio.torcao || ""} onChange={e => handleChange("torcao", e.target.value)} placeholder="Z" />
           </div>
@@ -344,6 +389,32 @@ export default function FioFormPage() {
         <div className="space-y-2">
           <Label htmlFor="observacoes">Observações</Label>
           <Input id="observacoes" value={fio.observacoes || ""} onChange={e => handleChange("observacoes", e.target.value)} placeholder="Observações" />
+        </div>
+
+        <div className="space-y-3">
+          <Label>Links</Label>
+          {fio.links && fio.links.length > 0 && (
+            <div className="space-y-1">
+              {fio.links.map((link, idx) => (
+                <div key={idx} className="flex items-center justify-between rounded-md border border-slate-200 dark:border-slate-700 px-3 py-2">
+                  <div className="text-sm truncate">
+                    <span className="font-medium">{link.descricao || "Link"}</span>
+                    <span className="text-slate-500 ml-2">{link.url}</span>
+                  </div>
+                  <button type="button" onClick={() => removerLink(idx)} className="text-red-400 hover:text-red-600">
+                    <X size={16} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+          <div className="flex gap-2">
+            <Input placeholder="URL" value={novoLink.url} onChange={e => setNovoLink(prev => ({ ...prev, url: e.target.value }))} />
+            <Input placeholder="Descrição" value={novoLink.descricao} onChange={e => setNovoLink(prev => ({ ...prev, descricao: e.target.value }))} />
+            <Button type="button" variant="outline" size="icon" onClick={adicionarLink}>
+              <Plus size={16} />
+            </Button>
+          </div>
         </div>
 
         <div className="flex items-center gap-2">
@@ -379,11 +450,14 @@ export default function FioFormPage() {
           {fioFornecedores.length > 0 && (
             <div className="space-y-2 mb-4">
               {fioFornecedores.map(ff => (
-                <div key={ff.id} className="flex items-center justify-between p-3 bg-slate-100 dark:bg-slate-800 rounded-lg">
-                  <div>
-                    <p className="font-medium">{ff.fornecedorNome}</p>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">{ff.codigoFornecedor}</p>
-                  </div>
+                  <div key={ff.id} className="flex items-center justify-between p-3 bg-slate-100 dark:bg-slate-800 rounded-lg">
+                    <div>
+                      <p className="font-medium">{ff.fornecedorNome}</p>
+                      <p className="text-sm text-slate-500 dark:text-slate-400">
+                        {ff.codigoFornecedor && <span>Código: {ff.codigoFornecedor}</span>}
+                        {ff.valorUnitario && <span className="ml-3">R$ {ff.valorUnitario}</span>}
+                      </p>
+                    </div>
                   <Button variant="ghost" size="icon" onClick={() => removeFornecedor(ff.id)}>
                     <Trash2 size={16} />
                   </Button>
@@ -409,7 +483,8 @@ export default function FioFormPage() {
                   <Plus size={14} /> Novo
                 </Button>
               </div>
-              <Input placeholder="Código do fornecedor" value={codigoFornecedor} onChange={e => setCodigoFornecedor(e.target.value)} />
+              <Input placeholder="Código do fio (fornecedor)" value={codigoFornecedor} onChange={e => setCodigoFornecedor(e.target.value)} />
+              <Input placeholder="Valor unitário (R$)" value={valorUnitario} onChange={e => setValorUnitario(e.target.value)} />
               <div className="flex gap-2">
                 <Button onClick={addFornecedor}>Adicionar</Button>
                 <Button variant="outline" onClick={() => setShowFornecedorForm(false)}>Cancelar</Button>
