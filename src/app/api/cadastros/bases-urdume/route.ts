@@ -53,8 +53,8 @@ export async function POST(req: NextRequest) {
       .returning()
 
     return NextResponse.json(novaBase[0])
-  } catch (error) {
-    console.error("[POST /api/cadastros/bases-urdume]", error)
-    return NextResponse.json({ error: "Erro ao criar base de urdume" }, { status: 500 })
+  } catch (error: any) {
+    console.error("[POST /api/cadastros/bases-urdume]", error?.message || error)
+    return NextResponse.json({ error: `Erro ao criar base de urdume: ${error?.message || error}` }, { status: 500 })
   }
 }
