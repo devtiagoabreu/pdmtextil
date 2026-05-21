@@ -4,16 +4,12 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { solicitacoes } from "@/lib/db/schema/solicitacoes"
 import { usuarios } from "@/lib/db/schema/usuarios"
-import { eq, and, desc } from "drizzle-orm"
+import { eq, desc } from "drizzle-orm"
 
 export async function GET() {
   try {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
-
-    let conditions: any[] = []
-
-    const where = conditions.length > 0 ? and(...conditions) : undefined
 
     const recentSolicitacoes = await db
       .select({
@@ -27,7 +23,6 @@ export async function GET() {
       })
       .from(solicitacoes)
       .leftJoin(usuarios, eq(solicitacoes.solicitanteId, usuarios.id))
-      .where(where)
       .orderBy(desc(solicitacoes.createdAt))
       .limit(5)
 

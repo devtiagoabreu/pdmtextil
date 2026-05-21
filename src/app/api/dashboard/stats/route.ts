@@ -4,7 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { solicitacoes } from "@/lib/db/schema/solicitacoes"
 import { produtosCru } from "@/lib/db/schema/produto-cru"
-import { eq, and, gte, lte, sql } from "drizzle-orm"
+import { and, gte, lte, sql } from "drizzle-orm"
 
 function buildConditions(role: string, userId: number) {
   const conditions: any[] = []
