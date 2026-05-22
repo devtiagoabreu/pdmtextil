@@ -4,11 +4,8 @@ import { usuarios } from "./db/schema/usuarios"
 import { eq } from "drizzle-orm"
 import { sendEmail } from "./email"
 
-const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
-  : process.env.NODE_ENV === "development"
-    ? "http://localhost:3000"
-    : "https://pdmprotextil.vercel.app"
+const SITE_URL = process.env.NEXT_PUBLIC_APP_URL
+  || (process.env.NODE_ENV === "development" ? "http://localhost:3000" : "https://pdmprotextil.vercel.app")
 
 export async function notificar(tipo: string, mensagem: string, link?: string, usuarioNome?: string | null) {
   const todosUsuarios = await db.select({ id: usuarios.id, name: usuarios.name, email: usuarios.email }).from(usuarios).where(eq(usuarios.ativo, true))
