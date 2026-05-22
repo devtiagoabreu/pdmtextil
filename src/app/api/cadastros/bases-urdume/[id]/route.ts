@@ -27,6 +27,7 @@ export async function GET(
         fioId: baseUrdumeFios.fioId,
         fioNome: fios.nome,
         fioCodigo: fios.codigoFio,
+        fioIdIntegracao: fios.idIntegracao,
       })
       .from(baseUrdumeFios)
       .leftJoin(fios, eq(baseUrdumeFios.fioId, fios.id))
