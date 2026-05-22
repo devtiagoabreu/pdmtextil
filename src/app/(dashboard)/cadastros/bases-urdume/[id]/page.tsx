@@ -28,12 +28,14 @@ type FioOption = {
   id: number
   codigoFio: string
   nome: string
+  idIntegracao: string | null
 }
 
 type FioSelecionado = {
   fioId: number
   fioNome: string
   fioCodigo: string
+  fioIdIntegracao: string | null
 }
 
 export default function BaseFormPage() {
@@ -97,6 +99,7 @@ export default function BaseFormPage() {
                 fioId: f.fioId,
                 fioNome: f.fioNome || "",
                 fioCodigo: f.fioCodigo || "",
+                fioIdIntegracao: f.fioIdIntegracao || null,
               })))
             }
           } else {
@@ -128,6 +131,7 @@ export default function BaseFormPage() {
                 fioId: f.fioId,
                 fioNome: f.fioNome || "",
                 fioCodigo: f.fioCodigo || "",
+                fioIdIntegracao: f.fioIdIntegracao || null,
               })))
             }
           }
@@ -186,7 +190,7 @@ export default function BaseFormPage() {
 
   const adicionarFio = (fio: FioOption) => {
     if (fiosSelecionados.some(f => f.fioId === fio.id)) return
-    setFiosSelecionados(prev => [...prev, { fioId: fio.id, fioNome: fio.nome, fioCodigo: fio.codigoFio }])
+    setFiosSelecionados(prev => [...prev, { fioId: fio.id, fioNome: fio.nome, fioCodigo: fio.codigoFio, fioIdIntegracao: fio.idIntegracao || null }])
     setFioSearch("")
   }
 
@@ -293,6 +297,7 @@ export default function BaseFormPage() {
                   >
                     <Plus size={14} className="text-slate-400" />
                     <span className="font-medium">{fio.codigoFio}</span>
+                    {fio.idIntegracao && <span className="text-xs text-slate-400">({fio.idIntegracao})</span>}
                     <span className="text-slate-500">{fio.nome}</span>
                   </button>
                 ))
@@ -305,6 +310,7 @@ export default function BaseFormPage() {
                 <div key={fio.fioId} className="flex items-center justify-between rounded-md border border-slate-200 dark:border-slate-700 px-3 py-2">
                   <div className="text-sm">
                     <span className="font-medium">{fio.fioCodigo}</span>
+                    {fio.fioIdIntegracao && <span className="text-xs text-slate-400 ml-1.5">({fio.fioIdIntegracao})</span>}
                     <span className="text-slate-500 ml-2">{fio.fioNome}</span>
                   </div>
                   <button type="button" onClick={() => removerFio(fio.fioId)} className="text-red-400 hover:text-red-600">
