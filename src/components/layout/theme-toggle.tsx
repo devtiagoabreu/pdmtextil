@@ -1,7 +1,7 @@
 "use client"
 
 import { useTheme } from "next-themes"
-import { Moon, Sun, Monitor } from "lucide-react"
+import { Moon, Sun } from "lucide-react"
 import { useEffect, useState } from "react"
 
 export function ThemeToggle() {
@@ -35,17 +35,6 @@ export function ThemeToggle() {
         title="Modo Escuro"
       >
         <Moon size={16} />
-      </button>
-      <button
-        onClick={() => setTheme("system")}
-        className={`p-1.5 rounded-md transition-all ${
-          theme === "system"
-            ? "bg-white dark:bg-slate-700 shadow-sm text-blue-600"
-            : "text-slate-500 hover:text-slate-700 dark:text-slate-400"
-        }`}
-        title="Preferência do sistema"
-      >
-        <Monitor size={16} />
       </button>
     </div>
   )
