@@ -27,11 +27,34 @@ export async function PUT(
       return NextResponse.json({ error: "Motivo é obrigatório para aprovar ou reprovar" }, { status: 400 })
     }
 
+    // Buscar estado atual para pegar o historico existente
+    const [atual] = await db
+      .select({ status: produtoCruAmostra.status, historico: produtoCruAmostra.historico })
+      .from(produtoCruAmostra)
+      .where(eq(produtoCruAmostra.id, parseInt(aid)))
+      .limit(1)
+
+    const historicoAtual: any[] = (atual?.historico as any[]) || []
+    const statusAnterior = atual?.status
+
+    if (body.status && body.status !== statusAnterior) {
+      historicoAtual.push({
+        data: new Date().toISOString(),
+        usuario: session.user.name,
+        usuarioId: parseInt(session.user.id),
+        acao: "MUDANCA_STATUS",
+        de: statusAnterior,
+        para: body.status,
+        motivo: isAprovacao ? body.motivoAprovacao : null,
+      })
+    }
+
     const atualizado = await db
       .update(produtoCruAmostra)
       .set({
         descricao: body.descricao,
         status: body.status,
+        historico: historicoAtual,
         motivoAprovacao: isAprovacao ? body.motivoAprovacao : body.motivoAprovacao || null,
         observacoes: body.observacoes || null,
         links: body.links || [],

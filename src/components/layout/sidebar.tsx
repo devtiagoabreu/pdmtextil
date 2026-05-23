@@ -36,7 +36,8 @@ const baseNav = [
   { href: "/comercial/clientes", label: "Clientes", icon: Building2 },
   { href: "/cadastros", label: "Cadastros", icon: Database },
   { href: "/cadastros/produto-cru", label: "Produtos Cru", icon: Factory },
-  { href: "/dashboard/relatorios/tempo-status", label: "Relatório Tempo p/ Status", icon: BarChart3 },
+  { href: "/dashboard/relatorios/tempo-status", label: "Tempo p/ Status (Solic.)", icon: BarChart3 },
+  { href: "/dashboard/relatorios/tempo-status-amostras", label: "Tempo p/ Status (Amostras)", icon: BarChart3 },
 ] as const
 
 interface SidebarProps {

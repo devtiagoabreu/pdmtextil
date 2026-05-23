@@ -63,6 +63,7 @@ export const produtoCruAmostra = pgTable("produto_cru_amostra", {
   motivoAprovacao: text("motivo_aprovacao"),
   observacoes: text("observacoes"),
   links: jsonb("links").$type<{ url: string; descricao: string }[]>().default([]),
+  historico: jsonb("historico").default([]),
   data: timestamp("data").defaultNow(),
   createdAt: timestamp("created_at").defaultNow(),
 })
@@ -90,6 +91,7 @@ export const produtoCruAcabamentoAmostra = pgTable("produto_cru_acabamento_amost
   motivoAprovacao: text("motivo_aprovacao"),
   observacoes: text("observacoes"),
   links: jsonb("links").$type<{ url: string; descricao: string }[]>().default([]),
+  historico: jsonb("historico").default([]),
   data: timestamp("data").defaultNow(),
   createdAt: timestamp("created_at").defaultNow(),
 })
