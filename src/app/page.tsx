@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, useCallback } from "react"
 import Link from "next/link"
 import { ArrowRight, Factory, ShoppingCart, Settings, PenTool } from "lucide-react"
 
@@ -8,7 +8,16 @@ const PDM_TOOLTIP = "PDM - Sistema de gestão de desenvolvimento de produtos tê
 
 export default function LandingPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const tooltipRef = useRef<HTMLDivElement>(null)
   const [showTooltip, setShowTooltip] = useState(false)
+  const [tooltipAbove, setTooltipAbove] = useState(true)
+
+  const checkPosition = useCallback(() => {
+    if (tooltipRef.current) {
+      const rect = tooltipRef.current.getBoundingClientRect()
+      setTooltipAbove(rect.top >= 10)
+    }
+  }, [])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -140,6 +149,10 @@ export default function LandingPage() {
     }
   }, [])
 
+  useEffect(() => {
+    if (showTooltip) setTimeout(checkPosition, 50)
+  }, [showTooltip, checkPosition])
+
   return (
     <div className="relative min-h-screen overflow-hidden">
       <canvas ref={canvasRef} className="absolute inset-0 z-0" />
@@ -168,7 +181,12 @@ export default function LandingPage() {
                 PDM·PRO·TÊXTIL
               </h1>
               {showTooltip && (
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-4 py-3 bg-slate-900/90 border border-slate-700 text-white text-sm rounded-lg max-w-md whitespace-pre-wrap">
+                <div
+                  ref={tooltipRef}
+                  className={`absolute left-1/2 -translate-x-1/2 px-4 py-3 bg-slate-900/90 border border-slate-700 text-white text-sm rounded-lg max-w-md whitespace-pre-wrap ${
+                    tooltipAbove ? "bottom-full mb-3" : "top-full mt-3"
+                  }`}
+                >
                   {PDM_TOOLTIP}
                 </div>
               )}
