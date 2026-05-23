@@ -208,6 +208,17 @@ export default function ProdutoCruFormPage() {
     setProduto(prev => ({ ...prev, [field]: value }))
   }
 
+  const handleStatusChange = (newStatus: string) => {
+    if (newStatus === "APROVADO") {
+      const temAmostraCruAprovada = amostras.some(a => a.status === "APROVADO")
+      if (!temAmostraCruAprovada) {
+        toast.error("É necessário pelo menos uma amostra de tecido cru aprovada para aprovar o produto")
+        return
+      }
+    }
+    setProduto(prev => ({ ...prev, status: newStatus }))
+  }
+
   const handleFichaTecnicaChange = (field: keyof FichaTecnica, value: string) => {
     setProduto(prev => ({
       ...prev,
@@ -220,6 +231,14 @@ export default function ProdutoCruFormPage() {
     if (!produto.codigoPdm || !produto.descricao) {
       toast.error("Código PDM e Descrição são obrigatórios")
       return
+    }
+
+    if (produto.status === "APROVADO") {
+      const temAmostraCruAprovada = amostras.some(a => a.status === "APROVADO")
+      if (!temAmostraCruAprovada) {
+        toast.error("É necessário pelo menos uma amostra de tecido cru aprovada para aprovar o produto")
+        return
+      }
     }
 
     setSaving(true)
@@ -550,12 +569,12 @@ export default function ProdutoCruFormPage() {
           </div>
           <div className="space-y-2">
             <Label htmlFor="status">Status</Label>
-            <select
-              id="status"
-              value={produto.status}
-              onChange={e => handleChange("status", e.target.value)}
-              className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
-            >
+              <select
+                id="status"
+                value={produto.status}
+                onChange={e => handleStatusChange(e.target.value)}
+                className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
+              >
               {STATUS_OPTIONS.map(opt => (
                 <option key={opt.value} value={opt.value}>{opt.label}</option>
               ))}
