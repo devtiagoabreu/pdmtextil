@@ -9,7 +9,7 @@ import { clearTransporter } from "@/lib/email"
 export async function GET() {
   try {
     const session = await getServerSession(authOptions)
-    if (!session || session.user.role !== "ADMIN") {
+    if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUDO")) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
@@ -24,7 +24,7 @@ export async function GET() {
 export async function PUT(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session || session.user.role !== "ADMIN") {
+    if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUDO")) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
@@ -64,7 +64,7 @@ export async function PUT(req: NextRequest) {
 export async function DELETE() {
   try {
     const session = await getServerSession(authOptions)
-    if (!session || session.user.role !== "ADMIN") {
+    if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUDO")) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 

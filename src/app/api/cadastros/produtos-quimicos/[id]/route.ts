@@ -4,6 +4,8 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { produtosQuimicos } from "@/lib/db/schema/produtos-quimicos"
 import { eq } from "drizzle-orm"
+import { handleApiError } from "@/lib/api-error"
+import { notificarDelecao } from "@/lib/notificar"
 
 export async function GET(
   req: NextRequest,
@@ -71,9 +73,11 @@ export async function DELETE(
 
     const { id } = await params
     await db.delete(produtosQuimicos).where(eq(produtosQuimicos.id, parseInt(id)))
+
+    await notificarDelecao("Produto Químico", id, session?.user?.name)
+
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error("[DELETE /api/cadastros/produtos-quimicos/[id]]", error)
-    return NextResponse.json({ error: "Erro ao excluir" }, { status: 500 })
+    return handleApiError(error, "DELETE /api/cadastros/produtos-quimicos/[id]")
   }
 }

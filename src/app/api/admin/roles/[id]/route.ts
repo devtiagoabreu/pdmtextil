@@ -11,7 +11,7 @@ export async function PUT(
 ) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session || session.user.role !== "ADMIN") {
+    if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUDO")) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 

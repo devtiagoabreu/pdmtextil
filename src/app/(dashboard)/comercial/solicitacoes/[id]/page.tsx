@@ -1,11 +1,12 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useQuery, useMutation } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import { useRouter, useParams } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft, FileText, Pencil, Trash2, Link as LinkIcon, Download } from "lucide-react"
 import { toast } from "sonner"
+import { ConfirmModal } from "@/components/ui/confirm-modal"
 
 const STATUS_CONFIG: Record<string, { label: string; classes: string }> = {
   PENDENTE:       { label: "Pendente",       classes: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400" },
@@ -148,6 +149,9 @@ export default function DetalheSolicitacaoPage() {
   const id = params.id as string
   const [mounted, setMounted] = useState(false)
   const [produtos, setProdutos] = useState<any[]>([])
+  const [deleteTarget, setDeleteTarget] = useState<any>(null)
+  const [deleteLoading, setDeleteLoading] = useState(false)
+  const [deleteBlocked, setDeleteBlocked] = useState(false)
   
   useEffect(() => {
     setMounted(true)
@@ -169,14 +173,30 @@ export default function DetalheSolicitacaoPage() {
     staleTime: 0,
   })
 
-  const deleteMutate = useMutation({
-    mutationFn: () => fetch(`/api/solicitacoes/${id}`, { method: "DELETE" }),
-    onSuccess: () => {
-      toast.success("Solicitação excluída")
+  const handleDelete = async () => {
+    if (!deleteTarget) return
+    setDeleteLoading(true)
+    setDeleteBlocked(false)
+    try {
+      const res = await fetch(`/api/solicitacoes/${id}`, { method: "DELETE" })
+      const data = await res.json()
+      if (!res.ok) {
+        if (data.fkError) {
+          setDeleteBlocked(true)
+          return
+        }
+        throw new Error(data.error || "Erro ao excluir")
+      }
+      toast.success("Solicitação excluída com sucesso")
+      setDeleteTarget(null)
       router.push("/comercial/solicitacoes")
-    },
-    onError: () => toast.error("Erro ao excluir"),
-  })
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao excluir")
+      setDeleteTarget(null)
+    } finally {
+      setDeleteLoading(false)
+    }
+  }
 
   if (!mounted) {
     return null
@@ -304,14 +324,8 @@ export default function DetalheSolicitacaoPage() {
           </button>
           <button
             onClick={() => {
-              const temAnexos = sol.anexos && sol.anexos.length > 0
-              let mensagem = "Tem certeza que deseja excluir esta solicitação?"
-              if (temAnexos) {
-                mensagem = `Esta solicitação possui ${sol.anexos.length} link(s) anexado(s). Ao excluir, os links também serão removidos. Continuar?`
-              }
-              if (confirm(mensagem)) {
-                deleteMutate.mutate()
-              }
+              setDeleteTarget({ id: sol.id, anexos: sol.anexos })
+              setDeleteBlocked(false)
             }}
             className="inline-flex items-center gap-1 px-3 py-1.5 text-sm bg-red-100 text-red-700 rounded-lg hover:bg-red-200"
           >
@@ -521,8 +535,36 @@ export default function DetalheSolicitacaoPage() {
           </div>
         ) : (
           <p className="text-sm text-slate-500">Sem histórico</p>
-        )}
+        </div>
       </div>
+
+      <ConfirmModal
+        open={deleteTarget !== null}
+        title={deleteBlocked ? "Exclusão não permitida" : "Excluir solicitação?"}
+        message={deleteBlocked
+          ? "Esta solicitação possui cadastros vinculados e não pode ser excluída."
+          : deleteTarget?.anexos?.length > 0
+            ? `Esta solicitação possui ${deleteTarget?.anexos?.length} link(s) anexado(s). Ao excluir, os links também serão removidos. Continuar?`
+            : `Tem certeza que deseja excluir esta solicitação?`}
+        subMessage={deleteBlocked
+          ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informações."
+          : undefined}
+        confirmLabel={deleteBlocked ? "OK" : "Excluir"}
+        variant={deleteBlocked ? "warning" : "danger"}
+        loading={deleteLoading}
+        onConfirm={() => {
+          if (deleteBlocked) {
+            setDeleteTarget(null)
+            setDeleteBlocked(false)
+            return
+          }
+          handleDelete()
+        }}
+        onCancel={() => {
+          setDeleteTarget(null)
+          setDeleteBlocked(false)
+        }}
+      />
     </div>
   )
 }

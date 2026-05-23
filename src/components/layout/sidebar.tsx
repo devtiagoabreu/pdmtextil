@@ -45,8 +45,9 @@ interface SidebarProps {
 function SidebarContent({ onClose }: { onClose?: () => void }) {
   const pathname = usePathname()
   const { data: session } = useSession()
-  const isAdmin = session?.user?.role === "ADMIN"
-  const items = isAdmin ? [...baseNav, ...adminItems] : baseNav
+  const role = session?.user?.role as string | undefined
+  const isAdminOuSudo = role === "ADMIN" || role === "SUDO"
+  const items = isAdminOuSudo ? [...baseNav, ...adminItems] : baseNav
 
   return (
     <div className="flex h-full flex-col bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800">

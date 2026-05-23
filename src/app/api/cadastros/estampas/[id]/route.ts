@@ -4,6 +4,8 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { estampas } from "@/lib/db/schema/estampas"
 import { eq } from "drizzle-orm"
+import { handleApiError } from "@/lib/api-error"
+import { notificarDelecao } from "@/lib/notificar"
 
 export async function GET(
   req: NextRequest,
@@ -87,9 +89,10 @@ export async function DELETE(
     const id = parseInt((await params).id)
     await db.delete(estampas).where(eq(estampas.id, id))
 
+    await notificarDelecao("Estampa", id.toString(), session?.user?.name)
+
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error("[DELETE /api/cadastros/estampas/[id]]", error)
-    return NextResponse.json({ error: "Erro ao excluir estampa" }, { status: 500 })
+    return handleApiError(error, "DELETE /api/cadastros/estampas/[id]")
   }
 }

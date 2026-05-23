@@ -13,7 +13,8 @@ import {
 } from "@/lib/db/schema/produto-cru"
 import { solicitacoes } from "@/lib/db/schema/solicitacoes"
 import { eq, and } from "drizzle-orm"
-import { notificar } from "@/lib/notificar"
+import { notificar, notificarDelecao } from "@/lib/notificar"
+import { handleApiError } from "@/lib/api-error"
 
 export async function GET(
   req: NextRequest,
@@ -75,8 +76,8 @@ export async function PUT(
 
     // Apenas COMERCIAL e ADMIN podem aprovar/reprovar produto
     if (body.status === "APROVADO" || body.status === "REPROVADO") {
-      if (session.user.role !== "COMERCIAL" && session.user.role !== "ADMIN") {
-        return NextResponse.json({ error: "Apenas COMERCIAL e ADMIN podem aprovar/reprovar produtos" }, { status: 403 })
+      if (!["COMERCIAL", "ADMIN", "SUDO"].includes(session.user.role)) {
+        return NextResponse.json({ error: "Apenas COMERCIAL, ADMIN e SUDO podem aprovar/reprovar produtos" }, { status: 403 })
       }
     }
 
@@ -114,7 +115,7 @@ export async function PUT(
     }
 
     // Se COMERCIAL aprovou produto, atualiza solicitação vinculada para CONCLUIDO
-    if (body.status === "APROVADO" && body.solicitacaoDesenvolvimentoId && (session.user.role === "COMERCIAL" || session.user.role === "ADMIN")) {
+    if (body.status === "APROVADO" && body.solicitacaoDesenvolvimentoId && ["COMERCIAL", "ADMIN", "SUDO"].includes(session.user.role)) {
       const solicitacaoId = Number(body.solicitacaoDesenvolvimentoId)
       try {
         await db
@@ -153,7 +154,7 @@ export async function DELETE(
   try {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
-    if (session.user.role !== "ADMIN") {
+    if (session.user.role !== "ADMIN" && session.user.role !== "SUDO") {
       return NextResponse.json({ error: "Apenas administradores podem excluir produtos" }, { status: 403 })
     }
 
@@ -168,9 +169,10 @@ export async function DELETE(
 
     await db.delete(produtosCru).where(eq(produtosCru.id, id))
 
+    await notificarDelecao("Produto Cru", id.toString(), session?.user?.name)
+
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error("[DELETE /api/cadastros/produto-cru/[id]]", error)
-    return NextResponse.json({ error: "Erro ao excluir produto" }, { status: 500 })
+    return handleApiError(error, "DELETE /api/cadastros/produto-cru/[id]")
   }
 }

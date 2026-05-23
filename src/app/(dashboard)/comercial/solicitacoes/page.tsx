@@ -3,7 +3,10 @@
 import { useQuery } from "@tanstack/react-query"
 import Link from "next/link"
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { PlusCircle, FileText, Clock, Pencil, Trash2 } from "lucide-react"
+import { toast } from "sonner"
+import { ConfirmModal } from "@/components/ui/confirm-modal"
 
 const STATUS_CONFIG: Record<string, { label: string; classes: string }> = {
   PENDENTE:       { label: "Pendente",       classes: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400" },
@@ -30,17 +33,46 @@ async function fetchSolicitacoes() {
 }
 
 export default function ListaSolicitacoesPage() {
+  const router = useRouter()
   const [mounted, setMounted] = useState(false)
+  const [deleteTarget, setDeleteTarget] = useState<any>(null)
+  const [deleteLoading, setDeleteLoading] = useState(false)
+  const [deleteBlocked, setDeleteBlocked] = useState(false)
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
-  const { data: lista, isLoading, error } = useQuery({
+  const { data: lista, isLoading, error, refetch } = useQuery({
     queryKey: ["solicitacoes"],
     queryFn: fetchSolicitacoes,
     retry: 1,
   })
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return
+    setDeleteLoading(true)
+    setDeleteBlocked(false)
+    try {
+      const res = await fetch(`/api/solicitacoes/${deleteTarget.id}`, { method: "DELETE" })
+      const data = await res.json()
+      if (!res.ok) {
+        if (data.fkError) {
+          setDeleteBlocked(true)
+          return
+        }
+        throw new Error(data.error || "Erro ao excluir")
+      }
+      toast.success("Solicitação excluída com sucesso")
+      setDeleteTarget(null)
+      refetch()
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao excluir")
+      setDeleteTarget(null)
+    } finally {
+      setDeleteLoading(false)
+    }
+  }
 
   if (!mounted) {
     return null
@@ -120,7 +152,11 @@ if (isLoading) {
                 {lista.map((s: any) => {
                   const statusCfg = STATUS_CONFIG[s.status] ?? { label: s.status, classes: "bg-slate-100 text-slate-600" }
                   return (
-                    <tr key={s.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                    <tr
+                      key={s.id}
+                      className="hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"
+                      onClick={() => router.push(`/comercial/solicitacoes/${s.id}`)}
+                    >
                       <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-slate-200">#{s.id}</td>
                       <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">{TIPO_CONFIG[s.tipo] || s.tipo}</td>
                       <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-slate-200">{s.cliente}</td>
@@ -147,22 +183,15 @@ if (isLoading) {
                             <Link
                               href={`/comercial/solicitacoes/${s.id}`}
                               className="flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline text-xs font-medium"
+                              onClick={(e) => e.stopPropagation()}
                             >
                               Ver
                             </Link>
                           <button
                             onClick={(e) => {
-                              e.preventDefault()
-                              const temAnexos = (s as any).anexosCount > 0
-                              let mensagem = "Excluir solicitação?"
-                              if (temAnexos) {
-                                mensagem = `Esta solicitação possui ${(s as any).anexosCount} link(s) anexado(s). Ao excluir, os links também serão removidos. Continuar?`
-                              }
-                              if (confirm(mensagem)) {
-                                fetch(`/api/solicitacoes/${s.id}`, { method: "DELETE" })
-                                  .then(() => window.location.reload())
-                                  .catch(() => alert("Erro ao excluir"))
-                              }
+                              e.stopPropagation()
+                              setDeleteTarget(s)
+                              setDeleteBlocked(false)
                             }}
                             className="text-red-600 dark:text-red-400 hover:underline text-xs font-medium"
                           >
@@ -178,6 +207,34 @@ if (isLoading) {
           </div>
         )}
       </div>
+
+      <ConfirmModal
+        open={deleteTarget !== null}
+        title={deleteBlocked ? "Exclusão não permitida" : "Excluir solicitação?"}
+        message={deleteBlocked
+          ? "Esta solicitação possui cadastros vinculados e não pode ser excluída."
+          : deleteTarget?.anexosCount > 0
+            ? `Esta solicitação possui ${deleteTarget?.anexosCount} link(s) anexado(s). Ao excluir, os links também serão removidos. Continuar?`
+            : `Tem certeza que deseja excluir a solicitação #${deleteTarget?.id}?`}
+        subMessage={deleteBlocked
+          ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informações."
+          : undefined}
+        confirmLabel={deleteBlocked ? "OK" : "Excluir"}
+        variant={deleteBlocked ? "warning" : "danger"}
+        loading={deleteLoading}
+        onConfirm={() => {
+          if (deleteBlocked) {
+            setDeleteTarget(null)
+            setDeleteBlocked(false)
+            return
+          }
+          handleDelete()
+        }}
+        onCancel={() => {
+          setDeleteTarget(null)
+          setDeleteBlocked(false)
+        }}
+      />
     </div>
   )
 }

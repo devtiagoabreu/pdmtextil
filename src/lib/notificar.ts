@@ -3,14 +3,28 @@ import { notificacoes, NewNotificacao } from "./db/schema/notificacoes"
 import { usuarios } from "./db/schema/usuarios"
 import { eq } from "drizzle-orm"
 import { sendEmail } from "./email"
+import { registrarLog } from "./log"
 
 const SITE_URL = process.env.NEXT_PUBLIC_APP_URL
   || (process.env.NODE_ENV === "development" ? "http://localhost:3000" : "https://pdmprotextil.vercel.app")
 
-export async function notificar(tipo: string, mensagem: string, link?: string, usuarioNome?: string | null) {
-  const todosUsuarios = await db.select({ id: usuarios.id, name: usuarios.name, email: usuarios.email }).from(usuarios).where(eq(usuarios.ativo, true))
+export async function notificar(
+  tipo: string,
+  mensagem: string,
+  link?: string,
+  usuarioNome?: string | null,
+  roles?: string[]
+) {
+  const todosUsuarios = await db
+    .select({ id: usuarios.id, name: usuarios.name, email: usuarios.email, role: usuarios.role })
+    .from(usuarios)
+    .where(eq(usuarios.ativo, true))
 
-  const notificacoesData: NewNotificacao[] = todosUsuarios.map(u => ({
+  const usuariosFiltrados = roles?.length
+    ? todosUsuarios.filter(u => roles.includes(u.role))
+    : todosUsuarios
+
+  const notificacoesData: NewNotificacao[] = usuariosFiltrados.map(u => ({
     tipo,
     mensagem,
     usuarioId: u.id,
@@ -22,7 +36,7 @@ export async function notificar(tipo: string, mensagem: string, link?: string, u
     await db.insert(notificacoes).values(notificacoesData)
   }
 
-  const emailsValidos = todosUsuarios.map(u => u.email).filter((e): e is string => !!e && e.includes("@"))
+  const emailsValidos = usuariosFiltrados.map(u => u.email).filter((e): e is string => !!e && e.includes("@"))
   if (emailsValidos.length > 0) {
     const result = await sendEmail({
       to: emailsValidos,
@@ -42,5 +56,29 @@ ${link ? `<p><a href="${SITE_URL}${link}" style="background:#1e3a5f;color:#fff;p
     }
   }
 
-  return { usuariosNotificados: todosUsuarios.length }
+  return { usuariosNotificados: usuariosFiltrados.length }
+}
+
+export async function notificarErro(contexto: string, erro: unknown, usuarioNome?: string | null) {
+  const mensagem = erro instanceof Error ? erro.message : String(erro)
+  const descricao = `[ERRO] ${contexto}: ${mensagem}`
+  console.error(descricao)
+
+  await registrarLog({ tipo: "ERRO", acao: "erro_sistema", descricao, usuarioNome })
+
+  try {
+    await notificar("ERRO_SISTEMA", descricao, undefined, usuarioNome, ["SUDO"])
+  } catch (err) {
+    console.error("[NOTIFICAR_ERRO] Falha ao notificar erro:", err)
+  }
+}
+
+export async function notificarDelecao(
+  entidade: string,
+  entidadeLabel: string,
+  usuarioNome?: string | null
+) {
+  const descricao = `Registro de ${entidade} "${entidadeLabel}" foi excluído por ${usuarioNome || "usuário desconhecido"}`
+  await notificar("DELECAO", descricao, undefined, usuarioNome, ["SUDO"])
+  await registrarLog({ tipo: "DELECAO", acao: "excluir", descricao, entidade, usuarioNome })
 }
