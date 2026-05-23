@@ -13,8 +13,10 @@ import { LinksEditor } from "@/components/links/LinksEditor"
 
 type FichaTecnica = {
   gramatura?: string
+  gramaturaLinear?: string
   largura?: string
-  construcao?: string
+  passamento?: string
+  batidas?: string
   densidade?: string
   ligamento?: string
   observacoes?: string
@@ -593,8 +595,8 @@ export default function ProdutoCruFormPage() {
               <Input value={produto.fichaTecnica?.largura || ""} onChange={e => handleFichaTecnicaChange("largura", e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label>Construção</Label>
-              <Input value={produto.fichaTecnica?.construcao || ""} onChange={e => handleFichaTecnicaChange("construcao", e.target.value)} />
+              <Label>Passamento</Label>
+              <Input value={produto.fichaTecnica?.passamento || ""} onChange={e => handleFichaTecnicaChange("passamento", e.target.value)} />
             </div>
             <div className="space-y-2">
               <Label>Densidade (fios/cm)</Label>
@@ -603,6 +605,14 @@ export default function ProdutoCruFormPage() {
             <div className="space-y-2">
               <Label>Ligamento</Label>
               <Input value={produto.fichaTecnica?.ligamento || ""} onChange={e => handleFichaTecnicaChange("ligamento", e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label>Batidas (p/min)</Label>
+              <Input value={produto.fichaTecnica?.batidas || ""} onChange={e => handleFichaTecnicaChange("batidas", e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label>Gramatura Linear (g/m)</Label>
+              <Input value={produto.fichaTecnica?.gramaturaLinear || ""} onChange={e => handleFichaTecnicaChange("gramaturaLinear", e.target.value)} />
             </div>
           </div>
           <div className="space-y-2">

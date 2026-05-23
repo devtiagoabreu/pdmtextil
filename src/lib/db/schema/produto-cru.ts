@@ -12,8 +12,10 @@ export const produtosCru = pgTable("produtos_cru", {
   status: varchar("status", { length: 30 }).notNull().default("DESENVOLVIMENTO"),
   fichaTecnica: jsonb("ficha_tecnica").$type<{
     gramatura?: string
+    gramaturaLinear?: string
     largura?: string
-    construcao?: string
+    passamento?: string
+    batidas?: string
     densidade?: string
     ligamento?: string
     observacoes?: string
