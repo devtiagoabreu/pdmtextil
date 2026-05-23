@@ -99,7 +99,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
       <div className="border-t border-slate-200 dark:border-slate-800 p-4">
         <div className="rounded-lg bg-slate-50 dark:bg-slate-900 p-3">
           <p className="text-xs text-slate-500 dark:text-slate-400">Versão 1.0.0</p>
-          <p className="text-xs text-slate-400 dark:text-slate-500">© 2026 Pro Moda Têxtil</p>
+          <p className="text-xs text-slate-400 dark:text-slate-500">© 2026 PDM|PRO|TÊXTIL | @devtiagoabreu · Todos os direitos reservados</p>
         </div>
       </div>
     </div>
