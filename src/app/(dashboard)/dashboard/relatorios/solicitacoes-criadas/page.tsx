@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts"
 import { BarChart3, Filter } from "lucide-react"
+import { usePathname } from "next/navigation"
+import { InfoButton } from "@/components/ui/info-button"
+import { getInfoContent } from "@/lib/info-content"
 
 type Stats = {
   totalCriadas: number
@@ -74,10 +77,13 @@ export default function RelatorioSolicitacoesCriadas() {
 
   useEffect(() => { fetchData() }, [])
 
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Relatório: Solicitações Criadas / Deletadas</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Relatório: Solicitações Criadas / Deletadas{info && <InfoButton content={info} />}</h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
           Acompanhe o volume de solicitações criadas, deletadas, concluídas e a taxa de sucesso
         </p>

@@ -5,6 +5,9 @@ import { toast } from "sonner"
 import { Loader2, Save, Shield } from "lucide-react"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
+import { usePathname } from "next/navigation"
+import { InfoButton } from "@/components/ui/info-button"
+import { getInfoContent } from "@/lib/info-content"
 
 interface PermissoesData {
   modulos: string[]
@@ -18,6 +21,8 @@ interface PermissoesData {
 }
 
 export default function PermissoesPage() {
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
   const [data, setData] = useState<PermissoesData | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -104,7 +109,7 @@ export default function PermissoesPage() {
         <div>
           <div className="flex items-center gap-2">
             <Shield className="text-blue-600" size={24} />
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Permissões por Perfil</h1>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Permissões por Perfil{info && <InfoButton content={info} />}</h1>
           </div>
           <p className="text-sm text-slate-500 mt-1">Gerencie o que cada perfil pode acessar no sistema</p>
         </div>

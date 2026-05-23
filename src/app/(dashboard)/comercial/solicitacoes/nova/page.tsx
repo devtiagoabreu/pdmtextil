@@ -1,7 +1,9 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
+import { InfoButton } from "@/components/ui/info-button"
+import { getInfoContent } from "@/lib/info-content"
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { FileText, ClipboardList, Paperclip, CheckCircle } from "lucide-react"
@@ -34,6 +36,8 @@ const STEPS = [
 
 export default function NovaSolicitacaoPage() {
   const router = useRouter()
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
   const [step, setStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
   
@@ -162,7 +166,7 @@ export default function NovaSolicitacaoPage() {
     <div className="max-w-4xl mx-auto py-8">
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Nova Solicitação</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Nova Solicitação{info && <InfoButton content={info} />}</h1>
           <p className="text-muted-foreground mt-2">Crie uma nova solicitação de desenvolvimento têxtil.</p>
         </div>
         <Button 

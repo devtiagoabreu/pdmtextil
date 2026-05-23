@@ -1,7 +1,9 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter, useParams } from "next/navigation"
+import { useRouter, useParams, usePathname } from "next/navigation"
+import { InfoButton } from "@/components/ui/info-button"
+import { getInfoContent } from "@/lib/info-content"
 import { ArrowLeft, Plus, Trash2, Loader2, ChevronDown, ChevronRight, FlaskConical } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -93,6 +95,8 @@ const TIPO_ACABAMENTO = ["TINGIMENTO", "ESTAMPARIA", "TERMOFIXACAO", "LAVAGEM", 
 export default function ProdutoCruFormPage() {
   const router = useRouter()
   const params = useParams()
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
   const isEditing = params.id && params.id !== "novo"
   const id = isEditing ? parseInt(params.id as string) : null
 
@@ -524,12 +528,13 @@ export default function ProdutoCruFormPage() {
             <ArrowLeft size={20} />
           </Button>
         </Link>
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
-            {isEditing ? "Editar Produto Cru" : "Novo Produto Cru"}
-          </h1>
-        </div>
+      <div>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+          {isEditing ? "Editar Produto Cru" : "Novo Produto Cru"}
+          {info && <InfoButton content={info} />}
+        </h1>
       </div>
+    </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-2 gap-4">

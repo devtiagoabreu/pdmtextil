@@ -1,7 +1,9 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
+import { InfoButton } from "@/components/ui/info-button"
+import { getInfoContent } from "@/lib/info-content"
 import Link from "next/link"
 import { ArrowLeft, Save, Trash2, Building2 } from "lucide-react"
 import { toast } from "sonner"
@@ -22,6 +24,8 @@ type Cliente = {
 
 export default function EditarClientePage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
   const [cliente, setCliente] = useState<Cliente | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -111,7 +115,7 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
             <Building2 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">Editar Cliente</h1>
+            <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">Editar Cliente{info && <InfoButton content={info} />}</h1>
             <p className="text-sm text-slate-500">{cliente.nome}</p>
           </div>
         </div>

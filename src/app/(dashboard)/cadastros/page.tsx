@@ -2,6 +2,9 @@
 
 import Link from "next/link"
 import { Package, Building2, Users, Palette, Scissors, Droplets, Layers, FlaskConical } from "lucide-react"
+import { usePathname } from "next/navigation"
+import { InfoButton } from "@/components/ui/info-button"
+import { getInfoContent } from "@/lib/info-content"
 
 const modulos = [
   {
@@ -55,11 +58,15 @@ const modulos = [
 ]
 
 export default function CadastrosPage() {
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
           Cadastros
+          {info && <InfoButton content={info} />}
         </h1>
         <p className="text-sm text-slate-500">
           Módulos de cadastro do sistema

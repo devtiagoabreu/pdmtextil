@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react"
 import { Clock, FlaskConical } from "lucide-react"
+import { usePathname } from "next/navigation"
+import { InfoButton } from "@/components/ui/info-button"
+import { getInfoContent } from "@/lib/info-content"
 
 const STATUS_LABELS: Record<string, string> = {
   PENDENTE: "Pendente",
@@ -62,10 +65,13 @@ export default function RelatorioTempoStatusAmostras() {
 
   const lista = aba === "tecidoCru" ? tecidoCru : acabamento
 
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Relatório: Amostras - Tempo em cada Status</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Relatório: Amostras - Tempo em cada Status{info && <InfoButton content={info} />}</h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
           Histórico de status de todas as amostras do sistema
         </p>
