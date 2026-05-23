@@ -4,6 +4,8 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { coresSolidas } from "@/lib/db/schema/cores"
 import { eq } from "drizzle-orm"
+import { handleApiError } from "@/lib/api-error"
+import { notificarDelecao } from "@/lib/notificar"
 
 export async function GET(
   req: NextRequest,
@@ -84,9 +86,10 @@ export async function DELETE(
     const id = parseInt((await params).id)
     await db.delete(coresSolidas).where(eq(coresSolidas.id, id))
 
+    await notificarDelecao("Cor", id.toString(), session?.user?.name)
+
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error("[DELETE /api/cadastros/cores/[id]]", error)
-    return NextResponse.json({ error: "Erro ao excluir cor" }, { status: 500 })
+    return handleApiError(error, "DELETE /api/cadastros/cores/[id]")
   }
 }

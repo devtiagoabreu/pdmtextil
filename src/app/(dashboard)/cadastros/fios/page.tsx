@@ -1,12 +1,14 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { PlusCircle, Search, Pencil, Trash2, Loader2 } from "lucide-react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
+import { ConfirmModal } from "@/components/ui/confirm-modal"
 import ImportarFios from "@/components/importar/ImportarFios"
 
 interface Fio {
@@ -30,29 +32,45 @@ async function fetchFios(): Promise<Fio[]> {
 }
 
 export default function FiosPage() {
+  const router = useRouter()
   const [search, setSearch] = useState("")
-  
+  const [deleteTarget, setDeleteTarget] = useState<Fio | null>(null)
+  const [deleteLoading, setDeleteLoading] = useState(false)
+  const [deleteBlocked, setDeleteBlocked] = useState(false)
+
   const { data: fios = [], isLoading, refetch } = useQuery({
     queryKey: ["fios"],
     queryFn: fetchFios,
   })
 
-  const filteredFios = fios.filter(f => 
+  const filteredFios = fios.filter(f =>
     f.nome.toLowerCase().includes(search.toLowerCase()) ||
     f.codigoFio.toLowerCase().includes(search.toLowerCase()) ||
     f.codigoCompleto.toLowerCase().includes(search.toLowerCase())
   )
 
-  const handleDelete = async (id: number) => {
-    if (!confirm("Tem certeza que deseja excluir este fio?")) return
-    
+  const handleDelete = async () => {
+    if (!deleteTarget) return
+    setDeleteLoading(true)
+    setDeleteBlocked(false)
     try {
-      const res = await fetch(`/api/cadastros/fios/${id}`, { method: "DELETE" })
-      if (!res.ok) throw new Error("Erro ao excluir")
+      const res = await fetch(`/api/cadastros/fios/${deleteTarget.id}`, { method: "DELETE" })
+      const data = await res.json()
+      if (!res.ok) {
+        if (data.fkError) {
+          setDeleteBlocked(true)
+          return
+        }
+        throw new Error(data.error || "Erro ao excluir")
+      }
       toast.success("Fio excluído com sucesso")
+      setDeleteTarget(null)
       refetch()
-    } catch {
-      toast.error("Erro ao excluir fio")
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao excluir fio")
+      setDeleteTarget(null)
+    } finally {
+      setDeleteLoading(false)
     }
   }
 
@@ -115,7 +133,11 @@ export default function FiosPage() {
             </thead>
             <tbody>
               {filteredFios.map((fio) => (
-                <tr key={fio.id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                <tr
+                  key={fio.id}
+                  className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"
+                  onClick={() => router.push(`/cadastros/fios/${fio.id}`)}
+                >
                   <td className="p-4 text-sm font-medium">{fio.codigoFio}</td>
                   <td className="p-4 text-sm">{fio.nome}</td>
                   <td className="p-4 text-sm text-slate-500">{fio.titulo || "—"}</td>
@@ -124,8 +146,8 @@ export default function FiosPage() {
                   <td className="p-4 text-sm font-mono text-xs text-slate-500">{fio.idIntegracao || "—"}</td>
                   <td className="p-4">
                     <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
-                      fio.ativo 
-                        ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" 
+                      fio.ativo
+                        ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
                         : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
                     }`}>
                       {fio.ativo ? "Ativo" : "Inativo"}
@@ -133,16 +155,20 @@ export default function FiosPage() {
                   </td>
                   <td className="p-4 text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Link href={`/cadastros/fios/${fio.id}`}>
+                      <Link href={`/cadastros/fios/${fio.id}`} onClick={(e) => e.stopPropagation()}>
                         <Button variant="ghost" size="icon" className="h-8 w-8">
                           <Pencil size={14} />
                         </Button>
                       </Link>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
+                      <Button
+                        variant="ghost"
+                        size="icon"
                         className="h-8 w-8 text-red-500 hover:text-red-600"
-                        onClick={() => handleDelete(fio.id)}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setDeleteTarget(fio)
+                          setDeleteBlocked(false)
+                        }}
                       >
                         <Trash2 size={14} />
                       </Button>
@@ -154,6 +180,32 @@ export default function FiosPage() {
           </table>
         )}
       </div>
+
+      <ConfirmModal
+        open={deleteTarget !== null}
+        title={deleteBlocked ? "Exclusão não permitida" : "Excluir fio?"}
+        message={deleteBlocked
+          ? "Este fio possui cadastros vinculados e não pode ser excluído."
+          : `Tem certeza que deseja excluir o fio "${deleteTarget?.codigoFio}"?`}
+        subMessage={deleteBlocked
+          ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informações."
+          : undefined}
+        confirmLabel={deleteBlocked ? "OK" : "Excluir"}
+        variant={deleteBlocked ? "warning" : "danger"}
+        loading={deleteLoading}
+        onConfirm={() => {
+          if (deleteBlocked) {
+            setDeleteTarget(null)
+            setDeleteBlocked(false)
+            return
+          }
+          handleDelete()
+        }}
+        onCancel={() => {
+          setDeleteTarget(null)
+          setDeleteBlocked(false)
+        }}
+      />
     </div>
   )
 }

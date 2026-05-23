@@ -5,6 +5,8 @@ import { db } from "@/lib/db"
 import { basesUrdume, baseUrdumeFios } from "@/lib/db/schema/bases-urdume"
 import { fios } from "@/lib/db/schema/fios"
 import { eq } from "drizzle-orm"
+import { handleApiError } from "@/lib/api-error"
+import { notificarDelecao } from "@/lib/notificar"
 
 export async function GET(
   req: NextRequest,
@@ -115,9 +117,10 @@ export async function DELETE(
     const id = parseInt((await params).id)
     await db.delete(basesUrdume).where(eq(basesUrdume.id, id))
 
+    await notificarDelecao("Base Urdume", id.toString(), session?.user?.name)
+
     return NextResponse.json({ success: true })
-  } catch (error: any) {
-    console.error("[DELETE /api/cadastros/bases-urdume/[id]]", error?.message || error)
-    return NextResponse.json({ error: `Erro ao excluir base: ${error?.message || error}` }, { status: 500 })
+  } catch (error) {
+    return handleApiError(error, "DELETE /api/cadastros/bases-urdume/[id]")
   }
 }

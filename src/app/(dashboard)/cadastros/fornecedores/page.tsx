@@ -4,9 +4,11 @@ import { useState, useEffect } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { PlusCircle, Search, Pencil, Trash2, Loader2 } from "lucide-react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
+import { ConfirmModal } from "@/components/ui/confirm-modal"
 import ImportarFornecedores from "@/components/importar/ImportarFornecedores"
 
 interface Fornecedor {
@@ -30,7 +32,11 @@ async function fetchFornecedores(): Promise<Fornecedor[]> {
 }
 
 export default function FornecedoresPage() {
+  const router = useRouter()
   const [search, setSearch] = useState("")
+  const [deleteTarget, setDeleteTarget] = useState<Fornecedor | null>(null)
+  const [deleteLoading, setDeleteLoading] = useState(false)
+  const [deleteBlocked, setDeleteBlocked] = useState(false)
   
   const { data: fornecedores = [], isLoading, refetch } = useQuery({
     queryKey: ["fornecedores"],
@@ -43,16 +49,28 @@ export default function FornecedoresPage() {
     f.email?.toLowerCase().includes(search.toLowerCase())
   )
 
-  const handleDelete = async (id: number) => {
-    if (!confirm("Tem certeza que deseja excluir este fornecedor?")) return
-    
+  const handleDelete = async () => {
+    if (!deleteTarget) return
+    setDeleteLoading(true)
+    setDeleteBlocked(false)
     try {
-      const res = await fetch(`/api/cadastros/fornecedores/${id}`, { method: "DELETE" })
-      if (!res.ok) throw new Error("Erro ao excluir")
+      const res = await fetch(`/api/cadastros/fornecedores/${deleteTarget.id}`, { method: "DELETE" })
+      const data = await res.json()
+      if (!res.ok) {
+        if (data.fkError) {
+          setDeleteBlocked(true)
+          return
+        }
+        throw new Error(data.error || "Erro ao excluir")
+      }
       toast.success("Fornecedor excluído com sucesso")
+      setDeleteTarget(null)
       refetch()
-    } catch {
-      toast.error("Erro ao excluir fornecedor")
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao excluir fornecedor")
+      setDeleteTarget(null)
+    } finally {
+      setDeleteLoading(false)
     }
   }
 
@@ -115,7 +133,11 @@ export default function FornecedoresPage() {
             </thead>
             <tbody>
               {filteredFornecedores.map((fornecedor) => (
-                <tr key={fornecedor.id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                <tr
+                  key={fornecedor.id}
+                  className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"
+                  onClick={() => router.push(`/cadastros/fornecedores/${fornecedor.id}`)}
+                >
                   <td className="p-4 text-sm font-medium">{fornecedor.nome}</td>
                   <td className="p-4 text-sm text-slate-500">{fornecedor.cnpj || "—"}</td>
                   <td className="p-4 text-sm text-slate-500">{fornecedor.email || "—"}</td>
@@ -135,7 +157,7 @@ export default function FornecedoresPage() {
                   </td>
                   <td className="p-4 text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Link href={`/cadastros/fornecedores/${fornecedor.id}`}>
+                      <Link href={`/cadastros/fornecedores/${fornecedor.id}`} onClick={(e) => e.stopPropagation()}>
                         <Button variant="ghost" size="icon" className="h-8 w-8">
                           <Pencil size={14} />
                         </Button>
@@ -144,7 +166,11 @@ export default function FornecedoresPage() {
                         variant="ghost" 
                         size="icon" 
                         className="h-8 w-8 text-red-500 hover:text-red-600"
-                        onClick={() => handleDelete(fornecedor.id)}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setDeleteTarget(fornecedor)
+                          setDeleteBlocked(false)
+                        }}
                       >
                         <Trash2 size={14} />
                       </Button>
@@ -156,6 +182,32 @@ export default function FornecedoresPage() {
           </table>
         )}
       </div>
+
+      <ConfirmModal
+        open={deleteTarget !== null}
+        title={deleteBlocked ? "Exclusão não permitida" : "Excluir fornecedor?"}
+        message={deleteBlocked
+          ? "Este fornecedor possui cadastros vinculados e não pode ser excluído."
+          : `Tem certeza que deseja excluir?`}
+        subMessage={deleteBlocked
+          ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informações."
+          : undefined}
+        confirmLabel={deleteBlocked ? "OK" : "Excluir"}
+        variant={deleteBlocked ? "warning" : "danger"}
+        loading={deleteLoading}
+        onConfirm={() => {
+          if (deleteBlocked) {
+            setDeleteTarget(null)
+            setDeleteBlocked(false)
+            return
+          }
+          handleDelete()
+        }}
+        onCancel={() => {
+          setDeleteTarget(null)
+          setDeleteBlocked(false)
+        }}
+      />
     </div>
   )
 }

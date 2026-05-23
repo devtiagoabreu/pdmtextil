@@ -1,12 +1,14 @@
 "use client"
 
 import { useState } from "react"
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import { PlusCircle, Search, Pencil, Trash2, Loader2 } from "lucide-react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
+import { ConfirmModal } from "@/components/ui/confirm-modal"
 import ImportarEstampas from "@/components/importar/ImportarEstampas"
 
 interface Estampa {
@@ -27,25 +29,41 @@ async function fetchEstampas(): Promise<Estampa[]> {
 }
 
 export default function EstampasPage() {
+  const router = useRouter()
   const [search, setSearch] = useState("")
-  const queryClient = useQueryClient()
+  const [deleteTarget, setDeleteTarget] = useState<Estampa | null>(null)
+  const [deleteLoading, setDeleteLoading] = useState(false)
+  const [deleteBlocked, setDeleteBlocked] = useState(false)
   
-  const { data: estampas = [], isLoading } = useQuery({
+  const { data: estampas = [], isLoading, refetch } = useQuery({
     queryKey: ["estampas"],
     queryFn: fetchEstampas,
   })
 
-  const deleteMutation = useMutation({
-    mutationFn: async (id: number) => {
-      const res = await fetch(`/api/cadastros/estampas/${id}`, { method: "DELETE" })
-      if (!res.ok) throw new Error("Erro ao excluir")
-    },
-    onSuccess: () => {
-      toast.success("Estampa excluída")
-      queryClient.invalidateQueries({ queryKey: ["estampas"] })
-    },
-    onError: () => toast.error("Erro ao excluir estampa"),
-  })
+  const handleDelete = async () => {
+    if (!deleteTarget) return
+    setDeleteLoading(true)
+    setDeleteBlocked(false)
+    try {
+      const res = await fetch(`/api/cadastros/estampas/${deleteTarget.id}`, { method: "DELETE" })
+      const data = await res.json()
+      if (!res.ok) {
+        if (data.fkError) {
+          setDeleteBlocked(true)
+          return
+        }
+        throw new Error(data.error || "Erro ao excluir")
+      }
+      toast.success("Estampa excluída com sucesso")
+      setDeleteTarget(null)
+      refetch()
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao excluir estampa")
+      setDeleteTarget(null)
+    } finally {
+      setDeleteLoading(false)
+    }
+  }
 
   const filteredEstampas = estampas.filter(e => 
     e.nome.toLowerCase().includes(search.toLowerCase()) ||
@@ -64,7 +82,7 @@ export default function EstampasPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <ImportarEstampas onImportado={() => queryClient.invalidateQueries({ queryKey: ["estampas"] })} />
+          <ImportarEstampas onImportado={() => refetch()} />
           <Link href="/cadastros/estampas/novo">
             <Button className="gap-2">
               <PlusCircle size={16} />
@@ -110,7 +128,11 @@ export default function EstampasPage() {
             </thead>
             <tbody>
               {filteredEstampas.map((estampa) => (
-                <tr key={estampa.id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                <tr
+                  key={estampa.id}
+                  className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"
+                  onClick={() => router.push(`/cadastros/estampas/${estampa.id}`)}
+                >
                   <td className="p-4 text-sm font-mono">{estampa.codigoDesenho}</td>
                   <td className="p-4 text-sm font-mono">{estampa.variante}</td>
                   <td className="p-4 text-sm">{estampa.nome}</td>
@@ -127,7 +149,7 @@ export default function EstampasPage() {
                   </td>
                   <td className="p-4 text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Link href={`/cadastros/estampas/${estampa.id}`}>
+                      <Link href={`/cadastros/estampas/${estampa.id}`} onClick={(e) => e.stopPropagation()}>
                         <Button variant="ghost" size="icon" className="h-8 w-8">
                           <Pencil size={14} />
                         </Button>
@@ -136,10 +158,10 @@ export default function EstampasPage() {
                         variant="ghost" 
                         size="icon" 
                         className="h-8 w-8 text-red-500 hover:text-red-600"
-                        onClick={() => {
-                          if (confirm("Tem certeza que deseja excluir?")) {
-                            deleteMutation.mutate(estampa.id)
-                          }
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setDeleteTarget(estampa)
+                          setDeleteBlocked(false)
                         }}
                       >
                         <Trash2 size={14} />
@@ -152,6 +174,32 @@ export default function EstampasPage() {
           </table>
         )}
       </div>
+
+      <ConfirmModal
+        open={deleteTarget !== null}
+        title={deleteBlocked ? "Exclusão não permitida" : "Excluir estampa?"}
+        message={deleteBlocked
+          ? "Esta estampa possui cadastros vinculados e não pode ser excluída."
+          : `Tem certeza que deseja excluir?`}
+        subMessage={deleteBlocked
+          ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informações."
+          : undefined}
+        confirmLabel={deleteBlocked ? "OK" : "Excluir"}
+        variant={deleteBlocked ? "warning" : "danger"}
+        loading={deleteLoading}
+        onConfirm={() => {
+          if (deleteBlocked) {
+            setDeleteTarget(null)
+            setDeleteBlocked(false)
+            return
+          }
+          handleDelete()
+        }}
+        onCancel={() => {
+          setDeleteTarget(null)
+          setDeleteBlocked(false)
+        }}
+      />
     </div>
   )
 }

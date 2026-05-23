@@ -5,6 +5,8 @@ import { db } from "@/lib/db"
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq } from "drizzle-orm"
 import bcrypt from "bcryptjs"
+import { handleApiError } from "@/lib/api-error"
+import { notificarDelecao } from "@/lib/notificar"
 
 export async function GET(
   req: NextRequest,
@@ -12,7 +14,7 @@ export async function GET(
 ) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session || session.user.role !== "ADMIN") {
+    if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUDO")) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
@@ -45,7 +47,7 @@ export async function PUT(
 ) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session || session.user.role !== "ADMIN") {
+    if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUDO")) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
@@ -83,7 +85,7 @@ export async function DELETE(
 ) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session || session.user.role !== "ADMIN") {
+    if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUDO")) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
@@ -95,9 +97,11 @@ export async function DELETE(
     }
 
     await db.delete(usuarios).where(eq(usuarios.id, userId))
+
+    await notificarDelecao("Usuário", id, session?.user?.name)
+
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error("[DELETE /api/admin/usuarios/[id]]", error)
-    return NextResponse.json({ error: "Erro ao excluir usuário" }, { status: 500 })
+    return handleApiError(error, "DELETE /api/admin/usuarios/[id]")
   }
 }

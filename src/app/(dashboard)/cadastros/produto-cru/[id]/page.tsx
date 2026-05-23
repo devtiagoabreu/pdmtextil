@@ -795,7 +795,7 @@ export default function ProdutoCruFormPage() {
             <div className="flex gap-2 items-end">
               <div className="space-y-1 flex-1">
                 <Label>Descrição</Label>
-                <Input value={novaAmostraDescricao} onChange={e => setNovaAmostraDescricao(e.target.value)} placeholder="Amostra 1 - teste de tingimento" />
+                <Input value={novaAmostraDescricao} onChange={e => setNovaAmostraDescricao(e.target.value)} placeholder="AMOSTRA - PILOTAGEM 001" />
               </div>
               <div className="space-y-1 flex-1">
                 <Label>Observações</Label>

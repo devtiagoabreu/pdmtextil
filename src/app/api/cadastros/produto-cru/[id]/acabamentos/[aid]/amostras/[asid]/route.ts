@@ -19,8 +19,8 @@ export async function PUT(
 
     const isAprovacao = body.status === "APROVADO" || body.status === "REPROVADO"
 
-    if (isAprovacao && session.user.role !== "COMERCIAL" && session.user.role !== "ADMIN") {
-      return NextResponse.json({ error: "Apenas COMERCIAL e ADMIN podem aprovar/reprovar amostras" }, { status: 403 })
+    if (isAprovacao && !["COMERCIAL", "ADMIN", "SUDO"].includes(session.user.role)) {
+      return NextResponse.json({ error: "Apenas COMERCIAL, ADMIN e SUDO podem aprovar/reprovar amostras" }, { status: 403 })
     }
 
     if (isAprovacao && !body.motivoAprovacao?.trim()) {
@@ -76,7 +76,7 @@ export async function DELETE(
   try {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
-    if (session.user.role !== "ADMIN") {
+    if (session.user.role !== "ADMIN" && session.user.role !== "SUDO") {
       return NextResponse.json({ error: "Apenas administradores podem excluir amostras" }, { status: 403 })
     }
 

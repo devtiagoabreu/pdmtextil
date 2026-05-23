@@ -1,12 +1,14 @@
 "use client"
 
 import { useState } from "react"
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import { PlusCircle, Search, Pencil, Trash2, Loader2 } from "lucide-react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
+import { ConfirmModal } from "@/components/ui/confirm-modal"
 import ImportarCores from "@/components/importar/ImportarCores"
 
 interface CorSolida {
@@ -26,25 +28,41 @@ async function fetchCores(): Promise<CorSolida[]> {
 }
 
 export default function CoresPage() {
+  const router = useRouter()
   const [search, setSearch] = useState("")
-  const queryClient = useQueryClient()
+  const [deleteTarget, setDeleteTarget] = useState<CorSolida | null>(null)
+  const [deleteLoading, setDeleteLoading] = useState(false)
+  const [deleteBlocked, setDeleteBlocked] = useState(false)
   
-  const { data: cores = [], isLoading } = useQuery({
+  const { data: cores = [], isLoading, refetch } = useQuery({
     queryKey: ["cores"],
     queryFn: fetchCores,
   })
 
-  const deleteMutation = useMutation({
-    mutationFn: async (id: number) => {
-      const res = await fetch(`/api/cadastros/cores/${id}`, { method: "DELETE" })
-      if (!res.ok) throw new Error("Erro ao excluir")
-    },
-    onSuccess: () => {
-      toast.success("Cor excluída")
-      queryClient.invalidateQueries({ queryKey: ["cores"] })
-    },
-    onError: () => toast.error("Erro ao excluir cor"),
-  })
+  const handleDelete = async () => {
+    if (!deleteTarget) return
+    setDeleteLoading(true)
+    setDeleteBlocked(false)
+    try {
+      const res = await fetch(`/api/cadastros/cores/${deleteTarget.id}`, { method: "DELETE" })
+      const data = await res.json()
+      if (!res.ok) {
+        if (data.fkError) {
+          setDeleteBlocked(true)
+          return
+        }
+        throw new Error(data.error || "Erro ao excluir")
+      }
+      toast.success("Cor excluída com sucesso")
+      setDeleteTarget(null)
+      refetch()
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao excluir cor")
+      setDeleteTarget(null)
+    } finally {
+      setDeleteLoading(false)
+    }
+  }
 
   const filteredCores = cores.filter(c => 
     c.nome.toLowerCase().includes(search.toLowerCase()) ||
@@ -64,7 +82,7 @@ export default function CoresPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <ImportarCores onImportado={() => queryClient.invalidateQueries({ queryKey: ["cores"] })} />
+          <ImportarCores onImportado={() => refetch()} />
           <Link href="/cadastros/cores/novo">
             <Button className="gap-2">
               <PlusCircle size={16} />
@@ -111,7 +129,11 @@ export default function CoresPage() {
             </thead>
             <tbody>
               {filteredCores.map((cor) => (
-                <tr key={cor.id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                <tr
+                  key={cor.id}
+                  className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"
+                  onClick={() => router.push(`/cadastros/cores/${cor.id}`)}
+                >
                   <td className="p-4 text-sm font-medium font-mono">{cor.codigo}</td>
                   <td className="p-4 text-sm">{cor.nome}</td>
                   <td className="p-4">
@@ -134,7 +156,7 @@ export default function CoresPage() {
                   </td>
                   <td className="p-4 text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Link href={`/cadastros/cores/${cor.id}`}>
+                      <Link href={`/cadastros/cores/${cor.id}`} onClick={(e) => e.stopPropagation()}>
                         <Button variant="ghost" size="icon" className="h-8 w-8">
                           <Pencil size={14} />
                         </Button>
@@ -143,10 +165,10 @@ export default function CoresPage() {
                         variant="ghost" 
                         size="icon" 
                         className="h-8 w-8 text-red-500 hover:text-red-600"
-                        onClick={() => {
-                          if (confirm("Tem certeza que deseja excluir?")) {
-                            deleteMutation.mutate(cor.id)
-                          }
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setDeleteTarget(cor)
+                          setDeleteBlocked(false)
                         }}
                       >
                         <Trash2 size={14} />
@@ -159,6 +181,32 @@ export default function CoresPage() {
           </table>
         )}
       </div>
+
+      <ConfirmModal
+        open={deleteTarget !== null}
+        title={deleteBlocked ? "Exclusão não permitida" : "Excluir cor?"}
+        message={deleteBlocked
+          ? "Esta cor possui cadastros vinculados e não pode ser excluída."
+          : `Tem certeza que deseja excluir?`}
+        subMessage={deleteBlocked
+          ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informações."
+          : undefined}
+        confirmLabel={deleteBlocked ? "OK" : "Excluir"}
+        variant={deleteBlocked ? "warning" : "danger"}
+        loading={deleteLoading}
+        onConfirm={() => {
+          if (deleteBlocked) {
+            setDeleteTarget(null)
+            setDeleteBlocked(false)
+            return
+          }
+          handleDelete()
+        }}
+        onCancel={() => {
+          setDeleteTarget(null)
+          setDeleteBlocked(false)
+        }}
+      />
     </div>
   )
 }

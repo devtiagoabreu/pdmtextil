@@ -4,9 +4,11 @@ import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { PlusCircle, Search, Pencil, Trash2, Loader2 } from "lucide-react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
+import { ConfirmModal } from "@/components/ui/confirm-modal"
 import ImportarProdutosQuimicos from "@/components/importar/ImportarProdutosQuimicos"
 
 interface ProdutoQuimico {
@@ -27,7 +29,11 @@ async function fetchProdutosQuimicos(): Promise<ProdutoQuimico[]> {
 }
 
 export default function ProdutosQuimicosPage() {
+  const router = useRouter()
   const [search, setSearch] = useState("")
+  const [deleteTarget, setDeleteTarget] = useState<ProdutoQuimico | null>(null)
+  const [deleteLoading, setDeleteLoading] = useState(false)
+  const [deleteBlocked, setDeleteBlocked] = useState(false)
 
   const { data: produtos = [], isLoading, refetch } = useQuery({
     queryKey: ["produtos-quimicos"],
@@ -40,15 +46,28 @@ export default function ProdutosQuimicosPage() {
     (p.idIntegracao || "").toLowerCase().includes(search.toLowerCase())
   )
 
-  const handleDelete = async (id: number) => {
-    if (!confirm("Tem certeza que deseja excluir este produto químico?")) return
+  const handleDelete = async () => {
+    if (!deleteTarget) return
+    setDeleteLoading(true)
+    setDeleteBlocked(false)
     try {
-      const res = await fetch(`/api/cadastros/produtos-quimicos/${id}`, { method: "DELETE" })
-      if (!res.ok) throw new Error("Erro ao excluir")
-      toast.success("Excluído com sucesso")
+      const res = await fetch(`/api/cadastros/produtos-quimicos/${deleteTarget.id}`, { method: "DELETE" })
+      const data = await res.json()
+      if (!res.ok) {
+        if (data.fkError) {
+          setDeleteBlocked(true)
+          return
+        }
+        throw new Error(data.error || "Erro ao excluir")
+      }
+      toast.success("Produto químico excluído com sucesso")
+      setDeleteTarget(null)
       refetch()
-    } catch {
-      toast.error("Erro ao excluir")
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao excluir")
+      setDeleteTarget(null)
+    } finally {
+      setDeleteLoading(false)
     }
   }
 
@@ -110,7 +129,11 @@ export default function ProdutosQuimicosPage() {
             </thead>
             <tbody>
               {filtered.map((p) => (
-                <tr key={p.id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                <tr
+                  key={p.id}
+                  className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"
+                  onClick={() => router.push(`/cadastros/produtos-quimicos/${p.id}`)}
+                >
                   <td className="p-4 text-sm font-medium">{p.codigo}</td>
                   <td className="p-4 text-sm">{p.nome}</td>
                   <td className="p-4 text-sm text-slate-500">{p.categoria || "—"}</td>
@@ -127,7 +150,7 @@ export default function ProdutosQuimicosPage() {
                   </td>
                   <td className="p-4 text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Link href={`/cadastros/produtos-quimicos/${p.id}`}>
+                      <Link href={`/cadastros/produtos-quimicos/${p.id}`} onClick={(e) => e.stopPropagation()}>
                         <Button variant="ghost" size="icon" className="h-8 w-8">
                           <Pencil size={14} />
                         </Button>
@@ -136,7 +159,11 @@ export default function ProdutosQuimicosPage() {
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 text-red-500 hover:text-red-600"
-                        onClick={() => handleDelete(p.id)}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setDeleteTarget(p)
+                          setDeleteBlocked(false)
+                        }}
                       >
                         <Trash2 size={14} />
                       </Button>
@@ -148,6 +175,32 @@ export default function ProdutosQuimicosPage() {
           </table>
         )}
       </div>
+
+      <ConfirmModal
+        open={deleteTarget !== null}
+        title={deleteBlocked ? "Exclusão não permitida" : "Excluir produto químico?"}
+        message={deleteBlocked
+          ? "Este produto químico possui cadastros vinculados e não pode ser excluído."
+          : `Tem certeza que deseja excluir o produto "${deleteTarget?.nome}"?`}
+        subMessage={deleteBlocked
+          ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informações."
+          : undefined}
+        confirmLabel={deleteBlocked ? "OK" : "Excluir"}
+        variant={deleteBlocked ? "warning" : "danger"}
+        loading={deleteLoading}
+        onConfirm={() => {
+          if (deleteBlocked) {
+            setDeleteTarget(null)
+            setDeleteBlocked(false)
+            return
+          }
+          handleDelete()
+        }}
+        onCancel={() => {
+          setDeleteTarget(null)
+          setDeleteBlocked(false)
+        }}
+      />
     </div>
   )
 }

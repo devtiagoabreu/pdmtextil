@@ -4,9 +4,11 @@ import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { PlusCircle, Search, Pencil, Trash2, Loader2 } from "lucide-react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
+import { ConfirmModal } from "@/components/ui/confirm-modal"
 
 interface ProdutoCru {
   id: number
@@ -32,7 +34,11 @@ const STATUS_LABELS: Record<string, string> = {
 }
 
 export default function ProdutoCruPage() {
+  const router = useRouter()
   const [search, setSearch] = useState("")
+  const [deleteTarget, setDeleteTarget] = useState<ProdutoCru | null>(null)
+  const [deleteLoading, setDeleteLoading] = useState(false)
+  const [deleteBlocked, setDeleteBlocked] = useState(false)
 
   const { data: produtos = [], isLoading, refetch } = useQuery({
     queryKey: ["produto-cru"],
@@ -44,15 +50,28 @@ export default function ProdutoCruPage() {
     p.descricao.toLowerCase().includes(search.toLowerCase())
   )
 
-  const handleDelete = async (id: number) => {
-    if (!confirm("Tem certeza que deseja excluir este produto?")) return
+  const handleDelete = async () => {
+    if (!deleteTarget) return
+    setDeleteLoading(true)
+    setDeleteBlocked(false)
     try {
-      const res = await fetch(`/api/cadastros/produto-cru/${id}`, { method: "DELETE" })
-      if (!res.ok) throw new Error("Erro ao excluir")
+      const res = await fetch(`/api/cadastros/produto-cru/${deleteTarget.id}`, { method: "DELETE" })
+      const data = await res.json()
+      if (!res.ok) {
+        if (data.fkError) {
+          setDeleteBlocked(true)
+          return
+        }
+        throw new Error(data.error || "Erro ao excluir")
+      }
       toast.success("Produto excluído com sucesso")
+      setDeleteTarget(null)
       refetch()
-    } catch {
-      toast.error("Erro ao excluir produto")
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao excluir produto")
+      setDeleteTarget(null)
+    } finally {
+      setDeleteLoading(false)
     }
   }
 
@@ -112,7 +131,11 @@ export default function ProdutoCruPage() {
             </thead>
             <tbody>
               {filtered.map((produto) => (
-                <tr key={produto.id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                <tr
+                  key={produto.id}
+                  className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"
+                  onClick={() => router.push(`/cadastros/produto-cru/${produto.id}`)}
+                >
                   <td className="p-4 text-sm font-medium">{produto.codigoPdm}</td>
                   <td className="p-4 text-sm">{produto.descricao}</td>
                   <td className="p-4 text-sm text-slate-500">{STATUS_LABELS[produto.status] || produto.status}</td>
@@ -128,7 +151,7 @@ export default function ProdutoCruPage() {
                   </td>
                   <td className="p-4 text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Link href={`/cadastros/produto-cru/${produto.id}`}>
+                      <Link href={`/cadastros/produto-cru/${produto.id}`} onClick={(e) => e.stopPropagation()}>
                         <Button variant="ghost" size="icon" className="h-8 w-8">
                           <Pencil size={14} />
                         </Button>
@@ -137,7 +160,11 @@ export default function ProdutoCruPage() {
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 text-red-500 hover:text-red-600"
-                        onClick={() => handleDelete(produto.id)}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setDeleteTarget(produto)
+                          setDeleteBlocked(false)
+                        }}
                       >
                         <Trash2 size={14} />
                       </Button>
@@ -149,6 +176,32 @@ export default function ProdutoCruPage() {
           </table>
         )}
       </div>
+
+      <ConfirmModal
+        open={deleteTarget !== null}
+        title={deleteBlocked ? "Exclusão não permitida" : "Excluir produto?"}
+        message={deleteBlocked
+          ? "Este produto possui cadastros vinculados e não pode ser excluído."
+          : `Tem certeza que deseja excluir?`}
+        subMessage={deleteBlocked
+          ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informações."
+          : undefined}
+        confirmLabel={deleteBlocked ? "OK" : "Excluir"}
+        variant={deleteBlocked ? "warning" : "danger"}
+        loading={deleteLoading}
+        onConfirm={() => {
+          if (deleteBlocked) {
+            setDeleteTarget(null)
+            setDeleteBlocked(false)
+            return
+          }
+          handleDelete()
+        }}
+        onCancel={() => {
+          setDeleteTarget(null)
+          setDeleteBlocked(false)
+        }}
+      />
     </div>
   )
 }

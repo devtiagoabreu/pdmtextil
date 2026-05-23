@@ -4,6 +4,8 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { fios } from "@/lib/db/schema/fios"
 import { eq } from "drizzle-orm"
+import { handleApiError } from "@/lib/api-error"
+import { notificarDelecao } from "@/lib/notificar"
 
 export async function GET(
   req: NextRequest,
@@ -106,9 +108,10 @@ export async function DELETE(
       return NextResponse.json({ error: "Fio não encontrado" }, { status: 404 })
     }
 
+    await notificarDelecao("Fio", String(deleted[0]?.codigoFio || deleted[0]?.id), session?.user?.name)
+
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error("[DELETE /api/cadastros/fios/[id]]", error)
-    return NextResponse.json({ error: "Erro ao excluir fio" }, { status: 500 })
+    return handleApiError(error, "DELETE /api/cadastros/fios/[id]")
   }
 }

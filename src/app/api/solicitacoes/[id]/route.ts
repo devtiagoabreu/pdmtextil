@@ -5,7 +5,8 @@ import { db } from "@/lib/db"
 import { solicitacoes } from "@/lib/db/schema/solicitacoes"
 import { anexos } from "@/lib/db/schema/anexos"
 import { eq } from "drizzle-orm"
-import { notificar } from "@/lib/notificar"
+import { notificar, notificarDelecao } from "@/lib/notificar"
+import { handleApiError } from "@/lib/api-error"
 
 export async function GET(
   req: NextRequest,
@@ -188,21 +189,14 @@ export async function DELETE(
   try {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
-    if (session.user.role !== "ADMIN") {
+    if (session.user.role !== "ADMIN" && session.user.role !== "SUDO") {
       return NextResponse.json({ error: "Apenas administradores podem excluir solicitações" }, { status: 403 })
     }
 
     const { id } = await params
     const solicitacaoId = parseInt(id)
 
-    if (session) {
-      notificar(
-        "SOLICITACAO_EXCLUIDA",
-        `Solicitação #${id} foi excluída por ${session.user.name}`,
-        "/comercial/solicitacoes",
-        session.user.name
-      )
-    }
+    await notificarDelecao("Solicitação", id, session?.user?.name)
 
     await db
       .delete(anexos)
@@ -214,7 +208,6 @@ export async function DELETE(
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error("[DELETE /api/solicitacoes/[id]]", error)
-    return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
+    return handleApiError(error, "DELETE /api/solicitacoes/[id]")
   }
 }

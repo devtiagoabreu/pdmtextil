@@ -4,9 +4,11 @@ import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { PlusCircle, Search, Pencil, Trash2, Loader2, Upload } from "lucide-react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
+import { ConfirmModal } from "@/components/ui/confirm-modal"
 import ImportarClientes from "@/components/importar/ImportarClientes"
 
 interface Cliente {
@@ -30,7 +32,11 @@ async function fetchClientes(): Promise<Cliente[]> {
 }
 
 export default function ClientesPage() {
+  const router = useRouter()
   const [search, setSearch] = useState("")
+  const [deleteTarget, setDeleteTarget] = useState<Cliente | null>(null)
+  const [deleteLoading, setDeleteLoading] = useState(false)
+  const [deleteBlocked, setDeleteBlocked] = useState(false)
 
   const { data: clientes = [], isLoading, refetch } = useQuery({
     queryKey: ["clientes"],
@@ -43,16 +49,28 @@ export default function ClientesPage() {
     c.email?.toLowerCase().includes(search.toLowerCase())
   )
 
-  const handleDelete = async (id: number) => {
-    if (!confirm("Tem certeza que deseja excluir este cliente?")) return
-
+  const handleDelete = async () => {
+    if (!deleteTarget) return
+    setDeleteLoading(true)
+    setDeleteBlocked(false)
     try {
-      const res = await fetch(`/api/cadastros/clientes/${id}`, { method: "DELETE" })
-      if (!res.ok) throw new Error("Erro ao excluir")
+      const res = await fetch(`/api/cadastros/clientes/${deleteTarget.id}`, { method: "DELETE" })
+      const data = await res.json()
+      if (!res.ok) {
+        if (data.fkError) {
+          setDeleteBlocked(true)
+          return
+        }
+        throw new Error(data.error || "Erro ao excluir")
+      }
       toast.success("Cliente excluído com sucesso")
+      setDeleteTarget(null)
       refetch()
-    } catch {
-      toast.error("Erro ao excluir cliente")
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao excluir cliente")
+      setDeleteTarget(null)
+    } finally {
+      setDeleteLoading(false)
     }
   }
 
@@ -115,7 +133,11 @@ export default function ClientesPage() {
             </thead>
             <tbody>
               {filteredClientes.map((cliente) => (
-                <tr key={cliente.id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                <tr
+                  key={cliente.id}
+                  className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"
+                  onClick={() => router.push(`/cadastros/clientes/${cliente.id}`)}
+                >
                   <td className="p-4 text-sm font-medium">{cliente.nome}</td>
                   <td className="p-4 text-sm text-slate-500">{cliente.cnpj || "—"}</td>
                   <td className="p-4 text-sm text-slate-500">{cliente.email || "—"}</td>
@@ -135,7 +157,7 @@ export default function ClientesPage() {
                   </td>
                   <td className="p-4 text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Link href={`/comercial/clientes/${cliente.id}`}>
+                      <Link href={`/comercial/clientes/${cliente.id}`} onClick={(e) => e.stopPropagation()}>
                         <Button variant="ghost" size="icon" className="h-8 w-8">
                           <Pencil size={14} />
                         </Button>
@@ -144,7 +166,11 @@ export default function ClientesPage() {
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 text-red-500 hover:text-red-600"
-                        onClick={() => handleDelete(cliente.id)}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setDeleteTarget(cliente)
+                          setDeleteBlocked(false)
+                        }}
                       >
                         <Trash2 size={14} />
                       </Button>
@@ -156,6 +182,32 @@ export default function ClientesPage() {
           </table>
         )}
       </div>
+
+      <ConfirmModal
+        open={deleteTarget !== null}
+        title={deleteBlocked ? "Exclusão não permitida" : "Excluir cliente?"}
+        message={deleteBlocked
+          ? "Este cliente possui cadastros vinculados e não pode ser excluído."
+          : `Tem certeza que deseja excluir?`}
+        subMessage={deleteBlocked
+          ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informações."
+          : undefined}
+        confirmLabel={deleteBlocked ? "OK" : "Excluir"}
+        variant={deleteBlocked ? "warning" : "danger"}
+        loading={deleteLoading}
+        onConfirm={() => {
+          if (deleteBlocked) {
+            setDeleteTarget(null)
+            setDeleteBlocked(false)
+            return
+          }
+          handleDelete()
+        }}
+        onCancel={() => {
+          setDeleteTarget(null)
+          setDeleteBlocked(false)
+        }}
+      />
     </div>
   )
 }
