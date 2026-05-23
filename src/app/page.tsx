@@ -147,7 +147,7 @@ export default function LandingPage() {
       <div className="relative z-10 min-h-screen flex flex-col">
         <header className="px-8 py-6 flex justify-between items-center">
           <div className="text-xl font-bold text-white tracking-wide">
-            PDM|PRO|TÊXTIL
+            PDM·PRO·TÊXTIL
           </div>
           <Link
             href="/login"
@@ -165,7 +165,7 @@ export default function LandingPage() {
                 onMouseEnter={() => setShowTooltip(true)}
                 onMouseLeave={() => setShowTooltip(false)}
               >
-                PDM|PRO|TÊXTIL
+                PDM·PRO·TÊXTIL
               </h1>
               {showTooltip && (
                 <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-4 py-3 bg-slate-900/90 border border-slate-700 text-white text-sm rounded-lg max-w-md whitespace-pre-wrap">
@@ -212,7 +212,7 @@ export default function LandingPage() {
 
         <footer className="px-8 py-4 text-center">
           <p className="text-xs text-slate-600">
-            © 2026 PDM|PRO|TÊXTIL | @devtiagoabreu · Todos os direitos reservados
+            © 2026 PDM·PRO·TÊXTIL | @devtiagoabreu · Todos os direitos reservados
           </p>
         </footer>
       </div>
