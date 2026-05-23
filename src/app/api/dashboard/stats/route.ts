@@ -2,9 +2,17 @@ import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
-import { solicitacoes } from "@/lib/db/schema/solicitacoes"
-import { produtosCru } from "@/lib/db/schema/produto-cru"
-import { and, gte, lte, sql, eq } from "drizzle-orm"
+import { sql } from "drizzle-orm"
+
+async function query(sqlFragment: ReturnType<typeof sql>, fallback: any = null) {
+  try {
+    const result = await db.execute(sqlFragment)
+    return result
+  } catch (e) {
+    console.error("[DB]", e)
+    return fallback
+  }
+}
 
 export async function GET() {
   try {
@@ -12,83 +20,94 @@ export async function GET() {
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
     const now = new Date()
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59)
-    const monthWhere = and(
-      gte(solicitacoes.createdAt, startOfMonth),
-      lte(solicitacoes.createdAt, endOfMonth)
-    )
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59).toISOString()
 
-    // Count total do mês
-    const [totalRow] = await db
-      .select({ total: sql<number>`count(*)` })
-      .from(solicitacoes)
-      .where(monthWhere)
+    // Total do mês
+    const totalRows = await query(sql`
+      SELECT COUNT(*) as total FROM solicitacoes
+      WHERE created_at >= ${startOfMonth}::timestamp
+      AND created_at <= ${endOfMonth}::timestamp
+    `)
+    const total = Array.isArray(totalRows) ? Number(totalRows[0]?.total ?? 0) : 0
 
-    // Contagens por status no mês (usando queries separadas para evitar filter(where))
-    const [pendentes] = await db
-      .select({ total: sql<number>`count(*)` })
-      .from(solicitacoes)
-      .where(and(monthWhere, eq(solicitacoes.status, "PENDENTE")))
+    // Pendentes no mês
+    const pendRows = await query(sql`
+      SELECT COUNT(*) as total FROM solicitacoes
+      WHERE created_at >= ${startOfMonth}::timestamp
+      AND created_at <= ${endOfMonth}::timestamp
+      AND status = 'PENDENTE'
+    `)
+    const pendentes = Array.isArray(pendRows) ? Number(pendRows[0]?.total ?? 0) : 0
 
-    const [emDesenvolvimento] = await db
-      .select({ total: sql<number>`count(*)` })
-      .from(solicitacoes)
-      .where(and(monthWhere, eq(solicitacoes.status, "EM_DESENVOLVIMENTO")))
+    // Em desenvolvimento no mês
+    const devRows = await query(sql`
+      SELECT COUNT(*) as total FROM solicitacoes
+      WHERE created_at >= ${startOfMonth}::timestamp
+      AND created_at <= ${endOfMonth}::timestamp
+      AND status = 'EM_DESENVOLVIMENTO'
+    `)
+    const emDesenvolvimento = Array.isArray(devRows) ? Number(devRows[0]?.total ?? 0) : 0
 
-    const [concluidas] = await db
-      .select({ total: sql<number>`count(*)` })
-      .from(solicitacoes)
-      .where(and(monthWhere, eq(solicitacoes.status, "CONCLUIDO")))
+    // Concluídas no mês
+    const concRows = await query(sql`
+      SELECT COUNT(*) as total FROM solicitacoes
+      WHERE created_at >= ${startOfMonth}::timestamp
+      AND created_at <= ${endOfMonth}::timestamp
+      AND status = 'CONCLUIDO'
+    `)
+    const concluidas = Array.isArray(concRows) ? Number(concRows[0]?.total ?? 0) : 0
 
     // Monthly trend (last 6 months)
     const trendData: { mes: string; total: number }[] = []
     for (let i = 5; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
-      const start = new Date(d.getFullYear(), d.getMonth(), 1)
-      const end = new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59)
-      const [row] = await db
-        .select({ total: sql<number>`count(*)` })
-        .from(solicitacoes)
-        .where(and(gte(solicitacoes.createdAt, start), lte(solicitacoes.createdAt, end)))
+      const start = new Date(d.getFullYear(), d.getMonth(), 1).toISOString()
+      const end = new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59).toISOString()
+      const trendRows = await query(sql`
+        SELECT COUNT(*) as total FROM solicitacoes
+        WHERE created_at >= ${start}::timestamp
+        AND created_at <= ${end}::timestamp
+      `)
       trendData.push({
         mes: d.toLocaleDateString("pt-BR", { month: "short", year: "2-digit" }),
-        total: row?.total ?? 0,
+        total: Array.isArray(trendRows) ? Number(trendRows[0]?.total ?? 0) : 0,
       })
     }
 
     // Status distribution (all time)
-    const statusDist = await db
-      .select({
-        status: solicitacoes.status,
-        total: sql<number>`count(*)`,
-      })
-      .from(solicitacoes)
-      .groupBy(solicitacoes.status)
+    const sdRows = await query(sql`
+      SELECT status, COUNT(*) as total
+      FROM solicitacoes
+      GROUP BY status
+    `)
+    const statusDistribution = Array.isArray(sdRows)
+      ? sdRows.map((r: any) => ({ status: r.status, total: Number(r.total) }))
+      : []
 
     // Tipo distribution (all time)
-    const tipoDist = await db
-      .select({
-        tipo: solicitacoes.tipo,
-        total: sql<number>`count(*)`,
-      })
-      .from(solicitacoes)
-      .groupBy(solicitacoes.tipo)
+    const tdRows = await query(sql`
+      SELECT tipo, COUNT(*) as total
+      FROM solicitacoes
+      GROUP BY tipo
+    `)
+    const tipoDistribution = Array.isArray(tdRows)
+      ? tdRows.map((r: any) => ({ tipo: r.tipo, total: Number(r.total) }))
+      : []
 
     // Produto-cru count
-    const [prodCount] = await db
-      .select({ total: sql<number>`count(*)` })
-      .from(produtosCru)
+    const pcRows = await query(sql`SELECT COUNT(*) as total FROM produtos_cru`)
+    const totalProdutosCru = Array.isArray(pcRows) ? Number(pcRows[0]?.total ?? 0) : 0
 
     return NextResponse.json({
-      totalEsteMes: totalRow?.total ?? 0,
-      pendentes: pendentes?.total ?? 0,
-      emDesenvolvimento: emDesenvolvimento?.total ?? 0,
-      concluidas: concluidas?.total ?? 0,
+      totalEsteMes: total,
+      pendentes,
+      emDesenvolvimento,
+      concluidas,
       monthlyTrend: trendData,
-      statusDistribution: statusDist,
-      tipoDistribution: tipoDist,
-      totalProdutosCru: prodCount?.total ?? 0,
+      statusDistribution,
+      tipoDistribution,
+      totalProdutosCru,
     })
   } catch (error) {
     console.error("[GET /api/dashboard/stats]", error)
