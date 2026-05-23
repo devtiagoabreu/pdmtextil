@@ -535,7 +535,7 @@ export default function DetalheSolicitacaoPage() {
           </div>
         ) : (
           <p className="text-sm text-slate-500">Sem histórico</p>
-        </div>
+        )}
       </div>
 
       <ConfirmModal
