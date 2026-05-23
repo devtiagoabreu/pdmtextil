@@ -79,7 +79,7 @@ export default function RelatorioTempoStatus() {
       r.timeline.map((t) => [
         `#${r.id}`,
         r.cliente,
-        STATUS_LABELS[r.statusAtual] || r.statusAtual,
+        r.statusAtualLabel,
         t.statusLabel,
         t.entrada ? new Date(t.entrada).toLocaleString("pt-BR") : "-",
         t.saida ? new Date(t.saida).toLocaleString("pt-BR") : "Em andamento",
@@ -91,7 +91,7 @@ export default function RelatorioTempoStatus() {
       exportCSV("tempo-status-resumo", ["#", "Cliente", "Status", "Tempo Total", "Trocas"], resultados.map((r) => [
         r.id,
         r.cliente,
-        STATUS_LABELS[r.statusAtual] || r.statusAtual,
+        r.statusAtualLabel,
         r.tempoTotalLabel,
         r.trocasStatus,
       ]))
@@ -106,7 +106,7 @@ export default function RelatorioTempoStatus() {
       "Média Trocas": stats.mediaTrocasStatus,
     }) : ""
     const resumoTable = tableToHTML(["#", "Cliente", "Status", "Tempo Total", "Trocas"], resultados.map((r) => [
-      `#${r.id}`, r.cliente, STATUS_LABELS[r.statusAtual] || r.statusAtual, r.tempoTotalLabel, r.trocasStatus,
+      `#${r.id}`, r.cliente, r.statusAtualLabel, r.tempoTotalLabel, r.trocasStatus,
     ]))
     const detalheTable = tableToHTML(["Solicitação", "Status", "Entrada", "Saída", "Duração"], resultados.flatMap((r) =>
       r.timeline.map((t) => [
