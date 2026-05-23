@@ -18,6 +18,7 @@ export const produtosCru = pgTable("produtos_cru", {
     batidas?: string
     densidade?: string
     ligamento?: string
+    qtdeFiosUrdume?: string
     observacoes?: string
   }>(),
   links: jsonb("links").$type<{ url: string; descricao: string }[]>().default([]),
