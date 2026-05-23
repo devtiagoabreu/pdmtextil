@@ -32,7 +32,7 @@ const baseNav = [
   { href: "/comercial/solicitacoes", label: "Solicitações", icon: FileText },
   { href: "/comercial/solicitacoes/nova", label: "Nova Solicitação", icon: PlusCircle },
   { href: "/comercial/clientes", label: "Clientes", icon: Building2 },
-  { href: "/amostras", label: "Amostras", icon: ClipboardList },
+  { href: "/dashboard/amostras", label: "Dashboard Amostras", icon: ClipboardList },
   { href: "/cadastros", label: "Cadastros", icon: Database },
   { href: "/cadastros/produto-cru", label: "Produtos Cru", icon: Factory },
 ] as const

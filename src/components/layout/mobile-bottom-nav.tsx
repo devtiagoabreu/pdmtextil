@@ -8,7 +8,7 @@ import { LayoutDashboard, FileText, ClipboardList, User } from "lucide-react"
 const mobileNavItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Início" },
   { href: "/comercial/solicitacoes", icon: FileText, label: "Solicitações" },
-  { href: "/amostras", icon: ClipboardList, label: "Amostras" },
+  { href: "/dashboard/amostras", icon: ClipboardList, label: "Amostras" },
   { href: "/perfil", icon: User, label: "Perfil" },
 ] as const
 
