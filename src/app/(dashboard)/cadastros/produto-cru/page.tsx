@@ -37,6 +37,8 @@ const STATUS_LABELS: Record<string, string> = {
 
 export default function ProdutoCruPage() {
   const router = useRouter()
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
   const [search, setSearch] = useState("")
   const [deleteTarget, setDeleteTarget] = useState<ProdutoCru | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
@@ -76,9 +78,6 @@ export default function ProdutoCruPage() {
       setDeleteLoading(false)
     }
   }
-
-  const pathname = usePathname()
-  const info = getInfoContent(pathname)
 
   return (
     <div className="space-y-6 animate-fade-in">

@@ -32,6 +32,8 @@ async function fetchProdutosQuimicos(): Promise<ProdutoQuimico[]> {
 
 export default function ProdutosQuimicosPage() {
   const router = useRouter()
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
   const [search, setSearch] = useState("")
   const [deleteTarget, setDeleteTarget] = useState<ProdutoQuimico | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
@@ -72,9 +74,6 @@ export default function ProdutosQuimicosPage() {
       setDeleteLoading(false)
     }
   }
-
-  const pathname = usePathname()
-  const info = getInfoContent(pathname)
 
   return (
     <div className="space-y-6 animate-fade-in">
