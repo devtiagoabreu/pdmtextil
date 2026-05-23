@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts"
 import { Activity, Filter, UserCheck } from "lucide-react"
+import { usePathname } from "next/navigation"
+import { InfoButton } from "@/components/ui/info-button"
+import { getInfoContent } from "@/lib/info-content"
 
 type Stats = {
   total: number
@@ -85,10 +88,13 @@ export default function RelatorioAtividadeUsuario() {
 
   useEffect(() => { fetchData() }, [])
 
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Relatório: Atividade por Usuário</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Relatório: Atividade por Usuário{info && <InfoButton content={info} />}</h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
           Registro de ações realizadas por cada usuário no sistema
         </p>

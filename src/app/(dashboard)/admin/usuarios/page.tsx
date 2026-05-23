@@ -1,8 +1,10 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
+import { InfoButton } from "@/components/ui/info-button"
+import { getInfoContent } from "@/lib/info-content"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
@@ -28,6 +30,8 @@ interface Usuario {
 
 export default function UsuariosPage() {
   const router = useRouter()
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
   const [usuarios, setUsuarios] = useState<Usuario[]>([])
   const [roles, setRoles] = useState<Role[]>([])
   const [loading, setLoading] = useState(true)
@@ -113,7 +117,7 @@ export default function UsuariosPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Usuários</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Usuários{info && <InfoButton content={info} />}</h1>
           <p className="text-sm text-slate-500 mt-1">Gerenciar usuários e permissões do sistema</p>
         </div>
         <Button onClick={() => setShowNovo(true)} className="gap-2">

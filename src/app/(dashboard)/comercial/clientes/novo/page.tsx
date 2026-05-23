@@ -1,13 +1,17 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
+import { InfoButton } from "@/components/ui/info-button"
+import { getInfoContent } from "@/lib/info-content"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import { toast } from "sonner"
 
 export default function NovoClientePage() {
   const router = useRouter()
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [form, setForm] = useState({
     nome: "",
@@ -71,7 +75,7 @@ export default function NovoClientePage() {
       </div>
 
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Novo Cliente</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Novo Cliente{info && <InfoButton content={info} />}</h1>
         <p className="text-slate-500 dark:text-slate-400 mt-1">Cadastre um novo cliente no sistema</p>
       </div>
 

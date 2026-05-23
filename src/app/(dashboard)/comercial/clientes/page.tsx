@@ -4,6 +4,9 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { PlusCircle, Search, Building2, Phone, Mail, MapPin, Pencil, Users } from "lucide-react"
 import { toast } from "sonner"
+import { usePathname } from "next/navigation"
+import { InfoButton } from "@/components/ui/info-button"
+import { getInfoContent } from "@/lib/info-content"
 
 type Cliente = {
   id: number
@@ -20,6 +23,8 @@ type Cliente = {
 }
 
 export default function ClientesPage() {
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
   const [search, setSearch] = useState("")
   const [clientes, setClientes] = useState<Cliente[]>([])
   const [loading, setLoading] = useState(true)
@@ -52,7 +57,7 @@ export default function ClientesPage() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Clientes</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Clientes{info && <InfoButton content={info} />}</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             {loading ? "Carregando..." : `${filtered.length} cliente${filtered.length !== 1 ? "s" : ""} encontrado${filtered.length !== 1 ? "s" : ""}`}
           </p>

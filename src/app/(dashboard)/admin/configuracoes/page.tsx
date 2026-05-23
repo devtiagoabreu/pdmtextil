@@ -6,8 +6,13 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 import { Loader2, Mail, Send, Trash2 } from "lucide-react"
+import { usePathname } from "next/navigation"
+import { InfoButton } from "@/components/ui/info-button"
+import { getInfoContent } from "@/lib/info-content"
 
 export default function ConfiguracoesPage() {
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
 
@@ -111,7 +116,7 @@ export default function ConfiguracoesPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Configurações</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Configurações{info && <InfoButton content={info} />}</h1>
         <p className="text-sm text-slate-500 mt-1">Configurações gerais do sistema</p>
       </div>
 

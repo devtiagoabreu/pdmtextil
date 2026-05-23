@@ -1,7 +1,9 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter, useParams } from "next/navigation"
+import { useRouter, useParams, usePathname } from "next/navigation"
+import { InfoButton } from "@/components/ui/info-button"
+import { getInfoContent } from "@/lib/info-content"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -12,6 +14,8 @@ import { ArrowLeft, Save, Trash2 } from "lucide-react"
 export default function ProdutoQuimicoFormPage() {
   const router = useRouter()
   const params = useParams()
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
   const id = params?.id as string
   const isNew = id === "novo"
 
@@ -90,7 +94,7 @@ export default function ProdutoQuimicoFormPage() {
         <Button variant="ghost" onClick={() => router.back()}>
           <ArrowLeft className="h-4 w-4 mr-1" /> Voltar
         </Button>
-        <h1 className="text-2xl font-bold">{isNew ? "Novo Produto Químico" : "Editar Produto Químico"}</h1>
+        <h1 className="text-2xl font-bold">{isNew ? "Novo Produto Químico" : "Editar Produto Químico"}{info && <InfoButton content={info} />}</h1>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

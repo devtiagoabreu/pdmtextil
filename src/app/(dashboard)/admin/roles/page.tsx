@@ -6,6 +6,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 import { Plus, Loader2, Pencil } from "lucide-react"
+import { usePathname } from "next/navigation"
+import { InfoButton } from "@/components/ui/info-button"
+import { getInfoContent } from "@/lib/info-content"
 
 interface Role {
   id: number
@@ -17,6 +20,8 @@ interface Role {
 }
 
 export default function RolesPage() {
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
   const [roles, setRoles] = useState<Role[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -85,7 +90,7 @@ export default function RolesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Perfis de Acesso (Roles)</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Perfis de Acesso (Roles){info && <InfoButton content={info} />}</h1>
           <p className="text-sm text-slate-500 mt-1">Gerencie os perfis do sistema. Eles aparecem no cadastro de usuários.</p>
         </div>
         <Button onClick={() => { resetForm(); setShowForm(true) }} className="gap-2">

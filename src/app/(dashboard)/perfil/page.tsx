@@ -2,7 +2,9 @@
 
 import { useState } from "react"
 import { useSession, signOut } from "next-auth/react"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
+import { InfoButton } from "@/components/ui/info-button"
+import { getInfoContent } from "@/lib/info-content"
 import { User, LogOut, Settings, Key, Loader2, Eye, EyeOff, Shuffle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -29,6 +31,8 @@ function gerarSenha(): string {
 export default function PerfilPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
   const [senha, setSenha] = useState("")
   const [confirmar, setConfirmar] = useState("")
   const [mostrarSenha, setMostrarSenha] = useState(false)
@@ -89,7 +93,7 @@ export default function PerfilPage() {
   return (
     <div className="max-w-2xl mx-auto py-8 space-y-6">
       <div className="mb-4">
-        <h1 className="text-3xl font-bold tracking-tight">Meu Perfil</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Meu Perfil{info && <InfoButton content={info} />}</h1>
         <p className="text-muted-foreground mt-2">Gerencie suas informações pessoais.</p>
       </div>
 

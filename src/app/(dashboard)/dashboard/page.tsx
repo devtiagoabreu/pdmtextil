@@ -4,6 +4,9 @@ import { useEffect, useState } from "react"
 import { useSession } from "next-auth/react"
 import { FileText, PlusCircle, Clock, Package } from "lucide-react"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { InfoButton } from "@/components/ui/info-button"
+import { getInfoContent } from "@/lib/info-content"
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 
 const STATUS_COLORS: Record<string, string> = {
@@ -70,12 +73,16 @@ export default function DashboardPage() {
     year: "numeric",
   })
 
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
             Dashboard Solicitações
+            {info && <InfoButton content={info} />}
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5 capitalize">
             Olá, {firstName}! — {dateStr}

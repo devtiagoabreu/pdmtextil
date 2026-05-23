@@ -1,7 +1,9 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useParams, useRouter } from "next/navigation"
+import { useParams, useRouter, usePathname } from "next/navigation"
+import { InfoButton } from "@/components/ui/info-button"
+import { getInfoContent } from "@/lib/info-content"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -19,6 +21,8 @@ interface Role {
 export default function EditarUsuarioPage() {
   const params = useParams()
   const router = useRouter()
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
   const id = parseInt(params.id as string)
 
   const [name, setName] = useState("")
@@ -84,7 +88,7 @@ export default function EditarUsuarioPage() {
         <Link href="/admin/usuarios">
           <Button variant="ghost" size="icon"><ArrowLeft size={20} /></Button>
         </Link>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Editar Usuário</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Editar Usuário{info && <InfoButton content={info} />}</h1>
       </div>
 
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-6 space-y-4 bg-white dark:bg-slate-900">

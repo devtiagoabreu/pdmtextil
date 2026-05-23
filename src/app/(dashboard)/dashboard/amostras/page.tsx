@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react"
 import { PieChart, Pie, BarChart, Bar, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 import { ClipboardList, FlaskConical, ThumbsUp, ThumbsDown, Clock } from "lucide-react"
+import { usePathname } from "next/navigation"
+import { InfoButton } from "@/components/ui/info-button"
+import { getInfoContent } from "@/lib/info-content"
 
 const STATUS_LABELS: Record<string, string> = {
   PENDENTE: "Pendente",
@@ -44,10 +47,13 @@ export default function DashboardAmostras() {
       .finally(() => setLoading(false))
   }, [])
 
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Dashboard de Amostras</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Dashboard de Amostras{info && <InfoButton content={info} />}</h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
           Acompanhe todas as amostras do sistema
         </p>

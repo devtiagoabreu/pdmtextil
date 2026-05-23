@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react"
 import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 import { Clock, Filter } from "lucide-react"
+import { usePathname } from "next/navigation"
+import { InfoButton } from "@/components/ui/info-button"
+import { getInfoContent } from "@/lib/info-content"
 
 const STATUS_COLORS: Record<string, string> = {
   PENDENTE: "#eab308",
@@ -70,10 +73,13 @@ export default function RelatorioTempoStatus() {
 
   useEffect(() => { fetchData() }, [])
 
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Relatório: Tempo em cada Status</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Relatório: Tempo em cada Status{info && <InfoButton content={info} />}</h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
           Acompanhe o tempo que cada solicitação permaneceu em cada status
         </p>

@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { useRouter, useParams } from "next/navigation"
+import { useRouter, useParams, usePathname } from "next/navigation"
+import { InfoButton } from "@/components/ui/info-button"
+import { getInfoContent } from "@/lib/info-content"
 import Link from "next/link"
 import { ArrowLeft, FileText, Pencil, Trash2, Link as LinkIcon, Download } from "lucide-react"
 import { toast } from "sonner"
@@ -146,6 +148,8 @@ async function fetchSolicitacao(id: string) {
 export default function DetalheSolicitacaoPage() {
   const params = useParams()
   const router = useRouter()
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
   const id = params.id as string
   const [mounted, setMounted] = useState(false)
   const [produtos, setProdutos] = useState<any[]>([])
@@ -301,6 +305,7 @@ export default function DetalheSolicitacaoPage() {
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
             #{sol.id} - {sol.cliente}
+            {info && <InfoButton content={info} />}
           </h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1">{sol.projeto || "Sem projeto"}</p>
         </div>

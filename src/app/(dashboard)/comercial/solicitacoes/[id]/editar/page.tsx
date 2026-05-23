@@ -1,7 +1,9 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter, useParams } from "next/navigation"
+import { useRouter, useParams, usePathname } from "next/navigation"
+import { InfoButton } from "@/components/ui/info-button"
+import { getInfoContent } from "@/lib/info-content"
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { FileText, ClipboardList, Paperclip, CheckCircle, ArrowLeft } from "lucide-react"
@@ -35,6 +37,8 @@ const STEPS = [
 export default function EditarSolicitacaoPage() {
   const router = useRouter()
   const params = useParams()
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
   const id = params.id as string
   
   const [step, setStep] = useState(1)
@@ -246,7 +250,7 @@ const onStep2Submit = (data: BriefingTecelagem) => {
       </div>
 
       <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight">Editar Solicitação #{id}</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Editar Solicitação #{id}{info && <InfoButton content={info} />}</h1>
         <p className="text-muted-foreground mt-2">Altere os dados da solicitação.</p>
       </div>
 

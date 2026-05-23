@@ -6,8 +6,13 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 import { Send, Loader2, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, Link, List, Eye } from "lucide-react"
+import { usePathname } from "next/navigation"
+import { InfoButton } from "@/components/ui/info-button"
+import { getInfoContent } from "@/lib/info-content"
 
 export default function EmailMassaPage() {
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
   const editorRef = useRef<HTMLDivElement>(null)
   const [assunto, setAssunto] = useState("")
   const [para, setPara] = useState("todos")
@@ -72,7 +77,7 @@ export default function EmailMassaPage() {
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Email em Massa</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Email em Massa{info && <InfoButton content={info} />}</h1>
         <p className="text-sm text-slate-500 mt-1">Envie emails para clientes e/ou usuários do sistema</p>
       </div>
 
