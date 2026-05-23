@@ -607,7 +607,7 @@ export default function ProdutoCruFormPage() {
               <Input value={produto.fichaTecnica?.ligamento || ""} onChange={e => handleFichaTecnicaChange("ligamento", e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label>Batidas (p/min)</Label>
+              <Label>Batidas</Label>
               <Input value={produto.fichaTecnica?.batidas || ""} onChange={e => handleFichaTecnicaChange("batidas", e.target.value)} />
             </div>
             <div className="space-y-2">
