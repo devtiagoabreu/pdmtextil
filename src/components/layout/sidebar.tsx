@@ -28,11 +28,11 @@ const adminItems = [
 ] as const
 
 const baseNav = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dashboard", label: "Dashboard Solicitações", icon: LayoutDashboard },
+  { href: "/dashboard/amostras", label: "Dashboard Amostras", icon: ClipboardList },
   { href: "/comercial/solicitacoes", label: "Solicitações", icon: FileText },
   { href: "/comercial/solicitacoes/nova", label: "Nova Solicitação", icon: PlusCircle },
   { href: "/comercial/clientes", label: "Clientes", icon: Building2 },
-  { href: "/dashboard/amostras", label: "Dashboard Amostras", icon: ClipboardList },
   { href: "/cadastros", label: "Cadastros", icon: Database },
   { href: "/cadastros/produto-cru", label: "Produtos Cru", icon: Factory },
 ] as const

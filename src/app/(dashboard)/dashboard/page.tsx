@@ -75,10 +75,10 @@ export default function DashboardPage() {
       <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
-            Olá, {firstName}! 👋
+            Dashboard Solicitações
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5 capitalize">
-            {dateStr}
+            Olá, {firstName}! — {dateStr}
           </p>
         </div>
       </div>
