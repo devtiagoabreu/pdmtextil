@@ -214,7 +214,7 @@ export default function RelatorioAtividadeUsuario() {
                     cx="50%"
                     cy="50%"
                     outerRadius={80}
-                    label={({ tipo, percent }) => `${TIPO_LABELS[tipo] || tipo} ${(percent * 100).toFixed(0)}%`}
+                    label={(props: any) => `${TIPO_LABELS[props.tipo] || props.tipo} ${(props.percent * 100).toFixed(0)}%`}
                   >
                     {porTipo.map((entry, i) => (
                       <Cell key={i} fill={TIPO_CORES[entry.tipo] || "#94a3b8"} />
