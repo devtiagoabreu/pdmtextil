@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { notificarErro } from "../notificar"
+import { notificarErro } from "./notificar"
 
 const FK_ERROR = '23503' // PostgreSQL foreign_key_violation
 
