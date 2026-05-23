@@ -5,6 +5,7 @@ import { Clock, FlaskConical } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
+import { exportCSV, exportPDF, statsToHTML, tableToHTML } from "@/lib/export-utils"
 
 const STATUS_LABELS: Record<string, string> = {
   PENDENTE: "Pendente",
@@ -64,6 +65,58 @@ export default function RelatorioTempoStatusAmostras() {
   }, [])
 
   const lista = aba === "tecidoCru" ? tecidoCru : acabamento
+
+  function handleExportCSV() {
+    const currentList = aba === "tecidoCru" ? tecidoCru : acabamento
+    const prefix = aba === "tecidoCru" ? "tecido-cru" : "acabamento"
+
+    const rows = currentList.flatMap((r) =>
+      r.timeline.map((t) => [
+        r.produtoCodigo,
+        r.descricao || r.produtoDescricao,
+        STATUS_LABELS[r.statusAtual] || r.statusAtual,
+        t.statusLabel,
+        t.entrada ? new Date(t.entrada).toLocaleString("pt-BR") : "-",
+        t.saida ? new Date(t.saida).toLocaleString("pt-BR") : "Em andamento",
+        t.duracaoLabel,
+      ])
+    )
+    exportCSV(`tempo-status-amostras-${prefix}`, ["Produto", "Descrição", "Status Atual", "Status", "Entrada", "Saída", "Duração"], rows)
+    setTimeout(() => {
+      exportCSV(`tempo-status-amostras-${prefix}-resumo`, ["Produto", "Descrição", "Status", "Tempo Total", "Trocas"], currentList.map((r) => [
+        r.produtoCodigo,
+        r.descricao || r.produtoDescricao,
+        STATUS_LABELS[r.statusAtual] || r.statusAtual,
+        r.tempoTotalLabel,
+        r.trocasStatus,
+      ]))
+    }, 200)
+  }
+
+  function handleExportPDF() {
+    const currentList = aba === "tecidoCru" ? tecidoCru : acabamento
+    const prefix = aba === "tecidoCru" ? "Tecido Cru" : "Acabamento"
+
+    const statsHtml = stats ? statsToHTML({
+      "Total": stats.total,
+      [`Total ${prefix}`]: aba === "tecidoCru" ? stats.totalTecidoCru : stats.totalAcabamento,
+      "Pendentes": stats.pendentes,
+      "Aprovadas": stats.aprovadas,
+    }) : ""
+    const resumoTable = tableToHTML(["Produto", "Descrição", "Status", "Tempo Total", "Trocas"], currentList.map((r) => [
+      r.produtoCodigo, r.descricao || r.produtoDescricao, STATUS_LABELS[r.statusAtual] || r.statusAtual, r.tempoTotalLabel, r.trocasStatus,
+    ]))
+    const detalheTable = tableToHTML(["Produto", "Status", "Entrada", "Saída", "Duração"], currentList.flatMap((r) =>
+      r.timeline.map((t) => [
+        `${r.produtoCodigo} - ${r.descricao || r.produtoDescricao}`,
+        t.statusLabel,
+        t.entrada ? new Date(t.entrada).toLocaleString("pt-BR") : "-",
+        t.saida ? new Date(t.saida).toLocaleString("pt-BR") : "Em andamento",
+        t.duracaoLabel,
+      ])
+    ))
+    exportPDF(`Relatório de Amostras - ${prefix} - Tempo em cada Status`, statsHtml + resumoTable + detalheTable)
+  }
 
   const pathname = usePathname()
   const info = getInfoContent(pathname)
@@ -128,6 +181,16 @@ export default function RelatorioTempoStatusAmostras() {
           <FlaskConical size={16} />
           Acabamento
           <span className="text-xs bg-slate-100 dark:bg-slate-800 rounded-full px-2 py-0.5">{acabamento.length}</span>
+        </button>
+      </div>
+
+      {/* Export */}
+      <div className="flex gap-3 items-center justify-end">
+        <button onClick={handleExportCSV} className="h-9 px-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800">
+          CSV
+        </button>
+        <button onClick={handleExportPDF} className="h-9 px-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800">
+          PDF
         </button>
       </div>
 

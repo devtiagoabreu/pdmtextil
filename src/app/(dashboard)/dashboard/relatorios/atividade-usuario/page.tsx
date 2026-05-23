@@ -6,6 +6,7 @@ import { Activity, Filter, UserCheck } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
+import { exportCSV, exportPDF, statsToHTML, tableToHTML } from "@/lib/export-utils"
 
 type Stats = {
   total: number
@@ -88,6 +89,42 @@ export default function RelatorioAtividadeUsuario() {
 
   useEffect(() => { fetchData() }, [])
 
+  function handleExportCSV() {
+    exportCSV("atividade-usuario", ["Usuário", "Ações"], porUsuario.map((u) => [u.usuario, u.total]))
+    setTimeout(() => {
+      exportCSV("atividade-por-tipo", ["Tipo", "Total"], porTipo.map((t) => [TIPO_LABELS[t.tipo] || t.tipo, t.total]))
+      setTimeout(() => {
+        exportCSV("atividades-recentes", ["Data", "Usuário", "Tipo", "Ação", "Descrição"], recentes.map((r) => [
+          r.createdAt ? new Date(r.createdAt).toLocaleString("pt-BR") : "-",
+          r.usuario || "-",
+          TIPO_LABELS[r.tipo] || r.tipo,
+          r.acao,
+          r.descricao || "-",
+        ]))
+      }, 200)
+    }, 200)
+  }
+
+  function handleExportPDF() {
+    const statsHtml = stats ? statsToHTML({
+      "Total Ações": stats.total,
+      "Usuários Ativos": stats.totalUsuarios,
+    }) : ""
+    const userTable = tableToHTML(["Usuário", "Ações"], porUsuario.map((u) => [u.usuario, u.total]))
+    const typeTable = tableToHTML(["Tipo", "Total"], porTipo.map((t) => [TIPO_LABELS[t.tipo] || t.tipo, t.total]))
+    const recentTable = tableToHTML(
+      ["Data", "Usuário", "Tipo", "Ação", "Descrição"],
+      recentes.map((r) => [
+        r.createdAt ? new Date(r.createdAt).toLocaleString("pt-BR") : "-",
+        r.usuario || "-",
+        TIPO_LABELS[r.tipo] || r.tipo,
+        r.acao,
+        r.descricao || "-",
+      ])
+    )
+    exportPDF("Relatório de Atividade por Usuário", statsHtml + userTable + typeTable + recentTable)
+  }
+
   const pathname = usePathname()
   const info = getInfoContent(pathname)
 
@@ -154,6 +191,13 @@ export default function RelatorioAtividadeUsuario() {
           className="h-9 px-4 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700"
         >
           Filtrar
+        </button>
+        <div className="flex-1" />
+        <button onClick={handleExportCSV} className="h-9 px-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800">
+          CSV
+        </button>
+        <button onClick={handleExportPDF} className="h-9 px-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800">
+          PDF
         </button>
       </div>
 
