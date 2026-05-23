@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useCallback, useRef } from "react"
 import { signOut, useSession } from "next-auth/react"
-import { Bell, Search, Menu, User, LogOut, Settings, CheckCheck, Loader2 } from "lucide-react"
+import { Bell, Menu, Search, X, User, LogOut, Settings, CheckCheck, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { ThemeToggle } from "./theme-toggle"
+import { CommandSearch } from "./command-search"
 
 interface HeaderProps {
   onMenuClick?: () => void
@@ -23,6 +24,7 @@ export function Header({ onMenuClick }: HeaderProps) {
   const { data: session } = useSession()
   const [showNotifications, setShowNotifications] = useState(false)
   const [showUserMenu, setShowUserMenu] = useState(false)
+  const [showMobileSearch, setShowMobileSearch] = useState(false)
   const [notificacoes, setNotificacoes] = useState<Notificacao[]>([])
   const [loadingNotif, setLoadingNotif] = useState(false)
 
@@ -81,24 +83,30 @@ export function Header({ onMenuClick }: HeaderProps) {
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:border-slate-800 dark:bg-slate-950/95 px-4 md:px-6">
       {/* LEFT: Menu button + Search */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2">
         <button
           onClick={onMenuClick}
           className="rounded-md p-2 text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 lg:hidden"
         >
           <Menu size={20} />
         </button>
+        <button
+          onClick={() => setShowMobileSearch(!showMobileSearch)}
+          className="rounded-md p-2 text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 md:hidden"
+        >
+          {showMobileSearch ? <X size={20} /> : <Search size={20} />}
+        </button>
         <div className="hidden md:flex items-center">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-            <input
-              type="search"
-              placeholder="Buscar..."
-              className="h-9 w-64 rounded-lg border border-slate-200 bg-slate-50 pl-9 pr-4 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder-slate-500"
-            />
-          </div>
+          <CommandSearch />
         </div>
       </div>
+
+      {/* Mobile search bar */}
+      {showMobileSearch && (
+        <div className="absolute left-0 right-0 top-full border-b border-slate-200 bg-white px-4 pb-3 pt-2 dark:border-slate-800 dark:bg-slate-950 md:hidden z-50">
+          <CommandSearch />
+        </div>
+      )}
 
       {/* RIGHT: Theme, Notifications, User */}
       <div className="flex items-center gap-2">
