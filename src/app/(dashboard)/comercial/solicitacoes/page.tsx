@@ -36,6 +36,8 @@ async function fetchSolicitacoes() {
 
 export default function ListaSolicitacoesPage() {
   const router = useRouter()
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
   const [mounted, setMounted] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<any>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
@@ -107,9 +109,6 @@ if (isLoading) {
       </div>
     )
   }
-
-  const pathname = usePathname()
-  const info = getInfoContent(pathname)
 
   return (
     <div className="space-y-6 animate-fade-in">

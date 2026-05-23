@@ -35,6 +35,8 @@ async function fetchBases(): Promise<BaseUrdume[]> {
 
 export default function BasesUrdumePage() {
   const router = useRouter()
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
   const [search, setSearch] = useState("")
   const [deleteTarget, setDeleteTarget] = useState<BaseUrdume | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
@@ -74,9 +76,6 @@ export default function BasesUrdumePage() {
     b.nome.toLowerCase().includes(search.toLowerCase()) ||
     b.codigoBase.toLowerCase().includes(search.toLowerCase())
   )
-
-  const pathname = usePathname()
-  const info = getInfoContent(pathname)
 
   return (
     <div className="space-y-6 animate-fade-in">

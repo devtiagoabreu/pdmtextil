@@ -32,6 +32,8 @@ async function fetchEstampas(): Promise<Estampa[]> {
 
 export default function EstampasPage() {
   const router = useRouter()
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
   const [search, setSearch] = useState("")
   const [deleteTarget, setDeleteTarget] = useState<Estampa | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
@@ -71,9 +73,6 @@ export default function EstampasPage() {
     e.nome.toLowerCase().includes(search.toLowerCase()) ||
     e.codigoDesenho.toLowerCase().includes(search.toLowerCase())
   )
-
-  const pathname = usePathname()
-  const info = getInfoContent(pathname)
 
   return (
     <div className="space-y-6 animate-fade-in">

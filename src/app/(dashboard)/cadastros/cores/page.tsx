@@ -31,6 +31,8 @@ async function fetchCores(): Promise<CorSolida[]> {
 
 export default function CoresPage() {
   const router = useRouter()
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
   const [search, setSearch] = useState("")
   const [deleteTarget, setDeleteTarget] = useState<CorSolida | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
@@ -71,9 +73,6 @@ export default function CoresPage() {
     c.codigo.toLowerCase().includes(search.toLowerCase()) ||
     (c.pantone && c.pantone.toLowerCase().includes(search.toLowerCase()))
   )
-
-  const pathname = usePathname()
-  const info = getInfoContent(pathname)
 
   return (
     <div className="space-y-6 animate-fade-in">

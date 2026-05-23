@@ -35,6 +35,8 @@ async function fetchFios(): Promise<Fio[]> {
 
 export default function FiosPage() {
   const router = useRouter()
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
   const [search, setSearch] = useState("")
   const [deleteTarget, setDeleteTarget] = useState<Fio | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
@@ -75,9 +77,6 @@ export default function FiosPage() {
       setDeleteLoading(false)
     }
   }
-
-  const pathname = usePathname()
-  const info = getInfoContent(pathname)
 
   return (
     <div className="space-y-6 animate-fade-in">

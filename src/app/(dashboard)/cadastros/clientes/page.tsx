@@ -35,6 +35,8 @@ async function fetchClientes(): Promise<Cliente[]> {
 
 export default function ClientesPage() {
   const router = useRouter()
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
   const [search, setSearch] = useState("")
   const [deleteTarget, setDeleteTarget] = useState<Cliente | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
@@ -75,9 +77,6 @@ export default function ClientesPage() {
       setDeleteLoading(false)
     }
   }
-
-  const pathname = usePathname()
-  const info = getInfoContent(pathname)
 
   return (
     <div className="space-y-6 animate-fade-in">
