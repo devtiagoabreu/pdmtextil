@@ -2362,9 +2362,53 @@ const textoNormalizado = texto.replace(/\r\n/g, "\n").replace(/\r/g, "\n")
 
 ---
 
-**Última atualização:** 17/05/2026
-**Versão:** 2.4 (Importação CSV/JSON + Modulo Produto Cru + Notificações + Admin + Produtos Químicos + Receitas + Refatoração)
-**Total de seções:** 43
+**Última atualização:** 23/05/2026
+**Versão:** 2.5 (Revisão Geral + Sessão 44 - Progresso Atual)
+**Total de seções:** 44
+
+---
+
+## Seção 44: Progresso Atual - Snapshot da Sessão
+
+### Tópico 44.1: Contexto da Sessão
+
+Data: 23/05/2026
+
+Esta sessão foi dedicada à **revisão e alinhamento** do projeto PDM Pro Têxtil. Não houve implementação de novas funcionalidades ou correções de código. O documento de aprendizado (`learning.md`) foi lido e verificado na íntegra (2371 linhas, 43 seções) para garantir que o contexto do projeto está completo e atualizado.
+
+### Tópico 44.2: Estado Atual do Projeto
+
+**Status Geral:** Funcionalidades principais implementadas e operacionais. Projeto em pós-implementação, aguardando definição de próximas tarefas.
+
+**O que está implementado e funcionando:**
+- Schema completo com +25 tabelas no Neon (Drizzle + postgres-js)
+- Migrations executadas (até `0009_sistema.sql`)
+- API CRUD para todos os cadastros (fios, fornecedores, clientes, cores, estampas, bases-urdume, produtos-químicos, produto-cru, solicitações)
+- Páginas de listagem e formulário para todos os cadastros
+- Seção "Receitas de Beneficiamento" por amostra com versionamento e PDF
+- Sistema de notificações com polling 30s
+- Admin: SMTP, usuários, roles, permissões, email em massa
+- Dashboard com gráficos Recharts
+- Importação CSV/JSON em massa para 6 cadastros (fios, fornecedores, clientes, cores, estampas, bases-urdume)
+- Fluxo de solicitações completo (criar, desenvolver, aprovar produto, concluir)
+- Controle de permissões por role (COMERCIAL, DESENVOLVIMENTO, ADMIN, SUDO)
+- Sistema de logs e notificações de erro para SUDO
+- Ficha Técnica como JSONB em produto-cru
+- Links (JSONB) em produtos-cru, amostras, acabamentos, fios
+- Dark mode padrão obrigatório
+
+**Próximos passos discutidos (não iniciados):**
+- Novas funcionalidades (ordens de produção, agendamento, etc.)
+- Melhorias de UI/UX e performance
+- Correções de bugs reportados
+- Verificação de build e deploy na Vercel
+
+### Tópico 44.3: Observações Importantes
+
+- Build local não funciona (node_modules ausentes) — build apenas na Vercel
+- `scripts/migrate.js` desatualizado — migrations feitas via SQL manual
+- `learning.md` consolidado com 43 seções de aprendizado acumulado
+- Próximas ações dependem de definição do usuário
 
 ---
 
