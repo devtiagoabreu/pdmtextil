@@ -42,6 +42,13 @@ export async function POST(
         descricao: body.descricao,
         status: body.status || "PENDENTE",
         observacoes: body.observacoes || null,
+        historico: [{
+          data: new Date().toISOString(),
+          usuario: session.user.name,
+          usuarioId: parseInt(session.user.id),
+          acao: "CRIACAO",
+          status: body.status || "PENDENTE",
+        }],
       })
       .returning()
 
