@@ -6,6 +6,7 @@ import { BarChart3, Filter } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
+import { exportCSV, exportPDF, statsToHTML, tableToHTML } from "@/lib/export-utils"
 
 type Stats = {
   totalCriadas: number
@@ -77,6 +78,38 @@ export default function RelatorioSolicitacoesCriadas() {
 
   useEffect(() => { fetchData() }, [])
 
+  function handleExportCSV() {
+    exportCSV("solicitacoes-por-mes", ["Mês", "Criadas", "Deletadas", "Concluídas"], porMes.map((m) => [m.mes, m.criadas, m.deletadas, m.concluidas]))
+    setTimeout(() => {
+      exportCSV("solicitacoes-recentes", ["#", "Cliente", "Tipo", "Status", "Criado em"], recentes.map((r) => [
+        r.id,
+        r.cliente,
+        r.tipo === "DESENVOLVIMENTO_TECELAGEM" ? "Tecelagem" : "Beneficiamento",
+        STATUS_LABELS[r.status] || r.status,
+        r.createdAt ? new Date(r.createdAt).toLocaleDateString("pt-BR") : "-",
+      ]))
+    }, 200)
+  }
+
+  function handleExportPDF() {
+    const statsHtml = stats ? statsToHTML({
+      "Total Criadas": stats.totalCriadas,
+      "Deletadas": stats.totalDeletadas,
+      "Concluídas": stats.concluidas,
+      "Em Andamento": stats.emAndamento,
+      "Taxa de Sucesso": `${stats.taxaSucesso}%`,
+    }) : ""
+    const mesTable = tableToHTML(["Mês", "Criadas", "Deletadas", "Concluídas"], porMes.map((m) => [m.mes, m.criadas, m.deletadas, m.concluidas]))
+    const recentTable = tableToHTML(["#", "Cliente", "Tipo", "Status", "Criado em"], recentes.map((r) => [
+      r.id,
+      r.cliente,
+      r.tipo === "DESENVOLVIMENTO_TECELAGEM" ? "Tecelagem" : "Beneficiamento",
+      STATUS_LABELS[r.status] || r.status,
+      r.createdAt ? new Date(r.createdAt).toLocaleDateString("pt-BR") : "-",
+    ]))
+    exportPDF("Relatório de Solicitações Criadas / Deletadas", statsHtml + mesTable + recentTable)
+  }
+
   const pathname = usePathname()
   const info = getInfoContent(pathname)
 
@@ -117,6 +150,13 @@ export default function RelatorioSolicitacoesCriadas() {
           className="h-9 px-4 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700"
         >
           Filtrar
+        </button>
+        <div className="flex-1" />
+        <button onClick={handleExportCSV} className="h-9 px-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800">
+          CSV
+        </button>
+        <button onClick={handleExportPDF} className="h-9 px-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800">
+          PDF
         </button>
       </div>
 

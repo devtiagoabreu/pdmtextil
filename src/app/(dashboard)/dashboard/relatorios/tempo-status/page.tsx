@@ -6,6 +6,7 @@ import { Clock, Filter } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
+import { exportCSV, exportPDF, statsToHTML, tableToHTML } from "@/lib/export-utils"
 
 const STATUS_COLORS: Record<string, string> = {
   PENDENTE: "#eab308",
@@ -73,6 +74,52 @@ export default function RelatorioTempoStatus() {
 
   useEffect(() => { fetchData() }, [])
 
+  function handleExportCSV() {
+    const rows = resultados.flatMap((r) =>
+      r.timeline.map((t) => [
+        `#${r.id}`,
+        r.cliente,
+        STATUS_LABELS[r.statusAtual] || r.statusAtual,
+        t.statusLabel,
+        t.entrada ? new Date(t.entrada).toLocaleString("pt-BR") : "-",
+        t.saida ? new Date(t.saida).toLocaleString("pt-BR") : "Em andamento",
+        t.duracaoLabel,
+      ])
+    )
+    exportCSV("tempo-status", ["Solicitação", "Cliente", "Status Atual", "Status", "Entrada", "Saída", "Duração"], rows)
+    setTimeout(() => {
+      exportCSV("tempo-status-resumo", ["#", "Cliente", "Status", "Tempo Total", "Trocas"], resultados.map((r) => [
+        r.id,
+        r.cliente,
+        STATUS_LABELS[r.statusAtual] || r.statusAtual,
+        r.tempoTotalLabel,
+        r.trocasStatus,
+      ]))
+    }, 200)
+  }
+
+  function handleExportPDF() {
+    const statsHtml = stats ? statsToHTML({
+      "Total": stats.totalSolicitacoes,
+      "Concluídas": stats.concluidas,
+      "Tempo Médio": `${stats.tempoMedioHoras}h`,
+      "Média Trocas": stats.mediaTrocasStatus,
+    }) : ""
+    const resumoTable = tableToHTML(["#", "Cliente", "Status", "Tempo Total", "Trocas"], resultados.map((r) => [
+      `#${r.id}`, r.cliente, STATUS_LABELS[r.statusAtual] || r.statusAtual, r.tempoTotalLabel, r.trocasStatus,
+    ]))
+    const detalheTable = tableToHTML(["Solicitação", "Status", "Entrada", "Saída", "Duração"], resultados.flatMap((r) =>
+      r.timeline.map((t) => [
+        `#${r.id} - ${r.cliente}`,
+        t.statusLabel,
+        t.entrada ? new Date(t.entrada).toLocaleString("pt-BR") : "-",
+        t.saida ? new Date(t.saida).toLocaleString("pt-BR") : "Em andamento",
+        t.duracaoLabel,
+      ])
+    ))
+    exportPDF("Relatório de Tempo em cada Status", statsHtml + resumoTable + detalheTable)
+  }
+
   const pathname = usePathname()
   const info = getInfoContent(pathname)
 
@@ -128,6 +175,13 @@ export default function RelatorioTempoStatus() {
           className="h-9 px-4 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700"
         >
           Filtrar
+        </button>
+        <div className="flex-1" />
+        <button onClick={handleExportCSV} className="h-9 px-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800">
+          CSV
+        </button>
+        <button onClick={handleExportPDF} className="h-9 px-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800">
+          PDF
         </button>
       </div>
 
