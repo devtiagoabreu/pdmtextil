@@ -4,42 +4,42 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { solicitacoes } from "@/lib/db/schema/solicitacoes"
 import { produtosCru } from "@/lib/db/schema/produto-cru"
-import { and, gte, lte, sql } from "drizzle-orm"
-
-function buildConditions(role: string, userId: number) {
-  const conditions: any[] = []
-  return conditions
-}
+import { and, gte, lte, sql, eq } from "drizzle-orm"
 
 export async function GET() {
   try {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
-    const userId = parseInt(session.user.id)
-    const role = session.user.role
-
     const now = new Date()
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
     const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59)
+    const monthWhere = and(
+      gte(solicitacoes.createdAt, startOfMonth),
+      lte(solicitacoes.createdAt, endOfMonth)
+    )
 
-    const roleConditions = buildConditions(role, userId)
-
-    // Current month stats
-    const monthConditions = [...roleConditions, gte(solicitacoes.createdAt, startOfMonth), lte(solicitacoes.createdAt, endOfMonth)]
-    const monthWhere = monthConditions.length > 0 ? and(...monthConditions) : undefined
-
-    const stats = await db
-      .select({
-        total: sql<number>`count(*)`,
-        pendentes: sql<number>`count(*) filter (where ${solicitacoes.status} = 'PENDENTE')`,
-        emDesenvolvimento: sql<number>`count(*) filter (where ${solicitacoes.status} = 'EM_DESENVOLVIMENTO')`,
-        concluidas: sql<number>`count(*) filter (where ${solicitacoes.status} = 'CONCLUIDO')`,
-      })
+    // Count total do mês
+    const [totalRow] = await db
+      .select({ total: sql<number>`count(*)` })
       .from(solicitacoes)
       .where(monthWhere)
 
-    const result = stats[0] || { total: 0, pendentes: 0, emDesenvolvimento: 0, concluidas: 0 }
+    // Contagens por status no mês (usando queries separadas para evitar filter(where))
+    const [pendentes] = await db
+      .select({ total: sql<number>`count(*)` })
+      .from(solicitacoes)
+      .where(and(monthWhere, eq(solicitacoes.status, "PENDENTE")))
+
+    const [emDesenvolvimento] = await db
+      .select({ total: sql<number>`count(*)` })
+      .from(solicitacoes)
+      .where(and(monthWhere, eq(solicitacoes.status, "EM_DESENVOLVIMENTO")))
+
+    const [concluidas] = await db
+      .select({ total: sql<number>`count(*)` })
+      .from(solicitacoes)
+      .where(and(monthWhere, eq(solicitacoes.status, "CONCLUIDO")))
 
     // Monthly trend (last 6 months)
     const trendData: { mes: string; total: number }[] = []
@@ -47,24 +47,23 @@ export async function GET() {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
       const start = new Date(d.getFullYear(), d.getMonth(), 1)
       const end = new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59)
-      const trendConditions = [...roleConditions, gte(solicitacoes.createdAt, start), lte(solicitacoes.createdAt, end)]
-      const trendWhere = trendConditions.length > 0 ? and(...trendConditions) : undefined
-      const [row] = await db.select({ total: sql<number>`count(*)` }).from(solicitacoes).where(trendWhere)
+      const [row] = await db
+        .select({ total: sql<number>`count(*)` })
+        .from(solicitacoes)
+        .where(and(gte(solicitacoes.createdAt, start), lte(solicitacoes.createdAt, end)))
       trendData.push({
         mes: d.toLocaleDateString("pt-BR", { month: "short", year: "2-digit" }),
-        total: row?.total || 0,
+        total: row?.total ?? 0,
       })
     }
 
     // Status distribution (all time)
-    const statusAllConditions = roleConditions.length > 0 ? and(...roleConditions) : undefined
     const statusDist = await db
       .select({
         status: solicitacoes.status,
         total: sql<number>`count(*)`,
       })
       .from(solicitacoes)
-      .where(statusAllConditions)
       .groupBy(solicitacoes.status)
 
     // Tipo distribution (all time)
@@ -74,24 +73,28 @@ export async function GET() {
         total: sql<number>`count(*)`,
       })
       .from(solicitacoes)
-      .where(statusAllConditions)
       .groupBy(solicitacoes.tipo)
 
     // Produto-cru count
-    const [prodCount] = await db.select({ total: sql<number>`count(*)` }).from(produtosCru)
+    const [prodCount] = await db
+      .select({ total: sql<number>`count(*)` })
+      .from(produtosCru)
 
     return NextResponse.json({
-      totalEsteMes: result.total,
-      pendentes: result.pendentes,
-      emDesenvolvimento: result.emDesenvolvimento,
-      concluidas: result.concluidas,
+      totalEsteMes: totalRow?.total ?? 0,
+      pendentes: pendentes?.total ?? 0,
+      emDesenvolvimento: emDesenvolvimento?.total ?? 0,
+      concluidas: concluidas?.total ?? 0,
       monthlyTrend: trendData,
       statusDistribution: statusDist,
       tipoDistribution: tipoDist,
-      totalProdutosCru: prodCount?.total || 0,
+      totalProdutosCru: prodCount?.total ?? 0,
     })
   } catch (error) {
     console.error("[GET /api/dashboard/stats]", error)
-    return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
+    return NextResponse.json({
+      error: "Erro interno do servidor",
+      detail: error instanceof Error ? error.message : String(error),
+    }, { status: 500 })
   }
 }
