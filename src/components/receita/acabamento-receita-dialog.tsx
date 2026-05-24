@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -72,17 +72,7 @@ export function ReceitaDialog({
 
   const baseUrl = `/api/cadastros/produto-cru/${produtoCruId}/acabamentos/${acabamentoId}/amostras/${amostraId}/receitas`
 
-  useEffect(() => {
-    if (!open) return
-    setLoading(true)
-    fetch("/api/cadastros/produtos-quimicos")
-      .then(r => r.json())
-      .then(setQuimicos)
-      .catch(() => {})
-    load()
-  }, [open, amostraId])
-
-  async function load() {
+  const load = useCallback(async () => {
     try {
       const res = await fetch(baseUrl)
       const list: Receita[] = await res.json()
@@ -101,7 +91,17 @@ export function ReceitaDialog({
     } finally {
       setLoading(false)
     }
-  }
+  }, [baseUrl])
+
+  useEffect(() => {
+    if (!open) return
+    setLoading(true)
+    fetch("/api/cadastros/produtos-quimicos")
+      .then(r => r.json())
+      .then(setQuimicos)
+      .catch(() => {})
+    load()
+  }, [open, amostraId, load])
 
   async function selectReceita(r: Receita) {
     setReceita(r)
