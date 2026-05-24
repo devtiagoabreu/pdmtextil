@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
-import { produtoCruAcabamentoAmostra } from "@/lib/db/schema/produto-cru"
+import { produtoCruAcabamento, produtoCruAcabamentoAmostra } from "@/lib/db/schema/produto-cru"
 import { eq } from "drizzle-orm"
 import { notificar, registrarLog } from "@/lib/notificar"
 
@@ -14,7 +14,17 @@ export async function GET(
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
-    const { aid } = await params
+    const { id, aid } = await params
+
+    const [acabamento] = await db
+      .select()
+      .from(produtoCruAcabamento)
+      .where(eq(produtoCruAcabamento.id, parseInt(aid)))
+      .limit(1)
+    if (!acabamento || acabamento.produtoCruId !== parseInt(id)) {
+      return NextResponse.json({ error: "Acabamento não encontrado neste produto" }, { status: 404 })
+    }
+
     const lista = await db.select().from(produtoCruAcabamentoAmostra).where(eq(produtoCruAcabamentoAmostra.acabamentoId, parseInt(aid)))
 
     return NextResponse.json(lista)
@@ -32,7 +42,17 @@ export async function POST(
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
-    const { aid } = await params
+    const { id, aid } = await params
+
+    const [acabamento] = await db
+      .select()
+      .from(produtoCruAcabamento)
+      .where(eq(produtoCruAcabamento.id, parseInt(aid)))
+      .limit(1)
+    if (!acabamento || acabamento.produtoCruId !== parseInt(id)) {
+      return NextResponse.json({ error: "Acabamento não encontrado neste produto" }, { status: 404 })
+    }
+
     const body = await req.json()
 
     const novo = await db
@@ -52,7 +72,6 @@ export async function POST(
       })
       .returning()
 
-    const { id } = await params
     notificar(
       "AMOSTRA_CRIADA",
       `Nova amostra de acabamento #${aid} do produto cru #${id} criada por ${session.user.name}${body.descricao ? ` — ${body.descricao}` : ""}`,
