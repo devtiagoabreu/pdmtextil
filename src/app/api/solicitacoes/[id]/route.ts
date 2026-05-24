@@ -118,7 +118,10 @@ export async function PUT(
     if (body.cliente !== undefined)  setValues.cliente  = body.cliente
     if (body.cnpj !== undefined)     setValues.cnpj     = body.cnpj || null
     if (body.projeto !== undefined)  setValues.projeto  = body.projeto || null
-    if (body.status !== undefined)   setValues.status   = body.status
+    if (body.status !== undefined) {
+      setValues.status = body.status
+      if (body.status === "CONCLUIDO") setValues.dataConclusao = new Date()
+    }
     if (body.briefing !== undefined) setValues.briefing = body.briefing
 
     // Auto-altera status para EM_DESENVOLVIMENTO se usuario for DESENVOLVIMENTO
