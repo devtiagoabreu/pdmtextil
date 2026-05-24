@@ -19,16 +19,10 @@ import {
   Lock,
   BarChart3,
   FlaskConical,
-  Bell,
 } from "lucide-react"
 
 const adminItems = [
-  { href: "/admin/usuarios", label: "Usuários", icon: Users },
-  { href: "/admin/roles", label: "Perfis (Roles)", icon: Shield },
-  { href: "/admin/email-massa", label: "Email em Massa", icon: Send },
   { href: "/admin/configuracoes", label: "Configurações", icon: Settings },
-  { href: "/admin/configuracoes/permissoes", label: "Permissões", icon: Lock },
-  { href: "/admin/notificacoes", label: "Notificações", icon: Bell },
 ] as const
 
 const baseNav = [
@@ -40,10 +34,7 @@ const baseNav = [
   { href: "/cadastros", label: "Cadastros", icon: Database },
   { href: "/cadastros/produto-cru", label: "Produtos Cru", icon: Factory },
   { href: "/cadastros/receitas", label: "Receitas", icon: FlaskConical },
-  { href: "/dashboard/relatorios/atividade-usuario", label: "Atividade por Usuário", icon: BarChart3 },
-  { href: "/dashboard/relatorios/solicitacoes-criadas", label: "Criadas / Deletadas", icon: BarChart3 },
-  { href: "/dashboard/relatorios/tempo-status", label: "Tempo p/ Status (Solic.)", icon: BarChart3 },
-  { href: "/dashboard/relatorios/tempo-status-amostras", label: "Tempo p/ Status (Amostras)", icon: BarChart3 },
+  { href: "/dashboard/relatorios", label: "Relatórios", icon: BarChart3 },
 ] as const
 
 interface SidebarProps {
