@@ -5,6 +5,7 @@ import { db } from "@/lib/db"
 import { produtoCruAcabamento } from "@/lib/db/schema/produto-cru"
 import { eq, and } from "drizzle-orm"
 import { notificar } from "@/lib/notificar"
+import { handleApiError } from "@/lib/api-error"
 
 export async function DELETE(
   req: NextRequest,
@@ -34,7 +35,6 @@ export async function DELETE(
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error("[DELETE /api/cadastros/produto-cru/[id]/acabamentos/[aid]]", error)
-    return NextResponse.json({ error: "Erro ao excluir acabamento" }, { status: 500 })
+    return handleApiError(error, "DELETE /api/cadastros/produto-cru/[id]/acabamentos/[aid]")
   }
 }
