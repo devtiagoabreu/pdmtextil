@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Mail, Database, Shield, Bell, Lock, Users, Send, Settings } from "lucide-react"
+import { Mail, Database, Shield, Bell, Lock, Users, Settings } from "lucide-react"
 
 const modulos = [
   { href: "/admin/configuracoes/smtp", label: "SMTP", desc: "Configuração do servidor de email e teste de envio", icon: Mail, color: "text-blue-600 bg-blue-50 dark:bg-blue-950/50" },
@@ -10,7 +10,6 @@ const modulos = [
   { href: "/admin/notificacoes", label: "Notificações", desc: "Configurar quem recebe cada tipo de notificação", icon: Bell, color: "text-amber-600 bg-amber-50 dark:bg-amber-950/50" },
   { href: "/admin/configuracoes/permissoes", label: "Permissões", desc: "Configurar permissões CRUD por perfil", icon: Lock, color: "text-rose-600 bg-rose-50 dark:bg-rose-950/50" },
   { href: "/admin/usuarios", label: "Usuários", desc: "Gerenciar usuários do sistema", icon: Users, color: "text-cyan-600 bg-cyan-50 dark:bg-cyan-950/50" },
-  { href: "/admin/email-massa", label: "Email em Massa", desc: "Enviar email para múltiplos destinatários", icon: Send, color: "text-indigo-600 bg-indigo-50 dark:bg-indigo-950/50" },
 ]
 
 export default function ConfiguracoesHubPage() {
