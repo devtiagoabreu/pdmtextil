@@ -414,6 +414,7 @@ export default function ProdutoCruFormPage() {
 
   const saveAmostraLinks = async (amostraId: number, links: { url: string; descricao: string }[]) => {
     if (!id) return
+    const anteriores = amostras.find(a => a.id === amostraId)?.links || []
     try {
       const res = await fetch(`/api/cadastros/produto-cru/${id}/amostras/${amostraId}`, {
         method: "PUT",
@@ -422,12 +423,21 @@ export default function ProdutoCruFormPage() {
       })
       if (res.ok) {
         setAmostras(amostras.map(a => a.id === amostraId ? { ...a, links } : a))
+      } else {
+        setAmostras(amostras.map(a => a.id === amostraId ? { ...a, links: anteriores } : a))
+        toast.error("Erro ao salvar links")
       }
-    } catch {}
+    } catch {
+      setAmostras(amostras.map(a => a.id === amostraId ? { ...a, links: anteriores } : a))
+      toast.error("Erro de rede ao salvar links")
+    }
   }
 
   const saveAcabAmostraLinks = async (acabamentoId: number, amostraId: number, links: { url: string; descricao: string }[]) => {
     if (!id) return
+    const anteriores = acabamentos
+      .find(a => a.id === acabamentoId)
+      ?.amostras?.find(as => as.id === amostraId)?.links || []
     try {
       const res = await fetch(`/api/cadastros/produto-cru/${id}/acabamentos/${acabamentoId}/amostras/${amostraId}`, {
         method: "PUT",
@@ -440,8 +450,22 @@ export default function ProdutoCruFormPage() {
             ? { ...a, amostras: a.amostras.map(as => as.id === amostraId ? { ...as, links } : as) }
             : a
         ))
+      } else {
+        setAcabamentos(acabamentos.map(a =>
+          a.id === acabamentoId
+            ? { ...a, amostras: a.amostras.map(as => as.id === amostraId ? { ...as, links: anteriores } : as) }
+            : a
+        ))
+        toast.error("Erro ao salvar links")
       }
-    } catch {}
+    } catch {
+      setAcabamentos(acabamentos.map(a =>
+        a.id === acabamentoId
+          ? { ...a, amostras: a.amostras.map(as => as.id === amostraId ? { ...as, links: anteriores } : as) }
+          : a
+      ))
+      toast.error("Erro de rede ao salvar links")
+    }
   }
 
   const addAmostra = async () => {
