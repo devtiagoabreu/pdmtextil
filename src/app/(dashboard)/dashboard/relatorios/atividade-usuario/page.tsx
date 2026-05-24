@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts"
 import { Activity, Filter, UserCheck } from "lucide-react"
 import { usePathname } from "next/navigation"
@@ -65,7 +65,7 @@ export default function RelatorioAtividadeUsuario() {
   const [usuarioFiltro, setUsuarioFiltro] = useState("")
   const [tipoFiltro, setTipoFiltro] = useState("")
 
-  function fetchData() {
+  const fetchData = useCallback(() => {
     setLoading(true)
     const params = new URLSearchParams()
     if (dataInicio) params.set("dataInicio", dataInicio)
@@ -85,9 +85,9 @@ export default function RelatorioAtividadeUsuario() {
       })
       .catch(() => {})
       .finally(() => setLoading(false))
-  }
+  }, [dataInicio, dataFim, usuarioFiltro, tipoFiltro])
 
-  useEffect(() => { fetchData() }, [])
+  useEffect(() => { fetchData() }, [fetchData])
 
   function handleExportCSV() {
     exportCSV("atividade-usuario", ["Usuário", "Ações"], porUsuario.map((u) => [u.usuario, u.total]))

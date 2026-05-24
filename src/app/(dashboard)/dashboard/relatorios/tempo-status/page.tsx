@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 import { Clock, Filter } from "lucide-react"
 import { usePathname } from "next/navigation"
@@ -55,7 +55,7 @@ export default function RelatorioTempoStatus() {
   const [filtroDataInicio, setFiltroDataInicio] = useState("")
   const [filtroDataFim, setFiltroDataFim] = useState("")
 
-  function fetchData() {
+  const fetchData = useCallback(() => {
     setLoading(true)
     const params = new URLSearchParams()
     if (filtroStatus) params.set("status", filtroStatus)
@@ -70,9 +70,9 @@ export default function RelatorioTempoStatus() {
       })
       .catch(() => {})
       .finally(() => setLoading(false))
-  }
+  }, [filtroStatus, filtroDataInicio, filtroDataFim])
 
-  useEffect(() => { fetchData() }, [])
+  useEffect(() => { fetchData() }, [fetchData])
 
   function handleExportCSV() {
     const rows = resultados.flatMap((r) =>
