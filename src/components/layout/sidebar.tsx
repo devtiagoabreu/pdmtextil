@@ -8,17 +8,14 @@ import {
   FileText,
   PlusCircle,
   Factory,
-  Users,
   Settings,
   Database,
   X,
   Building2,
-  Send,
-  Shield,
   ClipboardList,
-  Lock,
   BarChart3,
   FlaskConical,
+  Wrench,
 } from "lucide-react"
 
 const adminItems = [
@@ -35,6 +32,7 @@ const baseNav = [
   { href: "/cadastros/produto-cru", label: "Produtos Cru", icon: Factory },
   { href: "/cadastros/receitas", label: "Receitas", icon: FlaskConical },
   { href: "/dashboard/relatorios", label: "Relatórios", icon: BarChart3 },
+  { href: "/ferramentas", label: "Ferramentas", icon: Wrench },
 ] as const
 
 interface SidebarProps {
