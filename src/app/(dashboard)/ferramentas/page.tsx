@@ -1,10 +1,11 @@
 "use client"
 
 import Link from "next/link"
-import { Send, Calculator, Wrench } from "lucide-react"
+import { Send, Calculator, Wrench, Repeat } from "lucide-react"
 
 const ferramentas = [
   { href: "/ferramentas/regra-de-tres", label: "Calculadora de Regra de Três", desc: "Resolve regra de três simples (direta/inversa) e composta", icon: Calculator },
+  { href: "/ferramentas/conversores", label: "Conversores Têxteis", desc: "Conversão entre Tex, Ne e Denier", icon: Repeat },
   { href: "/admin/email-massa", label: "Email em Massa", desc: "Enviar email para múltiplos destinatários", icon: Send },
 ]
 
