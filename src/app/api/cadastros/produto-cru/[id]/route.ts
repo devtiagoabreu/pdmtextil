@@ -13,7 +13,7 @@ import {
 } from "@/lib/db/schema/produto-cru"
 import { solicitacoes } from "@/lib/db/schema/solicitacoes"
 import { eq, and } from "drizzle-orm"
-import { notificar, notificarDelecao } from "@/lib/notificar"
+import { notificar, notificarDelecao, registrarLog } from "@/lib/notificar"
 import { handleApiError } from "@/lib/api-error"
 
 export async function GET(
@@ -139,6 +139,8 @@ export async function PUT(
       `/cadastros/produto-cru/${id}`,
       session.user.name
     )
+
+    await registrarLog({ tipo: "ATUALIZACAO", acao: "atualizar", descricao: `Produto cru #${id} atualizado - status: ${body.status}`, entidade: "ProdutoCru", entidadeId: id, usuarioNome: session.user.name })
 
     return NextResponse.json(atualizado[0])
   } catch (error) {

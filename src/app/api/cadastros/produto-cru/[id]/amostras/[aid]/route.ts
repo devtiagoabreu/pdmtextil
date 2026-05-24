@@ -4,7 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { produtoCruAmostra } from "@/lib/db/schema/produto-cru"
 import { eq, and } from "drizzle-orm"
-import { notificar } from "@/lib/notificar"
+import { notificar, registrarLog } from "@/lib/notificar"
 
 export async function PUT(
   req: NextRequest,
@@ -79,6 +79,8 @@ export async function PUT(
         )
       }
     }
+
+    await registrarLog({ tipo: "ATUALIZACAO", acao: "atualizar_status", descricao: `Amostra tecido cru #${aid} alterada para ${body.status}`, entidade: "AmostraTecidoCru", entidadeId: parseInt(aid), usuarioNome: session.user.name })
 
     return NextResponse.json(atualizado[0])
   } catch (error) {
