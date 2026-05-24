@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { authOptions, getUserId } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { produtosQuimicos } from "@/lib/db/schema/produtos-quimicos"
 import { or, ilike } from "drizzle-orm"
@@ -33,6 +33,9 @@ export async function POST(req: NextRequest) {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
+    const userIdResult = getUserId(session)
+    if (userIdResult instanceof NextResponse) return userIdResult
+
     const body = await req.json()
     if (!body.codigo || !body.nome) {
       return NextResponse.json({ error: "Código e nome são obrigatórios" }, { status: 400 })
@@ -52,7 +55,7 @@ export async function POST(req: NextRequest) {
       fichaSeguranca: body.fichaSeguranca || null,
       idIntegracao: body.idIntegracao || null,
       ativo: body.ativo ?? true,
-      criadoPor: parseInt(session.user.id),
+      criadoPor: userIdResult,
     }).returning()
 
     return NextResponse.json(Array.isArray(novo) ? novo[0] : novo)

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { authOptions, getUserId } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { solicitacoes } from "@/lib/db/schema/solicitacoes"
 import { anexos } from "@/lib/db/schema/anexos"
@@ -75,7 +75,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Briefing é obrigatório" }, { status: 400 })
     }
 
-    const userId = parseInt(session.user.id)
+    const userIdResult = getUserId(session)
+    if (userIdResult instanceof NextResponse) return userIdResult
+    const userId = userIdResult
 
     const historico = [
       {

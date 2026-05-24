@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { authOptions, getUserId } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { solicitacoes } from "@/lib/db/schema/solicitacoes"
 import { eq } from "drizzle-orm"
@@ -24,6 +24,9 @@ export async function PATCH(
   try {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
+
+    const userIdResult = getUserId(session)
+    if (userIdResult instanceof NextResponse) return userIdResult
 
     const id = parseInt(params.id)
     if (isNaN(id)) return NextResponse.json({ error: "ID inválido" }, { status: 400 })
@@ -51,7 +54,7 @@ export async function PATCH(
     historico.push({
       data: new Date().toISOString(),
       usuario: session.user.name,
-      usuarioId: parseInt(session.user.id),
+      usuarioId: userIdResult,
       acao: "MUDANCA_STATUS",
       de: solicitacaoAtual.status,
       para: status,
