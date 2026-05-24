@@ -21,26 +21,27 @@ export async function notificar(
     .from(usuarios)
     .where(eq(usuarios.ativo, true))
 
-  // Se roles foi explicitamente passado, usa-o diretamente
-  // Senão, consulta regras dinâmicas da tabela notificacao_regras
-  let rolesFiltro = roles
-  if (!rolesFiltro) {
+  // Se roles foi explicitamente passado (ex: notificarErro com ["SUDO"]), usa diretamente
+  // Senão, consulta a regra dinâmica da tabela notificacao_regras
+  let rolesFiltro
+  if (roles !== undefined) {
+    rolesFiltro = roles
+  } else {
     const regra = await db
       .select({ roles: notificacaoRegras.roles })
       .from(notificacaoRegras)
       .where(eq(notificacaoRegras.tipo, tipo))
       .limit(1)
     if (regra.length > 0) {
-      const regraRoles = Array.isArray(regra[0].roles) ? regra[0].roles.map(String) : []
-      if (regraRoles.length > 0) {
-        rolesFiltro = regraRoles
-      }
+      rolesFiltro = Array.isArray(regra[0].roles) ? regra[0].roles.map(String) : []
+    } else {
+      rolesFiltro = [] // sem regra = ninguém recebe
     }
   }
 
-  const usuariosFiltrados = rolesFiltro?.length
-    ? todosUsuarios.filter(u => rolesFiltro!.includes(u.role))
-    : todosUsuarios
+  const usuariosFiltrados = rolesFiltro.length
+    ? todosUsuarios.filter(u => rolesFiltro.includes(u.role))
+    : []
 
   const notificacoesData: NewNotificacao[] = usuariosFiltrados.map(u => ({
     tipo,
