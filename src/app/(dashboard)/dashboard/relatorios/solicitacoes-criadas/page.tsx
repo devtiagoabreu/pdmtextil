@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts"
 import { BarChart3, Filter } from "lucide-react"
 import { usePathname } from "next/navigation"
@@ -59,7 +59,7 @@ export default function RelatorioSolicitacoesCriadas() {
   const [dataInicio, setDataInicio] = useState("")
   const [dataFim, setDataFim] = useState("")
 
-  function fetchData() {
+  const fetchData = useCallback(() => {
     setLoading(true)
     const params = new URLSearchParams()
     if (dataInicio) params.set("dataInicio", dataInicio)
@@ -74,9 +74,9 @@ export default function RelatorioSolicitacoesCriadas() {
       })
       .catch(() => {})
       .finally(() => setLoading(false))
-  }
+  }, [dataInicio, dataFim])
 
-  useEffect(() => { fetchData() }, [])
+  useEffect(() => { fetchData() }, [fetchData])
 
   function handleExportCSV() {
     exportCSV("solicitacoes-por-mes", ["Mês", "Criadas", "Deletadas", "Concluídas"], porMes.map((m) => [m.mes, m.criadas, m.deletadas, m.concluidas]))
