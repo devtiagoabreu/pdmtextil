@@ -32,7 +32,14 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user }) {
-      if (user) { token.id = user.id; token.role = user.role }
+      if (user) {
+        token.id = user.id
+        token.role = user.role
+        try {
+          const { registrarLog } = await import("@/lib/notificar")
+          await registrarLog({ tipo: "LOGIN", acao: "logar", descricao: `Login realizado`, entidade: "Usuario", entidadeId: user.id, usuarioNome: user.name })
+        } catch {}
+      }
       return token
     },
     async session({ session, token }) {

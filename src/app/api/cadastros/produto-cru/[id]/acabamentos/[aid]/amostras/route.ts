@@ -4,7 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { produtoCruAcabamentoAmostra } from "@/lib/db/schema/produto-cru"
 import { eq } from "drizzle-orm"
-import { notificar } from "@/lib/notificar"
+import { notificar, registrarLog } from "@/lib/notificar"
 
 export async function GET(
   req: NextRequest,
@@ -59,6 +59,8 @@ export async function POST(
       `/cadastros/produto-cru/${id}`,
       session.user.name
     )
+
+    await registrarLog({ tipo: "CADASTRO", acao: "criar", descricao: `Amostra de acabamento #${novo[0].id} criada`, entidade: "AmostraAcabamento", entidadeId: novo[0].id, usuarioNome: session.user.name })
 
     return NextResponse.json(novo[0])
   } catch (error) {

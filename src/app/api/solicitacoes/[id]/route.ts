@@ -5,7 +5,7 @@ import { db } from "@/lib/db"
 import { solicitacoes } from "@/lib/db/schema/solicitacoes"
 import { anexos } from "@/lib/db/schema/anexos"
 import { eq } from "drizzle-orm"
-import { notificar, notificarDelecao } from "@/lib/notificar"
+import { notificar, notificarDelecao, registrarLog } from "@/lib/notificar"
 import { handleApiError } from "@/lib/api-error"
 
 export async function GET(
@@ -174,6 +174,8 @@ export async function PUT(
         }
       }
     }
+
+    await registrarLog({ tipo: "ATUALIZACAO", acao: "atualizar_status", descricao: `Solicitação #${id} alterada para ${body.status}`, entidade: "Solicitacao", entidadeId: parseInt(id), usuarioNome: session.user.name })
 
     return NextResponse.json(solicitacaoAtualizada)
   } catch (error: any) {

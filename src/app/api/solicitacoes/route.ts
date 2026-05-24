@@ -7,7 +7,7 @@ import { anexos } from "@/lib/db/schema/anexos"
 import { produtosCru } from "@/lib/db/schema/produto-cru"
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq, desc, and, sql } from "drizzle-orm"
-import { notificar } from "@/lib/notificar"
+import { notificar, registrarLog } from "@/lib/notificar"
 
 // GET - Listar solicitações (filtradas por perfil)
 export async function GET(req: NextRequest) {
@@ -124,6 +124,8 @@ export async function POST(req: NextRequest) {
       `/comercial/solicitacoes/${novaSolicitacao.id}`,
       session.user.name
     )
+
+    await registrarLog({ tipo: "CADASTRO", acao: "criar", descricao: `Solicitação #${novaSolicitacao.id} criada - ${body.cliente}`, entidade: "Solicitacao", entidadeId: novaSolicitacao.id, usuarioNome: session.user.name })
 
     return NextResponse.json(novaSolicitacao, { status: 201 })
   } catch (error) {
