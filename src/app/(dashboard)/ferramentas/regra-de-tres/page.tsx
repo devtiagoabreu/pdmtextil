@@ -11,12 +11,22 @@ interface Grandeza {
   valor: number | ""
 }
 
+interface GrandezaComposta {
+  nome: string
+  valorAntigo: number | ""
+  valorNovo: number | ""
+}
+
 export default function RegraDeTresPage() {
   const [tipo, setTipo] = useState<TipoRegra>("simples-direta")
   const [grandezas, setGrandezas] = useState<Grandeza[]>([
     { nome: "A", valor: "" },
     { nome: "B", valor: "" },
     { nome: "C", valor: "" },
+  ])
+  const [grandezasComp, setGrandezasComp] = useState<GrandezaComposta[]>([
+    { nome: "A", valorAntigo: "", valorNovo: "" },
+    { nome: "B", valorAntigo: "", valorNovo: "" },
   ])
   const [referencia, setReferencia] = useState<number | "">("")
   const [resultado, setResultado] = useState<string | null>(null)
@@ -43,9 +53,9 @@ export default function RegraDeTresPage() {
     },
     "composta": {
       titulo: "Regra de Três Composta",
-      exemplo: "5 máquinas produzem 100 peças em 2 dias. Quantas peças 8 máquinas produzirão em 3 dias?\n\nA: Máquinas (5 → 8) — direta\nB: Dias (2 → 3) — direta\nReferência: Peças (100 → X)\n\nX = (8 × 3 × 100) / (5 × 2) = 240",
+      exemplo: "5 máquinas produzem 100 peças em 2 dias. Quantas peças 8 máquinas produzirão em 3 dias?\n\nA: Máquinas (5 → 8)\nB: Dias (2 → 3)\nReferência: Peças (100 → X)\n\nX = (8 × 3 × 100) / (5 × 2) = 240",
       preencher: () => {
-        setGrandezas([{ nome: "Máquinas", valor: 5 }, { nome: "Dias", valor: 2 }])
+        setGrandezasComp([{ nome: "Máquinas", valorAntigo: 5, valorNovo: 8 }, { nome: "Dias", valorAntigo: 2, valorNovo: 3 }])
         setReferencia(100)
         setResultado(null)
       },
@@ -59,9 +69,16 @@ export default function RegraDeTresPage() {
     setResultado(null)
   }
 
-  function addGrandeza() {
-    const next = String.fromCharCode(65 + grandezas.length)
-    setGrandezas(prev => [...prev, { nome: next, valor: "" }])
+  function handleGrandezaCompChange(idx: number, field: keyof GrandezaComposta, value: string) {
+    setGrandezasComp(prev => prev.map((g, i) =>
+      i === idx ? { ...g, [field]: field === "nome" ? value : value === "" ? "" : Number(value) } : g
+    ))
+    setResultado(null)
+  }
+
+  function addGrandezaComp() {
+    const next = String.fromCharCode(65 + grandezasComp.length)
+    setGrandezasComp(prev => [...prev, { nome: next, valorAntigo: "", valorNovo: "" }])
   }
 
   function remGrandeza(idx: number) {
@@ -69,28 +86,25 @@ export default function RegraDeTresPage() {
     setResultado(null)
   }
 
+  function remGrandezaComp(idx: number) {
+    setGrandezasComp(prev => prev.filter((_, i) => i !== idx))
+    setResultado(null)
+  }
+
   function calcular() {
     if (tipo === "composta") {
-      const gs = grandezas.filter(g => g.valor !== "")
+      const gs = grandezasComp.filter(g => g.valorAntigo !== "" && g.valorNovo !== "")
       const ref = Number(referencia)
-      if (gs.length < 2 || !ref) {
-        setResultado("Preencha pelo menos 2 grandezas e o valor de referência.")
+      if (gs.length < 1 || !ref) {
+        setResultado("Preencha pelo menos 1 grandeza e o valor de referência.")
         return
       }
-      const numerador = gs.reduce((acc, g) => acc * Number(g.valor), 1) * ref
-      const denominador = gs.reduce((acc, g) => acc * Number(g.valor), 1) / (gs[0]?.valor ? Number(gs[0].valor) : 1)
-      // Simplificação: assume todas diretas para o cálculo básico
       let num = ref
       let den = 1
       for (const g of gs) {
-        num *= Number(g.valor)
+        num *= Number(g.valorNovo)
+        den *= Number(g.valorAntigo)
       }
-      for (const g of gs) {
-        den *= Number(g.valor)
-      }
-      // Remove factor from first grandeza (which is the one we're comparing)
-      den = den / (gs[0]?.valor ? Number(gs[0].valor) : 1)
-      // the result is num/den
       const x = num / den
       setResultado(`X = ${Number.isInteger(x) ? x : x.toFixed(4)}`)
     } else {
@@ -206,36 +220,48 @@ export default function RegraDeTresPage() {
             </div>
           </div>
         ) : (
-          <div className="space-y-3">
-            {grandezas.map((g, idx) => (
-              <div key={idx} className="flex items-center gap-3">
+          <div className="space-y-4">
+            <div className="grid grid-cols-[1fr_1fr_1fr_40px] gap-3 text-xs font-medium text-slate-500 px-1">
+              <span>Grandeza</span>
+              <span className="text-center">Valor antigo</span>
+              <span className="text-center">Valor novo</span>
+            </div>
+            {grandezasComp.map((g, idx) => (
+              <div key={idx} className="grid grid-cols-[1fr_1fr_1fr_40px] gap-3 items-center">
                 <input
                   type="text"
                   value={g.nome}
-                  onChange={e => handleGrandezaChange(idx, "nome", e.target.value)}
-                  className="w-16 px-2 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-center font-mono"
-                  maxLength={3}
+                  onChange={e => handleGrandezaCompChange(idx, "nome", e.target.value)}
+                  className="px-2 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-center font-mono"
+                  maxLength={12}
                 />
-                <span className="text-xs text-slate-400">:</span>
                 <input
                   type="number"
-                  value={g.valor}
-                  onChange={e => handleGrandezaChange(idx, "valor", e.target.value)}
-                  className="flex-1 px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm"
-                  placeholder="Valor"
+                  value={g.valorAntigo}
+                  onChange={e => handleGrandezaCompChange(idx, "valorAntigo", e.target.value)}
+                  className="px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-center"
+                  placeholder="Antigo"
                 />
-                {grandezas.length > 2 && (
+                <input
+                  type="number"
+                  value={g.valorNovo}
+                  onChange={e => handleGrandezaCompChange(idx, "valorNovo", e.target.value)}
+                  className="px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-center"
+                  placeholder="Novo"
+                />
+                {grandezasComp.length > 1 && (
                   <button
-                    onClick={() => remGrandeza(idx)}
+                    onClick={() => remGrandezaComp(idx)}
                     className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg text-xs"
+                    title="Remover"
                   >
-                    Remover
+                    ✕
                   </button>
                 )}
               </div>
             ))}
             <button
-              onClick={addGrandeza}
+              onClick={addGrandezaComp}
               className="text-sm text-blue-600 hover:text-blue-700 font-medium"
             >
               + Adicionar grandeza
