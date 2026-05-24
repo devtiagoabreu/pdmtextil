@@ -18,6 +18,7 @@ import {
   ClipboardList,
   Lock,
   BarChart3,
+  FlaskConical,
 } from "lucide-react"
 
 const adminItems = [
@@ -36,6 +37,7 @@ const baseNav = [
   { href: "/comercial/clientes", label: "Clientes", icon: Building2 },
   { href: "/cadastros", label: "Cadastros", icon: Database },
   { href: "/cadastros/produto-cru", label: "Produtos Cru", icon: Factory },
+  { href: "/cadastros/receitas", label: "Receitas", icon: FlaskConical },
   { href: "/dashboard/relatorios/atividade-usuario", label: "Atividade por Usuário", icon: BarChart3 },
   { href: "/dashboard/relatorios/solicitacoes-criadas", label: "Criadas / Deletadas", icon: BarChart3 },
   { href: "/dashboard/relatorios/tempo-status", label: "Tempo p/ Status (Solic.)", icon: BarChart3 },

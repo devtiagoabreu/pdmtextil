@@ -51,6 +51,9 @@ export const searchRegistry: SearchItem[] = [
   { id: "produtos-quimicos", label: "Produtos Químicos", keywords: ["quimico", "produto", "quimica", "insumo", "lista"], href: "/cadastros/produtos-quimicos", description: "Lista de produtos químicos", module: "Cadastros" },
   { id: "produtos-quimicos-detalhe", label: "Produtos Químicos (Detalhe)", keywords: ["quimico", "detalhe", "editar"], href: "/cadastros/produtos-quimicos/[id]", description: "Ficha do produto químico", module: "Cadastros" },
 
+  // Receitas
+  { id: "receitas", label: "Receitas", keywords: ["receita", "receitas", "formula", "beneficiamento", "quimica"], href: "/cadastros/receitas", description: "Receitas de beneficiamento", module: "Cadastros" },
+
   // Amostras
   { id: "amostras", label: "Amostras", keywords: ["amostra", "amostras", "lista"], href: "/amostras", description: "Lista de amostras", module: "Amostras" },
 

@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Package, Building2, Users, Palette, Scissors, Droplets, Layers, FlaskConical } from "lucide-react"
+import { Package, Building2, Users, Palette, Scissors, Droplets, Layers, FlaskConical, Beaker } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
@@ -54,6 +54,12 @@ const modulos = [
     descricao: "Produtos químicos para beneficiamento",
     href: "/cadastros/produtos-quimicos",
     icon: FlaskConical,
+  },
+  {
+    titulo: "Receitas",
+    descricao: "Receitas de beneficiamento",
+    href: "/cadastros/receitas",
+    icon: Beaker,
   },
 ]
 
