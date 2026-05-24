@@ -82,3 +82,5 @@ export async function notificarDelecao(
   await notificar("DELECAO", descricao, undefined, usuarioNome, ["SUDO"])
   await registrarLog({ tipo: "DELECAO", acao: "excluir", descricao, entidade, usuarioNome })
 }
+
+export { registrarLog }
