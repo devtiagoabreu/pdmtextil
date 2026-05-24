@@ -38,12 +38,13 @@ const STATUS_BG: Record<string, string> = {
 export default function DashboardAmostras() {
   const [stats, setStats] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
 
   useEffect(() => {
     fetch("/api/dashboard/amostras-stats")
-      .then(r => r.json())
+      .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json() })
       .then(setStats)
-      .catch(() => {})
+      .catch((e) => setError(e.message))
       .finally(() => setLoading(false))
   }, [])
 
@@ -61,6 +62,14 @@ export default function DashboardAmostras() {
 
       {loading ? (
         <div className="text-center py-8 text-slate-500">Carregando...</div>
+      ) : error ? (
+        <div className="rounded-xl border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/50 p-6 text-center">
+          <p className="text-red-600 dark:text-red-400 font-medium">Erro ao carregar dados</p>
+          <p className="text-sm text-red-500 dark:text-red-500 mt-1">{error}</p>
+          <button onClick={() => window.location.reload()} className="mt-4 text-sm text-blue-600 dark:text-blue-400 hover:underline">
+            Tentar novamente
+          </button>
+        </div>
       ) : (
         <>
           {/* Stats cards */}
