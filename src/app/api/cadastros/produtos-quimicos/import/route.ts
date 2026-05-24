@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { authOptions, getUserId } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { produtosQuimicos } from "@/lib/db/schema/produtos-quimicos"
 
@@ -10,6 +10,9 @@ export async function POST(req: NextRequest) {
     if (!session) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
+
+    const userIdResult = getUserId(session)
+    if (userIdResult instanceof NextResponse) return userIdResult
 
     const form = await req.formData()
     const file = form.get("file") as File
@@ -38,7 +41,7 @@ export async function POST(req: NextRequest) {
             ph: item.ph || null,
             idIntegracao: item.idIntegracao || null,
             ativo: true,
-            criadoPor: parseInt(session.user.id),
+            criadoPor: userIdResult,
           })
           imported++
         } catch (e: any) {
@@ -64,7 +67,7 @@ export async function POST(req: NextRequest) {
             concentracao: parts[6]?.trim() || null,
             idIntegracao: parts[7]?.trim() || null,
             ativo: true,
-            criadoPor: parseInt(session.user.id),
+            criadoPor: userIdResult,
           })
           imported++
         } catch (e: any) {

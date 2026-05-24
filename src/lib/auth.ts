@@ -1,10 +1,22 @@
 import { NextAuthOptions } from "next-auth"
+import { NextResponse } from "next/server"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { DrizzleAdapter } from "@auth/drizzle-adapter"
 import { db } from "@/lib/db"
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq } from "drizzle-orm"
 import bcrypt from "bcryptjs"
+
+export function getUserId(session: { user?: { id?: string } } | null): number | NextResponse {
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Usuário inválido" }, { status: 401 })
+  }
+  const id = parseInt(session.user.id)
+  if (isNaN(id)) {
+    return NextResponse.json({ error: "Usuário inválido" }, { status: 401 })
+  }
+  return id
+}
 
 export const authOptions: NextAuthOptions = {
   adapter: DrizzleAdapter(db) as any,

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { authOptions, getUserId } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { fios } from "@/lib/db/schema/fios"
 import { eq } from "drizzle-orm"
@@ -95,6 +95,9 @@ export async function POST(req: NextRequest) {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
+    const userIdResult = getUserId(session)
+    if (userIdResult instanceof NextResponse) return userIdResult
+
     const formData = await req.formData()
     const arquivo = formData.get("arquivo") as File | null
 
@@ -175,7 +178,7 @@ export async function POST(req: NextRequest) {
           alongamento: reg.alongamento || null,
           idIntegracao: reg.idIntegracao || null,
           ativo: ativo,
-          criadoPor: parseInt(session.user.id),
+          criadoPor: userIdResult,
         })
 
         resultados.importados++

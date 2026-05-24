@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { authOptions, getUserId } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { produtoCruAmostra } from "@/lib/db/schema/produto-cru"
 import { eq } from "drizzle-orm"
@@ -32,6 +32,9 @@ export async function POST(
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
+    const userIdResult = getUserId(session)
+    if (userIdResult instanceof NextResponse) return userIdResult
+
     const id = parseInt((await params).id)
     const body = await req.json()
 
@@ -45,7 +48,7 @@ export async function POST(
         historico: [{
           data: new Date().toISOString(),
           usuario: session.user.name,
-          usuarioId: parseInt(session.user.id),
+          usuarioId: userIdResult,
           acao: "CRIACAO",
           status: body.status || "PENDENTE",
         }],

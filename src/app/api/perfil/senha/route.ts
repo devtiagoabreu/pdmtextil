@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { authOptions, getUserId } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq } from "drizzle-orm"
@@ -13,6 +13,9 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
+    const userIdResult = getUserId(session)
+    if (userIdResult instanceof NextResponse) return userIdResult
+
     const { password } = await req.json()
 
     if (!password || password.length < 6) {
@@ -24,7 +27,7 @@ export async function PUT(req: NextRequest) {
     await db
       .update(usuarios)
       .set({ password: hash, updatedAt: new Date() })
-      .where(eq(usuarios.id, parseInt(session.user.id)))
+      .where(eq(usuarios.id, userIdResult))
 
     return NextResponse.json({ success: true })
   } catch (error) {

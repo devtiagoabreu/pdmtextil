@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { authOptions, getUserId } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq } from "drizzle-orm"
@@ -89,10 +89,13 @@ export async function DELETE(
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
+    const userIdResult = getUserId(session)
+    if (userIdResult instanceof NextResponse) return userIdResult
+
     const { id } = await params
     const userId = parseInt(id)
 
-    if (userId === parseInt(session.user.id)) {
+    if (userId === userIdResult) {
       return NextResponse.json({ error: "Você não pode excluir o próprio usuário" }, { status: 400 })
     }
 

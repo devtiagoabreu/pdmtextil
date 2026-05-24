@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { authOptions, getUserId } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { notificacoes } from "@/lib/db/schema/notificacoes"
 import { eq, and, desc } from "drizzle-orm"
@@ -10,7 +10,9 @@ export async function GET(req: NextRequest) {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
-    const userId = parseInt(session.user.id)
+    const userIdResult = getUserId(session)
+    if (userIdResult instanceof NextResponse) return userIdResult
+    const userId = userIdResult
     const { searchParams } = new URL(req.url)
     const apenasNaoLidas = searchParams.get("naoLidas") === "true"
     const limit = parseInt(searchParams.get("limit") || "50")
@@ -37,7 +39,9 @@ export async function PUT(req: NextRequest) {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
-    const userId = parseInt(session.user.id)
+    const userIdResult = getUserId(session)
+    if (userIdResult instanceof NextResponse) return userIdResult
+    const userId = userIdResult
     const body = await req.json()
 
     if (body.marcarTodas) {
