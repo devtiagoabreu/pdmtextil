@@ -22,18 +22,33 @@ export default function RegraDeTresPage() {
   const [resultado, setResultado] = useState<string | null>(null)
   const [infoAberta, setInfoAberta] = useState<string | null>(null)
 
-  const infos: Record<TipoRegra, { titulo: string; exemplo: string }> = {
+  const infos: Record<TipoRegra, { titulo: string; exemplo: string; preencher: () => void }> = {
     "simples-direta": {
       titulo: "Regra de Três Simples Direta",
       exemplo: "3 cadernos custam R$ 15. Quanto custam 5 cadernos?\n\nA: Quantidade de cadernos (3 → 5)\nB: Preço (15 → X)\n\n3/5 = 15/X → X = (15 × 5) / 3 = 25",
+      preencher: () => {
+        setGrandezas([{ nome: "A", valor: 3 }, { nome: "B", valor: 5 }, { nome: "C", valor: 15 }])
+        setReferencia("")
+        setResultado(null)
+      },
     },
     "simples-inversa": {
       titulo: "Regra de Três Simples Inversa",
       exemplo: "4 pessoas fazem um trabalho em 6 dias. Em quantos dias 8 pessoas fariam?\n\nA: Pessoas (4 → 8)\nB: Dias (6 → X)\n\n4/8 = X/6 → X = (4 × 6) / 8 = 3",
+      preencher: () => {
+        setGrandezas([{ nome: "A", valor: 4 }, { nome: "B", valor: 8 }, { nome: "C", valor: 6 }])
+        setReferencia("")
+        setResultado(null)
+      },
     },
     "composta": {
       titulo: "Regra de Três Composta",
       exemplo: "5 máquinas produzem 100 peças em 2 dias. Quantas peças 8 máquinas produzirão em 3 dias?\n\nA: Máquinas (5 → 8) — direta\nB: Dias (2 → 3) — direta\nReferência: Peças (100 → X)\n\nX = (8 × 3 × 100) / (5 × 2) = 240",
+      preencher: () => {
+        setGrandezas([{ nome: "Máquinas", valor: 5 }, { nome: "Dias", valor: 2 }])
+        setReferencia(100)
+        setResultado(null)
+      },
     },
   }
 
@@ -140,9 +155,15 @@ export default function RegraDeTresPage() {
         </div>
 
         {infoAberta && infos[infoAberta as TipoRegra] && (
-          <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-950/30 text-sm text-slate-700 dark:text-slate-300 whitespace-pre-line border border-blue-200 dark:border-blue-800">
+          <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-950/30 text-sm text-slate-700 dark:text-slate-300 border border-blue-200 dark:border-blue-800">
             <p className="font-semibold mb-1">{infos[infoAberta as TipoRegra].titulo}</p>
-            {infos[infoAberta as TipoRegra].exemplo}
+            <pre className="whitespace-pre-wrap font-sans">{infos[infoAberta as TipoRegra].exemplo}</pre>
+            <button
+              onClick={() => { infos[infoAberta as TipoRegra].preencher(); setInfoAberta(null) }}
+              className="mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-xs font-medium transition-colors"
+            >
+              Preencher campos com este exemplo
+            </button>
           </div>
         )}
       </div>
