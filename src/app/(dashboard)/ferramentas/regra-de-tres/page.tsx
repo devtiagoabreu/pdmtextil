@@ -221,32 +221,32 @@ export default function RegraDeTresPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="grid grid-cols-[1fr_1fr_1fr_40px] gap-3 text-xs font-medium text-slate-500 px-1">
+            <div className="grid grid-cols-[100px_120px_120px_32px] gap-2 text-xs font-medium text-slate-500 px-1">
               <span>Grandeza</span>
               <span className="text-center">Valor antigo</span>
               <span className="text-center">Valor novo</span>
             </div>
             {grandezasComp.map((g, idx) => (
-              <div key={idx} className="grid grid-cols-[1fr_1fr_1fr_40px] gap-3 items-center">
+              <div key={idx} className="grid grid-cols-[100px_120px_120px_32px] gap-2 items-center">
                 <input
                   type="text"
                   value={g.nome}
                   onChange={e => handleGrandezaCompChange(idx, "nome", e.target.value)}
-                  className="px-2 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-center font-mono"
+                  className="px-2 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-center font-mono"
                   maxLength={12}
                 />
                 <input
                   type="number"
                   value={g.valorAntigo}
                   onChange={e => handleGrandezaCompChange(idx, "valorAntigo", e.target.value)}
-                  className="px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-center"
+                  className="px-2 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-center w-full"
                   placeholder="Antigo"
                 />
                 <input
                   type="number"
                   value={g.valorNovo}
                   onChange={e => handleGrandezaCompChange(idx, "valorNovo", e.target.value)}
-                  className="px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-center"
+                  className="px-2 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-center w-full"
                   placeholder="Novo"
                 />
                 {grandezasComp.length > 1 && (
@@ -274,7 +274,7 @@ export default function RegraDeTresPage() {
                   type="number"
                   value={referencia}
                   onChange={e => setReferencia(e.target.value === "" ? "" : Number(e.target.value))}
-                  className="w-32 px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm"
+                  className="w-32 px-2 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm"
                   placeholder="Ex: 100"
                 />
               </div>
