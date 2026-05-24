@@ -78,7 +78,7 @@ export async function PATCH(
       .returning()
 
     if (status === "APROVADO" || status === "REPROVADO") {
-      notificar(
+      await notificar(
         status === "APROVADO" ? "SOLICITACAO_APROVADA" : "SOLICITACAO_REPROVADA",
         `Solicitação #${id} foi ${status === "APROVADO" ? "aprovada" : "reprovada"} por ${session.user.name}${comentario ? ` — ${comentario}` : ""}`,
         `/comercial/solicitacoes/${id}`,

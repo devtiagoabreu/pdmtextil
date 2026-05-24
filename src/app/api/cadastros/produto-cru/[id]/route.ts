@@ -122,7 +122,7 @@ export async function PUT(
           .update(solicitacoes)
           .set({ status: "CONCLUIDO", dataConclusao: new Date(), updatedAt: new Date() })
           .where(eq(solicitacoes.id, solicitacaoId))
-        notificar(
+        await notificar(
           "SOLICITACAO_ATUALIZADA",
           `Produto cru #${id} aprovado por ${session.user.name} — Solicitação #${solicitacaoId} concluída`,
           `/comercial/solicitacoes/${solicitacaoId}`,
@@ -133,7 +133,7 @@ export async function PUT(
       }
     }
 
-    notificar(
+    await notificar(
       "PRODUTO_CRU_ATUALIZADO",
       `Produto cru #${id} atualizado por ${session.user.name}`,
       `/cadastros/produto-cru/${id}`,
@@ -162,7 +162,7 @@ export async function DELETE(
 
     const id = parseInt((await params).id)
 
-    notificar(
+    await notificar(
       "PRODUTO_CRU_EXCLUIDO",
       `Produto cru #${id} foi excluído por ${session.user.name}`,
       "/cadastros/produto-cru",
