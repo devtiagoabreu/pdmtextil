@@ -347,6 +347,32 @@ async function migrate() {
     await sql`ALTER TABLE produto_cru_acabamento_amostra ADD COLUMN IF NOT EXISTS links JSONB DEFAULT '[]'::jsonb`
     console.log("✓ Coluna links em produto_cru_acabamento_amostra")
 
+    await sql`
+      CREATE TABLE IF NOT EXISTS notificacao_regras (
+        id SERIAL PRIMARY KEY,
+        tipo VARCHAR(50) NOT NULL UNIQUE,
+        roles JSONB NOT NULL DEFAULT '[]'::jsonb,
+        created_at TIMESTAMP DEFAULT now(),
+        updated_at TIMESTAMP DEFAULT now()
+      )
+    `
+    console.log("✓ Tabela notificacao_regras criada")
+
+    // Popula regras default (todos os tipos com array vazio => notifica todos)
+    const regrasExistentes = await sql`SELECT count(*) FROM notificacao_regras`
+    if (regrasExistentes[0].count === "0") {
+      const tipos = [
+        'SOLICITACAO_CRIADA', 'SOLICITACAO_APROVADA', 'SOLICITACAO_REPROVADA', 'SOLICITACAO_ATUALIZADA',
+        'PRODUTO_CRU_CRIADO', 'PRODUTO_CRU_ATUALIZADO', 'PRODUTO_CRU_EXCLUIDO',
+        'AMOSTRA_CRIADA', 'AMOSTRA_APROVADA', 'AMOSTRA_REPROVADA', 'AMOSTRA_ATUALIZADA', 'AMOSTRA_EXCLUIDA',
+        'ACABAMENTO_CRIADO', 'ACABAMENTO_EXCLUIDO',
+      ]
+      for (const tipo of tipos) {
+        await sql`INSERT INTO notificacao_regras (tipo, roles) VALUES (${tipo}, '[]'::jsonb)`
+      }
+      console.log("✓ Regras de notificação padrão inseridas")
+    }
+
     console.log("\n✅ Migration concluída com sucesso!")
     
   } catch (error) {

@@ -1,5 +1,6 @@
 import { db } from "./db"
 import { notificacoes, NewNotificacao } from "./db/schema/notificacoes"
+import { notificacaoRegras } from "./db/schema/notificacao-regras"
 import { usuarios } from "./db/schema/usuarios"
 import { eq } from "drizzle-orm"
 import { sendEmail } from "./email"
@@ -20,8 +21,25 @@ export async function notificar(
     .from(usuarios)
     .where(eq(usuarios.ativo, true))
 
-  const usuariosFiltrados = roles?.length
-    ? todosUsuarios.filter(u => roles.includes(u.role))
+  // Se roles foi explicitamente passado, usa-o diretamente
+  // Senão, consulta regras dinâmicas da tabela notificacao_regras
+  let rolesFiltro = roles
+  if (!rolesFiltro) {
+    const regra = await db
+      .select({ roles: notificacaoRegras.roles })
+      .from(notificacaoRegras)
+      .where(eq(notificacaoRegras.tipo, tipo))
+      .limit(1)
+    if (regra.length > 0) {
+      const regraRoles = Array.isArray(regra[0].roles) ? regra[0].roles.map(String) : []
+      if (regraRoles.length > 0) {
+        rolesFiltro = regraRoles
+      }
+    }
+  }
+
+  const usuariosFiltrados = rolesFiltro?.length
+    ? todosUsuarios.filter(u => rolesFiltro!.includes(u.role))
     : todosUsuarios
 
   const notificacoesData: NewNotificacao[] = usuariosFiltrados.map(u => ({
