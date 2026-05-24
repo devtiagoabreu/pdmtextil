@@ -37,7 +37,7 @@ export const authOptions: NextAuthOptions = {
         token.role = user.role
         try {
           const { registrarLog } = await import("@/lib/notificar")
-          await registrarLog({ tipo: "LOGIN", acao: "logar", descricao: `Login realizado`, entidade: "Usuario", entidadeId: user.id, usuarioNome: user.name })
+          await registrarLog({ tipo: "LOGIN", acao: "logar", descricao: `Login realizado`, entidade: "Usuario", entidadeId: parseInt(String(user.id)), usuarioNome: user.name })
         } catch {}
       }
       return token
