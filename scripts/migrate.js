@@ -370,6 +370,7 @@ async function migrate() {
       for (const tipo of tipos) {
         await sql`INSERT INTO notificacao_regras (tipo, roles) VALUES (${tipo}, '["COMERCIAL","DESENVOLVIMENTO","ADMIN","SUDO","QUALIDADE","TECELAGEM","BENEFICIAMENTO","PCP"]'::jsonb)`
       }
+    }
     console.log("✓ Regras de notificação padrão inseridas")
 
     // Atualiza regras existentes que ficaram com array vazio (da seed anterior)
