@@ -373,6 +373,18 @@ async function migrate() {
     }
     console.log("✓ Regras de notificação padrão inseridas")
 
+    await sql`
+      CREATE TABLE IF NOT EXISTS bancos_dados (
+        id SERIAL PRIMARY KEY,
+        nome VARCHAR(100) NOT NULL,
+        connection_string VARCHAR(500) NOT NULL,
+        ativo BOOLEAN DEFAULT false,
+        created_at TIMESTAMP DEFAULT now(),
+        updated_at TIMESTAMP DEFAULT now()
+      )
+    `
+    console.log("✓ Tabela bancos_dados criada")
+
     // Atualiza regras existentes que ficaram com array vazio (da seed anterior)
     const defaultRoles = '["COMERCIAL","DESENVOLVIMENTO","ADMIN","SUDO","QUALIDADE","TECELAGEM","BENEFICIAMENTO","PCP"]'
     await sql`UPDATE notificacao_regras SET roles = ${defaultRoles}::jsonb WHERE roles = '[]'::jsonb`

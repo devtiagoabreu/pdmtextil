@@ -1,213 +1,48 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { toast } from "sonner"
-import { Loader2, Mail, Send, Trash2 } from "lucide-react"
-import { usePathname } from "next/navigation"
-import { InfoButton } from "@/components/ui/info-button"
-import { getInfoContent } from "@/lib/info-content"
+import Link from "next/link"
+import { Mail, Database, Shield, Bell, Lock, Users, Send, Settings } from "lucide-react"
 
-export default function ConfiguracoesPage() {
-  const pathname = usePathname()
-  const info = getInfoContent(pathname)
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
+const modulos = [
+  { href: "/admin/configuracoes/smtp", label: "SMTP", desc: "Configuração do servidor de email e teste de envio", icon: Mail, color: "text-blue-600 bg-blue-50 dark:bg-blue-950/50" },
+  { href: "/admin/configuracoes/banco-dados", label: "Banco de Dados", desc: "Gerenciar conexões com banco de dados", icon: Database, color: "text-emerald-600 bg-emerald-50 dark:bg-emerald-950/50" },
+  { href: "/admin/roles", label: "Perfis (Roles)", desc: "Gerenciar perfis de acesso do sistema", icon: Shield, color: "text-purple-600 bg-purple-50 dark:bg-purple-950/50" },
+  { href: "/admin/notificacoes", label: "Notificações", desc: "Configurar quem recebe cada tipo de notificação", icon: Bell, color: "text-amber-600 bg-amber-50 dark:bg-amber-950/50" },
+  { href: "/admin/configuracoes/permissoes", label: "Permissões", desc: "Configurar permissões CRUD por perfil", icon: Lock, color: "text-rose-600 bg-rose-50 dark:bg-rose-950/50" },
+  { href: "/admin/usuarios", label: "Usuários", desc: "Gerenciar usuários do sistema", icon: Users, color: "text-cyan-600 bg-cyan-50 dark:bg-cyan-950/50" },
+  { href: "/admin/email-massa", label: "Email em Massa", desc: "Enviar email para múltiplos destinatários", icon: Send, color: "text-indigo-600 bg-indigo-50 dark:bg-indigo-950/50" },
+]
 
-  const [host, setHost] = useState("smtp.gmail.com")
-  const [port, setPort] = useState("587")
-  const [user, setUser] = useState("")
-  const [pass, setPass] = useState("")
-  const [fromName, setFromName] = useState("PDM Têxtil")
-  const [ativo, setAtivo] = useState(true)
-
-  const [testEmail, setTestEmail] = useState("")
-  const [testing, setTesting] = useState(false)
-  const [hasConfig, setHasConfig] = useState(false)
-
-  useEffect(() => {
-    fetch("/api/admin/config/smtp")
-      .then(res => res.json())
-      .then(data => {
-        if (data && data.id) {
-          setHost(data.host || "smtp.gmail.com")
-          setPort(String(data.port || 587))
-          setUser(data.user || "")
-          setPass(data.pass || "")
-          setFromName(data.fromName || "PDM Têxtil")
-          setAtivo(data.ativo ?? true)
-          setHasConfig(true)
-        }
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false))
-  }, [])
-
-  const handleSave = async () => {
-    if (!user || !pass) {
-      toast.error("Email e senha de app são obrigatórios")
-      return
-    }
-    setSaving(true)
-    try {
-      const res = await fetch("/api/admin/config/smtp", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ host, port: parseInt(port), user, pass, fromName, ativo }),
-      })
-      if (!res.ok) throw new Error()
-      toast.success("Configuração salva!")
-      setHasConfig(true)
-    } catch {
-      toast.error("Erro ao salvar configuração")
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  const handleTest = async () => {
-    if (!testEmail) {
-      toast.error("Informe o email de destino para o teste")
-      return
-    }
-    setTesting(true)
-    try {
-      const res = await fetch("/api/admin/config/email-teste", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ to: testEmail }),
-      })
-      const data = await res.json()
-      if (res.ok) {
-        toast.success(data.message || "Email de teste enviado!")
-      } else {
-        toast.error(data.error || "Falha ao enviar teste")
-      }
-    } catch {
-      toast.error("Erro ao enviar email de teste")
-    } finally {
-      setTesting(false)
-    }
-  }
-
-  const handleClear = async () => {
-    if (!confirm("Limpar configuração de email?")) return
-    try {
-      await fetch("/api/admin/config/smtp", { method: "DELETE" })
-      setHost("smtp.gmail.com")
-      setPort("587")
-      setUser("")
-      setPass("")
-      setFromName("PDM Têxtil")
-      setAtivo(true)
-      setHasConfig(false)
-      toast.success("Configuração removida")
-    } catch {
-      toast.error("Erro ao remover configuração")
-    }
-  }
-
-  if (loading) {
-    return <div className="flex justify-center p-8"><Loader2 className="animate-spin text-slate-400" size={24} /></div>
-  }
-
+export default function ConfiguracoesHubPage() {
   return (
-    <div className="max-w-2xl mx-auto space-y-8">
+    <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Configurações{info && <InfoButton content={info} />}</h1>
-        <p className="text-sm text-slate-500 mt-1">Configurações gerais do sistema</p>
-      </div>
-
-      <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-6 space-y-4 bg-white dark:bg-slate-900">
         <div className="flex items-center gap-2">
-          <Mail size={20} className="text-blue-600" />
-          <h2 className="text-lg font-semibold">Configuração de Email (SMTP)</h2>
+          <Settings className="text-blue-600" size={24} />
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Configurações</h1>
         </div>
-        <p className="text-sm text-slate-500">
-          Configure o servidor SMTP para envio de emails. Para Gmail, use a senha de app gerada em <strong>Conta Google &gt; Segurança &gt; Senhas de app</strong>.
-        </p>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label>Servidor SMTP</Label>
-            <Input value={host} onChange={e => setHost(e.target.value)} placeholder="smtp.gmail.com" />
-          </div>
-          <div className="space-y-2">
-            <Label>Porta</Label>
-            <Input value={port} onChange={e => setPort(e.target.value)} placeholder="587" />
-          </div>
-          <div className="space-y-2">
-            <Label>Email de envio *</Label>
-            <Input value={user} onChange={e => setUser(e.target.value)} placeholder="seuemail@gmail.com" />
-          </div>
-          <div className="space-y-2">
-            <Label>Senha de App *</Label>
-            <Input type="password" value={pass} onChange={e => setPass(e.target.value)} placeholder="Senha de app do Gmail" />
-          </div>
-          <div className="space-y-2">
-            <Label>Nome do Remetente</Label>
-            <Input value={fromName} onChange={e => setFromName(e.target.value)} placeholder="PDM Têxtil" />
-          </div>
-          <div className="flex items-end gap-2">
-            <input type="checkbox" id="smtpAtivo" checked={ativo} onChange={e => setAtivo(e.target.checked)} className="w-4 h-4 mb-2" />
-            <Label htmlFor="smtpAtivo">Configuração ativa</Label>
-          </div>
-        </div>
-
-        <div className="flex gap-2">
-          <Button onClick={handleSave} disabled={saving} className="gap-2">
-            {saving && <Loader2 size={16} className="animate-spin" />}
-            Salvar
-          </Button>
-          {hasConfig && (
-            <Button variant="outline" onClick={handleClear} className="gap-2 text-red-600">
-              <Trash2 size={16} /> Limpar
-            </Button>
-          )}
-        </div>
+        <p className="text-sm text-slate-500 mt-1">Gerencie todas as configurações do sistema</p>
       </div>
 
-      {hasConfig && (
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-6 space-y-4 bg-white dark:bg-slate-900">
-          <h2 className="text-lg font-semibold">Testar Envio</h2>
-          <p className="text-sm text-slate-500">Envie um email de teste para verificar se a configuração está funcionando.</p>
-          <div className="flex gap-2 items-end">
-            <div className="space-y-2 flex-1">
-              <Label>Email de destino</Label>
-              <Input value={testEmail} onChange={e => setTestEmail(e.target.value)} placeholder="teste@exemplo.com" />
-            </div>
-            <Button onClick={handleTest} disabled={testing} variant="outline" className="gap-2">
-              {testing ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
-              Testar
-            </Button>
-          </div>
-        </div>
-      )}
-
-      <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-6 space-y-4 bg-white dark:bg-slate-900">
-        <h2 className="text-lg font-semibold">Informações do Sistema</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-          <div>
-            <span className="text-slate-500">Versão:</span>
-            <span className="ml-2 font-medium">1.0.0</span>
-          </div>
-          <div>
-            <span className="text-slate-500">Banco de Dados:</span>
-            <span className="ml-2 font-medium">Neon (PostgreSQL)</span>
-          </div>
-          <div>
-            <span className="text-slate-500">Email configurado:</span>
-            <span className={`ml-2 font-medium ${hasConfig ? "text-green-600" : "text-red-600"}`}>
-              {hasConfig ? "Sim" : "Não"}
-            </span>
-          </div>
-          <div>
-            <span className="text-slate-500">Próxima migração:</span>
-            <span className="ml-2 font-medium">0005_motivo_aprovacao</span>
-          </div>
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {modulos.map(mod => {
+          const Icon = mod.icon
+          return (
+            <Link
+              key={mod.href}
+              href={mod.href}
+              className="group rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 hover:shadow-md hover:border-blue-200 dark:hover:border-blue-800 transition-all"
+            >
+              <div className={`inline-flex p-3 rounded-lg ${mod.color} mb-3`}>
+                <Icon size={22} />
+              </div>
+              <h3 className="font-semibold text-slate-900 dark:text-slate-100 group-hover:text-blue-600 transition-colors">
+                {mod.label}
+              </h3>
+              <p className="text-sm text-slate-500 mt-1 leading-relaxed">{mod.desc}</p>
+            </Link>
+          )
+        })}
       </div>
     </div>
   )

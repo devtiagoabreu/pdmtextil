@@ -1,0 +1,46 @@
+"use client"
+
+import Link from "next/link"
+import { BarChart3, Activity, FileText, Clock, FlaskConical } from "lucide-react"
+
+const relatorios = [
+  { href: "/dashboard/relatorios/atividade-usuario", label: "Atividade por Usuário", desc: "Acompanhe ações, gráficos e logs de cada usuário", icon: Activity },
+  { href: "/dashboard/relatorios/solicitacoes-criadas", label: "Criadas / Deletadas", desc: "Solicitações criadas, deletadas e concluídas por mês", icon: FileText },
+  { href: "/dashboard/relatorios/tempo-status", label: "Tempo em cada Status (Solic.)", desc: "Tempo gasto em cada status das solicitações", icon: Clock },
+  { href: "/dashboard/relatorios/tempo-status-amostras", label: "Tempo em cada Status (Amostras)", desc: "Tempo gasto em cada status das amostras", icon: FlaskConical },
+]
+
+export default function RelatoriosHubPage() {
+  return (
+    <div className="space-y-6 animate-fade-in">
+      <div>
+        <div className="flex items-center gap-2">
+          <BarChart3 className="text-blue-600" size={24} />
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Relatórios</h1>
+        </div>
+        <p className="text-sm text-slate-500 mt-1">Relatórios e análises do sistema</p>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {relatorios.map(rel => {
+          const Icon = rel.icon
+          return (
+            <Link
+              key={rel.href}
+              href={rel.href}
+              className="group rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 hover:shadow-md hover:border-blue-200 dark:hover:border-blue-800 transition-all"
+            >
+              <div className="inline-flex p-3 rounded-lg text-blue-600 bg-blue-50 dark:bg-blue-950/50 mb-3">
+                <Icon size={22} />
+              </div>
+              <h3 className="font-semibold text-slate-900 dark:text-slate-100 group-hover:text-blue-600 transition-colors">
+                {rel.label}
+              </h3>
+              <p className="text-sm text-slate-500 mt-1 leading-relaxed">{rel.desc}</p>
+            </Link>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
