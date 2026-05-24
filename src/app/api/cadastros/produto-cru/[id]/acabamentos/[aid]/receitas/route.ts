@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { produtoCruAcabamentoReceita } from "@/lib/db/schema/produto-cru"
 import { eq } from "drizzle-orm"
+import { validateAcabamentoChain } from "@/lib/validate-ownership"
 
 export async function GET(
   req: NextRequest,
@@ -13,7 +14,10 @@ export async function GET(
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
-    const { aid } = await params
+    const { id, aid } = await params
+    const err = await validateAcabamentoChain(parseInt(id), parseInt(aid))
+    if (err) return err
+
     const lista = await db.select().from(produtoCruAcabamentoReceita).where(eq(produtoCruAcabamentoReceita.acabamentoId, parseInt(aid)))
 
     return NextResponse.json(lista)
@@ -31,7 +35,10 @@ export async function POST(
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
-    const { aid } = await params
+    const { id, aid } = await params
+    const err = await validateAcabamentoChain(parseInt(id), parseInt(aid))
+    if (err) return err
+
     const body = await req.json()
 
     const novo = await db

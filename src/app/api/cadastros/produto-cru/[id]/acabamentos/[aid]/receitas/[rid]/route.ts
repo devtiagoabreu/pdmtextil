@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { produtoCruAcabamentoReceita } from "@/lib/db/schema/produto-cru"
 import { eq, and } from "drizzle-orm"
+import { validateAcabamentoChain } from "@/lib/validate-ownership"
 
 export async function DELETE(
   req: NextRequest,
@@ -13,7 +14,10 @@ export async function DELETE(
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
-    const { aid, rid } = await params
+    const { id, aid, rid } = await params
+    const err = await validateAcabamentoChain(parseInt(id), parseInt(aid))
+    if (err) return err
+
     await db
       .delete(produtoCruAcabamentoReceita)
       .where(
