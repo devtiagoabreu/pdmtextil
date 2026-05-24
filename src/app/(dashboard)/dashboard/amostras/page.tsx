@@ -29,6 +29,8 @@ const TIPO_CHART_COLORS: Record<string, string> = {
   ACABAMENTO: "#f97316",
 }
 
+const TREND_COLOR = "#06b6d4"
+
 const STATUS_BG: Record<string, string> = {
   PENDENTE: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
   APROVADO: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
@@ -160,7 +162,7 @@ export default function DashboardAmostras() {
                   <XAxis dataKey="mes" tick={{ fontSize: 11 }} stroke="#94a3b8" />
                   <YAxis allowDecimals={false} tick={{ fontSize: 11 }} stroke="#94a3b8" />
                   <Tooltip formatter={(value: any) => `${value || 0} amostras`} />
-                  <Line type="monotone" dataKey="total" stroke="#06b6d4" strokeWidth={2} dot={{ fill: "#06b6d4", r: 4 }} />
+                  <Line type="monotone" dataKey="total" stroke={TREND_COLOR} strokeWidth={2} dot={{ fill: TREND_COLOR, r: 4 }} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
