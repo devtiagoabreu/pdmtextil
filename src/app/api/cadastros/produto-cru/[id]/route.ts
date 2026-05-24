@@ -162,14 +162,14 @@ export async function DELETE(
 
     const id = parseInt((await params).id)
 
+    await db.delete(produtosCru).where(eq(produtosCru.id, id))
+
     await notificar(
       "PRODUTO_CRU_EXCLUIDO",
       `Produto cru #${id} foi excluído por ${session.user.name}`,
       "/cadastros/produto-cru",
       session.user.name
     )
-
-    await db.delete(produtosCru).where(eq(produtosCru.id, id))
 
     await notificarDelecao("Produto Cru", id.toString(), session?.user?.name)
 
