@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { fiosFornecedores } from "@/lib/db/schema/fios"
-import { eq } from "drizzle-orm"
+import { eq, and } from "drizzle-orm"
 
 export async function DELETE(
   req: NextRequest,
@@ -13,11 +13,16 @@ export async function DELETE(
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
-    const { fid } = await params
+    const { id, fid } = await params
 
     const deleted = await db
       .delete(fiosFornecedores)
-      .where(eq(fiosFornecedores.id, parseInt(fid)))
+      .where(
+        and(
+          eq(fiosFornecedores.id, parseInt(fid)),
+          eq(fiosFornecedores.fioId, parseInt(id))
+        )
+      )
       .returning()
 
     if (deleted.length === 0) {
