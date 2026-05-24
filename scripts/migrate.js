@@ -368,10 +368,15 @@ async function migrate() {
         'ACABAMENTO_CRIADO', 'ACABAMENTO_EXCLUIDO',
       ]
       for (const tipo of tipos) {
-        await sql`INSERT INTO notificacao_regras (tipo, roles) VALUES (${tipo}, '[]'::jsonb)`
+        await sql`INSERT INTO notificacao_regras (tipo, roles) VALUES (${tipo}, '["COMERCIAL","DESENVOLVIMENTO","ADMIN","SUDO","QUALIDADE","TECELAGEM","BENEFICIAMENTO","PCP"]'::jsonb)`
       }
-      console.log("✓ Regras de notificação padrão inseridas")
-    }
+    console.log("✓ Regras de notificação padrão inseridas")
+
+    // Atualiza regras existentes que ficaram com array vazio (da seed anterior)
+    const defaultRoles = '["COMERCIAL","DESENVOLVIMENTO","ADMIN","SUDO","QUALIDADE","TECELAGEM","BENEFICIAMENTO","PCP"]'
+    await sql`UPDATE notificacao_regras SET roles = ${defaultRoles}::jsonb WHERE roles = '[]'::jsonb`
+    const atualizadas = await sql`SELECT count(*) FROM notificacao_regras`
+    console.log(`✓ ${atualizadas[0].count} regras de notificação no total`)
 
     console.log("\n✅ Migration concluída com sucesso!")
     
