@@ -27,12 +27,21 @@ export async function GET() {
 
     const lista = await db.select().from(roles).where(eq(roles.ativo, true)).orderBy(roles.label)
 
-    const data = lista.map(r => ({
-      id: r.id,
-      name: r.name,
-      label: r.label,
-      permissoes: (r.permissions as PermissoesMap) || permissoesPadrao(),
-    }))
+    const data = lista.map(r => {
+      const raw = r.permissions as unknown
+      // Normaliza: garante que cada módulo seja um array de strings
+      const permissoes: PermissoesMap = {}
+      const padrao = permissoesPadrao()
+      if (raw && typeof raw === "object" && !Array.isArray(raw)) {
+        for (const mod of MODULOS) {
+          const val = (raw as Record<string, unknown>)[mod]
+          permissoes[mod] = Array.isArray(val) ? val.map(String) : [...padrao[mod]]
+        }
+      } else {
+        Object.assign(permissoes, padrao)
+      }
+      return { id: r.id, name: r.name, label: r.label, permissoes }
+    })
 
     return NextResponse.json({ modulos: MODULOS, permissoes: PERMISSOES, roles: data })
   } catch (error) {

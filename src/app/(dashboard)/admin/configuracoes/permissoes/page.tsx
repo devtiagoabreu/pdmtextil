@@ -143,9 +143,9 @@ export default function PermissoesPage() {
               return (
                 <tr key={role.name} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
                   <td className="p-3 font-medium text-slate-800 dark:text-slate-200">{role.label}</td>
-                  {data.modulos.map(mod => {
-                    const modPerms = perms[mod] || []
-                    const allChecked = data.permissoes.every(p => modPerms.includes(p))
+                    {data.modulos.map(mod => {
+                      const modPerms = Array.isArray(perms[mod]) ? perms[mod] : []
+                      const allChecked = data.permissoes.every(p => modPerms.includes(p))
                     return (
                       <td key={mod} className="p-0" colSpan={data.permissoes.length}>
                         <div className="flex items-center justify-center gap-0">
