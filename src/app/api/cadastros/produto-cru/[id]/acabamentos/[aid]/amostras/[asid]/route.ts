@@ -6,6 +6,7 @@ import { produtoCruAcabamento, produtoCruAcabamentoAmostra } from "@/lib/db/sche
 import { eq, and } from "drizzle-orm"
 import { notificar, registrarLog } from "@/lib/notificar"
 import { handleApiError } from "@/lib/api-error"
+import { validateAcabamentoChain } from "@/lib/validate-ownership"
 
 export async function PUT(
   req: NextRequest,
@@ -19,6 +20,10 @@ export async function PUT(
     if (userIdResult instanceof NextResponse) return userIdResult
 
     const { id, aid, asid } = await params
+
+    const err = await validateAcabamentoChain(parseInt(id), parseInt(aid))
+    if (err) return err
+
     const body = await req.json()
 
     const isAprovacao = body.status === "APROVADO" || body.status === "REPROVADO"
@@ -110,6 +115,9 @@ export async function DELETE(
     }
 
     const { id, aid, asid } = await params
+
+    const err = await validateAcabamentoChain(parseInt(id), parseInt(aid))
+    if (err) return err
 
     await db
       .delete(produtoCruAcabamentoAmostra)
