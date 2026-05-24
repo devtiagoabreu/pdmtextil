@@ -5,6 +5,7 @@ import { db } from "@/lib/db"
 import { produtoCruAcabamentoReceita } from "@/lib/db/schema/produto-cru"
 import { eq, and } from "drizzle-orm"
 import { validateAcabamentoChain } from "@/lib/validate-ownership"
+import { handleApiError } from "@/lib/api-error"
 
 export async function DELETE(
   req: NextRequest,
@@ -29,7 +30,6 @@ export async function DELETE(
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error("[DELETE /api/cadastros/produto-cru/[id]/acabamentos/[aid]/receitas/[rid]]", error)
-    return NextResponse.json({ error: "Erro ao excluir receita" }, { status: 500 })
+    return handleApiError(error, "DELETE /api/cadastros/produto-cru/[id]/acabamentos/[aid]/receitas/[rid]")
   }
 }

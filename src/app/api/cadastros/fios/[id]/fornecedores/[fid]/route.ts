@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { fiosFornecedores } from "@/lib/db/schema/fios"
 import { eq, and } from "drizzle-orm"
+import { handleApiError } from "@/lib/api-error"
 
 export async function DELETE(
   req: NextRequest,
@@ -31,7 +32,6 @@ export async function DELETE(
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error("[DELETE /api/cadastros/fios/[id]/fornecedores/[fid]]", error)
-    return NextResponse.json({ error: "Erro ao remover fornecedor" }, { status: 500 })
+    return handleApiError(error, "DELETE /api/cadastros/fios/[id]/fornecedores/[fid]")
   }
 }

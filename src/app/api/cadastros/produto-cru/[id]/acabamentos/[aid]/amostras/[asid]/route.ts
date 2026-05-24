@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
-import { authOptions, getUserId } from "@/lib/auth"
+import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
-import { produtoCruAcabamentoAmostra } from "@/lib/db/schema/produto-cru"
+import { produtoCruAcabamento, produtoCruAcabamentoAmostra } from "@/lib/db/schema/produto-cru"
 import { eq, and } from "drizzle-orm"
 import { notificar, registrarLog } from "@/lib/notificar"
+import { handleApiError } from "@/lib/api-error"
 
 export async function PUT(
   req: NextRequest,
@@ -128,7 +129,6 @@ export async function DELETE(
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error("[DELETE /api/cadastros/produto-cru/[id]/acabamentos/[aid]/amostras/[asid]]", error)
-    return NextResponse.json({ error: "Erro ao excluir amostra" }, { status: 500 })
+    return handleApiError(error, "DELETE /api/cadastros/produto-cru/[id]/acabamentos/[aid]/amostras/[asid]")
   }
 }

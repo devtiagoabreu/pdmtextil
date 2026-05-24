@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { produtoCruEstrutura } from "@/lib/db/schema/produto-cru"
 import { eq, and } from "drizzle-orm"
+import { handleApiError } from "@/lib/api-error"
 
 export async function DELETE(
   req: NextRequest,
@@ -25,7 +26,6 @@ export async function DELETE(
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error("[DELETE /api/cadastros/produto-cru/[id]/estrutura/[eid]]", error)
-    return NextResponse.json({ error: "Erro ao excluir estrutura" }, { status: 500 })
+    return handleApiError(error, "DELETE /api/cadastros/produto-cru/[id]/estrutura/[eid]")
   }
 }
