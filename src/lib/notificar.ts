@@ -23,7 +23,7 @@ export async function notificar(
 
   // Se roles foi explicitamente passado (ex: notificarErro com ["SUDO"]), usa diretamente
   // Senão, consulta a regra dinâmica da tabela notificacao_regras
-  let rolesFiltro
+  let rolesFiltro: string[]
   if (roles !== undefined) {
     rolesFiltro = roles
   } else {
