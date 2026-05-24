@@ -198,8 +198,6 @@ export async function DELETE(
     const { id } = await params
     const solicitacaoId = parseInt(id)
 
-    await notificarDelecao("Solicitação", id, session?.user?.name)
-
     await db
       .delete(anexos)
       .where(eq(anexos.solicitacaoId, solicitacaoId))
@@ -207,6 +205,8 @@ export async function DELETE(
     await db
       .delete(solicitacoes)
       .where(eq(solicitacoes.id, solicitacaoId))
+
+    await notificarDelecao("Solicitação", id, session?.user?.name)
 
     return NextResponse.json({ success: true })
   } catch (error) {

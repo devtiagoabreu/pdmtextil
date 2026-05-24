@@ -111,13 +111,6 @@ export async function DELETE(
 
     const { id, aid, asid } = await params
 
-    await notificar(
-      "AMOSTRA_EXCLUIDA",
-      `Amostra de acabamento #${asid} (acabamento #${aid}) do produto cru #${id} foi excluída por ${session.user.name}`,
-      `/cadastros/produto-cru/${id}`,
-      session.user.name
-    )
-
     await db
       .delete(produtoCruAcabamentoAmostra)
       .where(
@@ -126,6 +119,13 @@ export async function DELETE(
           eq(produtoCruAcabamentoAmostra.acabamentoId, parseInt(aid))
         )
       )
+
+    await notificar(
+      "AMOSTRA_EXCLUIDA",
+      `Amostra de acabamento #${asid} (acabamento #${aid}) do produto cru #${id} foi excluída por ${session.user.name}`,
+      `/cadastros/produto-cru/${id}`,
+      session.user.name
+    )
 
     return NextResponse.json({ success: true })
   } catch (error) {
