@@ -37,8 +37,8 @@ export default function NotificacoesAdminPage() {
 
   useEffect(() => {
     fetch("/api/admin/notificacao-regras")
-      .then(res => res.json())
-      .then((d: { regras: Regra[] }) => setRegras(d.regras))
+      .then(res => { if (!res.ok) throw new Error("Erro HTTP"); return res.json() })
+      .then((d: { regras: Regra[] }) => setRegras(d.regras ?? []))
       .catch(() => toast.error("Erro ao carregar regras de notificação"))
       .finally(() => setLoading(false))
   }, [])
