@@ -1,238 +1,247 @@
-# Graph Report - .  (2026-05-17)
+# Graph Report - .  (2026-05-24)
 
 ## Corpus Check
-- 172 files · ~66,451 words
-- Verdict: corpus is large enough that graph structure adds value.
+- Large corpus: 220 files · ~94,291 words. Semantic extraction will be expensive (many Claude tokens). Consider running on a subfolder, or use --no-semantic to run AST-only.
 
 ## Summary
-- 1227 nodes · 1978 edges · 45 communities (33 shown, 12 thin omitted)
-- Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS
+- 1409 nodes · 2630 edges · 54 communities (37 shown, 17 thin omitted)
+- Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 8 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Community Hubs (Navigation)
-- [[_COMMUNITY_Core Schema & API Routes|Core Schema & API Routes]]
-- [[_COMMUNITY_UI Component Library|UI Component Library]]
-- [[_COMMUNITY_Drizzle Table Columns|Drizzle Table Columns]]
-- [[_COMMUNITY_Database Constraints|Database Constraints]]
-- [[_COMMUNITY_Produto Cru Foreign Keys|Produto Cru Foreign Keys]]
-- [[_COMMUNITY_User & Auth Schema|User & Auth Schema]]
-- [[_COMMUNITY_Migration Meta|Migration Meta]]
-- [[_COMMUNITY_Media & Type Columns|Media & Type Columns]]
-- [[_COMMUNITY_Anexo Foreign Keys|Anexo Foreign Keys]]
-- [[_COMMUNITY_Solicitacoes Foreign Keys|Solicitacoes Foreign Keys]]
-- [[_COMMUNITY_Bases Urdume Constraints|Bases Urdume Constraints]]
-- [[_COMMUNITY_Dashboard Shell & Layout|Dashboard Shell & Layout]]
-- [[_COMMUNITY_Cross-table Foreign Keys|Cross-table Foreign Keys]]
-- [[_COMMUNITY_Solicitation Detail Page|Solicitation Detail Page]]
-- [[_COMMUNITY_Database Migration SQL|Database Migration SQL]]
-- [[_COMMUNITY_Admin Page Components|Admin Page Components]]
-- [[_COMMUNITY_CSS & Style Utilities|CSS & Style Utilities]]
-- [[_COMMUNITY_UI Primitives|UI Primitives]]
-- [[_COMMUNITY_Auth API Routes|Auth API Routes]]
-- [[_COMMUNITY_Dashboard Stats API|Dashboard Stats API]]
-- [[_COMMUNITY_Dashboard Activity API|Dashboard Activity API]]
-- [[_COMMUNITY_Client API Routes|Client API Routes]]
-- [[_COMMUNITY_Cadastros Import API|Cadastros Import API]]
-- [[_COMMUNITY_Form Components|Form Components]]
-- [[_COMMUNITY_Briefing Form Types|Briefing Form Types]]
-- [[_COMMUNITY_Client Autocomplete|Client Autocomplete]]
-- [[_COMMUNITY_Sidebar Navigation|Sidebar Navigation]]
-- [[_COMMUNITY_Mobile Bottom Nav|Mobile Bottom Nav]]
-- [[_COMMUNITY_Theme Toggle|Theme Toggle]]
-- [[_COMMUNITY_Landing Page|Landing Page]]
-- [[_COMMUNITY_Perfil Page|Perfil Page]]
-- [[_COMMUNITY_NextAuth Config|NextAuth Config]]
-- [[_COMMUNITY_Email & Notifications|Email & Notifications]]
-- [[_COMMUNITY_Notification Schema|Notification Schema]]
-- [[_COMMUNITY_Email Config Schema|Email Config Schema]]
-- [[_COMMUNITY_Roles & Permissions|Roles & Permissions]]
-- [[_COMMUNITY_Produto Quimico Schema|Produto Quimico Schema]]
-- [[_COMMUNITY_Receita Schema|Receita Schema]]
-- [[_COMMUNITY_Amostra Schema|Amostra Schema]]
-- [[_COMMUNITY_Acabamento Schema|Acabamento Schema]]
-- [[_COMMUNITY_Produto Cru Composicao|Produto Cru Composicao]]
-- [[_COMMUNITY_Produto Cru Estrutura|Produto Cru Estrutura]]
+- [[_COMMUNITY_Community 0|Community 0]]
+- [[_COMMUNITY_Community 1|Community 1]]
+- [[_COMMUNITY_Community 2|Community 2]]
+- [[_COMMUNITY_Community 3|Community 3]]
+- [[_COMMUNITY_Community 4|Community 4]]
+- [[_COMMUNITY_Community 5|Community 5]]
+- [[_COMMUNITY_Community 6|Community 6]]
+- [[_COMMUNITY_Community 7|Community 7]]
+- [[_COMMUNITY_Community 8|Community 8]]
+- [[_COMMUNITY_Community 9|Community 9]]
+- [[_COMMUNITY_Community 10|Community 10]]
+- [[_COMMUNITY_Community 11|Community 11]]
+- [[_COMMUNITY_Community 12|Community 12]]
+- [[_COMMUNITY_Community 13|Community 13]]
+- [[_COMMUNITY_Community 14|Community 14]]
+- [[_COMMUNITY_Community 15|Community 15]]
+- [[_COMMUNITY_Community 16|Community 16]]
+- [[_COMMUNITY_Community 17|Community 17]]
+- [[_COMMUNITY_Community 18|Community 18]]
+- [[_COMMUNITY_Community 19|Community 19]]
+- [[_COMMUNITY_Community 20|Community 20]]
+- [[_COMMUNITY_Community 21|Community 21]]
+- [[_COMMUNITY_Community 22|Community 22]]
+- [[_COMMUNITY_Community 23|Community 23]]
+- [[_COMMUNITY_Community 24|Community 24]]
+- [[_COMMUNITY_Community 25|Community 25]]
+- [[_COMMUNITY_Community 26|Community 26]]
+- [[_COMMUNITY_Community 27|Community 27]]
+- [[_COMMUNITY_Community 28|Community 28]]
+- [[_COMMUNITY_Community 29|Community 29]]
+- [[_COMMUNITY_Community 30|Community 30]]
+- [[_COMMUNITY_Community 31|Community 31]]
+- [[_COMMUNITY_Community 32|Community 32]]
+- [[_COMMUNITY_Community 33|Community 33]]
+- [[_COMMUNITY_Community 34|Community 34]]
+- [[_COMMUNITY_Community 35|Community 35]]
+- [[_COMMUNITY_Community 36|Community 36]]
+- [[_COMMUNITY_Community 37|Community 37]]
+- [[_COMMUNITY_Community 38|Community 38]]
+- [[_COMMUNITY_Community 39|Community 39]]
+- [[_COMMUNITY_Community 40|Community 40]]
+- [[_COMMUNITY_Community 41|Community 41]]
+- [[_COMMUNITY_Community 42|Community 42]]
+- [[_COMMUNITY_Community 43|Community 43]]
+- [[_COMMUNITY_Community 44|Community 44]]
+- [[_COMMUNITY_Community 45|Community 45]]
+- [[_COMMUNITY_Community 46|Community 46]]
+- [[_COMMUNITY_Community 47|Community 47]]
+- [[_COMMUNITY_Community 48|Community 48]]
+- [[_COMMUNITY_Community 50|Community 50]]
+- [[_COMMUNITY_Community 51|Community 51]]
 
 ## God Nodes (most connected - your core abstractions)
-1. `authOptions` - 67 edges
-2. `cn()` - 65 edges
-3. `db` - 64 edges
-4. `Button()` - 32 edges
-5. `Input()` - 29 edges
-6. `Label()` - 20 edges
-7. `columns` - 17 edges
-8. `columns` - 16 edges
-9. `usuarios` - 16 edges
-10. `columns` - 15 edges
-11. `columns` - 13 edges
-12. `PUT()` - 12 edges
-13. `columns` - 12 edges
-14. `id` - 12 edges
-15. `DELETE()` - 11 edges
+1. `db` - 81 edges
+2. `authOptions` - 80 edges
+3. `getInfoContent()` - 72 edges
+4. `cn()` - 65 edges
+5. `InfoButton()` - 37 edges
+6. `Button()` - 34 edges
+7. `Input()` - 32 edges
+8. `getUserId()` - 32 edges
+9. `notificar()` - 28 edges
+10. `handleApiError()` - 25 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `POST()` --calls--> `notificar()`  [EXTRACTED]
-  app/api/solicitacoes/route.ts → lib/notificar.ts
-- `CardAction()` --calls--> `cn()`  [EXTRACTED]
-  components/ui/card.tsx → lib/utils.ts
-- `DialogOverlay()` --calls--> `cn()`  [EXTRACTED]
-  components/ui/dialog.tsx → lib/utils.ts
-- `DropdownMenuContent()` --calls--> `cn()`  [EXTRACTED]
-  components/ui/dropdown-menu.tsx → lib/utils.ts
-- `DropdownMenuLabel()` --calls--> `cn()`  [EXTRACTED]
-  components/ui/dropdown-menu.tsx → lib/utils.ts
-- `DropdownMenuItem()` --calls--> `cn()`  [EXTRACTED]
-  components/ui/dropdown-menu.tsx → lib/utils.ts
-- `DropdownMenuSubTrigger()` --calls--> `cn()`  [EXTRACTED]
-  components/ui/dropdown-menu.tsx → lib/utils.ts
-- `DropdownMenuSubContent()` --calls--> `cn()`  [EXTRACTED]
-  components/ui/dropdown-menu.tsx → lib/utils.ts
-- `DropdownMenuCheckboxItem()` --calls--> `cn()`  [EXTRACTED]
-  components/ui/dropdown-menu.tsx → lib/utils.ts
-- `DropdownMenuRadioItem()` --calls--> `cn()`  [EXTRACTED]
-  components/ui/dropdown-menu.tsx → lib/utils.ts
+- `DetalheSolicitacaoPage()` --calls--> `getInfoContent()`  [EXTRACTED]
+  app/(dashboard)/comercial/solicitacoes/[id]/page.tsx → lib/info-content.ts
+- `RelatorioAtividadeUsuario()` --calls--> `getInfoContent()`  [EXTRACTED]
+  app/(dashboard)/dashboard/relatorios/atividade-usuario/page.tsx → lib/info-content.ts
+- `RelatorioSolicitacoesCriadas()` --calls--> `getInfoContent()`  [EXTRACTED]
+  app/(dashboard)/dashboard/relatorios/solicitacoes-criadas/page.tsx → lib/info-content.ts
+- `RelatorioTempoStatus()` --calls--> `getInfoContent()`  [EXTRACTED]
+  app/(dashboard)/dashboard/relatorios/tempo-status/page.tsx → lib/info-content.ts
+- `RelatorioTempoStatusAmostras()` --calls--> `getInfoContent()`  [EXTRACTED]
+  app/(dashboard)/dashboard/relatorios/tempo-status-amostras/page.tsx → lib/info-content.ts
 
-## Communities (45 total, 12 thin omitted)
+## Communities (54 total, 17 thin omitted)
 
-### Community 0 - "Core Schema & API Routes"
+### Community 0 - "Community 0"
 Cohesion: 0.02
-Nodes (97): BaseImport, NewProdutoCruAcabamentoReceita, coresSolidas, POST(), CorImport, NewRole, NewBaseUrdume, authOptions (+89 more)
+Nodes (143): NewNotificacaoRegra, produtosCru, CorSolida, GET(), sendEmail(), POST(), NewProdutoCruComposicao, validateItemChain() (+135 more)
 
-### Community 1 - "UI Component Library"
+### Community 1 - "Community 1"
 Cohesion: 0.02
-Nodes (115): TIPO_ACABAMENTO, SelectContent(), RadioGroupItem(), Input(), NovoFornecedor, Checkbox(), DropdownMenuLabel(), solicitacaoCompletaSchema (+107 more)
+Nodes (161): CardAction(), Amostra, DialogDescription(), tabsListVariants, ProdutoQuimicoFormPage(), Button(), NovaSolicitacaoPage(), FornecedoresPage() (+153 more)
 
-### Community 2 - "Drizzle Table Columns"
+### Community 2 - "Community 2"
 Cohesion: 0.01
-Nodes (190): primaryKey, notNull, primaryKey, notNull, name, columns, primaryKey, primaryKey (+182 more)
+Nodes (206): largura, notNull, notNull, name, primaryKey, primaryKey, primaryKey, pantone (+198 more)
 
-### Community 3 - "Database Constraints"
+### Community 3 - "Community 3"
 Cohesion: 0.02
-Nodes (80): indexes, public.anexos, compositePrimaryKeys, nullsNotDistinct, name, schema, name, checkConstraints (+72 more)
+Nodes (80): checkConstraints, isRLSEnabled, name, name, foreignKeys, clientes_cnpj_unique, policies, indexes (+72 more)
 
-### Community 4 - "Produto Cru Foreign Keys"
+### Community 4 - "Community 4"
 Cohesion: 0.03
-Nodes (64): primaryKey, responsavel_id, notNull, name, observacoes, name, name, primaryKey (+56 more)
+Nodes (73): name, anexos_solicitacao_id_solicitacoes_id_fk, columnsTo, tableFrom, foreignKeys, columns, primaryKey, onUpdate (+65 more)
 
-### Community 5 - "User & Auth Schema"
+### Community 5 - "Community 5"
 Cohesion: 0.03
-Nodes (60): name, email, type, type, type, type, primaryKey, primaryKey (+52 more)
+Nodes (64): type, default, updated_at, primaryKey, notNull, solicitante_id, name, default (+56 more)
 
-### Community 6 - "Migration Meta"
+### Community 6 - "Community 6"
+Cohesion: 0.03
+Nodes (60): primaryKey, ativo, type, notNull, notNull, primaryKey, type, default (+52 more)
+
+### Community 7 - "Community 7"
 Cohesion: 0.04
-Nodes (51): columns, _meta, columns, columns, policies, columnsTo, tables, sequences (+43 more)
+Nodes (51): nullsNotDistinct, compositePrimaryKeys, prevId, name, columns, version, name, enums (+43 more)
 
-### Community 7 - "Media & Type Columns"
-Cohesion: 0.04
-Nodes (47): mime_type, type, notNull, type, primaryKey, primaryKey, type, notNull (+39 more)
+### Community 8 - "Community 8"
+Cohesion: 0.09
+Nodes (27): exportCSV(), UserActivity, STATUS_COLORS, MesData, RelatorioSolicitacoesCriadas(), statsToHTML(), RelatorioTempoStatusAmostras(), Stats (+19 more)
 
-### Community 8 - "Anexo Foreign Keys"
+### Community 9 - "Community 9"
 Cohesion: 0.08
-Nodes (26): name, name, name, isRLSEnabled, columnsTo, anexos_solicitacao_id_solicitacoes_id_fk, tableFrom, columnsFrom (+18 more)
+Nodes (26): indexes, uniqueConstraints, columnsFrom, tableFrom, compositePrimaryKeys, schema, onDelete, solicitacoes_solicitante_id_usuarios_id_fk (+18 more)
 
-### Community 9 - "Solicitacoes Foreign Keys"
+### Community 10 - "Community 10"
 Cohesion: 0.08
-Nodes (26): name, solicitacoes_solicitante_id_usuarios_id_fk, columnsFrom, name, public.solicitacoes, solicitacoes_responsavel_id_usuarios_id_fk, indexes, foreignKeys (+18 more)
+Nodes (26): indexes, nullsNotDistinct, name, onUpdate, compositePrimaryKeys, policies, columns, foreignKeys (+18 more)
 
-### Community 10 - "Bases Urdume Constraints"
-Cohesion: 0.08
-Nodes (26): bases_urdume_criado_por_usuarios_id_fk, columns, bases_urdume_codigo_base_unique, nullsNotDistinct, compositePrimaryKeys, isRLSEnabled, name, checkConstraints (+18 more)
+### Community 11 - "Community 11"
+Cohesion: 0.11
+Nodes (15): Sidebar(), mobileNavItems, MobileBottomNav(), HeaderProps, adminItems, CommandSearch(), searchItems(), searchRegistry (+7 more)
 
-### Community 11 - "Dashboard Shell & Layout"
+### Community 12 - "Community 12"
 Cohesion: 0.12
-Nodes (13): NavRole, Header(), HeaderProps, Sidebar(), SidebarProps, notifications, MobileBottomNav(), mobileNavItems (+5 more)
+Nodes (17): tableFrom, anexos_solicitacao_id_solicitacoes_id_fk, columnsTo, name, name, anexos_criado_por_usuarios_id_fk, tableTo, onUpdate (+9 more)
 
-### Community 12 - "Cross-table Foreign Keys"
+### Community 13 - "Community 13"
 Cohesion: 0.12
-Nodes (17): tableTo, onUpdate, columnsTo, foreignKeys, tableFrom, columnsFrom, name, name (+9 more)
+Nodes (14): LIGAMENTO_LABELS, TIPO_CONFIG, TIPO_TECIDO_LABELS, SEGMENTOS_LABELS, PRECO_LABELS, STATUS_CONFIG, TIPOS_ACABAMENTO_LABELS, DetalheSolicitacaoPage() (+6 more)
 
-### Community 13 - "Solicitation Detail Page"
+### Community 14 - "Community 14"
 Cohesion: 0.12
-Nodes (13): PRECO_LABELS, CORES_LABELS, LIGAMENTO_LABELS, SEGMENTOS_LABELS, TECNOLOGIAS_LABELS, TIPO_CONFIG, TOQUE_LABELS, TIPO_FIBRA_LABELS (+5 more)
+Nodes (9): DropdownMenuRadioItem(), DropdownMenuCheckboxItem(), DropdownMenuSeparator(), DropdownMenuSubTrigger(), DropdownMenuContent(), DropdownMenuSubContent(), DropdownMenuShortcut(), DropdownMenuLabel() (+1 more)
 
-### Community 14 - "Database Migration SQL"
+### Community 15 - "Community 15"
 Cohesion: 0.13
-Nodes (14): "operacoes", "fornecedores", "bases_urdume", "solicitacoes", "cores_solidas", "clientes", "anexos", "fios" (+6 more)
+Nodes (14): "usuarios", "operacoes", "solicitacoes", "cores_fundo", "clientes", "maquinas", "anexos", "acabamentos" (+6 more)
 
-### Community 15 - "Admin Page Components"
+### Community 16 - "Community 16"
 Cohesion: 0.13
-Nodes (14): anexos, fornecedores, cores_fundo, acabamentos, clientes, maquinas, fios, estampas (+6 more)
+Nodes (14): usuarios, operacoes, solicitacoes, clientes, cores_fundo, estampas, fios_fornecedores, anexos (+6 more)
 
-### Community 16 - "CSS & Style Utilities"
+### Community 17 - "Community 17"
+Cohesion: 0.16
+Nodes (6): NewRole, MODULOS, PermissoesMap, roles, PERMISSOES, Role
+
+### Community 18 - "Community 18"
 Cohesion: 0.17
-Nodes (11): estampas, fios, cores_solidas, fios_fornecedores, fornecedores, cores_fundo, acabamentos, clientes (+3 more)
+Nodes (11): operacoes, acabamentos, fios_fornecedores, cores_fundo, bases_urdume, fornecedores, clientes, fios (+3 more)
 
-### Community 17 - "UI Primitives"
+### Community 19 - "Community 19"
 Cohesion: 0.31
-Nodes (4): Toaster(), QueryProvider(), metadata, Providers()
+Nodes (4): metadata, Providers(), QueryProvider(), Toaster()
 
-### Community 18 - "Auth API Routes"
+### Community 20 - "Community 20"
+Cohesion: 0.25
+Nodes (3): NewBancoDados, BancoDados, bancosDados
+
+### Community 21 - "Community 21"
 Cohesion: 0.46
-Nodes (7): produtos_cru, produto_cru_estrutura, produto_cru_amostra, produto_cru_composicao, produto_cru_acabamento_amostra, produto_cru_acabamento_receita, produto_cru_acabamento
+Nodes (7): produtos_cru, produto_cru_acabamento_amostra, produto_cru_composicao, produto_cru_amostra, produto_cru_acabamento, produto_cru_acabamento_receita, produto_cru_estrutura
 
-### Community 19 - "Dashboard Stats API"
+### Community 22 - "Community 22"
 Cohesion: 0.29
-Nodes (6): "operacoes", "acabamentos", "cores_fundo", "cores_solidas", "fios", "maquinas"
+Nodes (6): "acabamentos", "operacoes", "fios", "cores_solidas", "cores_fundo", "maquinas"
 
-### Community 20 - "Dashboard Activity API"
+### Community 23 - "Community 23"
 Cohesion: 0.29
-Nodes (6): operacoes, NewOperacao, Operacao, Maquina, maquinas, NewMaquina
+Nodes (6): NewOperacao, NewMaquina, maquinas, operacoes, Maquina, Operacao
 
-### Community 21 - "Client API Routes"
+### Community 24 - "Community 24"
+Cohesion: 0.47
+Nodes (5): calcDias(), processarTimeline(), q(), STATUS_LABELS, GET()
+
+### Community 25 - "Community 25"
 Cohesion: 0.33
-Nodes (5): "usuarios", "clientes", "solicitacoes", "sessions", "anexos"
+Nodes (5): "anexos", "solicitacoes", "clientes", "usuarios", "sessions"
 
-### Community 22 - "Cadastros Import API"
-Cohesion: 0.33
-Nodes (6): primaryKey, type, default, notNull, name, metadados
-
-### Community 24 - "Briefing Form Types"
+### Community 26 - "Community 26"
 Cohesion: 0.4
-Nodes (5): telefone, notNull, type, primaryKey, name
+Nodes (3): TIPO_LABEL, Regra, ALL_ROLES
 
-### Community 25 - "Client Autocomplete"
+### Community 27 - "Community 27"
 Cohesion: 0.4
-Nodes (5): primaryKey, uf, type, name, notNull
+Nodes (3): Grandeza, GrandezaComposta, TipoRegra
 
-### Community 26 - "Sidebar Navigation"
+### Community 28 - "Community 28"
 Cohesion: 0.4
-Nodes (4): email_config, notificacoes, produto_cru_amostra, produto_cru_acabamento_amostra
+Nodes (4): produto_cru_acabamento_amostra, produto_cru_amostra, notificacoes, email_config
 
-### Community 33 - "Notification Schema"
+### Community 29 - "Community 29"
+Cohesion: 0.4
+Nodes (4): produtoCruReceitaItem, produtoCruReceita, NewProdutoCruReceita, NewProdutoCruReceitaItem
+
+### Community 38 - "Community 38"
 Cohesion: 0.5
-Nodes (3): estampas, bases_urdume, cores_solidas
+Nodes (3): cores_solidas, bases_urdume, estampas
 
-### Community 34 - "Email Config Schema"
+### Community 39 - "Community 39"
 Cohesion: 0.5
 Nodes (3): entries, version, dialect
 
-### Community 35 - "Roles & Permissions"
+### Community 40 - "Community 40"
 Cohesion: 0.5
-Nodes (3): Acabamento, acabamentos, NewAcabamento
+Nodes (3): acabamentos, NewAcabamento, Acabamento
 
-### Community 36 - "Produto Quimico Schema"
+### Community 41 - "Community 41"
 Cohesion: 0.5
-Nodes (3): User, JWT, Session
+Nodes (3): Session, JWT, User
 
 ## Knowledge Gaps
-- **684 isolated node(s):** `config`, `metadata`, `modulos`, `BaseUrdume`, `BaseUrdume` (+679 more)
+- **745 isolated node(s):** `config`, `metadata`, `modulos`, `BancoDados`, `PermissoesData` (+740 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **12 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **17 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `columns` connect `Drizzle Table Columns` to `Database Constraints`, `Cadastros Import API`?**
-  _High betweenness centrality (0.024) - this node is a cross-community bridge._
-- **Why does `columns` connect `Produto Cru Foreign Keys` to `Solicitacoes Foreign Keys`, `User & Auth Schema`, `Media & Type Columns`?**
-  _High betweenness centrality (0.023) - this node is a cross-community bridge._
-- **Why does `columns` connect `Media & Type Columns` to `Anexo Foreign Keys`, `User & Auth Schema`?**
-  _High betweenness centrality (0.023) - this node is a cross-community bridge._
+- **Why does `columns` connect `Community 2` to `Community 10`?**
+  _High betweenness centrality (0.016) - this node is a cross-community bridge._
+- **Why does `getInfoContent()` connect `Community 1` to `Community 8`, `Community 13`?**
+  _High betweenness centrality (0.015) - this node is a cross-community bridge._
+- **Why does `columns` connect `Community 4` to `Community 6`?**
+  _High betweenness centrality (0.014) - this node is a cross-community bridge._
 - **What connects `config`, `metadata`, `modulos` to the rest of the system?**
-  _684 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `Core Schema & API Routes` be split into smaller, more focused modules?**
+  _745 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `Community 0` be split into smaller, more focused modules?**
   _Cohesion score 0.02 - nodes in this community are weakly interconnected._
-- **Should `UI Component Library` be split into smaller, more focused modules?**
+- **Should `Community 1` be split into smaller, more focused modules?**
   _Cohesion score 0.02 - nodes in this community are weakly interconnected._
-- **Should `Drizzle Table Columns` be split into smaller, more focused modules?**
+- **Should `Community 2` be split into smaller, more focused modules?**
   _Cohesion score 0.01 - nodes in this community are weakly interconnected._
