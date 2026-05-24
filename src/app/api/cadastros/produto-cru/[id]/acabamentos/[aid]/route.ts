@@ -16,7 +16,7 @@ export async function DELETE(
 
     const { id, aid } = await params
 
-    notificar(
+    await notificar(
       "ACABAMENTO_EXCLUIDO",
       `Acabamento #${aid} do produto cru #${id} foi excluído por ${session.user.name}`,
       `/cadastros/produto-cru/${id}`,

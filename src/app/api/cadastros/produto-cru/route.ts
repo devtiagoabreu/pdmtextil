@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
       })
       .returning()
 
-    notificar(
+    await notificar(
       "PRODUTO_CRU_CRIADO",
       `Novo produto cru #${novo[0].id} criado por ${session.user.name} — ${body.codigoPdm}: ${body.descricao}`,
       `/cadastros/produto-cru/${novo[0].id}`,

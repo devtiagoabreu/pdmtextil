@@ -140,14 +140,14 @@ export async function PUT(
       .returning()
 
     if (body.status && body.status !== solicitacaoAntiga.status && (body.status === "APROVADO" || body.status === "REPROVADO")) {
-      notificar(
+      await notificar(
         body.status === "APROVADO" ? "SOLICITACAO_APROVADA" : "SOLICITACAO_REPROVADA",
         `Solicitação #${id} foi ${body.status === "APROVADO" ? "aprovada" : "reprovada"} por ${session.user.name}${alteracoes.length > 0 ? ` — ${alteracoes[0]}` : ""}`,
         `/comercial/solicitacoes/${id}`,
         session.user.name
       )
     } else if (alteracoes.length > 0) {
-      notificar(
+      await notificar(
         "SOLICITACAO_ATUALIZADA",
         `Solicitação #${id} foi editada por ${session.user.name} — ${alteracoes[0]}${alteracoes.length > 1 ? ` e mais ${alteracoes.length - 1} alterações` : ""}`,
         `/comercial/solicitacoes/${id}`,

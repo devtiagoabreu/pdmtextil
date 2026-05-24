@@ -120,7 +120,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    notificar(
+    await notificar(
       "SOLICITACAO_CRIADA",
       `Nova solicitação #${novaSolicitacao.id} criada por ${session.user.name} — ${solicitacaoData.cliente}${solicitacaoData.projeto ? ` (${solicitacaoData.projeto})` : ""}`,
       `/comercial/solicitacoes/${novaSolicitacao.id}`,

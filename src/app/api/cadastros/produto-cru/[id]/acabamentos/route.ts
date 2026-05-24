@@ -46,7 +46,7 @@ export async function POST(
       })
       .returning()
 
-    notificar(
+    await notificar(
       "ACABAMENTO_CRIADO",
       `Novo acabamento #${novo[0].id} adicionado ao produto cru #${id} por ${session.user.name}${body.descricao ? ` — ${body.descricao}` : ""}`,
       `/cadastros/produto-cru/${id}`,
