@@ -19,6 +19,7 @@ import {
   Lock,
   BarChart3,
   FlaskConical,
+  Bell,
 } from "lucide-react"
 
 const adminItems = [
@@ -27,6 +28,7 @@ const adminItems = [
   { href: "/admin/email-massa", label: "Email em Massa", icon: Send },
   { href: "/admin/configuracoes", label: "Configurações", icon: Settings },
   { href: "/admin/configuracoes/permissoes", label: "Permissões", icon: Lock },
+  { href: "/admin/notificacoes", label: "Notificações", icon: Bell },
 ] as const
 
 const baseNav = [
