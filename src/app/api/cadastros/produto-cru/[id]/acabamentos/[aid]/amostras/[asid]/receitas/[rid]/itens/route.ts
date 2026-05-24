@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { produtoCruReceita as receitas, produtoCruReceitaItem as receitaItens, produtosQuimicos } from "@/lib/db/schema"
 import { eq, asc, desc } from "drizzle-orm"
+import { validateReceitaChain } from "@/lib/validate-ownership"
 
 export async function GET(
   req: NextRequest,
@@ -13,7 +14,10 @@ export async function GET(
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
-    const { rid } = await params
+    const { id, aid, asid, rid } = await params
+    const err = await validateReceitaChain(parseInt(id), parseInt(aid), parseInt(asid), parseInt(rid))
+    if (err) return err
+
     const itens = await db.select({
       id: receitaItens.id,
       receitaId: receitaItens.receitaId,
@@ -47,7 +51,10 @@ export async function POST(
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
-    const { rid } = await params
+    const { id, aid, asid, rid } = await params
+    const err = await validateReceitaChain(parseInt(id), parseInt(aid), parseInt(asid), parseInt(rid))
+    if (err) return err
+
     const body = await req.json()
 
     const maxOrdem = await db.select({ max: receitaItens.ordem })

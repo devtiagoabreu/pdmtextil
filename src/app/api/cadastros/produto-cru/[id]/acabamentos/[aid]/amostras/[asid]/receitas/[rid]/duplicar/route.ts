@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { produtoCruReceita as receitas, produtoCruReceitaItem as receitaItens } from "@/lib/db/schema"
 import { eq } from "drizzle-orm"
+import { validateReceitaChain } from "@/lib/validate-ownership"
 
 export async function POST(
   req: NextRequest,
@@ -13,7 +14,9 @@ export async function POST(
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
-    const { rid, asid } = await params
+    const { id, aid, asid, rid } = await params
+    const err = await validateReceitaChain(parseInt(id), parseInt(aid), parseInt(asid), parseInt(rid))
+    if (err) return err
     const receitaId = parseInt(rid)
 
     const [original] = await db.select().from(receitas).where(eq(receitas.id, receitaId)).limit(1)

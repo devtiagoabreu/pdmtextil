@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { produtoCruReceita as receitas } from "@/lib/db/schema"
 import { eq } from "drizzle-orm"
+import { validateReceitaChain } from "@/lib/validate-ownership"
 
 export async function GET(
   req: NextRequest,
@@ -13,7 +14,10 @@ export async function GET(
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
-    const { rid } = await params
+    const { id, aid, asid, rid } = await params
+    const err = await validateReceitaChain(parseInt(id), parseInt(aid), parseInt(asid), parseInt(rid))
+    if (err) return err
+
     const [receita] = await db.select().from(receitas).where(eq(receitas.id, parseInt(rid))).limit(1)
     if (!receita) return NextResponse.json({ error: "Não encontrada" }, { status: 404 })
     return NextResponse.json(receita)
@@ -31,7 +35,10 @@ export async function PUT(
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
-    const { rid } = await params
+    const { id, aid, asid, rid } = await params
+    const err = await validateReceitaChain(parseInt(id), parseInt(aid), parseInt(asid), parseInt(rid))
+    if (err) return err
+
     const body = await req.json()
 
     await db.update(receitas).set({
@@ -55,7 +62,10 @@ export async function DELETE(
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
-    const { rid } = await params
+    const { id, aid, asid, rid } = await params
+    const err = await validateReceitaChain(parseInt(id), parseInt(aid), parseInt(asid), parseInt(rid))
+    if (err) return err
+
     await db.delete(receitas).where(eq(receitas.id, parseInt(rid)))
     return NextResponse.json({ success: true })
   } catch (error) {
