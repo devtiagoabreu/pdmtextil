@@ -479,7 +479,7 @@ export default function EmailMassaPage() {
             </div>
 
             {modelos.length === 0 ? (
-              <p className="text-sm text-slate-400 py-8 text-center">Nenhum modelo cadastrado. Clique em "Novo Modelo" para criar.</p>
+              <p className="text-sm text-slate-400 py-8 text-center">Nenhum modelo cadastrado. Clique em &ldquo;Novo Modelo&rdquo; para criar.</p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
@@ -531,7 +531,7 @@ export default function EmailMassaPage() {
             {loadingListas ? (
               <p className="text-sm text-slate-400 py-8 text-center">Carregando...</p>
             ) : listas.length === 0 ? (
-              <p className="text-sm text-slate-400 py-8 text-center">Nenhuma lista cadastrada. Clique em "Nova Lista" para criar.</p>
+              <p className="text-sm text-slate-400 py-8 text-center">Nenhuma lista cadastrada. Clique em &ldquo;Nova Lista&rdquo; para criar.</p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
