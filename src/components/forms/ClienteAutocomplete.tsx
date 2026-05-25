@@ -25,6 +25,7 @@ interface ClienteAutocompleteProps {
   onSelect: (cliente: Cliente) => void
   onNovoCliente?: () => void
   error?: string
+  cnpjError?: string
   cnpjValue?: string
   onCnpjChange?: (cnpj: string) => void
 }
@@ -35,6 +36,7 @@ export function ClienteAutocomplete({
   onSelect,
   onNovoCliente,
   error,
+  cnpjError,
   cnpjValue,
   onCnpjChange,
 }: ClienteAutocompleteProps) {
@@ -200,7 +202,7 @@ export function ClienteAutocomplete({
 
       <div className="space-y-1">
         <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-          CNPJ
+          CNPJ <span className="text-red-500">*</span>
         </label>
         <div className="relative">
           <Input
@@ -229,6 +231,7 @@ export function ClienteAutocomplete({
             ))}
           </div>
         )}
+        {cnpjError && <p className="text-xs text-red-500">{cnpjError}</p>}
       </div>
 
       {error && <p className="text-xs text-red-500">{error}</p>}

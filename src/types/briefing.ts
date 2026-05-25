@@ -6,8 +6,8 @@ export const dadosComerciaisSchema = z.object({
     invalid_type_error: "O tipo de solicitação é inválido",
   }),
   cliente: z.string().min(1, "Selecione ou digite um cliente"),
-  cnpj: z.string().optional(),
-  projeto: z.string().optional(),
+  cnpj: z.string().min(1, "CNPJ é obrigatório"),
+  projeto: z.string().min(1, "Projeto é obrigatório"),
   prazoDesejado: z.string().optional(),
 });
 
@@ -88,8 +88,15 @@ export const TIPOS_ACABAMENTO = [
 ] as const;
 
 export const briefingTecelagemSchema = z.object({
+  produtoBase: z.string().optional(),
+  codProduto: z.string().optional(),
+  nomeCor: z.string().optional(),
+  pantone: z.string().optional(),
+  amostraDesenvolver: z.string().optional(),
+  observacoes: z.string().optional(),
+
   aplicacao: z.object({
-    segmentos: z.array(z.string()).min(1, "Selecione pelo menos um segmento"),
+    segmentos: z.array(z.string()).optional(),
     outrosSegmentos: z.string().optional(),
     descricaoAplicacao: z.string().optional(),
   }),
@@ -104,10 +111,7 @@ export const briefingTecelagemSchema = z.object({
     densidadeUrdume: z.string().optional(),
     densidadeTrama: z.string().optional(),
     ligamento: z.string().optional(),
-    tipoTecido: z.enum(["PLANO", "JACQUARD", "MALHA"], {
-      required_error: "Selecione o tipo de tecido",
-      invalid_type_error: "Selecione o tipo de tecido",
-    }),
+    tipoTecido: z.string().optional(),
   }),
 
   tecnologias: z.object({
@@ -116,10 +120,7 @@ export const briefingTecelagemSchema = z.object({
   }),
 
   performance: z.object({
-    resistenciaAbrasao: z.enum(["BAIXA", "MEDIA", "ALTA", "MUITO_ALTA"], {
-      required_error: "Selecione resistência à abrasão",
-      invalid_type_error: "Selecione resistência à abrasão",
-    }),
+    resistenciaAbrasao: z.string().optional(),
     resistenciaLavagem: z.boolean().default(false),
     resistenciaSecagem: z.boolean().default(false),
     resistenciaPassagem: z.boolean().default(false),
@@ -127,33 +128,21 @@ export const briefingTecelagemSchema = z.object({
   }),
 
   acabamento: z.object({
-    tipos: z.array(z.string()).min(1, "Selecione pelo menos um tipo de acabamento"),
-    nivelBrilho: z.enum(["FOSCO", "SEMI_FOSCO", "BRILHANTE", "ALTO_BRILHO"], {
-      required_error: "Selecione o nível de brilho",
-      invalid_type_error: "Selecione o nível de brilho",
-    }),
-    toque: z.enum(["SECO", "MACIO", "SUAVE", "ESTRUTURADO"], {
-      required_error: "Selecione o toque desejado",
-      invalid_type_error: "Selecione o toque desejado",
-    }),
+    tipos: z.array(z.string()).optional(),
+    nivelBrilho: z.string().optional(),
+    toque: z.string().optional(),
     textura: z.string().optional(),
   }),
 
   cores: z.object({
-    tipo: z.enum(["SOLIDAS", "ESTAMPADAS", "FANTASIA", "DESENVOLVIMENTO_EXCLUSIVO"], {
-      required_error: "Selecione o padrão de cores",
-      invalid_type_error: "Selecione o padrão de cores",
-    }),
+    tipo: z.string().optional(),
     paletaPreferencial: z.string().optional(),
     coresEspecificas: z.string().optional(),
     lavabilidadeCores: z.string().optional(),
   }),
 
   comercial: z.object({
-    targetPreco: z.enum(["ECONOMICO", "INTERMEDIARIO", "PREMIUM"], {
-      required_error: "Selecione o target de preço",
-      invalid_type_error: "Selecione o target de preço",
-    }),
+    targetPreco: z.string().optional(),
     quantidadeEstimada: z.string().optional(),
     prazoEntrega: z.string().optional(),
     observacoes: z.string().optional(),
