@@ -802,7 +802,7 @@ export default function ProdutoCruFormPage() {
           </div>
 
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold">Amostras (Tecido Cru)</h2>
+            <h2 id="amostras" className="text-lg font-semibold">Amostras (Tecido Cru)</h2>
 
             {amostras.length > 0 && (
               <div className="space-y-2">
