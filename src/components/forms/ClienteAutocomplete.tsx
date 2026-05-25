@@ -124,7 +124,7 @@ export function ClienteAutocomplete({
   }
 
   const handleCnpjChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value
+    const val = e.target.value.replace(/[^a-zA-Z0-9]/g, "")
     setCnpjQuery(val)
     if (onCnpjChange) onCnpjChange(val)
 
@@ -137,7 +137,9 @@ export function ClienteAutocomplete({
   const handleSelect = (cliente: Cliente) => {
     setQuery(cliente.nome)
     onChange(cliente.nome)
-    if (onCnpjChange) onCnpjChange(cliente.cnpj)
+    const cnpjLimpo = cliente.cnpj.replace(/[^a-zA-Z0-9]/g, "")
+    setCnpjQuery(cnpjLimpo)
+    if (onCnpjChange) onCnpjChange(cnpjLimpo)
     setIsOpen(false)
     setIsCnpjOpen(false)
     onSelect(cliente)
@@ -202,7 +204,7 @@ export function ClienteAutocomplete({
 
       <div className="space-y-1">
         <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-          CNPJ <span className="text-red-500">*</span>
+          CNPJ
         </label>
         <div className="relative">
           <Input
