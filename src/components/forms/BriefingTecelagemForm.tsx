@@ -96,6 +96,12 @@ export function BriefingTecelagemForm({ initialData, onNext, onBack }: BriefingT
   const { register, control, handleSubmit, formState: { errors }, getValues, setValue, watch } = useForm<BriefingTecelagem>({
     resolver: zodResolver(briefingTecelagemSchema),
     defaultValues: initialData || {
+      produtoBase: "",
+      codProduto: "",
+      nomeCor: "",
+      pantone: "",
+      amostraDesenvolver: "",
+      observacoes: "",
       aplicacao: { segmentos: [] },
       tecnologias: { requeridas: [] },
       performance: {},
@@ -108,6 +114,14 @@ export function BriefingTecelagemForm({ initialData, onNext, onBack }: BriefingT
   // Sincroniza initialData com o formulário
   useEffect(() => {
     if (!initialData) return
+    
+    // Novos campos do topo
+    if (initialData.produtoBase !== undefined) setValue("produtoBase", initialData.produtoBase)
+    if (initialData.codProduto !== undefined) setValue("codProduto", initialData.codProduto)
+    if (initialData.nomeCor !== undefined) setValue("nomeCor", initialData.nomeCor)
+    if (initialData.pantone !== undefined) setValue("pantone", initialData.pantone)
+    if (initialData.amostraDesenvolver !== undefined) setValue("amostraDesenvolver", initialData.amostraDesenvolver)
+    if (initialData.observacoes !== undefined) setValue("observacoes", initialData.observacoes)
     
     // Aplicação / Uso Final
     if (initialData.aplicacao) {
@@ -160,6 +174,8 @@ export function BriefingTecelagemForm({ initialData, onNext, onBack }: BriefingT
   }, [initialData, setValue])
 
   // Watch fields específicos para garantir captura de valores
+  const watch_descricaoApp = watch("aplicacao.descricaoAplicacao")
+  const watch_outrosSegmentos = watch("aplicacao.outrosSegmentos")
   const watch_composicao = watch("requisitosTecnicos.composicao")
   const watch_larguraMin = watch("requisitosTecnicos.larguraMinima")
   const watch_larguraMax = watch("requisitosTecnicos.larguraMaxima")
@@ -176,8 +192,12 @@ export function BriefingTecelagemForm({ initialData, onNext, onBack }: BriefingT
   const watch_quantidade = watch("comercial.quantidadeEstimada")
   const watch_prazoEntrega = watch("comercial.prazoEntrega")
   const watch_observacoes = watch("comercial.observacoes")
-  const watch_descricaoApp = watch("aplicacao.descricaoAplicacao")
-  const watch_outrosSegmentos = watch("aplicacao.outrosSegmentos")
+  const watch_produtoBase = watch("produtoBase")
+  const watch_codProduto = watch("codProduto")
+  const watch_nomeCor = watch("nomeCor")
+  const watch_pantone = watch("pantone")
+  const watch_amostraDesenvolver = watch("amostraDesenvolver")
+  const watch_observacoesGerais = watch("observacoes")
 
   const onSubmitDebug = (data: BriefingTecelagem) => {
     // Força atualização de todos os campos antes de obter valores
@@ -185,6 +205,12 @@ export function BriefingTecelagemForm({ initialData, onNext, onBack }: BriefingT
     
     // Cria manualmente o objeto com todos os campos
     const completeData: BriefingTecelagem = {
+      produtoBase: watch_produtoBase,
+      codProduto: watch_codProduto,
+      nomeCor: watch_nomeCor,
+      pantone: watch_pantone,
+      amostraDesenvolver: watch_amostraDesenvolver,
+      observacoes: watch_observacoesGerais,
       aplicacao: {
         segmentos: currentValues.aplicacao?.segmentos || data.aplicacao?.segmentos || [],
         descricaoAplicacao: watch_descricaoApp,
@@ -239,6 +265,107 @@ export function BriefingTecelagemForm({ initialData, onNext, onBack }: BriefingT
 
   return (
     <form onSubmit={handleSubmit(onSubmitDebug)} className="space-y-8 mt-6 pb-24">
+      {/* NOVOS CAMPOS — Dados básicos do produto */}
+      <section className="space-y-4">
+        <h2 className="text-xl font-semibold border-b pb-2">Dados do Produto</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-3">
+            <Label>PRODUTO BASE</Label>
+            <Controller
+              name="produtoBase"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  placeholder="Ex: Malha, Tecido Plano, Sarja..."
+                  value={field.value || ""}
+                  onChange={(e) => field.onChange(e.target.value)}
+                />
+              )}
+            />
+          </div>
+          <div className="space-y-3">
+            <Label>CÓD. PRODUTO</Label>
+            <Controller
+              name="codProduto"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  placeholder="Código do produto base"
+                  value={field.value || ""}
+                  onChange={(e) => field.onChange(e.target.value)}
+                />
+              )}
+            />
+          </div>
+          <div className="space-y-3">
+            <Label>NOME DA COR</Label>
+            <Controller
+              name="nomeCor"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  placeholder="Ex: Azul Marinho, Verde Musgo..."
+                  value={field.value || ""}
+                  onChange={(e) => field.onChange(e.target.value)}
+                />
+              )}
+            />
+          </div>
+          <div className="space-y-3">
+            <Label>PANTONE</Label>
+            <Controller
+              name="pantone"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  placeholder="Ex: 19-4052 TCX"
+                  value={field.value || ""}
+                  onChange={(e) => field.onChange(e.target.value)}
+                />
+              )}
+            />
+          </div>
+        </div>
+        <div className="space-y-3">
+          <Label>AMOSTRA A SER DESENVOLVIDA</Label>
+          <Controller
+            name="amostraDesenvolver"
+            control={control}
+            render={({ field }) => (
+              <Textarea
+                {...field}
+                placeholder="Descreva a amostra que deve ser desenvolvida..."
+                rows={3}
+                value={field.value || ""}
+                onChange={(e) => field.onChange(e.target.value)}
+              />
+            )}
+          />
+        </div>
+        <div className="space-y-3">
+          <Label>OBSERVAÇÕES</Label>
+          <Controller
+            name="observacoes"
+            control={control}
+            render={({ field }) => (
+              <Textarea
+                {...field}
+                placeholder="Observações gerais sobre o desenvolvimento..."
+                rows={3}
+                value={field.value || ""}
+                onChange={(e) => field.onChange(e.target.value)}
+              />
+            )}
+          />
+        </div>
+      </section>
+
+      <Separator />
+
       {/* SEÇÃO 1: APLICAÇÃO / USO FINAL */}
       <section className="space-y-4">
         <h2 className="text-xl font-semibold border-b pb-2">1. Aplicação / Uso Final</h2>

@@ -135,8 +135,11 @@ export default function NovaSolicitacaoPage() {
       if (!payload.cliente) {
         throw new Error("Cliente é obrigatório")
       }
-      if (!payload.briefing || Object.keys(payload.briefing).length === 0) {
-        throw new Error("Briefing é obrigatório")
+      if (!payload.cnpj) {
+        throw new Error("CNPJ é obrigatório")
+      }
+      if (!payload.projeto) {
+        throw new Error("Projeto é obrigatório")
       }
 
       console.log("=== SENDING POST PAYLOAD ===", JSON.stringify(payload, null, 2))
@@ -265,6 +268,7 @@ export default function NovaSolicitacaoPage() {
                       }}
                       onNovoCliente={() => setShowNovoCliente(true)}
                       error={errors.cliente?.message}
+                      cnpjError={errors.cnpj?.message}
                       cnpjValue={comercialData.cnpj}
                       onCnpjChange={(val) => {
                         setValue("cnpj", val)
@@ -276,7 +280,7 @@ export default function NovaSolicitacaoPage() {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Nome do Projeto</Label>
+                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Nome do Projeto <span className="text-red-500">*</span></Label>
                 <Controller
                   name="projeto"
                   control={control}
