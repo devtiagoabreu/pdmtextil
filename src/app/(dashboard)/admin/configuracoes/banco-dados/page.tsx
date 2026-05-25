@@ -7,6 +7,9 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { usePathname } from "next/navigation"
+import { InfoButton } from "@/components/ui/info-button"
+import { getInfoContent } from "@/lib/info-content"
 
 interface BancoDados {
   id: number
@@ -16,6 +19,8 @@ interface BancoDados {
 }
 
 export default function BancoDadosPage() {
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
   const [lista, setLista] = useState<BancoDados[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -101,7 +106,7 @@ export default function BancoDadosPage() {
         <div>
           <div className="flex items-center gap-2">
             <Database className="text-blue-600" size={24} />
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Banco de Dados</h1>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Banco de Dados{info && <InfoButton content={info} />}</h1>
           </div>
           <p className="text-sm text-slate-500 mt-1">Gerencie as conexões com banco de dados</p>
         </div>

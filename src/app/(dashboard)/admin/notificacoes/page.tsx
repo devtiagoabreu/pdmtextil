@@ -4,6 +4,9 @@ import { useState, useEffect } from "react"
 import { toast } from "sonner"
 import { Loader2, Save, Bell, ArrowLeft } from "lucide-react"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { InfoButton } from "@/components/ui/info-button"
+import { getInfoContent } from "@/lib/info-content"
 
 interface Regra {
   tipo: string
@@ -30,6 +33,8 @@ const TIPO_LABEL: Record<string, string> = {
 }
 
 export default function NotificacoesAdminPage() {
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
   const [regras, setRegras] = useState<Regra[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -99,7 +104,7 @@ export default function NotificacoesAdminPage() {
         <div>
           <div className="flex items-center gap-2">
             <Bell className="text-blue-600" size={24} />
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Notificações por Tipo</h1>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Notificações por Tipo{info && <InfoButton content={info} />}</h1>
           </div>
           <p className="text-sm text-slate-500 mt-1">Selecione quais perfis recebem notificação para cada tipo de evento</p>
         </div>

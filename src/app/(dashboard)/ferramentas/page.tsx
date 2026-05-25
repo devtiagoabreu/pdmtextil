@@ -2,6 +2,9 @@
 
 import Link from "next/link"
 import { Send, Calculator, Wrench, Repeat } from "lucide-react"
+import { usePathname } from "next/navigation"
+import { InfoButton } from "@/components/ui/info-button"
+import { getInfoContent } from "@/lib/info-content"
 
 const ferramentas = [
   { href: "/ferramentas/regra-de-tres", label: "Calculadora de Regra de Três", desc: "Resolve regra de três simples (direta/inversa) e composta", icon: Calculator },
@@ -10,12 +13,14 @@ const ferramentas = [
 ]
 
 export default function FerramentasHubPage() {
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
         <div className="flex items-center gap-2">
           <Wrench className="text-blue-600" size={24} />
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Ferramentas</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Ferramentas{info && <InfoButton content={info} />}</h1>
         </div>
         <p className="text-sm text-slate-500 mt-1">Ferramentas auxiliares do sistema</p>
       </div>

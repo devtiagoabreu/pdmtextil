@@ -239,6 +239,86 @@ export const infoContent: Record<string, InfoContent> = {
       "Apenas usuários ADMIN podem alterar configurações.",
     ],
   },
+  "/admin/configuracoes/banco-dados": {
+    title: "Banco de Dados",
+    description: "Gerenciamento de conexões com bancos de dados externos para integração com sistemas legados.",
+    rules: [
+      "As conexões são usadas para importar dados de sistemas da empresa.",
+      "A string de conexão deve seguir o formato PostgreSQL.",
+      "Apenas conexões ativas podem ser utilizadas nas importações.",
+    ],
+  },
+  "/admin/configuracoes/smtp": {
+    title: "SMTP",
+    description: "Configuração do servidor de email para envio de notificações e disparos em massa.",
+    rules: [
+      "O servidor SMTP é utilizado por todas as funcionalidades de email do sistema.",
+      "Recomenda-se utilizar portas 587 (STARTTLS) ou 465 (SSL/TLS).",
+      "O remetente padrão é configurado com o nome da empresa.",
+      "Teste o envio após configurar para validar as credenciais.",
+    ],
+  },
+  "/admin/notificacoes": {
+    title: "Notificações por Tipo",
+    description: "Configure quais perfis (roles) recebem notificações para cada tipo de evento do sistema.",
+    rules: [
+      "Cada tipo de notificação pode ser atribuído a um ou mais perfis.",
+      "As notificações são exibidas no ícone de sino no cabeçalho.",
+      "Alterações são aplicadas imediatamente após salvar.",
+    ],
+    fields: [
+      { name: "Tipo", desc: "Categoria do evento que gera a notificação" },
+      { name: "Perfis", desc: "Selecione um ou mais perfis que devem receber a notificação" },
+    ],
+  },
+  "/ferramentas": {
+    title: "Ferramentas",
+    description: "Central de ferramentas auxiliares do sistema para cálculos e operações do dia a dia.",
+    rules: [
+      "Cada ferramenta é independente e não afeta dados do sistema.",
+      "Ferramentas estão disponíveis para todos os usuários autenticados.",
+    ],
+  },
+  "/ferramentas/conversores": {
+    title: "Numeração de Fio",
+    description: "Conversor entre diferentes sistemas de numeração de fios: Ne, Nm, Tex, Dtex e Denier.",
+    rules: [
+      "A conversão é feita em tempo real conforme você digita.",
+      "Os valores são aproximados devido a diferenças nos sistemas de medida.",
+      "Ne (Cotton) é o sistema mais comum no Brasil para fios de algodão.",
+    ],
+  },
+  "/ferramentas/regra-de-tres": {
+    title: "Calculadora de Regra de Três",
+    description: "Resolve regra de três simples (direta ou inversa) e composta para cálculos rápidos do dia a dia.",
+    rules: [
+      "Regra direta: grandezas que variam na mesma proporção.",
+      "Regra inversa: grandezas que variam em proporção inversa.",
+      "Regra composta: três ou mais grandezas relacionadas.",
+    ],
+  },
+  "/dashboard/relatorios": {
+    title: "Relatórios",
+    description: "Central de relatórios gerenciais com métricas e indicadores de desempenho do sistema.",
+    rules: [
+      "Cada relatório possui filtros próprios para refinar a consulta.",
+      "Os dados são extraídos em tempo real do banco de dados.",
+      "Relatórios estão disponíveis para usuários ADMIN e SUDO.",
+    ],
+  },
+  "/cadastros/receitas": {
+    title: "Receitas",
+    description: "Cadastro de receitas técnicas de beneficiamento e acabamento para produtos têxteis.",
+    rules: [
+      "Receitas podem ser de acabamento (produto final) ou de amostra (teste).",
+      "Cada receita lista os produtos químicos com suas respectivas dosagens.",
+      "A receita de amostra pode ser duplicada para criar uma receita de produção.",
+    ],
+    fields: [
+      { name: "Tipo", desc: "Acabamento ou Amostra" },
+      { name: "Produtos", desc: "Lista de produtos químicos com concentração e ordem" },
+    ],
+  },
   "/admin/configuracoes/permissoes": {
     title: "Permissões",
     description: "Configuração detalhada de permissões de acesso por entidade e ação para cada perfil.",
