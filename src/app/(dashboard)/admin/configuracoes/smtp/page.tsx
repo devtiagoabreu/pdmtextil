@@ -7,8 +7,13 @@ import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 import { Loader2, Mail, Send, Trash2, ArrowLeft } from "lucide-react"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { InfoButton } from "@/components/ui/info-button"
+import { getInfoContent } from "@/lib/info-content"
 
 export default function SmtpConfigPage() {
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
 
@@ -118,7 +123,7 @@ export default function SmtpConfigPage() {
         <div>
           <div className="flex items-center gap-2">
             <Mail className="text-blue-600" size={24} />
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">SMTP</h1>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">SMTP{info && <InfoButton content={info} />}</h1>
           </div>
           <p className="text-sm text-slate-500 mt-1">Configuração do servidor de email</p>
         </div>

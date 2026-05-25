@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { FlaskConical, Beaker, FileText, ChevronRight } from "lucide-react"
+import { usePathname } from "next/navigation"
+import { InfoButton } from "@/components/ui/info-button"
+import { getInfoContent } from "@/lib/info-content"
 
 type ReceitaSimples = {
   id: number
@@ -33,6 +36,8 @@ type ReceitaCompleta = {
 }
 
 export default function ListaReceitasPage() {
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
   const [simples, setSimples] = useState<ReceitaSimples[]>([])
   const [completas, setCompletas] = useState<ReceitaCompleta[]>([])
   const [loading, setLoading] = useState(true)
@@ -52,7 +57,7 @@ export default function ListaReceitasPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Receitas</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Receitas{info && <InfoButton content={info} />}</h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
           Receitas de beneficiamento associadas a produtos, acabamentos e amostras
         </p>

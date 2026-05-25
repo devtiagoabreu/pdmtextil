@@ -3,6 +3,9 @@
 import { useState } from "react"
 import { ArrowLeft, Calculator, Info } from "lucide-react"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { InfoButton } from "@/components/ui/info-button"
+import { getInfoContent } from "@/lib/info-content"
 
 type TipoRegra = "simples-direta" | "simples-inversa" | "composta"
 
@@ -18,6 +21,8 @@ interface GrandezaComposta {
 }
 
 export default function RegraDeTresPage() {
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
   const [tipo, setTipo] = useState<TipoRegra>("simples-direta")
   const [grandezas, setGrandezas] = useState<Grandeza[]>([
     { nome: "A", valor: "" },
@@ -136,7 +141,7 @@ export default function RegraDeTresPage() {
         <div>
           <div className="flex items-center gap-2">
             <Calculator className="text-blue-600" size={24} />
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Calculadora de Regra de Três</h1>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Calculadora de Regra de Três{info && <InfoButton content={info} />}</h1>
           </div>
           <p className="text-sm text-slate-500 mt-1">Resolve regra de três simples (direta/inversa) e composta</p>
         </div>

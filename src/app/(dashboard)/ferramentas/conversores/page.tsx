@@ -3,6 +3,9 @@
 import { useState } from "react"
 import { ArrowLeft, Repeat } from "lucide-react"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { InfoButton } from "@/components/ui/info-button"
+import { getInfoContent } from "@/lib/info-content"
 
 type Origem = "ne" | "nm" | "tex" | "dtex" | "denier"
 
@@ -15,6 +18,8 @@ const LABELS: Record<Origem, { nome: string; desc: string }> = {
 }
 
 export default function ConversoresPage() {
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
   const [valores, setValores] = useState<Record<Origem, string>>({
     ne: "", nm: "", tex: "", dtex: "", denier: "",
   })
@@ -85,7 +90,7 @@ export default function ConversoresPage() {
         <div>
           <div className="flex items-center gap-2">
             <Repeat className="text-blue-600" size={24} />
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Numeração de Fio</h1>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Numeração de Fio{info && <InfoButton content={info} />}</h1>
           </div>
           <p className="text-sm text-slate-500 mt-1">Conversão entre Ne · Nm · Tex · Dtex · Denier</p>
         </div>

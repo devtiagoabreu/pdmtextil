@@ -2,6 +2,9 @@
 
 import Link from "next/link"
 import { BarChart3, Activity, FileText, Clock, FlaskConical } from "lucide-react"
+import { usePathname } from "next/navigation"
+import { InfoButton } from "@/components/ui/info-button"
+import { getInfoContent } from "@/lib/info-content"
 
 const relatorios = [
   { href: "/dashboard/relatorios/atividade-usuario", label: "Atividade por Usuário", desc: "Acompanhe ações, gráficos e logs de cada usuário", icon: Activity },
@@ -11,12 +14,14 @@ const relatorios = [
 ]
 
 export default function RelatoriosHubPage() {
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
         <div className="flex items-center gap-2">
           <BarChart3 className="text-blue-600" size={24} />
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Relatórios</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Relatórios{info && <InfoButton content={info} />}</h1>
         </div>
         <p className="text-sm text-slate-500 mt-1">Relatórios e análises do sistema</p>
       </div>
