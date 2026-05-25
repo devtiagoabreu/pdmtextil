@@ -40,6 +40,7 @@ export async function sendEmail(params: {
   to: string | string[]
   subject: string
   html: string
+  bcc?: string | string[]
 }) {
   const configs = await db.select().from(emailConfig).where(eq(emailConfig.ativo, true)).limit(1)
   if (configs.length === 0) return { sent: 0, error: "Sem config de email" }
@@ -55,10 +56,13 @@ export async function sendEmail(params: {
   const toList = Array.isArray(params.to) ? params.to : [params.to]
   if (toList.length === 0) return { sent: 0, error: "Nenhum destinatário" }
 
+  const bccList = params.bcc ? (Array.isArray(params.bcc) ? params.bcc : [params.bcc]) : undefined
+
   try {
     await t.sendMail({
       from: `"${cfg.fromName || "PDM Têxtil"}" <${cfg.user}>`,
       to: toList.join(", "),
+      bcc: bccList?.join(", "),
       subject: params.subject,
       html: params.html,
     })
