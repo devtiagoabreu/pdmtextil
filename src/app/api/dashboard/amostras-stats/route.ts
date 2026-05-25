@@ -92,21 +92,29 @@ export async function GET() {
       (SELECT
         am.id, am.descricao, am.status, am.motivo_aprovacao as "motivoAprovacao",
         am.data, am.created_at as "createdAt",
+        p.id as "produtoId",
         p.codigo_pdm as "produtoCodigo", p.descricao as "produtoDescricao",
+        p.id_integracao as "idIntegracao",
         NULL as "acabamentoDescricao",
-        'TECIDO_CRU' as "tipoAmostra"
+        'TECIDO_CRU' as "tipoAmostra",
+        s.id as "solicitacaoId", s.cliente as "solicitacaoCliente", s.projeto as "solicitacaoProjeto"
       FROM produto_cru_amostra am
-      JOIN produtos_cru p ON p.id = am.produto_cru_id)
+      JOIN produtos_cru p ON p.id = am.produto_cru_id
+      LEFT JOIN solicitacoes s ON s.id = p.solicitacao_desenvolvimento_id)
       UNION ALL
       (SELECT
         aam.id, aam.descricao, aam.status, aam.motivo_aprovacao as "motivoAprovacao",
         aam.data, aam.created_at as "createdAt",
+        p.id as "produtoId",
         p.codigo_pdm as "produtoCodigo", p.descricao as "produtoDescricao",
+        p.id_integracao as "idIntegracao",
         ac.descricao as "acabamentoDescricao",
-        'ACABAMENTO' as "tipoAmostra"
+        'ACABAMENTO' as "tipoAmostra",
+        s.id as "solicitacaoId", s.cliente as "solicitacaoCliente", s.projeto as "solicitacaoProjeto"
       FROM produto_cru_acabamento_amostra aam
       JOIN produto_cru_acabamento ac ON ac.id = aam.acabamento_id
-      JOIN produtos_cru p ON p.id = ac.produto_cru_id)
+      JOIN produtos_cru p ON p.id = ac.produto_cru_id
+      LEFT JOIN solicitacoes s ON s.id = p.solicitacao_desenvolvimento_id)
       ORDER BY "createdAt" DESC
       LIMIT 10
     `)

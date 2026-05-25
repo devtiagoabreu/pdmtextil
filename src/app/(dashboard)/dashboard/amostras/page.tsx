@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react"
 import { PieChart, Pie, BarChart, Bar, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
-import { ClipboardList, FlaskConical, ThumbsUp, ThumbsDown, Clock } from "lucide-react"
+import { ClipboardList, FlaskConical, ThumbsUp, ThumbsDown, Clock, ExternalLink } from "lucide-react"
+import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
@@ -183,6 +184,8 @@ export default function DashboardAmostras() {
                   <thead className="border-b border-slate-200 dark:border-slate-800">
                     <tr>
                       <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Produto</th>
+                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">ID Integração</th>
+                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Solicitação</th>
                       <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Descrição</th>
                       <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Tipo</th>
                       <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Status</th>
@@ -193,8 +196,29 @@ export default function DashboardAmostras() {
                     {stats.recent.map((a: any, i: number) => (
                       <tr key={`${a.tipoAmostra}-${a.id}-${i}`} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
                         <td className="p-4 text-sm">
-                          <span className="text-xs text-slate-400">{a.produtoCodigo}</span>
-                          <p className="text-xs text-slate-500 mt-0.5">{a.produtoDescricao}</p>
+                          <Link href={`/cadastros/produto-cru/${a.produtoId}#amostras`} className="flex items-center gap-1.5 group">
+                            <div>
+                              <span className="text-xs text-slate-400">{a.produtoCodigo}</span>
+                              <p className="text-xs text-slate-500 mt-0.5">{a.produtoDescricao}</p>
+                            </div>
+                            <ExternalLink size={12} className="text-slate-300 group-hover:text-blue-500 shrink-0" />
+                          </Link>
+                        </td>
+                        <td className="p-4 text-sm text-slate-500">
+                          {a.idIntegracao ? (
+                            <span className="font-mono text-xs">{a.idIntegracao}</span>
+                          ) : (
+                            <span className="text-slate-300">—</span>
+                          )}
+                        </td>
+                        <td className="p-4 text-sm">
+                          {a.solicitacaoId ? (
+                            <Link href={`/comercial/solicitacoes/${a.solicitacaoId}`} className="text-blue-600 dark:text-blue-400 hover:underline text-xs">
+                              {a.solicitacaoCliente || `#${a.solicitacaoId}`}{a.solicitacaoProjeto ? ` — ${a.solicitacaoProjeto}` : ""}
+                            </Link>
+                          ) : (
+                            <span className="text-slate-300">—</span>
+                          )}
                         </td>
                         <td className="p-4 text-sm text-slate-600 dark:text-slate-300">{a.descricao || "—"}</td>
                         <td className="p-4 text-sm">
