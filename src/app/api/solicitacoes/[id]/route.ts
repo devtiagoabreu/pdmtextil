@@ -4,7 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { solicitacoes } from "@/lib/db/schema/solicitacoes"
 import { anexos } from "@/lib/db/schema/anexos"
-import { eq } from "drizzle-orm"
+import { eq, and, sql } from "drizzle-orm"
 import { notificar, notificarDelecao, registrarLog } from "@/lib/notificar"
 import { handleApiError } from "@/lib/api-error"
 
@@ -58,6 +58,21 @@ export async function PUT(
       hasBriefing: !!body.briefing,
       anexosCount: body.anexos?.length ?? 0,
     }, null, 2))
+
+    // Sanitiza CNPJ: remove tudo que não for letra ou número
+    const cnpj = body.cnpj ? body.cnpj.replace(/[^a-zA-Z0-9]/g, "") : null
+
+    // Verifica unicidade do CNPJ se preenchido (excluindo a própria solicitação)
+    if (cnpj) {
+      const existing = await db
+        .select({ id: solicitacoes.id })
+        .from(solicitacoes)
+        .where(and(eq(solicitacoes.cnpj, cnpj), sql`${solicitacoes.id} != ${parseInt(id)}`))
+        .limit(1)
+      if (existing.length > 0) {
+        return NextResponse.json({ error: "CNPJ já cadastrado em outra solicitação" }, { status: 409 })
+      }
+    }
 
     const resultado = await db
       .select()
@@ -116,7 +131,7 @@ export async function PUT(
 
     if (body.tipo !== undefined)     setValues.tipo     = body.tipo
     if (body.cliente !== undefined)  setValues.cliente  = body.cliente
-    if (body.cnpj !== undefined)     setValues.cnpj     = body.cnpj || null
+    if (body.cnpj !== undefined)     setValues.cnpj     = cnpj
     if (body.projeto !== undefined)  setValues.projeto  = body.projeto || null
     if (body.status !== undefined) {
       setValues.status = body.status

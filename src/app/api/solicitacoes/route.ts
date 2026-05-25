@@ -71,8 +71,20 @@ export async function POST(req: NextRequest) {
     if (!solicitacaoData.tipo) {
       return NextResponse.json({ error: "Tipo de solicitação é obrigatório" }, { status: 400 })
     }
-    if (!solicitacaoData.briefing) {
-      return NextResponse.json({ error: "Briefing é obrigatório" }, { status: 400 })
+
+    // Sanitiza CNPJ: remove tudo que não for letra ou número
+    const cnpj = solicitacaoData.cnpj ? solicitacaoData.cnpj.replace(/[^a-zA-Z0-9]/g, "") : null
+
+    // Verifica unicidade do CNPJ se preenchido
+    if (cnpj) {
+      const existing = await db
+        .select({ id: solicitacoes.id })
+        .from(solicitacoes)
+        .where(eq(solicitacoes.cnpj, cnpj))
+        .limit(1)
+      if (existing.length > 0) {
+        return NextResponse.json({ error: "CNPJ já cadastrado em outra solicitação" }, { status: 409 })
+      }
     }
 
     const userIdResult = getUserId(session)
@@ -94,7 +106,7 @@ export async function POST(req: NextRequest) {
       .values({
         tipo: solicitacaoData.tipo,
         cliente: solicitacaoData.cliente,
-        cnpj: solicitacaoData.cnpj || null,
+        cnpj: cnpj,
         projeto: solicitacaoData.projeto || null,
         prazoDesejado: solicitacaoData.prazoDesejado ? new Date(solicitacaoData.prazoDesejado) : null,
         briefing: solicitacaoData.briefing,

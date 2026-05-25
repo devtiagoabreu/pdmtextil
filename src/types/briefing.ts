@@ -6,8 +6,8 @@ export const dadosComerciaisSchema = z.object({
     invalid_type_error: "O tipo de solicitação é inválido",
   }),
   cliente: z.string().min(1, "Selecione ou digite um cliente"),
-  cnpj: z.string().min(1, "CNPJ é obrigatório"),
-  projeto: z.string().min(1, "Projeto é obrigatório"),
+  cnpj: z.string().optional(),
+  projeto: z.string().optional(),
   prazoDesejado: z.string().optional(),
 });
 
