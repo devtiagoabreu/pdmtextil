@@ -8,40 +8,63 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
+import { Plus, Trash2 } from "lucide-react"
 import { toast } from "sonner"
+
+interface ItemLinha {
+  codigoProduto: string
+  ordem: string
+  artigo: string
+  cor: string
+  desenho: string
+  quantidade: string
+}
+
+function itemVazio(): ItemLinha {
+  return { codigoProduto: "", ordem: "", artigo: "", cor: "", desenho: "", quantidade: "" }
+}
 
 export default function NovaRequisicaoCortePage() {
   const router = useRouter()
   const pathname = usePathname()
   const info = getInfoContent(pathname)
   const [submitting, setSubmitting] = useState(false)
-  const [form, setForm] = useState({
-    codigoProduto: "",
-    ordem: "",
-    artigo: "",
-    cor: "",
-    desenho: "",
-    quantidade: "",
-    observacoes: "",
-    entreguePor: "",
-  })
+  const [itens, setItens] = useState<ItemLinha[]>([itemVazio()])
+  const [observacoes, setObservacoes] = useState("")
+  const [entreguePor, setEntreguePor] = useState("")
 
-  const handleChange = (field: string, value: string) => {
-    setForm(prev => ({ ...prev, [field]: value }))
+  const handleItemChange = (index: number, field: keyof ItemLinha, value: string) => {
+    setItens(prev => {
+      const next = [...prev]
+      next[index] = { ...next[index], [field]: value }
+      return next
+    })
+  }
+
+  const addItem = () => {
+    setItens(prev => [...prev, itemVazio()])
+  }
+
+  const removeItem = (index: number) => {
+    if (itens.length <= 1) return
+    setItens(prev => prev.filter((_, i) => i !== index))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!form.quantidade.trim()) {
-      toast.error("Quantidade é obrigatória")
+
+    const itensValidos = itens.filter(item => item.quantidade.trim())
+    if (itensValidos.length === 0) {
+      toast.error("Adicione pelo menos um item com quantidade")
       return
     }
+
     setSubmitting(true)
     try {
       const res = await fetch("/api/comercial/requisicoes-corte", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ itens: itensValidos, observacoes, entreguePor }),
       })
       if (!res.ok) {
         const err = await res.json().catch(() => ({}))
@@ -57,7 +80,7 @@ export default function NovaRequisicaoCortePage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto py-8 space-y-6">
+    <div className="max-w-4xl mx-auto py-8 space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
@@ -70,71 +93,104 @@ export default function NovaRequisicaoCortePage() {
         </Button>
       </div>
 
-      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="codigoProduto">Cód. Produto</Label>
-              <Input
-                id="codigoProduto"
-                value={form.codigoProduto}
-                onChange={(e) => handleChange("codigoProduto", e.target.value)}
-                placeholder="2.K2620.094.500101"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="ordem">Ordem</Label>
-              <Input
-                id="ordem"
-                value={form.ordem}
-                onChange={(e) => handleChange("ordem", e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="artigo">Artigo</Label>
-              <Input
-                id="artigo"
-                value={form.artigo}
-                onChange={(e) => handleChange("artigo", e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="cor">Cor</Label>
-              <Input
-                id="cor"
-                value={form.cor}
-                onChange={(e) => handleChange("cor", e.target.value)}
-                placeholder="Palha"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="desenho">Desenho</Label>
-              <Input
-                id="desenho"
-                value={form.desenho}
-                onChange={(e) => handleChange("desenho", e.target.value)}
-                placeholder="500101"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="quantidade">
-                Quantidade <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="quantidade"
-                value={form.quantidade}
-                onChange={(e) => handleChange("quantidade", e.target.value)}
-                placeholder="2 M"
-              />
-            </div>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-4">
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">Itens de Corte</h2>
+
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-slate-200 dark:border-slate-700">
+                  <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Cód. Produto</th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Ordem</th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Artigo</th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Cor</th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Desenho</th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Qtd <span className="text-red-500">*</span></th>
+                  <th className="px-3 py-2 w-10"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                {itens.map((item, index) => (
+                  <tr key={index}>
+                    <td className="px-3 py-2">
+                      <Input
+                        value={item.codigoProduto}
+                        onChange={(e) => handleItemChange(index, "codigoProduto", e.target.value)}
+                        placeholder="2.K2620..."
+                        className="h-9 text-sm"
+                      />
+                    </td>
+                    <td className="px-3 py-2">
+                      <Input
+                        value={item.ordem}
+                        onChange={(e) => handleItemChange(index, "ordem", e.target.value)}
+                        className="h-9 text-sm"
+                      />
+                    </td>
+                    <td className="px-3 py-2">
+                      <Input
+                        value={item.artigo}
+                        onChange={(e) => handleItemChange(index, "artigo", e.target.value)}
+                        className="h-9 text-sm"
+                      />
+                    </td>
+                    <td className="px-3 py-2">
+                      <Input
+                        value={item.cor}
+                        onChange={(e) => handleItemChange(index, "cor", e.target.value)}
+                        placeholder="Palha"
+                        className="h-9 text-sm"
+                      />
+                    </td>
+                    <td className="px-3 py-2">
+                      <Input
+                        value={item.desenho}
+                        onChange={(e) => handleItemChange(index, "desenho", e.target.value)}
+                        placeholder="500101"
+                        className="h-9 text-sm"
+                      />
+                    </td>
+                    <td className="px-3 py-2">
+                      <Input
+                        value={item.quantidade}
+                        onChange={(e) => handleItemChange(index, "quantidade", e.target.value)}
+                        placeholder="2 M"
+                        className="h-9 text-sm"
+                      />
+                    </td>
+                    <td className="px-3 py-2">
+                      {itens.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeItem(index)}
+                          className="text-red-500 hover:text-red-700 p-1"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
+
+          <Button type="button" variant="outline" size="sm" onClick={addItem} className="gap-1">
+            <Plus size={14} />
+            Adicionar Item
+          </Button>
+        </div>
+
+        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-4">
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">Informações Adicionais</h2>
 
           <div className="space-y-2">
             <Label htmlFor="observacoes">Observações</Label>
             <Textarea
               id="observacoes"
-              value={form.observacoes}
-              onChange={(e) => handleChange("observacoes", e.target.value)}
+              value={observacoes}
+              onChange={(e) => setObservacoes(e.target.value)}
               placeholder="Digite aqui mais informações"
               rows={3}
             />
@@ -144,19 +200,19 @@ export default function NovaRequisicaoCortePage() {
             <Label htmlFor="entreguePor">Entregue por</Label>
             <Input
               id="entreguePor"
-              value={form.entreguePor}
-              onChange={(e) => handleChange("entreguePor", e.target.value)}
+              value={entreguePor}
+              onChange={(e) => setEntreguePor(e.target.value)}
               placeholder="Vilma"
             />
           </div>
+        </div>
 
-          <div className="flex justify-end pt-4 border-t border-slate-200 dark:border-slate-700">
-            <Button type="submit" disabled={submitting} className="bg-blue-600 hover:bg-blue-700 text-white">
-              {submitting ? "Salvando..." : "Salvar Requisição"}
-            </Button>
-          </div>
-        </form>
-      </div>
+        <div className="flex justify-end pt-4">
+          <Button type="submit" disabled={submitting} className="bg-blue-600 hover:bg-blue-700 text-white">
+            {submitting ? "Salvando..." : "Salvar Requisição"}
+          </Button>
+        </div>
+      </form>
     </div>
   )
 }

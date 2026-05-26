@@ -395,12 +395,6 @@ async function migrate() {
       CREATE TABLE IF NOT EXISTS requisicoes_corte (
         id SERIAL PRIMARY KEY,
         requisitante_id INTEGER NOT NULL REFERENCES usuarios(id),
-        codigo_produto VARCHAR(100),
-        ordem VARCHAR(100),
-        artigo VARCHAR(200),
-        cor VARCHAR(100),
-        desenho VARCHAR(100),
-        quantidade VARCHAR(50) NOT NULL,
         status VARCHAR(30) NOT NULL DEFAULT 'SOLICITADO',
         observacoes TEXT,
         entregue_por VARCHAR(200),
@@ -409,6 +403,29 @@ async function migrate() {
       )
     `
     console.log("✓ Tabela requisicoes_corte criada")
+
+    // Remove colunas antigas (migração header + itens)
+    await sql`ALTER TABLE requisicoes_corte DROP COLUMN IF EXISTS codigo_produto`
+    await sql`ALTER TABLE requisicoes_corte DROP COLUMN IF EXISTS ordem`
+    await sql`ALTER TABLE requisicoes_corte DROP COLUMN IF EXISTS artigo`
+    await sql`ALTER TABLE requisicoes_corte DROP COLUMN IF EXISTS cor`
+    await sql`ALTER TABLE requisicoes_corte DROP COLUMN IF EXISTS desenho`
+    await sql`ALTER TABLE requisicoes_corte DROP COLUMN IF EXISTS quantidade`
+    console.log("✓ Colunas antigas removidas de requisicoes_corte")
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS requisicoes_corte_itens (
+        id SERIAL PRIMARY KEY,
+        requisicao_corte_id INTEGER NOT NULL REFERENCES requisicoes_corte(id) ON DELETE CASCADE,
+        codigo_produto VARCHAR(100),
+        ordem VARCHAR(100),
+        artigo VARCHAR(200),
+        cor VARCHAR(100),
+        desenho VARCHAR(100),
+        quantidade VARCHAR(50) NOT NULL
+      )
+    `
+    console.log("✓ Tabela requisicoes_corte_itens criada")
 
     // Insere regras de notificação para requisições de corte caso não existam
     const reqCorteExistentes = await sql`SELECT count(*) FROM notificacao_regras WHERE tipo = 'REQUISICAO_CORTE'`

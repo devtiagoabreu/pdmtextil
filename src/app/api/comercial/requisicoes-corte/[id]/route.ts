@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
-import { requisicoesCorte } from "@/lib/db/schema/requisicoes-corte"
+import { requisicoesCorte, requisicoesCorteItens } from "@/lib/db/schema"
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq } from "drizzle-orm"
 import { notificar, notificarDelecao, registrarLog } from "@/lib/notificar"
@@ -20,12 +20,6 @@ export async function GET(
         id: requisicoesCorte.id,
         requisitanteId: requisicoesCorte.requisitanteId,
         requisitanteNome: usuarios.name,
-        codigoProduto: requisicoesCorte.codigoProduto,
-        ordem: requisicoesCorte.ordem,
-        artigo: requisicoesCorte.artigo,
-        cor: requisicoesCorte.cor,
-        desenho: requisicoesCorte.desenho,
-        quantidade: requisicoesCorte.quantidade,
         status: requisicoesCorte.status,
         observacoes: requisicoesCorte.observacoes,
         entreguePor: requisicoesCorte.entreguePor,
@@ -41,7 +35,13 @@ export async function GET(
       return NextResponse.json({ error: "Requisição de corte não encontrada" }, { status: 404 })
     }
 
-    return NextResponse.json(resultado)
+    const itens = await db
+      .select()
+      .from(requisicoesCorteItens)
+      .where(eq(requisicoesCorteItens.requisicaoCorteId, parseInt(id)))
+      .orderBy(requisicoesCorteItens.id)
+
+    return NextResponse.json({ ...resultado, itens })
   } catch (error) {
     console.error("[GET /api/comercial/requisicoes-corte/[id]]", error)
     return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
@@ -73,25 +73,38 @@ export async function PUT(
       updatedAt: new Date(),
     }
 
-    if (body.codigoProduto !== undefined) setValues.codigoProduto = body.codigoProduto
-    if (body.ordem !== undefined) setValues.ordem = body.ordem
-    if (body.artigo !== undefined) setValues.artigo = body.artigo
-    if (body.cor !== undefined) setValues.cor = body.cor
-    if (body.desenho !== undefined) setValues.desenho = body.desenho
-    if (body.quantidade !== undefined) setValues.quantidade = body.quantidade
     if (body.observacoes !== undefined) setValues.observacoes = body.observacoes
     if (body.entreguePor !== undefined) setValues.entreguePor = body.entreguePor
     if (body.status !== undefined) setValues.status = body.status
 
-    const [atualizada] = await db
+    await db
       .update(requisicoesCorte)
       .set(setValues)
       .where(eq(requisicoesCorte.id, parseInt(id)))
-      .returning()
+
+    if (body.itens && Array.isArray(body.itens)) {
+      await db
+        .delete(requisicoesCorteItens)
+        .where(eq(requisicoesCorteItens.requisicaoCorteId, parseInt(id)))
+
+      if (body.itens.length > 0) {
+        await db.insert(requisicoesCorteItens).values(
+          body.itens.map((item: any) => ({
+            requisicaoCorteId: parseInt(id),
+            codigoProduto: item.codigoProduto || null,
+            ordem: item.ordem || null,
+            artigo: item.artigo || null,
+            cor: item.cor || null,
+            desenho: item.desenho || null,
+            quantidade: item.quantidade,
+          }))
+        )
+      }
+    }
 
     await registrarLog({ tipo: "ATUALIZACAO", acao: "atualizar", descricao: `Requisição de corte #${id} atualizada`, entidade: "RequisicaoCorte", entidadeId: parseInt(id), usuarioNome: session.user.name })
 
-    return NextResponse.json(atualizada)
+    return NextResponse.json({ success: true })
   } catch (error: any) {
     console.error("[PUT /api/comercial/requisicoes-corte/[id]]", error)
     return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
