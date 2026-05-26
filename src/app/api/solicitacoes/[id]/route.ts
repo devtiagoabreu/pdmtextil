@@ -4,7 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { solicitacoes } from "@/lib/db/schema/solicitacoes"
 import { anexos } from "@/lib/db/schema/anexos"
-import { eq, and, sql } from "drizzle-orm"
+import { eq } from "drizzle-orm"
 import { notificar, notificarDelecao, registrarLog } from "@/lib/notificar"
 import { handleApiError } from "@/lib/api-error"
 
@@ -61,18 +61,6 @@ export async function PUT(
 
     // Sanitiza CNPJ: remove tudo que não for letra ou número
     const cnpj = body.cnpj ? body.cnpj.replace(/[^a-zA-Z0-9]/g, "") : null
-
-    // Verifica unicidade do CNPJ se preenchido (excluindo a própria solicitação)
-    if (cnpj) {
-      const existing = await db
-        .select({ id: solicitacoes.id })
-        .from(solicitacoes)
-        .where(and(eq(solicitacoes.cnpj, cnpj), sql`${solicitacoes.id} != ${parseInt(id)}`))
-        .limit(1)
-      if (existing.length > 0) {
-        return NextResponse.json({ error: "CNPJ já cadastrado em outra solicitação" }, { status: 409 })
-      }
-    }
 
     const resultado = await db
       .select()

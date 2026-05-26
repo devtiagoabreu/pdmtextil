@@ -75,18 +75,6 @@ export async function POST(req: NextRequest) {
     // Sanitiza CNPJ: remove tudo que não for letra ou número
     const cnpj = solicitacaoData.cnpj ? solicitacaoData.cnpj.replace(/[^a-zA-Z0-9]/g, "") : null
 
-    // Verifica unicidade do CNPJ se preenchido
-    if (cnpj) {
-      const existing = await db
-        .select({ id: solicitacoes.id })
-        .from(solicitacoes)
-        .where(eq(solicitacoes.cnpj, cnpj))
-        .limit(1)
-      if (existing.length > 0) {
-        return NextResponse.json({ error: "CNPJ já cadastrado em outra solicitação" }, { status: 409 })
-      }
-    }
-
     const userIdResult = getUserId(session)
     if (userIdResult instanceof NextResponse) return userIdResult
     const userId = userIdResult
