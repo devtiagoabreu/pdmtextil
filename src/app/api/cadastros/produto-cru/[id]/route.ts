@@ -114,6 +114,37 @@ export async function PUT(
       return NextResponse.json({ error: "Produto não encontrado" }, { status: 404 })
     }
 
+    // Auto-altera solicitação vinculada para EM_DESENVOLVIMENTO
+    if (body.solicitacaoDesenvolvimentoId) {
+      const solId = Number(body.solicitacaoDesenvolvimentoId)
+      if (!isNaN(solId)) {
+        try {
+          const [sol] = await db
+            .select({ status: solicitacoes.status, historicoComunicacao: solicitacoes.historicoComunicacao })
+            .from(solicitacoes)
+            .where(eq(solicitacoes.id, solId))
+            .limit(1)
+          if (sol && (sol.status === "PENDENTE" || sol.status === "AGUARDANDO_INFO")) {
+            const historico = (sol.historicoComunicacao as any[]) || []
+            historico.push({
+              data: new Date().toISOString(),
+              usuario: session.user.name,
+              acao: "MUDANCA_STATUS",
+              de: sol.status,
+              para: "EM_DESENVOLVIMENTO",
+              mensagem: "Produto cru vinculado à solicitação",
+            })
+            await db
+              .update(solicitacoes)
+              .set({ status: "EM_DESENVOLVIMENTO", historicoComunicacao: historico, updatedAt: new Date() })
+              .where(eq(solicitacoes.id, solId))
+          }
+        } catch (err) {
+          console.error("[PUT /api/cadastros/produto-cru/[id]] erro ao atualizar solicitação", err)
+        }
+      }
+    }
+
     // Se COMERCIAL aprovou produto, atualiza solicitação vinculada para CONCLUIDO
     if (body.status === "APROVADO" && body.solicitacaoDesenvolvimentoId && ["COMERCIAL", "ADMIN", "SUDO"].includes(session.user.role)) {
       const solicitacaoId = Number(body.solicitacaoDesenvolvimentoId)

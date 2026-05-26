@@ -6,9 +6,17 @@ import { useRouter, useParams, usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import Link from "next/link"
-import { ArrowLeft, FileText, Pencil, Trash2, Link as LinkIcon, Download } from "lucide-react"
+import { ArrowLeft, FileText, Pencil, Trash2, Link as LinkIcon, Download, ChevronDown } from "lucide-react"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
+import { Button } from "@/components/ui/button"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 const STATUS_CONFIG: Record<string, { label: string; classes: string }> = {
   PENDENTE:       { label: "Pendente",       classes: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400" },
@@ -156,6 +164,8 @@ export default function DetalheSolicitacaoPage() {
   const [deleteTarget, setDeleteTarget] = useState<any>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [deleteBlocked, setDeleteBlocked] = useState(false)
+  const [novoStatus, setNovoStatus] = useState("")
+  const [statusLoading, setStatusLoading] = useState(false)
   
   useEffect(() => {
     setMounted(true)
@@ -199,6 +209,38 @@ export default function DetalheSolicitacaoPage() {
       setDeleteTarget(null)
     } finally {
       setDeleteLoading(false)
+    }
+  }
+
+  const STATUS_TRANSICOES = [
+    { value: "AGUARDANDO_INFO", label: "Aguardando Info" },
+    { value: "EM_DESENVOLVIMENTO", label: "Em Desenvolvimento" },
+    { value: "APROVADO", label: "Aprovar" },
+    { value: "REPROVADO", label: "Reprovar" },
+    { value: "EM_PRODUCAO", label: "Em Produção" },
+    { value: "CONCLUIDO", label: "Concluir" },
+  ]
+
+  const handleStatusChange = async () => {
+    if (!novoStatus) return
+    setStatusLoading(true)
+    try {
+      const res = await fetch(`/api/solicitacoes/${id}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: novoStatus }),
+      })
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.error || "Erro ao alterar status")
+      }
+      toast.success("Status alterado com sucesso!")
+      refetch()
+      setNovoStatus("")
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao alterar status")
+    } finally {
+      setStatusLoading(false)
     }
   }
 
@@ -313,6 +355,28 @@ export default function DetalheSolicitacaoPage() {
           <span className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${statusCfg.classes}`}>
             {statusCfg.label}
           </span>
+          <div className="flex items-center gap-1">
+            <Select value={novoStatus} onValueChange={setNovoStatus}>
+              <SelectTrigger className="h-8 text-xs w-44">
+                <SelectValue placeholder="Alterar status..." />
+              </SelectTrigger>
+              <SelectContent>
+                {STATUS_TRANSICOES
+                  .filter(s => s.value !== sol.status)
+                  .map(s => (
+                    <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+            <Button
+              size="sm"
+              onClick={handleStatusChange}
+              disabled={!novoStatus || statusLoading}
+              className="h-8 text-xs whitespace-nowrap"
+            >
+              {statusLoading ? "..." : "OK"}
+            </Button>
+          </div>
           <Link
             href={`/comercial/solicitacoes/${id}/editar`}
             className="inline-flex items-center gap-1 px-3 py-1.5 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700"
