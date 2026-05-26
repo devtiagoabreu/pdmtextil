@@ -30,6 +30,8 @@ const TIPO_LABEL: Record<string, string> = {
   AMOSTRA_EXCLUIDA: "Amostra Excluída",
   ACABAMENTO_CRIADO: "Acabamento Criado",
   ACABAMENTO_EXCLUIDO: "Acabamento Excluído",
+  REQUISICAO_CORTE: "Requisição de Corte",
+  REQUISICAO_CORTE_STATUS: "Requisição de Corte — Status Alterado",
 }
 
 export default function NotificacoesAdminPage() {

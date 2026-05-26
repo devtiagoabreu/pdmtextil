@@ -16,6 +16,7 @@ import {
   BarChart3,
   FlaskConical,
   Wrench,
+  Scissors,
 } from "lucide-react"
 
 const adminItems = [
@@ -27,6 +28,7 @@ const baseNav = [
   { href: "/dashboard/amostras", label: "Dashboard Amostras", icon: ClipboardList },
   { href: "/comercial/solicitacoes", label: "Solicitações", icon: FileText },
   { href: "/comercial/solicitacoes/nova", label: "Nova Solicitação", icon: PlusCircle },
+  { href: "/comercial/requisicoes-corte", label: "Requisições de Corte", icon: Scissors },
   { href: "/comercial/clientes", label: "Clientes", icon: Building2 },
   { href: "/cadastros", label: "Cadastros", icon: Database },
   { href: "/cadastros/produto-cru", label: "Produtos Cru", icon: Factory },

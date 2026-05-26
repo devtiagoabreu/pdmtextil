@@ -391,6 +391,33 @@ async function migrate() {
     const atualizadas = await sql`SELECT count(*) FROM notificacao_regras`
     console.log(`✓ ${atualizadas[0].count} regras de notificação no total`)
 
+    await sql`
+      CREATE TABLE IF NOT EXISTS requisicoes_corte (
+        id SERIAL PRIMARY KEY,
+        requisitante_id INTEGER NOT NULL REFERENCES usuarios(id),
+        codigo_produto VARCHAR(100),
+        ordem VARCHAR(100),
+        artigo VARCHAR(200),
+        cor VARCHAR(100),
+        desenho VARCHAR(100),
+        quantidade VARCHAR(50) NOT NULL,
+        status VARCHAR(30) NOT NULL DEFAULT 'SOLICITADO',
+        observacoes TEXT,
+        entregue_por VARCHAR(200),
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `
+    console.log("✓ Tabela requisicoes_corte criada")
+
+    // Insere regras de notificação para requisições de corte caso não existam
+    const reqCorteExistentes = await sql`SELECT count(*) FROM notificacao_regras WHERE tipo = 'REQUISICAO_CORTE'`
+    if (reqCorteExistentes[0].count === "0") {
+      await sql`INSERT INTO notificacao_regras (tipo, roles) VALUES ('REQUISICAO_CORTE', '["COMERCIAL","DESENVOLVIMENTO","ADMIN","SUDO","QUALIDADE","TECELAGEM","BENEFICIAMENTO","PCP"]'::jsonb)`
+      await sql`INSERT INTO notificacao_regras (tipo, roles) VALUES ('REQUISICAO_CORTE_STATUS', '["COMERCIAL","DESENVOLVIMENTO","ADMIN","SUDO","QUALIDADE","TECELAGEM","BENEFICIAMENTO","PCP"]'::jsonb)`
+      console.log("✓ Regras de notificação para requisições de corte inseridas")
+    }
+
     console.log("\n✅ Migration concluída com sucesso!")
     
   } catch (error) {
