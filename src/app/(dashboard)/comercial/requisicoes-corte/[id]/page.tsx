@@ -209,7 +209,7 @@ export default function DetalheRequisicaoCortePage() {
 
           <div className="space-y-2">
             <Label htmlFor="status">Status</Label>
-            <Select value={form.status} onValueChange={(v) => handleChange("status", v)}>
+            <Select value={form.status} onValueChange={(v) => v && handleChange("status", v)}>
               <SelectTrigger id="status">
                 <SelectValue placeholder="Selecione o status" />
               </SelectTrigger>
