@@ -356,7 +356,7 @@ export default function DetalheSolicitacaoPage() {
             {statusCfg.label}
           </span>
           <div className="flex items-center gap-1">
-            <Select value={novoStatus} onValueChange={setNovoStatus}>
+            <Select value={novoStatus} onValueChange={(v) => v && setNovoStatus(v)}>
               <SelectTrigger className="h-8 text-xs w-44">
                 <SelectValue placeholder="Alterar status..." />
               </SelectTrigger>
