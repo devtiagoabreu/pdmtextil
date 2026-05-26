@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
-import { Scissors, Plus, Search, Loader2 } from "lucide-react"
+import { Scissors, Plus } from "lucide-react"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 
@@ -104,11 +104,8 @@ export default function ListaRequisicoesCortePage() {
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">#</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Requisitante</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Cód. Produto</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Ordem</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Artigo</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Cor</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Quantidade</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Cortes</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Qtd Total</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Status</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Data</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Ações</th>
@@ -124,12 +121,9 @@ export default function ListaRequisicoesCortePage() {
                       onClick={() => router.push(`/comercial/requisicoes-corte/${item.id}`)}
                     >
                       <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-slate-200">#{item.id}</td>
-                      <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">{item.requisitante || "—"}</td>
-                      <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">{item.codigoProduto || "—"}</td>
-                      <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">{item.ordem || "—"}</td>
-                      <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">{item.artigo || "—"}</td>
-                      <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">{item.cor || "—"}</td>
-                      <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">{item.quantidade || "—"}</td>
+                      <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">{item.requisitanteNome || "—"}</td>
+                      <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">{item.totalCortes ?? 0}</td>
+                      <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">{item.quantidadeTotal ?? 0}</td>
                       <td className="px-4 py-3">
                         <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${statusCfg.classes}`}>
                           {statusCfg.label}
