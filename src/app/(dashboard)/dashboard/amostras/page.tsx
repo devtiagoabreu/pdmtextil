@@ -1,10 +1,10 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { PieChart, Pie, BarChart, Bar, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
-import { ClipboardList, FlaskConical, ThumbsUp, ThumbsDown, Clock, ExternalLink } from "lucide-react"
+import { ClipboardList, FlaskConical, ThumbsUp, ThumbsDown, Clock, ExternalLink, X, Loader2 } from "lucide-react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 
@@ -30,6 +30,11 @@ const TIPO_CHART_COLORS: Record<string, string> = {
   ACABAMENTO: "#f97316",
 }
 
+const TIPO_BG: Record<string, string> = {
+  TECIDO_CRU: "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400",
+  ACABAMENTO: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400",
+}
+
 const TREND_COLOR = "#06b6d4"
 
 const STATUS_BG: Record<string, string> = {
@@ -38,10 +43,31 @@ const STATUS_BG: Record<string, string> = {
   REPROVADO: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
 }
 
+const CARDS = [
+  { key: "total-geral", label: "Total Geral", color: "text-slate-700 dark:text-slate-200", bg: "bg-slate-100 dark:bg-slate-800", icon: ClipboardList, statField: "totalGeral" },
+  { key: "tecido-cru", label: "Tecido Cru", color: "text-cyan-600 dark:text-cyan-400", bg: "bg-cyan-50 dark:bg-cyan-950/50", icon: FlaskConical, statField: "totalCru" },
+  { key: "acabamento", label: "Acabamento", color: "text-orange-600 dark:text-orange-400", bg: "bg-orange-50 dark:bg-orange-950/50", icon: FlaskConical, statField: "totalAcab" },
+  { key: "aprovadas", label: "Aprovadas", color: "text-green-600 dark:text-green-400", bg: "bg-green-50 dark:bg-green-950/50", icon: ThumbsUp, statField: "totalAprovadas" },
+  { key: "reprovadas", label: "Reprovadas", color: "text-red-600 dark:text-red-400", bg: "bg-red-50 dark:bg-red-950/50", icon: ThumbsDown, statField: "totalReprovadas" },
+]
+
+const SUB_CARDS = [
+  { key: "pendentes-cru", label: "Pendentes Tecido Cru", color: "text-yellow-600 dark:text-yellow-400", bg: "bg-yellow-50 dark:bg-yellow-950/50", statField: "pendentesCru" },
+  { key: "pendentes-acab", label: "Pendentes Acabamento", color: "text-yellow-600 dark:text-yellow-400", bg: "bg-yellow-50 dark:bg-yellow-950/50", statField: "pendentesAcab" },
+  { key: "aprovadas-cru", label: "Aprovadas Cru", color: "text-green-600 dark:text-green-400", bg: "bg-green-50 dark:bg-green-950/50", statField: "aprovadasCru" },
+  { key: "aprovadas-acab", label: "Aprovadas Acabamento", color: "text-green-600 dark:text-green-400", bg: "bg-green-50 dark:bg-green-950/50", statField: "aprovadasAcab" },
+]
+
 export default function DashboardAmostras() {
+  const router = useRouter()
   const [stats, setStats] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
+
+  const [modalFiltro, setModalFiltro] = useState<string | null>(null)
+  const [modalLista, setModalLista] = useState<any[]>([])
+  const [modalLoading, setModalLoading] = useState(false)
+  const [modalTitle, setModalTitle] = useState("")
 
   useEffect(() => {
     fetch("/api/dashboard/amostras-stats")
@@ -49,6 +75,24 @@ export default function DashboardAmostras() {
       .then(setStats)
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false))
+  }, [])
+
+  const openModal = useCallback(async (filtro: string, label: string) => {
+    setModalTitle(label)
+    setModalFiltro(filtro)
+    setModalLoading(true)
+    setModalLista([])
+    try {
+      const res = await fetch(`/api/dashboard/amostras-lista?filtro=${filtro}`)
+      if (res.ok) {
+        const data = await res.json()
+        setModalLista(Array.isArray(data) ? data : [])
+      }
+    } catch {
+      setModalLista([])
+    } finally {
+      setModalLoading(false)
+    }
   }, [])
 
   const pathname = usePathname()
@@ -75,43 +119,38 @@ export default function DashboardAmostras() {
         </div>
       ) : (
         <>
-          {/* Stats cards */}
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
-            {[
-              { label: "Total Geral", value: stats?.totalGeral ?? 0, color: "text-slate-700 dark:text-slate-200", bg: "bg-slate-100 dark:bg-slate-800", icon: ClipboardList },
-              { label: "Tecido Cru", value: stats?.totalCru ?? 0, color: "text-cyan-600 dark:text-cyan-400", bg: "bg-cyan-50 dark:bg-cyan-950/50", icon: FlaskConical },
-              { label: "Acabamento", value: stats?.totalAcab ?? 0, color: "text-orange-600 dark:text-orange-400", bg: "bg-orange-50 dark:bg-orange-950/50", icon: FlaskConical },
-              { label: "Aprovadas", value: stats?.totalAprovadas ?? 0, color: "text-green-600 dark:text-green-400", bg: "bg-green-50 dark:bg-green-950/50", icon: ThumbsUp },
-              { label: "Reprovadas", value: stats?.totalReprovadas ?? 0, color: "text-red-600 dark:text-red-400", bg: "bg-red-50 dark:bg-red-950/50", icon: ThumbsDown },
-            ].map((stat) => (
-              <div key={stat.label} className={`rounded-xl border border-slate-200 dark:border-slate-800 ${stat.bg} p-4 card-hover`}>
+            {CARDS.map((stat) => (
+              <button
+                key={stat.key}
+                type="button"
+                onClick={() => openModal(stat.key, stat.label)}
+                className={`rounded-xl border border-slate-200 dark:border-slate-800 ${stat.bg} p-4 card-hover text-left w-full cursor-pointer transition-shadow hover:shadow-md`}
+              >
                 <div className="flex items-center justify-between">
                   <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{stat.label}</p>
                   <stat.icon size={16} className="text-slate-400 dark:text-slate-500" />
                 </div>
-                <p className={`text-3xl font-bold mt-1 ${stat.color}`}>{stat.value}</p>
-              </div>
+                <p className={`text-3xl font-bold mt-1 ${stat.color}`}>{stats?.[stat.statField] ?? 0}</p>
+              </button>
             ))}
           </div>
 
-          {/* Sub-cards: pendentes por tipo */}
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-            {[
-              { label: "Pendentes Tecido Cru", value: stats?.pendentesCru ?? 0, color: "text-yellow-600 dark:text-yellow-400", bg: "bg-yellow-50 dark:bg-yellow-950/50" },
-              { label: "Pendentes Acabamento", value: stats?.pendentesAcab ?? 0, color: "text-yellow-600 dark:text-yellow-400", bg: "bg-yellow-50 dark:bg-yellow-950/50" },
-              { label: "Aprovadas Cru", value: stats?.aprovadasCru ?? 0, color: "text-green-600 dark:text-green-400", bg: "bg-green-50 dark:bg-green-950/50" },
-              { label: "Aprovadas Acabamento", value: stats?.aprovadasAcab ?? 0, color: "text-green-600 dark:text-green-400", bg: "bg-green-50 dark:bg-green-950/50" },
-            ].map((stat) => (
-              <div key={stat.label} className={`rounded-xl border border-slate-200 dark:border-slate-800 ${stat.bg} p-3 card-hover`}>
+            {SUB_CARDS.map((stat) => (
+              <button
+                key={stat.key}
+                type="button"
+                onClick={() => openModal(stat.key, stat.label)}
+                className={`rounded-xl border border-slate-200 dark:border-slate-800 ${stat.bg} p-3 card-hover text-left w-full cursor-pointer transition-shadow hover:shadow-md`}
+              >
                 <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{stat.label}</p>
-                <p className={`text-2xl font-bold mt-1 ${stat.color}`}>{stat.value}</p>
-              </div>
+                <p className={`text-2xl font-bold mt-1 ${stat.color}`}>{stats?.[stat.statField] ?? 0}</p>
+              </button>
             ))}
           </div>
 
-          {/* Charts row */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            {/* Status distribution */}
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
               <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">Distribuição por Status</h3>
               <ResponsiveContainer width="100%" height={220}>
@@ -133,7 +172,6 @@ export default function DashboardAmostras() {
               </ResponsiveContainer>
             </div>
 
-            {/* Tipo distribution */}
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
               <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">Amostras por Tipo</h3>
               <ResponsiveContainer width="100%" height={220}>
@@ -154,7 +192,6 @@ export default function DashboardAmostras() {
               </ResponsiveContainer>
             </div>
 
-            {/* Monthly trend */}
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
               <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">Amostras por Mês</h3>
               <ResponsiveContainer width="100%" height={220}>
@@ -169,7 +206,6 @@ export default function DashboardAmostras() {
             </div>
           </div>
 
-          {/* Recent amostras */}
           <div>
             <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-3">Amostras Recentes</h2>
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
@@ -222,11 +258,7 @@ export default function DashboardAmostras() {
                         </td>
                         <td className="p-4 text-sm text-slate-600 dark:text-slate-300">{a.descricao || "—"}</td>
                         <td className="p-4 text-sm">
-                          <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
-                            a.tipoAmostra === "TECIDO_CRU"
-                              ? "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400"
-                              : "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400"
-                          }`}>
+                          <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${TIPO_BG[a.tipoAmostra] || "bg-slate-100 text-slate-600"}`}>
                             {TIPO_LABELS[a.tipoAmostra] || a.tipoAmostra}
                           </span>
                         </td>
@@ -246,6 +278,58 @@ export default function DashboardAmostras() {
             </div>
           </div>
         </>
+      )}
+
+      {modalFiltro && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center pt-12 sm:pt-20 bg-black/50" onClick={() => setModalFiltro(null)}>
+          <div
+            className="bg-white dark:bg-slate-900 rounded-xl shadow-xl w-full max-w-3xl mx-4 max-h-[75vh] flex flex-col border border-slate-200 dark:border-slate-700"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">{modalTitle}</h2>
+              <button type="button" onClick={() => setModalFiltro(null)} className="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800">
+                <X size={18} className="text-slate-500" />
+              </button>
+            </div>
+            <div className="overflow-y-auto p-4 flex-1">
+              {modalLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="animate-spin text-slate-400" size={24} />
+                </div>
+              ) : modalLista.length === 0 ? (
+                <p className="text-center text-slate-500 py-12">Nenhum registro encontrado</p>
+              ) : (
+                <div className="space-y-1">
+                  {modalLista.map((item: any, i: number) => (
+                    <button
+                      key={`${item.tipoAmostra}-${item.id}-${i}`}
+                      type="button"
+                      onClick={() => { router.push(`/cadastros/produto-cru/${item.produtoId}#amostras`); setModalFiltro(null) }}
+                      className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/50 text-left"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium text-slate-900 dark:text-slate-200 truncate">
+                          {item.produtoCodigo || `#${item.produtoId}`} — {item.descricao || "Sem descrição"}
+                        </p>
+                        <p className="text-xs text-slate-400 truncate">{item.produtoDescricao}</p>
+                      </div>
+                      <div className="flex items-center gap-3 ml-3 shrink-0">
+                        <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${TIPO_BG[item.tipoAmostra] || "bg-slate-100 text-slate-600"}`}>
+                          {TIPO_LABELS[item.tipoAmostra] || item.tipoAmostra}
+                        </span>
+                        <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_BG[item.status] || "bg-slate-100 text-slate-600"}`}>
+                          {STATUS_LABELS[item.status] || item.status}
+                        </span>
+                        <span className="text-xs text-slate-400">{item.createdAt ? new Date(item.createdAt).toLocaleDateString("pt-BR") : ""}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )
