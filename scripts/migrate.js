@@ -435,6 +435,11 @@ async function migrate() {
       console.log("✓ Regras de notificação para requisições de corte inseridas")
     }
 
+    // Coluna quantidade_produzida em amostras
+    await sql`ALTER TABLE produto_cru_amostra ADD COLUMN IF NOT EXISTS quantidade_produzida VARCHAR(50)`
+    await sql`ALTER TABLE produto_cru_acabamento_amostra ADD COLUMN IF NOT EXISTS quantidade_produzida VARCHAR(50)`
+    console.log("✓ Coluna quantidade_produzida adicionada em amostras")
+
     console.log("\n✅ Migration concluída com sucesso!")
     
   } catch (error) {

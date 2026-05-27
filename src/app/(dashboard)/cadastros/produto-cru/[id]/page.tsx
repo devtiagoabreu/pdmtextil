@@ -140,6 +140,7 @@ export default function ProdutoCruFormPage() {
 
   const [novaAmostraDescricao, setNovaAmostraDescricao] = useState("")
   const [novaAmostraObs, setNovaAmostraObs] = useState("")
+  const [novaAmostraQtd, setNovaAmostraQtd] = useState("")
 
   const [novoAcabamentoTipo, setNovoAcabamentoTipo] = useState("TINGIMENTO")
   const [novoAcabamentoDescricao, setNovoAcabamentoDescricao] = useState("")
@@ -156,6 +157,7 @@ export default function ProdutoCruFormPage() {
   const [expandedAmostraForm, setExpandedAmostraForm] = useState<number | null>(null)
 
   const [novaAmostraAcabDescricao, setNovaAmostraAcabDescricao] = useState("")
+  const [novaAmostraAcabQtd, setNovaAmostraAcabQtd] = useState("")
 
   const [amostraLinksAberta, setAmostraLinksAberta] = useState<number | null>(null)
   const [acabAmostraLinksAberta, setAcabAmostraLinksAberta] = useState<string | null>(null)
@@ -484,13 +486,14 @@ export default function ProdutoCruFormPage() {
       const res = await fetch(`/api/cadastros/produto-cru/${id}/amostras`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ descricao: novaAmostraDescricao || null, observacoes: novaAmostraObs || null }),
+        body: JSON.stringify({ descricao: novaAmostraDescricao || null, observacoes: novaAmostraObs || null, quantidadeProduzida: novaAmostraQtd || null }),
       })
       if (!res.ok) throw new Error()
       const item = await res.json()
       setAmostras([...amostras, item])
       setNovaAmostraDescricao("")
       setNovaAmostraObs("")
+      setNovaAmostraQtd("")
       toast.success("Amostra adicionada")
     } catch {
       toast.error("Erro ao adicionar amostra")
@@ -546,7 +549,7 @@ export default function ProdutoCruFormPage() {
       const res = await fetch(`/api/cadastros/produto-cru/${id}/acabamentos/${acabamentoId}/amostras`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ descricao: novaAmostraAcabDescricao || null }),
+        body: JSON.stringify({ descricao: novaAmostraAcabDescricao || null, quantidadeProduzida: novaAmostraAcabQtd || null }),
       })
       if (!res.ok) throw new Error()
       const item = await res.json()
@@ -554,6 +557,7 @@ export default function ProdutoCruFormPage() {
         a.id === acabamentoId ? { ...a, amostras: [...a.amostras, item] } : a
       ))
       setNovaAmostraAcabDescricao("")
+      setNovaAmostraAcabQtd("")
       setExpandedAmostraForm(null)
       toast.success("Amostra adicionada")
     } catch {
@@ -867,6 +871,7 @@ export default function ProdutoCruFormPage() {
                               <div>
                                 <p className="font-medium">{a.descricao || "Sem descrição"}</p>
                                 <p className="text-sm text-slate-500">
+                                  {a.quantidadeProduzida && <span className="text-xs font-medium text-slate-600 mr-2">Qtd: {a.quantidadeProduzida}</span>}
                                   <select
                                     value={a.status}
                                     onChange={e => updateStatusAmostra(a.id, e.target.value)}
@@ -919,6 +924,10 @@ export default function ProdutoCruFormPage() {
                       <Label>Observações</Label>
                       <Input value={novaAmostraObs} onChange={e => setNovaAmostraObs(e.target.value)} placeholder="Observações" />
                     </div>
+                    <div className="space-y-1 w-28">
+                      <Label>Qtd Produzida</Label>
+                      <Input value={novaAmostraQtd} onChange={e => setNovaAmostraQtd(e.target.value)} placeholder="10 M" />
+                    </div>
                     <Button onClick={addAmostra} size="sm"><Plus size={16} /></Button>
                   </div>
                 </div>
@@ -965,6 +974,9 @@ export default function ProdutoCruFormPage() {
                                     <div className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-800/50 rounded mb-1">
                                       <div className="flex-1 min-w-0">
                                         <span className="text-sm">{as.descricao || "Sem descrição"}</span>
+                                        {as.quantidadeProduzida && (
+                                          <span className="text-xs text-slate-400 ml-2">Qtd: {as.quantidadeProduzida}</span>
+                                        )}
                                         {as.motivoAprovacao && (
                                           <p className="text-xs text-slate-400 italic truncate">Motivo: {as.motivoAprovacao}</p>
                                         )}
@@ -1004,6 +1016,7 @@ export default function ProdutoCruFormPage() {
                                 {expandedAmostraForm === acab.id && (
                                   <div className="flex gap-2 mt-2">
                                     <Input value={novaAmostraAcabDescricao} onChange={e => setNovaAmostraAcabDescricao(e.target.value)} placeholder="Descrição da amostra" />
+                                    <Input value={novaAmostraAcabQtd} onChange={e => setNovaAmostraAcabQtd(e.target.value)} placeholder="Qtd produzida" className="w-32" />
                                     <Button size="sm" onClick={() => addAmostraAcabamento(acab.id)}>Adicionar</Button>
                                   </div>
                                 )}
