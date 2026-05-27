@@ -26,6 +26,7 @@ const adminItems = [
 const baseNav = [
   { href: "/dashboard", label: "Dashboard Solicitações", icon: LayoutDashboard },
   { href: "/dashboard/amostras", label: "Dashboard Amostras", icon: ClipboardList },
+  { href: "/dashboard/requisicoes-corte", label: "Dashboard Corte", icon: Scissors },
   { href: "/comercial/solicitacoes", label: "Solicitações", icon: FileText },
   { href: "/comercial/solicitacoes/nova", label: "Nova Solicitação", icon: PlusCircle },
   { href: "/comercial/requisicoes-corte", label: "Requisições de Corte", icon: Scissors },
