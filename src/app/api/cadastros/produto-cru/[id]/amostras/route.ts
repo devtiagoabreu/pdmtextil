@@ -45,6 +45,7 @@ export async function POST(
         descricao: body.descricao,
         status: body.status || "PENDENTE",
         observacoes: body.observacoes || null,
+        quantidadeProduzida: body.quantidadeProduzida || null,
         historico: [{
           data: new Date().toISOString(),
           usuario: session.user.name,

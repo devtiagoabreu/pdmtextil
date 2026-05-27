@@ -343,6 +343,17 @@ export function getInfoContent(pathname: string): InfoContent | null {
   const exact = infoContent[pathname]
   if (exact) return exact
 
+  "/comercial/requisicoes-corte": {
+    title: "Requisições de Corte",
+    description: "Gerencie as requisições de corte de produtos. Uma requisição pode conter múltiplos itens (cortes) para diferentes produtos.",
+    rules: [
+      "Cada requisição pode ter vários itens de corte, cada um com seu próprio produto, ordem e quantidade.",
+      "Status disponíveis: Solicitado → Processando → Atendido.",
+      "Apenas o requisitante e usuários COMERCIAIS podem alterar o status.",
+      "Para excluir, é necessário ser o requisitante ou ter permissão COMERCIAL.",
+    ],
+  },
+
   const match = Object.keys(infoContent).find(
     (key) => pathname.startsWith(key) || key.startsWith(pathname)
   )
