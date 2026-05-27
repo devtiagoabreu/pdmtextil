@@ -1,23 +1,14 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { useSession } from "next-auth/react"
-import { FileText, PlusCircle, Clock, Package } from "lucide-react"
+import { FileText, PlusCircle, Clock, Package, X, Loader2 } from "lucide-react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
+import { Button } from "@/components/ui/button"
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
-
-const STATUS_COLORS: Record<string, string> = {
-  PENDENTE: "#f59e0b",
-  EM_DESENVOLVIMENTO: "#6366f1",
-  AGUARDANDO_INFO: "#ea580c",
-  APROVADO: "#14b8a6",
-  REPROVADO: "#ef4444",
-  EM_PRODUCAO: "#a855f7",
-  CONCLUIDO: "#22c55e",
-}
 
 const STATUS_LABELS: Record<string, string> = {
   PENDENTE: "Pendente",
@@ -29,9 +20,36 @@ const STATUS_LABELS: Record<string, string> = {
   CONCLUIDO: "Concluído",
 }
 
+const STATUS_CLASSES: Record<string, string> = {
+  PENDENTE: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400",
+  EM_DESENVOLVIMENTO: "bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-400",
+  AGUARDANDO_INFO: "bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-400",
+  APROVADO: "bg-teal-100 text-teal-700 dark:bg-teal-950 dark:text-teal-400",
+  REPROVADO: "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400",
+  EM_PRODUCAO: "bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-400",
+  CONCLUIDO: "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400",
+}
+
 const TIPO_LABELS: Record<string, string> = {
   DESENVOLVIMENTO_TECELAGEM: "Tecelagem",
   DESENVOLVIMENTO_BENEFICIAMENTO: "Beneficiamento",
+}
+
+const PRODUTO_STATUS_LABELS: Record<string, string> = {
+  DESENVOLVIMENTO: "Em Desenvolvimento",
+  APROVADO: "Aprovado",
+  EM_PRODUCAO: "Em Produção",
+  OBSOLETO: "Obsoleto",
+}
+
+const STATUS_COLORS: Record<string, string> = {
+  PENDENTE: "#f59e0b",
+  EM_DESENVOLVIMENTO: "#6366f1",
+  AGUARDANDO_INFO: "#ea580c",
+  APROVADO: "#14b8a6",
+  REPROVADO: "#ef4444",
+  EM_PRODUCAO: "#a855f7",
+  CONCLUIDO: "#22c55e",
 }
 
 const TIPO_COLORS: Record<string, string> = {
@@ -39,13 +57,27 @@ const TIPO_COLORS: Record<string, string> = {
   DESENVOLVIMENTO_BENEFICIAMENTO: "#f97316",
 }
 
+const FILTROS_DASH = [
+  { key: "total-mes", label: "Total este mês", icon: "solicitacao" },
+  { key: "pendentes", label: "Pendentes", icon: "solicitacao" },
+  { key: "em-desenvolvimento", label: "Em Desenvolvimento", icon: "solicitacao" },
+  { key: "concluidas", label: "Concluídas", icon: "solicitacao" },
+  { key: "produtos-cru", label: "Produtos CAD", icon: "produto" },
+] as const
+
 export default function DashboardPage() {
+  const router = useRouter()
   const { data: session } = useSession()
   const firstName = session?.user?.name?.split(" ")[0] || "Usuário"
 
   const [stats, setStats] = useState<any>(null)
   const [atividades, setAtividades] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+
+  const [modalFiltro, setModalFiltro] = useState<string | null>(null)
+  const [modalLista, setModalLista] = useState<any[]>([])
+  const [modalLoading, setModalLoading] = useState(false)
+  const [modalTitle, setModalTitle] = useState("")
 
   useEffect(() => {
     async function fetchData() {
@@ -63,6 +95,25 @@ export default function DashboardPage() {
       }
     }
     fetchData()
+  }, [])
+
+  const openModal = useCallback(async (filtro: string) => {
+    const filtroDef = FILTROS_DASH.find(f => f.key === filtro)
+    setModalTitle(filtroDef?.label || filtro)
+    setModalFiltro(filtro)
+    setModalLoading(true)
+    setModalLista([])
+    try {
+      const res = await fetch(`/api/dashboard/solicitacoes-lista?filtro=${filtro}`)
+      if (res.ok) {
+        const data = await res.json()
+        setModalLista(Array.isArray(data) ? data : [])
+      }
+    } catch {
+      setModalLista([])
+    } finally {
+      setModalLoading(false)
+    }
   }, [])
 
   const now = new Date()
@@ -97,16 +148,21 @@ export default function DashboardPage() {
           {/* Stats cards */}
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
             {[
-              { label: "Total este mês", value: stats?.totalEsteMes ?? 0, color: "text-slate-700 dark:text-slate-200", bg: "bg-slate-100 dark:bg-slate-800" },
-              { label: "Pendentes", value: stats?.pendentes ?? 0, color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-50 dark:bg-amber-950/50" },
-              { label: "Em Desenvolvimento", value: stats?.emDesenvolvimento ?? 0, color: "text-indigo-600 dark:text-indigo-400", bg: "bg-indigo-50 dark:bg-indigo-950/50" },
-              { label: "Concluídas", value: stats?.concluidas ?? 0, color: "text-green-600 dark:text-green-400", bg: "bg-green-50 dark:bg-green-950/50" },
-              { label: "Produtos CAD", value: stats?.totalProdutosCru ?? 0, color: "text-cyan-600 dark:text-cyan-400", bg: "bg-cyan-50 dark:bg-cyan-950/50" },
+              { key: "total-mes", label: "Total este mês", value: stats?.totalEsteMes ?? 0, color: "text-slate-700 dark:text-slate-200", bg: "bg-slate-100 dark:bg-slate-800" },
+              { key: "pendentes", label: "Pendentes", value: stats?.pendentes ?? 0, color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-50 dark:bg-amber-950/50" },
+              { key: "em-desenvolvimento", label: "Em Desenvolvimento", value: stats?.emDesenvolvimento ?? 0, color: "text-indigo-600 dark:text-indigo-400", bg: "bg-indigo-50 dark:bg-indigo-950/50" },
+              { key: "concluidas", label: "Concluídas", value: stats?.concluidas ?? 0, color: "text-green-600 dark:text-green-400", bg: "bg-green-50 dark:bg-green-950/50" },
+              { key: "produtos-cru", label: "Produtos CAD", value: stats?.totalProdutosCru ?? 0, color: "text-cyan-600 dark:text-cyan-400", bg: "bg-cyan-50 dark:bg-cyan-950/50" },
             ].map((stat) => (
-              <div key={stat.label} className={`rounded-xl border border-slate-200 dark:border-slate-800 ${stat.bg} p-4 card-hover`}>
+              <button
+                key={stat.key}
+                type="button"
+                onClick={() => openModal(stat.key)}
+                className={`rounded-xl border border-slate-200 dark:border-slate-800 ${stat.bg} p-4 card-hover text-left w-full cursor-pointer transition-shadow hover:shadow-md`}
+              >
                 <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{stat.label}</p>
                 <p className={`text-3xl font-bold mt-1 ${stat.color}`}>{stat.value}</p>
-              </div>
+              </button>
             ))}
           </div>
 
@@ -257,6 +313,78 @@ export default function DashboardPage() {
             </div>
           </div>
         </>
+      )}
+
+      {modalFiltro && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center pt-12 sm:pt-20 bg-black/50" onClick={() => setModalFiltro(null)}>
+          <div
+            className="bg-white dark:bg-slate-900 rounded-xl shadow-xl w-full max-w-2xl mx-4 max-h-[75vh] flex flex-col border border-slate-200 dark:border-slate-700"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">{modalTitle}</h2>
+              <button type="button" onClick={() => setModalFiltro(null)} className="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800">
+                <X size={18} className="text-slate-500" />
+              </button>
+            </div>
+            <div className="overflow-y-auto p-4 flex-1">
+              {modalLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="animate-spin text-slate-400" size={24} />
+                </div>
+              ) : modalLista.length === 0 ? (
+                <p className="text-center text-slate-500 py-12">Nenhum registro encontrado</p>
+              ) : modalFiltro === "produtos-cru" ? (
+                <div className="space-y-1">
+                  {modalLista.map((item: any) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => { router.push(`/cadastros/produto-cru/${item.id}`); setModalFiltro(null) }}
+                      className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/50 text-left"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium text-slate-900 dark:text-slate-200 truncate">
+                          {item.codigoPdm} — {item.descricao}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-3 ml-3 shrink-0">
+                        <span className={`text-xs rounded-full px-2 py-0.5 font-medium ${PRODUTO_STATUS_LABELS[item.status] ? "bg-slate-100 dark:bg-slate-800 text-slate-600" : ""}`}>
+                          {PRODUTO_STATUS_LABELS[item.status] || item.status}
+                        </span>
+                        <span className="text-xs text-slate-400">{item.createdAt ? new Date(item.createdAt).toLocaleDateString("pt-BR") : ""}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-1">
+                  {modalLista.map((item: any) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => { router.push(`/comercial/solicitacoes/${item.id}`); setModalFiltro(null) }}
+                      className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/50 text-left"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium text-slate-900 dark:text-slate-200 truncate">
+                          #{item.id} — {item.cliente}{item.projeto ? ` (${item.projeto})` : ""}
+                        </p>
+                        <p className="text-xs text-slate-400">{TIPO_LABELS[item.tipo] || item.tipo}</p>
+                      </div>
+                      <div className="flex items-center gap-3 ml-3 shrink-0">
+                        <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_CLASSES[item.status] || "bg-slate-100 text-slate-600"}`}>
+                          {STATUS_LABELS[item.status] || item.status}
+                        </span>
+                        <span className="text-xs text-slate-400">{item.createdAt ? new Date(item.createdAt).toLocaleDateString("pt-BR") : ""}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )
