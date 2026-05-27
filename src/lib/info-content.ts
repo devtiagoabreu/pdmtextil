@@ -337,12 +337,6 @@ export const infoContent: Record<string, InfoContent> = {
       "A alteração de senha requer confirmação da senha atual.",
     ],
   },
-}
-
-export function getInfoContent(pathname: string): InfoContent | null {
-  const exact = infoContent[pathname]
-  if (exact) return exact
-
   "/comercial/requisicoes-corte": {
     title: "Requisições de Corte",
     description: "Gerencie as requisições de corte de produtos. Uma requisição pode conter múltiplos itens (cortes) para diferentes produtos.",
@@ -353,6 +347,11 @@ export function getInfoContent(pathname: string): InfoContent | null {
       "Para excluir, é necessário ser o requisitante ou ter permissão COMERCIAL.",
     ],
   },
+}
+
+export function getInfoContent(pathname: string): InfoContent | null {
+  const exact = infoContent[pathname]
+  if (exact) return exact
 
   const match = Object.keys(infoContent).find(
     (key) => pathname.startsWith(key) || key.startsWith(pathname)
