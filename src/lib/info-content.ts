@@ -248,6 +248,17 @@ export const infoContent: Record<string, InfoContent> = {
       "Apenas conexões ativas podem ser utilizadas nas importações.",
     ],
   },
+  "/admin/configuracoes/integracoes": {
+    title: "Integrações",
+    description: "Configuração de conexões com sistemas externos (ERP, APIs, WMS). Cada integração define como o sistema se autentica e comunica com serviços externos.",
+    rules: [
+      "O campo Base URL define o endpoint base para todas as requisições.",
+      "O tipo de autenticação define como o sistema se identifica (Bearer, Basic, OAuth2, API Key).",
+      "O campo auth_config é um JSON dinâmico que varia conforme o tipo de autenticação.",
+      "Integrações inativas não podem ser utilizadas nas operações do sistema.",
+      "Apenas usuários ADMIN podem gerenciar integrações.",
+    ],
+  },
   "/admin/configuracoes/smtp": {
     title: "SMTP",
     description: "Configuração do servidor de email para envio de notificações e disparos em massa.",
