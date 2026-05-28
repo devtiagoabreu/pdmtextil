@@ -440,6 +440,20 @@ async function migrate() {
     await sql`ALTER TABLE produto_cru_acabamento_amostra ADD COLUMN IF NOT EXISTS quantidade_produzida VARCHAR(50)`
     console.log("✓ Coluna quantidade_produzida adicionada em amostras")
 
+    await sql`
+      CREATE TABLE IF NOT EXISTS integracoes (
+        id SERIAL PRIMARY KEY,
+        nome VARCHAR(100) NOT NULL,
+        base_url VARCHAR(500) NOT NULL,
+        tipo_auth VARCHAR(30) NOT NULL DEFAULT 'bearer',
+        auth_config JSON DEFAULT '{}',
+        ativo BOOLEAN DEFAULT true,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `
+    console.log("✓ Tabela integracoes criada")
+
     console.log("\n✅ Migration concluída com sucesso!")
     
   } catch (error) {

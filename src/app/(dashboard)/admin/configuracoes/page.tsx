@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Mail, Database, Shield, Bell, Lock, Users, Settings } from "lucide-react"
+import { Mail, Database, Shield, Bell, Lock, Users, Settings, Zap } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
@@ -13,6 +13,7 @@ const modulos = [
   { href: "/admin/notificacoes", label: "Notificações", desc: "Configurar quem recebe cada tipo de notificação", icon: Bell, color: "text-amber-600 bg-amber-50 dark:bg-amber-950/50" },
   { href: "/admin/configuracoes/permissoes", label: "Permissões", desc: "Configurar permissões CRUD por perfil", icon: Lock, color: "text-rose-600 bg-rose-50 dark:bg-rose-950/50" },
   { href: "/admin/usuarios", label: "Usuários", desc: "Gerenciar usuários do sistema", icon: Users, color: "text-cyan-600 bg-cyan-50 dark:bg-cyan-950/50" },
+  { href: "/admin/configuracoes/integracoes", label: "Integrações", desc: "Configurar conexões com sistemas externos (ERP, API, WMS)", icon: Zap, color: "text-orange-600 bg-orange-50 dark:bg-orange-950/50" },
 ]
 
 export default function ConfiguracoesHubPage() {
