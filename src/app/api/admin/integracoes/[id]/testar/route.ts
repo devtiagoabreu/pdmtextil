@@ -5,6 +5,11 @@ import { db } from "@/lib/db"
 import { integracoes } from "@/lib/db/schema/integracoes"
 import { eq } from "drizzle-orm"
 
+function maskSensitive(value: string): string {
+  if (value.length <= 6) return value.slice(0, 2) + "****"
+  return value.slice(0, 4) + "****" + value.slice(-4)
+}
+
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const session = await getServerSession(authOptions)
@@ -47,10 +52,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
         const key = authConfig.key as string
         const keyName = (authConfig.key_name as string) || "x-api-key"
         const location = (authConfig.in as string) || "header"
-        if (key) {
-          if (location === "header") {
-            headers[keyName] = key
-          }
+        if (key && location === "header") {
+          headers[keyName] = key
         }
         break
       }
@@ -64,13 +67,17 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
         if (tokenUrl && clientId && clientSecret) {
           const bodyParams = new URLSearchParams()
           bodyParams.append("grant_type", grantType)
-          bodyParams.append("client_id", clientId)
-          bodyParams.append("client_secret", clientSecret)
           if (scope) bodyParams.append("scope", scope)
+
+          // Credentials are sent via Basic Auth header (standard OAuth2)
+          const encodedCredentials = Buffer.from(`${clientId}:${clientSecret}`).toString("base64")
 
           const tokenRes = await fetch(tokenUrl, {
             method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+              "Authorization": `Basic ${encodedCredentials}`,
+            },
             body: bodyParams.toString(),
           })
 
@@ -80,8 +87,10 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
               success: false,
               status: tokenRes.status,
               time: Date.now() - startTime,
-              error: `Falha ao obter token OAuth2: ${tokenError}`,
+              error: `Falha ao obter token OAuth2`,
               responseBody: tokenError,
+              request: { url: integracao.baseUrl, method: "GET" },
+              requestHeaders: { Authorization: "Bearer <token_nao_obtido>" },
             })
           }
 
@@ -97,13 +106,22 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
     const url = new URL(integracao.baseUrl)
 
-    // api_key in query param
     if (integracao.tipoAuth === "api_key") {
-      const authConfigApiKey = authConfig as Record<string, unknown>
-      const location = (authConfigApiKey.in as string) || "header"
+      const location = (authConfig.in as string) || "header"
       if (location === "query") {
-        const keyName = (authConfigApiKey.key_name as string) || "api_key"
-        url.searchParams.set(keyName, (authConfigApiKey.key as string) || "")
+        const keyName = (authConfig.key_name as string) || "api_key"
+        url.searchParams.set(keyName, (authConfig.key as string) || "")
+      }
+    }
+
+    // build requestDetails for debug (mask sensitive values)
+    const requestHeaders: Record<string, string> = {}
+    for (const [k, v] of Object.entries(headers)) {
+      if (k.toLowerCase() === "authorization") {
+        const parts = v.split(" ")
+        requestHeaders[k] = parts[0] + " " + (parts[1] ? maskSensitive(parts[1]) : "")
+      } else {
+        requestHeaders[k] = v
       }
     }
 
@@ -130,7 +148,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
         statusText: response.statusText,
         time: elapsed,
         responseBody: responseJson || responseText.slice(0, 2000),
-        responseHeaders: Object.fromEntries(response.headers.entries()),
+        request: { url: url.toString(), method: "GET" },
+        requestHeaders,
       })
     } catch (fetchError: unknown) {
       const elapsed = Date.now() - startTime
@@ -140,6 +159,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
         status: 0,
         time: elapsed,
         error: `Falha na requisição: ${message}`,
+        request: { url: url.toString(), method: "GET" },
+        requestHeaders,
       })
     }
   } catch (error) {
