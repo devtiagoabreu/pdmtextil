@@ -60,6 +60,7 @@ interface Amostra {
   observacoes?: string
   links?: { url: string; descricao: string }[]
   data: string
+  quantidadeProduzida?: string
 }
 
 interface Acabamento {
@@ -79,6 +80,7 @@ interface AcabamentoAmostra {
   observacoes?: string
   links?: { url: string; descricao: string }[]
   data: string
+  quantidadeProduzida?: string
 }
 
 const STATUS_OPTIONS = [
