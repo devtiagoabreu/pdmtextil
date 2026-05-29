@@ -30,8 +30,9 @@ export async function POST(req: NextRequest) {
         }
       }
 
-      // Check for existing by uniqueKey
-      const keyValue = mapped[uniqueKey]
+      // uniqueKey is an API field name; translate to PDM field name
+      const pdmKeyField = (fieldMapping[uniqueKey] as string) || uniqueKey
+      const keyValue = mapped[pdmKeyField]
       if (!keyValue) {
         duplicatas++
         continue

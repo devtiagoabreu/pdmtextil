@@ -119,7 +119,8 @@ export default function ImportarApiModal({ tela, existingRecords, existingKey = 
   }
 
   function isDuplicate(item: Record<string, any>) {
-    const val = item[uniqueKey]
+    const apiKeyField = Object.entries(fieldMapping).find(([, v]) => v === existingKey)?.[0]
+    const val = item[apiKeyField || uniqueKey]
     if (!val) return false
     return existingSet.has(String(val).trim().toLowerCase())
   }
