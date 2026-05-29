@@ -38,6 +38,22 @@ const TIPO_AUTH_ICON: Record<TipoAuth, string> = {
   bearer: "text-emerald-600 bg-emerald-50 dark:bg-emerald-950/50",
 }
 
+const PDM_CAMPOS = [
+  { label: "(não mapear)", value: "" },
+  { label: "ID", value: "id" },
+  { label: "Nome", value: "nome" },
+  { label: "CNPJ", value: "cnpj" },
+  { label: "Razão Social", value: "razaoSocial" },
+  { label: "Email", value: "email" },
+  { label: "Telefone", value: "telefone" },
+  { label: "Contato", value: "contato" },
+  { label: "Endereço", value: "endereco" },
+  { label: "Cidade", value: "cidade" },
+  { label: "UF", value: "uf" },
+  { label: "ID Integração", value: "idIntegracao" },
+  { label: "Ativo", value: "ativo" },
+]
+
 export default function IntegracoesPage() {
   const pathname = usePathname()
   const info = getInfoContent(pathname)
@@ -55,6 +71,10 @@ export default function IntegracoesPage() {
   const [testResult, setTestResult] = useState<any>(null)
   const [telas, setTelas] = useState("")
   const [mappingJson, setMappingJson] = useState("{}")
+  const [apiFields, setApiFields] = useState<string[]>([])
+  const [fieldMappings, setFieldMappings] = useState<Record<string, string>>({})
+  const [uniqueKeyField, setUniqueKeyField] = useState("")
+  const [loadingFields, setLoadingFields] = useState(false)
 
   useEffect(() => {
     fetch("/api/admin/integracoes")
@@ -72,6 +92,9 @@ export default function IntegracoesPage() {
     setShowJson(false)
     setTelas("")
     setMappingJson("{}")
+    setApiFields([])
+    setFieldMappings({})
+    setUniqueKeyField("")
     setEditItem(null)
     setShowForm(false)
   }
@@ -83,7 +106,12 @@ export default function IntegracoesPage() {
     setTipoAuth(item.tipoAuth)
     setAuthConfigJson(JSON.stringify(item.authConfig, null, 2))
     setTelas((item.telas || []).join(", "))
-    setMappingJson(JSON.stringify(item.mapping || {}, null, 2))
+    const mapping = item.mapping || {}
+    const fields = (mapping.fields || {}) as Record<string, string>
+    setMappingJson(JSON.stringify(mapping, null, 2))
+    setFieldMappings(fields)
+    setUniqueKeyField((mapping.uniqueKey as string) || "")
+    setApiFields(Object.keys(fields))
     setShowForm(true)
   }
 
@@ -104,19 +132,30 @@ export default function IntegracoesPage() {
     }
 
     let parsedAuth: Record<string, unknown> = {}
-    let parsedMapping: Record<string, unknown> = {}
     try {
       parsedAuth = JSON.parse(authConfigJson)
-      parsedMapping = JSON.parse(mappingJson)
     } catch {
-      toast.error("JSON inválido (autenticação ou mapeamento)")
+      toast.error("JSON de autenticação inválido")
       return
+    }
+
+    // Build mapping from visual editor or JSON fallback
+    let mapping: Record<string, unknown>
+    if (apiFields.length > 0 && Object.keys(fieldMappings).length > 0) {
+      mapping = { fields: fieldMappings, uniqueKey: uniqueKeyField }
+    } else {
+      try {
+        mapping = JSON.parse(mappingJson)
+      } catch {
+        toast.error("JSON de mapeamento inválido")
+        return
+      }
     }
 
     setSaving(true)
     try {
       const telasArr = telas.split(",").map(s => s.trim()).filter(Boolean)
-      const body = { nome, baseUrl, tipoAuth, authConfig: parsedAuth, telas: telasArr, mapping: parsedMapping }
+      const body = { nome, baseUrl, tipoAuth, authConfig: parsedAuth, telas: telasArr, mapping }
       const method = editItem ? "PUT" : "POST"
       const res = await fetch("/api/admin/integracoes", {
         method,
@@ -183,6 +222,50 @@ export default function IntegracoesPage() {
       setTestResult({ success: false, error: "Erro ao executar teste" })
     } finally {
       setTestingId(null)
+    }
+  }
+
+  async function handleLoadFields() {
+    if (!editItem) {
+      toast.error("Salve a integração primeiro")
+      return
+    }
+    setLoadingFields(true)
+    try {
+      const res = await fetch(`/api/admin/integracoes/${editItem.id}/testar`)
+      const data = await res.json()
+      if (!data.success || !data.responseBody) {
+        toast.error("API não respondeu ou retornou erro")
+        return
+      }
+      const body = data.responseBody
+      const rawItems = body?.items || (Array.isArray(body) ? body : body?.data || [])
+      if (!Array.isArray(rawItems) || rawItems.length === 0) {
+        toast.error("Nenhum item na resposta")
+        return
+      }
+      const fields = Object.keys(rawItems[0])
+      setApiFields(fields)
+
+      // Auto-map fields with same name
+      const autoMap: Record<string, string> = {}
+      for (const f of fields) {
+        const pdmField = PDM_CAMPOS.find(p => p.value.toLowerCase() === f.toLowerCase() || p.label.toLowerCase() === f.toLowerCase())
+        if (pdmField) autoMap[f] = pdmField.value
+      }
+      setFieldMappings(autoMap)
+
+      // Auto-detect uniqueKey
+      if (fields.includes("idintegracao")) setUniqueKeyField("idintegracao")
+      else if (fields.includes("idIntegracao")) setUniqueKeyField("idIntegracao")
+      else if (fields.includes("cnpj")) setUniqueKeyField("cnpj")
+      else if (fields.includes("id")) setUniqueKeyField("id")
+
+      toast.success(`${fields.length} campos carregados da API`)
+    } catch {
+      toast.error("Erro ao carregar campos da API")
+    } finally {
+      setLoadingFields(false)
     }
   }
 
@@ -323,17 +406,74 @@ export default function IntegracoesPage() {
             <Input value={telas} onChange={e => setTelas(e.target.value)} placeholder="clientes, fios, bases-urdume" />
           </div>
 
-          <div className="space-y-2">
-            <Label>Mapeamento de Campos (JSON)</Label>
-            <p className="text-xs text-slate-400">
-              Ex: {`{"fields": {"nome": "nome", "cnpj": "cnpj", "idintegracao": "idIntegracao"}, "uniqueKey": "idintegracao"}`}
-            </p>
-            <textarea
-              value={mappingJson}
-              onChange={e => setMappingJson(e.target.value)}
-              rows={6}
-              className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 px-3 py-2 text-sm font-mono text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y"
-            />
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Label>Mapeamento de Campos</Label>
+              <Button size="sm" variant="outline" onClick={handleLoadFields} disabled={!editItem || loadingFields} className="gap-1 text-xs">
+                {loadingFields ? <Loader2 size={12} className="animate-spin" /> : <Play size={12} />}
+                Carregar campos da API
+              </Button>
+            </div>
+
+            {apiFields.length > 0 ? (
+              <div className="space-y-3">
+                <div className="border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden">
+                  <table className="w-full text-sm">
+                    <thead className="bg-slate-50 dark:bg-slate-800/50">
+                      <tr>
+                        <th className="p-2 text-left text-xs font-medium text-slate-500 uppercase w-1/2">Campo da API</th>
+                        <th className="p-2 text-left text-xs font-medium text-slate-500 uppercase w-1/2">Campo PDM</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                      {apiFields.map(f => (
+                        <tr key={f}>
+                          <td className="p-2 text-xs font-mono text-slate-700 dark:text-slate-300">{f}</td>
+                          <td className="p-2">
+                            <select
+                              value={fieldMappings[f] || ""}
+                              onChange={e => {
+                                const newMappings = { ...fieldMappings, [f]: e.target.value }
+                                setFieldMappings(newMappings)
+                                setMappingJson(JSON.stringify({ fields: newMappings, uniqueKey: uniqueKeyField }, null, 2))
+                              }}
+                              className="w-full rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-2 py-1 text-xs text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            >
+                              {PDM_CAMPOS.map(p => (
+                                <option key={p.value} value={p.value}>{p.label}</option>
+                              ))}
+                            </select>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <Label className="text-sm">Chave única (dedup):</Label>
+                  <select
+                    value={uniqueKeyField}
+                    onChange={e => {
+                      setUniqueKeyField(e.target.value)
+                      setMappingJson(JSON.stringify({ fields: fieldMappings, uniqueKey: e.target.value }, null, 2))
+                    }}
+                    className="rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-2 py-1 text-sm text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  >
+                    <option value="">Selecione...</option>
+                    {apiFields.map(f => (
+                      <option key={f} value={f}>{f}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            ) : (
+              <div className="border border-dashed border-slate-200 dark:border-slate-800 rounded-lg p-6 text-center">
+                <p className="text-xs text-slate-400">
+                  Clique em &quot;Carregar campos da API&quot; para ver os campos do retorno e configurar o mapeamento.
+                </p>
+              </div>
+            )}
           </div>
 
           <div className="flex gap-2">
