@@ -6,6 +6,8 @@ export const integracoes = pgTable("integracoes", {
   baseUrl: varchar("base_url", { length: 500 }).notNull(),
   tipoAuth: varchar("tipo_auth", { length: 30 }).notNull().default("bearer"),
   authConfig: json("auth_config").default({}),
+  telas: json("telas").default([]),
+  mapping: json("mapping").default({}),
   ativo: boolean("ativo").default(true),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),

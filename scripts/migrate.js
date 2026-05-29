@@ -447,12 +447,19 @@ async function migrate() {
         base_url VARCHAR(500) NOT NULL,
         tipo_auth VARCHAR(30) NOT NULL DEFAULT 'bearer',
         auth_config JSON DEFAULT '{}',
+        telas JSON DEFAULT '[]',
+        mapping JSON DEFAULT '{}',
         ativo BOOLEAN DEFAULT true,
         created_at TIMESTAMP DEFAULT NOW(),
         updated_at TIMESTAMP DEFAULT NOW()
       )
     `
     console.log("✓ Tabela integracoes criada")
+
+    // Add new columns if upgrading from previous version
+    await sql`ALTER TABLE integracoes ADD COLUMN IF NOT EXISTS telas JSON DEFAULT '[]'`
+    await sql`ALTER TABLE integracoes ADD COLUMN IF NOT EXISTS mapping JSON DEFAULT '{}'`
+    console.log("✓ Colunas telas e mapping adicionadas em integracoes")
 
     console.log("\n✅ Migration concluída com sucesso!")
     

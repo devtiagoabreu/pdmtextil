@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
-    const { nome, baseUrl, tipoAuth, authConfig, ativo } = await req.json()
+    const { nome, baseUrl, tipoAuth, authConfig, telas, mapping, ativo } = await req.json()
     if (!nome || !baseUrl) {
       return NextResponse.json({ error: "nome e baseUrl são obrigatórios" }, { status: 400 })
     }
@@ -37,6 +37,8 @@ export async function POST(req: NextRequest) {
       baseUrl,
       tipoAuth: tipoAuth || "bearer",
       authConfig: authConfig || {},
+      telas: telas || [],
+      mapping: mapping || {},
       ativo: ativo !== undefined ? ativo : true,
     }).returning()
 
@@ -54,7 +56,7 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
-    const { id, nome, baseUrl, tipoAuth, authConfig, ativo } = await req.json()
+    const { id, nome, baseUrl, tipoAuth, authConfig, telas, mapping, ativo } = await req.json()
     if (!id) {
       return NextResponse.json({ error: "id é obrigatório" }, { status: 400 })
     }
@@ -64,6 +66,8 @@ export async function PUT(req: NextRequest) {
     if (baseUrl !== undefined) updateData.baseUrl = baseUrl
     if (tipoAuth !== undefined) updateData.tipoAuth = tipoAuth
     if (authConfig !== undefined) updateData.authConfig = authConfig
+    if (telas !== undefined) updateData.telas = telas
+    if (mapping !== undefined) updateData.mapping = mapping
     if (ativo !== undefined) updateData.ativo = ativo
 
     await db.update(integracoes).set(updateData).where(eq(integracoes.id, id))

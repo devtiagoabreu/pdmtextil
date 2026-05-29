@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { PlusCircle, Search, Pencil, Trash2, Loader2, Upload } from "lucide-react"
+import { PlusCircle, Search, Pencil, Trash2, Loader2, Upload, Database } from "lucide-react"
 import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import ImportarClientes from "@/components/importar/ImportarClientes"
+import ImportarApiModal from "@/components/integracao/ImportarApiModal"
 
 interface Cliente {
   id: number
@@ -41,6 +42,7 @@ export default function ClientesPage() {
   const [deleteTarget, setDeleteTarget] = useState<Cliente | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [deleteBlocked, setDeleteBlocked] = useState(false)
+  const [showApiImport, setShowApiImport] = useState(false)
 
   const { data: clientes = [], isLoading, refetch } = useQuery({
     queryKey: ["clientes"],
@@ -92,6 +94,10 @@ export default function ClientesPage() {
         </div>
         <div className="flex gap-2">
           <ImportarClientes onImportado={() => refetch()} />
+          <Button variant="outline" onClick={() => setShowApiImport(true)} className="gap-2">
+            <Database size={16} />
+            Importar via API
+          </Button>
           <Link href="/comercial/clientes/novo">
             <Button className="gap-2">
               <PlusCircle size={16} />
@@ -213,6 +219,16 @@ export default function ClientesPage() {
           setDeleteBlocked(false)
         }}
       />
+
+      {showApiImport && (
+        <ImportarApiModal
+          tela="clientes"
+          existingRecords={clientes}
+          existingKey="idIntegracao"
+          onImportado={() => refetch()}
+          onClose={() => setShowApiImport(false)}
+        />
+      )}
     </div>
   )
 }

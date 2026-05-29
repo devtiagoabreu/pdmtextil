@@ -19,6 +19,8 @@ interface Integracao {
   baseUrl: string
   tipoAuth: TipoAuth
   authConfig: Record<string, unknown>
+  telas?: string[]
+  mapping?: Record<string, unknown>
   ativo: boolean
 }
 
@@ -51,6 +53,8 @@ export default function IntegracoesPage() {
   const [saving, setSaving] = useState(false)
   const [testingId, setTestingId] = useState<number | null>(null)
   const [testResult, setTestResult] = useState<any>(null)
+  const [telas, setTelas] = useState("")
+  const [mappingJson, setMappingJson] = useState("{}")
 
   useEffect(() => {
     fetch("/api/admin/integracoes")
@@ -66,6 +70,8 @@ export default function IntegracoesPage() {
     setTipoAuth("bearer")
     setAuthConfigJson("{}")
     setShowJson(false)
+    setTelas("")
+    setMappingJson("{}")
     setEditItem(null)
     setShowForm(false)
   }
@@ -76,6 +82,8 @@ export default function IntegracoesPage() {
     setBaseUrl(item.baseUrl)
     setTipoAuth(item.tipoAuth)
     setAuthConfigJson(JSON.stringify(item.authConfig, null, 2))
+    setTelas((item.telas || []).join(", "))
+    setMappingJson(JSON.stringify(item.mapping || {}, null, 2))
     setShowForm(true)
   }
 
@@ -96,16 +104,19 @@ export default function IntegracoesPage() {
     }
 
     let parsedAuth: Record<string, unknown> = {}
+    let parsedMapping: Record<string, unknown> = {}
     try {
       parsedAuth = JSON.parse(authConfigJson)
+      parsedMapping = JSON.parse(mappingJson)
     } catch {
-      toast.error("JSON de autenticação inválido")
+      toast.error("JSON inválido (autenticação ou mapeamento)")
       return
     }
 
     setSaving(true)
     try {
-      const body = { nome, baseUrl, tipoAuth, authConfig: parsedAuth }
+      const telasArr = telas.split(",").map(s => s.trim()).filter(Boolean)
+      const body = { nome, baseUrl, tipoAuth, authConfig: parsedAuth, telas: telasArr, mapping: parsedMapping }
       const method = editItem ? "PUT" : "POST"
       const res = await fetch("/api/admin/integracoes", {
         method,
@@ -219,6 +230,11 @@ export default function IntegracoesPage() {
                       </span>
                     </div>
                     <p className="text-sm text-slate-500 font-mono truncate mt-1">{item.baseUrl}</p>
+                    {item.telas && item.telas.length > 0 && (
+                      <div className="flex gap-1 mt-1.5 flex-wrap">
+                        {item.telas.map(t => <span key={t} className="text-[10px] px-1.5 py-0.5 rounded bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 uppercase">{t}</span>)}
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="flex items-center gap-1 shrink-0">
@@ -299,6 +315,24 @@ export default function IntegracoesPage() {
               rows={6}
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 px-3 py-2 text-sm font-mono text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y"
               placeholder='{}'
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Telas (separadas por vírgula)</Label>
+            <Input value={telas} onChange={e => setTelas(e.target.value)} placeholder="clientes, fios, bases-urdume" />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Mapeamento de Campos (JSON)</Label>
+            <p className="text-xs text-slate-400">
+              Ex: {`{"fields": {"nome": "nome", "cnpj": "cnpj", "idintegracao": "idIntegracao"}, "uniqueKey": "idintegracao"}`}
+            </p>
+            <textarea
+              value={mappingJson}
+              onChange={e => setMappingJson(e.target.value)}
+              rows={6}
+              className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 px-3 py-2 text-sm font-mono text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y"
             />
           </div>
 
