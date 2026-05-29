@@ -1,9 +1,10 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Loader2, Globe, Download, X, Check, Database } from "lucide-react"
+import { Loader2, Globe, Download, X, Check, Database, Search } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 
 interface MappingConfig {
   fields?: Record<string, string>
@@ -36,6 +37,7 @@ export default function ImportarApiModal({ tela, existingRecords, existingKey = 
   const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set())
   const [importing, setImporting] = useState(false)
   const [existingSet, setExistingSet] = useState<Set<string>>(new Set())
+  const [searchQuery, setSearchQuery] = useState("")
 
   useEffect(() => {
     setLoadingInt(true)
@@ -70,6 +72,7 @@ export default function ImportarApiModal({ tela, existingRecords, existingKey = 
     setLoadingData(true)
     setItems([])
     setSelectedRows(new Set())
+    setSearchQuery("")
     try {
       const res = await fetch(`/api/admin/integracoes/${selectedId}/testar`)
       const data = await res.json()
@@ -111,10 +114,15 @@ export default function ImportarApiModal({ tela, existingRecords, existingKey = 
   }
 
   function toggleAll() {
-    if (selectedRows.size === items.length) {
-      setSelectedRows(new Set())
+    const allFilteredSelected = filteredItems.every(item => selectedRows.has(items.indexOf(item)))
+    if (allFilteredSelected) {
+      const next = new Set(selectedRows)
+      filteredItems.forEach(item => next.delete(items.indexOf(item)))
+      setSelectedRows(next)
     } else {
-      setSelectedRows(new Set(items.map((_, i) => i)))
+      const next = new Set(selectedRows)
+      filteredItems.forEach(item => next.add(items.indexOf(item)))
+      setSelectedRows(next)
     }
   }
 
@@ -126,6 +134,14 @@ export default function ImportarApiModal({ tela, existingRecords, existingKey = 
   }
 
   const columns = items.length > 0 ? Object.keys(items[0]) : []
+  const filteredItems = items.filter(item =>
+    !searchQuery || columns.some(col =>
+      String(item[col] ?? "").toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  )
+  const filteredSelectedRows = new Set(
+    [...selectedRows].filter(i => filteredItems.includes(items[i]))
+  )
 
   async function handleImport() {
     if (selectedRows.size === 0) {
@@ -205,12 +221,22 @@ export default function ImportarApiModal({ tela, existingRecords, existingKey = 
               </div>
 
               {items.length > 0 && (
-                <div className="border border-slate-200 dark:border-slate-800 rounded-lg overflow-auto max-h-96">
+                <>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                    <Input
+                      value={searchQuery}
+                      onChange={e => setSearchQuery(e.target.value)}
+                      placeholder="Pesquisar na lista..."
+                      className="pl-9 max-w-sm"
+                    />
+                  </div>
+                  <div className="border border-slate-200 dark:border-slate-800 rounded-lg overflow-auto max-h-96">
                   <table className="w-full text-sm">
                     <thead className="bg-slate-50 dark:bg-slate-800/50 sticky top-0">
                       <tr>
                         <th className="p-2 w-10">
-                          <input type="checkbox" checked={selectedRows.size === items.length && items.length > 0} onChange={toggleAll} className="rounded" />
+                          <input type="checkbox" checked={filteredSelectedRows.size === filteredItems.length && filteredItems.length > 0} onChange={toggleAll} className="rounded" />
                         </th>
                         {columns.slice(0, 8).map(col => (
                           <th key={col} className="p-2 text-left text-xs font-medium text-slate-500 uppercase whitespace-nowrap">{col}</th>
@@ -218,15 +244,16 @@ export default function ImportarApiModal({ tela, existingRecords, existingKey = 
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                      {items.map((item, idx) => {
+                      {filteredItems.map((item) => {
+                        const originalIdx = items.indexOf(item)
                         const dup = isDuplicate(item)
                         return (
-                          <tr key={idx} className={`hover:bg-slate-50 dark:hover:bg-slate-800/30 ${dup ? "opacity-50" : ""}`}>
+                          <tr key={originalIdx} className={`hover:bg-slate-50 dark:hover:bg-slate-800/30 ${dup ? "opacity-50" : ""}`}>
                             <td className="p-2">
                               <input
                                 type="checkbox"
-                                checked={selectedRows.has(idx)}
-                                onChange={() => toggleRow(idx)}
+                                checked={selectedRows.has(originalIdx)}
+                                onChange={() => toggleRow(originalIdx)}
                                 disabled={dup}
                                 className="rounded"
                               />
@@ -242,10 +269,11 @@ export default function ImportarApiModal({ tela, existingRecords, existingKey = 
                     </tbody>
                   </table>
                 </div>
+              </>
               )}
 
               <div className="flex items-center justify-between text-xs text-slate-400">
-                <span>Exibindo {items.length} itens | {selectedRows.size} selecionados | {existingSet.size} registros existentes</span>
+                <span>{searchQuery ? `Exibindo ${filteredItems.length} de ` : ""}{items.length} itens | {selectedRows.size} selecionados | {existingSet.size} registros existentes</span>
                 {integracao?.mapping?.uniqueKey && (
                   <span className="flex items-center gap-1">
                     <Check size={12} className="text-green-500" />
