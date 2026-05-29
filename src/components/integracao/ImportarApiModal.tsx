@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect } from "react"
 import { Loader2, Globe, Download, X, Check, Database } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
@@ -16,6 +16,7 @@ interface Integracao {
   baseUrl: string
   mapping?: MappingConfig
   telas?: string[]
+  ativo?: boolean
 }
 
 interface ImportarApiModalProps {
@@ -58,11 +59,11 @@ export default function ImportarApiModal({ tela, existingRecords, existingKey = 
     setExistingSet(existing)
   }, [existingRecords, existingKey])
 
-  const getMappedValue = useCallback((item: Record<string, any>, mappedField: string) => {
+  function getMappedValue(item: Record<string, any>, mappedField: string) {
     const apiField = Object.entries(fieldMapping).find(([, v]) => v === mappedField)?.[0]
     if (!apiField) return item[mappedField]
     return item[apiField]
-  }, [fieldMapping])
+  }
 
   async function handleFetch() {
     if (!selectedId) return
