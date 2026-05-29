@@ -2362,9 +2362,9 @@ const textoNormalizado = texto.replace(/\r\n/g, "\n").replace(/\r/g, "\n")
 
 ---
 
-**Última atualização:** 23/05/2026
-**Versão:** 2.5 (Revisão Geral + Sessão 44 - Progresso Atual)
-**Total de seções:** 44
+**Última atualização:** 29/05/2026
+**Versão:** 3.0 (Módulo de Integrações + Importação via API)
+**Total de seções:** 45
 
 ---
 
@@ -2376,26 +2376,30 @@ Data: 23/05/2026
 
 Esta sessão foi dedicada à **revisão e alinhamento** do projeto PDM Pro Têxtil. Não houve implementação de novas funcionalidades ou correções de código. O documento de aprendizado (`learning.md`) foi lido e verificado na íntegra (2371 linhas, 43 seções) para garantir que o contexto do projeto está completo e atualizado.
 
-### Tópico 44.2: Estado Atual do Projeto
+### Tópico 44.2: Estado Atual do Projeto (atualizado em 29/05/2026)
 
-**Status Geral:** Funcionalidades principais implementadas e operacionais. Projeto em pós-implementação, aguardando definição de próximas tarefas.
+**Status Geral:** Funcionalidades principais implementadas e operacionais. Módulo de Integrações com APIs externas concluído.
 
 **O que está implementado e funcionando:**
-- Schema completo com +25 tabelas no Neon (Drizzle + postgres-js)
-- Migrations executadas (até `0009_sistema.sql`)
-- API CRUD para todos os cadastros (fios, fornecedores, clientes, cores, estampas, bases-urdume, produtos-químicos, produto-cru, solicitações)
+- Schema completo com +27 tabelas no Neon (Drizzle + postgres-js)
+- Migrations executadas via `scripts/migrate.js` (script reativado com CREATE TABLE + ALTER TABLE)
+- API CRUD para todos os cadastros (fios, fornecedores, clientes, cores, estampas, bases-urdume, produtos-químicos, produto-cru, solicitações, integrações, requisições-corte)
 - Páginas de listagem e formulário para todos os cadastros
 - Seção "Receitas de Beneficiamento" por amostra com versionamento e PDF
-- Sistema de notificações com polling 30s
+- Sistema de notificações com polling 30s + admin de regras por tipo
 - Admin: SMTP, usuários, roles, permissões, email em massa
 - Dashboard com gráficos Recharts
 - Importação CSV/JSON em massa para 6 cadastros (fios, fornecedores, clientes, cores, estampas, bases-urdume)
+- Importação via API para Clientes (modal com grid, checkboxes, dedup, campo de busca)
 - Fluxo de solicitações completo (criar, desenvolver, aprovar produto, concluir)
 - Controle de permissões por role (COMERCIAL, DESENVOLVIMENTO, ADMIN, SUDO)
 - Sistema de logs e notificações de erro para SUDO
 - Ficha Técnica como JSONB em produto-cru
 - Links (JSONB) em produtos-cru, amostras, acabamentos, fios
 - Dark mode padrão obrigatório
+- Módulo de Integrações completo (cadastro, autenticação OAuth2/Basic/Bearer/API Key, teste, mapeamento de campos)
+- Requisições de Corte (header + itens) com dashboard e indicadores
+- Campo quantidadeProduzida em amostras de tecido cru e acabamento
 
 **Próximos passos discutidos (não iniciados):**
 - Novas funcionalidades (ordens de produção, agendamento, etc.)
@@ -2406,10 +2410,201 @@ Esta sessão foi dedicada à **revisão e alinhamento** do projeto PDM Pro Têxt
 ### Tópico 44.3: Observações Importantes
 
 - Build local não funciona (node_modules ausentes) — build apenas na Vercel
-- `scripts/migrate.js` desatualizado — migrations feitas via SQL manual
-- `learning.md` consolidado com 43 seções de aprendizado acumulado
+- `scripts/migrate.js` mantido ativo com CREATE TABLE + ALTER TABLE IF NOT EXISTS — rodar localmente antes de deploy
+- `learning.md` consolidado com 45 seções de aprendizado acumulado
 - Próximas ações dependem de definição do usuário
 
 ---
 
 **Fim do Documento**
+
+---
+
+## Seção 45: Módulo de Integrações com APIs Externas
+
+### Tópico 45.1: Contexto e Motivação
+
+**Data:** 28-29/05/2026
+
+O módulo de Integrações foi criado para permitir que o PDM se conecte com sistemas externos (ERP Systêxtil, APIs, WMS) sem necessidade de desenvolvimento específico para cada integração. O usuário administrador cadastra a integração, configura a autenticação, testa a conexão, mapeia os campos do retorno da API para os campos do PDM, e utiliza a importação nas telas cadastradas.
+
+### Tópico 45.2: Arquitetura do Módulo
+
+O módulo é composto por quatro camadas:
+
+| Camada | Descrição |
+|--------|-----------|
+| **Cadastro de Integrações** | Configuração base: nome, base_url, tipo de auth, auth_config (JSON), telas, mapping |
+| **Proxy de Teste** | Endpoint server-side que monta a requisição com autenticação e executa contra a API externa |
+| **Mapeamento de Campos** | Editor visual que relaciona campos do retorno da API → campos do PDM |
+| **Importação via API** | Modal genérico que consome a API, exibe grid com seleção e importa com dedup |
+
+### Tópico 45.3: Schema da Tabela integracoes
+
+```sql
+CREATE TABLE integracoes (
+  id SERIAL PRIMARY KEY,
+  nome VARCHAR(100) NOT NULL,
+  base_url VARCHAR(500) NOT NULL,
+  tipo_auth VARCHAR(30) NOT NULL DEFAULT 'bearer',
+  auth_config JSON DEFAULT '{}',
+  telas JSON DEFAULT '[]',
+  mapping JSON DEFAULT '{}',
+  ativo BOOLEAN DEFAULT true,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+| Campo | Tipo | Descrição |
+|-------|------|-----------|
+| `nome` | VARCHAR | Nome amigável (ex: "ERP Systêxtil") |
+| `base_url` | VARCHAR | URL completa do endpoint da API |
+| `tipo_auth` | VARCHAR | Enum: oauth2, basic, api_key, bearer |
+| `auth_config` | JSON | Configuração de autenticação (varia por tipo) |
+| `telas` | JSON | Array de telas onde a integração aparece (ex: ["clientes", "fios"]) |
+| `mapping` | JSON | Objeto `{ fields: { apiField: pdmField }, uniqueKey: "apiField" }` |
+
+### Tópico 45.4: Autenticação Suportada
+
+Cada tipo de auth utiliza um `auth_config` JSON diferente:
+
+**Bearer Token:**
+```json
+{ "token": "abc123xyz" }
+```
+→ Header: `Authorization: Bearer abc123xyz`
+
+**Basic Auth:**
+```json
+{ "username": "admin", "password": "123456" }
+```
+→ Header: `Authorization: Basic base64(admin:123456)`
+
+**API Key:**
+```json
+{ "key": "abc123", "key_name": "x-api-key", "in": "header" }
+```
+→ Header: `x-api-key: abc123` ou Query param (se `in: "query"`)
+
+**OAuth2 Client Credentials:**
+```json
+{
+  "grant_type": "client_credentials",
+  "client_id": "xxx",
+  "client_secret": "xxx",
+  "token_url": "https://...",
+  "scope": "read"
+}
+```
+→ POST no `token_url` com Basic Auth (client_id:client_secret) + body `grant_type=client_credentials`
+→ Usa `access_token` retornado como Bearer na requisição principal
+
+### Tópico 45.5: Teste de Integração
+
+O botão ▶ (Play) em cada card de integração chama o endpoint **`GET /api/admin/integracoes/[id]/testar`** que:
+
+1. Lê a configuração do banco
+2. Monta os headers de autenticação conforme `tipo_auth` + `auth_config`
+3. Executa GET na `base_url` com timeout de 15s
+4. Retorna: status code, tempo de resposta, response body, request headers (mascarados), request URL
+
+**Aprendizado:** O OAuth2 da API Systêxtil exige que `client_id:client_secret` sejam enviados via **Basic Auth header** (não no body do POST). O body contém apenas `grant_type=client_credentials` (e opcionalmente `scope`).
+
+### Tópico 45.6: Mapeamento de Campos (De-Para)
+
+O editor visual substitui o campo JSON textarea por uma interface amigável:
+
+1. **Botão "Carregar campos da API"** — chama o endpoint de teste, extrai os nomes dos campos do primeiro item do array `items` da resposta
+2. **Tabela de mapeamento** — cada campo da API vira uma linha com dropdown ao lado para selecionar o campo PDM correspondente
+3. **Chave única (dedup)** — dropdown separado para selecionar qual campo da API é o identificador único (usado para comparar com registros existentes)
+4. **Auto-mapeamento** — campos com o mesmo nome (case-insensitive) são automaticamente vinculados
+5. **Auto-detect uniqueKey** — tenta `idintegracao` → `cnpj` → `id`
+
+O JSON gerado é armazenado no campo `mapping` da tabela:
+```json
+{
+  "fields": { "nome": "nome", "cnpj": "cnpj", "idintegracao": "idIntegracao" },
+  "uniqueKey": "idintegracao"
+}
+```
+
+### Tópico 45.7: Fluxo de Importação via API
+
+O modal `ImportarApiModal` é um componente genérico reutilizável localizado em `src/components/integracao/ImportarApiModal.tsx`.
+
+**Fluxo completo:**
+
+1. **Botão "Importar via API"** na tela de Clientes abre o modal
+2. **Seleção de integração** — lista as integrações ativas configuradas para a tela "clientes"
+3. **Executar** — chama o proxy de teste, recebe os dados da API
+4. **Grid com checkboxes** — exibe os itens em tabela, cada linha com checkbox
+5. **Dedup automático** — itens cujo `uniqueKey` já existe no PDM ficam com checkbox desabilitado e opacidade reduzida
+6. **Campo de busca** — filtra os resultados da grid em tempo real (qualquer coluna)
+7. **Select All** — funciona apenas sobre os itens filtrados (não inclui duplicatas)
+8. **Importar** — envia os itens selecionados para a API de importação
+
+### Tópico 45.8: API de Importação de Clientes
+
+**`POST /api/cadastros/clientes/importar-api`**
+
+Recebe: `{ fieldMapping, uniqueKey, items }`
+
+Fluxo:
+1. Para cada item, aplica o fieldMapping (apiField → pdmField)
+2. Traduz `uniqueKey` (nome do campo da API) para o campo PDM correspondente usando o `fieldMapping`
+3. Verifica duplicata por `idIntegracao` OU `cnpj` no banco
+4. Se existir, incrementa contador de duplicatas e pula
+5. Se não existir, faz INSERT com os campos mapeados
+
+**Aprendizado crítico:** O `uniqueKey` armazenado no mapping é o **nome do campo da API** (ex: `idintegracao`), mas o objeto `mapped` usa **nomes de campos PDM** como chaves (ex: `idIntegracao`). É obrigatório traduzir via `fieldMapping[uniqueKey]` antes de buscar o valor. Esse bug causou "1 duplicata ignorada" para todos os itens até ser corrigido.
+
+### Tópico 45.9: Registro do De-Para no Configurações
+
+Na página **Configurações → Integrações**, o formulário de edição agora possui:
+
+- **Nome** — nome da integração
+- **Base URL** — URL completa do endpoint
+- **Tipo de Autenticação** — seleção visual entre Bearer, Basic, API Key, OAuth2
+- **Auth Config (JSON)** — textarea com botão mostrar/esconder
+- **Telas** — campo texto separado por vírgula (ex: `clientes, fios`)
+- **Mapeamento de Campos** — editor visual com:
+  - Botão "Carregar campos da API" (requer integração salva)
+  - Tabela API field → dropdown PDM field
+  - Seletor de chave única
+
+### Tópico 45.10: Estrutura de Arquivos Criados
+
+```
+src/
+├── app/
+│   ├── api/
+│   │   └── admin/
+│   │       └── integracoes/
+│   │           ├── route.ts                    # CRUD (GET, POST, PUT, DELETE)
+│   │           └── [id]/
+│   │               └── testar/
+│   │                   └── route.ts            # Proxy de teste com autenticação
+│   └── (dashboard)/
+│       └── admin/
+│           └── configuracoes/
+│               └── integracoes/
+│                   └── page.tsx                # Página de gestão de integrações
+├── components/
+│   └── integracao/
+│       └── ImportarApiModal.tsx                # Modal genérico de importação via API
+└── lib/
+    └── db/
+        └── schema/
+            ├── integracoes.ts                  # Schema Drizzle da tabela integracoes
+            └── index.ts                        # Export adicionado
+```
+
+### Tópico 45.11: Próximos Passos Possíveis
+
+- Adicionar suporte a **endpoints** (múltiplos endpoints por integração, cada um com seu path/método)
+- Adicionar **logs de execução** de importações (tabela log_integracao)
+- Estender importação via API para outras telas (fios, bases-urdume, etc.)
+- Agendar execução automática de importações (cron)
+- Suporte a mais tipos de autenticação (AWS Signature, digest, etc.)
+- Mapeamento reverso (exportar dados do PDM para API externa)

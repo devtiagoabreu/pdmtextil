@@ -503,3 +503,31 @@ Sistema completo de notificações com:
 - `35db209` feat: adiciona campo idIntegracao (ERP) no cadastro de produtos quimicos
 - `39e2b62` fix: import de produtos quimicos com ref, delim detection, sem restricao admin
 - `53b6aa3` refactor: padroniza pagina de produtos quimicos com modal de import e estilo igual fios
+
+---
+
+### Integrações com API Externa + Importação via API
+
+**Data:** 28-29/05/2026
+
+- Módulo de Integrações completo (schema `integracoes`, API CRUD, página em Configurações)
+- Suporte a 4 tipos de autenticação: OAuth2 (Client Credentials via Basic Auth), Bearer, Basic, API Key
+- Proxy de teste server-side que monta autenticação e executa GET contra API externa
+- Colunas `telas` (JSON array) e `mapping` (JSON com fields + uniqueKey) na tabela
+- Editor visual de mapeamento de campos com "Carregar campos da API" e dropdowns PDM
+- Botão "Importar via API" na tela de Clientes com modal genérico reutilizável
+- Importação com grid, checkboxes, dedup automático por idIntegracao/CNPJ
+- Campo de busca/pesquisa em tempo real no grid do modal
+- Correções de build Vercel (interface Integracao, exhaustive-deps)
+- OAuth2 corrigido: client_id/secret enviados via Basic Auth header (não no body)
+
+**Commits:**
+- `b88689e` fix: add quantidadeProduzida to Amostra types in produto-cru page
+- `b269989` feat: add integracoes module (schema, API, CRUD page, config hub card)
+- `0d4a407` feat: add test endpoint for integracoes (frontend button + API proxy)
+- `abc43be` fix: send OAuth2 client credentials via Basic Auth header
+- `3c2fc6d` feat: add field mapping, screen config, and API import modal for clientes
+- `253603a` fix: add ativo to Integracao interface, remove useCallback warning
+- `c1691dc` feat: visual field mapping editor for integracoes
+- `aa4cf6f` fix: translate uniqueKey from API field to PDM field in import dedup check
+- `25f807c` feat: add search filter in import API modal grid
