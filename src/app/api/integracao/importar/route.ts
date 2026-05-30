@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
     const dbUniqueFieldName = translateFieldName(pdmUniqueKey)
 
     const uniqueValues = mapped
-      .map(m => m[pdmUniqueKey])
+      .map((m: Record<string, any>) => m[pdmUniqueKey])
       .filter(Boolean)
       .map(v => String(v))
 
