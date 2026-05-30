@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { PlusCircle, Search, Pencil, Trash2, Loader2 } from "lucide-react"
+import { PlusCircle, Search, Pencil, Trash2, Loader2, Database } from "lucide-react"
 import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -12,6 +12,8 @@ import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import ImportarEstampas from "@/components/importar/ImportarEstampas"
+import ImportarApiModal from "@/components/integracao/ImportarApiModal"
+import { ExportarDados } from "@/components/exportar/ExportarDados"
 
 interface Estampa {
   id: number
@@ -38,6 +40,7 @@ export default function EstampasPage() {
   const [deleteTarget, setDeleteTarget] = useState<Estampa | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [deleteBlocked, setDeleteBlocked] = useState(false)
+  const [showApiImport, setShowApiImport] = useState(false)
   
   const { data: estampas = [], isLoading, refetch } = useQuery({
     queryKey: ["estampas"],
@@ -88,6 +91,14 @@ export default function EstampasPage() {
         </div>
         <div className="flex gap-2">
           <ImportarEstampas onImportado={() => refetch()} />
+          <ExportarDados data={filteredEstampas} columns={[
+            { key: "codigoDesenho", label: "Desenho" }, { key: "variante", label: "Variante" },
+            { key: "nome", label: "Nome" }, { key: "tipo", label: "Tipo" },
+          ]} filename="estampas" title="Estampas" />
+          <Button variant="outline" onClick={() => setShowApiImport(true)} className="gap-2">
+            <Database size={16} />
+            Importar via API
+          </Button>
           <Link href="/cadastros/estampas/novo">
             <Button className="gap-2">
               <PlusCircle size={16} />
@@ -205,6 +216,16 @@ export default function EstampasPage() {
           setDeleteBlocked(false)
         }}
       />
+
+      {showApiImport && (
+        <ImportarApiModal
+          tela="estampas"
+          existingRecords={estampas}
+          existingKey="idIntegracao"
+          onImportado={() => refetch()}
+          onClose={() => setShowApiImport(false)}
+        />
+      )}
     </div>
   )
 }

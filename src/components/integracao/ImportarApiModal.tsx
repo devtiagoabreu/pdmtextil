@@ -151,10 +151,11 @@ export default function ImportarApiModal({ tela, existingRecords, existingKey = 
     setImporting(true)
     try {
       const selectedItems = items.filter((_, i) => selectedRows.has(i))
-      const res = await fetch("/api/cadastros/clientes/importar-api", {
+      const res = await fetch("/api/integracao/importar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          entidade: tela,
           integracaoId: selectedId,
           fieldMapping,
           uniqueKey,
@@ -166,7 +167,7 @@ export default function ImportarApiModal({ tela, existingRecords, existingKey = 
         throw new Error(err.error || "Erro na importação")
       }
       const result = await res.json()
-      toast.success(`${result.importados} cliente(s) importado(s)${result.duplicatas ? `, ${result.duplicatas} duplicata(s) ignorada(s)` : ""}`)
+      toast.success(`${result.importados} registro(s) importado(s)${result.ignorados ? `, ${result.ignorados} ignorado(s)` : ""}`)
       onImportado?.()
       onClose()
     } catch (e) {

@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { PlusCircle, Search, Pencil, Trash2, Loader2 } from "lucide-react"
+import { PlusCircle, Search, Pencil, Trash2, Loader2, Database } from "lucide-react"
 import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -12,6 +12,8 @@ import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import ImportarProdutosQuimicos from "@/components/importar/ImportarProdutosQuimicos"
+import ImportarApiModal from "@/components/integracao/ImportarApiModal"
+import { ExportarDados } from "@/components/exportar/ExportarDados"
 
 interface ProdutoQuimico {
   id: number
@@ -38,6 +40,7 @@ export default function ProdutosQuimicosPage() {
   const [deleteTarget, setDeleteTarget] = useState<ProdutoQuimico | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [deleteBlocked, setDeleteBlocked] = useState(false)
+  const [showApiImport, setShowApiImport] = useState(false)
 
   const { data: produtos = [], isLoading, refetch } = useQuery({
     queryKey: ["produtos-quimicos"],
@@ -89,6 +92,14 @@ export default function ProdutosQuimicosPage() {
         </div>
         <div className="flex gap-2">
           <ImportarProdutosQuimicos onImportado={() => refetch()} />
+          <ExportarDados data={filtered} columns={[
+            { key: "codigo", label: "Código" }, { key: "nome", label: "Nome" },
+            { key: "categoria", label: "Categoria" }, { key: "unidadePadrao", label: "Unidade" },
+          ]} filename="produtos-quimicos" title="Produtos Químicos" />
+          <Button variant="outline" onClick={() => setShowApiImport(true)} className="gap-2">
+            <Database size={16} />
+            Importar via API
+          </Button>
           <Link href="/cadastros/produtos-quimicos/novo">
             <Button className="gap-2">
               <PlusCircle size={16} />
@@ -206,6 +217,16 @@ export default function ProdutosQuimicosPage() {
           setDeleteBlocked(false)
         }}
       />
+
+      {showApiImport && (
+        <ImportarApiModal
+          tela="produtosQuimicos"
+          existingRecords={produtos}
+          existingKey="idIntegracao"
+          onImportado={() => refetch()}
+          onClose={() => setShowApiImport(false)}
+        />
+      )}
     </div>
   )
 }

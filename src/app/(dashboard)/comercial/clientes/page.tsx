@@ -2,11 +2,14 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { PlusCircle, Search, Building2, Phone, Mail, MapPin, Pencil, Users } from "lucide-react"
+import { PlusCircle, Search, Building2, Phone, Mail, MapPin, Pencil, Users, Database } from "lucide-react"
 import { toast } from "sonner"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
+import { Button } from "@/components/ui/button"
+import ImportarApiModal from "@/components/integracao/ImportarApiModal"
+import { ExportarDados } from "@/components/exportar/ExportarDados"
 
 type Cliente = {
   id: number
@@ -28,6 +31,7 @@ export default function ClientesPage() {
   const [search, setSearch] = useState("")
   const [clientes, setClientes] = useState<Cliente[]>([])
   const [loading, setLoading] = useState(true)
+  const [showApiImport, setShowApiImport] = useState(false)
 
   useEffect(() => {
     async function fetchClientes() {
@@ -62,13 +66,23 @@ export default function ClientesPage() {
             {loading ? "Carregando..." : `${filtered.length} cliente${filtered.length !== 1 ? "s" : ""} encontrado${filtered.length !== 1 ? "s" : ""}`}
           </p>
         </div>
-        <Link
+        <div className="flex gap-2">
+          <ExportarDados data={filtered} columns={[
+            { key: "nome", label: "Nome" }, { key: "cnpj", label: "CNPJ" }, { key: "email", label: "Email" },
+            { key: "telefone", label: "Telefone" }, { key: "cidade", label: "Cidade" }, { key: "uf", label: "UF" },
+          ]} filename="clientes-comercial" title="Clientes" />
+          <Button variant="outline" onClick={() => setShowApiImport(true)} className="gap-2">
+            <Database size={16} />
+            Importar via API
+          </Button>
+          <Link
           href="/comercial/clientes/novo"
           className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors shadow-sm"
         >
           <PlusCircle size={16} />
           Novo Cliente
         </Link>
+        </div>
       </div>
 
       <div className="relative max-w-md">
@@ -152,5 +166,15 @@ export default function ClientesPage() {
         )}
       </div>
     </div>
+
+    {showApiImport && (
+      <ImportarApiModal
+        tela="clientes"
+        existingRecords={clientes}
+        existingKey="idIntegracao"
+        onImportado={() => window.location.reload()}
+        onClose={() => setShowApiImport(false)}
+      />
+    )}
   )
 }

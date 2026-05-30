@@ -461,6 +461,24 @@ async function migrate() {
     await sql`ALTER TABLE integracoes ADD COLUMN IF NOT EXISTS mapping JSON DEFAULT '{}'`
     console.log("✓ Colunas telas e mapping adicionadas em integracoes")
 
+    await sql`
+      CREATE TABLE IF NOT EXISTS config_empresa (
+        id SERIAL PRIMARY KEY,
+        nome VARCHAR(200) NOT NULL,
+        documento VARCHAR(20),
+        endereco VARCHAR(300),
+        cidade VARCHAR(100),
+        uf VARCHAR(2),
+        telefone VARCHAR(20),
+        email VARCHAR(150),
+        logo_url VARCHAR(500),
+        is_default BOOLEAN DEFAULT false,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `
+    console.log("✓ Tabela config_empresa criada")
+
     console.log("\n✅ Migration concluída com sucesso!")
     
   } catch (error) {
