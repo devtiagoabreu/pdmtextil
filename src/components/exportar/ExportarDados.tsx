@@ -57,9 +57,6 @@ export function ExportarDados({ data, columns, filename, title }: Props) {
     try {
       const { default: jsPDF } = await import("jspdf")
       await import("jspdf-autotable")
-      if (typeof (window as any).jspdf !== "undefined") {
-        const { default: autoTable } = await import("jspdf-autotable")
-      }
 
       let empresa: EmpresaLogo | null = null
       try {

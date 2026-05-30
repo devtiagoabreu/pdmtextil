@@ -5,9 +5,8 @@ const nextConfig = {
       { protocol: "https", hostname: "vercel-blob.com" },
     ],
   },
-  serverExternalPackages: ["bcryptjs"],
-  turbopack: {
-    root: process.cwd(),
+  experimental: {
+    serverComponentsExternalPackages: ["bcryptjs"],
   },
 }
 
