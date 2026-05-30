@@ -234,13 +234,3 @@ export default function BasesUrdumePage() {
     </div>
   )
 }
-          handleDelete()
-        }}
-        onCancel={() => {
-          setDeleteTarget(null)
-          setDeleteBlocked(false)
-        }}
-      />
-    </div>
-  )
-}

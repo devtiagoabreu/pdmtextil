@@ -165,16 +165,15 @@ export default function ClientesPage() {
           </div>
         )}
       </div>
-    </div>
 
-    {showApiImport && (
-      <ImportarApiModal
-        tela="clientes"
-        existingRecords={clientes}
-        existingKey="idIntegracao"
-        onImportado={() => window.location.reload()}
-        onClose={() => setShowApiImport(false)}
-      />
-    )}
-  )
+      {showApiImport && (
+        <ImportarApiModal
+          tela="clientes"
+          existingRecords={clientes}
+          existingKey="idIntegracao"
+          onImportado={() => window.location.reload()}
+          onClose={() => setShowApiImport(false)}
+        />
+      )}
+    </div>
 }
