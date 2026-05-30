@@ -13,6 +13,7 @@ import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import ImportarClientes from "@/components/importar/ImportarClientes"
 import ImportarApiModal from "@/components/integracao/ImportarApiModal"
+import { ExportarDados } from "@/components/exportar/ExportarDados"
 
 interface Cliente {
   id: number
@@ -94,6 +95,10 @@ export default function ClientesPage() {
         </div>
         <div className="flex gap-2">
           <ImportarClientes onImportado={() => refetch()} />
+          <ExportarDados data={filteredClientes} columns={[
+            { key: "nome", label: "Nome" }, { key: "cnpj", label: "CNPJ" }, { key: "email", label: "Email" },
+            { key: "telefone", label: "Telefone" }, { key: "cidade", label: "Cidade" }, { key: "uf", label: "UF" },
+          ]} filename="clientes" title="Clientes" />
           <Button variant="outline" onClick={() => setShowApiImport(true)} className="gap-2">
             <Database size={16} />
             Importar via API

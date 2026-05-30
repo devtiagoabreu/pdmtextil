@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { PlusCircle, Search, Pencil, Trash2, Loader2 } from "lucide-react"
+import { PlusCircle, Search, Pencil, Trash2, Loader2, Database } from "lucide-react"
 import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -12,6 +12,8 @@ import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import ImportarCores from "@/components/importar/ImportarCores"
+import ImportarApiModal from "@/components/integracao/ImportarApiModal"
+import { ExportarDados } from "@/components/exportar/ExportarDados"
 
 interface CorSolida {
   id: number
@@ -37,6 +39,7 @@ export default function CoresPage() {
   const [deleteTarget, setDeleteTarget] = useState<CorSolida | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [deleteBlocked, setDeleteBlocked] = useState(false)
+  const [showApiImport, setShowApiImport] = useState(false)
   
   const { data: cores = [], isLoading, refetch } = useQuery({
     queryKey: ["cores"],
@@ -88,6 +91,14 @@ export default function CoresPage() {
         </div>
         <div className="flex gap-2">
           <ImportarCores onImportado={() => refetch()} />
+          <ExportarDados data={filteredCores} columns={[
+            { key: "codigo", label: "Código" }, { key: "nome", label: "Nome" },
+            { key: "pantone", label: "Pantone" }, { key: "familia", label: "Família" },
+          ]} filename="cores-solidas" title="Cores Sólidas" />
+          <Button variant="outline" onClick={() => setShowApiImport(true)} className="gap-2">
+            <Database size={16} />
+            Importar via API
+          </Button>
           <Link href="/cadastros/cores/novo">
             <Button className="gap-2">
               <PlusCircle size={16} />
@@ -212,6 +223,16 @@ export default function CoresPage() {
           setDeleteBlocked(false)
         }}
       />
+
+      {showApiImport && (
+        <ImportarApiModal
+          tela="coresSolidas"
+          existingRecords={cores}
+          existingKey="idIntegracao"
+          onImportado={() => refetch()}
+          onClose={() => setShowApiImport(false)}
+        />
+      )}
     </div>
   )
 }

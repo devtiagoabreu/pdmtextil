@@ -248,6 +248,16 @@ export const infoContent: Record<string, InfoContent> = {
       "Apenas conexões ativas podem ser utilizadas nas importações.",
     ],
   },
+  "/admin/configuracoes/empresa": {
+    title: "Empresa",
+    description: "Dados cadastrais da empresa e configuração de logo para relatórios e exportações PDF.",
+    rules: [
+      "Os dados da empresa são utilizados em relatórios e exportações (PDF, CSV, JSON).",
+      "O logo deve ser uma URL pública acessível (Google Drive, imagens da web).",
+      "A empresa marcada como padrão é usada automaticamente nas exportações.",
+      "Apenas usuários ADMIN podem gerenciar empresas.",
+    ],
+  },
   "/admin/configuracoes/integracoes": {
     title: "Integrações",
     description: "Configuração de conexões com sistemas externos (ERP, APIs, WMS). Cada integração define como o sistema se autentica e comunica com serviços externos.",

@@ -6,6 +6,7 @@ import { FlaskConical, Beaker, FileText, ChevronRight } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
+import { ExportarDados } from "@/components/exportar/ExportarDados"
 
 type ReceitaSimples = {
   id: number
@@ -62,6 +63,11 @@ export default function ListaReceitasPage() {
           Receitas de beneficiamento associadas a produtos, acabamentos e amostras
         </p>
       </div>
+      <ExportarDados data={completas.map(r => ({ produto: r.produtoCodigo, descricao: r.descricao, versao: r.versao, itens: r.totalItens, acabamento: r.acabamento }))} columns={[
+        { key: "produto", label: "Produto" }, { key: "descricao", label: "Descrição" },
+        { key: "versao", label: "Versão" }, { key: "itens", label: "Itens" },
+        { key: "acabamento", label: "Acabamento" },
+      ]} filename="receitas" title="Receitas" />
 
       {/* Tabs */}
       <div className="flex gap-1 rounded-lg bg-slate-100 dark:bg-slate-800 p-1 w-fit">

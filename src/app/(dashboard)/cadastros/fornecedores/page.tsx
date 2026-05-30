@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { PlusCircle, Search, Pencil, Trash2, Loader2 } from "lucide-react"
+import { PlusCircle, Search, Pencil, Trash2, Loader2, Database } from "lucide-react"
 import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -12,6 +12,8 @@ import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import ImportarFornecedores from "@/components/importar/ImportarFornecedores"
+import ImportarApiModal from "@/components/integracao/ImportarApiModal"
+import { ExportarDados } from "@/components/exportar/ExportarDados"
 
 interface Fornecedor {
   id: number
@@ -41,6 +43,7 @@ export default function FornecedoresPage() {
   const [deleteTarget, setDeleteTarget] = useState<Fornecedor | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [deleteBlocked, setDeleteBlocked] = useState(false)
+  const [showApiImport, setShowApiImport] = useState(false)
   
   const { data: fornecedores = [], isLoading, refetch } = useQuery({
     queryKey: ["fornecedores"],
@@ -92,6 +95,14 @@ export default function FornecedoresPage() {
         </div>
         <div className="flex gap-2">
           <ImportarFornecedores onImportado={() => refetch()} />
+          <ExportarDados data={filteredFornecedores} columns={[
+            { key: "nome", label: "Nome" }, { key: "cnpj", label: "CNPJ" }, { key: "email", label: "Email" },
+            { key: "telefone", label: "Telefone" }, { key: "cidade", label: "Cidade" }, { key: "uf", label: "UF" },
+          ]} filename="fornecedores" title="Fornecedores" />
+          <Button variant="outline" onClick={() => setShowApiImport(true)} className="gap-2">
+            <Database size={16} />
+            Importar via API
+          </Button>
           <Link href="/cadastros/fornecedores/novo">
             <Button className="gap-2">
               <PlusCircle size={16} />
@@ -213,6 +224,16 @@ export default function FornecedoresPage() {
           setDeleteBlocked(false)
         }}
       />
+
+      {showApiImport && (
+        <ImportarApiModal
+          tela="fornecedores"
+          existingRecords={fornecedores}
+          existingKey="idIntegracao"
+          onImportado={() => refetch()}
+          onClose={() => setShowApiImport(false)}
+        />
+      )}
     </div>
   )
 }

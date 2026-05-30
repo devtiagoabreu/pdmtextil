@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { PlusCircle, Search, Pencil, Trash2, Loader2 } from "lucide-react"
+import { PlusCircle, Search, Pencil, Trash2, Loader2, Database } from "lucide-react"
 import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -12,6 +12,8 @@ import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import ImportarBasesUrdume from "@/components/importar/ImportarBasesUrdume"
+import ImportarApiModal from "@/components/integracao/ImportarApiModal"
+import { ExportarDados } from "@/components/exportar/ExportarDados"
 
 interface BaseUrdume {
   id: number
@@ -41,6 +43,7 @@ export default function BasesUrdumePage() {
   const [deleteTarget, setDeleteTarget] = useState<BaseUrdume | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [deleteBlocked, setDeleteBlocked] = useState(false)
+  const [showApiImport, setShowApiImport] = useState(false)
 
   const { data: bases = [], isLoading, refetch } = useQuery({
     queryKey: ["bases-urdume"],
@@ -91,6 +94,14 @@ export default function BasesUrdumePage() {
         </div>
         <div className="flex gap-2">
           <ImportarBasesUrdume onImportado={() => refetch()} />
+          <ExportarDados data={filteredBases} columns={[
+            { key: "codigoBase", label: "Código" }, { key: "nome", label: "Nome" },
+            { key: "densidade", label: "Densidade" }, { key: "largura", label: "Largura" },
+          ]} filename="bases-urdume" title="Bases de Urdume" />
+          <Button variant="outline" onClick={() => setShowApiImport(true)} className="gap-2">
+            <Database size={16} />
+            Importar via API
+          </Button>
           <Link href="/cadastros/bases-urdume/novo">
             <Button className="gap-2">
               <PlusCircle size={16} />
@@ -189,8 +200,8 @@ export default function BasesUrdumePage() {
         open={deleteTarget !== null}
         title={deleteBlocked ? "Exclusão não permitida" : "Excluir base de urdume?"}
         message={deleteBlocked
-          ? "Esta base de urdume possui cadastros vinculados e não pode ser excluída."
-          : `Tem certeza que deseja excluir a base "${deleteTarget?.codigoBase}"?`}
+          ? "Esta base possui cadastros vinculados e não pode ser excluída."
+          : `Tem certeza que deseja excluir?`}
         subMessage={deleteBlocked
           ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informações."
           : undefined}
@@ -203,6 +214,26 @@ export default function BasesUrdumePage() {
             setDeleteBlocked(false)
             return
           }
+          handleDelete()
+        }}
+        onCancel={() => {
+          setDeleteTarget(null)
+          setDeleteBlocked(false)
+        }}
+      />
+
+      {showApiImport && (
+        <ImportarApiModal
+          tela="basesUrdume"
+          existingRecords={bases}
+          existingKey="idIntegracao"
+          onImportado={() => refetch()}
+          onClose={() => setShowApiImport(false)}
+        />
+      )}
+    </div>
+  )
+}
           handleDelete()
         }}
         onCancel={() => {
