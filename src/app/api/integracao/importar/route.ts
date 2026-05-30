@@ -111,8 +111,8 @@ export async function POST(req: NextRequest) {
 
     const uniqueValues = mapped
       .map((m: Record<string, any>) => m[pdmUniqueKey])
-      .filter(Boolean)
-      .map(v => String(v))
+      .filter((v): v is string => Boolean(v))
+      .map((v: string) => String(v))
 
     let existingRecords: Set<string> = new Set()
     if (uniqueValues.length > 0) {
