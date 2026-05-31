@@ -1,0 +1,56 @@
+import type { InfoContent } from "./types"
+
+export const comercialContent: Record<string, InfoContent> = {
+  "/comercial/solicitacoes": {
+    title: "Solicitações",
+    description: "Lista de todas as solicitações comerciais registradas no sistema. Aqui você pode visualizar, filtrar e gerenciar cada solicitação.",
+    rules: [
+      "Solicitações passam por um fluxo de status: PENDENTE → EM_DESENVOLVIMENTO → APROVADO/REPROVADO → EM_PRODUÇÃO → CONCLUÍDO.",
+      "Apenas usuários com perfil ADMIN ou SUDO podem excluir solicitações.",
+      "Cada solicitação pertence a um cliente e pode ser do tipo Tecelagem ou Beneficiamento.",
+      "Ao excluir uma solicitação, todos os anexos vinculados também são removidos.",
+      "Mudanças de status são registradas no histórico da solicitação.",
+    ],
+    fields: [
+      { name: "Cliente", desc: "Nome do cliente solicitante (autocomplete com dados cadastrados)" },
+      { name: "Tipo", desc: "Tecelagem (desenvolvimento de tecido) ou Beneficiamento (processo químico)" },
+      { name: "Status", desc: "Etapa atual no fluxo de desenvolvimento" },
+      { name: "Briefing", desc: "Detalhamento técnico da solicitação com campos dinâmicos conforme o tipo" },
+    ],
+  },
+  "/comercial/solicitacoes/nova": {
+    title: "Nova Solicitação",
+    description: "Formulário de criação de uma nova solicitação comercial. Preencha os dados do cliente, tipo, briefing técnico e prazos.",
+    rules: [
+      "Campos marcados com * são obrigatórios.",
+      "O briefing é dividido em seções dinâmicas que mudam conforme o tipo de solicitação.",
+      "Toda solicitação nova inicia com status PENDENTE.",
+      "É possível anexar arquivos (PDF, DOCX, XLSX, JPG, PNG, MP4) até 10MB cada.",
+      "Após criar, a solicitação pode ser editada até o início do desenvolvimento.",
+    ],
+  },
+  "/comercial/clientes": {
+    title: "Clientes",
+    description: "Cadastro de clientes comerciais. Gerencie informações como nome, CNPJ, contatos e endereço.",
+    rules: [
+      "O CNPJ é validado para garantir unicidade no cadastro.",
+      "Clientes ativos podem ser vinculados a solicitações.",
+      "A desativação de um cliente não remove solicitações existentes.",
+    ],
+    fields: [
+      { name: "Nome", desc: "Nome fantasia ou razão social" },
+      { name: "CNPJ", desc: "Cadastro Nacional de Pessoa Jurídica (formato XX.XXX.XXX/XXXX-XX)" },
+      { name: "Contato", desc: "Nome e telefone do contato comercial" },
+    ],
+  },
+  "/comercial/requisicoes-corte": {
+    title: "Requisições de Corte",
+    description: "Gerencie as requisições de corte de produtos. Uma requisição pode conter múltiplos itens (cortes) para diferentes produtos.",
+    rules: [
+      "Cada requisição pode ter vários itens de corte, cada um com seu próprio produto, ordem e quantidade.",
+      "Status disponíveis: Solicitado → Processando → Atendido.",
+      "Apenas o requisitante e usuários COMERCIAIS podem alterar o status.",
+      "Para excluir, é necessário ser o requisitante ou ter permissão COMERCIAL.",
+    ],
+  },
+}
