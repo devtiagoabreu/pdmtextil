@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { fornecedores } from "@/lib/db/schema/fios"
 import { eq } from "drizzle-orm"
+import { validateRequest, fornecedorSchema } from "@/lib/validation"
 
 export async function GET() {
   try {
@@ -32,21 +33,24 @@ export async function POST(req: NextRequest) {
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
     const body = await req.json()
+    const parsed = validateRequest(fornecedorSchema, body)
+    if ("error" in parsed) return parsed.error
+    const data = parsed.data
 
     const novoFornecedor = await db
       .insert(fornecedores)
       .values({
-        nome: body.nome,
-        cnpj: body.cnpj || null,
-        razaoSocial: body.razaoSocial || null,
-        email: body.email || null,
-        telefone: body.telefone || null,
-        contato: body.contato || null,
-        endereco: body.endereco || null,
-        cidade: body.cidade || null,
-        uf: body.uf || null,
-        ativo: body.ativo ?? true,
-        idIntegracao: body.idIntegracao || null,
+        nome: data.nome,
+        cnpj: data.cnpj || null,
+        razaoSocial: data.razaoSocial || null,
+        email: data.email || null,
+        telefone: data.telefone || null,
+        contato: data.contato || null,
+        endereco: data.endereco || null,
+        cidade: data.cidade || null,
+        uf: data.uf || null,
+        ativo: data.ativo ?? true,
+        idIntegracao: data.idIntegracao || null,
       })
       .returning()
 

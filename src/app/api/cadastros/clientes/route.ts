@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { clientes } from "@/lib/db/schema/clientes"
 import { ilike, or, desc, eq } from "drizzle-orm"
+import { validateRequest, clienteSchema } from "@/lib/validation"
 
 export async function GET(req: NextRequest) {
   try {
@@ -48,26 +49,16 @@ export async function POST(req: NextRequest) {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
-    let body
-    try {
-      body = await req.json()
-    } catch {
-      body = {}
-    }
+    const body = await req.json()
+    const parsed = validateRequest(clienteSchema, body)
+    if ("error" in parsed) return parsed.error
 
-    const { nome, cnpj, razaoSocial, email, telefone, contato, endereco, cidade, uf, idIntegracao } = body
-
-    if (!nome?.trim()) {
-      return NextResponse.json({ error: "Nome é obrigatório" }, { status: 400 })
-    }
-    if (!cnpj?.trim()) {
-      return NextResponse.json({ error: "CNPJ é obrigatório" }, { status: 400 })
-    }
+    const { nome, cnpj, razaoSocial, email, telefone, contato, endereco, cidade, uf, idIntegracao } = parsed.data
 
     const existente = await db
       .select()
       .from(clientes)
-      .where(eq(clientes.cnpj, cnpj.trim()))
+      .where(eq(clientes.cnpj, cnpj))
       .limit(1)
 
     if (existente[0]) {
@@ -77,15 +68,15 @@ export async function POST(req: NextRequest) {
     const [novoCliente] = await db
       .insert(clientes)
       .values({
-        nome: nome.trim(),
-        cnpj: cnpj.trim(),
-        razaoSocial: razaoSocial?.trim() || null,
-        email: email?.trim() || null,
-        telefone: telefone?.trim() || null,
-        contato: contato?.trim() || null,
-        endereco: endereco?.trim() || null,
-        cidade: cidade?.trim() || null,
-        uf: uf?.trim() || null,
+        nome,
+        cnpj,
+        razaoSocial: razaoSocial || null,
+        email: email || null,
+        telefone: telefone || null,
+        contato: contato || null,
+        endereco: endereco || null,
+        cidade: cidade || null,
+        uf: uf || null,
         idIntegracao: idIntegracao || null,
       })
       .returning()

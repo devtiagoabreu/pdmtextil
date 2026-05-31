@@ -5,6 +5,7 @@ import { db } from "@/lib/db"
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq } from "drizzle-orm"
 import bcrypt from "bcryptjs"
+import { validateRequest, usuarioSchema } from "@/lib/validation"
 
 export async function GET() {
   try {
@@ -41,24 +42,24 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json()
-    if (!body.email || !body.name || !body.password) {
-      return NextResponse.json({ error: "Email, nome e senha são obrigatórios" }, { status: 400 })
-    }
+    const parsed = validateRequest(usuarioSchema, body)
+    if ("error" in parsed) return parsed.error
+    const { password, ...userData } = parsed.data
 
-    const existente = await db.select().from(usuarios).where(eq(usuarios.email, body.email)).limit(1)
+    const existente = await db.select().from(usuarios).where(eq(usuarios.email, userData.email)).limit(1)
     if (existente.length > 0) {
       return NextResponse.json({ error: "Email já cadastrado" }, { status: 400 })
     }
 
-    const passwordHash = await bcrypt.hash(body.password, 10)
+    const passwordHash = await bcrypt.hash(password, 10)
     const [novo] = await db
       .insert(usuarios)
       .values({
-        email: body.email,
-        name: body.name,
+        email: userData.email,
+        name: userData.name,
         password: passwordHash,
-        role: body.role || "COMERCIAL",
-        ativo: body.ativo ?? true,
+        role: userData.role,
+        ativo: true,
       })
       .returning()
 
