@@ -97,8 +97,9 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string; aid: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
+    const auth = await requireAuth()
+    if (auth instanceof NextResponse) return auth
+    const session = auth.session
     if (session.user.role !== "ADMIN" && session.user.role !== "SUDO") {
       return NextResponse.json({ error: "Apenas administradores podem excluir amostras" }, { status: 403 })
     }
