@@ -18,6 +18,14 @@ export function getUserId(session: { user?: { id?: string } } | null): number | 
   return id
 }
 
+export async function requireAuth() {
+  const session = await getServerSession(authOptions)
+  if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
+  const userId = parseInt(session.user.id)
+  if (isNaN(userId)) return NextResponse.json({ error: "Usuário inválido" }, { status: 401 })
+  return { session, userId }
+}
+
 export const authOptions: NextAuthOptions = {
   adapter: DrizzleAdapter(db) as any,
   providers: [
