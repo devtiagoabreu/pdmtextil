@@ -1,3 +1,4 @@
+import type { InfoContent } from "./types"
 export type { InfoContent } from "./types"
 
 import { dashboardContent } from "./dashboard"
