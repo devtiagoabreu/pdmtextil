@@ -37,26 +37,25 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const parsed = validateRequest(fioSchema, body)
     if ("error" in parsed) return parsed.error
-    const data = parsed.data
 
     const novoFio = await db
       .insert(fios)
       .values({
-        codigoCompleto: data.codigoCompleto,
-        codigoFio: data.codigoFio,
-        nome: data.nome,
-        nomeComercial: data.nomeComercial || null,
-        composicao: data.composicao || null,
-        titulo: data.titulo || null,
-        titulagemReal: data.titulagemReal || null,
-        ncm: data.ncm || null,
-        torcao: data.torcao || null,
-        resistencia: data.resistencia || null,
-        alongamento: data.alongamento || null,
-        links: data.links || null,
-        observacoes: data.observacoes || null,
-        ativo: data.ativo === true,
-        idIntegracao: data.idIntegracao || null,
+        codigoCompleto: body.codigoCompleto,
+        codigoFio: body.codigoFio,
+        nome: body.nome,
+        nomeComercial: body.nomeComercial || null,
+        composicao: body.composicao || null,
+        titulo: body.titulo || null,
+        titulagemReal: body.titulagemReal || null,
+        ncm: body.ncm || null,
+        torcao: body.torcao || null,
+        resistencia: body.resistencia || null,
+        alongamento: body.alongamento || null,
+        links: body.links || null,
+        observacoes: body.observacoes || null,
+        ativo: body.ativo === true,
+        idIntegracao: body.idIntegracao || null,
         criadoPor: userIdResult,
       })
       .returning()
