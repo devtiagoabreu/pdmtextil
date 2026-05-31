@@ -6,8 +6,7 @@ import { sql } from "drizzle-orm"
 
 async function query(sqlFragment: ReturnType<typeof sql>, fallback: any = null) {
   try {
-    const result = await db.execute(sqlFragment)
-    return result
+    return await db.execute(sqlFragment)
   } catch (e) {
     console.error("[DB]", e)
     return fallback
@@ -19,94 +18,77 @@ export async function GET() {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
+    const [
+      monthlyRaw,
+      statusRaw,
+      tipoRaw,
+      pcRaw,
+    ] = await Promise.all([
+      query(sql`
+        SELECT
+          to_char(created_at, 'YYYY-MM') AS mes,
+          status,
+          COUNT(*)::int AS total
+        FROM solicitacoes
+        WHERE created_at >= date_trunc('month', now()) - INTERVAL '5 months'
+        GROUP BY to_char(created_at, 'YYYY-MM'), status
+        ORDER BY mes
+      `, []),
+      query(sql`
+        SELECT status, COUNT(*)::int AS total
+        FROM solicitacoes GROUP BY status
+      `, []),
+      query(sql`
+        SELECT tipo, COUNT(*)::int AS total
+        FROM solicitacoes GROUP BY tipo
+      `, []),
+      query(sql`SELECT COUNT(*)::int AS total FROM produtos_cru`, []),
+    ])
+
+    const monthlyRows = Array.isArray(monthlyRaw) ? monthlyRaw : []
+    const statusRows = Array.isArray(statusRaw) ? statusRaw : []
+    const tipoRows = Array.isArray(tipoRaw) ? tipoRaw : []
+    const pcRows = Array.isArray(pcRaw) ? pcRaw : []
+
     const now = new Date()
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
-    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59).toISOString()
+    const currentMonth = now.toLocaleDateString("pt-BR", { month: "short", year: "2-digit" })
 
-    // Total do mês
-    const totalRows = await query(sql`
-      SELECT COUNT(*) as total FROM solicitacoes
-      WHERE created_at >= ${startOfMonth}::timestamp
-      AND created_at <= ${endOfMonth}::timestamp
-    `)
-    const total = Array.isArray(totalRows) ? Number(totalRows[0]?.total ?? 0) : 0
-
-    // Pendentes no mês
-    const pendRows = await query(sql`
-      SELECT COUNT(*) as total FROM solicitacoes
-      WHERE created_at >= ${startOfMonth}::timestamp
-      AND created_at <= ${endOfMonth}::timestamp
-      AND status = 'PENDENTE'
-    `)
-    const pendentes = Array.isArray(pendRows) ? Number(pendRows[0]?.total ?? 0) : 0
-
-    // Em desenvolvimento no mês
-    const devRows = await query(sql`
-      SELECT COUNT(*) as total FROM solicitacoes
-      WHERE created_at >= ${startOfMonth}::timestamp
-      AND created_at <= ${endOfMonth}::timestamp
-      AND status = 'EM_DESENVOLVIMENTO'
-    `)
-    const emDesenvolvimento = Array.isArray(devRows) ? Number(devRows[0]?.total ?? 0) : 0
-
-    // Concluídas no mês
-    const concRows = await query(sql`
-      SELECT COUNT(*) as total FROM solicitacoes
-      WHERE created_at >= ${startOfMonth}::timestamp
-      AND created_at <= ${endOfMonth}::timestamp
-      AND status = 'CONCLUIDO'
-    `)
-    const concluidas = Array.isArray(concRows) ? Number(concRows[0]?.total ?? 0) : 0
-
-    // Monthly trend (last 6 months)
-    const trendData: { mes: string; total: number }[] = []
-    for (let i = 5; i >= 0; i--) {
-      const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
-      const start = new Date(d.getFullYear(), d.getMonth(), 1).toISOString()
-      const end = new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59).toISOString()
-      const trendRows = await query(sql`
-        SELECT COUNT(*) as total FROM solicitacoes
-        WHERE created_at >= ${start}::timestamp
-        AND created_at <= ${end}::timestamp
-      `)
-      trendData.push({
-        mes: d.toLocaleDateString("pt-BR", { month: "short", year: "2-digit" }),
-        total: Array.isArray(trendRows) ? Number(trendRows[0]?.total ?? 0) : 0,
-      })
+    const monthMap = new Map<string, { pendentes: number; emDesenvolvimento: number; concluidas: number; total: number }>()
+    for (const r of monthlyRows) {
+      if (!monthMap.has(r.mes)) monthMap.set(r.mes, { pendentes: 0, emDesenvolvimento: 0, concluidas: 0, total: 0 })
+      const entry = monthMap.get(r.mes)!
+      const t = Number(r.total)
+      entry.total += t
+      if (r.status === "PENDENTE") entry.pendentes += t
+      else if (r.status === "EM_DESENVOLVIMENTO") entry.emDesenvolvimento += t
+      else if (r.status === "CONCLUIDO") entry.concluidas += t
     }
 
-    // Status distribution (all time)
-    const sdRows = await query(sql`
-      SELECT status, COUNT(*) as total
-      FROM solicitacoes
-      GROUP BY status
-    `)
-    const statusDistribution = Array.isArray(sdRows)
-      ? sdRows.map((r: any) => ({ status: r.status, total: Number(r.total) }))
-      : []
+    const trendData: { mes: string; total: number }[] = []
+    let totalEsteMes = 0, pendentes = 0, emDesenvolvimento = 0, concluidas = 0
 
-    // Tipo distribution (all time)
-    const tdRows = await query(sql`
-      SELECT tipo, COUNT(*) as total
-      FROM solicitacoes
-      GROUP BY tipo
-    `)
-    const tipoDistribution = Array.isArray(tdRows)
-      ? tdRows.map((r: any) => ({ tipo: r.tipo, total: Number(r.total) }))
-      : []
+    for (const [mes, entry] of monthMap) {
+      const d = new Date(mes + "-01")
+      const label = d.toLocaleDateString("pt-BR", { month: "short", year: "2-digit" })
+      trendData.push({ mes: label, total: entry.total })
+      if (label === currentMonth) {
+        totalEsteMes = entry.total
+        pendentes = entry.pendentes
+        emDesenvolvimento = entry.emDesenvolvimento
+        concluidas = entry.concluidas
+      }
+    }
 
-    // Produto-cru count
-    const pcRows = await query(sql`SELECT COUNT(*) as total FROM produtos_cru`)
-    const totalProdutosCru = Array.isArray(pcRows) ? Number(pcRows[0]?.total ?? 0) : 0
+    const totalProdutosCru = pcRows.length > 0 ? Number(pcRows[0].total) : 0
 
     return NextResponse.json({
-      totalEsteMes: total,
+      totalEsteMes,
       pendentes,
       emDesenvolvimento,
       concluidas,
       monthlyTrend: trendData,
-      statusDistribution,
-      tipoDistribution,
+      statusDistribution: statusRows.map((r: any) => ({ status: r.status, total: Number(r.total) })),
+      tipoDistribution: tipoRows.map((r: any) => ({ tipo: r.tipo, total: Number(r.total) })),
       totalProdutosCru,
     })
   } catch (error) {
