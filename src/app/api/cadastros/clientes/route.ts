@@ -1,10 +1,15 @@
 import { NextRequest, NextResponse } from "next/server"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { clientes } from "@/lib/db/schema/clientes"
 import { ilike, or, desc, eq } from "drizzle-orm"
 
 export async function GET(req: NextRequest) {
   try {
+    const session = await getServerSession(authOptions)
+    if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
+
     const { searchParams } = new URL(req.url)
     const q = searchParams.get("q")?.trim() || ""
 
@@ -40,6 +45,9 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const session = await getServerSession(authOptions)
+    if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
+
     let body
     try {
       body = await req.json()
