@@ -18,65 +18,63 @@ export async function GET() {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
-    const now = new Date()
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
-    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59).toISOString()
+    const [
+      statusRaw,
+      itensRaw,
+      trendRaw,
+    ] = await Promise.all([
+      q(sql`
+        SELECT status, COUNT(*)::int AS total
+        FROM requisicoes_corte GROUP BY status
+      `, []),
+      q(sql`
+        SELECT
+          COUNT(*)::int AS total_cortes,
+          COALESCE(SUM(NULLIF(REGEXP_REPLACE(COALESCE(quantidade,'0'), '[^0-9\\.]', '', 'g'), '')::numeric), 0) AS total_itens
+        FROM requisicoes_corte_itens
+      `, []),
+      q(sql`
+        SELECT
+          to_char(created_at, 'YYYY-MM') AS mes,
+          COUNT(*)::int AS total
+        FROM requisicoes_corte
+        WHERE created_at >= date_trunc('month', now()) - INTERVAL '5 months'
+        GROUP BY to_char(created_at, 'YYYY-MM')
+        ORDER BY mes
+      `, []),
+    ])
 
-    const totalRows = await q(sql`SELECT COUNT(*) as total FROM requisicoes_corte`)
-    const totalGeral = Array.isArray(totalRows) ? Number(totalRows[0]?.total ?? 0) : 0
+    const statusRows = Array.isArray(statusRaw) ? statusRaw : []
+    const itensRows = Array.isArray(itensRaw) && itensRaw.length > 0 ? itensRaw[0] : null
+    const trendRows = Array.isArray(trendRaw) ? trendRaw : []
 
-    const solicitRows = await q(sql`SELECT COUNT(*) as total FROM requisicoes_corte WHERE status = 'SOLICITADO'`)
-    const solicitados = Array.isArray(solicitRows) ? Number(solicitRows[0]?.total ?? 0) : 0
-
-    const procRows = await q(sql`SELECT COUNT(*) as total FROM requisicoes_corte WHERE status = 'PROCESSANDO'`)
-    const processando = Array.isArray(procRows) ? Number(procRows[0]?.total ?? 0) : 0
-
-    const atendRows = await q(sql`SELECT COUNT(*) as total FROM requisicoes_corte WHERE status = 'ATENDIDO'`)
-    const atendidos = Array.isArray(atendRows) ? Number(atendRows[0]?.total ?? 0) : 0
-
-    const itensRows = await q(sql`SELECT COALESCE(SUM(NULLIF(REGEXP_REPLACE(COALESCE(quantidade,'0'), '[^0-9\\.]', '', 'g'), '')::numeric), 0) as total FROM requisicoes_corte_itens`)
-    const totalItens = Array.isArray(itensRows) ? Number(itensRows[0]?.total ?? 0) : 0
-
-    const cortesRows = await q(sql`SELECT COUNT(*) as total FROM requisicoes_corte_itens`)
-    const totalCortes = Array.isArray(cortesRows) ? Number(cortesRows[0]?.total ?? 0) : 0
-
-    const mesRows = await q(sql`
-      SELECT COUNT(*) as total FROM requisicoes_corte
-      WHERE created_at >= ${startOfMonth}::timestamp AND created_at <= ${endOfMonth}::timestamp
-    `)
-    const totalEsteMes = Array.isArray(mesRows) ? Number(mesRows[0]?.total ?? 0) : 0
-
-    const statusDistRows = await q(sql`
-      SELECT status, COUNT(*) as total FROM requisicoes_corte GROUP BY status
-    `)
-    const statusDistribution = Array.isArray(statusDistRows)
-      ? statusDistRows.map((r: any) => ({ status: r.status, total: Number(r.total) }))
-      : []
-
-    const trendData: { mes: string; total: number }[] = []
-    for (let i = 5; i >= 0; i--) {
-      const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
-      const start = new Date(d.getFullYear(), d.getMonth(), 1).toISOString()
-      const end = new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59).toISOString()
-      const trendRows = await q(sql`
-        SELECT COUNT(*) as total FROM requisicoes_corte
-        WHERE created_at >= ${start}::timestamp AND created_at <= ${end}::timestamp
-      `)
-      trendData.push({
-        mes: d.toLocaleDateString("pt-BR", { month: "short", year: "2-digit" }),
-        total: Array.isArray(trendRows) ? Number(trendRows[0]?.total ?? 0) : 0,
-      })
+    const getStatusCount = (status: string) => {
+      const r = statusRows.find((x: any) => x.status === status)
+      return r ? Number(r.total) : 0
     }
+
+    const totalGeral = statusRows.reduce((acc: number, r: any) => acc + Number(r.total), 0)
+
+    const trendData = trendRows.map((r: any) => {
+      const d = new Date(r.mes + "-01")
+      return {
+        mes: d.toLocaleDateString("pt-BR", { month: "short", year: "2-digit" }),
+        total: Number(r.total),
+      }
+    })
+
+    const lastMonth = trendRows.length > 0 ? trendRows[trendRows.length - 1] : null
+    const totalEsteMes = lastMonth ? Number(lastMonth.total) : 0
 
     return NextResponse.json({
       totalGeral,
-      solicitados,
-      processando,
-      atendidos,
-      totalItens,
-      totalCortes,
+      solicitados: getStatusCount("SOLICITADO"),
+      processando: getStatusCount("PROCESSANDO"),
+      atendidos: getStatusCount("ATENDIDO"),
+      totalItens: itensRows ? Number(itensRows.total_itens) : 0,
+      totalCortes: itensRows ? Number(itensRows.total_cortes) : 0,
       totalEsteMes,
-      statusDistribution,
+      statusDistribution: statusRows.map((r: any) => ({ status: r.status, total: Number(r.total) })),
       monthlyTrend: trendData,
     })
   } catch (error) {
