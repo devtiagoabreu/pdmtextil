@@ -45,10 +45,18 @@ export async function GET(
         ? db.select().from(produtoCruAcabamentoReceita).where(inArray(produtoCruAcabamentoReceita.acabamentoId, acabamentoIds))
         : Promise.resolve([]),
     ])
-    const amostrasPorAcab = new Map(todasAmostrasAcab.map(a => [a.acabamentoId, []]))
-    for (const a of todasAmostrasAcab) amostrasPorAcab.get(a.acabamentoId)!.push(a)
-    const receitasPorAcab = new Map(todasReceitas.map(r => [r.acabamentoId, []]))
-    for (const r of todasReceitas) receitasPorAcab.get(r.acabamentoId)!.push(r)
+    type AcabAmostra = (typeof todasAmostrasAcab)[number]
+    type AcabReceita = (typeof todasReceitas)[number]
+    const amostrasPorAcab = new Map<number, AcabAmostra[]>()
+    for (const a of todasAmostrasAcab) {
+      if (!amostrasPorAcab.has(a.acabamentoId)) amostrasPorAcab.set(a.acabamentoId, [])
+      amostrasPorAcab.get(a.acabamentoId)!.push(a)
+    }
+    const receitasPorAcab = new Map<number, AcabReceita[]>()
+    for (const r of todasReceitas) {
+      if (!receitasPorAcab.has(r.acabamentoId)) receitasPorAcab.set(r.acabamentoId, [])
+      receitasPorAcab.get(r.acabamentoId)!.push(r)
+    }
 
     const acabamentosCompletos = acabamentos.map(acab => ({
       ...acab,
