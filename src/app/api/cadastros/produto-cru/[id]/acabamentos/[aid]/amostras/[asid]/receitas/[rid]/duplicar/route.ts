@@ -22,40 +22,44 @@ export async function POST(
     const [original] = await db.select().from(receitas).where(eq(receitas.id, receitaId)).limit(1)
     if (!original) return NextResponse.json({ error: "Receita não encontrada" }, { status: 404 })
 
-    const originalId = original.receitaOriginalId || original.id
+    const resultado = await db.transaction(async (tx) => {
+      const originalId = original.receitaOriginalId || original.id
 
-    const maxVersao = await db.select({ max: receitas.versao })
-      .from(receitas)
-      .where(eq(receitas.receitaOriginalId, originalId))
-      .limit(1)
+      const maxVersao = await tx.select({ max: receitas.versao })
+        .from(receitas)
+        .where(eq(receitas.receitaOriginalId, originalId))
+        .limit(1)
 
-    const ultimaVersao = maxVersao[0]?.max || 1
+      const ultimaVersao = maxVersao[0]?.max || 1
 
-    const [nova] = await db.insert(receitas).values({
-      amostraId: parseInt(asid),
-      descricao: original.descricao,
-      instrucoes: original.instrucoes,
-      versao: ultimaVersao + 1,
-      receitaOriginalId: originalId,
-    }).returning()
+      const [nova] = await tx.insert(receitas).values({
+        amostraId: parseInt(asid),
+        descricao: original.descricao,
+        instrucoes: original.instrucoes,
+        versao: ultimaVersao + 1,
+        receitaOriginalId: originalId,
+      }).returning()
 
-    const itensOriginais = await db.select().from(receitaItens).where(eq(receitaItens.receitaId, receitaId))
+      const itensOriginais = await tx.select().from(receitaItens).where(eq(receitaItens.receitaId, receitaId))
 
-    if (itensOriginais.length > 0) {
-      await db.insert(receitaItens).values(
-        itensOriginais.map(item => ({
-          receitaId: nova.id,
-          quimicoId: item.quimicoId,
-          descricao: item.descricao,
-          unidade: item.unidade,
-          quantidadeMetro: item.quantidadeMetro,
-          estagio: item.estagio,
-          ordem: item.ordem,
-        }))
-      )
-    }
+      if (itensOriginais.length > 0) {
+        await tx.insert(receitaItens).values(
+          itensOriginais.map(item => ({
+            receitaId: nova.id,
+            quimicoId: item.quimicoId,
+            descricao: item.descricao,
+            unidade: item.unidade,
+            quantidadeMetro: item.quantidadeMetro,
+            estagio: item.estagio,
+            ordem: item.ordem,
+          }))
+        )
+      }
 
-    return NextResponse.json(nova, { status: 201 })
+      return nova
+    })
+
+    return NextResponse.json(resultado, { status: 201 })
   } catch (error) {
     console.error("[POST duplicar]", error)
     return NextResponse.json({ error: "Erro ao duplicar" }, { status: 500 })

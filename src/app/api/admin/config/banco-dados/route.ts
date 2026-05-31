@@ -52,17 +52,18 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: "id é obrigatório" }, { status: 400 })
     }
 
-    // Se estiver ativando este, desativa todos os outros
-    if (ativo) {
-      await db.update(bancosDados).set({ ativo: false })
-    }
+    await db.transaction(async (tx) => {
+      if (ativo) {
+        await tx.update(bancosDados).set({ ativo: false })
+      }
 
-    const updateData: Record<string, unknown> = { updatedAt: new Date() }
-    if (nome !== undefined) updateData.nome = nome
-    if (connectionString !== undefined) updateData.connectionString = connectionString
-    if (ativo !== undefined) updateData.ativo = ativo
+      const updateData: Record<string, unknown> = { updatedAt: new Date() }
+      if (nome !== undefined) updateData.nome = nome
+      if (connectionString !== undefined) updateData.connectionString = connectionString
+      if (ativo !== undefined) updateData.ativo = ativo
 
-    await db.update(bancosDados).set(updateData).where(eq(bancosDados.id, id))
+      await tx.update(bancosDados).set(updateData).where(eq(bancosDados.id, id))
+    })
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error("[PUT /api/admin/config/banco-dados]", error)
