@@ -95,7 +95,7 @@ export async function POST(req: NextRequest) {
     const { table, uniqueFields } = config
 
     // Apply field mapping and normalize
-    const mapped = items.map((item: Record<string, any>) => {
+    const mapped: Record<string, any>[] = items.map((item: Record<string, any>) => {
       const row: Record<string, any> = { idIntegracao: String(integracaoId) }
       for (const [apiField, pdmField] of Object.entries(fieldMapping)) {
         if (item[apiField] !== undefined && item[apiField] !== null) {
@@ -122,7 +122,7 @@ export async function POST(req: NextRequest) {
       existingRecords = new Set(existing.map((r: any) => String(r[pdmUniqueKey])))
     }
 
-    const toInsert = mapped.filter(m => {
+    const toInsert = mapped.filter((m: Record<string, any>) => {
       const val = String(m[pdmUniqueKey] ?? "")
       return !existingRecords.has(val)
     })
