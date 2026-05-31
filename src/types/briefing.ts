@@ -87,6 +87,80 @@ export const TIPOS_ACABAMENTO = [
   "OUTROS",
 ] as const;
 
+export const SEGMENTOS_LABELS: Record<string, string> = {
+  UNIFORME_CORPORATIVO: "Uniforme Corporativo",
+  LENCOL_HOSPITALAR: "Lençol Hospitalar",
+  LENCOL_CAMA_RESIDENCIAL: "Lençol de Cama Residencial",
+  ROUPA_INTIMA: "Roupa Íntima",
+  ROUPA_BANHO: "Roupa de Banho",
+  ROUPA_MODA: "Roupa Moda",
+  CALCADO: "Calçado",
+  LINHA_MESA: "Linha de Mesa",
+  COLCHAO: "Colchão",
+  FORRO_MODA: "Forro de Moda",
+  ESTOFADO_MOVEIS: "Estofado de Móveis",
+  CORTINA: "Cortina",
+  BAG: "Bag / Bolsas",
+  ACESSORIOS: "Acessórios",
+  DECORACAO: "Decoração",
+  INDUSTRIAL: "Industrial",
+  OUTROS: "Outros",
+}
+
+export const TECNOLOGIAS_LABELS: Record<string, string> = {
+  ANTIBACTERIANO: "Antibacteriano",
+  ANTIFLAMAS: "Antiflamas",
+  ANTIODOR: "Antiodor",
+  ANTI_PILLING: "Anti-pilling",
+  PROTECAO_UV: "Proteção UV",
+  RESPIRABILIDADE: "Respirabilidade",
+  SECAGEM_RAPIDA: "Secagem Rápida",
+  TERMOREGULACAO: "Termorregulação",
+  IMPERMEAVEL: "Impermeável",
+  RESISTENTE_ABRASÃO: "Resistente à Abrasão",
+  SOFT_TOUCH: "Soft Touch",
+  HYDRARE: "HydraRe",
+  OUTROS: "Outros",
+}
+
+export const LIGAMENTO_LABELS: Record<string, string> = {
+  TAFETAN: "Taftan",
+  SARJA: "Sarja",
+  RIBANA: "Ribana",
+  CETIM: "Cetim",
+  OXFORD: "Oxford",
+  DOBRADINHA: "Dobradinha",
+  MALHA: "Malha",
+  OUTROS: "Outros",
+}
+
+export const TIPOS_ACABAMENTO_LABELS: Record<string, string> = {
+  SANFORIZADO: "Sanforizado",
+  MERCERIZADO: "Mercerizado",
+  RESINADO: "Resinado",
+  AMACIADO: "Amaciado",
+  ESFOLHADO: "Esfoliado",
+  BRILHO: "Brilho",
+  FOSCO: "Fosco",
+  TEXTURIZADO: "Texturizado",
+  ESTAMPADO: "Estampado",
+  TINGIDO: "Tingido",
+  OUTROS: "Outros",
+}
+
+export const TIPO_FIBRA_LABELS: Record<string, string> = {
+  POLIESTER: "Poliéster",
+  ALGODAO: "Algodão",
+  LINHO: "Linho",
+  VISCOSE: "Viscose",
+  MODAL: "Modal",
+  ACRILICO: "Acrílico",
+  NYLON: "Nylon",
+  LINHA_RECICLADA: "Linha Reciclada",
+  ORGANICO: "Orgânico",
+  OUTROS: "Outros",
+}
+
 export const briefingTecelagemSchema = z.object({
   produtoBase: z.string().optional(),
   codProduto: z.string().optional(),
