@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions, getUserId } from "@/lib/auth"
+import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { produtoCruAcabamento, produtoCruAcabamentoAmostra } from "@/lib/db/schema/produto-cru"
 import { eq } from "drizzle-orm"
@@ -11,9 +10,9 @@ export async function GET(
   { params }: { params: Promise<{ id: string; aid: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
-
+    const auth = await requireAuth()
+    if (auth instanceof NextResponse) return auth
+    const { session } = auth
     const { id, aid } = await params
 
     const [acabamento] = await db
@@ -39,11 +38,10 @@ export async function POST(
   { params }: { params: Promise<{ id: string; aid: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
-
-    const userIdResult = getUserId(session)
-    if (userIdResult instanceof NextResponse) return userIdResult
+    const auth = await requireAuth()
+    if (auth instanceof NextResponse) return auth
+    const session = auth.session
+    const userIdResult = auth.userId
 
     const { id, aid } = await params
 

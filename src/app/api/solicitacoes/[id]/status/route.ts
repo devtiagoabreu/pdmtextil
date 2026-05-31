@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions, getUserId } from "@/lib/auth"
+import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { solicitacoes } from "@/lib/db/schema/solicitacoes"
 import { eq } from "drizzle-orm"
@@ -22,11 +21,10 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
-
-    const userIdResult = getUserId(session)
-    if (userIdResult instanceof NextResponse) return userIdResult
+    const auth = await requireAuth()
+    if (auth instanceof NextResponse) return auth
+    const session = auth.session
+    const userIdResult = auth.userId
 
     const id = parseInt(params.id)
     if (isNaN(id)) return NextResponse.json({ error: "ID inválido" }, { status: 400 })

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions, getUserId } from "@/lib/auth"
+import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { solicitacoes } from "@/lib/db/schema/solicitacoes"
 import { anexos } from "@/lib/db/schema/anexos"
@@ -12,9 +11,9 @@ import { notificar, registrarLog } from "@/lib/notificar"
 // GET - Listar solicitações (filtradas por perfil)
 export async function GET(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
-
+    const auth = await requireAuth()
+    if (auth instanceof NextResponse) return auth
+    const { session } = auth
     const { searchParams } = new URL(req.url)
     const status = searchParams.get("status")
     const tipo = searchParams.get("tipo")
@@ -57,8 +56,10 @@ export async function GET(req: NextRequest) {
 // POST - Criar nova solicitação
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
+    const auth = await requireAuth()
+    if (auth instanceof NextResponse) return auth
+    const session = auth.session
+    const userId = auth.userId
 
     const body = await req.json()
     console.log("=== POST /api/solicitacoes ===", JSON.stringify(body, null, 2))
@@ -74,10 +75,6 @@ export async function POST(req: NextRequest) {
 
     // Sanitiza CNPJ: remove tudo que não for letra ou número
     const cnpj = solicitacaoData.cnpj ? solicitacaoData.cnpj.replace(/[^a-zA-Z0-9]/g, "") : null
-
-    const userIdResult = getUserId(session)
-    if (userIdResult instanceof NextResponse) return userIdResult
-    const userId = userIdResult
 
     const historico = [
       {

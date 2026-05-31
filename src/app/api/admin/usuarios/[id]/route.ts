@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions, getUserId } from "@/lib/auth"
+import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq } from "drizzle-orm"
@@ -13,8 +12,10 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUDO")) {
+    const auth = await requireAuth()
+    if (auth instanceof NextResponse) return auth
+    const session = auth.session
+    if (session.user.role !== "ADMIN" && session.user.role !== "SUDO") {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
@@ -46,8 +47,10 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUDO")) {
+    const auth = await requireAuth()
+    if (auth instanceof NextResponse) return auth
+    const session = auth.session
+    if (session.user.role !== "ADMIN" && session.user.role !== "SUDO") {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
@@ -84,13 +87,13 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUDO")) {
+    const auth = await requireAuth()
+    if (auth instanceof NextResponse) return auth
+    const session = auth.session
+    if (session.user.role !== "ADMIN" && session.user.role !== "SUDO") {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
-
-    const userIdResult = getUserId(session)
-    if (userIdResult instanceof NextResponse) return userIdResult
+    const userIdResult = auth.userId
 
     const { id } = await params
     const userId = parseInt(id)

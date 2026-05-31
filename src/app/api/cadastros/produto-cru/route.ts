@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions, getUserId } from "@/lib/auth"
+import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { produtosCru } from "@/lib/db/schema/produto-cru"
 import { solicitacoes } from "@/lib/db/schema/solicitacoes"
@@ -9,9 +8,9 @@ import { notificar, registrarLog } from "@/lib/notificar"
 
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
-
+    const auth = await requireAuth()
+    if (auth instanceof NextResponse) return auth
+    const { session } = auth
     const lista = await db
       .select()
       .from(produtosCru)
@@ -26,11 +25,10 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
-
-    const userIdResult = getUserId(session)
-    if (userIdResult instanceof NextResponse) return userIdResult
+    const auth = await requireAuth()
+    if (auth instanceof NextResponse) return auth
+    const session = auth.session
+    const userIdResult = auth.userId
 
     const body = await req.json()
 

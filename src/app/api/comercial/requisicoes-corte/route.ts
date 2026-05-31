@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions, getUserId } from "@/lib/auth"
+import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { requisicoesCorte, requisicoesCorteItens } from "@/lib/db/schema"
 import { usuarios } from "@/lib/db/schema/usuarios"
@@ -9,9 +8,9 @@ import { notificar, registrarLog } from "@/lib/notificar"
 
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
-
+    const auth = await requireAuth()
+    if (auth instanceof NextResponse) return auth
+    const { session } = auth
     const lista = await db
       .select({
         id: requisicoesCorte.id,
@@ -40,8 +39,10 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
+    const auth = await requireAuth()
+    if (auth instanceof NextResponse) return auth
+    const session = auth.session
+    const userId = auth.userId
 
     const body = await req.json()
     const { itens, observacoes, entreguePor } = body
@@ -49,10 +50,6 @@ export async function POST(req: NextRequest) {
     if (!itens || !Array.isArray(itens) || itens.length === 0) {
       return NextResponse.json({ error: "Adicione pelo menos um item à requisição" }, { status: 400 })
     }
-
-    const userIdResult = getUserId(session)
-    if (userIdResult instanceof NextResponse) return userIdResult
-    const userId = userIdResult
 
     const [novaRequisicao] = await db
       .insert(requisicoesCorte)

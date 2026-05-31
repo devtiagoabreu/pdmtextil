@@ -1,18 +1,14 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions, getUserId } from "@/lib/auth"
+import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { notificacoes } from "@/lib/db/schema/notificacoes"
 import { eq, and, desc } from "drizzle-orm"
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
-
-    const userIdResult = getUserId(session)
-    if (userIdResult instanceof NextResponse) return userIdResult
-    const userId = userIdResult
+    const auth = await requireAuth()
+    if (auth instanceof NextResponse) return auth
+    const { session, userId } = auth
     const { searchParams } = new URL(req.url)
     const apenasNaoLidas = searchParams.get("naoLidas") === "true"
     const limit = parseInt(searchParams.get("limit") || "50")
@@ -36,12 +32,9 @@ export async function GET(req: NextRequest) {
 
 export async function PUT(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
-
-    const userIdResult = getUserId(session)
-    if (userIdResult instanceof NextResponse) return userIdResult
-    const userId = userIdResult
+    const auth = await requireAuth()
+    if (auth instanceof NextResponse) return auth
+    const { session, userId } = auth
     const body = await req.json()
 
     if (body.marcarTodas) {
