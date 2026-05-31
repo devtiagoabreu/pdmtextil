@@ -24,10 +24,10 @@ export async function GET(req: NextRequest) {
     const dataFim = url.searchParams.get("dataFim")
 
     function filtro(col = "created_at") {
-      const parts = ["TRUE"]
-      if (dataInicio) parts.push(`${col} >= '${dataInicio.replace(/'/g, "''")}'::timestamp`)
-      if (dataFim) parts.push(`${col} <= '${dataFim.replace(/'/g, "''")}'::timestamp`)
-      return sql.raw(parts.join(" AND "))
+      let f = sql`TRUE`
+      if (dataInicio) f = sql`${f} AND ${sql.identifier(col)} >= ${dataInicio}::timestamp`
+      if (dataFim) f = sql`${f} AND ${sql.identifier(col)} <= ${dataFim}::timestamp`
+      return f
     }
 
     const fc = filtro()

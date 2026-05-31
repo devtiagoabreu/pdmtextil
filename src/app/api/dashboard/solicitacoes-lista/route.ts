@@ -32,17 +32,17 @@ export async function GET(req: NextRequest) {
       return NextResponse.json(lista)
     }
 
-    let whereStatus = ""
-    if (filtro === "pendentes") whereStatus = "AND status = 'PENDENTE'"
-    else if (filtro === "em-desenvolvimento") whereStatus = "AND status = 'EM_DESENVOLVIMENTO'"
-    else if (filtro === "concluidas") whereStatus = "AND status = 'CONCLUIDO'"
+    let condition = sql``
+    if (filtro === "pendentes") condition = sql`AND status = 'PENDENTE'`
+    else if (filtro === "em-desenvolvimento") condition = sql`AND status = 'EM_DESENVOLVIMENTO'`
+    else if (filtro === "concluidas") condition = sql`AND status = 'CONCLUIDO'`
 
     const rows = await db.execute(sql`
       SELECT id, tipo, cliente, projeto, status, created_at
       FROM solicitacoes
       WHERE created_at >= ${startOfMonth}::timestamp
         AND created_at <= ${endOfMonth}::timestamp
-        ${sql.raw(whereStatus)}
+        ${condition}
       ORDER BY created_at DESC
     `)
 

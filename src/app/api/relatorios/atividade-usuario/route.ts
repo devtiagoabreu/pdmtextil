@@ -26,19 +26,19 @@ export async function GET(req: NextRequest) {
     const tipoFiltro = url.searchParams.get("tipo")
 
     function filtro(col = "created_at") {
-      const parts = ["TRUE"]
-      if (dataInicio) parts.push(`${col} >= '${dataInicio.replace(/'/g, "''")}'::timestamp`)
-      if (dataFim) parts.push(`${col} <= '${dataFim.replace(/'/g, "''")}'::timestamp`)
-      return sql.raw(parts.join(" AND "))
+      let f = sql`TRUE`
+      if (dataInicio) f = sql`${f} AND ${sql.identifier(col)} >= ${dataInicio}::timestamp`
+      if (dataFim) f = sql`${f} AND ${sql.identifier(col)} <= ${dataFim}::timestamp`
+      return f
     }
 
     const f = filtro()
 
     const condUsuario = usuarioFiltro
-      ? sql`AND ${sql.raw(`usuario_nome ILIKE '%${usuarioFiltro.replace(/'/g, "''")}%'`)}`
+      ? sql`AND usuario_nome ILIKE ${"%" + usuarioFiltro + "%"}`
       : sql``
     const condTipo = tipoFiltro
-      ? sql`AND tipo = ${sql.raw(`'${tipoFiltro.replace(/'/g, "''")}'`)}`
+      ? sql`AND tipo = ${tipoFiltro}`
       : sql``
 
     const agregado = (await rows(sql`
