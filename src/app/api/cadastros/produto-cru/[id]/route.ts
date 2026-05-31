@@ -12,7 +12,7 @@ import {
   produtoCruAcabamentoReceita,
 } from "@/lib/db/schema/produto-cru"
 import { solicitacoes } from "@/lib/db/schema/solicitacoes"
-import { eq, and } from "drizzle-orm"
+import { eq, inArray } from "drizzle-orm"
 import { notificar, notificarDelecao, registrarLog } from "@/lib/notificar"
 import { handleApiError } from "@/lib/api-error"
 
@@ -36,19 +36,25 @@ export async function GET(
     const amostras = await db.select().from(produtoCruAmostra).where(eq(produtoCruAmostra.produtoCruId, id))
     const acabamentos = await db.select().from(produtoCruAcabamento).where(eq(produtoCruAcabamento.produtoCruId, id))
 
-    const acabamentosCompletos = await Promise.all(
-      acabamentos.map(async (acab) => {
-        const amostrasAcab = await db
-          .select()
-          .from(produtoCruAcabamentoAmostra)
-          .where(eq(produtoCruAcabamentoAmostra.acabamentoId, acab.id))
-        const receitas = await db
-          .select()
-          .from(produtoCruAcabamentoReceita)
-          .where(eq(produtoCruAcabamentoReceita.acabamentoId, acab.id))
-        return { ...acab, amostras: amostrasAcab, receitas }
-      })
-    )
+    const acabamentoIds = acabamentos.map(a => a.id)
+    const [todasAmostrasAcab, todasReceitas] = await Promise.all([
+      acabamentoIds.length
+        ? db.select().from(produtoCruAcabamentoAmostra).where(inArray(produtoCruAcabamentoAmostra.acabamentoId, acabamentoIds))
+        : Promise.resolve([]),
+      acabamentoIds.length
+        ? db.select().from(produtoCruAcabamentoReceita).where(inArray(produtoCruAcabamentoReceita.acabamentoId, acabamentoIds))
+        : Promise.resolve([]),
+    ])
+    const amostrasPorAcab = new Map(todasAmostrasAcab.map(a => [a.acabamentoId, []]))
+    for (const a of todasAmostrasAcab) amostrasPorAcab.get(a.acabamentoId)!.push(a)
+    const receitasPorAcab = new Map(todasReceitas.map(r => [r.acabamentoId, []]))
+    for (const r of todasReceitas) receitasPorAcab.get(r.acabamentoId)!.push(r)
+
+    const acabamentosCompletos = acabamentos.map(acab => ({
+      ...acab,
+      amostras: amostrasPorAcab.get(acab.id) || [],
+      receitas: receitasPorAcab.get(acab.id) || [],
+    }))
 
     return NextResponse.json({
       ...produto[0],
