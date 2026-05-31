@@ -34,27 +34,26 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const parsed = validateRequest(produtoCruSchema, body)
     if ("error" in parsed) return parsed.error
-    const data = parsed.data
 
     const novo = await db
       .insert(produtosCru)
       .values({
-        codigoPdm: data.codigoPdm,
-        descricao: data.descricao,
-        solicitacaoDesenvolvimentoId: data.solicitacaoDesenvolvimentoId || null,
-        status: data.status || "DESENVOLVIMENTO",
-        fichaTecnica: data.fichaTecnica || null,
-        links: data.links || [],
-        ativo: data.ativo ?? true,
-        idIntegracaoErpCru: data.idIntegracaoErpCru || null,
-        idIntegracao: data.idIntegracao || null,
+        codigoPdm: body.codigoPdm,
+        descricao: body.descricao,
+        solicitacaoDesenvolvimentoId: body.solicitacaoDesenvolvimentoId || null,
+        status: body.status || "DESENVOLVIMENTO",
+        fichaTecnica: body.fichaTecnica || null,
+        links: body.links || [],
+        ativo: body.ativo ?? true,
+        idIntegracaoErpCru: body.idIntegracaoErpCru || null,
+        idIntegracao: body.idIntegracao || null,
         criadoPor: userIdResult,
       })
       .returning()
 
     // Auto-altera solicitação vinculada para EM_DESENVOLVIMENTO
-    if (data.solicitacaoDesenvolvimentoId) {
-      const solId = Number(data.solicitacaoDesenvolvimentoId)
+    if (body.solicitacaoDesenvolvimentoId) {
+      const solId = Number(body.solicitacaoDesenvolvimentoId)
       if (!isNaN(solId)) {
         try {
           const [sol] = await db
@@ -85,12 +84,12 @@ export async function POST(req: NextRequest) {
 
     await notificar(
       "PRODUTO_CRU_CRIADO",
-      `Novo produto cru #${novo[0].id} criado por ${session.user.name} — ${data.codigoPdm}: ${data.descricao}`,
+      `Novo produto cru #${novo[0].id} criado por ${session.user.name} — ${body.codigoPdm}: ${body.descricao}`,
       `/cadastros/produto-cru/${novo[0].id}`,
       session.user.name
     )
 
-    await registrarLog({ tipo: "CADASTRO", acao: "criar", descricao: `Produto cru #${novo[0].id} criado - ${data.descricao}`, entidade: "ProdutoCru", entidadeId: novo[0].id, usuarioNome: session.user.name })
+    await registrarLog({ tipo: "CADASTRO", acao: "criar", descricao: `Produto cru #${novo[0].id} criado - ${body.descricao}`, entidade: "ProdutoCru", entidadeId: novo[0].id, usuarioNome: session.user.name })
 
     return NextResponse.json(novo[0])
   } catch (error) {

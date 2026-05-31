@@ -15,7 +15,7 @@ export function validateRequest<T>(schema: z.ZodType<T>, data: unknown): { data:
 
 const linkSchema = z.object({
   url: z.string().url("URL inválida"),
-  descricao: z.string().optional(),
+  descricao: z.string().default(""),
 })
 
 const idIntegracaoSchema = z.string().max(100).optional().nullable()
