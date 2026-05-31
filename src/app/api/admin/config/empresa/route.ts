@@ -47,11 +47,13 @@ export async function PUT(req: NextRequest) {
     if (!id) {
       return NextResponse.json({ error: "id é obrigatório" }, { status: 400 })
     }
-    if (data.isDefault) {
-      await db.update(configEmpresa).set({ isDefault: false })
-    }
-    data.updatedAt = new Date()
-    await db.update(configEmpresa).set(data).where(eq(configEmpresa.id, id))
+    await db.transaction(async (tx) => {
+      if (data.isDefault) {
+        await tx.update(configEmpresa).set({ isDefault: false })
+      }
+      data.updatedAt = new Date()
+      await tx.update(configEmpresa).set(data).where(eq(configEmpresa.id, id))
+    })
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error("[PUT /api/admin/config/empresa]", error)
