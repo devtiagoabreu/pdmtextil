@@ -5,6 +5,7 @@ import { produtosCru } from "@/lib/db/schema/produto-cru"
 import { solicitacoes } from "@/lib/db/schema/solicitacoes"
 import { eq } from "drizzle-orm"
 import { notificar, registrarLog } from "@/lib/notificar"
+import { validateRequest, produtoCruSchema } from "@/lib/validation"
 
 export async function GET() {
   try {
@@ -31,26 +32,29 @@ export async function POST(req: NextRequest) {
     const userIdResult = auth.userId
 
     const body = await req.json()
+    const parsed = validateRequest(produtoCruSchema, body)
+    if ("error" in parsed) return parsed.error
+    const data = parsed.data
 
     const novo = await db
       .insert(produtosCru)
       .values({
-        codigoPdm: body.codigoPdm,
-        descricao: body.descricao,
-        solicitacaoDesenvolvimentoId: body.solicitacaoDesenvolvimentoId || null,
-        status: body.status || "DESENVOLVIMENTO",
-        fichaTecnica: body.fichaTecnica || null,
-        links: body.links || [],
-        ativo: body.ativo ?? true,
-        idIntegracaoErpCru: body.idIntegracaoErpCru || null,
-        idIntegracao: body.idIntegracao || null,
+        codigoPdm: data.codigoPdm,
+        descricao: data.descricao,
+        solicitacaoDesenvolvimentoId: data.solicitacaoDesenvolvimentoId || null,
+        status: data.status || "DESENVOLVIMENTO",
+        fichaTecnica: data.fichaTecnica || null,
+        links: data.links || [],
+        ativo: data.ativo ?? true,
+        idIntegracaoErpCru: data.idIntegracaoErpCru || null,
+        idIntegracao: data.idIntegracao || null,
         criadoPor: userIdResult,
       })
       .returning()
 
     // Auto-altera solicitação vinculada para EM_DESENVOLVIMENTO
-    if (body.solicitacaoDesenvolvimentoId) {
-      const solId = Number(body.solicitacaoDesenvolvimentoId)
+    if (data.solicitacaoDesenvolvimentoId) {
+      const solId = Number(data.solicitacaoDesenvolvimentoId)
       if (!isNaN(solId)) {
         try {
           const [sol] = await db
@@ -81,12 +85,12 @@ export async function POST(req: NextRequest) {
 
     await notificar(
       "PRODUTO_CRU_CRIADO",
-      `Novo produto cru #${novo[0].id} criado por ${session.user.name} — ${body.codigoPdm}: ${body.descricao}`,
+      `Novo produto cru #${novo[0].id} criado por ${session.user.name} — ${data.codigoPdm}: ${data.descricao}`,
       `/cadastros/produto-cru/${novo[0].id}`,
       session.user.name
     )
 
-    await registrarLog({ tipo: "CADASTRO", acao: "criar", descricao: `Produto cru #${novo[0].id} criado - ${body.descricao}`, entidade: "ProdutoCru", entidadeId: novo[0].id, usuarioNome: session.user.name })
+    await registrarLog({ tipo: "CADASTRO", acao: "criar", descricao: `Produto cru #${novo[0].id} criado - ${data.descricao}`, entidade: "ProdutoCru", entidadeId: novo[0].id, usuarioNome: session.user.name })
 
     return NextResponse.json(novo[0])
   } catch (error) {

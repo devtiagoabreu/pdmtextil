@@ -5,6 +5,7 @@ import { requisicoesCorte, requisicoesCorteItens } from "@/lib/db/schema"
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq, desc, sql } from "drizzle-orm"
 import { notificar, registrarLog } from "@/lib/notificar"
+import { validateRequest, requisicaoCorteSchema } from "@/lib/validation"
 
 export async function GET() {
   try {
@@ -45,11 +46,9 @@ export async function POST(req: NextRequest) {
     const userId = auth.userId
 
     const body = await req.json()
-    const { itens, observacoes, entreguePor } = body
-
-    if (!itens || !Array.isArray(itens) || itens.length === 0) {
-      return NextResponse.json({ error: "Adicione pelo menos um item à requisição" }, { status: 400 })
-    }
+    const parsed = validateRequest(requisicaoCorteSchema, body)
+    if ("error" in parsed) return parsed.error
+    const { itens, observacoes, entreguePor } = parsed.data
 
     const [novaRequisicao] = await db
       .insert(requisicoesCorte)
@@ -63,7 +62,7 @@ export async function POST(req: NextRequest) {
 
     if (itens.length > 0) {
       await db.insert(requisicoesCorteItens).values(
-        itens.map((item: any) => ({
+        itens.map((item) => ({
           requisicaoCorteId: novaRequisicao.id,
           codigoProduto: item.codigoProduto || null,
           ordem: item.ordem || null,

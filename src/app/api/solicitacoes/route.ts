@@ -7,6 +7,7 @@ import { produtosCru } from "@/lib/db/schema/produto-cru"
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq, desc, and, sql } from "drizzle-orm"
 import { notificar, registrarLog } from "@/lib/notificar"
+import { validateRequest, solicitacaoSchema } from "@/lib/validation"
 
 // GET - Listar solicitações (filtradas por perfil)
 export async function GET(req: NextRequest) {
@@ -62,19 +63,13 @@ export async function POST(req: NextRequest) {
     const userId = auth.userId
 
     const body = await req.json()
-    console.log("=== POST /api/solicitacoes ===", JSON.stringify(body, null, 2))
     const { anexos: anexosList, ...solicitacaoData } = body
-
-    // Validações básicas
-    if (!solicitacaoData.cliente?.trim()) {
-      return NextResponse.json({ error: "Cliente é obrigatório" }, { status: 400 })
-    }
-    if (!solicitacaoData.tipo) {
-      return NextResponse.json({ error: "Tipo de solicitação é obrigatório" }, { status: 400 })
-    }
+    const parsed = validateRequest(solicitacaoSchema, solicitacaoData)
+    if ("error" in parsed) return parsed.error
+    const data = parsed.data
 
     // Sanitiza CNPJ: remove tudo que não for letra ou número
-    const cnpj = solicitacaoData.cnpj ? solicitacaoData.cnpj.replace(/[^a-zA-Z0-9]/g, "") : null
+    const cnpj = data.cnpj ? data.cnpj.replace(/[^a-zA-Z0-9]/g, "") : null
 
     const historico = [
       {
@@ -89,12 +84,12 @@ export async function POST(req: NextRequest) {
     const [novaSolicitacao] = await db
       .insert(solicitacoes)
       .values({
-        tipo: solicitacaoData.tipo,
-        cliente: solicitacaoData.cliente,
+        tipo: data.tipo,
+        cliente: data.cliente,
         cnpj: cnpj,
-        projeto: solicitacaoData.projeto || null,
-        prazoDesejado: solicitacaoData.prazoDesejado ? new Date(solicitacaoData.prazoDesejado) : null,
-        briefing: solicitacaoData.briefing,
+        projeto: data.projeto || null,
+        prazoDesejado: data.prazoDesejado ? new Date(data.prazoDesejado) : null,
+        briefing: data.briefing,
         solicitanteId: userId,
         status: "PENDENTE",
         historicoComunicacao: historico,
@@ -119,12 +114,12 @@ export async function POST(req: NextRequest) {
 
     await notificar(
       "SOLICITACAO_CRIADA",
-      `Nova solicitação #${novaSolicitacao.id} criada por ${session.user.name} — ${solicitacaoData.cliente}${solicitacaoData.projeto ? ` (${solicitacaoData.projeto})` : ""}`,
+      `Nova solicitação #${novaSolicitacao.id} criada por ${session.user.name} — ${data.cliente}${data.projeto ? ` (${data.projeto})` : ""}`,
       `/comercial/solicitacoes/${novaSolicitacao.id}`,
       session.user.name
     )
 
-    await registrarLog({ tipo: "CADASTRO", acao: "criar", descricao: `Solicitação #${novaSolicitacao.id} criada - ${body.cliente}`, entidade: "Solicitacao", entidadeId: novaSolicitacao.id, usuarioNome: session.user.name })
+    await registrarLog({ tipo: "CADASTRO", acao: "criar", descricao: `Solicitação #${novaSolicitacao.id} criada - ${data.cliente}`, entidade: "Solicitacao", entidadeId: novaSolicitacao.id, usuarioNome: session.user.name })
 
     return NextResponse.json(novaSolicitacao, { status: 201 })
   } catch (error) {
