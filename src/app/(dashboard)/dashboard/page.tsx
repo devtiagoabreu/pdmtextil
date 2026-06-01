@@ -58,7 +58,7 @@ const TIPO_COLORS: Record<string, string> = {
 }
 
 const FILTROS_DASH = [
-              { key: "total-mes", label: "Total Geral", icon: "solicitacao" },
+              { key: "total-mes", label: "Total", icon: "solicitacao" },
   { key: "pendentes", label: "Pendentes", icon: "solicitacao" },
   { key: "em-desenvolvimento", label: "Em Desenvolvimento", icon: "solicitacao" },
   { key: "concluidas", label: "Concluídas", icon: "solicitacao" },
