@@ -37,7 +37,7 @@ export function EmojiPicker({ onSelect }: { onSelect: (emoji: string) => void })
       </button>
       {open && (
         <div className="absolute bottom-full right-0 mb-2 p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-50">
-          <div className="grid grid-cols-12 gap-1 max-h-[200px] overflow-y-auto">
+          <div className="grid grid-cols-[repeat(16,minmax(0,1fr))] gap-1 max-h-[160px] overflow-y-auto">
             {EMOJIS.map((e) => (
               <button
                 key={e}
