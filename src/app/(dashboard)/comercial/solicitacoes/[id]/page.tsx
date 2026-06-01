@@ -448,6 +448,18 @@ export default function DetalheSolicitacaoPage() {
               
               <div className="space-y-6">
                 <div>
+                  <h3 className="font-medium text-slate-700 dark:text-slate-300 border-b pb-1 mb-2">Dados do Produto</h3>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div><span className="text-slate-500">Produto Base:</span> <span className="font-medium">{briefing.produtoBase || "—"}</span></div>
+                    <div><span className="text-slate-500">Cód. Produto:</span> <span className="font-medium">{briefing.codProduto || "—"}</span></div>
+                    <div><span className="text-slate-500">Nome da Cor:</span> <span className="font-medium">{briefing.nomeCor || "—"}</span></div>
+                    <div><span className="text-slate-500">Pantone:</span> <span className="font-medium">{briefing.pantone || "—"}</span></div>
+                    <div><span className="text-slate-500">Amostra a ser Desenvolvida:</span> <span className="font-medium">{briefing.amostraDesenvolver || "—"}</span></div>
+                    <div className="col-span-2"><span className="text-slate-500">Observações:</span> <span className="font-medium">{briefing.observacoes || "—"}</span></div>
+                  </div>
+                </div>
+
+                <div>
                   <h3 className="font-medium text-slate-700 dark:text-slate-300 border-b pb-1 mb-2">1. Aplicação / Uso Final</h3>
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <div><span className="text-slate-500">Segmentos:</span> <span className="font-medium">{renderSegmentos(briefing.aplicacao?.segmentos)}</span></div>

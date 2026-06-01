@@ -35,6 +35,7 @@ export async function GET(req: NextRequest) {
         cnpj: solicitacoes.cnpj,
         projeto: solicitacoes.projeto,
         prazoDesejado: solicitacoes.prazoDesejado,
+        observacoes: solicitacoes.observacoes,
         createdAt: solicitacoes.createdAt,
         solicitanteId: solicitacoes.solicitanteId,
         solicitanteNome: usuarios.name,

@@ -149,6 +149,7 @@ if (isLoading) {
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Produto Aprovado</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Status</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Data</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Observações</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Ações</th>
                 </tr>
               </thead>
@@ -182,7 +183,10 @@ if (isLoading) {
                       <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">
                         {s.createdAt ? new Date(s.createdAt).toLocaleDateString("pt-BR") : "—"}
                       </td>
-<td className="px-4 py-3">
+                      <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400 max-w-[200px] truncate" title={s.observacoes || ""}>
+                        {s.observacoes || "—"}
+                      </td>
+                      <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
                             <Link
                               href={`/comercial/solicitacoes/${s.id}`}
