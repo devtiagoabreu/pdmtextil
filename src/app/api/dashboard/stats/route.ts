@@ -50,10 +50,9 @@ export async function GET() {
     const tipoRows = Array.isArray(tipoRaw) ? tipoRaw : []
     const pcRows = Array.isArray(pcRaw) ? pcRaw : []
 
-    const now = new Date()
-    const currentMonthStr = now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, "0")
-
     const monthMap = new Map<string, { pendentes: number; emDesenvolvimento: number; concluidas: number; total: number }>()
+    let geralPendentes = 0, geralEmDesenvolvimento = 0, geralConcluidas = 0, geralTotal = 0
+
     for (const r of monthlyRows) {
       if (!monthMap.has(r.mes)) monthMap.set(r.mes, { pendentes: 0, emDesenvolvimento: 0, concluidas: 0, total: 0 })
       const entry = monthMap.get(r.mes)!
@@ -62,33 +61,30 @@ export async function GET() {
       if (r.status === "PENDENTE") entry.pendentes += t
       else if (r.status === "EM_DESENVOLVIMENTO") entry.emDesenvolvimento += t
       else if (r.status === "CONCLUIDO") entry.concluidas += t
+      geralTotal += t
+      if (r.status === "PENDENTE") geralPendentes += t
+      else if (r.status === "EM_DESENVOLVIMENTO") geralEmDesenvolvimento += t
+      else if (r.status === "CONCLUIDO") geralConcluidas += t
     }
 
     const trendData: { mes: string; total: number }[] = []
-    let totalEsteMes = 0, pendentes = 0, emDesenvolvimento = 0, concluidas = 0
 
     for (const [mes, entry] of monthMap) {
       const d = new Date(mes + "-01")
       const label = d.toLocaleDateString("pt-BR", { month: "short", year: "2-digit" })
       trendData.push({ mes: label, total: entry.total })
-      if (mes === currentMonthStr) {
-        totalEsteMes = entry.total
-        pendentes = entry.pendentes
-        emDesenvolvimento = entry.emDesenvolvimento
-        concluidas = entry.concluidas
-      }
     }
 
     const totalProdutosCru = pcRows.length > 0 ? Number(pcRows[0].total) : 0
 
     return NextResponse.json({
-      totalEsteMes,
-      pendentes,
-      emDesenvolvimento,
-      concluidas,
+      totalEsteMes: geralTotal,
+      pendentes: geralPendentes,
+      emDesenvolvimento: geralEmDesenvolvimento,
+      concluidas: geralConcluidas,
       monthlyTrend: trendData,
       statusDistribution: statusRows.map((r: any) => ({ status: r.status, total: Number(r.total) })),
-      tipoDistribution: tipoRows.map((r: any) => ({ tipo: r.tipo, total: Number(r.total) })),
+      tipoDistribution: tipoRows.map((r: any) => ({ tipo: r.tipo, total: Number(r.tipo) })),
       totalProdutosCru,
     })
   } catch (error) {

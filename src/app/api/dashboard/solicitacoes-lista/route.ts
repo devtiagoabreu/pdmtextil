@@ -12,10 +12,6 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url)
     const filtro = searchParams.get("filtro") || "total-mes"
 
-    const now = new Date()
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
-    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59).toISOString()
-
     if (filtro === "produtos-cru") {
       const rows = await db.execute(sql`
         SELECT id, codigo_pdm, descricao, status, created_at
@@ -32,17 +28,15 @@ export async function GET(req: NextRequest) {
       return NextResponse.json(lista)
     }
 
-    let condition = sql``
-    if (filtro === "pendentes") condition = sql`AND status = 'PENDENTE'`
-    else if (filtro === "em-desenvolvimento") condition = sql`AND status = 'EM_DESENVOLVIMENTO'`
-    else if (filtro === "concluidas") condition = sql`AND status = 'CONCLUIDO'`
+    let whereClause = sql`WHERE 1=1`
+    if (filtro === "pendentes") whereClause = sql`WHERE status = 'PENDENTE'`
+    else if (filtro === "em-desenvolvimento") whereClause = sql`WHERE status = 'EM_DESENVOLVIMENTO'`
+    else if (filtro === "concluidas") whereClause = sql`WHERE status = 'CONCLUIDO'`
 
     const rows = await db.execute(sql`
       SELECT id, tipo, cliente, projeto, status, created_at
       FROM solicitacoes
-      WHERE created_at >= ${startOfMonth}::timestamp
-        AND created_at <= ${endOfMonth}::timestamp
-        ${condition}
+      ${whereClause}
       ORDER BY created_at DESC
     `)
 
