@@ -231,13 +231,12 @@ function ConversationView({ chatId, onBack }: { chatId: number; onBack: () => vo
   const { data: msgsData, refetch } = useQuery({
     queryKey: ["mensagens", chatId],
     queryFn: () => fetchMensagens(chatId),
-    refetchInterval: 10000,
+    refetchInterval: 3000,
   })
 
   useEffect(() => {
-    marcarLidas(chatId).then(() => {
-      queryClient.invalidateQueries({ queryKey: ["chats"] })
-    })
+    marcarLidas(chatId)
+    queryClient.invalidateQueries({ queryKey: ["chats"] })
   }, [chatId, queryClient])
 
   useEffect(() => {
