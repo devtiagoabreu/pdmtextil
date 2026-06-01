@@ -10,6 +10,7 @@ import { ArrowLeft, FileText, Pencil, Trash2, Link as LinkIcon, Download, Chevro
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { Button } from "@/components/ui/button"
+import { EntityChatButton } from "@/components/chat/entity-chat-button"
 import {
   Select,
   SelectContent,
@@ -167,7 +168,6 @@ export default function DetalheSolicitacaoPage() {
   const [deleteBlocked, setDeleteBlocked] = useState(false)
   const [novoStatus, setNovoStatus] = useState("")
   const [statusLoading, setStatusLoading] = useState(false)
-  const [chatLoading, setChatLoading] = useState(false)
   
   useEffect(() => {
     setMounted(true)
@@ -272,37 +272,6 @@ export default function DetalheSolicitacaoPage() {
 
   const statusCfg = STATUS_CONFIG[sol.status] ?? { label: sol.status, classes: "bg-slate-100 text-slate-600" }
   const briefing = sol.briefing || {}
-
-  const handleChat = async () => {
-    setChatLoading(true)
-    try {
-      const res = await fetch(`/api/chats/entidade?tipo=SOLICITACAO&id=${sol.id}`)
-      if (!res.ok) throw new Error()
-      const chat = await res.json()
-      if (chat?.id) {
-        router.push(`/chat?chatId=${chat.id}`)
-      } else {
-        const criarRes = await fetch("/api/chats", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            titulo: `Solicitação #${sol.id} - ${sol.cliente}`,
-            mensagem: `Chat vinculado à solicitação #${sol.id} - ${sol.cliente}${sol.projeto ? ` (${sol.projeto})` : ""}`,
-            destinatarios: "todos",
-            entidadeTipo: "SOLICITACAO",
-            entidadeId: sol.id,
-          }),
-        })
-        if (!criarRes.ok) throw new Error()
-        const data = await criarRes.json()
-        router.push(`/chat?chatId=${data.chat.id}`)
-      }
-    } catch {
-      toast.error("Erro ao acessar chat")
-    } finally {
-      setChatLoading(false)
-    }
-  }
 
   const handleExportPdf = () => {
     const filename = `${sol.id}-${(sol.projeto || "sem-projeto").replace(/[^a-zA-Z0-9]/g, "-")}-${new Date(sol.createdAt).toISOString().split("T")[0]}.pdf`
@@ -411,14 +380,14 @@ export default function DetalheSolicitacaoPage() {
               {statusLoading ? "..." : "OK"}
             </Button>
           </div>
-          <button
-            onClick={handleChat}
-            disabled={chatLoading}
-            className="inline-flex items-center gap-1 px-3 py-1.5 text-sm bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 rounded-lg hover:bg-indigo-200 dark:hover:bg-indigo-800 disabled:opacity-50"
-          >
-            <MessageSquare size={14} />
-            {chatLoading ? "..." : "Chat"}
-          </button>
+          <EntityChatButton
+            entidadeTipo="SOLICITACAO"
+            entidadeId={sol.id}
+            titulo={`Solicitação #${sol.id} - ${sol.cliente}`}
+            mensagem={`Chat vinculado à solicitação #${sol.id} - ${sol.cliente}${sol.projeto ? ` (${sol.projeto})` : ""}`}
+            variant="outline"
+            size="sm"
+          />
           <Link
             href={`/comercial/solicitacoes/${id}/editar`}
             className="inline-flex items-center gap-1 px-3 py-1.5 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700"

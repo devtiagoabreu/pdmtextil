@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { PlusCircle, Search, Pencil, Trash2, Loader2, Database } from "lucide-react"
+import { PlusCircle, Search, Pencil, Trash2, Loader2, Database, MessageSquare } from "lucide-react"
 import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -22,6 +22,7 @@ interface ProdutoCru {
   idIntegracaoErpCru?: string
   ativo: boolean
   createdAt: string
+  chatExists?: boolean
 }
 
 async function fetchProdutos(): Promise<ProdutoCru[]> {
@@ -141,7 +142,8 @@ export default function ProdutoCruPage() {
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Descrição</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Status</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">ERP (Cru)</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Status</th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Chat</th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Ativo</th>
                 <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Ações</th>
               </tr>
             </thead>
@@ -156,6 +158,9 @@ export default function ProdutoCruPage() {
                   <td className="p-4 text-sm">{produto.descricao}</td>
                   <td className="p-4 text-sm text-slate-500">{STATUS_LABELS[produto.status] || produto.status}</td>
                   <td className="p-4 text-sm text-slate-500">{produto.idIntegracaoErpCru || "—"}</td>
+                  <td className="p-4">
+                    {produto.chatExists && <MessageSquare size={12} className="text-indigo-500 flex-shrink-0" />}
+                  </td>
                   <td className="p-4">
                     <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
                       produto.ativo
