@@ -42,7 +42,7 @@ export function LinksEditor({
                 <ExternalLink size={12} />
                 {link.descricao || link.url}
               </a>
-              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => remove(i)}>
+              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => remove(i)} aria-label={`Remover link ${i + 1}`}>
                 <Trash2 size={12} />
               </Button>
             </div>
@@ -58,7 +58,7 @@ export function LinksEditor({
           <Label className="text-xs">Descrição</Label>
           <Input size={8} value={novaDescricao} onChange={e => setNovaDescricao(e.target.value)} placeholder="Foto, laudo..." />
         </div>
-        <Button size="sm" onClick={add} disabled={!novaUrl.trim()}>
+        <Button size="sm" onClick={add} disabled={!novaUrl.trim()} aria-label="Adicionar link">
           <Plus size={14} />
         </Button>
       </div>
