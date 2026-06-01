@@ -8,6 +8,7 @@ import { notificar } from "@/lib/notificar"
 const STATUS_VALIDOS = [
   "PENDENTE",
   "AGUARDANDO_INFO",
+  "AGUARDANDO_MATERIA_PRIMA",
   "EM_DESENVOLVIMENTO",
   "APROVADO",
   "REPROVADO",

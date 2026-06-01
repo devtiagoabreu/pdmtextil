@@ -36,13 +36,13 @@ export async function GET(req: NextRequest) {
         cnpj: solicitacoes.cnpj,
         projeto: solicitacoes.projeto,
         prazoDesejado: solicitacoes.prazoDesejado,
-        observacoes: solicitacoes.observacoes,
+        observacoes: sql<string>`COALESCE(${solicitacoes.observacoes}, ${solicitacoes.briefing}->>'observacoes', '')`,
         createdAt: solicitacoes.createdAt,
         solicitanteId: solicitacoes.solicitanteId,
         solicitanteNome: usuarios.name,
         anexosCount: sql<number>`(SELECT count(*) FROM ${anexos} WHERE ${anexos.solicitacaoId} = ${solicitacoes.id})`,
-        produtoCodigoPdm: sql<string | null>`(SELECT pc.codigo_pdm FROM ${produtosCru} pc WHERE pc.solicitacao_desenvolvimento_id = ${solicitacoes.id} AND pc.status = 'APROVADO' LIMIT 1)`,
-        produtoIdIntegracaoErpCru: sql<string | null>`(SELECT pc.id_integracao_erp_cru FROM ${produtosCru} pc WHERE pc.solicitacao_desenvolvimento_id = ${solicitacoes.id} AND pc.status = 'APROVADO' LIMIT 1)`,
+        produtoCodigoPdm: sql<string | null>`(SELECT pc.codigo_pdm FROM ${produtosCru} pc WHERE pc.solicitacao_desenvolvimento_id = ${solicitacoes.id} LIMIT 1)`,
+        produtoIdIntegracaoErpCru: sql<string | null>`(SELECT pc.id_integracao_erp_cru FROM ${produtosCru} pc WHERE pc.solicitacao_desenvolvimento_id = ${solicitacoes.id} LIMIT 1)`,
         chatExists: sql<boolean>`(SELECT COUNT(*) FROM ${chats} WHERE ${chats.entidadeTipo} = 'SOLICITACAO' AND ${chats.entidadeId} = ${solicitacoes.id} LIMIT 1)::int::boolean`,
       })
       .from(solicitacoes)

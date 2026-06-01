@@ -13,6 +13,7 @@ import { ConfirmModal } from "@/components/ui/confirm-modal"
 const STATUS_CONFIG: Record<string, { label: string; classes: string }> = {
   PENDENTE:       { label: "Pendente",       classes: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400" },
   AGUARDANDO_INFO:{ label: "Aguard. Info",   classes: "bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-400" },
+  AGUARDANDO_MATERIA_PRIMA: { label: "Aguard. Matéria Prima", classes: "bg-yellow-100 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-400" },
   EM_DESENVOLVIMENTO: { label: "Em Desenvolvimento", classes: "bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-400" },
   APROVADO:       { label: "Aprovado",       classes: "bg-teal-100 text-teal-700 dark:bg-teal-950 dark:text-teal-400" },
   REPROVADO:      { label: "Reprovado",      classes: "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400" },
@@ -146,7 +147,7 @@ if (isLoading) {
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Tipo</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Cliente</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Criado por</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Produto Aprovado</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Produto Vinculado</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Status</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Data</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Observações</th>
