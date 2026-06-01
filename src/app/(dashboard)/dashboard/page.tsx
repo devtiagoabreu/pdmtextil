@@ -192,30 +192,38 @@ export default function DashboardPage() {
                       name: STATUS_LABELS[s.status] || s.status,
                       value: s.total,
                       fill: STATUS_COLORS[s.status] || "#94a3b8",
-                      statusKey: s.status,
                     }))}
                     cx="50%" cy="50%" innerRadius={50} outerRadius={90}
                     dataKey="value"
                     label={({ name, value }) => `${name}: ${value}`}
-                    cursor="pointer"
-                    onClick={(_: any, index: number) => {
-                      const entry = stats?.statusDistribution?.[index]
-                      if (!entry) return
-                      const map: Record<string, string> = {
-                        PENDENTE: "pendentes",
-                        EM_DESENVOLVIMENTO: "em-desenvolvimento",
-                        AGUARDANDO_INFO: "pendentes",
-                        APROVADO: "concluidas",
-                        REPROVADO: "pendentes",
-                        EM_PRODUCAO: "pendentes",
-                        CONCLUIDO: "concluidas",
-                      }
-                      openModal(map[entry.status] || "pendentes")
-                    }}
-                  />{/* No Cell children — fill is in data */}
-                  <Tooltip />
+                    isAnimationActive={false}
+                  />
                 </PieChart>
               </ResponsiveContainer>
+              <div className="flex flex-wrap gap-2 mt-3 justify-center">
+                {(stats?.statusDistribution || []).map((s: any) => {
+                  const map: Record<string, string> = {
+                    PENDENTE: "pendentes",
+                    EM_DESENVOLVIMENTO: "em-desenvolvimento",
+                    AGUARDANDO_INFO: "pendentes",
+                    APROVADO: "concluidas",
+                    REPROVADO: "pendentes",
+                    EM_PRODUCAO: "pendentes",
+                    CONCLUIDO: "concluidas",
+                  }
+                  return (
+                    <button
+                      key={s.status}
+                      type="button"
+                      onClick={() => openModal(map[s.status] || "pendentes")}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium hover:opacity-80 transition-opacity border border-slate-200 dark:border-slate-700"
+                    >
+                      <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: STATUS_COLORS[s.status] || "#94a3b8" }} />
+                      {STATUS_LABELS[s.status] || s.status}: {s.total}
+                    </button>
+                  )
+                })}
+              </div>
             </div>
 
             {/* Tipo distribution */}
