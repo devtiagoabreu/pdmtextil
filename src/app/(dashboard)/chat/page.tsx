@@ -237,7 +237,7 @@ function ConversationView({ chatId, onBack }: { chatId: number; onBack: () => vo
   })
 
   useEffect(() => {
-    marcarLidas(chatId)
+    marcarLidas(chatId).catch(() => {})
     queryClient.invalidateQueries({ queryKey: ["chats"] })
   }, [chatId, queryClient])
 

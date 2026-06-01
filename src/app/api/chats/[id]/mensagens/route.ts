@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { chatMensagens, chatLeituras, chatParticipantes, chats, usuarios } from "@/lib/db/schema"
-import { eq, desc, and, sql } from "drizzle-orm"
+import { eq, desc, and, inArray } from "drizzle-orm"
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -34,7 +34,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       })
       .from(chatLeituras)
       .where(
-        eq(chatLeituras.mensagemId, mensagens.length > 0 ? mensagens[0].id : -1)
+        inArray(chatLeituras.mensagemId, mensagens.length > 0 ? mensagens.map((m) => m.id) : [-1])
       )
 
     return NextResponse.json({ mensagens, leituras })
@@ -78,7 +78,6 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       .set({ updatedAt: new Date() })
       .where(eq(chats.id, chatId))
 
-    const { usuarios } = await import("@/lib/db/schema/usuarios")
     const [remetente] = await db
       .select({ name: usuarios.name })
       .from(usuarios)
