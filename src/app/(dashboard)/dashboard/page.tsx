@@ -191,13 +191,16 @@ export default function DashboardPage() {
                     data={(stats?.statusDistribution || []).map((s: any) => ({
                       name: STATUS_LABELS[s.status] || s.status,
                       value: s.total,
-                      _status: s.status,
+                      fill: STATUS_COLORS[s.status] || "#94a3b8",
+                      statusKey: s.status,
                     }))}
                     cx="50%" cy="50%" innerRadius={50} outerRadius={90}
                     dataKey="value"
                     label={({ name, value }) => `${name}: ${value}`}
                     cursor="pointer"
-                    onClick={(entry: any) => {
+                    onClick={(_: any, index: number) => {
+                      const entry = stats?.statusDistribution?.[index]
+                      if (!entry) return
                       const map: Record<string, string> = {
                         PENDENTE: "pendentes",
                         EM_DESENVOLVIMENTO: "em-desenvolvimento",
@@ -207,13 +210,9 @@ export default function DashboardPage() {
                         EM_PRODUCAO: "pendentes",
                         CONCLUIDO: "concluidas",
                       }
-                      openModal(entry?._status ? map[entry._status] || "pendentes" : "pendentes")
+                      openModal(map[entry.status] || "pendentes")
                     }}
-                  >
-                    {(stats?.statusDistribution || []).map((s: any) => (
-                      <Cell key={s.status} fill={STATUS_COLORS[s.status] || "#94a3b8"} />
-                    ))}
-                  </Pie>
+                  />{/* No Cell children — fill is in data */}
                   <Tooltip />
                 </PieChart>
               </ResponsiveContainer>
