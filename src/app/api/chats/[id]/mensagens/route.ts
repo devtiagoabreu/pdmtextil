@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
-import { chatMensagens, chatLeituras, chatParticipantes, chats } from "@/lib/db/schema"
+import { chatMensagens, chatLeituras, chatParticipantes, chats, usuarios } from "@/lib/db/schema"
 import { eq, desc, and, sql } from "drizzle-orm"
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -13,8 +13,16 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     const chatId = parseInt(id)
 
     const mensagens = await db
-      .select()
+      .select({
+        id: chatMensagens.id,
+        chatId: chatMensagens.chatId,
+        remetenteId: chatMensagens.remetenteId,
+        mensagem: chatMensagens.mensagem,
+        createdAt: chatMensagens.createdAt,
+        remetenteNome: usuarios.name,
+      })
       .from(chatMensagens)
+      .leftJoin(usuarios, eq(chatMensagens.remetenteId, usuarios.id))
       .where(eq(chatMensagens.chatId, chatId))
       .orderBy(chatMensagens.createdAt)
 
