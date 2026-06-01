@@ -33,7 +33,7 @@ export function ConfirmModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onCancel} />
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onCancel} data-testid="backdrop" />
       <div className="relative bg-white dark:bg-slate-900 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 w-full max-w-md mx-4 animate-fade-in">
         <button
           onClick={onCancel}
