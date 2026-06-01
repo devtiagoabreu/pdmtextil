@@ -152,7 +152,7 @@ export default function ClientesPage() {
                 <tr
                   key={cliente.id}
                   className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"
-                  onClick={() => router.push(`/cadastros/clientes/${cliente.id}`)}
+                  onClick={() => router.push(`/comercial/clientes/${cliente.id}`)}
                 >
                   <td className="p-4 text-sm font-medium">{cliente.nome}</td>
                   <td className="p-4 text-sm text-slate-500">{cliente.cnpj || "—"}</td>
