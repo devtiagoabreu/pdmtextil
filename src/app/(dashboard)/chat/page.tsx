@@ -375,7 +375,7 @@ export default function ChatPage() {
               <div className="flex flex-col items-center justify-center h-full text-slate-400 p-6 text-center">
                 <MessageSquare size={40} className="mb-3 opacity-50" />
                 <p className="text-sm font-medium">Nenhuma conversa</p>
-                <p className="text-xs mt-1">Clique em "Novo Chat" para iniciar</p>
+                <p className="text-xs mt-1">Clique em &ldquo;Novo Chat&rdquo; para iniciar</p>
               </div>
             ) : (
               <ChatList chats={chats} selectedId={selectedChatId} onSelect={setSelectedChatId} />
