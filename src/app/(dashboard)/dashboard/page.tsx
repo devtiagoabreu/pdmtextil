@@ -183,11 +183,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Status distribution */}
-            <button
-              type="button"
-              onClick={() => openModal("pendentes")}
-              className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 text-left w-full card-hover cursor-pointer transition-shadow hover:shadow-md"
-            >
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
               <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">Distribuição por Status</h3>
               <ResponsiveContainer width="100%" height={240}>
                 <PieChart>
@@ -195,9 +191,24 @@ export default function DashboardPage() {
                     data={(stats?.statusDistribution || []).map((s: any) => ({
                       name: STATUS_LABELS[s.status] || s.status,
                       value: s.total,
+                      _status: s.status,
                     }))}
                     cx="50%" cy="50%" innerRadius={50} outerRadius={90}
                     dataKey="value" label={({ name, value }) => `${name}: ${value}`}
+                    cursor="pointer"
+                    onClick={(entry: any) => {
+                      if (!entry?._status) return
+                      const map: Record<string, string> = {
+                        PENDENTE: "pendentes",
+                        EM_DESENVOLVIMENTO: "em-desenvolvimento",
+                        AGUARDANDO_INFO: "pendentes",
+                        APROVADO: "concluidas",
+                        REPROVADO: "pendentes",
+                        EM_PRODUCAO: "pendentes",
+                        CONCLUIDO: "concluidas",
+                      }
+                      openModal(map[entry._status] || "pendentes")
+                    }}
                   >
                     {(stats?.statusDistribution || []).map((s: any) => (
                       <Cell key={s.status} fill={STATUS_COLORS[s.status] || "#94a3b8"} />
@@ -206,7 +217,7 @@ export default function DashboardPage() {
                   <Tooltip />
                 </PieChart>
               </ResponsiveContainer>
-            </button>
+            </div>
 
             {/* Tipo distribution */}
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
