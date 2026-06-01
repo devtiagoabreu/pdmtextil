@@ -6,6 +6,7 @@ import { Bell, Menu, Search, X, User, LogOut, Settings, CheckCheck, Loader2 } fr
 import Link from "next/link"
 import { ThemeToggle } from "./theme-toggle"
 import { CommandSearch } from "./command-search"
+import { ChatButton } from "./chat/ChatButton"
 
 interface HeaderProps {
   onMenuClick?: () => void
@@ -111,6 +112,9 @@ export function Header({ onMenuClick }: HeaderProps) {
       {/* RIGHT: Theme, Notifications, User */}
       <div className="flex items-center gap-2">
         <ThemeToggle />
+
+        {/* Chat */}
+        <ChatButton />
 
         {/* Notifications */}
         <div className="relative">
