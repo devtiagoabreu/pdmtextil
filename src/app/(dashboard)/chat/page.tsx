@@ -54,7 +54,11 @@ async function enviarMensagem({ chatId, mensagem }: { chatId: number; mensagem: 
 }
 
 async function marcarLidas(chatId: number) {
-  await fetch(`/api/chats/${chatId}/ler`, { method: "POST" })
+  await fetch(`/api/chats/${chatId}/ler`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: "{}",
+  })
 }
 
 function ChatList({
@@ -270,7 +274,7 @@ function ConversationView({ chatId, onBack }: { chatId: number; onBack: () => vo
           {chat?.participantes && (
             <p className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
               <Users size={12} />
-              {chat.participantes} participante(s)
+              {(chat.participantes as any[])?.length || 0} participante(s)
             </p>
           )}
         </div>
