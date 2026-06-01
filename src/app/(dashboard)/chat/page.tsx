@@ -128,6 +128,8 @@ function NovoChatDialog({ onClose }: { onClose: () => void }) {
   const [destinatarios, setDestinatarios] = useState<string>("")
   const [usuarios, setUsuarios] = useState<{ id: number; name: string }[]>([])
   const [selectedUsers, setSelectedUsers] = useState<number[]>([])
+  const [destOpen, setDestOpen] = useState(false)
+  const destRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     fetch("/api/admin/usuarios")
@@ -135,6 +137,15 @@ function NovoChatDialog({ onClose }: { onClose: () => void }) {
       .then((data) => setUsuarios(Array.isArray(data) ? data : []))
       .catch(() => {})
   }, [])
+
+  useEffect(() => {
+    if (!destOpen) return
+    const handle = (e: MouseEvent) => {
+      if (destRef.current && !destRef.current.contains(e.target as Node)) setDestOpen(false)
+    }
+    document.addEventListener("mousedown", handle)
+    return () => document.removeEventListener("mousedown", handle)
+  }, [destOpen])
 
   const criarChat = useMutation({
     mutationFn: async () => {
@@ -144,7 +155,7 @@ function NovoChatDialog({ onClose }: { onClose: () => void }) {
         body: JSON.stringify({
           titulo,
           mensagem,
-          destinatarios: destinatarios === "todos" ? "todos" : selectedUsers,
+          destinatarios: destinatarios === "todos" ? "todos" : [parseInt(destinatarios)],
         }),
       })
       if (!res.ok) throw new Error("Erro ao criar chat")
@@ -157,6 +168,12 @@ function NovoChatDialog({ onClose }: { onClose: () => void }) {
     },
     onError: (err) => toast.error(err instanceof Error ? err.message : "Erro ao criar chat"),
   })
+
+  const destLabel = !destinatarios
+    ? "Selecione..."
+    : destinatarios === "todos"
+      ? "Todos os usuários"
+      : usuarios.find((u) => u.id.toString() === destinatarios)?.name || "Selecione..."
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose}>
@@ -174,21 +191,35 @@ function NovoChatDialog({ onClose }: { onClose: () => void }) {
             />
           </div>
 
-          <div>
+          <div ref={destRef} className="relative">
             <label className="text-xs font-medium text-slate-500">Destinatários</label>
-            <select
-              value={destinatarios}
-              onChange={(e) => setDestinatarios(e.target.value)}
-              className="w-full mt-1 h-9 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent px-3 text-sm"
+            <button
+              type="button"
+              onClick={() => setDestOpen(!destOpen)}
+              className="w-full mt-1 h-9 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent px-3 text-sm text-left flex items-center justify-between text-slate-900 dark:text-slate-200"
             >
-              <option value="">Selecione...</option>
-              <option value="todos">Todos os usuários</option>
-              {usuarios
-                .filter((u) => u.id !== parseInt(session?.user?.id || "0"))
-                .map((u) => (
-                  <option key={u.id} value={u.id.toString()}>{u.name}</option>
-                ))}
-            </select>
+              <span className={destinatarios ? "" : "text-slate-400"}>{destLabel}</span>
+              <svg className={`w-4 h-4 transition-transform ${destOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+            </button>
+            {destOpen && (
+              <div className="absolute z-10 mt-1 w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-xl max-h-[200px] overflow-y-auto">
+                <button
+                  type="button"
+                  onClick={() => { setDestinatarios("todos"); setDestOpen(false) }}
+                  className={`w-full text-left px-3 py-2 text-sm hover:bg-slate-100 dark:hover:bg-slate-700 ${destinatarios === "todos" ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300" : "text-slate-900 dark:text-slate-200"}`}
+                >Todos os usuários</button>
+                {usuarios
+                  .filter((u) => u.id !== parseInt(session?.user?.id || "0"))
+                  .map((u) => (
+                    <button
+                      key={u.id}
+                      type="button"
+                      onClick={() => { setDestinatarios(u.id.toString()); setDestOpen(false) }}
+                      className={`w-full text-left px-3 py-2 text-sm hover:bg-slate-100 dark:hover:bg-slate-700 ${destinatarios === u.id.toString() ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300" : "text-slate-900 dark:text-slate-200"}`}
+                    >{u.name}</button>
+                  ))}
+              </div>
+            )}
           </div>
 
           <div>
