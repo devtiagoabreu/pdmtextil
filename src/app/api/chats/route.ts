@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
-import { chats, chatMensagens, chatParticipantes, chatLeituras } from "@/lib/db/schema"
+import { chats, chatMensagens, chatParticipantes, chatLeituras, usuarios } from "@/lib/db/schema"
 import { eq, desc, and, inArray, sql } from "drizzle-orm"
 
 export async function GET(req: NextRequest) {
@@ -88,7 +88,6 @@ export async function POST(req: NextRequest) {
 
     const participantes: number[] = []
     if (destinatarios === "todos") {
-      const { usuarios } = await import("@/lib/db/schema/usuarios")
       const todos = await db.select({ id: usuarios.id }).from(usuarios).where(sql`ativo = true`)
       todos.forEach((u) => { if (u.id !== userId) participantes.push(u.id) })
     } else if (Array.isArray(destinatarios)) {

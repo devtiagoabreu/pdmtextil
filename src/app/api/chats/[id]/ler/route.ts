@@ -30,15 +30,19 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       .where(eq(chatMensagens.chatId, chatId))
       .orderBy(chatMensagens.createdAt)
 
+    if (mensagens.length === 0) {
+      return NextResponse.json({ success: true })
+    }
+
     const ultimaMensagem = mensagens[mensagens.length - 1]
 
     await db
       .update(chatParticipantes)
-      .set({ ultimaMensagemLidaId: ultimaMensagem?.id || body.ultimaMensagemLidaId })
+      .set({ ultimaMensagemLidaId: ultimaMensagem.id })
       .where(and(eq(chatParticipantes.chatId, chatId), eq(chatParticipantes.usuarioId, userId)))
 
     const idsParaMarcar = mensagens
-      .filter((m) => !body.apenasUltima || m.id === (ultimaMensagem?.id || body.ultimaMensagemLidaId))
+      .filter((m) => !body.apenasUltima || m.id === ultimaMensagem.id)
       .map((m) => m.id)
 
     if (idsParaMarcar.length > 0) {
