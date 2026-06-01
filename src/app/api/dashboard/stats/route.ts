@@ -51,7 +51,7 @@ export async function GET() {
     const pcRows = Array.isArray(pcRaw) ? pcRaw : []
 
     const now = new Date()
-    const currentMonth = now.toLocaleDateString("pt-BR", { month: "short", year: "2-digit" })
+    const currentMonthStr = now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, "0")
 
     const monthMap = new Map<string, { pendentes: number; emDesenvolvimento: number; concluidas: number; total: number }>()
     for (const r of monthlyRows) {
@@ -71,7 +71,7 @@ export async function GET() {
       const d = new Date(mes + "-01")
       const label = d.toLocaleDateString("pt-BR", { month: "short", year: "2-digit" })
       trendData.push({ mes: label, total: entry.total })
-      if (label === currentMonth) {
+      if (mes === currentMonthStr) {
         totalEsteMes = entry.total
         pendentes = entry.pendentes
         emDesenvolvimento = entry.emDesenvolvimento
