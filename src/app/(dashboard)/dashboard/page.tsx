@@ -183,7 +183,11 @@ export default function DashboardPage() {
             </div>
 
             {/* Status distribution */}
-            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
+            <button
+              type="button"
+              onClick={() => openModal("pendentes")}
+              className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 text-left w-full card-hover cursor-pointer transition-shadow hover:shadow-md"
+            >
               <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">Distribuição por Status</h3>
               <ResponsiveContainer width="100%" height={240}>
                 <PieChart>
@@ -202,7 +206,7 @@ export default function DashboardPage() {
                   <Tooltip />
                 </PieChart>
               </ResponsiveContainer>
-            </div>
+            </button>
 
             {/* Tipo distribution */}
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
@@ -286,7 +290,11 @@ export default function DashboardPage() {
                   </thead>
                   <tbody>
                     {atividades.map((item, i) => (
-                      <tr key={item.id || i} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                      <tr
+                        key={item.id || i}
+                        onClick={() => { if (item.id) router.push(`/comercial/solicitacoes/${item.id}`) }}
+                        className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors"
+                      >
                         <td className="p-4 text-sm font-medium">#{item.id}</td>
                         <td className="p-4 text-sm">{TIPO_LABELS[item.tipo] || item.tipo}</td>
                         <td className="p-4 text-sm">{item.cliente}</td>
