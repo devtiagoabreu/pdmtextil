@@ -479,6 +479,53 @@ async function migrate() {
     `
     console.log("✓ Tabela config_empresa criada")
 
+    // Chat Corporativo
+    await sql`
+      CREATE TABLE IF NOT EXISTS chats (
+        id SERIAL PRIMARY KEY,
+        tipo VARCHAR(20) NOT NULL DEFAULT 'LIVRE',
+        titulo VARCHAR(200) NOT NULL,
+        entidade_tipo VARCHAR(50),
+        entidade_id INTEGER,
+        criado_por INTEGER NOT NULL REFERENCES usuarios(id),
+        updated_at TIMESTAMP DEFAULT NOW(),
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `
+    console.log("✓ Tabela chats criada")
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS chat_mensagens (
+        id SERIAL PRIMARY KEY,
+        chat_id INTEGER NOT NULL REFERENCES chats(id) ON DELETE CASCADE,
+        remetente_id INTEGER NOT NULL REFERENCES usuarios(id),
+        mensagem TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `
+    console.log("✓ Tabela chat_mensagens criada")
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS chat_participantes (
+        id SERIAL PRIMARY KEY,
+        chat_id INTEGER NOT NULL REFERENCES chats(id) ON DELETE CASCADE,
+        usuario_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+        adicionado_em TIMESTAMP DEFAULT NOW(),
+        ultima_mensagem_lida_id INTEGER
+      )
+    `
+    console.log("✓ Tabela chat_participantes criada")
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS chat_leituras (
+        id SERIAL PRIMARY KEY,
+        mensagem_id INTEGER NOT NULL REFERENCES chat_mensagens(id) ON DELETE CASCADE,
+        usuario_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+        lida_em TIMESTAMP DEFAULT NOW()
+      )
+    `
+    console.log("✓ Tabela chat_leituras criada")
+
     console.log("\n✅ Migration concluída com sucesso!")
     
   } catch (error) {

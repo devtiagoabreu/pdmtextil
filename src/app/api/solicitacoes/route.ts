@@ -3,7 +3,6 @@ import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { solicitacoes } from "@/lib/db/schema/solicitacoes"
 import { anexos } from "@/lib/db/schema/anexos"
-import { chats } from "@/lib/db/schema/chats"
 import { produtosCru } from "@/lib/db/schema/produto-cru"
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq, desc, and, sql } from "drizzle-orm"
@@ -43,7 +42,6 @@ export async function GET(req: NextRequest) {
         anexosCount: sql<number>`(SELECT count(*) FROM ${anexos} WHERE ${anexos.solicitacaoId} = ${solicitacoes.id})`,
         produtoCodigoPdm: sql<string | null>`(SELECT pc.codigo_pdm FROM ${produtosCru} pc WHERE pc.solicitacao_desenvolvimento_id = ${solicitacoes.id} LIMIT 1)`,
         produtoIdIntegracaoErpCru: sql<string | null>`(SELECT pc.id_integracao_erp_cru FROM ${produtosCru} pc WHERE pc.solicitacao_desenvolvimento_id = ${solicitacoes.id} LIMIT 1)`,
-        chatExists: sql<boolean>`(SELECT COUNT(*) FROM ${chats} WHERE ${chats.entidadeTipo} = 'SOLICITACAO' AND ${chats.entidadeId} = ${solicitacoes.id} LIMIT 1)::int::boolean`,
       })
       .from(solicitacoes)
       .leftJoin(usuarios, eq(solicitacoes.solicitanteId, usuarios.id))
