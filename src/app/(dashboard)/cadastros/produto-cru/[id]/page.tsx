@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 import { ReceitaDialog } from "@/components/receita/acabamento-receita-dialog"
 import { LinksEditor } from "@/components/links/LinksEditor"
+import { EntityChatButton } from "@/components/chat/entity-chat-button"
 
 type FichaTecnica = {
   gramatura?: string
@@ -590,12 +591,19 @@ export default function ProdutoCruFormPage() {
             <ArrowLeft size={20} />
           </Button>
         </Link>
-        <div>
+        <div className="flex-1">
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
             {isEditing ? "Editar Produto Cru" : "Novo Produto Cru"}
             {info && <InfoButton content={info} />}
           </h1>
         </div>
+        {isEditing && id && (
+          <EntityChatButton
+            entidadeTipo="PRODUTO_CRU"
+            entidadeId={id}
+            titulo={produto.codigoPdm ? `Produto Cru ${produto.codigoPdm} — ${produto.descricao}` : `Produto Cru #${id}`}
+          />
+        )}
       </div>
 
       <div className="flex gap-1 border-b border-slate-200 dark:border-slate-700 overflow-x-auto">

@@ -3,7 +3,8 @@ import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { produtosCru } from "@/lib/db/schema/produto-cru"
 import { solicitacoes } from "@/lib/db/schema/solicitacoes"
-import { eq } from "drizzle-orm"
+import { chats } from "@/lib/db/schema/chats"
+import { eq, sql } from "drizzle-orm"
 import { notificar, registrarLog } from "@/lib/notificar"
 import { validateRequest, produtoCruSchema } from "@/lib/validation"
 
@@ -13,7 +14,16 @@ export async function GET() {
     if (auth instanceof NextResponse) return auth
     const { session } = auth
     const lista = await db
-      .select()
+      .select({
+        id: produtosCru.id,
+        codigoPdm: produtosCru.codigoPdm,
+        descricao: produtosCru.descricao,
+        status: produtosCru.status,
+        idIntegracaoErpCru: produtosCru.idIntegracaoErpCru,
+        ativo: produtosCru.ativo,
+        createdAt: produtosCru.createdAt,
+        chatExists: sql<boolean>`coalesce((SELECT true FROM ${chats} WHERE ${chats.entidadeTipo} = 'PRODUTO_CRU' AND ${chats.entidadeId} = ${produtosCru.id} LIMIT 1), false)`,
+      })
       .from(produtosCru)
       .orderBy(produtosCru.codigoPdm)
 
