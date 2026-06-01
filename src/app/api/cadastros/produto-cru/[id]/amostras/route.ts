@@ -44,6 +44,7 @@ export async function POST(
         status: body.status || "PENDENTE",
         observacoes: body.observacoes || null,
         quantidadeProduzida: body.quantidadeProduzida || null,
+        idIntegracaoErpCru: body.idIntegracaoErpCru || null,
         historico: [{
           data: new Date().toISOString(),
           usuario: session.user.name,

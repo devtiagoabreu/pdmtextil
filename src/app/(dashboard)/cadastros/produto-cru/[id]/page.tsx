@@ -61,6 +61,7 @@ interface Amostra {
   links?: { url: string; descricao: string }[]
   data: string
   quantidadeProduzida?: string
+  idIntegracaoErpCru?: string
 }
 
 interface Acabamento {
@@ -143,6 +144,7 @@ export default function ProdutoCruFormPage() {
   const [novaAmostraDescricao, setNovaAmostraDescricao] = useState("")
   const [novaAmostraObs, setNovaAmostraObs] = useState("")
   const [novaAmostraQtd, setNovaAmostraQtd] = useState("")
+  const [novaAmostraErp, setNovaAmostraErp] = useState("")
 
   const [novoAcabamentoTipo, setNovoAcabamentoTipo] = useState("TINGIMENTO")
   const [novoAcabamentoDescricao, setNovoAcabamentoDescricao] = useState("")
@@ -488,7 +490,7 @@ export default function ProdutoCruFormPage() {
       const res = await fetch(`/api/cadastros/produto-cru/${id}/amostras`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ descricao: novaAmostraDescricao || null, observacoes: novaAmostraObs || null, quantidadeProduzida: novaAmostraQtd || null }),
+        body: JSON.stringify({ descricao: novaAmostraDescricao || null, observacoes: novaAmostraObs || null, quantidadeProduzida: novaAmostraQtd || null, idIntegracaoErpCru: novaAmostraErp || null }),
       })
       if (!res.ok) throw new Error()
       const item = await res.json()
@@ -496,6 +498,7 @@ export default function ProdutoCruFormPage() {
       setNovaAmostraDescricao("")
       setNovaAmostraObs("")
       setNovaAmostraQtd("")
+      setNovaAmostraErp("")
       toast.success("Amostra adicionada")
     } catch {
       toast.error("Erro ao adicionar amostra")
@@ -874,6 +877,7 @@ export default function ProdutoCruFormPage() {
                                 <p className="font-medium">{a.descricao || "Sem descrição"}</p>
                                 <p className="text-sm text-slate-500">
                                   {a.quantidadeProduzida && <span className="text-xs font-medium text-slate-600 mr-2">Qtd: {a.quantidadeProduzida}</span>}
+                                  {a.idIntegracaoErpCru && <span className="text-xs font-medium text-slate-600 mr-2">ERP: {a.idIntegracaoErpCru}</span>}
                                   <select
                                     value={a.status}
                                     onChange={e => updateStatusAmostra(a.id, e.target.value)}
@@ -929,6 +933,10 @@ export default function ProdutoCruFormPage() {
                     <div className="space-y-1 w-28">
                       <Label>Qtd Produzida</Label>
                       <Input value={novaAmostraQtd} onChange={e => setNovaAmostraQtd(e.target.value)} placeholder="10 M" />
+                    </div>
+                    <div className="space-y-1 w-36">
+                      <Label>ERP (Cru)</Label>
+                      <Input value={novaAmostraErp} onChange={e => setNovaAmostraErp(e.target.value)} placeholder="ERP.00001" />
                     </div>
                     <Button onClick={addAmostra} size="sm"><Plus size={16} /></Button>
                   </div>

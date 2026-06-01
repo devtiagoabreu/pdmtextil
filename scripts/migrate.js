@@ -438,7 +438,8 @@ async function migrate() {
     // Coluna quantidade_produzida em amostras
     await sql`ALTER TABLE produto_cru_amostra ADD COLUMN IF NOT EXISTS quantidade_produzida VARCHAR(50)`
     await sql`ALTER TABLE produto_cru_acabamento_amostra ADD COLUMN IF NOT EXISTS quantidade_produzida VARCHAR(50)`
-    console.log("✓ Coluna quantidade_produzida adicionada em amostras")
+    await sql`ALTER TABLE produto_cru_amostra ADD COLUMN IF NOT EXISTS id_integracao_erp_cru VARCHAR(100)`
+    console.log("✓ Colunas quantidade_produzida e id_integracao_erp_cru adicionadas em amostras")
 
     await sql`
       CREATE TABLE IF NOT EXISTS integracoes (

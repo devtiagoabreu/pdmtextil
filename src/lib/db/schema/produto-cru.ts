@@ -63,6 +63,7 @@ export const produtoCruAmostra = pgTable("produto_cru_amostra", {
   motivoAprovacao: text("motivo_aprovacao"),
   observacoes: text("observacoes"),
   quantidadeProduzida: varchar("quantidade_produzida", { length: 50 }),
+  idIntegracaoErpCru: varchar("id_integracao_erp_cru", { length: 100 }),
   links: jsonb("links").$type<{ url: string; descricao: string }[]>().default([]),
   historico: jsonb("historico").default([]),
   data: timestamp("data").defaultNow(),
