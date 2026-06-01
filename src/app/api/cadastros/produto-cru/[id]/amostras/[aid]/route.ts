@@ -60,6 +60,7 @@ export async function PUT(
         motivoAprovacao: isAprovacao ? body.motivoAprovacao : body.motivoAprovacao || null,
         observacoes: body.observacoes || null,
         quantidadeProduzida: body.quantidadeProduzida || null,
+        idIntegracaoErpCru: body.idIntegracaoErpCru || null,
         links: body.links || [],
       })
       .where(eq(produtoCruAmostra.id, parseInt(aid)))
