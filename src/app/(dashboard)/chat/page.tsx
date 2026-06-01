@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useSession } from "next-auth/react"
 import { MessageSquare, Plus, Send, CheckCheck, Users, ArrowLeft, MessageCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { EmojiPicker } from "@/components/chat/emoji-picker"
 import { toast } from "sonner"
 
 type Chat = {
@@ -221,6 +222,7 @@ function ConversationView({ chatId, onBack }: { chatId: number; onBack: () => vo
   const userId = parseInt(session?.user?.id || "0")
   const [mensagem, setMensagem] = useState("")
   const mensagensEndRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLTextAreaElement>(null)
   const queryClient = useQueryClient()
 
   const { data: chat } = useQuery({
@@ -252,6 +254,19 @@ function ConversationView({ chatId, onBack }: { chatId: number; onBack: () => vo
     },
     onError: (err) => toast.error(err instanceof Error ? err.message : "Erro ao enviar"),
   })
+
+  const insertEmoji = (emoji: string) => {
+    const el = inputRef.current
+    if (!el) return
+    const start = el.selectionStart
+    const end = el.selectionEnd
+    const nova = mensagem.slice(0, start) + emoji + mensagem.slice(end)
+    setMensagem(nova)
+    requestAnimationFrame(() => {
+      el.selectionStart = el.selectionEnd = start + emoji.length
+      el.focus()
+    })
+  }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -317,6 +332,7 @@ function ConversationView({ chatId, onBack }: { chatId: number; onBack: () => vo
       <div className="border-t border-slate-200 dark:border-slate-700 p-4">
         <div className="flex gap-2">
           <textarea
+            ref={inputRef}
             value={mensagem}
             onChange={(e) => setMensagem(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -324,6 +340,7 @@ function ConversationView({ chatId, onBack }: { chatId: number; onBack: () => vo
             className="flex-1 min-h-[40px] max-h-[120px] rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent px-3 py-2 text-sm resize-none"
             rows={1}
           />
+          <EmojiPicker onSelect={insertEmoji} />
           <Button
             size="icon"
             onClick={() => sendMsg.mutate()}
