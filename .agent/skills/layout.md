@@ -860,16 +860,62 @@ feat: implementa layout moderno com light/dark mode e componentes UI
 
 ---
 
-## 📦 DEPENDÊNCIAS NECESSÁRIAS
+## 🧩 NOVOS COMPONENTES ADICIONADOS
 
-```bash
-npm install next-themes clsx tailwind-merge class-variance-authority
-npm install lucide-react
+### Chat Componentes
+
+| Componente | Localização | Descrição |
+|-----------|-------------|-----------|
+| `ChatPage` | `src/app/(dashboard)/chat/page.tsx` | Split view: sidebar (lista de chats) + conversa |
+| `NovoChatDialog` | mesmo arquivo | Dialog para criar novo chat vinculado a entidade |
+| `EmojiPicker` | `src/components/chat/emoji-picker.tsx` | 80 emojis, 16-col grid, insert at cursor |
+| `EntityChatButton` | `src/components/chat/entity-chat-button.tsx` | Botão reutilizável para criar/abrir chat de entidade |
+| `ChatButton` | `src/components/chat/chat-button.tsx` | Botão global no header com badge de não lidas |
+
+### UI Components
+
+| Componente | Localização | Descrição |
+|-----------|-------------|-----------|
+| `ConfirmModal` | `src/components/ui/confirm-modal.tsx` | Modal de confirmação com variantes (danger, warning) |
+| `InfoButton` | `src/components/ui/info-button.tsx` | Botão de ajuda com tooltip/popover |
+| `LinksEditor` | `src/components/links/LinksEditor.tsx` | Editor de links com URL + descrição |
+| `ExportarDados` | `src/components/exportar/ExportarDados.tsx` | Export CSV/PDF genérico |
+| `ImportarApiModal` | `src/components/integracao/ImportarApiModal.tsx` | Import via API externa genérico |
+
+### Test Layout
+
+```
+src/
+└── test/
+    ├── setup.ts                 # jsdom setup com testing-library
+    └── components/
+        ├── Button.test.tsx      # 38 component tests
+        └── validation.test.ts   # 42 Zod validation tests
 ```
 
 ---
 
-**Skill criada em:** 02/05/2026
-**Versão:** 1.0
+## 📦 DEPENDÊNCIAS ATUAIS DO PROJETO
+
+```bash
+# Produção
+next@14.2.0  react@18.2.0  react-dom@18.2.0
+next-auth@4.24.5  drizzle-orm@0.29+  @neondatabase/serverless
+postgres  zod@3  react-hook-form  @hookform/resolvers
+next-themes  lucide-react  recharts  sonner
+tailwind-merge  class-variance-authority  clsx
+nodemailer@7  bcryptjs  @vercel/blob  jspdf
+
+# Dev
+typescript@5.3  tailwindcss@3.4  postcss  autoprefixer
+drizzle-kit  vitest@4.1.7  @vitejs/plugin-react  jsdom
+@testing-library/react  @testing-library/jest-dom
+```
+
+---
+
+**Skill criada em:** 02/05/2026  
+**Última atualização:** 01/06/2026  
+**Versão:** 1.1  
 **Próximo passo:** Aguardar aprovação do usuário para iniciar a implementação do layout
 
