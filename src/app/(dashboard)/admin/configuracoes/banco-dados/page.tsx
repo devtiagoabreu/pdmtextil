@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { toast } from "sonner"
 import {
   Loader2, Plus, Trash2, Database, Check, ArrowLeft,
-  Circle, Copy, GitBranch,
+  Circle, Copy, GitBranch, Download,
 } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -51,6 +51,7 @@ export default function BancoDadosPage() {
   const [redundPrimaryDb, setRedundPrimaryDb] = useState("")
   const [redundStandbyDb, setRedundStandbyDb] = useState("")
   const [redundLoading, setRedundLoading] = useState(false)
+  const [baixandoBackup, setBaixandoBackup] = useState(false)
 
   useEffect(() => {
     fetch("/api/admin/config/banco-dados")
@@ -188,6 +189,34 @@ export default function BancoDadosPage() {
     setRedundStandbyDb("")
     setRedundStandbyId("")
     setRedundModal(true)
+  }
+
+  async function handleBackup(connId?: number) {
+    setBaixandoBackup(true)
+    try {
+      const params = connId ? `?conexao=${connId}` : ""
+      const res = await fetch(`/api/admin/config/banco-dados/backup${params}`)
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: "Erro ao gerar backup" }))
+        throw new Error(err.error)
+      }
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      const disposition = res.headers.get("Content-Disposition") || ""
+      const match = disposition.match(/filename="?(.+?)"?$/)
+      a.download = match?.[1] || `backup_pdm_${new Date().toISOString().slice(0, 19).replace(/[:]/g, "-")}.sql`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+      toast.success("Backup baixado com sucesso!")
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Erro ao gerar backup")
+    } finally {
+      setBaixandoBackup(false)
+    }
   }
 
   async function handleRedund() {
@@ -434,6 +463,28 @@ export default function BancoDadosPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-6 bg-white dark:bg-slate-900 space-y-4">
+        <div className="flex items-center gap-2">
+          <Download size={20} className="text-blue-600" />
+          <h2 className="text-lg font-semibold">Backup do Banco de Dados</h2>
+        </div>
+        <p className="text-sm text-slate-500">
+          Gera um dump SQL completo (estrutura + dados) de todas as tabelas do banco ativo
+          e faz o download para o computador.
+        </p>
+        <div className="flex flex-wrap gap-2">
+          <Button onClick={() => handleBackup()} disabled={baixandoBackup || !lista.some(c => c.ativo)} className="gap-2">
+            {baixandoBackup ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
+            {baixandoBackup ? "Gerando..." : "Download Backup (ativo)"}
+          </Button>
+          {lista.filter(c => c.ativo).length === 0 && (
+            <p className="text-xs text-amber-600 self-center">
+              Ative uma conexão para fazer backup.
+            </p>
+          )}
+        </div>
+      </div>
 
       <p className="text-xs text-slate-400">
         * A alteração do banco ativo requer reinicialização do servidor para aplicar.
