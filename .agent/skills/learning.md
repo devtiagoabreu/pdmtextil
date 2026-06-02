@@ -2608,3 +2608,255 @@ src/
 - Agendar execução automática de importações (cron)
 - Suporte a mais tipos de autenticação (AWS Signature, digest, etc.)
 - Mapeamento reverso (exportar dados do PDM para API externa)
+
+---
+
+## Seção 46: Chat Corporativo
+
+### Tópico 46.1: Estrutura do Banco
+
+```typescript
+// chats - entidade principal
+chats: pgTable("chats", {
+  id, titulo, criadoPor, createdAt, updatedAt,
+  entidadeTipo,  // 'SOLICITACAO' | 'PRODUTO_CRU' etc
+  entidadeId,    // FK polimórfica
+})
+
+// chat_mensagens - mensagens do chat
+chatMensagens: pgTable("chat_mensagens", {
+  id, chatId, remetenteId, mensagem, createdAt,
+})
+
+// chat_participantes - participantes
+chatParticipantes: pgTable("chat_participantes", {
+  id, chatId, usuarioId, lidoAte, createdAt,
+})
+
+// chat_leituras - controle de leitura por mensagem
+chatLeituras: pgTable("chat_leituras", {
+  id, chatId, mensagemId, usuarioId, lidaEm,
+})
+```
+
+### Tópico 46.2: API Routes
+
+```
+GET    /api/chats                    - Listar chats do usuário
+POST   /api/chats                    - Criar novo chat
+GET    /api/chats/[id]               - Detalhe do chat
+DELETE /api/chats/[id]               - Excluir chat (owner/SUDO)
+GET    /api/chats/[id]/mensagens     - Listar mensagens (com remetenteNome via JOIN usuarios)
+POST   /api/chats/[id]/mensagens     - Enviar mensagem
+PUT    /api/chats/[id]/ler           - Marcar mensagens como lidas (JSON body: { mensagensIds })
+GET    /api/chats/entidade           - Buscar chat por entidade (?tipo=X&id=Y)
+GET    /api/chats/nao-lidas          - Contagem de não lidas
+```
+
+### Tópico 46.3: Regras de Negócio
+
+1. Chat é 1:1 com entidade (SOLICITACAO, PRODUTO_CRU etc.) — se já existe, reabre
+2. Participantes são adicionados automaticamente ao criar chat com `destinatarios: "todos"`
+3. Polling de mensagens a cada 3 segundos (otimizado de 10s)
+4. Marcação de leitura via batch (envia array de IDs em vez de 1 por 1)
+5. Chat vazio não quebra (early return em vez de JOIN em tabela vazia)
+6. remetenteNome obtido via JOIN com tabela usuarios (não apenas user ID)
+
+### Tópico 46.4: Emoji Picker
+
+Componente inline (sem dependência externa):
+- 80 emojis em grid de 16 colunas
+- Insere na posição do cursor (textarea)
+- Fecha ao clicar fora (onClickOutside com ref)
+
+```tsx
+const insertAtCursor = (textarea: HTMLTextAreaElement, text: string) => {
+  const start = textarea.selectionStart
+  const end = textarea.selectionEnd
+  textarea.setRangeText(text, start, end, "end")
+  // disparar evento input para React
+  textarea.dispatchEvent(new Event("input", { bubbles: true }))
+}
+```
+
+### Tópico 46.5: EntityChatButton
+
+Componente reutilizável que:
+1. Busca chat existente via `GET /api/chats/entidade?tipo=X&id=Y`
+2. Se existir, redireciona para `/chat?chatId=N`
+3. Se não existir, cria via `POST /api/chats` com entidadeTipo/entidadeId
+4. Aceita props: `entidadeTipo`, `entidadeId`, `titulo`, `mensagem`, variant, size
+
+**Uso:** `<EntityChatButton entidadeTipo="SOLICITACAO" entidadeId={sol.id} titulo="..." />`
+
+---
+
+## Seção 47: Dashboard com Dados Globais
+
+### Tópico 47.1: Cards de Total
+
+Os cards do dashboard agora mostram totais **globais** (todos os registros), não apenas do mês atual:
+
+```typescript
+// ANTES (filtrava por mês atual)
+const mesAtual = new Date().toLocaleDateString("pt-BR", { month: "long" })
+
+// DEPOIS (sem filtro de data)
+const stats = await db.execute(sql`
+  SELECT
+    (SELECT COUNT(*) FROM solicitacoes) as total,
+    (SELECT COUNT(*) FROM solicitacoes WHERE status IN ('PENDENTE','AGUARDANDO_INFO','REPROVADO','EM_PRODUCAO')) as pendentes,
+    ...
+`)
+```
+
+### Tópico 47.2: Comparação Mensal Corrigida
+
+Usar `toISOString().slice(0, 7)` (YYYY-MM) em vez de `toLocaleDateString()` para evitar problemas de locale:
+
+```typescript
+// ERRADO: depende do locale
+const mesKey = new Date(item.createdAt).toLocaleDateString("pt-BR", { year: "numeric", month: "long" })
+
+// CORRETO: sempre YYYY-MM
+const mesKey = new Date(item.createdAt).toISOString().slice(0, 7)
+```
+
+### Tópico 47.3: Legend Buttons (em vez de Pie onClick)
+
+Pie chart do Recharts com Cell onClick não funcionou consistentemente. Solução: buttons clicáveis ao lado do gráfico:
+
+```tsx
+{stats.statusDistribuicao.map((item) => (
+  <button key={item.status} onClick={() => handleStatusFilter(item.status)}>
+    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.cor }} />
+    <span>{item.label}: {item.total}</span>
+  </button>
+))}
+```
+
+---
+
+## Seção 48: ERP Field em Amostras (idIntegracaoErpCru)
+
+### Tópico 48.1: Migration
+
+```sql
+ALTER TABLE produto_cru_amostra ADD COLUMN IF NOT EXISTS id_integracao_erp_cru varchar(100);
+```
+
+### Tópico 48.2: Schema Drizzle
+
+```typescript
+idIntegracaoErpCru: varchar("id_integracao_erp_cru", { length: 100 }),
+```
+
+### Tópico 48.3: API
+
+POST e PUT em `/api/cadastros/produto-cru/[id]/amostras` aceitam e retornam `idIntegracaoErpCru`.
+
+---
+
+## Seção 49: Testes com Vitest + jsdom
+
+### Tópico 49.1: Configuração
+
+```typescript
+// vitest.config.ts
+import { defineConfig } from "vitest/config"
+import react from "@vitejs/plugin-react"
+
+export default defineConfig({
+  plugins: [react({ jsxRuntime: "automatic" })],
+  test: {
+    environment: "jsdom",
+    globals: true,
+    setupFiles: ["./src/test/setup.ts"],
+  },
+})
+```
+
+### Tópico 49.2: Oxc JSX Parser
+
+Vitest 4.1.7 requer configuração específica para parse .tsx. Usar `@vitejs/plugin-react` com `jsxRuntime: "automatic"` (Oxc).
+
+### Tópico 49.3: Padrões de Teste
+
+- Testes de validação: testar cada schema Zod individualmente (42 testes)
+- Testes de componente: render + find + assert (38 testes)
+- ConfirmModal: testar backdrop click, cancel, confirm callbacks
+- LinksEditor: testar add/remove/edit links
+- Button: testar variantes (default, outline, ghost) e disabled state
+
+---
+
+## Seção 50: Aprendizados Gerais (Período Recente)
+
+### Tópico 50.1: Native `<option>` em Windows + Dark Mode
+
+O elemento `<option>` dentro de `<select>` não aceita `background-color` no Windows. Solução: criar dropdown customizado com `<div>` e estado visível/invisível, ou usar componente shadcn `<Select>`.
+
+### Tópico 50.2: JSON.parse/stringify para evitar referências no React
+
+Quando modificar arrays do React (e.g. adicionar emoji ao textarea), usar `JSON.parse(JSON.stringify(...))` ou `structuredClone` para evitar mutação direta do estado.
+
+### Tópico 50.3: COALESCE com JSONB
+
+Para extrair campos de JSONB com fallback para coluna:
+```sql
+COALESCE(tabela.coluna_texto, tabela.jsonb_column->>'campo', 'default')
+```
+
+### Tópico 50.4: Drizzle SELECT explícito vs SELECT *
+
+Quando adicionar subquery (chatExists), usar `.select({ col1: tabela.col1, ... })` em vez de `.select()` para evitar conflito de tipos com o join implícito.
+
+### Tópico 50.5: Validar existência da migration antes de usar tabela
+
+Erro 500 se a migration não foi executada mas o código já referencia a tabela. Sempre rodar `node scripts/migrate.js` antes de fazer deploy de código que usa novas tabelas.
+
+---
+
+## Histórico de Sessões do Projeto (continuação)
+
+### Sessão 11: Chat Corporativo + Correções (01/06/2026)
+
+**Agente:** opencode/big-pickle
+**Status:** Completo
+
+#### Ações Realizadas
+1. Módulo Chat Corporativo completo (schema, API, UI)
+2. EntityChatButton reutilizável
+3. Emoji picker inline
+4. Correções: polling 3s, marcarLidas com JSON body, participantes array vs number
+5. Custom dropdown em NovoChatDialog (dark mode fix)
+
+#### Problemas Resolvidos
+- Native select não funciona com dark mode no Windows → dropdown custom
+- chatExists dava 500 (tabela não migrada) → adicionado ao migration script
+- Marcar lidas sem body dava 500 → JSON body adicionado
+
+---
+
+### Sessão 12: Dashboard Global + Legend Buttons + ERP Field (01/06/2026)
+
+**Agente:** opencode/big-pickle
+**Status:** Completo
+
+#### Ações Realizadas
+1. Dashboard cards com totais globais
+2. Legend buttons substituem Pie onClick
+3. Comparação mensal YYYY-MM
+4. idIntegracaoErpCru em amostras (schema, migration, API, UI)
+5. EntityChatButton adicionado em solicitacoes detail + produto-cru detail
+6. Chat indicator na lista de produto-cru
+7. Fix rota clientes (row click 404)
+
+---
+
+## Referências Adicionais
+
+- [Vitest 4.x Migration Guide](https://vitest.dev/guide/migration)
+- [jsdom - JavaScript implementation of web standards](https://github.com/jsdom/jsdom)
+- [Recharts PieChart Legend](https://recharts.org/en-US/api/PieChart)
+- [Drizzle Subquery with sql tag](https://orm.drizzle.team/docs/sql)
