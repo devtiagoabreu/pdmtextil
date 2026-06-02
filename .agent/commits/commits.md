@@ -253,275 +253,6 @@ fix: sincroniza comercialData com RHF em tempo real para evitar perda de dados n
 - Botão Cancelar — redireciona para lista
 
 ### Commits:
-- fix: adiciona estado isSubmitting faltando em editar solicitacao
-- fix: corrige tipo não carregando e ajusta botão cancelar em editar
-- fix: carrega todos os campos do formulário em editar solicitacao
-- fix: remove loop infinito no useEffect de sincronizacao
-
----
-
-## BLOCO 1.5: API de solicitações + lista + formulário conectado
-
-**Data:** 05/05/2026
-
-### API Routes criadas:
-- POST /api/solicitacoes: cria com validação de sessão
-- GET /api/solicitacoes: lista filtrada por perfil
-- GET /api/solicitacoes/[id]: detalhe com join
-- PATCH /api/solicitacoes/[id]: adiciona comentário
-- PATCH /api/solicitacoes/[id]/status: muda status com controle de perfil
-
-### Frontend:
-- nova/page.tsx: conectado à API POST real
-- comercial/solicitacoes/page.tsx: lista com tabela responsiva + cards mobile
-
-### Commit:
-
-```
-feat(bloco-1.5): API de solicitacoes + lista + formulario conectado
-```
-
----
-
-## BUGS EM ANDAMENTO: Campos de Input Text no Briefing não salvam
-
-**Data:** 05/05/2026
-
-### Problema:
-- Radio buttons e checkboxes funcionam
-- Inputs de texto (composição, larguraMinima/Maxima, gramaturaMinima/Maxima, prazoEntrega) NÃO são enviados no submit
-
-### Debugging:
-- Adicionados logs em BriefingTecelagemForm.tsx
-- Formulário usa defaultValues: initialData mas valores alterados não aparecem no payload
-
-### Possível solução:
-- Usar setValue para inicializar os campos quando initialData muda
-
----
-
-## FASE 2: Expansão do Sistema (05/05 a 17/05/2026)
-
-**~110 commits — resumo por feature**
-
----
-
-### Dashboard Dados Reais
-
-**Data:** 05/05/2026
-
-Dashboard passa a consumir dados reais do banco (cards de total solicitações, por status, por departamento).
-
-**Commits:**
-- `374a1c5` feat: dashboard busca dados reais do banco
-- `249eb92` fix: layout ajusta links abaixo do briefing
-
----
-
-### Landing Page com Animação
-
-**Data:** 05-06/05/2026
-
-Landing page substitui redirect para login, com animação canvas de tear e tooltip explicativo.
-
-**Commits:**
-- `9d74902` feat: cria landingpage com animacao abstrata de tear
-- `26a1877` feat: atualiza landingpage com significado do PDM e modulo DES
-- `3eac645` feat: atualiza significado completo do PDM
-- `e663cc2` feat: atualiza landingpage com tooltip e PDM.PRO.TEXTIL
-- `4582d13` feat: tooltip above title with correct styling
-- `4e07999` style: atualiza textos da landing page
-
----
-
-### Módulo de Cadastros Base (Fios, Fornecedores, Cores, Estampas, Bases Urdume)
-
-**Data:** 05-07/05/2026
-
-Implementação completa dos CRUDs de cadastros:
-- Fios com schema Drizzle, API, formulário
-- Fornecedores com relação N:N (fios_fornecedores)
-- Cores Sólidas, Estampas, Bases de Urdume
-- Padrão simples (sem Zod/RHF) adotado para formulários
-- Modal para criar fornecedor inline no fio
-- Migrations manuais via script Node.js
-
-**Arquivos criados:** schemas, APIs (GET/POST/PUT/DELETE), páginas de lista e formulário para cada entidade.
-
-**Commits:**
-- `c101556` feat: adiciona modulo de cadastros - schema e pagina de fios
-- `439eb39` fix: corrige tipo decimal para numeric nos schemas
-- `c3280da` fix: corrige tipos numeric no Drizzle
-- `4b0eee5` fix: adiciona import text no schema de cores
-- `74d7402` feat: adiciona API de migration para criar tabelas
-- `7ab65df` feat: adiciona script npm run db:migrate
-- `96afe63` feat: adiciona modulo de fornecedores com relacao N:N aos fios
-- `7e5316d` fix: corrige icon Thread e adiciona campo ativo na interface Fornecedor
-- `8d053fc` fix: corrige icon Bobbin para Fios
-- `8c83931` fix: usa icon Package para Fios
-- `86a8422` fix: remove campo fornecedor obsoleto das APIs de fios
-- `527f999` feat: adiciona Clientes ao menu Cadastros
-- `3d7ff41` fix: permite adicionar fornecedores após criar fio
-- `67d7851` feat: adiciona cadastros de bases de urdume, cores solidas e estampas
-- `7819253` feat: completa CRUD de bases-urdume, cores solidas e estampas
-- `5941584` fix: corrige validacao Zod em formularios de cadastros
-- `d913a4f` fix: corrige validacao Zod com z.coerce.boolean e null
-- `0e3971c` debug: adiciona logs no submit de cores
-- `9027242` refactor: refatora cadastros para padrao simples (sem Zod/RHF)
-- `4bb959b` refactor: refatora fios e fornecedores para padrao simples
-- `1830959` debug: adiciona logs em fios submit e API
-- `b18d18e` feat: adiciona botao para cadastrar fornecedor no modal
-- `efa6bbd` fix: corrige erro de sintaxe em fios
-- `56c1665` fix: corrige type error no catch da API de fios
-- `87bdc28` feat: adiciona modal para criar fornecedor diretamente no fio
-- `4cc2a0f` fix: corrige CSS modo escuro na seção de fornecedores do fio
-- `0451d13` fix: toast duration 1s para msgs de fornecedor
-- `864795b` fix: cria rota DELETE separada para fornecedor do fio
-
----
-
-### Campo idIntegracao em Todos os Cadastros
-
-**Data:** 07-08/05/2026
-
-Adicionado campo `id_integracao` (varchar 100) em todas as tabelas para integração com sistemas externos (ERP, CRM, WMS). Label padronizado como "ID Integração (ERP/WMS/CRM/OUTROS)".
-
-**Commits:**
-- `eddd9f9` feat: adiciona campo idIntegracao em todas as tabelas para integracao com sistemas externos
-- `7ae0b75` debug: adiciona logs nas APIs de cadastros para debugar dados
-- `af74c6e` feat: adiciona API de migracao manual para adicionar idIntegracao
-- `e494a97` feat: adiciona API publica para adicionar idIntegracao
-- `46d5d6d` feat: adiciona idIntegracao na API de migrate
-- `f5d5e9e` feat: adiciona pasta .agent com skills e histórico
-- `ff818e9` style: remove textos entre parênteses dos subtítulos dos cadastros
-- `51cc67a` feat: adiciona campo idIntegracao em todos os CRUDs de cadastros
-- `b27a08c` fix: atualiza label idIntegracao para genérico (ERP/WMS/CRM/OUTROS)
-- `a343613` feat: adiciona campo idIntegracao no CRUD de clientes
-
----
-
-### Importação CSV/JSON em Massa
-
-**Data:** 08/05/2026
-
-Importação via CSV/JSON para todos os cadastros. Inclui:
-- API de modelo (download CSV/JSON com exemplo)
-- API de importação (parse CSV com mapa campoMap camelCase)
-- Componente modal `ImportarX.tsx` para cada entidade
-- Validação de duplicados (campos únicos + idIntegracao)
-- Validação de CNPJ duplicado no update
-- Normalização de line endings Windows (`\r\n`)
-- Tratamento de separador `;` (padrão brasileiro)
-
-**Commits:**
-- `e871589` feat: adiciona importação de fios via CSV/JSON
-- `29419cd` fix: altera separador do CSV para ponto e vírgula (padrão brasileiro)
-- `09c7e67` fix: corrige parsing CSV para suportar line endings Windows (\r\n)
-- `0e9140c` fix: adiciona logs de debug na API de importação de fios
-- `667a05a` feat: logs adicionados no browser
-- `bc7d70b` feat: logs adicionados no servidor
-- `0c7b798` fix: corrige mapeamento de campos camelCase no parsing CSV
-- `0c67ca0` feat: adiciona importação CSV/JSON em massa para todos os cadastros
-- `3cfb6a1` feat: adiciona logs de debug nas APIs de importação de estampas, bases-urdume e clientes
-- `ac4c2a5` fix: corrige tipo NewBaseUrdume para campos numeric na importação
-- `7ff93a9` fix: remove parseFloat dos campos numeric na importação de bases-urdume
-- `a0adae9` fix: exibe lista de erros na UI de importação
-- `28e8092` fix: improved error handling and validation for bases-urdume import
-- `82da9ee` fix: valida CNPJ duplicado antes de inserir fornecedores e clientes
-- `c7248f8` fix: valida idIntegracao duplicado em todas as APIs de importação
-- `8fec1eb` fix: valida CNPJ e idIntegracao duplicados no update de todos os cadastros
-- `b27a08c` fix: atualiza label idIntegracao para genérico
-
----
-
-### Módulo Produto Cru (Tecido Cru)
-
-**Data:** 09-13/05/2026
-
-Módulo completo de Produto Cru com engenharia têxtil:
-- Schema: `produtos_cru`, `composicao`, `estrutura`, `amostras`, `acabamentos`, `amostras_acabamento`
-- Páginas de cadastro com formulário completo
-- Composição com percentuais, estrutura (urdume/trama), amostras com status
-- Vinculação de produtos cru na solicitação
-- Graphify adicionado ao projeto
-
-**Commits:**
-- `c93a39b` feat: inserindo graphify no projeto
-- `4f2a067` feat: adiciona módulo completo de cadastro de Produto Cru (tecido cru)
-- `2fa7438` feat: adiciona migration das tabelas de Produto Cru
-- `44590e6` fix: retorna mensagem de erro detalhada na API de composicao
-- `2c6d126` fix: corrige shorthand percentual sem declaracao no values
-- `7c7bab5` feat: adiciona seletor de status nas amostras (tecido cru e acabamento)
-- `4203f3f` feat: motivo obrigatorio ao aprovar/reprovar amostras + restricao por role
-- `8e54da9` feat: exibe produtos cru vinculados na solicitacao
-- `721967e` fix: estrutura JSX correta - produtos fora do conditional anexos
-- `ddccb98` feat: criando insights - 0001
-
----
-
-### Sistema de Notificações e Email + Admin
-
-**Data:** 13/05/2026
-
-Sistema completo de notificações com:
-- Tabela `notificacoes` e `email_config`
-- Sino de notificações no header com polling 30s e badge
-- Config SMTP no admin
-- Disparo de email em massa
-- Gerenciamento de usuários e roles (CRUD)
-- nodemailer@7 corrigido para compatibilidade com @auth/core
-
-**Commits:**
-- `fbd87a7` feat: sistema de notificacoes e email (sino, smtp, config, usuarios, admin, email massa, disparo automatico)
-- `811830f` fix: bump nodemailer to v7 compativel com @auth/core
-- `1a46271` fix: aceita null no usuarioNome do notificar
-- `ab61944` feat: tabela roles + gerenciamento de perfis no admin
-- `45182ca` fix: adiciona ativo na interface Role
-- `7356702` feat: edicao de roles com PUT e checkbox ativo
-
----
-
-### Produtos Químicos + Receitas de Beneficiamento
-
-**Data:** 13-17/05/2026
-
-- CRUD completo de `produtos_quimicos` com idIntegracao
-- API de importação CSV/JSON para produtos químicos
-- Schema `produto_cru_receita` e `produto_cru_receita_item` vinculado à amostra
-- Modal `ReceitaDialog` para criar/editar receitas por amostra (químico, unidade, qtd/m, estágio)
-- Correções de build Vercel (Next.js 14.2.0, Drizzle type inference, JSX)
-- Padronização da página de listagem de produtos químicos (uso do componente modal ImportarProdutosQuimicos igual ao padrão de fios)
-
-**Commits:**
-- `4c7b333` feat: receitas de beneficiamento com produtos quimicos + cadastro + dialog por amostra
-- `ad2e0ce` fix: compatibilidade Next.js 14 e remove refs obsoletas
-- `b368275` fix: fecha </form> apenas no final do componente
-- `34bc49d` fix: reescreve page.tsx do produto-cru eliminando todos os vestigios de syntax error
-- `536cdb4` fix: importa receitas como produtoCruReceita em vez de receitas
-- `9111574` fix: drizzle query sem reassign + remove desc nao usado
-- `2dce72c` fix: returning() do drizzle retorna objeto ou array conforme versao
-- `35db209` feat: adiciona campo idIntegracao (ERP) no cadastro de produtos quimicos
-- `39e2b62` fix: import de produtos quimicos com ref, delim detection, sem restricao admin
-- `53b6aa3` refactor: padroniza pagina de produtos quimicos com modal de import e estilo igual fios
-
----
-
-### Integrações com API Externa + Importação via API
-
-**Data:** 28-29/05/2026
-
-- Módulo de Integrações completo (schema `integracoes`, API CRUD, página em Configurações)
-- Suporte a 4 tipos de autenticação: OAuth2 (Client Credentials via Basic Auth), Bearer, Basic, API Key
-- Proxy de teste server-side que monta autenticação e executa GET contra API externa
-- Colunas `telas` (JSON array) e `mapping` (JSON com fields + uniqueKey) na tabela
-- Editor visual de mapeamento de campos com "Carregar campos da API" e dropdowns PDM
-- Botão "Importar via API" na tela de Clientes com modal genérico reutilizável
-- Importação com grid, checkboxes, dedup automático por idIntegracao/CNPJ
-- Campo de busca/pesquisa em tempo real no grid do modal
-- Correções de build Vercel (interface Integracao, exhaustive-deps)
-- OAuth2 corrigido: client_id/secret enviados via Basic Auth header (não no body)
-
-**Commits:**
 - `b88689e` fix: add quantidadeProduzida to Amostra types in produto-cru page
 - `b269989` feat: add integracoes module (schema, API, CRUD page, config hub card)
 - `0d4a407` feat: add test endpoint for integracoes (frontend button + API proxy)
@@ -531,3 +262,172 @@ Sistema completo de notificações com:
 - `c1691dc` feat: visual field mapping editor for integracoes
 - `aa4cf6f` fix: translate uniqueKey from API field to PDM field in import dedup check
 - `25f807c` feat: add search filter in import API modal grid
+
+---
+
+### Empresa Config, Exportar Dados, Import via API Genérico, Proxy Imagem
+
+**Data:** 28-30/05/2026
+
+Módulo de Exportar Dados com botão em todas as listas, Configurações de Empresa (CNPJ, endereço, logo), Importação via API genérica reutilizável, Proxy de imagem seguro.
+
+**Commits:**
+- `6a6d61b` feat: add empresa config, exportar dados, import via API generico, proxy imagem
+- `4e4900b` fix: jspdf dep, next.config.js for Next.js 14, syntax errors
+- `1a819c2` fix: comercial/clientes missing return closing paren
+- `c644b8b` fix: implicit any type in integracao import route
+- `14daa98` fix: implicit any type on v param in integracao import
+- `a2a68d4` fix: implicit any on filter callback, use as string[] cast
+- `96aa0ca` fix: replace sql.raw() with parameterized queries to prevent SQL injection
+- `938e559` fix: type mapped explicitly to fix cascade implicit any errors
+- `d8d32b3` feat: add auth and SSRF validation to proxy-image endpoint (#2)
+- `7b4cc90` feat: add auth to clientes GET and POST routes (#3)
+- `c0b8bbf` perf: fix N+1 query in produto cru detail route (#7)
+- `22c76e3` fix: type error in N+1 fix for produto cru route
+- `3af65b2` perf: optimize ownership validation with requireAuth() helper (#8)
+- `6fcb526` fix: update DELETE handler to use requireAuth instead of getServerSession
+- `8b641cd` fix: add missing getServerSession import to auth.ts
+- `3a900d1` perf: consolidate dashboard stats queries (#9)
+- `9682d6f` feat: wrap critical multi-step operations in DB transactions (#11)
+- `0f91f68` feat: add standardized Zod validation with validateRequest helper (#17)
+- `15b595a` fix: use raw body for fios insert to avoid drizzle type mismatch
+- `e651de3` fix: make linkSchema descricao required, use body for produto-cru insert
+
+---
+
+### Refactoring Briefing + Info-Content + Test Suite
+
+**Data:** 30/05 - 01/06/2026
+
+- BriefingTecelagemForm extraído em componentes de seção (1096 → 124 linhas)
+- Info-content refatorado em módulos de domínio (383 → 6 arquivos)
+- Test suite: Vitest 4.1.7 + jsdom, 42 testes de validação Zod, 38 testes de componentes
+- Component tests: ConfirmModal, LinksEditor, Button
+
+**Commits:**
+- `6e2c96b` refactor: extract section components from BriefingTecelagemForm (1096->124 lines)
+- `682bc4c` refactor: split info-content into domain modules (383->6 files)
+- `a2ec1f2` chore: remove old info-content.ts (replaced by domain modules)
+- `32bae00` fix: add local import for InfoContent type in index.ts
+- `ad29e3c` feat: add test suite with Vitest and 42 validation tests
+- `2b8f4db` feat: add component tests with React Testing Library
+
+---
+
+### Solicitações Detail/List Improvements + AGUARDANDO_MATERIA_PRIMA
+
+**Data:** 01/06/2026
+
+- "Dados do Produto" sub-section no Briefing Técnico da solicitacao detail
+- "Observações" column na lista de solicitações
+- Extração de observações do briefing JSONB com COALESCE
+- Novo status AGUARDANDO_MATERIA_PRIMA added to STATUS_CONFIG, STATUS_TRANSICOES, STATUS_VALIDOS
+- Produto Vinculado indicator (removido filtro APROVADO)
+
+**Commits:**
+- `4528b3c` feat: add Dados do Produto to detail view and Observações column to list
+- `0beb9c8` fix: escape quotes in chat page text
+- `885daff` fix: produto vinculado, observacoes, status AGUARDANDO_MATERIA_PRIMA
+
+---
+
+### Chat Corporativo (Módulo Completo)
+
+**Data:** 01/06/2026
+
+Sistema de chat interno completo:
+- DB schema: `chats`, `chat_mensagens`, `chat_participantes`, `chat_leituras`
+- API routes: list/create/detail/delete, send/get messages, mark-as-read, entity lookup, unread count
+- Global ChatButton in header with unread counter (30s polling)
+- `/chat` split-view page (sidebar + conversation)
+- Auto-read marking, Enter to send, polling every 3s
+- GET mensagens joins usuarios for remetenteNome
+- Emoji picker (80 emojis, 16-column grid)
+- EntityChatButton reusable component
+- Custom dropdown (replaces native select for dark mode)
+
+**Commits:**
+- `f987c24` feat: add Chat Corporativo module
+- `75ff184` fix: join usuarios in GET mensagens to include remetenteNome
+- `2bd0fc6` fix: send JSON body in marcarLidas and render participantes count
+- `8b93ed0` feat: add emoji picker to chat
+- `03d6f8f` fix: increase emoji grid to 12 columns
+- `62271d2` fix: 16-column emoji grid with arbitrary value
+- `4aa843b` fix: widen emoji popover to min-w-[460px]
+- `b0d7561` fix: chat bugs — leituras inArray, empty messages, unhandled rejection, redundant dynamic imports
+- `6041a40` fix: replace native select with custom dropdown in NovoChatDialog
+- `f9342dd` perf: reduce chat polling to 3s and remove await on mark-read
+- `9d31eff` fix: remove chatExists from solicitacoes list API (table not migrated)
+- `d6c4f66` fix: add chat tables to migration and restore chatExists in API
+
+---
+
+### Ferramentas (Regra de Três, Conversores Têxteis)
+
+**Data:** 01/06/2026
+
+Ferramentas auxiliares no sistema:
+- Regra de Três Composta com calculadora e "Preencher com Exemplo"
+- Conversores Têxteis (Ne, Nm, Tex, Dtex, Denier)
+- Nav reorganized with Ferramentas, Configurações, Relatórios hubs
+
+**Commits:**
+- `61e8df9` feat: reorganize nav - Configurações and Relatórios hubs
+- `e8dd9df` feat: add Ferramentas nav with Regra de Três calculator
+- `bc172bd` feat: add 'Preencher com exemplo' button in regra de tres info modal
+- `62db71e` fix: regra de tres composta calculation and form
+- `8dfbe4a` fix: reduce input field sizes in regra de tres composta
+- `4fbe29a` feat: add Conversores Texteis (Tex, Ne, Denier) tool
+- `f4deb0d` feat: expand yarn count converter - Ne, Nm, Tex, Dtex, Denier
+
+---
+
+### Dashboard Global Totals + Clickable Legends + Gráficos
+
+**Data:** 01/06/2026
+
+- Dashboard cards agora mostram totais globais (não só mês atual), label "Total"
+- Comparação mensal usa YYYY-MM (não locale-dependent)
+- Pie chart substituído por legend buttons clicáveis (filtro por status)
+- Solicitacoes-lista API sem filtro de data (todos os registros)
+
+**Commits:**
+- `971de13` feat: make status distribution card and activity rows clickable
+- `aa5b605` fix: make each pie slice clickable by status
+- `a1fa23c` fix: move onClick to Cell component in PieChart
+- `134c8bb` fix: use Pie onClick instead of Cell for status filter
+- `22547f5` fix: Pie onClick with index lookup, no Cell children
+- `2b72a1b` fix: replace pie onClick with clickable legend buttons
+- `50ac1fb` fix: compare month via YYYY-MM instead of locale string
+- `a6cb36f` feat: dashboard shows global totals instead of current month only
+- `049eec5` fix: rename card label to 'Total'
+
+---
+
+### ERP Field (idIntegracaoErpCru) em Amostras de Produto Cru
+
+**Data:** 01/06/2026
+
+- Schema: campo `idIntegracaoErpCru` em `produto_cru_amostra`
+- Migration: ALTER TABLE adicionando coluna
+- API: POST e PUT aceitam o campo
+- UI: display + formulário na página de produto-cru
+
+**Commits:**
+- `f29c7b2` feat: add ERP field (id_integracao_erp_cru) to tecido cru samples
+
+---
+
+### EntityChatButton + Chat Indicator em Produto Cru List
+
+**Data:** 01/06/2026
+
+- Componente reutilizável `EntityChatButton` para qualquer entidade
+- Substitui chat inline handler na solicitação detail
+- Adicionado EntityChatButton na página produto-cru detail
+- ChatExists indicator (MessageSquare icon) na lista de produto-cru
+- Fixed row click on clientes list redirecting to correct route
+
+**Commits:**
+- `a7af404` feat: replace inline chat button with reusable EntityChatButton; add chat indicator to produto-cru list
+- `b2f1934` fix: redirect row click on clientes list to /comercial/clientes/{id} instead of non-existent /cadastros/clientes/{id}
