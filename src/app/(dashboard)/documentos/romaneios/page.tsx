@@ -48,7 +48,7 @@ export default function RomaneiosPage() {
       .then((res) => res.json())
       .then((data) => {
         setIntegracoes(data)
-        if (data.length > 0 && !selectedId) {
+        if (data.length > 0) {
           setSelectedId(data[0].id)
         }
       })
@@ -91,7 +91,7 @@ export default function RomaneiosPage() {
     if (selectedId && integracoes.length > 0) {
       handleFetch()
     }
-  }, [selectedId, integracoes.length])
+  }, [selectedId, integracoes.length, handleFetch])
 
   const columns = items.length > 0 ? Object.keys(items[0]) : []
 
