@@ -40,11 +40,12 @@ export const adminContent: Record<string, InfoContent> = {
   },
   "/admin/configuracoes/banco-dados": {
     title: "Banco de Dados",
-    description: "Gerenciamento de conexões com bancos de dados externos para integração com sistemas legados.",
+    description: "Gerenciamento de servidores PostgreSQL: criação, clonagem e redundância de bancos de dados.",
     rules: [
-      "As conexões são usadas para importar dados de sistemas da empresa.",
-      "A string de conexão deve seguir o formato PostgreSQL.",
-      "Apenas conexões ativas podem ser utilizadas nas importações.",
+      "A string de conexão deve apontar para o servidor (ex: postgresql://user:pass@host:5432/postgres).",
+      "Apenas conexões ativas podem ser usadas nas operações de criar/clonar/redundância.",
+      "Clone no mesmo servidor usa CREATE DATABASE WITH TEMPLATE — requer que a origem não tenha conexões ativas.",
+      "Redundância usa replicação lógica (PUBLICATION + SUBSCRIPTION).",
     ],
   },
   "/admin/configuracoes/empresa": {

@@ -416,6 +416,37 @@ Pós-MVP (Sprint 6) - Finalização (8 blocos)
 
 **TOTAL DE BLOCOS: 67 blocos incrementais**
 
+### Blocos Implementados (Além do Planejado)
+
+```
+Blocos Adicionais Pós-MVP:
+├── Chat Corporativo (schema, API, UI, emoji picker, EntityChatButton)
+├── Dashboard Global Totals + Legend Buttons + Comparação Mensal
+├── ERP Field (idIntegracaoErpCru) em Amostras de Produto Cru
+├── Testes com Vitest + jsdom (42 Zod + 38 Component tests)
+├── Ferramentas: Regra de Três, Conversores Têxteis (Ne, Nm, Tex, Dtex, Denier)
+├── Nav Reorganizada (Ferramentas, Configurações, Relatórios hubs)
+├── Report Pages (P1-P6): Tempo por Status, Solicitações Criadas/Deletadas, Atividade por Usuário
+├── Dashboard de Amostras com stats e gráficos
+├── Requisição de Corte CRUD (schema, API, pages, migration)
+├── Global Command Search com atalho de teclado
+├── Exportar Dados (CSV/PDF) em todas as listas
+├── Configurações de Empresa (CNPJ, endereço, logo)
+├── Importação via API Genérica (ImportarApiModal)
+├── Proxy de Imagem Seguro (SSRF validation)
+├── Notificação Rules por Perfil (admin config)
+├── InfoButton em todas as páginas
+├── Links (URLs) em Produto Cru, Amostras
+├── Receitas: versionamento, duplicação, dashboard
+├── Produto Cru: split em abas (capa, ficha técnica, composição, amostras, links)
+├── Fios: NCM, titulagemReal, valorUnitário fornecedor, links
+├── Perfil do Usuário: alteração de senha, gerar senha automática
+├── Amostras Dashboard com abas
+├── Business rules: auto-status ao aprovar produto, validação de amostra aprovada
+├── Security: SQL injection prevention, auth em todas as rotas, ownership validation
+├── Performance: N+1 query fixes, dashboard query consolidation, DB transactions
+```
+
 ---
 
 ## 🎬 INÍCIO DO DESENVOLVIMENTO
