@@ -24,16 +24,27 @@ export function exportCSV(
   URL.revokeObjectURL(url)
 }
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;")
+}
+
 export function exportPDF(title: string, contentHtml: string) {
   const win = window.open("", "_blank")
   if (!win) return
+
+  const safeTitle = escapeHtml(title)
 
   win.document.write(`
     <!DOCTYPE html>
     <html>
     <head>
       <meta charset="utf-8">
-      <title>${title}</title>
+      <title>${safeTitle}</title>
       <style>
         @page { margin: 15mm; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -53,13 +64,13 @@ export function exportPDF(title: string, contentHtml: string) {
       </style>
     </head>
     <body>
-      <h1>${title}</h1>
+      <h1>${safeTitle}</h1>
       <p class="subtitle">Exportado em ${new Date().toLocaleString("pt-BR")}</p>
       <div class="stats" id="pdf-stats"></div>
       <div id="pdf-content">${contentHtml}</div>
       <p class="footer">PDM PRO TÊXTIL — Relatório gerado automaticamente</p>
       <script>
-        document.title = "${title.replace(/"/g, '\\"')}";
+        document.title = "${safeTitle.replace(/"/g, '\\"')}";
         window.onload = function() { window.print(); }
       <\/script>
     </body>

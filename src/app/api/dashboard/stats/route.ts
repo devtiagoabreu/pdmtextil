@@ -84,7 +84,7 @@ export async function GET() {
       concluidas: geralConcluidas,
       monthlyTrend: trendData,
       statusDistribution: statusRows.map((r: any) => ({ status: r.status, total: Number(r.total) })),
-      tipoDistribution: tipoRows.map((r: any) => ({ tipo: r.tipo, total: Number(r.tipo) })),
+      tipoDistribution: tipoRows.map((r: any) => ({ tipo: r.tipo, total: Number(r.total) })),
       totalProdutosCru,
     })
   } catch (error) {

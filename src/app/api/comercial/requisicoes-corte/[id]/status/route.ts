@@ -15,13 +15,14 @@ const STATUS_VALIDOS = [
 // PATCH - Mudar status da requisição de corte
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
-    const id = parseInt(params.id)
+    const { id: idStr } = await params
+    const id = parseInt(idStr)
     if (isNaN(id)) return NextResponse.json({ error: "ID inválido" }, { status: 400 })
 
     const { status, comentario } = await req.json()

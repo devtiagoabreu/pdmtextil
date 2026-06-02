@@ -127,11 +127,6 @@ export async function PUT(
     }
     if (body.briefing !== undefined) setValues.briefing = body.briefing
 
-    // Auto-altera status para EM_DESENVOLVIMENTO se usuario for DESENVOLVIMENTO
-    if (body.status === undefined && session.user.role === "DESENVOLVIMENTO") {
-      setValues.status = "EM_DESENVOLVIMENTO"
-    }
-
     // Converte prazoDesejado: string ISO → Date para o Drizzle / Postgres timestamp
     if (body.prazoDesejado !== undefined) {
       setValues.prazoDesejado = body.prazoDesejado ? new Date(body.prazoDesejado) : null

@@ -10,14 +10,15 @@ function maskSensitive(value: string): string {
   return value.slice(0, 4) + "****" + value.slice(-4)
 }
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
     if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUDO")) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
-    const id = Number(params.id)
+    const { id: idStr } = await params
+    const id = Number(idStr)
     if (!id) {
       return NextResponse.json({ error: "id inválido" }, { status: 400 })
     }

@@ -5,6 +5,7 @@ import { db } from "@/lib/db"
 import { emailConfig } from "@/lib/db/schema/email-config"
 import { eq } from "drizzle-orm"
 import { clearTransporter } from "@/lib/email"
+import { encrypt, decrypt } from "@/lib/crypto"
 
 export async function GET() {
   try {
@@ -14,7 +15,9 @@ export async function GET() {
     }
 
     const configs = await db.select().from(emailConfig).limit(1)
-    return NextResponse.json(configs[0] || null)
+    if (!configs[0]) return NextResponse.json(null)
+    const cfg = { ...configs[0], pass: decrypt(configs[0].pass) }
+    return NextResponse.json(cfg)
   } catch (error) {
     console.error("[GET /api/admin/config/smtp]", error)
     return NextResponse.json({ error: "Erro interno" }, { status: 500 })
@@ -37,7 +40,7 @@ export async function PUT(req: NextRequest) {
         host: body.host || "smtp.gmail.com",
         port: body.port || 587,
         user: body.user,
-        pass: body.pass,
+        pass: encrypt(body.pass),
         fromName: body.fromName || "PDM Têxtil",
         ativo: body.ativo ?? true,
         updatedAt: new Date(),
@@ -47,7 +50,7 @@ export async function PUT(req: NextRequest) {
         host: body.host || "smtp.gmail.com",
         port: body.port || 587,
         user: body.user,
-        pass: body.pass,
+        pass: encrypt(body.pass),
         fromName: body.fromName || "PDM Têxtil",
         ativo: body.ativo ?? true,
       })
