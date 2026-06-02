@@ -6,6 +6,7 @@ import { comercialContent } from "./comercial"
 import { cadastrosContent } from "./cadastros"
 import { adminContent } from "./admin"
 import { ferramentasContent } from "./ferramentas"
+import { documentosContent } from "./documentos"
 import { outrosContent } from "./outros"
 
 const infoContent: Record<string, InfoContent> = {
@@ -14,6 +15,7 @@ const infoContent: Record<string, InfoContent> = {
   ...cadastrosContent,
   ...adminContent,
   ...ferramentasContent,
+  ...documentosContent,
   ...outrosContent,
 }
 
