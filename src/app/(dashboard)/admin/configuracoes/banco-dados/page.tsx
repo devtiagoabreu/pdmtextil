@@ -470,17 +470,18 @@ export default function BancoDadosPage() {
           <h2 className="text-lg font-semibold">Backup do Banco de Dados</h2>
         </div>
         <p className="text-sm text-slate-500">
-          Gera um dump SQL completo (estrutura + dados) de todas as tabelas do banco ativo
-          e faz o download para o computador.
+          Gera um dump SQL completo (estrutura + dados) de todas as tabelas e faz o download
+          para o computador. Usa a conexão ativa cadastrada, ou a variável DATABASE_URL como
+          fallback.
         </p>
         <div className="flex flex-wrap gap-2">
-          <Button onClick={() => handleBackup()} disabled={baixandoBackup || !lista.some(c => c.ativo)} className="gap-2">
+          <Button onClick={() => handleBackup()} disabled={baixandoBackup} className="gap-2">
             {baixandoBackup ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
-            {baixandoBackup ? "Gerando..." : "Download Backup (ativo)"}
+            {baixandoBackup ? "Gerando..." : "Download Backup"}
           </Button>
-          {lista.filter(c => c.ativo).length === 0 && (
-            <p className="text-xs text-amber-600 self-center">
-              Ative uma conexão para fazer backup.
+          {lista.some(c => c.ativo) && (
+            <p className="text-xs text-slate-400 self-center">
+              Usando conexão ativa
             </p>
           )}
         </div>
