@@ -17,6 +17,7 @@ import {
   FlaskConical,
   Wrench,
   Scissors,
+  FileSpreadsheet,
 } from "lucide-react"
 
 const adminItems = [
@@ -34,6 +35,7 @@ const baseNav = [
   { href: "/cadastros", label: "Cadastros", icon: Database },
   { href: "/cadastros/produto-cru", label: "Produtos Cru", icon: Factory },
   { href: "/cadastros/receitas", label: "Receitas", icon: FlaskConical },
+  { href: "/documentos", label: "Documentos", icon: FileSpreadsheet },
   { href: "/dashboard/relatorios", label: "Relatórios", icon: BarChart3 },
   { href: "/ferramentas", label: "Ferramentas", icon: Wrench },
 ] as const
