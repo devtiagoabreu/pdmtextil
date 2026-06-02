@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { notificacaoRegras } from "@/lib/db/schema/notificacao-regras"
 import { eq } from "drizzle-orm"
+export const dynamic = "force-dynamic"
 
 const TIPOS_NOTIFICACAO = [
   "SOLICITACAO_CRIADA",

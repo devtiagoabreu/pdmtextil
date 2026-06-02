@@ -6,6 +6,7 @@ import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq } from "drizzle-orm"
 import bcrypt from "bcryptjs"
 import { validateRequest, usuarioSchema } from "@/lib/validation"
+export const dynamic = "force-dynamic"
 
 export async function GET() {
   try {

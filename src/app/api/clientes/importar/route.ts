@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { clientes } from "@/lib/db/schema/clientes"
 import { eq } from "drizzle-orm"
+export const dynamic = "force-dynamic"
 
 interface ClienteImport {
   nome?: string

@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { emailModelos } from "@/lib/db/schema/email-modelos"
 import { eq } from "drizzle-orm"
+export const dynamic = "force-dynamic"
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {

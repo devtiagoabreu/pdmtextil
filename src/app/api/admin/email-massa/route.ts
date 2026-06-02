@@ -7,6 +7,7 @@ import { usuarios } from "@/lib/db/schema/usuarios"
 import { emailListaContatos } from "@/lib/db/schema/email-listas"
 import { eq, inArray } from "drizzle-orm"
 import { sendEmail, parseEmails } from "@/lib/email"
+export const dynamic = "force-dynamic"
 
 interface Destinatario {
   email: string

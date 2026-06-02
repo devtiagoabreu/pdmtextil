@@ -5,6 +5,7 @@ import { db } from "@/lib/db"
 import { produtoCruReceita as receitas } from "@/lib/db/schema"
 import { eq } from "drizzle-orm"
 import { validateReceitaChain } from "@/lib/validate-ownership"
+export const dynamic = "force-dynamic"
 
 export async function GET(
   req: NextRequest,

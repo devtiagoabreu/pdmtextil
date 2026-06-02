@@ -5,6 +5,7 @@ import { db } from "@/lib/db"
 import { requisicoesCorte } from "@/lib/db/schema/requisicoes-corte"
 import { eq } from "drizzle-orm"
 import { notificar, registrarLog } from "@/lib/notificar"
+export const dynamic = "force-dynamic"
 
 const STATUS_VALIDOS = [
   "SOLICITADO",

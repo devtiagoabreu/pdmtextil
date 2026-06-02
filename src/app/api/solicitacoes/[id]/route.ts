@@ -7,6 +7,7 @@ import { anexos } from "@/lib/db/schema/anexos"
 import { eq } from "drizzle-orm"
 import { notificar, notificarDelecao, registrarLog } from "@/lib/notificar"
 import { handleApiError } from "@/lib/api-error"
+export const dynamic = "force-dynamic"
 
 export async function GET(
   req: NextRequest,

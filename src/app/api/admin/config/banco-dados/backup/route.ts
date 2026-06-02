@@ -5,6 +5,7 @@ import { db } from "@/lib/db"
 import { bancosDados } from "@/lib/db/schema/banco-dados"
 import { eq } from "drizzle-orm"
 import { generateBackup } from "@/lib/dump"
+export const dynamic = "force-dynamic"
 
 export async function GET(req: NextRequest) {
   try {

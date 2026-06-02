@@ -5,6 +5,7 @@ import { db } from "@/lib/db"
 import { basesUrdume } from "@/lib/db/schema/bases-urdume"
 import { estampas } from "@/lib/db/schema/estampas"
 import { coresSolidas } from "@/lib/db/schema/cores"
+export const dynamic = "force-dynamic"
 
 export async function GET() {
   try {

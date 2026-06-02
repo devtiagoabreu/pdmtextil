@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { sql } from "drizzle-orm"
+export const dynamic = "force-dynamic"
 
 async function q(sqlFragment: ReturnType<typeof sql>, fallback: any = null) {
   try {

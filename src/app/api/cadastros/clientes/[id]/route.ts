@@ -6,6 +6,7 @@ import { clientes } from "@/lib/db/schema/clientes"
 import { eq } from "drizzle-orm"
 import { handleApiError } from "@/lib/api-error"
 import { notificarDelecao } from "@/lib/notificar"
+export const dynamic = "force-dynamic"
 
 export async function GET(
   req: NextRequest,

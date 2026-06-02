@@ -11,6 +11,7 @@ import { produtosQuimicos } from "@/lib/db/schema/produtos-quimicos"
 import { produtosCru } from "@/lib/db/schema/produto-cru"
 import { integracoes } from "@/lib/db/schema/integracoes"
 import { eq, and, or, SQL, sql } from "drizzle-orm"
+export const dynamic = "force-dynamic"
 
 const entityConfig: Record<string, { table: any; uniqueFields: string[]; idField?: string } | null> = {
   clientes: { table: clientes, uniqueFields: ["cnpj"] },

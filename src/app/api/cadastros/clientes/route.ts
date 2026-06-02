@@ -5,6 +5,7 @@ import { db } from "@/lib/db"
 import { clientes } from "@/lib/db/schema/clientes"
 import { ilike, or, desc, eq } from "drizzle-orm"
 import { validateRequest, clienteSchema } from "@/lib/validation"
+export const dynamic = "force-dynamic"
 
 export async function GET(req: NextRequest) {
   try {

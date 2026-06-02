@@ -15,6 +15,7 @@ import { solicitacoes } from "@/lib/db/schema/solicitacoes"
 import { eq, inArray } from "drizzle-orm"
 import { notificar, notificarDelecao, registrarLog } from "@/lib/notificar"
 import { handleApiError } from "@/lib/api-error"
+export const dynamic = "force-dynamic"
 
 export async function GET(
   req: NextRequest,

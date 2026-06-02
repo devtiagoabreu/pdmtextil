@@ -5,6 +5,7 @@ import { db } from "@/lib/db"
 import { solicitacoes } from "@/lib/db/schema/solicitacoes"
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq, desc } from "drizzle-orm"
+export const dynamic = "force-dynamic"
 
 export async function GET() {
   try {

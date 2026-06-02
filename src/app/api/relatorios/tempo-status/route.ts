@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { solicitacoes } from "@/lib/db/schema/solicitacoes"
 import { sql, desc } from "drizzle-orm"
+export const dynamic = "force-dynamic"
 
 const STATUS_LABELS: Record<string, string> = {
   PENDENTE: "Pendente",

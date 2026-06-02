@@ -6,6 +6,7 @@ import { emailConfig } from "@/lib/db/schema/email-config"
 import { eq } from "drizzle-orm"
 import { clearTransporter } from "@/lib/email"
 import { encrypt, decrypt } from "@/lib/crypto"
+export const dynamic = "force-dynamic"
 
 export async function GET() {
   try {

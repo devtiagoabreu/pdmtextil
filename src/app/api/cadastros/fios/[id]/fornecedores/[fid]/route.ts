@@ -5,6 +5,7 @@ import { db } from "@/lib/db"
 import { fiosFornecedores } from "@/lib/db/schema/fios"
 import { eq, and } from "drizzle-orm"
 import { handleApiError } from "@/lib/api-error"
+export const dynamic = "force-dynamic"
 
 export async function DELETE(
   req: NextRequest,
