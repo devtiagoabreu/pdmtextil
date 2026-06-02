@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { configEmpresa, ConfigEmpresa } from "@/lib/db/schema/config-empresa"
 import { eq } from "drizzle-orm"
+export const dynamic = "force-dynamic"
 
 export async function GET() {
   try {

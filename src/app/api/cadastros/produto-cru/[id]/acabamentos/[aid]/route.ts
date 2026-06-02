@@ -6,6 +6,7 @@ import { produtoCruAcabamento } from "@/lib/db/schema/produto-cru"
 import { eq, and } from "drizzle-orm"
 import { notificar } from "@/lib/notificar"
 import { handleApiError } from "@/lib/api-error"
+export const dynamic = "force-dynamic"
 
 export async function DELETE(
   req: NextRequest,

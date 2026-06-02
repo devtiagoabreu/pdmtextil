@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { coresSolidas } from "@/lib/db/schema/cores"
 import { eq } from "drizzle-orm"
+export const dynamic = "force-dynamic"
 
 interface CorImport {
   codigo?: string

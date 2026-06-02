@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { produtoCruEstrutura } from "@/lib/db/schema/produto-cru"
 import { eq } from "drizzle-orm"
+export const dynamic = "force-dynamic"
 
 export async function GET(
   req: NextRequest,

@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { sql } from "drizzle-orm"
+export const dynamic = "force-dynamic"
 
 const STATUS_LABELS: Record<string, string> = {
   PENDENTE: "Pendente",

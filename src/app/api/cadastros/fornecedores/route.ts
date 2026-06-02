@@ -5,6 +5,7 @@ import { db } from "@/lib/db"
 import { fornecedores } from "@/lib/db/schema/fios"
 import { eq } from "drizzle-orm"
 import { validateRequest, fornecedorSchema } from "@/lib/validation"
+export const dynamic = "force-dynamic"
 
 export async function GET() {
   try {

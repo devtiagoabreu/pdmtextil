@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { roles } from "@/lib/db/schema/roles"
 import { eq } from "drizzle-orm"
+export const dynamic = "force-dynamic"
 
 export async function PUT(
   req: NextRequest,

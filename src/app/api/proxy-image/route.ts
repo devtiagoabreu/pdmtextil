@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { URL } from "node:url"
+export const dynamic = "force-dynamic"
 
 const BLOCKED_HOSTS = [
   "localhost",

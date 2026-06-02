@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { fiosFornecedores, fornecedores, fios } from "@/lib/db/schema/fios"
 import { eq } from "drizzle-orm"
+export const dynamic = "force-dynamic"
 
 export async function GET(
   req: NextRequest,
