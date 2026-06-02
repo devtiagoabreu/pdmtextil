@@ -36,12 +36,18 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       "Accept": "application/json",
     }
 
+    const { searchParams: reqParams } = new URL(req.url)
     let url: URL
     try {
       url = new URL(integracao.baseUrl)
     } catch {
       return NextResponse.json({ error: "URL base inválida" }, { status: 400 })
     }
+    reqParams.forEach((value, key) => {
+      if (key !== "tela") {
+        url.searchParams.set(key, value)
+      }
+    })
 
     switch (integracao.tipoAuth) {
       case "bearer": {
