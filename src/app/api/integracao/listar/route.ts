@@ -29,8 +29,8 @@ export async function GET(req: NextRequest) {
       .orderBy(integracoes.nome)
 
     const filtered = tela
-      ? allIntegracoes.filter((i: { telas?: string[] }) => {
-          const telas = i.telas || []
+      ? allIntegracoes.filter((i) => {
+          const telas = (i.telas as string[]) || []
           return telas.includes(tela)
         })
       : allIntegracoes
