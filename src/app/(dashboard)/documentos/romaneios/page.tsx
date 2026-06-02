@@ -5,13 +5,10 @@ import { toast } from "sonner"
 import {
   Loader2,
   Truck,
-  Download,
   Search,
-  FileText,
   ChevronDown,
   ChevronUp,
   Printer,
-  Database,
   RefreshCw,
   Globe,
 } from "lucide-react"
@@ -55,8 +52,6 @@ export default function RomaneiosPage() {
       .catch(() => toast.error("Erro ao carregar integrações"))
       .finally(() => setLoadingInt(false))
   }, [])
-
-  const integracaoAtiva = integracoes.find((i) => i.id === selectedId)
 
   const handleFetch = useCallback(async () => {
     if (!selectedId) return
@@ -123,7 +118,7 @@ export default function RomaneiosPage() {
     }
   }
 
-  async function handlePrint() {
+  function handlePrint() {
     if (selectedRows.size === 0) {
       toast.error("Selecione ao menos um romaneio para imprimir")
       return
