@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { chats, chatParticipantes, chatMensagens } from "@/lib/db/schema"
-import { eq, asc } from "drizzle-orm"
+import { eq, and, asc } from "drizzle-orm"
 
 export async function GET(req: NextRequest) {
   try {
@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
       .select()
       .from(chats)
       .where(
-        eq(chats.entidadeTipo, entidadeTipo) && eq(chats.entidadeId, parseInt(entidadeId))
+        and(eq(chats.entidadeTipo, entidadeTipo), eq(chats.entidadeId, parseInt(entidadeId)))
       )
       .limit(1)
 

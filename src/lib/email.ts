@@ -2,6 +2,7 @@ import nodemailer from "nodemailer"
 import { db } from "./db"
 import { emailConfig } from "./db/schema/email-config"
 import { eq } from "drizzle-orm"
+import { decrypt } from "./crypto"
 
 let transporter: nodemailer.Transporter | null = null
 
@@ -18,7 +19,7 @@ export async function getTransporter() {
     host: cfg.host,
     port: cfg.port,
     secure: cfg.port === 465,
-    auth: { user: cfg.user, pass: cfg.pass },
+    auth: { user: cfg.user, pass: decrypt(cfg.pass) },
   })
 
   return transporter
@@ -50,7 +51,7 @@ export async function sendEmail(params: {
     host: cfg.host,
     port: cfg.port,
     secure: cfg.port === 465,
-    auth: { user: cfg.user, pass: cfg.pass },
+    auth: { user: cfg.user, pass: decrypt(cfg.pass) },
   })
 
   const toList = Array.isArray(params.to) ? params.to : [params.to]

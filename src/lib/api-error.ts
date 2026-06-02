@@ -3,7 +3,7 @@ import { notificarErro } from "./notificar"
 
 const FK_ERROR = '23503' // PostgreSQL foreign_key_violation
 
-export function handleApiError(error: unknown, context: string, usuarioNome?: string | null) {
+export async function handleApiError(error: unknown, context: string, usuarioNome?: string | null) {
   const pgError = error as { code?: string; detail?: string; message?: string }
   const isFK = pgError?.code === FK_ERROR
 
@@ -16,7 +16,7 @@ export function handleApiError(error: unknown, context: string, usuarioNome?: st
     }, { status: 409 })
   }
 
-  notificarErro(context, error, usuarioNome)
+  await notificarErro(context, error, usuarioNome)
 
   return NextResponse.json({
     error: "Ocorreu um erro inesperado. A equipe de suporte foi notificada.",
