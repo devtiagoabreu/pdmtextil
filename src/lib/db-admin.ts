@@ -1,13 +1,45 @@
 import { Pool } from "pg"
 
 function parseConnString(connString: string): { base: string } {
-  const base = connString.replace(/\/[^/]+$/, "/postgres")
-  return { base }
+  // postgresql://user:pass@host:5432/db?params
+  // postgresql:///db?host=/socket  (socket)
+  // simple: /var/run/postgresql or host:port/db
+  try {
+    const url = new URL(connString)
+    const dbName = url.pathname.replace(/^\//, "") || "postgres"
+    url.pathname = "/postgres"
+    return { base: url.toString() }
+  } catch {
+    // Not a valid URL — treat as local socket or shorthand
+    const slashIdx = connString.lastIndexOf("/")
+    if (slashIdx >= 0) {
+      return { base: connString.slice(0, slashIdx + 1) + "postgres" }
+    }
+    return { base: connString ? "postgresql:///" + connString : "postgresql:///postgres" }
+  }
+}
+
+function serverBase(connString: string): string {
+  const { base } = parseConnString(connString)
+  return base
+}
+
+function dbConnString(connString: string, dbName: string): string {
+  try {
+    const url = new URL(connString)
+    url.pathname = "/" + dbName
+    return url.toString()
+  } catch {
+    const slashIdx = connString.lastIndexOf("/")
+    if (slashIdx >= 0) {
+      return connString.slice(0, slashIdx + 1) + dbName
+    }
+    return "postgresql:///" + dbName
+  }
 }
 
 export async function createDatabase(connString: string, dbName: string): Promise<{ success: boolean; message: string }> {
-  const { base } = parseConnString(connString)
-  const pool = new Pool({ connectionString: base })
+  const pool = new Pool({ connectionString: serverBase(connString) })
   try {
     await pool.query(`CREATE DATABASE "${dbName}"`)
     return { success: true, message: `Banco "${dbName}" criado com sucesso.` }
@@ -25,10 +57,9 @@ export async function cloneDatabase(
   sourceDb: string,
   targetDb: string
 ): Promise<{ success: boolean; message: string }> {
-  const sourceParsed = parseConnString(sourceConn)
-  const targetParsed = parseConnString(targetConn)
+  const server = serverBase(sourceConn)
 
-  const pool = new Pool({ connectionString: sourceParsed.base })
+  const pool = new Pool({ connectionString: server })
   try {
     const result = await pool.query(`SELECT 1 FROM pg_database WHERE datname = $1`, [sourceDb])
     if (result.rows.length === 0) {
@@ -38,10 +69,10 @@ export async function cloneDatabase(
     await pool.end()
   }
 
-  const sameServer = sourceParsed.base === targetParsed.base
+  const sameServer = serverBase(sourceConn) === serverBase(targetConn)
 
   if (sameServer) {
-    const pool2 = new Pool({ connectionString: sourceParsed.base })
+    const pool2 = new Pool({ connectionString: server })
     try {
       await pool2.query(`SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = $1 AND pid <> pg_backend_pid()`, [sourceDb])
       const exists = await pool2.query(`SELECT 1 FROM pg_database WHERE datname = $1`, [targetDb])
@@ -57,8 +88,8 @@ export async function cloneDatabase(
       await pool2.end()
     }
   } else {
-    const srcPool = new Pool({ connectionString: `${sourceParsed.base.replace(/\/[^/]+$/, "")}/${sourceDb}` })
-    const tgtPool = new Pool({ connectionString: `${targetParsed.base.replace(/\/[^/]+$/, "")}/${targetDb}` })
+    // cross-server: check if target exists
+    const tgtPool = new Pool({ connectionString: dbConnString(targetConn, targetDb) })
     try {
       const exists = await tgtPool.query(`SELECT 1 FROM information_schema.tables LIMIT 1`)
       if (exists.rows.length > 0) {
@@ -67,7 +98,6 @@ export async function cloneDatabase(
     } finally {
       await tgtPool.end()
     }
-    // cross-server via pg_dump/pg_restore not available in serverless
     return { success: false, message: `Clone entre servidores diferentes requer pg_dump/pg_restore local. Execute manualmente ou configure no mesmo servidor.` }
   }
 }
@@ -80,8 +110,8 @@ export async function setupRedundancy(
   primaryDb: string,
   standbyDb: string
 ): Promise<{ success: boolean; message: string }> {
-  const primaryPool = new Pool({ connectionString: `${parseConnString(primaryConn).base.replace(/\/[^/]+$/, "")}/${primaryDb}` })
-  const standbyPool = new Pool({ connectionString: `${parseConnString(standbyConn).base.replace(/\/[^/]+$/, "")}/${standbyDb}` })
+  const primaryPool = new Pool({ connectionString: dbConnString(primaryConn, primaryDb) })
+  const standbyPool = new Pool({ connectionString: dbConnString(standbyConn, standbyDb) })
 
   try {
     await primaryPool.query(`DROP PUBLICATION IF EXISTS "${publicationName}"`)
@@ -94,8 +124,7 @@ export async function setupRedundancy(
   }
 
   try {
-    // Get the primary connection string with the specific database for the subscription
-    const primaryFullConn = `${parseConnString(primaryConn).base.replace(/\/[^/]+$/, "")}/${primaryDb}`
+    const primaryFullConn = dbConnString(primaryConn, primaryDb)
     await standbyPool.query(`DROP SUBSCRIPTION IF EXISTS "${subscriptionName}"`)
     await standbyPool.query(`CREATE SUBSCRIPTION "${subscriptionName}" CONNECTION $1 PUBLICATION "${publicationName}"`, [primaryFullConn])
     return { success: true, message: `Redundância configurada: publicação "${publicationName}" no primário, inscrição "${subscriptionName}" no standby.` }
