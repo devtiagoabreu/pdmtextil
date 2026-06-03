@@ -270,60 +270,60 @@ export default function RomaneiosPage() {
       const c = grupo.capa
       y += isLandscape ? 6 : 5
 
+      const fsTit = isLandscape ? 7 : 6.5
+      const fsVal = isLandscape ? 6.5 : 6
+      const linha1 = isLandscape ? 10 : 10
+      const linha2 = isLandscape ? 15 : 16
+      const linha3 = isLandscape ? 20 : 22
+      const linha4 = isLandscape ? 25 : 28
+      const capaH = isLandscape ? 42 : 54
+      const col1 = margin + 4
+      const col2 = isLandscape ? 90 : 82
+      const col3 = isLandscape ? 160 : 125
+      const col4 = isLandscape ? 215 : 170
+
       doc.setDrawColor(200)
       doc.setFillColor(245, 247, 250)
-      const capaW = pageWidth - margin * 2
-      const capaH = isLandscape ? 38 : 46
-      doc.roundedRect(margin, y, capaW, capaH, 2, 2, "FD")
+      doc.roundedRect(margin, y, pageWidth - margin * 2, capaH, 2, 2, "FD")
 
-      const fs = isLandscape ? 8 : 7
-      const fs2 = isLandscape ? 7 : 6
-      doc.setFontSize(fs).setFont("helvetica", "bold")
-      doc.text("CLIENTE", margin + 4, y + 5)
-      doc.setFont("helvetica", "normal").setFontSize(fs2)
-      doc.text(`${c.nome_cliente}`, margin + 4, y + 10)
-      doc.text(`CNPJ: ${c.cnpj}`, margin + 4, y + (isLandscape ? 15 : 18))
-      doc.text(`${c.cidade} / ${c.uf}`, margin + 4, y + (isLandscape ? 20 : 26))
-      doc.text(`${c.fantasia}`, margin + 4, y + (isLandscape ? 25 : 34))
+      // --- Row: CLIENTE | REPRESENTANTE ---
+      doc.setFontSize(fsTit).setFont("helvetica", "bold")
+      doc.text("CLIENTE", col1, y + 4)
+      doc.setFont("helvetica", "normal").setFontSize(fsVal)
+      const textoCliente = doc.splitTextToSize(`${c.nome_cliente}`, col2 - col1 - 8)
+      doc.text(textoCliente, col1, y + linha1)
+      doc.text(`CNPJ: ${c.cnpj}`, col1, y + linha2)
+      doc.text(`${c.cidade} / ${c.uf}`, col1, y + linha3)
+      doc.text(`${c.fantasia}`, col1, y + linha4)
 
-      doc.setFont("helvetica", "bold").setFontSize(fs)
-      doc.text("REPRESENTANTE", isLandscape ? 95 : 80, y + 5)
-      doc.setFont("helvetica", "normal").setFontSize(fs2)
-      doc.text(`${c.nome_represenante}`, isLandscape ? 95 : 80, y + 10)
-      doc.text(`Região: ${c.nome_regiao}`, isLandscape ? 95 : 80, y + (isLandscape ? 15 : 18))
+      doc.setFont("helvetica", "bold").setFontSize(fsTit)
+      doc.text("REPRESENTANTE", col2, y + 4)
+      doc.setFont("helvetica", "normal").setFontSize(fsVal)
+      doc.text(`${c.nome_represenante}`, col2, y + linha1)
+      doc.text(`Região: ${c.nome_regiao}`, col2, y + linha2)
 
-      doc.setFont("helvetica", "bold").setFontSize(fs)
-      if (isLandscape) {
-        doc.text("PEDIDO", 155, y + 5)
-        doc.setFont("helvetica", "normal").setFontSize(fs2)
-        doc.text(`Nº ${c.pedido}`, 155, y + 10)
-        doc.text(`Emissão: ${formatarData(c.emissao)}`, 155, y + (isLandscape ? 15 : 18))
-        doc.text(`Entrega: ${formatarData(c.entrega)}`, 155, y + (isLandscape ? 20 : 26))
-      } else {
-        doc.text("PEDIDO", margin + 4, y + (isLandscape ? 15 : 18) + 10)
-        doc.setFont("helvetica", "normal").setFontSize(fs2)
-        doc.text(`Nº ${c.pedido}`, margin + 4, y + (isLandscape ? 15 : 18) + 15)
-        doc.text(`Emissão: ${formatarData(c.emissao)}`, margin + 4, y + (isLandscape ? 15 : 18) + 20)
-        doc.text(`Entrega: ${formatarData(c.entrega)}`, margin + 4, y + (isLandscape ? 15 : 18) + 25)
-      }
+      // --- Row: PEDIDO (below CLIENTE/REPRESENTANTE) ---
+      const pedidoY = y + linha4 + (isLandscape ? 5 : 8)
+      doc.setDrawColor(200)
+      doc.setFillColor(235, 240, 248)
+      const pedidoBoxX = margin + 2
+      const pedidoBoxW = pageWidth - margin * 2 - 4
+      doc.roundedRect(pedidoBoxX, pedidoY - 1, pedidoBoxW, isLandscape ? 10 : 14, 1, 1, "FD")
+      doc.setFont("helvetica", "bold").setFontSize(fsTit)
+      doc.text("PEDIDO", col1, pedidoY + (isLandscape ? 4 : 6))
+      doc.setFont("helvetica", "normal").setFontSize(fsVal)
+      doc.text(`Nº ${c.pedido}`, col2, pedidoY + (isLandscape ? 4 : 6))
+      doc.text(`Emissão: ${formatarData(c.emissao)}`, col3, pedidoY + (isLandscape ? 4 : 6))
+      doc.text(`Entrega: ${formatarData(c.entrega)}`, col4, pedidoY + (isLandscape ? 4 : 6))
 
-      if (isLandscape) {
-        doc.setFont("helvetica", "bold").setFontSize(fs)
-        doc.text("TOTAIS", 215, y + 5)
-        doc.setFont("helvetica", "normal").setFontSize(fs2)
-        doc.text(`${grupo.totalRolos} rolo(s)`, 215, y + 10)
-        doc.text(`Metragem: ${formatarMetragem(grupo.totalMetragem)}`, 215, y + (isLandscape ? 15 : 18))
-        doc.text(`Peso Bruto: ${formatarPeso(grupo.totalPesoBruto)}`, 215, y + (isLandscape ? 20 : 26))
-        doc.text(`Peso Líquido: ${formatarPeso(grupo.totalPesoLiquido)}`, 215, y + (isLandscape ? 25 : 34))
-      } else {
-        doc.setFont("helvetica", "bold").setFontSize(fs)
-        doc.text("TOTAIS", isLandscape ? 215 : 155, y + (isLandscape ? 5 : 5))
-        doc.setFont("helvetica", "normal").setFontSize(fs2)
-        doc.text(`${grupo.totalRolos} rolo(s)`, isLandscape ? 215 : 155, y + (isLandscape ? 10 : 10))
-        doc.text(`Metragem: ${formatarMetragem(grupo.totalMetragem)}`, isLandscape ? 215 : 155, y + (isLandscape ? 15 : 18))
-        doc.text(`Peso Bruto: ${formatarPeso(grupo.totalPesoBruto)}`, isLandscape ? 215 : 155, y + (isLandscape ? 20 : 26))
-        doc.text(`Peso Líquido: ${formatarPeso(grupo.totalPesoLiquido)}`, isLandscape ? 215 : 155, y + (isLandscape ? 25 : 34))
-      }
+      // --- TOTAIS (right side, same row as CLIENTE) ---
+      doc.setFont("helvetica", "bold").setFontSize(fsTit)
+      doc.text("TOTAIS", col4, y + 4)
+      doc.setFont("helvetica", "normal").setFontSize(fsVal)
+      doc.text(`${grupo.totalRolos} rolo(s)`, col4, y + linha1)
+      doc.text(`Metragem: ${formatarMetragem(grupo.totalMetragem)}`, col4, y + linha2)
+      doc.text(`P. Bruto: ${formatarPeso(grupo.totalPesoBruto)}`, col4, y + linha3)
+      doc.text(`P. Líquido: ${formatarPeso(grupo.totalPesoLiquido)}`, col4, y + linha4)
 
       y += capaH + 6
       const head = [
