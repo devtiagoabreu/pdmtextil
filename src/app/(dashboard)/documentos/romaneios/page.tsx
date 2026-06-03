@@ -108,13 +108,13 @@ export default function RomaneiosPage() {
   const [loadingInt, setLoadingInt] = useState(true)
   const [selectedId, setSelectedId] = useState<number | null>(null)
   const [searchInput, setSearchInput] = useState("")
+  const [searchTerm, setSearchTerm] = useState("")
   const [itens, setItens] = useState<Rolo[]>([])
   const [loadingData, setLoadingData] = useState(false)
   const [expandedRomaneio, setExpandedRomaneio] = useState<number | null>(null)
   const [selectedRomaneios, setSelectedRomaneios] = useState<Set<number>>(new Set())
   const [gerandoPdf, setGerandoPdf] = useState(false)
   const [orientacaoPdf, setOrientacaoPdf] = useState<OrientacaoPdf>("portrait")
-  const ultimaBuscaRef = useRef("")
 
   useEffect(() => {
     setLoadingInt(true)
@@ -128,9 +128,19 @@ export default function RomaneiosPage() {
       .finally(() => setLoadingInt(false))
   }, [])
 
+  const itensFiltrados = useMemo(() => {
+    if (!searchTerm) return itens
+    const termo = searchTerm.toLowerCase()
+    return itens.filter(
+      (item) =>
+        String(item.pedido).includes(termo) ||
+        String(item.romaneio).includes(termo),
+    )
+  }, [itens, searchTerm])
+
   const grupos = useMemo(() => {
     const map = new Map<number, GrupoRomaneio>()
-    for (const item of itens) {
+    for (const item of itensFiltrados) {
       let grupo = map.get(item.romaneio)
       if (!grupo) {
         grupo = {
@@ -151,7 +161,7 @@ export default function RomaneiosPage() {
       grupo.totalPesoLiquido += item.peso_liquido || 0
     }
     return Array.from(map.values()).sort((a, b) => b.romaneio - a.romaneio)
-  }, [itens])
+  }, [itensFiltrados])
 
   const buscar = useCallback(async (search?: string) => {
     if (!selectedId) return
@@ -188,17 +198,25 @@ export default function RomaneiosPage() {
 
   function handleSearch() {
     const termo = searchInput.trim()
-    ultimaBuscaRef.current = termo
-    buscar(termo || undefined)
+    setSearchTerm(termo)
+    setExpandedRomaneio(null)
+    setSelectedRomaneios(new Set())
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === "Enter") handleSearch()
   }
 
+  function handleLimparBusca() {
+    setSearchInput("")
+    setSearchTerm("")
+    setExpandedRomaneio(null)
+    setSelectedRomaneios(new Set())
+  }
+
   function handleCarregarTodos() {
     setSearchInput("")
-    ultimaBuscaRef.current = ""
+    setSearchTerm("")
     buscar()
   }
 
@@ -502,10 +520,15 @@ export default function RomaneiosPage() {
                     className="w-48"
                   />
                 </div>
-                <Button onClick={handleSearch} disabled={!selectedId || loadingData} className="gap-2">
+                <Button onClick={handleSearch} disabled={!selectedId || loadingData || itens.length === 0} className="gap-2">
                   <Search size={16} />
                   Buscar
                 </Button>
+                {searchTerm && (
+                  <Button variant="outline" onClick={handleLimparBusca} className="gap-2">
+                    Limpar Filtro
+                  </Button>
+                )}
                 <Button variant="outline" onClick={handleCarregarTodos} disabled={!selectedId || loadingData} className="gap-2">
                   {loadingData ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />}
                   Carregar Todos
@@ -545,7 +568,13 @@ export default function RomaneiosPage() {
               <Loader2 className="animate-spin text-slate-400" size={24} />
             </div>
           ) : grupos.length > 0 ? (
-            <div className="space-y-6">
+            <div className="space-y-3">
+              {searchTerm && (
+                <p className="text-xs text-slate-500">
+                  Filtrando por &quot;{searchTerm}&quot; — {itensFiltrados.length} de {itens.length} rolo(s)
+                </p>
+              )}
+              <div className="space-y-6">
               {grupos.map((grupo) => (
                 <div
                   key={grupo.romaneio}
@@ -709,6 +738,7 @@ export default function RomaneiosPage() {
                 </div>
               ))}
             </div>
+            </div>
           ) : itens.length === 0 && !loadingData ? (
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-12 text-center">
               <Truck size={44} className="mx-auto text-slate-300 mb-3" />
@@ -717,6 +747,16 @@ export default function RomaneiosPage() {
               </p>
               <p className="text-xs text-slate-400 mt-1">
                 Ou clique em &quot;Carregar Todos&quot; para listar todos os romaneios
+              </p>
+            </div>
+          ) : itens.length > 0 && grupos.length === 0 && !loadingData ? (
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-12 text-center">
+              <Search size={44} className="mx-auto text-slate-300 mb-3" />
+              <p className="text-sm font-medium text-slate-500">
+                Nenhum resultado para &quot;{searchTerm}&quot;
+              </p>
+              <p className="text-xs text-slate-400 mt-1">
+                Tente outro número de pedido ou romaneio
               </p>
             </div>
           ) : null}
