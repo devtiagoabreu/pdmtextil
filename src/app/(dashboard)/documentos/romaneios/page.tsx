@@ -326,35 +326,77 @@ export default function RomaneiosPage() {
       doc.text(`P. Líquido: ${formatarPeso(grupo.totalPesoLiquido)}`, col4, y + linha4)
 
       y += capaH + 6
+
+      // Agrupar rolos por lote_produto
+      const lotes = new Map<string, Rolo[]>()
+      for (const r of grupo.rolos) {
+        const chave = r.lote_produto || "SEM LOTE"
+        if (!lotes.has(chave)) lotes.set(chave, [])
+        lotes.get(chave)!.push(r)
+      }
+      const lotesOrdenados = Array.from(lotes.entries()).sort((a, b) => a[0].localeCompare(b[0]))
+
       const head = [
         ["#", "Cód. Rolo", "Produto", "Narrativa", "Lote", "Metragem", "P. Bruto", "P. Líquido", "Largura", "Endereço"],
       ]
-      const body = grupo.rolos.map((r, idx) => [
-        String(idx + 1),
-        String(r.codigo_rolo),
-        r.produto || "—",
-        r.narrativa || "—",
-        r.lote_produto || "—",
-        formatarMetragem(r.quantidade),
-        formatarPeso(r.peso_bruto),
-        formatarPeso(r.peso_liquido),
-        r.largura ? `${r.largura.toFixed(1)} m` : "—",
-        r.endereco_rolo || "—",
-      ])
+      const body: any[] = []
 
-      const totalRow = [
-        "",
-        "",
-        "",
-        `${grupo.totalRolos} rolo(s) — Total`,
-        "",
-        formatarMetragem(grupo.totalMetragem),
-        formatarPeso(grupo.totalPesoBruto),
-        formatarPeso(grupo.totalPesoLiquido),
-        "",
-        "",
-      ]
-      body.push(totalRow)
+      for (const [loteNome, rolos] of lotesOrdenados) {
+        const subRolos = rolos.length
+        let subMetragem = 0
+        let subPesoBruto = 0
+        let subPesoLiquido = 0
+        for (const r of rolos) {
+          subMetragem += r.quantidade || 0
+          subPesoBruto += r.peso_bruto || 0
+          subPesoLiquido += r.peso_liquido || 0
+        }
+
+        // Linha de cabeçalho do lote
+        body.push([
+          {
+            content: `LOTE ${loteNome}`,
+            colSpan: 10,
+            styles: { fillColor: [219, 234, 254], fontStyle: "bold", fontSize: isLandscape ? 6.5 : 6, halign: "left" },
+          },
+        ])
+
+        // Rolos do lote
+        rolos.forEach((r, idx) => {
+          body.push([
+            String(idx + 1),
+            String(r.codigo_rolo),
+            r.produto || "—",
+            r.narrativa || "—",
+            r.lote_produto || "—",
+            formatarMetragem(r.quantidade),
+            formatarPeso(r.peso_bruto),
+            formatarPeso(r.peso_liquido),
+            r.largura ? `${r.largura.toFixed(1)} m` : "—",
+            r.endereco_rolo || "—",
+          ])
+        })
+
+        // Subtotal do lote
+        body.push([
+          { content: "", colSpan: 4, styles: { fillColor: [245, 247, 250] } },
+          { content: `${subRolos} rolo(s)`, styles: { fillColor: [245, 247, 250], fontStyle: "bold", fontSize: isLandscape ? 6 : 5.5, halign: "right" } },
+          { content: "", styles: { fillColor: [245, 247, 250] } },
+          { content: formatarMetragem(subMetragem), styles: { fillColor: [245, 247, 250], fontStyle: "bold", fontSize: isLandscape ? 6 : 5.5, halign: "right" } },
+          { content: formatarPeso(subPesoBruto), styles: { fillColor: [245, 247, 250], fontStyle: "bold", fontSize: isLandscape ? 6 : 5.5, halign: "right" } },
+          { content: formatarPeso(subPesoLiquido), styles: { fillColor: [245, 247, 250], fontStyle: "bold", fontSize: isLandscape ? 6 : 5.5, halign: "right" } },
+          { content: "", colSpan: 2, styles: { fillColor: [245, 247, 250] } },
+        ])
+      }
+
+      // Total geral
+      body.push([
+        { content: `TOTAL GERAL: ${grupo.totalRolos} rolo(s)`, colSpan: 5, styles: { fontStyle: "bold", fontSize: isLandscape ? 6.5 : 6, fillColor: [191, 219, 254] } },
+        { content: formatarMetragem(grupo.totalMetragem), styles: { fontStyle: "bold", fontSize: isLandscape ? 6.5 : 6, fillColor: [191, 219, 254], halign: "right" } },
+        { content: formatarPeso(grupo.totalPesoBruto), styles: { fontStyle: "bold", fontSize: isLandscape ? 6.5 : 6, fillColor: [191, 219, 254], halign: "right" } },
+        { content: formatarPeso(grupo.totalPesoLiquido), styles: { fontStyle: "bold", fontSize: isLandscape ? 6.5 : 6, fillColor: [191, 219, 254], halign: "right" } },
+        { content: "", colSpan: 3, styles: { fillColor: [191, 219, 254] } },
+      ])
 
       const fontSize = isLandscape ? 6 : 5.5
       ;(doc as any).autoTable({
@@ -367,13 +409,6 @@ export default function RomaneiosPage() {
         margin: { top: 10, left: margin, right: margin },
         tableLineColor: 200,
         tableLineWidth: 0.5,
-        didParseCell(data: any) {
-          if (data.row.index === body.length - 1) {
-            data.cell.styles.fontStyle = "bold"
-            data.cell.styles.fillColor = [219, 234, 254]
-            data.cell.styles.halign = data.column.index === 0 || data.column.index === 1 || data.column.index === 2 ? "left" : "right"
-          }
-        },
         columnStyles: {
           0: { cellWidth: isLandscape ? 10 : 8, halign: "center" },
           4: { halign: "center" },
