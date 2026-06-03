@@ -38,21 +38,79 @@ const TIPO_AUTH_ICON: Record<TipoAuth, string> = {
   bearer: "text-emerald-600 bg-emerald-50 dark:bg-emerald-950/50",
 }
 
-const PDM_CAMPOS = [
-  { label: "(não mapear)", value: "" },
-  { label: "ID", value: "id" },
-  { label: "Nome", value: "nome" },
-  { label: "CNPJ", value: "cnpj" },
-  { label: "Razão Social", value: "razaoSocial" },
-  { label: "Email", value: "email" },
-  { label: "Telefone", value: "telefone" },
-  { label: "Contato", value: "contato" },
-  { label: "Endereço", value: "endereco" },
-  { label: "Cidade", value: "cidade" },
-  { label: "UF", value: "uf" },
-  { label: "ID Integração", value: "idIntegracao" },
-  { label: "Ativo", value: "ativo" },
-]
+const PDM_CAMPOS_POR_TELA: Record<string, { label: string; value: string }[]> = {
+  default: [
+    { label: "(não mapear)", value: "" },
+    { label: "ID", value: "id" },
+    { label: "Nome", value: "nome" },
+    { label: "CNPJ", value: "cnpj" },
+    { label: "Razão Social", value: "razaoSocial" },
+    { label: "Email", value: "email" },
+    { label: "Telefone", value: "telefone" },
+    { label: "Contato", value: "contato" },
+    { label: "Endereço", value: "endereco" },
+    { label: "Cidade", value: "cidade" },
+    { label: "UF", value: "uf" },
+    { label: "ID Integração", value: "idIntegracao" },
+    { label: "Ativo", value: "ativo" },
+  ],
+  romaneios: [
+    { label: "(não mapear)", value: "" },
+    { label: "Romaneio", value: "romaneio" },
+    { label: "Pedido", value: "pedido" },
+    { label: "CNPJ", value: "cnpj" },
+    { label: "Nome Cliente", value: "nomeCliente" },
+    { label: "Fantasia", value: "fantasia" },
+    { label: "Cidade", value: "cidade" },
+    { label: "UF", value: "uf" },
+    { label: "Representante", value: "nomeRepresentante" },
+    { label: "Região", value: "nomeRegiao" },
+    { label: "Situação", value: "situacao" },
+    { label: "Emissão", value: "emissao" },
+    { label: "Entrega", value: "entrega" },
+    { label: "Chegada", value: "chegada" },
+    { label: "Período", value: "periodo" },
+    { label: "Linha", value: "linha" },
+    { label: "Grupo", value: "grupo" },
+    { label: "Sub", value: "sub" },
+    { label: "Cód. Rolo", value: "codigoRolo" },
+    { label: "Produto", value: "produto" },
+    { label: "Narrativa", value: "narrativa" },
+    { label: "Lote", value: "lote" },
+    { label: "Lote Produto", value: "loteProduto" },
+    { label: "Quantidade (m)", value: "quantidade" },
+    { label: "Peso Bruto", value: "pesoBruto" },
+    { label: "Peso Líquido", value: "pesoLiquido" },
+    { label: "Data Entrada", value: "dataEntrada" },
+    { label: "OP", value: "op" },
+    { label: "Operador", value: "nomeOperador" },
+    { label: "Largura", value: "largura" },
+    { label: "Gramatura", value: "gramatura" },
+    { label: "Endereço Rolo", value: "enderecoRolo" },
+    { label: "Nuance", value: "nuance" },
+    { label: "Qualidade", value: "qualidade" },
+    { label: "Pontuação", value: "pontuacao" },
+    { label: "Cor", value: "cor" },
+    { label: "Vendido", value: "vendido" },
+    { label: "Saldo", value: "saldo" },
+    { label: "Unitário", value: "unitario" },
+    { label: "Valor Vendido", value: "valorVendido" },
+    { label: "ID Integração", value: "idIntegracao" },
+  ],
+}
+
+function getPdmCampos(telas: string): { label: string; value: string }[] {
+  const telasArr = telas.split(",").map(t => t.trim()).filter(Boolean)
+  const campos = new Map<string, { label: string; value: string }>()
+  // Default fields always included
+  for (const c of PDM_CAMPOS_POR_TELA.default) campos.set(c.value, c)
+  // Add fields for each tela
+  for (const t of telasArr) {
+    const extra = PDM_CAMPOS_POR_TELA[t]
+    if (extra) for (const c of extra) campos.set(c.value, c)
+  }
+  return Array.from(campos.values())
+}
 
 export default function IntegracoesPage() {
   const pathname = usePathname()
@@ -249,8 +307,9 @@ export default function IntegracoesPage() {
 
       // Auto-map fields with same name
       const autoMap: Record<string, string> = {}
+      const pdmOptions = getPdmCampos(telas)
       for (const f of fields) {
-        const pdmField = PDM_CAMPOS.find(p => p.value.toLowerCase() === f.toLowerCase() || p.label.toLowerCase() === f.toLowerCase())
+        const pdmField = pdmOptions.find(p => p.value.toLowerCase() === f.toLowerCase() || p.label.toLowerCase() === f.toLowerCase())
         if (pdmField) autoMap[f] = pdmField.value
       }
       setFieldMappings(autoMap)
@@ -439,7 +498,7 @@ export default function IntegracoesPage() {
                               }}
                               className="w-full rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-2 py-1 text-xs text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-500"
                             >
-                              {PDM_CAMPOS.map(p => (
+                              {getPdmCampos(telas).map(p => (
                                 <option key={p.value} value={p.value}>{p.label}</option>
                               ))}
                             </select>
