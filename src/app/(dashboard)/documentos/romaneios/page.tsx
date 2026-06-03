@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
 import {
   Loader2,
@@ -16,8 +16,6 @@ import {
   User,
   MapPin,
   Hash,
-  Ruler,
-  Weight,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -81,6 +79,8 @@ interface GrupoRomaneio {
   totalPesoLiquido: number
 }
 
+type OrientacaoPdf = "portrait" | "landscape"
+
 function formatarData(data: string | null | undefined): string {
   if (!data) return "—"
   try {
@@ -92,12 +92,12 @@ function formatarData(data: string | null | undefined): string {
 
 function formatarPeso(valor: number | null | undefined): string {
   if (valor === null || valor === undefined) return "—"
-  return `${valor.toFixed(4)} kg`
+  return `${Number(valor).toFixed(4)} kg`
 }
 
 function formatarMetragem(valor: number | null | undefined): string {
   if (valor === null || valor === undefined) return "—"
-  return `${valor.toFixed(1)} m`
+  return `${Number(valor).toFixed(1)} m`
 }
 
 export default function RomaneiosPage() {
@@ -107,13 +107,14 @@ export default function RomaneiosPage() {
   const [integracoes, setIntegracoes] = useState<Integracao[]>([])
   const [loadingInt, setLoadingInt] = useState(true)
   const [selectedId, setSelectedId] = useState<number | null>(null)
-  const [searchTerm, setSearchTerm] = useState("")
   const [searchInput, setSearchInput] = useState("")
   const [itens, setItens] = useState<Rolo[]>([])
   const [loadingData, setLoadingData] = useState(false)
   const [expandedRomaneio, setExpandedRomaneio] = useState<number | null>(null)
   const [selectedRomaneios, setSelectedRomaneios] = useState<Set<number>>(new Set())
   const [gerandoPdf, setGerandoPdf] = useState(false)
+  const [orientacaoPdf, setOrientacaoPdf] = useState<OrientacaoPdf>("portrait")
+  const ultimaBuscaRef = useRef("")
 
   useEffect(() => {
     setLoadingInt(true)
@@ -121,9 +122,7 @@ export default function RomaneiosPage() {
       .then((res) => res.json())
       .then((data) => {
         setIntegracoes(data)
-        if (data.length > 0) {
-          setSelectedId(data[0].id)
-        }
+        if (data.length > 0) setSelectedId(data[0].id)
       })
       .catch(() => toast.error("Erro ao carregar integrações"))
       .finally(() => setLoadingInt(false))
@@ -154,7 +153,7 @@ export default function RomaneiosPage() {
     return Array.from(map.values()).sort((a, b) => b.romaneio - a.romaneio)
   }, [itens])
 
-  const handleFetch = useCallback(async () => {
+  const buscar = useCallback(async (search?: string) => {
     if (!selectedId) return
     setLoadingData(true)
     setItens([])
@@ -162,7 +161,7 @@ export default function RomaneiosPage() {
     setSelectedRomaneios(new Set())
     try {
       const params = new URLSearchParams()
-      if (searchTerm) params.set("search", searchTerm)
+      if (search) params.set("search", search)
       const qs = params.toString()
       const res = await fetch(`/api/integracao/${selectedId}/executar${qs ? `?${qs}` : ""}`)
       const data = await res.json()
@@ -178,23 +177,29 @@ export default function RomaneiosPage() {
       }
       setItens(rawItems as Rolo[])
       const romaneios = [...new Set(rawItems.map((r: Rolo) => r.romaneio))]
-      if (romaneios.length > 0) {
-        setExpandedRomaneio(romaneios[0])
-      }
+      if (romaneios.length > 0) setExpandedRomaneio(romaneios[0])
       toast.success(`${rawItems.length} rolo(s) de ${romaneios.length} romaneio(s) carregado(s)`)
     } catch {
       toast.error("Erro ao buscar dados")
     } finally {
       setLoadingData(false)
     }
-  }, [selectedId, searchTerm])
+  }, [selectedId])
 
   function handleSearch() {
-    setSearchTerm(searchInput.trim())
+    const termo = searchInput.trim()
+    ultimaBuscaRef.current = termo
+    buscar(termo || undefined)
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === "Enter") handleSearch()
+  }
+
+  function handleCarregarTodos() {
+    setSearchInput("")
+    ultimaBuscaRef.current = ""
+    buscar()
   }
 
   function toggleRomaneio(numero: number) {
@@ -206,7 +211,12 @@ export default function RomaneiosPage() {
     })
   }
 
-  async function gerarPdf(numero: number) {
+  const ORIENTACAO_LABEL: Record<OrientacaoPdf, string> = {
+    portrait: "Retrato",
+    landscape: "Paisagem",
+  }
+
+  async function gerarPdf(numero: number, orientacao?: OrientacaoPdf) {
     const grupo = grupos.find((g) => g.romaneio === numero)
     if (!grupo) return
 
@@ -215,6 +225,11 @@ export default function RomaneiosPage() {
       const { default: jsPDF } = await import("jspdf")
       await import("jspdf-autotable")
 
+      const orient = orientacao || orientacaoPdf
+      const doc = new jsPDF(orient)
+      const isLandscape = orient === "landscape"
+      const pageWidth = doc.internal.pageSize.getWidth()
+
       let empresa: Record<string, any> | null = null
       try {
         const res = await fetch("/api/admin/config/empresa")
@@ -222,74 +237,100 @@ export default function RomaneiosPage() {
         empresa = list.find((e: any) => e.isDefault) || list[0]
       } catch {}
 
-      const doc = new jsPDF("landscape")
-      const pageWidth = doc.internal.pageSize.getWidth()
+      const margin = 8
+      let y = margin
 
       if (empresa) {
         if (empresa.logoUrl) {
           try {
             const img = await loadImage(empresa.logoUrl)
             if (img) {
-              const maxW = 35; const maxH = 18
+              const maxW = isLandscape ? 35 : 30
+              const maxH = isLandscape ? 18 : 15
               const scale = Math.min(maxW / img.width, maxH / img.height, 1)
-              doc.addImage(img, "PNG", 8, 6, img.width * scale, img.height * scale)
+              doc.addImage(img, "PNG", margin, y, img.width * scale, img.height * scale)
             }
           } catch {}
         }
-        doc.setFontSize(10).setFont("helvetica", "bold")
-        doc.text(empresa.nome || "", 48, 10)
-        doc.setFontSize(7).setFont("helvetica", "normal")
-        let yOff = 15
-        if (empresa.documento) { doc.text(`CNPJ: ${empresa.documento}`, 48, yOff); yOff += 4 }
-        if (empresa.endereco) { doc.text(empresa.endereco, 48, yOff); yOff += 4 }
-        if (empresa.cidade || empresa.uf) { doc.text([empresa.cidade, empresa.uf].filter(Boolean).join("/"), 48, yOff) }
+        doc.setFontSize(isLandscape ? 10 : 9).setFont("helvetica", "bold")
+        doc.text(empresa.nome || "", isLandscape ? 48 : 42, y + 4)
+        doc.setFontSize(isLandscape ? 7 : 6.5).setFont("helvetica", "normal")
+        let yOff = y + 9
+        if (empresa.documento) { doc.text(`CNPJ: ${empresa.documento}`, isLandscape ? 48 : 42, yOff); yOff += 3.5 }
+        if (empresa.endereco) { doc.text(empresa.endereco, isLandscape ? 48 : 42, yOff); yOff += 3.5 }
+        if (empresa.cidade || empresa.uf) { doc.text([empresa.cidade, empresa.uf].filter(Boolean).join("/"), isLandscape ? 48 : 42, yOff) }
+        y = isLandscape ? 32 : 28
+      } else {
+        y = isLandscape ? 18 : 16
       }
 
-      doc.setFontSize(14).setFont("helvetica", "bold")
-      doc.text(`Romaneio Nº ${numero}`, 8, empresa ? 32 : 18)
+      doc.setFontSize(isLandscape ? 14 : 12).setFont("helvetica", "bold")
+      doc.text(`Romaneio Nº ${numero}`, margin, y)
 
       const c = grupo.capa
-      const capaY = empresa ? 38 : 24
+      y += isLandscape ? 6 : 5
 
       doc.setDrawColor(200)
       doc.setFillColor(245, 247, 250)
-      doc.roundedRect(8, capaY, pageWidth - 16, 38, 2, 2, "FD")
+      const capaW = pageWidth - margin * 2
+      const capaH = isLandscape ? 38 : 46
+      doc.roundedRect(margin, y, capaW, capaH, 2, 2, "FD")
 
-      doc.setFontSize(8).setFont("helvetica", "bold")
-      doc.text("CLIENTE", 12, capaY + 5)
-      doc.setFont("helvetica", "normal")
-      doc.setFontSize(7)
-      doc.text(`${c.nome_cliente}`, 12, capaY + 10)
-      doc.text(`CNPJ: ${c.cnpj}`, 12, capaY + 15)
-      doc.text(`${c.cidade} / ${c.uf}`, 12, capaY + 20)
-      doc.text(`${c.fantasia}`, 12, capaY + 25)
+      const fs = isLandscape ? 8 : 7
+      const fs2 = isLandscape ? 7 : 6
+      doc.setFontSize(fs).setFont("helvetica", "bold")
+      doc.text("CLIENTE", margin + 4, y + 5)
+      doc.setFont("helvetica", "normal").setFontSize(fs2)
+      doc.text(`${c.nome_cliente}`, margin + 4, y + 10)
+      doc.text(`CNPJ: ${c.cnpj}`, margin + 4, y + (isLandscape ? 15 : 18))
+      doc.text(`${c.cidade} / ${c.uf}`, margin + 4, y + (isLandscape ? 20 : 26))
+      doc.text(`${c.fantasia}`, margin + 4, y + (isLandscape ? 25 : 34))
 
-      doc.setFont("helvetica", "bold")
-      doc.text("REPRESENTANTE", 95, capaY + 5)
-      doc.setFont("helvetica", "normal")
-      doc.text(`${c.nome_represenante}`, 95, capaY + 10)
-      doc.text(`Região: ${c.nome_regiao}`, 95, capaY + 15)
+      doc.setFont("helvetica", "bold").setFontSize(fs)
+      doc.text("REPRESENTANTE", isLandscape ? 95 : 80, y + 5)
+      doc.setFont("helvetica", "normal").setFontSize(fs2)
+      doc.text(`${c.nome_represenante}`, isLandscape ? 95 : 80, y + 10)
+      doc.text(`Região: ${c.nome_regiao}`, isLandscape ? 95 : 80, y + (isLandscape ? 15 : 18))
 
-      doc.setFont("helvetica", "bold")
-      doc.text("PEDIDO", 155, capaY + 5)
-      doc.setFont("helvetica", "normal")
-      doc.text(`Nº ${c.pedido}`, 155, capaY + 10)
-      doc.text(`Emissão: ${formatarData(c.emissao)}`, 155, capaY + 15)
-      doc.text(`Entrega: ${formatarData(c.entrega)}`, 155, capaY + 20)
+      doc.setFont("helvetica", "bold").setFontSize(fs)
+      if (isLandscape) {
+        doc.text("PEDIDO", 155, y + 5)
+        doc.setFont("helvetica", "normal").setFontSize(fs2)
+        doc.text(`Nº ${c.pedido}`, 155, y + 10)
+        doc.text(`Emissão: ${formatarData(c.emissao)}`, 155, y + (isLandscape ? 15 : 18))
+        doc.text(`Entrega: ${formatarData(c.entrega)}`, 155, y + (isLandscape ? 20 : 26))
+      } else {
+        doc.text("PEDIDO", margin + 4, y + (isLandscape ? 15 : 18) + 10)
+        doc.setFont("helvetica", "normal").setFontSize(fs2)
+        doc.text(`Nº ${c.pedido}`, margin + 4, y + (isLandscape ? 15 : 18) + 15)
+        doc.text(`Emissão: ${formatarData(c.emissao)}`, margin + 4, y + (isLandscape ? 15 : 18) + 20)
+        doc.text(`Entrega: ${formatarData(c.entrega)}`, margin + 4, y + (isLandscape ? 15 : 18) + 25)
+      }
 
-      doc.setFont("helvetica", "bold")
-      doc.text("TOTAIS", 215, capaY + 5)
-      doc.setFont("helvetica", "normal")
-      doc.text(`${grupo.totalRolos} rolo(s)`, 215, capaY + 10)
-      doc.text(`Metragem: ${formatarMetragem(grupo.totalMetragem)}`, 215, capaY + 15)
-      doc.text(`Peso Bruto: ${formatarPeso(grupo.totalPesoBruto)}`, 215, capaY + 20)
-      doc.text(`Peso Líquido: ${formatarPeso(grupo.totalPesoLiquido)}`, 215, capaY + 25)
+      if (isLandscape) {
+        doc.setFont("helvetica", "bold").setFontSize(fs)
+        doc.text("TOTAIS", 215, y + 5)
+        doc.setFont("helvetica", "normal").setFontSize(fs2)
+        doc.text(`${grupo.totalRolos} rolo(s)`, 215, y + 10)
+        doc.text(`Metragem: ${formatarMetragem(grupo.totalMetragem)}`, 215, y + (isLandscape ? 15 : 18))
+        doc.text(`Peso Bruto: ${formatarPeso(grupo.totalPesoBruto)}`, 215, y + (isLandscape ? 20 : 26))
+        doc.text(`Peso Líquido: ${formatarPeso(grupo.totalPesoLiquido)}`, 215, y + (isLandscape ? 25 : 34))
+      } else {
+        doc.setFont("helvetica", "bold").setFontSize(fs)
+        doc.text("TOTAIS", isLandscape ? 215 : 155, y + (isLandscape ? 5 : 5))
+        doc.setFont("helvetica", "normal").setFontSize(fs2)
+        doc.text(`${grupo.totalRolos} rolo(s)`, isLandscape ? 215 : 155, y + (isLandscape ? 10 : 10))
+        doc.text(`Metragem: ${formatarMetragem(grupo.totalMetragem)}`, isLandscape ? 215 : 155, y + (isLandscape ? 15 : 18))
+        doc.text(`Peso Bruto: ${formatarPeso(grupo.totalPesoBruto)}`, isLandscape ? 215 : 155, y + (isLandscape ? 20 : 26))
+        doc.text(`Peso Líquido: ${formatarPeso(grupo.totalPesoLiquido)}`, isLandscape ? 215 : 155, y + (isLandscape ? 25 : 34))
+      }
 
-      const tableStart = capaY + 44
+      y += capaH + 6
       const head = [
-        ["Cód. Rolo", "Produto", "Narrativa", "Lote", "Metragem", "P. Bruto", "P. Líquido", "Largura", "Endereço"],
+        ["#", "Cód. Rolo", "Produto", "Narrativa", "Lote", "Metragem", "P. Bruto", "P. Líquido", "Largura", "Endereço"],
       ]
-      const body = grupo.rolos.map((r) => [
+      const body = grupo.rolos.map((r, idx) => [
+        String(idx + 1),
         String(r.codigo_rolo),
         r.produto || "—",
         r.narrativa || "—",
@@ -301,14 +342,44 @@ export default function RomaneiosPage() {
         r.endereco_rolo || "—",
       ])
 
+      const totalRow = [
+        "",
+        "",
+        "",
+        `${grupo.totalRolos} rolo(s) — Total`,
+        "",
+        formatarMetragem(grupo.totalMetragem),
+        formatarPeso(grupo.totalPesoBruto),
+        formatarPeso(grupo.totalPesoLiquido),
+        "",
+        "",
+      ]
+      body.push(totalRow)
+
+      const fontSize = isLandscape ? 6 : 5.5
       ;(doc as any).autoTable({
         head,
         body,
-        startY: tableStart,
-        styles: { fontSize: 6, cellPadding: 1.5 },
+        startY: y,
+        styles: { fontSize, cellPadding: isLandscape ? 1.5 : 1.2 },
         headStyles: { fillColor: [37, 99, 235], textColor: 255, fontStyle: "bold" },
         alternateRowStyles: { fillColor: [245, 247, 250] },
-        margin: { top: 10, left: 8, right: 8 },
+        margin: { top: 10, left: margin, right: margin },
+        tableLineColor: 200,
+        tableLineWidth: 0.5,
+        didParseCell(data: any) {
+          if (data.row.index === body.length - 1) {
+            data.cell.styles.fontStyle = "bold"
+            data.cell.styles.fillColor = [219, 234, 254]
+            data.cell.styles.halign = data.column.index === 0 || data.column.index === 1 || data.column.index === 2 ? "left" : "right"
+          }
+        },
+        columnStyles: {
+          0: { cellWidth: isLandscape ? 10 : 8, halign: "center" },
+          4: { halign: "center" },
+          8: { halign: "center" },
+          9: { halign: "center" },
+        },
       })
 
       doc.save(`romaneio-${numero}.pdf`)
@@ -400,22 +471,38 @@ export default function RomaneiosPage() {
                   <Search size={16} />
                   Buscar
                 </Button>
-                <Button variant="outline" onClick={handleFetch} disabled={!selectedId || loadingData} className="gap-2">
+                <Button variant="outline" onClick={handleCarregarTodos} disabled={!selectedId || loadingData} className="gap-2">
                   {loadingData ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />}
                   Carregar Todos
                 </Button>
               </div>
             </div>
-            {grupos.length > 0 && (
-              <Button
-                onClick={gerarPdfsSelecionados}
-                disabled={selectedRomaneios.size === 0 || gerandoPdf}
-                className="gap-2"
-              >
-                {gerandoPdf ? <Loader2 size={16} className="animate-spin" /> : <Printer size={16} />}
-                PDF Selecionados ({selectedRomaneios.size})
-              </Button>
-            )}
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 text-xs text-slate-500">
+                <span>PDF:</span>
+                <button
+                  type="button"
+                  onClick={() => setOrientacaoPdf(orientacaoPdf === "portrait" ? "landscape" : "portrait")}
+                  className={`px-2 py-1 text-xs rounded border transition-colors ${
+                    orientacaoPdf === "portrait"
+                      ? "border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
+                      : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400"
+                  }`}
+                >
+                  {ORIENTACAO_LABEL[orientacaoPdf]}
+                </button>
+              </div>
+              {grupos.length > 0 && (
+                <Button
+                  onClick={gerarPdfsSelecionados}
+                  disabled={selectedRomaneios.size === 0 || gerandoPdf}
+                  className="gap-2"
+                >
+                  {gerandoPdf ? <Loader2 size={16} className="animate-spin" /> : <Printer size={16} />}
+                  PDF ({selectedRomaneios.size})
+                </Button>
+              )}
+            </div>
           </div>
 
           {loadingData ? (
@@ -508,6 +595,7 @@ export default function RomaneiosPage() {
                         <table className="w-full text-sm">
                           <thead className="bg-slate-50 dark:bg-slate-800/50">
                             <tr>
+                              <th className="px-3 py-2.5 text-center text-[11px] font-medium text-slate-500 uppercase w-10">#</th>
                               <th className="px-4 py-2.5 text-left text-[11px] font-medium text-slate-500 uppercase">Cód. Rolo</th>
                               <th className="px-4 py-2.5 text-left text-[11px] font-medium text-slate-500 uppercase">Produto</th>
                               <th className="px-4 py-2.5 text-left text-[11px] font-medium text-slate-500 uppercase">Narrativa</th>
@@ -520,11 +608,14 @@ export default function RomaneiosPage() {
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                            {grupo.rolos.map((rolo) => (
+                            {grupo.rolos.map((rolo, idx) => (
                               <tr
                                 key={rolo.codigo_rolo}
                                 className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors"
                               >
+                                <td className="px-3 py-2 text-sm text-slate-500 text-center font-mono text-[12px]">
+                                  {idx + 1}
+                                </td>
                                 <td className="px-4 py-2 text-sm font-medium text-slate-900 dark:text-slate-200 font-mono">
                                   {rolo.codigo_rolo}
                                 </td>
@@ -555,18 +646,22 @@ export default function RomaneiosPage() {
                               </tr>
                             ))}
                           </tbody>
-                          <tfoot className="bg-slate-50 dark:bg-slate-800/50 border-t-2 border-slate-200 dark:border-slate-700">
+                          <tfoot className="bg-blue-50 dark:bg-blue-950/30 border-t-2 border-slate-200 dark:border-slate-700">
                             <tr>
-                              <td colSpan={4} className="px-4 py-2.5 text-sm font-semibold text-slate-800 dark:text-slate-200">
-                                {grupo.totalRolos} rolo(s) — Total
+                              <td className="px-3 py-2.5 text-sm font-bold text-slate-800 dark:text-slate-200 text-center">
+                                {grupo.totalRolos}
                               </td>
-                              <td className="px-4 py-2.5 text-sm font-semibold text-slate-800 dark:text-slate-200 text-right font-mono">
+                              <td colSpan={3} className="px-4 py-2.5 text-sm font-bold text-slate-800 dark:text-slate-200">
+                                Total Geral
+                              </td>
+                              <td></td>
+                              <td className="px-4 py-2.5 text-sm font-bold text-slate-800 dark:text-slate-200 text-right font-mono">
                                 {formatarMetragem(grupo.totalMetragem)}
                               </td>
-                              <td className="px-4 py-2.5 text-sm font-semibold text-slate-800 dark:text-slate-200 text-right font-mono">
+                              <td className="px-4 py-2.5 text-sm font-bold text-slate-800 dark:text-slate-200 text-right font-mono">
                                 {formatarPeso(grupo.totalPesoBruto)}
                               </td>
-                              <td className="px-4 py-2.5 text-sm font-semibold text-slate-800 dark:text-slate-200 text-right font-mono">
+                              <td className="px-4 py-2.5 text-sm font-bold text-slate-800 dark:text-slate-200 text-right font-mono">
                                 {formatarPeso(grupo.totalPesoLiquido)}
                               </td>
                               <td colSpan={2}></td>
