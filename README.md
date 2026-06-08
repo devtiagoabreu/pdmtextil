@@ -1,257 +1,213 @@
-```markdown
-# 🧵 PDM Pro Têxtil - Sistema de Gestão de Desenvolvimento Têxtil
+# PDM Pro Têxtil
+
+![Landing Page](public/landing.png)
+
+> *⚠️ Adicione um print da landing page como `public/landing.png` para exibir aqui.*
+
+Sistema de gestão de desenvolvimento de produtos têxteis. Conecta os departamentos **Comercial**, **Desenvolvimento (Tecelagem e Beneficiamento)** e **PCP** em uma plataforma única, eliminando retrabalhos e garantindo rastreabilidade completa.
 
 [![Next.js](https://img.shields.io/badge/Next.js-14.2-black?logo=next.js)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue?logo=typescript)](https://www.typescriptlang.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-38B2AC?logo=tailwind-css)](https://tailwindcss.com/)
-[![Drizzle ORM](https://img.shields.io/badge/Drizzle-0.29-5C6AC0?logo=drizzle)](https://orm.drizzle.team/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://www.typescriptlang.org/)
+[![Tailwind](https://img.shields.io/badge/Tailwind-3.4-38B2AC?logo=tailwind-css)](https://tailwindcss.com/)
+[![Drizzle](https://img.shields.io/badge/Drizzle-0.45-CBA6F7?logo=drizzle)](https://orm.drizzle.team/)
 [![Neon](https://img.shields.io/badge/Neon-PostgreSQL-00E5A0?logo=postgresql)](https://neon.tech/)
 [![Vercel](https://img.shields.io/badge/Vercel-Deployed-000?logo=vercel)](https://vercel.com/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
-## 📋 Sobre o Projeto
+---
 
-O **PDM Pro Têxtil** é um sistema completo de gestão de desenvolvimento de produtos têxteis, projetado para conectar os departamentos **Comercial**, **Desenvolvimento (Tecelagem e Beneficiamento)** e **PCP**, eliminando retrabalhos e garantindo rastreabilidade completa das solicitações.
+## Funcionalidades
 
-### 🎯 Problemas que Resolve
+### Módulo Comercial
+- Solicitações de desenvolvimento com briefing completo (8 seções)
+- Anexos (PDF, DOCX, XLSX, JPG, PNG, MP4) via Vercel Blob
+- Links integrados (YouTube, Google Sheets, Docs, Agenda)
+- Histórico de comunicação por solicitação
+- Cadastro de clientes com importação de API externa
+- Requisições de corte com itens
 
-| Problema | Solução |
-|----------|---------|
-| 📧 Comunicação via email/WhatsApp perdida | Centralização de todas solicitações |
-| 📊 Fichas técnicas em Excel com versões conflitantes | Controle de versão e histórico de aprovações |
-| 🔄 PCP recebe informações incompletas | Ficha técnica completa antes da produção |
-| 🏷️ Produtos fora do padrão Systêxtil | Pré-cadastros alinhados ao ERP |
-| ❓ Briefing comercial insuficiente | 8 seções estruturadas de briefing |
+### Módulo de Cadastros
+- **Fios**: cadastro completo com composição, titulagem, NCM, fornecedores
+- **Cores**: sólidas e de fundo com código, pantone, família
+- **Estampas**: desenhos com variantes e imagens
+- **Bases de Urdume**: com fios associados
+- **Acabamentos**: categorizados por tipo
+- **Máquinas e Operações**: cadastro técnico
+- **Produtos Químicos**: com concentração, densidade, pH, FISPQ
+- **Produto Cru**: ficha técnica completa com composição, estrutura, amostras e acabamentos
+- **Receitas**: versionadas com itens, estágios e produtos químicos
 
-## ✨ Funcionalidades
+### Romaneios de Expedição
+- Consulta de romaneios via integração com ERP
+- Agrupamento por lote com subtotais
+- Geração de PDF em retrato ou paisagem
+- Grade completa de rolos com metragem, pesos, largura e endereço
 
-### 🚀 MVP (Fase 1)
-- ✅ Criar solicitação de desenvolvimento com briefing completo
-- ✅ Anexar arquivos (PDF, DOCX, XLSX, JPG, PNG, MP4)
-- ✅ Adicionar links (YouTube, Google Sheets, Google Docs, Google Agenda)
-- ✅ Listagem de solicitações com filtros
-- ✅ Acompanhamento de status
-- ✅ Histórico de comunicação
+### Administração
+- Gestão de usuários com perfis e permissões
+- Configuração de empresa (logo, dados fiscais)
+- Integrações com APIs externas (ERP, WMS)
+- Notificações in-app + e-mail (SMTP)
+- Logs de auditoria
+- Chat corporativo por entidade
 
-### 🔧 Pós-MVP (Fase 2-5)
-- 🧵 Cadastro de Fios (Nível 7)
-- 📦 Cadastro de Bases de Urdume (Nível 4)
-- 🏭 Cadastro de Produtos Cru (Nível 2)
-- 🎨 Cadastro de Cores e Estampas
-- 🧪 Produtos Beneficiados (Tingidos/Estampados/Termofixados)
-- 📝 Receitas de Tinturaria, Estamparia e Termofixação
-- ⚙️ Roteiros de Produção com máquinas
-- 📦 Solicitação de Amostra e Produção
+### Dashboard e Relatórios
+- Gráficos de tendência mensal, distribuição por status e tipo
+- Cards com indicadores: total do mês, pendentes, desenvolvimento, concluídos
+- Relatórios exportáveis
 
-## 🛠️ Stack Tecnológica
+---
 
-```mermaid
-graph LR
-    A[Next.js 14] --> B[React 18]
-    A --> C[TypeScript]
-    A --> D[Tailwind CSS]
-    A --> E[shadcn/ui]
-    F[Drizzle ORM] --> G[Neon PostgreSQL]
-    H[NextAuth.js] --> I[Vercel]
+## Stack
+
+| Camada | Tecnologia |
+|--------|------------|
+| Frontend / Backend | Next.js 14 (App Router) |
+| Linguagem | TypeScript 5 |
+| UI | React 18 + Tailwind CSS 3.4 + shadcn/ui |
+| ORM | Drizzle ORM 0.45 |
+| Database | PostgreSQL (Neon Serverless) |
+| Auth | NextAuth.js 4 (Credentials + JWT) |
+| Storage | Vercel Blob |
+| PDF | jsPDF + jspdf-autotable |
+| Gráficos | Recharts |
+| Formulários | React Hook Form + Zod |
+| Drag & Drop | dnd-kit |
+| Tabelas | TanStack Table |
+| Upload | react-dropzone |
+| Notificações | Sonner |
+| Hospedagem | Vercel |
+
+---
+
+## Estrutura
+
+```
+src/
+├── app/
+│   ├── (dashboard)/           # Área logada
+│   │   ├── admin/             # Configurações, usuários, integrações
+│   │   ├── cadastros/         # Fios, cores, estampas, bases, etc.
+│   │   ├── comercial/         # Solicitações, clientes, req. corte
+│   │   ├── dashboard/         # Gráficos e indicadores
+│   │   ├── documentos/        # Romaneios de expedição
+│   │   ├── chat/              # Chat corporativo
+│   │   ├── ferramentas/       # Regra de três, conversores
+│   │   └── perfil/            # Perfil do usuário
+│   ├── api/                   # API Routes (16 módulos)
+│   ├── login/                 # Página de login
+│   └── page.tsx               # Landing page
+├── components/
+│   ├── chat/                  # Componentes de chat
+│   ├── forms/                 # Formulários reutilizáveis
+│   ├── integracao/            # Modal de importação via API
+│   ├── layout/                # Sidebar, header, nav
+│   ├── ui/                    # shadcn/ui components
+│   └── providers.tsx          # Providers (auth, theme)
+├── lib/
+│   ├── db/
+│   │   ├── schema/            # 27 tabelas (Drizzle)
+│   │   ├── migrations/        # 18 migrations SQL
+│   │   └── seed.ts            # Dados iniciais
+│   ├── auth.ts                # NextAuth config
+│   ├── email.ts               # Nodemailer
+│   ├── notificar.ts           # Notificações
+│   ├── log.ts                 # Auditoria
+│   ├── crypto.ts              # Criptografia AES-256-GCM
+│   ├── info-content/          # Ajuda contextual
+│   └── validation.ts          # Schemas Zod
+├── middleware.ts               # Proteção de rotas
+└── types/                      # Tipos TypeScript
 ```
 
-| Camada | Tecnologia | Versão |
-|--------|------------|--------|
-| **Frontend/Backend** | Next.js (App Router) | 14.2 |
-| **Linguagem** | TypeScript | 5.3 |
-| **UI** | React + Tailwind + shadcn/ui | 18.2 |
-| **ORM** | Drizzle ORM | 0.29 |
-| **Database** | PostgreSQL (Neon) | Latest |
-| **Auth** | NextAuth.js | 4.24 |
-| **Storage** | Vercel Blob | Latest |
-| **Hospedagem** | Vercel | - |
+---
 
-## 🏗️ Estrutura do Projeto
+## Banco de Dados (27 tabelas)
 
 ```
-pdmtextil/
-├── src/
-│   ├── app/
-│   │   ├── (auth)/           # Autenticação
-│   │   ├── (dashboard)/      # Área logada
-│   │   │   ├── comercial/    # Módulo Comercial
-│   │   │   ├── tecelagem/    # Módulo Tecelagem
-│   │   │   ├── beneficiamento/ # Módulo Beneficiamento
-│   │   │   ├── pcp/          # Módulo PCP
-│   │   │   └── cadastros/    # Cadastros base
-│   │   └── api/              # API Routes
-│   ├── components/           # Componentes reutilizáveis
-│   ├── lib/                  # Utilitários e configurações
-│   ├── hooks/                # Hooks customizados
-│   └── types/                # Definições TypeScript
-├── drizzle.config.ts
-├── next.config.js
-└── package.json
+usuarios, sessions,
+solicitacoes, anexos,
+clientes, fios, fornecedores,
+cores_solidas, cores_fundo,
+acabamentos, maquinas, operacoes,
+bases_urdume, base_urdume_fios,
+estampas, produtos_cru, (composicao, estrutura, amostra, acabamento, receita),
+produtos_quimicos, produto_cru_receita, produto_cru_receita_item,
+integracoes, config_empresa,
+email_config, email_modelos, email_listas, email_lista_contatos,
+notificacoes, notificacao_regras,
+logs, roles, bancos_dados,
+requisicoes_corte, requisicoes_corte_itens,
+chats, chat_mensagens, chat_participantes, chat_leituras,
+romaneios, romaneio_pecas
 ```
 
-## 🚀 Instalação e Uso
+---
 
-### Pré-requisitos
-
-- Node.js 18+
-- PostgreSQL (Neon recomendado)
-- Conta Vercel (para deploy)
-
-### Configuração Local
+## Instalação
 
 ```bash
-# Clone o repositório
-git clone https://github.com/seu-usuario/pdmtextil.git
-cd pdmtextil
+# Pré-requisitos: Node.js 18+, PostgreSQL (Neon)
 
-# Instale as dependências
+git clone https://github.com/devtiagoabreu/pdmtextil.git
+cd pdmtextil
 npm install
 
-# Configure as variáveis de ambiente
 cp .env.example .env.local
+# Edite .env.local com suas credenciais
 
-# Execute as migrations
 npm run db:migrate
-
-# Popule o banco com dados iniciais
-npm run db:seed
-
-# Inicie o servidor de desenvolvimento
 npm run dev
 ```
 
 ### Variáveis de Ambiente
 
 ```env
-# Database (Neon)
 DATABASE_URL="postgresql://..."
-
-# Next Auth
 NEXTAUTH_URL="http://localhost:3000"
-NEXTAUTH_SECRET="seu-secret"
-
-# Vercel Blob
+NEXTAUTH_SECRET="openssl rand -base64 32"
 BLOB_READ_WRITE_TOKEN="vercel_blob_token"
-
-# Resend (Emails)
-RESEND_API_KEY="re_api_key"
+ENCRYPTION_KEY="chave-32-caracteres-ou-mais"
 ```
 
-## 🔐 Usuários de Teste (Seed)
+---
+
+## Usuários de Teste (Seed)
 
 | Email | Senha | Perfil |
-|-------|-------|--------|
+|---|---|---|
 | comercial@pdmprotextil.com.br | 123456 | COMERCIAL |
 | tecelagem@pdmprotextil.com.br | 123456 | TECELAGEM |
 | beneficiamento@pdmprotextil.com.br | 123456 | BENEFICIAMENTO |
-| pcp@pdmprotextil.com.br | 123456 | PCP |
 | admin@pdmprotextil.com.br | 123456 | ADMIN |
 
-## 📚 Documentação
+---
 
-A documentação completa do sistema está disponível em:
-- [Documentação Técnica](./docs/DOCUMENTACAO_COMPLETA.md)
-- [Design de Telas](./docs/DESIGN_TELAS.md)
+## Scripts
 
-## 🤝 Contribuições
-
-Contribuições são bem-vindas! Sinta-se à vontade para abrir issues ou pull requests.
-
-1. Faça um fork do projeto
-2. Crie sua branch (`git checkout -b feature/nova-feature`)
-3. Commit suas mudanças (`git commit -m 'feat: adiciona nova feature'`)
-4. Push para branch (`git push origin feature/nova-feature`)
-5. Abra um Pull Request
-
-## 📄 Licença
-
-Distribuído sob a licença MIT. Veja `LICENSE` para mais informações.
-
-## 👏 Créditos
-
-Desenvolvido com ❤️ por **Pro Moda Têxtil**
-
-### 🧠 Inspiração e Base Técnica
-
-Este projeto foi construído sobre os alicerces do **[Apontador](https://github.com/devtiagoabreu/apontador)** - Sistema de Apontamento Têxtil (MES), criado por:
-
-### 👨‍💻 **Tiago de Abreu** | [![GitHub](https://img.shields.io/badge/GitHub-@devtiagoabreu-181717?logo=github)](https://github.com/devtiagoabreu) [![LinkedIn](https://img.shields.io/badge/LinkedIn-Tiago%20Abreu-0077B5?logo=linkedin)](https://linkedin.com/in/devtiagoabreu) [![Twitter](https://img.shields.io/badge/Twitter-@devtiagoabreu-1DA1F2?logo=twitter)](https://twitter.com/devtiagoabreu) [![Website](https://img.shields.io/badge/Website-tiagoabreu.dev-FF7139?logo=vercel)](https://tiagoabreu.dev)
-
-```
-🚀 Especialista em Next.js | 🏭 Indústria 4.0 Têxtil | ☁️ Serverless
-```
-
-> *"O Apontador provou que é possível integrar Next.js com Systêxtil no chão de fábrica. O PDM Pro Têxtil é a continuação natural dessa jornada, resolvendo agora o início do processo - do briefing à aprovação."*
-
-### 🎨 Stack Base (inspirada no Apontador)
-
-| Tecnologia | Uso no PDM Pro Têxtil |
-|------------|---------------------|
-| Next.js 14 App Router | Framework principal |
-| TypeScript | Tipagem segura |
-| Drizzle ORM | Schema e migrations |
-| Neon PostgreSQL | Banco de dados serverless |
-| shadcn/ui | Componentes UI |
-| React Hook Form + Zod | Formulários e validação |
-| Tailwind CSS | Estilização |
-
-## 📧 Contato
-
-**Pro Moda Têxtil**
-- 📍 Localização: SBO, SP]
-- 📧 Email: contato@pdmprotextil.com.br
-- 🌐 Website: www.pdmprotextil.com.br
+| Comando | Descrição |
+|---|---|
+| `npm run dev` | Servidor de desenvolvimento |
+| `npm run build` | Build de produção |
+| `npm run start` | Iniciar produção |
+| `npm run lint` | ESLint |
+| `npm run db:migrate` | Criar tabelas no banco |
+| `npm test` | Vitest |
+| `npm run test:watch` | Vitest watch |
 
 ---
 
-⭐ Se este projeto foi útil para você, considere dar uma estrela no GitHub!
+## Licença
 
-Desenvolvido com ☕ e 💻 para a indústria têxtil brasileira.
-```
-
----
-
-## 🖼️ Sugestão de Estrutura de Pastas para README
-
-```
-pdmtextil/
-├── README.md                    # ← Este arquivo
-├── LICENSE                      # MIT License
-├── package.json
-├── .env.example
-├── .gitignore
-├── drizzle.config.ts
-├── next.config.js
-├── tailwind.config.js
-├── tsconfig.json
-├── docs/
-│   ├── DOCUMENTACAO_COMPLETA.md
-│   ├── DESIGN_TELAS.md
-│   └── API_REFERENCE.md
-├── public/
-│   ├── logo.png
-│   └── favicon.ico
-└── src/
-    └── ...
-```
+MIT — © 2026 Tiago de Abreu
 
 ---
 
-### 📝 Notas para o README
+## Créditos
 
-1. **Badges**: Atualize os links dos badges conforme seu repositório real
-2. **Links**: Substitua `seu-usuario` pelo nome do seu repositório no GitHub
-3. **Contato**: Atualize os dados de contato da Pro Moda Têxtil
-4. **Imagens**: Adicione um logo da empresa na pasta `public/`
+Desenvolvido por **Pro Moda Têxtil**.
 
-### 📱 Redes Sociais no README
+Inspirado pelo sistema **[Apontador](https://github.com/devtiagoabreu/apontador)** — Sistema de Apontamento Têxtil (MES) criado por [Tiago de Abreu](https://github.com/devtiagoabreu).
 
-Os badges usados seguem o padrão [Shields.io](https://shields.io/):
-
-```markdown
 [![GitHub](https://img.shields.io/badge/GitHub-@devtiagoabreu-181717?logo=github)](https://github.com/devtiagoabreu)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Tiago%20Abreu-0077B5?logo=linkedin)](https://linkedin.com/in/devtiagoabreu)
-[![Twitter](https://img.shields.io/badge/Twitter-@devtiagoabreu-1DA1F2?logo=twitter)](https://twitter.com/devtiagoabreu)
-[![Website](https://img.shields.io/badge/Website-tiagoabreu.dev-FF7139?logo=vercel)](https://tiagoabreu.dev)
-```
-
