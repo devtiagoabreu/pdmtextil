@@ -418,8 +418,9 @@ export default function RomaneiosPage() {
           })
 
           body.push([
-            { content: "", colSpan: 4, styles: { fillColor: [245, 247, 250] } },
+            { content: "", colSpan: 3, styles: { fillColor: [245, 247, 250] } },
             { content: `${subRolos} rolo(s)`, styles: { fillColor: [245, 247, 250], fontStyle: "bold", fontSize: isLandscape ? 6 : 5.5, halign: "left" } },
+            { content: "", styles: { fillColor: [245, 247, 250] } },
             { content: formatarMetragem(subMetragem), styles: { fillColor: [245, 247, 250], fontStyle: "bold", fontSize: isLandscape ? 6 : 5.5, halign: "right" } },
             { content: formatarPeso(subPesoBruto), styles: { fillColor: [245, 247, 250], fontStyle: "bold", fontSize: isLandscape ? 6 : 5.5, halign: "right" } },
             { content: formatarPeso(subPesoLiquido), styles: { fillColor: [245, 247, 250], fontStyle: "bold", fontSize: isLandscape ? 6 : 5.5, halign: "right" } },
