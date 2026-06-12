@@ -345,69 +345,98 @@ export default function RomaneiosPage() {
 
       y += capaH + 6
 
-      // Agrupar rolos por lote_produto
-      const lotes = new Map<string, Rolo[]>()
+      // Agrupar rolos por produto, depois por lote_produto
+      const produtosMap = new Map<string, Map<string, Rolo[]>>()
       for (const r of grupo.rolos) {
-        const chave = r.lote_produto || "SEM LOTE"
-        if (!lotes.has(chave)) lotes.set(chave, [])
-        lotes.get(chave)!.push(r)
+        const prodNome = r.produto || "SEM PRODUTO"
+        const loteNome = r.lote_produto || "SEM LOTE"
+        if (!produtosMap.has(prodNome)) produtosMap.set(prodNome, new Map())
+        const lotesMap = produtosMap.get(prodNome)!
+        if (!lotesMap.has(loteNome)) lotesMap.set(loteNome, [])
+        lotesMap.get(loteNome)!.push(r)
       }
-      const lotesOrdenados = Array.from(lotes.entries()).sort((a, b) => a[0].localeCompare(b[0]))
+      const produtosOrdenados = Array.from(produtosMap.entries()).sort((a, b) => a[0].localeCompare(b[0]))
 
       const head = [
         ["#", "Cód. Rolo", "Produto", "Narrativa", "Lote", "Metragem", "P. Bruto", "P. Líquido", "Largura", "Endereço"],
       ]
       const body: any[] = []
 
-      for (const [loteNome, rolos] of lotesOrdenados) {
-        const subRolos = rolos.length
-        let subMetragem = 0
-        let subPesoBruto = 0
-        let subPesoLiquido = 0
-        for (const r of rolos) {
-          subMetragem += r.quantidade || 0
-          subPesoBruto += r.peso_bruto || 0
-          subPesoLiquido += r.peso_liquido || 0
-        }
+      for (const [prodNome, lotesMap] of produtosOrdenados) {
+        const lotesOrdenados = Array.from(lotesMap.entries()).sort((a, b) => a[0].localeCompare(b[0]))
 
-        // Linha de cabeçalho do lote
+        let prodRolos = 0
+        let prodMetragem = 0
+        let prodPesoBruto = 0
+        let prodPesoLiquido = 0
+
         body.push([
           {
-            content: `LOTE ${loteNome}`,
+            content: `PRODUTO: ${prodNome}`,
             colSpan: 10,
-            styles: { fillColor: [219, 234, 254], fontStyle: "bold", fontSize: isLandscape ? 6.5 : 6, halign: "left" },
+            styles: { fillColor: [233, 213, 255], fontStyle: "bold", fontSize: isLandscape ? 6.5 : 6, halign: "left" },
           },
         ])
 
-        // Rolos do lote
-        rolos.forEach((r, idx) => {
-          body.push([
-            String(idx + 1),
-            String(r.codigo_rolo),
-            r.produto || "—",
-            r.narrativa || "—",
-            r.lote_produto || "—",
-            formatarMetragem(r.quantidade),
-            formatarPeso(r.peso_bruto),
-            formatarPeso(r.peso_liquido),
-            r.largura ? `${r.largura.toFixed(1)} m` : "—",
-            r.endereco_rolo || "—",
-          ])
-        })
+        for (const [loteNome, rolos] of lotesOrdenados) {
+          const subRolos = rolos.length
+          let subMetragem = 0
+          let subPesoBruto = 0
+          let subPesoLiquido = 0
+          for (const r of rolos) {
+            subMetragem += r.quantidade || 0
+            subPesoBruto += r.peso_bruto || 0
+            subPesoLiquido += r.peso_liquido || 0
+          }
 
-        // Subtotal do lote
+          prodRolos += subRolos
+          prodMetragem += subMetragem
+          prodPesoBruto += subPesoBruto
+          prodPesoLiquido += subPesoLiquido
+
+          body.push([
+            {
+              content: `LOTE ${loteNome}`,
+              colSpan: 10,
+              styles: { fillColor: [219, 234, 254], fontStyle: "bold", fontSize: isLandscape ? 6.5 : 6, halign: "left" },
+            },
+          ])
+
+          rolos.forEach((r, idx) => {
+            body.push([
+              String(idx + 1),
+              String(r.codigo_rolo),
+              r.produto || "—",
+              r.narrativa || "—",
+              r.lote_produto || "—",
+              formatarMetragem(r.quantidade),
+              formatarPeso(r.peso_bruto),
+              formatarPeso(r.peso_liquido),
+              r.largura ? `${r.largura.toFixed(1)} m` : "—",
+              r.endereco_rolo || "—",
+            ])
+          })
+
+          body.push([
+            { content: "", colSpan: 4, styles: { fillColor: [245, 247, 250] } },
+            { content: `${subRolos} rolo(s)`, styles: { fillColor: [245, 247, 250], fontStyle: "bold", fontSize: isLandscape ? 6 : 5.5, halign: "right" } },
+            { content: "", styles: { fillColor: [245, 247, 250] } },
+            { content: formatarMetragem(subMetragem), styles: { fillColor: [245, 247, 250], fontStyle: "bold", fontSize: isLandscape ? 6 : 5.5, halign: "right" } },
+            { content: formatarPeso(subPesoBruto), styles: { fillColor: [245, 247, 250], fontStyle: "bold", fontSize: isLandscape ? 6 : 5.5, halign: "right" } },
+            { content: formatarPeso(subPesoLiquido), styles: { fillColor: [245, 247, 250], fontStyle: "bold", fontSize: isLandscape ? 6 : 5.5, halign: "right" } },
+            { content: "", colSpan: 2, styles: { fillColor: [245, 247, 250] } },
+          ])
+        }
+
         body.push([
-          { content: "", colSpan: 4, styles: { fillColor: [245, 247, 250] } },
-          { content: `${subRolos} rolo(s)`, styles: { fillColor: [245, 247, 250], fontStyle: "bold", fontSize: isLandscape ? 6 : 5.5, halign: "right" } },
-          { content: "", styles: { fillColor: [245, 247, 250] } },
-          { content: formatarMetragem(subMetragem), styles: { fillColor: [245, 247, 250], fontStyle: "bold", fontSize: isLandscape ? 6 : 5.5, halign: "right" } },
-          { content: formatarPeso(subPesoBruto), styles: { fillColor: [245, 247, 250], fontStyle: "bold", fontSize: isLandscape ? 6 : 5.5, halign: "right" } },
-          { content: formatarPeso(subPesoLiquido), styles: { fillColor: [245, 247, 250], fontStyle: "bold", fontSize: isLandscape ? 6 : 5.5, halign: "right" } },
-          { content: "", colSpan: 2, styles: { fillColor: [245, 247, 250] } },
+          { content: `SUBTOTAL ${prodNome}: ${prodRolos} rolo(s)`, colSpan: 5, styles: { fontStyle: "bold", fontSize: isLandscape ? 6.5 : 6, fillColor: [233, 213, 255] } },
+          { content: formatarMetragem(prodMetragem), styles: { fontStyle: "bold", fontSize: isLandscape ? 6.5 : 6, fillColor: [233, 213, 255], halign: "right" } },
+          { content: formatarPeso(prodPesoBruto), styles: { fontStyle: "bold", fontSize: isLandscape ? 6.5 : 6, fillColor: [233, 213, 255], halign: "right" } },
+          { content: formatarPeso(prodPesoLiquido), styles: { fontStyle: "bold", fontSize: isLandscape ? 6.5 : 6, fillColor: [233, 213, 255], halign: "right" } },
+          { content: "", colSpan: 3, styles: { fillColor: [233, 213, 255] } },
         ])
       }
 
-      // Total geral
       body.push([
         { content: `TOTAL GERAL: ${grupo.totalRolos} rolo(s)`, colSpan: 5, styles: { fontStyle: "bold", fontSize: isLandscape ? 6.5 : 6, fillColor: [191, 219, 254] } },
         { content: formatarMetragem(grupo.totalMetragem), styles: { fontStyle: "bold", fontSize: isLandscape ? 6.5 : 6, fillColor: [191, 219, 254], halign: "right" } },
@@ -672,43 +701,90 @@ export default function RomaneiosPage() {
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                            {grupo.rolos.map((rolo, idx) => (
-                              <tr
-                                key={rolo.codigo_rolo}
-                                className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors"
-                              >
-                                <td className="px-3 py-2 text-sm text-slate-500 text-center font-mono text-[12px]">
-                                  {idx + 1}
-                                </td>
-                                <td className="px-4 py-2 text-sm font-medium text-slate-900 dark:text-slate-200 font-mono">
-                                  {rolo.codigo_rolo}
-                                </td>
-                                <td className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 font-mono text-[12px]">
-                                  {rolo.produto}
-                                </td>
-                                <td className="px-4 py-2 text-sm text-slate-700 dark:text-slate-300 max-w-[200px] truncate" title={rolo.narrativa}>
-                                  {rolo.narrativa}
-                                </td>
-                                <td className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 font-mono">
-                                  {rolo.lote_produto}
-                                </td>
-                                <td className="px-4 py-2 text-sm text-slate-700 dark:text-slate-300 text-right font-mono">
-                                  {formatarMetragem(rolo.quantidade)}
-                                </td>
-                                <td className="px-4 py-2 text-sm text-slate-700 dark:text-slate-300 text-right font-mono">
-                                  {formatarPeso(rolo.peso_bruto)}
-                                </td>
-                                <td className="px-4 py-2 text-sm text-slate-700 dark:text-slate-300 text-right font-mono">
-                                  {formatarPeso(rolo.peso_liquido)}
-                                </td>
-                                <td className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 text-center">
-                                  {rolo.largura ? `${rolo.largura.toFixed(1)}m` : "—"}
-                                </td>
-                                <td className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 text-center font-mono">
-                                  {rolo.endereco_rolo || "—"}
-                                </td>
-                              </tr>
-                            ))}
+                            {(() => {
+                              const prodsMap = new Map<string, Map<string, Rolo[]>>()
+                              for (const r of grupo.rolos) {
+                                const p = r.produto || "SEM PRODUTO"
+                                const l = r.lote_produto || "SEM LOTE"
+                                if (!prodsMap.has(p)) prodsMap.set(p, new Map())
+                                const lm = prodsMap.get(p)!
+                                if (!lm.has(l)) lm.set(l, [])
+                                lm.get(l)!.push(r)
+                              }
+                              const prodsSorted = Array.from(prodsMap.entries()).sort((a, b) => a[0].localeCompare(b[0]))
+                              const trs: React.ReactNode[] = []
+                              for (const [prodNome, lotesMap] of prodsSorted) {
+                                const lotsSorted = Array.from(lotesMap.entries()).sort((a, b) => a[0].localeCompare(b[0]))
+                                let prodRolos = 0
+                                let prodMetragem = 0
+                                let prodPesoBruto = 0
+                                let prodPesoLiquido = 0
+                                trs.push(
+                                  <tr key={`prod-${prodNome}`} className="bg-purple-50 dark:bg-purple-950/20">
+                                    <td colSpan={10} className="px-4 py-2 text-sm font-bold text-purple-700 dark:text-purple-400">
+                                      PRODUTO: {prodNome}
+                                    </td>
+                                  </tr>
+                                )
+                                for (const [loteNome, rolos] of lotsSorted) {
+                                  let subMetragem = 0
+                                  let subPesoBruto = 0
+                                  let subPesoLiquido = 0
+                                  for (const r of rolos) {
+                                    subMetragem += r.quantidade || 0
+                                    subPesoBruto += r.peso_bruto || 0
+                                    subPesoLiquido += r.peso_liquido || 0
+                                  }
+                                  prodRolos += rolos.length
+                                  prodMetragem += subMetragem
+                                  prodPesoBruto += subPesoBruto
+                                  prodPesoLiquido += subPesoLiquido
+                                  trs.push(
+                                    <tr key={`lote-${prodNome}-${loteNome}`} className="bg-blue-50 dark:bg-blue-950/30">
+                                      <td colSpan={10} className="px-4 py-1.5 text-xs font-bold text-blue-600 dark:text-blue-400">
+                                        LOTE {loteNome}
+                                      </td>
+                                    </tr>
+                                  )
+                                  rolos.forEach((rolo, idx) => {
+                                    trs.push(
+                                      <tr key={rolo.codigo_rolo} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                                        <td className="px-3 py-2 text-sm text-slate-500 text-center font-mono text-[12px]">{idx + 1}</td>
+                                        <td className="px-4 py-2 text-sm font-medium text-slate-900 dark:text-slate-200 font-mono">{rolo.codigo_rolo}</td>
+                                        <td className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 font-mono text-[12px]">{rolo.produto}</td>
+                                        <td className="px-4 py-2 text-sm text-slate-700 dark:text-slate-300 max-w-[200px] truncate" title={rolo.narrativa}>{rolo.narrativa}</td>
+                                        <td className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 font-mono">{rolo.lote_produto}</td>
+                                        <td className="px-4 py-2 text-sm text-slate-700 dark:text-slate-300 text-right font-mono">{formatarMetragem(rolo.quantidade)}</td>
+                                        <td className="px-4 py-2 text-sm text-slate-700 dark:text-slate-300 text-right font-mono">{formatarPeso(rolo.peso_bruto)}</td>
+                                        <td className="px-4 py-2 text-sm text-slate-700 dark:text-slate-300 text-right font-mono">{formatarPeso(rolo.peso_liquido)}</td>
+                                        <td className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 text-center">{rolo.largura ? `${rolo.largura.toFixed(1)}m` : "—"}</td>
+                                        <td className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 text-center font-mono">{rolo.endereco_rolo || "—"}</td>
+                                      </tr>
+                                    )
+                                  })
+                                  trs.push(
+                                    <tr key={`sub-lote-${prodNome}-${loteNome}`} className="bg-slate-50 dark:bg-slate-800/50">
+                                      <td colSpan={4} className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-400 text-right">{rolos.length} rolo(s)</td>
+                                      <td></td>
+                                      <td className="px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 text-right font-mono">{formatarMetragem(subMetragem)}</td>
+                                      <td className="px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 text-right font-mono">{formatarPeso(subPesoBruto)}</td>
+                                      <td className="px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 text-right font-mono">{formatarPeso(subPesoLiquido)}</td>
+                                      <td colSpan={2}></td>
+                                    </tr>
+                                  )
+                                }
+                                trs.push(
+                                  <tr key={`sub-prod-${prodNome}`} className="bg-purple-50 dark:bg-purple-950/20">
+                                    <td colSpan={5} className="px-4 py-2 text-sm font-bold text-purple-700 dark:text-purple-400">SUBTOTAL {prodNome}: {prodRolos} rolo(s)</td>
+                                    <td className="px-4 py-2 text-sm font-bold text-purple-700 dark:text-purple-400 text-right font-mono">{formatarMetragem(prodMetragem)}</td>
+                                    <td className="px-4 py-2 text-sm font-bold text-purple-700 dark:text-purple-400 text-right font-mono">{formatarPeso(prodPesoBruto)}</td>
+                                    <td className="px-4 py-2 text-sm font-bold text-purple-700 dark:text-purple-400 text-right font-mono">{formatarPeso(prodPesoLiquido)}</td>
+                                    <td colSpan={2}></td>
+                                  </tr>
+                                )
+                              }
+                              return trs
+                            })()}
                           </tbody>
                           <tfoot className="bg-blue-50 dark:bg-blue-950/30 border-t-2 border-slate-200 dark:border-slate-700">
                             <tr>
