@@ -118,7 +118,7 @@ export async function gerarSolicitacaoAmostraPdf(params: {
     doc.setFillColor(...corPrimaria)
     doc.setTextColor(255, 255, 255)
     doc.setFontSize(9).setFont("helvetica", "bold")
-    doc.text("  1. DADOS DA SOLICITAÇÃO DE DESENVOLVIMENTO", margin + 2, y + 3)
+        doc.text(`  1. SOLICITAÇÃO DE DESENVOLVIMENTO Nº ${solRes.id}`, margin + 2, y + 3)
     const solLabelY = y + 12
     doc.setTextColor(...corTexto)
     doc.setFillColor(...corSecundaria)
@@ -166,7 +166,7 @@ export async function gerarSolicitacaoAmostraPdf(params: {
     doc.setFillColor(...corPrimaria)
     doc.setTextColor(255, 255, 255)
     doc.setFontSize(9).setFont("helvetica", "bold")
-    doc.text("  2. DADOS DO PRODUTO CRU", margin + 2, y + 3)
+        doc.text(`  2. PRODUTO CRU — ${prodRes.codigoPdm}`, margin + 2, y + 3)
     doc.setTextColor(...corTexto)
     const prodBoxY = y + 6
     const prodBoxH = 44
@@ -237,7 +237,8 @@ export async function gerarSolicitacaoAmostraPdf(params: {
   doc.setFillColor(...corPrimaria)
   doc.setTextColor(255, 255, 255)
   doc.setFontSize(9).setFont("helvetica", "bold")
-  doc.text("  3. DADOS DA AMOSTRA", margin + 2, y + 3)
+  const tipoLabelAmostra = amostra.tipoAmostra === "TECIDO_CRU" ? "TECIDO CRU" : amostra.tipoAmostra === "ACABAMENTO" ? "ACABAMENTO" : amostra.tipoAmostra
+  doc.text(`  3. AMOSTRA — ${tipoLabelAmostra} Nº ${amostra.id}`, margin + 2, y + 3)
   doc.setTextColor(...corTexto)
 
   const temLinks = amostra.links && amostra.links.length > 0
