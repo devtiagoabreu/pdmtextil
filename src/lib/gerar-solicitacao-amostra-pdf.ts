@@ -32,6 +32,8 @@ interface ProdutoData {
   codigoPdm: string
   descricao: string
   status: string
+  idIntegracao?: string | null
+  idIntegracaoErpCru?: string | null
   fichaTecnica?: {
     gramatura?: string
     gramaturaLinear?: string
@@ -70,6 +72,21 @@ export async function gerarSolicitacaoAmostraPdf(params: {
     empresa = list.find((e: any) => e.isDefault) || list[0]
   } catch {}
 
+  async function loadImage(url: string): Promise<string | null> {
+    try {
+      const res = await fetch(url)
+      const blob = await res.blob()
+      return new Promise((resolve) => {
+        const reader = new FileReader()
+        reader.onload = () => resolve(reader.result as string)
+        reader.onerror = () => resolve(null)
+        reader.readAsDataURL(blob)
+      })
+    } catch {
+      return null
+    }
+  }
+
   const { default: jsPDF } = await import("jspdf")
   await import("jspdf-autotable")
 
@@ -90,19 +107,32 @@ export async function gerarSolicitacaoAmostraPdf(params: {
   const cx3 = cx2 + colW + 4
 
   // ── Header ──
+  let logoDataUrl: string | null = null
+  if (empresa && empresa.logoUrl) {
+    logoDataUrl = await loadImage(empresa.logoUrl)
+  }
+
   if (empresa) {
+    const headerH = 48
+    const logoSize = 32
     doc.setFillColor(...corPrimaria)
-    doc.rect(0, 0, pageWidth, 42, "F")
+    doc.rect(0, 0, pageWidth, headerH, "F")
     doc.setTextColor(255, 255, 255)
-    doc.setFontSize(16).setFont("helvetica", "bold")
-    doc.text("SOLICITAÇÃO DE AMOSTRA", pageWidth / 2, 16, { align: "center" })
+
+    if (logoDataUrl) {
+      doc.addImage(logoDataUrl, "PNG", margin, 8, logoSize, logoSize)
+    }
+
+    const textX = logoDataUrl ? margin + logoSize + 10 : margin + 8
+    doc.setFontSize(14).setFont("helvetica", "bold")
+    doc.text("SOLICITAÇÃO DE AMOSTRA", textX, 16)
     doc.setFontSize(9).setFont("helvetica", "normal")
-    doc.text(empresa.nome || "", pageWidth / 2, 26, { align: "center" })
+    doc.text(empresa.nome || "", textX, 27)
     if (empresa.documento) {
       doc.setFontSize(8)
-      doc.text(`CNPJ: ${empresa.documento}`, pageWidth / 2, 34, { align: "center" })
+      doc.text(`CNPJ: ${empresa.documento}`, textX, 37)
     }
-    y = 52
+    y = headerH + 4
   } else {
     doc.setFillColor(...corPrimaria)
     doc.rect(0, 0, pageWidth, 32, "F")
@@ -184,7 +214,8 @@ export async function gerarSolicitacaoAmostraPdf(params: {
 
   // ── Seção 2: Produto Cru ──
   if (prodRes) {
-    const prodBoxH = 44
+    const temLinksProd = prodRes.links && prodRes.links.length > 0
+    const prodBoxH = temLinksProd ? 57 : 44
 
     doc.setFillColor(...corPrimaria)
     doc.roundedRect(margin, y, pageWidth - margin * 2, 8, 2, 2, "F")
@@ -223,6 +254,8 @@ export async function gerarSolicitacaoAmostraPdf(params: {
 
     doc.setFont("helvetica", "bold").setFontSize(7)
     doc.text("Composição", cx1, py3)
+    doc.text("ID Integração", cx2, py3)
+    doc.text("ID ERP Cru", cx3, py3)
     doc.setFont("helvetica", "normal").setFontSize(8)
     const compStr =
       prodRes.composicao && prodRes.composicao.length > 0
@@ -230,22 +263,25 @@ export async function gerarSolicitacaoAmostraPdf(params: {
             .map((c: any) => `${c.material} ${c.percentual}%`)
             .join(" | ")
         : "—"
-    const compParts = doc.splitTextToSize(compStr, colW * 2 + 4)
+    const compParts = doc.splitTextToSize(compStr, colW - 4)
     doc.text(compParts, cx1, py3 + 4)
+    doc.text(prodRes.idIntegracao || "—", cx2, py3 + 4)
+    doc.text(prodRes.idIntegracaoErpCru || "—", cx3, py3 + 4)
 
-    // Links do produto
+    // Links do produto — fourth row when present
     if (prodRes.links && prodRes.links.length > 0) {
+      const linkRowY = py3 + 13
       doc.setFont("helvetica", "bold").setFontSize(7)
-      doc.text("Links", cx3, py3)
+      doc.text("Links", cx1, linkRowY)
       doc.setFont("helvetica", "normal").setFontSize(7)
       doc.setTextColor(37, 99, 235)
-      let ly = py3 + 4
-      const lw = colW - 4
+      let ly = linkRowY + 4
+      const lw = colW * 2 + 4
       for (const link of prodRes.links) {
         const txt = link.descricao || link.url
         const fit = doc.splitTextToSize(txt, lw)
         if (fit.length > 0) {
-          doc.textWithLink(fit[0], cx3, ly, { url: link.url })
+          doc.textWithLink(fit[0], cx1, ly, { url: link.url })
           ly += 4
           if (ly > prodBoxY + prodBoxH - 4) break
         }
