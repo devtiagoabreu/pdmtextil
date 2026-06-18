@@ -445,7 +445,7 @@ export default function RomaneiosPage() {
         { content: "", colSpan: 2, styles: { fillColor: [191, 219, 254] } },
       ])
 
-      const fontSize = isLandscape ? 6 : 5.5
+      const fontSize = isLandscape ? 7.5 : 7
       ;(doc as any).autoTable({
         head,
         body,
