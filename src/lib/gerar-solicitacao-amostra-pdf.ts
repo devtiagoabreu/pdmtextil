@@ -72,19 +72,21 @@ export async function gerarSolicitacaoAmostraPdf(params: {
     empresa = list.find((e: any) => e.isDefault) || list[0]
   } catch {}
 
-  async function loadImage(url: string): Promise<string | null> {
-    try {
-      const res = await fetch(url)
-      const blob = await res.blob()
-      return new Promise((resolve) => {
-        const reader = new FileReader()
-        reader.onload = () => resolve(reader.result as string)
-        reader.onerror = () => resolve(null)
-        reader.readAsDataURL(blob)
-      })
-    } catch {
-      return null
-    }
+  function loadImage(url: string): Promise<HTMLImageElement | null> {
+    return new Promise((resolve) => {
+      const img = new Image()
+      img.crossOrigin = "anonymous"
+      img.onload = () => resolve(img)
+      img.onerror = () => {
+        const proxy = `/api/proxy-image?url=${encodeURIComponent(url)}`
+        const img2 = new Image()
+        img2.crossOrigin = "anonymous"
+        img2.onload = () => resolve(img2)
+        img2.onerror = () => resolve(null)
+        img2.src = proxy
+      }
+      img.src = url
+    })
   }
 
   const { default: jsPDF } = await import("jspdf")
@@ -107,30 +109,34 @@ export async function gerarSolicitacaoAmostraPdf(params: {
   const cx3 = cx2 + colW + 4
 
   // ── Header ──
-  let logoDataUrl: string | null = null
+  let logoImg: HTMLImageElement | null = null
   if (empresa && empresa.logoUrl) {
-    logoDataUrl = await loadImage(empresa.logoUrl)
+    try {
+      logoImg = await loadImage(empresa.logoUrl)
+    } catch {}
   }
 
   if (empresa) {
     const headerH = 48
-    const logoSize = 32
     doc.setFillColor(...corPrimaria)
     doc.rect(0, 0, pageWidth, headerH, "F")
     doc.setTextColor(255, 255, 255)
 
-    if (logoDataUrl) {
-      doc.addImage(logoDataUrl, "PNG", margin, 8, logoSize, logoSize)
+    if (logoImg) {
+      const maxW = 30
+      const maxH = 30
+      const scale = Math.min(maxW / logoImg.width, maxH / logoImg.height, 1)
+      doc.addImage(logoImg, "PNG", margin, 9, logoImg.width * scale, logoImg.height * scale)
     }
 
-    const textX = logoDataUrl ? margin + logoSize + 10 : margin + 8
+    const textX = logoImg ? margin + 36 : margin + 8
     doc.setFontSize(14).setFont("helvetica", "bold")
-    doc.text("SOLICITAÇÃO DE AMOSTRA", textX, 16)
+    doc.text("SOLICITAÇÃO DE AMOSTRA", textX, 17)
     doc.setFontSize(9).setFont("helvetica", "normal")
-    doc.text(empresa.nome || "", textX, 27)
+    doc.text(empresa.nome || "", textX, 28)
     if (empresa.documento) {
       doc.setFontSize(8)
-      doc.text(`CNPJ: ${empresa.documento}`, textX, 37)
+      doc.text(`CNPJ: ${empresa.documento}`, textX, 38)
     }
     y = headerH + 4
   } else {
