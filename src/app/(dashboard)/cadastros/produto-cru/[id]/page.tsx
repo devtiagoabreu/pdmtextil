@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useRouter, useParams, usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
-import { ArrowLeft, Plus, Trash2, Loader2, ChevronDown, ChevronRight, FlaskConical } from "lucide-react"
+import { ArrowLeft, Plus, Trash2, Loader2, ChevronDown, ChevronRight, FlaskConical, FileText } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -13,6 +13,7 @@ import { toast } from "sonner"
 import { ReceitaDialog } from "@/components/receita/acabamento-receita-dialog"
 import { LinksEditor } from "@/components/links/LinksEditor"
 import { EntityChatButton } from "@/components/chat/entity-chat-button"
+import { gerarSolicitacaoAmostraPdf } from "@/lib/gerar-solicitacao-amostra-pdf"
 
 type FichaTecnica = {
   gramatura?: string
@@ -166,6 +167,7 @@ export default function ProdutoCruFormPage() {
 
   const [amostraLinksAberta, setAmostraLinksAberta] = useState<number | null>(null)
   const [acabAmostraLinksAberta, setAcabAmostraLinksAberta] = useState<string | null>(null)
+  const [gerandoPdf, setGerandoPdf] = useState<string | null>(null)
 
   const [motivoModal, setMotivoModal] = useState<{
     open: boolean
@@ -377,6 +379,31 @@ export default function ProdutoCruFormPage() {
       toast.success("Status atualizado")
     } catch {
       toast.error("Erro ao atualizar status")
+    }
+  }
+
+  const handleGerarPdfAmostra = async (amostra: { id: number; descricao?: string; status: string; observacoes?: string; data?: string; links?: { url: string; descricao: string }[]; quantidadeProduzida?: string }, tipoAmostra: string) => {
+    const key = `${tipoAmostra}-${amostra.id}`
+    setGerandoPdf(key)
+    try {
+      await gerarSolicitacaoAmostraPdf({
+        amostra: {
+          id: amostra.id,
+          tipoAmostra,
+          descricao: amostra.descricao,
+          status: amostra.status,
+          observacoes: amostra.observacoes,
+          data: amostra.data,
+          links: amostra.links,
+          quantidadeProduzida: amostra.quantidadeProduzida,
+          produtoCodigo: produto.codigoPdm,
+          produtoDescricao: produto.descricao,
+        },
+        produtoCruId: produto.id,
+        solicitacaoDesenvolvimentoId: produto.solicitacaoDesenvolvimentoId,
+      })
+    } catch {} finally {
+      setGerandoPdf(null)
     }
   }
 
@@ -908,6 +935,10 @@ export default function ProdutoCruFormPage() {
                                 </p>
                               </div>
                               <div className="flex items-center gap-1">
+                                <Button variant="ghost" size="sm" className="text-xs" onClick={() => handleGerarPdfAmostra(a, "TECIDO_CRU")} disabled={gerandoPdf === `TECIDO_CRU-${a.id}`}>
+                                  {gerandoPdf === `TECIDO_CRU-${a.id}` ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />}
+                                  Solic. Amostra
+                                </Button>
                                 <Button variant="ghost" size="sm" className="text-xs" onClick={() => setAmostraLinksAberta(amostraLinksAberta === a.id ? null : a.id)}>
                                   Links {a.links?.length ? `(${a.links.length})` : ""}
                                 </Button>
@@ -1000,6 +1031,9 @@ export default function ProdutoCruFormPage() {
                                         )}
                                       </div>
                                       <div className="flex items-center gap-1">
+                                        <Button variant="ghost" size="sm" className="text-xs h-6" onClick={() => handleGerarPdfAmostra(as, "ACABAMENTO")} disabled={gerandoPdf === `ACABAMENTO-${as.id}`}>
+                                          {gerandoPdf === `ACABAMENTO-${as.id}` ? <Loader2 size={12} className="animate-spin" /> : <FileText size={12} />}
+                                        </Button>
                                         <Button variant="ghost" size="sm" className="text-xs h-6" onClick={() => setAcabAmostraLinksAberta(acabAmostraLinksAberta === key ? null : key)}>
                                           Links {as.links?.length ? `(${as.links.length})` : ""}
                                         </Button>

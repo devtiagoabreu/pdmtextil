@@ -2,11 +2,12 @@
 
 import { useEffect, useState, useCallback } from "react"
 import { PieChart, Pie, BarChart, Bar, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
-import { ClipboardList, FlaskConical, ThumbsUp, ThumbsDown, Clock, ExternalLink, X, Loader2 } from "lucide-react"
+import { ClipboardList, FlaskConical, ThumbsUp, ThumbsDown, Clock, ExternalLink, X, Loader2, FileText } from "lucide-react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
+import { gerarSolicitacaoAmostraPdf } from "@/lib/gerar-solicitacao-amostra-pdf"
 
 const STATUS_LABELS: Record<string, string> = {
   PENDENTE: "Pendente",
@@ -68,6 +69,7 @@ export default function DashboardAmostras() {
   const [modalLista, setModalLista] = useState<any[]>([])
   const [modalLoading, setModalLoading] = useState(false)
   const [modalTitle, setModalTitle] = useState("")
+  const [gerandoPdf, setGerandoPdf] = useState<string | null>(null)
 
   useEffect(() => {
     fetch("/api/dashboard/amostras-stats")
@@ -76,6 +78,30 @@ export default function DashboardAmostras() {
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false))
   }, [])
+
+  const handleGerarPdf = async (a: any) => {
+    const key = `${a.tipoAmostra}-${a.id}`
+    setGerandoPdf(key)
+    try {
+      await gerarSolicitacaoAmostraPdf({
+        amostra: {
+          id: a.id,
+          tipoAmostra: a.tipoAmostra,
+          descricao: a.descricao,
+          status: a.status,
+          observacoes: a.motivoAprovacao,
+          data: a.data,
+          quantidadeProduzida: a.quantidadeProduzida,
+          produtoCodigo: a.produtoCodigo,
+          produtoDescricao: a.produtoDescricao,
+        },
+        produtoCruId: a.produtoId,
+        solicitacaoDesenvolvimentoId: a.solicitacaoId,
+      })
+    } catch {} finally {
+      setGerandoPdf(null)
+    }
+  }
 
   const openModal = useCallback(async (filtro: string, label: string) => {
     setModalTitle(label)
@@ -226,6 +252,7 @@ export default function DashboardAmostras() {
                       <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Tipo</th>
                       <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Status</th>
                       <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Data</th>
+                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4 w-28">Ação</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -269,6 +296,20 @@ export default function DashboardAmostras() {
                         </td>
                         <td className="p-4 text-sm text-slate-500">
                           {a.data ? new Date(a.data).toLocaleDateString("pt-BR") : "—"}
+                        </td>
+                        <td className="p-4">
+                          <button
+                            onClick={() => handleGerarPdf(a)}
+                            disabled={gerandoPdf === `${a.tipoAmostra}-${a.id}`}
+                            className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                          >
+                            {gerandoPdf === `${a.tipoAmostra}-${a.id}` ? (
+                              <Loader2 size={12} className="animate-spin" />
+                            ) : (
+                              <FileText size={12} />
+                            )}
+                            {gerandoPdf === `${a.tipoAmostra}-${a.id}` ? "..." : "Solic. Amostra"}
+                          </button>
                         </td>
                       </tr>
                     ))}
