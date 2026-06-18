@@ -20,8 +20,10 @@ export async function GET() {
         observacoes: produtoCruAmostra.observacoes,
         data: produtoCruAmostra.data,
         createdAt: produtoCruAmostra.createdAt,
+        links: produtoCruAmostra.links,
         produtoCodigo: produtosCru.codigoPdm,
         produtoDescricao: produtosCru.descricao,
+        solicitacaoDesenvolvimentoId: produtosCru.solicitacaoDesenvolvimentoId,
       })
       .from(produtoCruAmostra)
       .innerJoin(produtosCru, eq(produtoCruAmostra.produtoCruId, produtosCru.id))
@@ -37,9 +39,12 @@ export async function GET() {
         observacoes: produtoCruAcabamentoAmostra.observacoes,
         data: produtoCruAcabamentoAmostra.data,
         createdAt: produtoCruAcabamentoAmostra.createdAt,
+        links: produtoCruAcabamentoAmostra.links,
         produtoCodigo: produtosCru.codigoPdm,
         produtoDescricao: produtosCru.descricao,
         acabamentoDescricao: produtoCruAcabamento.descricao,
+        produtoCruId: produtoCruAcabamento.produtoCruId,
+        solicitacaoDesenvolvimentoId: produtosCru.solicitacaoDesenvolvimentoId,
       })
       .from(produtoCruAcabamentoAmostra)
       .innerJoin(produtoCruAcabamento, eq(produtoCruAcabamentoAmostra.acabamentoId, produtoCruAcabamento.id))
@@ -47,8 +52,8 @@ export async function GET() {
       .orderBy(produtoCruAcabamentoAmostra.createdAt)
 
     return NextResponse.json({
-      tecidoCru: amostrasCru.map(a => ({ ...a, tipoAmostra: "TECIDO_CRU" })),
-      acabamento: amostrasAcabamento.map(a => ({ ...a, tipoAmostra: "ACABAMENTO" })),
+      tecidoCru: amostrasCru.map((a: Record<string, unknown>) => ({ ...a, tipoAmostra: "TECIDO_CRU" })),
+      acabamento: amostrasAcabamento.map((a: Record<string, unknown>) => ({ ...a, tipoAmostra: "ACABAMENTO" })),
     })
   } catch (error) {
     console.error("[GET /api/amostras]", error)
