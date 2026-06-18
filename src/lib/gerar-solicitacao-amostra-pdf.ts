@@ -24,6 +24,7 @@ interface SolicitacaoData {
   projeto?: string | null
   prazoDesejado?: string | null
   observacoes?: string | null
+  anexos?: { id: number; tipo: string; titulo: string; url: string }[] | null
 }
 
 interface ProdutoData {
@@ -118,13 +119,18 @@ export async function gerarSolicitacaoAmostraPdf(params: {
     doc.setFillColor(...corPrimaria)
     doc.setTextColor(255, 255, 255)
     doc.setFontSize(9).setFont("helvetica", "bold")
-        doc.text(`  1. SOLICITAÇÃO DE DESENVOLVIMENTO Nº ${solRes.id}`, margin + 2, y + 3)
+    doc.text(`  1. SOLICITAÇÃO DE DESENVOLVIMENTO Nº ${solRes.id}`, margin + 2, y + 3)
     const solLabelY = y + 12
+
+    const linksSol = (solRes.anexos || []).filter((a: any) => a.tipo === "LINK")
+    const temLinksSol = linksSol.length > 0
+    const solBoxH = temLinksSol ? 48 : 34
+
     doc.setTextColor(...corTexto)
     doc.setFillColor(...corSecundaria)
-    doc.roundedRect(margin, y + 6, pageWidth - margin * 2, 34, 2, 2, "F")
+    doc.roundedRect(margin, y + 6, pageWidth - margin * 2, solBoxH, 2, 2, "F")
     doc.setDrawColor(...corBorda)
-    doc.roundedRect(margin, y + 6, pageWidth - margin * 2, 34, 2, 2, "S")
+    doc.roundedRect(margin, y + 6, pageWidth - margin * 2, solBoxH, 2, 2, "S")
 
     doc.setFontSize(7).setFont("helvetica", "bold")
     doc.text("Cliente", cx1, solLabelY)
@@ -158,7 +164,21 @@ export async function gerarSolicitacaoAmostraPdf(params: {
     )
     doc.text(solRes.cnpj || "—", cx3, solLabelY + 15)
 
-    y += 46
+    if (temLinksSol) {
+      doc.setFont("helvetica", "bold").setFontSize(7)
+      doc.text("Links", cx1, solLabelY + 24)
+      doc.setFont("helvetica", "normal").setFontSize(7)
+      doc.setTextColor(37, 99, 235)
+      let ly = solLabelY + 28
+      for (const link of linksSol) {
+        const txt = link.titulo || link.url
+        doc.textWithLink(txt, cx1, ly, { url: link.url })
+        ly += 4
+      }
+      doc.setTextColor(...corTexto)
+    }
+
+    y += solBoxH + 12
   }
 
   // ── Seção 2: Produto Cru ──
