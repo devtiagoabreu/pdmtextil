@@ -116,21 +116,22 @@ export async function gerarSolicitacaoAmostraPdf(params: {
 
   // ── Seção 1: Solicitação de Desenvolvimento ──
   if (solRes) {
-    doc.setFillColor(...corPrimaria)
-    doc.setTextColor(255, 255, 255)
-    doc.setFontSize(9).setFont("helvetica", "bold")
-    doc.text(`  1. SOLICITAÇÃO DE DESENVOLVIMENTO Nº ${solRes.id}`, margin + 2, y + 3)
     const solLabelY = y + 12
 
     const linksSol = (solRes.anexos || []).filter((a: any) => a.tipo === "LINK")
     const temLinksSol = linksSol.length > 0
     const solBoxH = temLinksSol ? 48 : 34
 
+    doc.setFillColor(...corPrimaria)
+    doc.roundedRect(margin, y, pageWidth - margin * 2, 8, 2, 2, "F")
+    doc.setTextColor(255, 255, 255)
+    doc.setFontSize(9).setFont("helvetica", "bold")
+    doc.text(`SOLICITAÇÃO DE DESENVOLVIMENTO Nº ${solRes.id}`, margin + 4, y + 6)
+
     doc.setTextColor(...corTexto)
     doc.setFillColor(...corSecundaria)
-    doc.roundedRect(margin, y + 6, pageWidth - margin * 2, solBoxH, 2, 2, "F")
     doc.setDrawColor(...corBorda)
-    doc.roundedRect(margin, y + 6, pageWidth - margin * 2, solBoxH, 2, 2, "S")
+    doc.roundedRect(margin, y + 8, pageWidth - margin * 2, solBoxH, 2, 2, "FD")
 
     doc.setFontSize(7).setFont("helvetica", "bold")
     doc.text("Cliente", cx1, solLabelY)
@@ -178,22 +179,24 @@ export async function gerarSolicitacaoAmostraPdf(params: {
       doc.setTextColor(...corTexto)
     }
 
-    y += solBoxH + 12
+    y = y + 8 + solBoxH + 6
   }
 
   // ── Seção 2: Produto Cru ──
   if (prodRes) {
+    const prodBoxH = 44
+
     doc.setFillColor(...corPrimaria)
+    doc.roundedRect(margin, y, pageWidth - margin * 2, 8, 2, 2, "F")
     doc.setTextColor(255, 255, 255)
     doc.setFontSize(9).setFont("helvetica", "bold")
-        doc.text(`  2. PRODUTO CRU — ${prodRes.codigoPdm}`, margin + 2, y + 3)
+    doc.text(`PRODUTO CRU — ${prodRes.codigoPdm}`, margin + 4, y + 6)
+
+    const prodBoxY = y + 8
     doc.setTextColor(...corTexto)
-    const prodBoxY = y + 6
-    const prodBoxH = 44
     doc.setFillColor(...corSecundaria)
-    doc.roundedRect(margin, prodBoxY, pageWidth - margin * 2, prodBoxH, 2, 2, "F")
     doc.setDrawColor(...corBorda)
-    doc.roundedRect(margin, prodBoxY, pageWidth - margin * 2, prodBoxH, 2, 2, "S")
+    doc.roundedRect(margin, prodBoxY, pageWidth - margin * 2, prodBoxH, 2, 2, "FD")
 
     const py1 = prodBoxY + 7
     const py2 = py1 + 13
@@ -250,25 +253,26 @@ export async function gerarSolicitacaoAmostraPdf(params: {
       doc.setTextColor(...corTexto)
     }
 
-    y += prodBoxH + 6
+    y = prodBoxY + prodBoxH + 6
   }
 
   // ── Seção 3: Amostra ──
-  doc.setFillColor(...corPrimaria)
-  doc.setTextColor(255, 255, 255)
-  doc.setFontSize(9).setFont("helvetica", "bold")
   const tipoLabelAmostra = amostra.tipoAmostra === "TECIDO_CRU" ? "TECIDO CRU" : amostra.tipoAmostra === "ACABAMENTO" ? "ACABAMENTO" : amostra.tipoAmostra
-  doc.text(`  3. AMOSTRA — ${tipoLabelAmostra} Nº ${amostra.id}`, margin + 2, y + 3)
-  doc.setTextColor(...corTexto)
-
   const temLinks = amostra.links && amostra.links.length > 0
   const temQuant = amostra.quantidadeProduzida
   const amostraBoxH = temLinks || temQuant ? 44 : 30
-  const amostraBoxY = y + 6
+
+  doc.setFillColor(...corPrimaria)
+  doc.roundedRect(margin, y, pageWidth - margin * 2, 8, 2, 2, "F")
+  doc.setTextColor(255, 255, 255)
+  doc.setFontSize(9).setFont("helvetica", "bold")
+  doc.text(`AMOSTRA — ${tipoLabelAmostra} Nº ${amostra.id}`, margin + 4, y + 6)
+
+  const amostraBoxY = y + 8
+  doc.setTextColor(...corTexto)
   doc.setFillColor(...corSecundaria)
-  doc.roundedRect(margin, amostraBoxY, pageWidth - margin * 2, amostraBoxH, 2, 2, "F")
   doc.setDrawColor(...corBorda)
-  doc.roundedRect(margin, amostraBoxY, pageWidth - margin * 2, amostraBoxH, 2, 2, "S")
+  doc.roundedRect(margin, amostraBoxY, pageWidth - margin * 2, amostraBoxH, 2, 2, "FD")
 
   const ay1 = amostraBoxY + 7
   const ay2 = ay1 + 12
@@ -316,7 +320,7 @@ export async function gerarSolicitacaoAmostraPdf(params: {
     doc.setTextColor(...corTexto)
   }
 
-  y = amostraBoxY + amostraBoxH + 10
+  y = amostraBoxY + amostraBoxH + 6
 
   // ── Footer ──
   if (y > pageHeight - 30) {
