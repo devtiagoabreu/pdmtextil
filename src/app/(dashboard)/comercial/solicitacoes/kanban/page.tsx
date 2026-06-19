@@ -28,6 +28,9 @@ interface Solicitacao {
   createdAt: string
   solicitanteNome: string
   chatExists?: boolean
+  produtoCodigoPdm?: string | null
+  produtoIdIntegracao?: string | null
+  produtoAmostrasCount?: number
 }
 
 function DroppableColumn({ id, children, rotulo, cor, count }: { id: string; children: React.ReactNode; rotulo: string; cor: string | null; count: number }) {
@@ -103,6 +106,17 @@ function DraggableCard({ solicitacao }: { solicitacao: Solicitacao }) {
       </p>
       {solicitacao.projeto && (
         <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">{solicitacao.projeto}</p>
+      )}
+      {solicitacao.produtoCodigoPdm && (
+        <div className="flex items-center gap-1 mt-1.5 text-[10px] text-slate-500">
+          <span className="font-medium">{solicitacao.produtoCodigoPdm}</span>
+          {solicitacao.produtoIdIntegracao && (
+            <span className="text-slate-400">({solicitacao.produtoIdIntegracao})</span>
+          )}
+          {solicitacao.produtoAmostrasCount !== undefined && solicitacao.produtoAmostrasCount > 0 && (
+            <span className="ml-auto text-blue-500">{solicitacao.produtoAmostrasCount} amostra{solicitacao.produtoAmostrasCount > 1 ? "s" : ""}</span>
+          )}
+        </div>
       )}
       {prazoDate && (
         <div className={`flex items-center gap-1 mt-2 text-[10px] ${vencido ? "text-red-500" : "text-slate-400"}`}>
@@ -248,6 +262,17 @@ export default function KanbanSolicitacoesPage() {
               <p className="text-sm font-medium text-slate-900 dark:text-slate-100 mt-1">{activeCard.cliente}</p>
               {activeCard.projeto && (
                 <p className="text-xs text-slate-500 mt-0.5">{activeCard.projeto}</p>
+              )}
+              {activeCard.produtoCodigoPdm && (
+                <div className="flex items-center gap-1 mt-1.5 text-[10px] text-slate-500">
+                  <span className="font-medium">{activeCard.produtoCodigoPdm}</span>
+                  {activeCard.produtoIdIntegracao && (
+                    <span className="text-slate-400">({activeCard.produtoIdIntegracao})</span>
+                  )}
+                  {activeCard.produtoAmostrasCount !== undefined && activeCard.produtoAmostrasCount > 0 && (
+                    <span className="ml-auto text-blue-500">{activeCard.produtoAmostrasCount} amostra{activeCard.produtoAmostrasCount > 1 ? "s" : ""}</span>
+                  )}
+                </div>
               )}
             </div>
           )}
