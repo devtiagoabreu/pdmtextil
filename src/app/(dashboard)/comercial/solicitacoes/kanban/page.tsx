@@ -2,13 +2,20 @@
 
 import { useEffect, useState, useCallback } from "react"
 import { useSession } from "next-auth/react"
-import { useRouter, usePathname } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { toast } from "sonner"
 import { DndContext, DragOverlay, useDraggable, useDroppable, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
-import { Loader2, Plus, ExternalLink, Calendar, MessageSquare } from "lucide-react"
+import { Loader2, Plus, ExternalLink, Calendar, MessageSquare, FileText } from "lucide-react"
 import Link from "next/link"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog"
 
 const ROLES_PERMITIDOS = ["COMERCIAL", "DESENVOLVIMENTO", "QUALIDADE", "PCP", "ADMIN", "SUDO"]
 
@@ -61,7 +68,15 @@ function DroppableColumn({ id, children, rotulo, cor, count }: { id: string; chi
   )
 }
 
-function DraggableCard({ solicitacao }: { solicitacao: Solicitacao }) {
+function DraggableCard({
+  solicitacao,
+  onOpenChat,
+  onOpenAmostras,
+}: {
+  solicitacao: Solicitacao
+  onOpenChat: (s: Solicitacao) => void
+  onOpenAmostras: (s: Solicitacao) => void
+}) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: `card-${solicitacao.id}`,
     data: { solicitacao },
@@ -97,13 +112,13 @@ function DraggableCard({ solicitacao }: { solicitacao: Solicitacao }) {
         </Link>
         <div className="flex items-center gap-1">
           {solicitacao.chatExists && (
-            <Link
-              href={`/comercial/solicitacoes/${solicitacao.id}`}
-              onClick={(e) => e.stopPropagation()}
-              title="Abrir chat da solicitação"
+            <button
+              onClick={(e) => { e.stopPropagation(); onOpenChat(solicitacao) }}
+              title="Ver resumo do chat"
+              className="text-blue-500 hover:text-blue-700 transition-colors"
             >
-              <MessageSquare size={11} className="text-blue-500 hover:text-blue-700" />
-            </Link>
+              <MessageSquare size={11} />
+            </button>
           )}
           <span className="text-[10px] text-slate-400">{solicitacao.solicitanteNome}</span>
         </div>
@@ -121,14 +136,13 @@ function DraggableCard({ solicitacao }: { solicitacao: Solicitacao }) {
             <span className="text-slate-400">({solicitacao.produtoIdIntegracao})</span>
           )}
           {solicitacao.produtoAmostrasCount !== undefined && solicitacao.produtoAmostrasCount > 0 && (
-            <Link
-              href={solicitacao.produtoId ? `/cadastros/produto-cru/${solicitacao.produtoId}` : "#"}
-              onClick={(e) => e.stopPropagation()}
-              className="ml-auto text-blue-500 hover:text-blue-700 hover:underline"
+            <button
+              onClick={(e) => { e.stopPropagation(); onOpenAmostras(solicitacao) }}
+              className="ml-auto text-blue-500 hover:text-blue-700 hover:underline transition-colors"
               title="Ver amostras do produto"
             >
               {solicitacao.produtoAmostrasCount} amostra{solicitacao.produtoAmostrasCount > 1 ? "s" : ""}
-            </Link>
+            </button>
           )}
         </div>
       )}
@@ -145,7 +159,6 @@ function DraggableCard({ solicitacao }: { solicitacao: Solicitacao }) {
 export default function KanbanSolicitacoesPage() {
   const pathname = usePathname()
   const info = getInfoContent(pathname)
-  const router = useRouter()
   const { data: session } = useSession()
   const role = session?.user?.role as string | undefined
   const podeArrastar = role ? ROLES_PERMITIDOS.includes(role) : false
@@ -154,6 +167,16 @@ export default function KanbanSolicitacoesPage() {
   const [solicitacoes, setSolicitacoes] = useState<Solicitacao[]>([])
   const [loading, setLoading] = useState(true)
   const [activeCard, setActiveCard] = useState<Solicitacao | null>(null)
+
+  // Chat modal state
+  const [chatTarget, setChatTarget] = useState<Solicitacao | null>(null)
+  const [chatMensagens, setChatMensagens] = useState<{ remetenteNome: string; mensagem: string; createdAt: string }[]>([])
+  const [chatLoading, setChatLoading] = useState(false)
+
+  // Amostras modal state
+  const [amostrasTarget, setAmostrasTarget] = useState<Solicitacao | null>(null)
+  const [amostrasData, setAmostrasData] = useState<{ tipo: string; descricao: string | null; status: string; id: number; scrollId: string }[]>([])
+  const [amostrasLoading, setAmostrasLoading] = useState(false)
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
@@ -176,6 +199,52 @@ export default function KanbanSolicitacoesPage() {
   }, [])
 
   useEffect(() => { carregar() }, [carregar])
+
+  async function abrirChat(s: Solicitacao) {
+    setChatTarget(s)
+    setChatMensagens([])
+    setChatLoading(true)
+    try {
+      const res = await fetch(`/api/chats/entidade?tipo=SOLICITACAO&id=${s.id}`)
+      const chat = await res.json()
+      if (chat && chat.id) {
+        const msgsRes = await fetch(`/api/chats/${chat.id}/mensagens`)
+        const msgsData = await msgsRes.json()
+        if (Array.isArray(msgsData.mensagens)) {
+          setChatMensagens(msgsData.mensagens.slice(-5).reverse())
+        }
+      }
+    } catch {}
+    setChatLoading(false)
+  }
+
+  async function abrirAmostras(s: Solicitacao) {
+    setAmostrasTarget(s)
+    setAmostrasData([])
+    if (!s.produtoId) return
+    setAmostrasLoading(true)
+    try {
+      const res = await fetch(`/api/cadastros/produto-cru/${s.produtoId}`)
+      const data = await res.json()
+      const lista: { tipo: string; descricao: string | null; status: string; id: number; scrollId: string }[] = []
+      if (Array.isArray(data.amostras)) {
+        for (const a of data.amostras) {
+          lista.push({ tipo: "Tecido Cru", descricao: a.descricao, status: a.status, id: a.id, scrollId: `amostra-${a.id}` })
+        }
+      }
+      if (Array.isArray(data.acabamentos)) {
+        for (const ac of data.acabamentos) {
+          if (Array.isArray(ac.amostras)) {
+            for (const a of ac.amostras) {
+              lista.push({ tipo: `Acabamento (${ac.tipoAcabamento || ""})`, descricao: a.descricao, status: a.status, id: a.id, scrollId: `amostra-acab-${ac.id}-${a.id}` })
+            }
+          }
+        }
+      }
+      setAmostrasData(lista)
+    } catch {}
+    setAmostrasLoading(false)
+  }
 
   const colunas = statusList
     .filter(s => s.nome !== "REPROVADO" || true)
@@ -257,7 +326,12 @@ export default function KanbanSolicitacoesPage() {
           {colunas.map(col => (
             <DroppableColumn key={col.nome} id={col.nome} rotulo={col.rotulo} cor={col.cor} count={col.cards.length}>
               {col.cards.map(card => (
-                <DraggableCard key={card.id} solicitacao={card} />
+                <DraggableCard
+                  key={card.id}
+                  solicitacao={card}
+                  onOpenChat={abrirChat}
+                  onOpenAmostras={abrirAmostras}
+                />
               ))}
             </DroppableColumn>
           ))}
@@ -292,6 +366,82 @@ export default function KanbanSolicitacoesPage() {
           )}
         </DragOverlay>
       </DndContext>
+
+      {/* Modal do Chat */}
+      <Dialog open={!!chatTarget} onOpenChange={(open) => { if (!open) setChatTarget(null) }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Chat — #{chatTarget?.id} {chatTarget?.cliente}</DialogTitle>
+            <DialogDescription>
+              Últimas mensagens do chat da solicitação
+            </DialogDescription>
+          </DialogHeader>
+          <div className="max-h-60 overflow-y-auto space-y-2">
+            {chatLoading ? (
+              <div className="flex justify-center py-4"><Loader2 size={16} className="animate-spin text-slate-400" /></div>
+            ) : chatMensagens.length === 0 ? (
+              <p className="text-sm text-slate-400 text-center py-4">Nenhuma mensagem encontrada</p>
+            ) : (
+              chatMensagens.map((msg, i) => (
+                <div key={i} className="bg-slate-50 dark:bg-slate-900 rounded-lg p-2.5">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-medium text-slate-700 dark:text-slate-300">{msg.remetenteNome}</span>
+                    <span className="text-[10px] text-slate-400">{new Date(msg.createdAt).toLocaleString("pt-BR")}</span>
+                  </div>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 mt-0.5 line-clamp-2">{msg.mensagem}</p>
+                </div>
+              ))
+            )}
+          </div>
+          <div className="flex justify-end pt-2">
+            <Link
+              href={`/comercial/solicitacoes/${chatTarget?.id}`}
+              onClick={() => setChatTarget(null)}
+              className="inline-flex items-center gap-1 text-sm bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700"
+            >
+              <MessageSquare size={14} /> Ver chat completo
+            </Link>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal de Amostras */}
+      <Dialog open={!!amostrasTarget} onOpenChange={(open) => { if (!open) setAmostrasTarget(null) }}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Amostras — {amostrasTarget?.produtoCodigoPdm || `#${amostrasTarget?.id}`}</DialogTitle>
+            <DialogDescription>
+              {amostrasData.length} amostra{amostrasData.length !== 1 ? "s" : ""} encontrada{amostrasData.length !== 1 ? "s" : ""}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="max-h-72 overflow-y-auto space-y-2">
+            {amostrasLoading ? (
+              <div className="flex justify-center py-4"><Loader2 size={16} className="animate-spin text-slate-400" /></div>
+            ) : amostrasData.length === 0 ? (
+              <p className="text-sm text-slate-400 text-center py-4">Nenhuma amostra encontrada</p>
+            ) : (
+              amostrasData.map((a, i) => (
+                <Link
+                  key={i}
+                  href={amostrasTarget?.produtoId ? `/cadastros/produto-cru/${amostrasTarget.produtoId}?tab=amostras&amostraId=${encodeURIComponent(a.scrollId)}` : "#"}
+                  onClick={() => setAmostrasTarget(null)}
+                  className="flex items-center gap-3 bg-slate-50 dark:bg-slate-900 rounded-lg p-2.5 hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-colors group"
+                >
+                  <FileText size={14} className="text-slate-400 shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-medium text-slate-700 dark:text-slate-300">{a.tipo}</span>
+                      <span className="text-[10px] uppercase text-slate-400">{a.status}</span>
+                    </div>
+                    <p className="text-sm text-slate-600 dark:text-slate-400 truncate">{a.descricao || "Sem descrição"}</p>
+                  </div>
+                  <ExternalLink size={12} className="text-slate-300 group-hover:text-blue-500 shrink-0" />
+                </Link>
+              ))
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
