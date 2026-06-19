@@ -259,7 +259,7 @@ export default function RomaneiosPage() {
       let y = margin
 
       if (empresa) {
-        const headerH = isLandscape ? 30 : 26
+        const headerH = isLandscape ? 30 : 28
         doc.setFillColor(30, 58, 95)
         doc.rect(0, 0, pageWidth, headerH, "F")
         if (empresa.logoUrl) {
@@ -269,17 +269,17 @@ export default function RomaneiosPage() {
               const maxW = isLandscape ? 35 : 30
               const maxH = isLandscape ? 18 : 15
               const scale = Math.min(maxW / img.width, maxH / img.height, 1)
-              doc.addImage(img, "PNG", margin, y + 3, img.width * scale, img.height * scale)
+              doc.addImage(img, "PNG", margin, y + 2, img.width * scale, img.height * scale)
             }
           } catch {}
         }
         doc.setTextColor(255, 255, 255)
         doc.setFontSize(isLandscape ? 13 : 12).setFont("helvetica", "bold")
-        doc.text(empresa.nome || "", isLandscape ? 48 : 42, y + 6)
+        doc.text(empresa.nome || "", isLandscape ? 48 : 42, y + 4)
         doc.setFontSize(isLandscape ? 9 : 8.5).setFont("helvetica", "normal")
-        let yOff = y + 12
-        if (empresa.documento) { doc.text(`CNPJ: ${empresa.documento}`, isLandscape ? 48 : 42, yOff); yOff += 4 }
-        if (empresa.endereco) { doc.text(empresa.endereco, isLandscape ? 48 : 42, yOff); yOff += 4 }
+        let yOff = y + 8
+        if (empresa.documento) { doc.text(`CNPJ: ${empresa.documento}`, isLandscape ? 48 : 42, yOff); yOff += 3.5 }
+        if (empresa.endereco) { doc.text(empresa.endereco, isLandscape ? 48 : 42, yOff); yOff += 3.5 }
         if (empresa.cidade || empresa.uf) { doc.text([empresa.cidade, empresa.uf].filter(Boolean).join("/"), isLandscape ? 48 : 42, yOff) }
         doc.setTextColor(0, 0, 0)
         y = headerH + (isLandscape ? 6 : 5)
