@@ -28,6 +28,7 @@ interface Solicitacao {
   createdAt: string
   solicitanteNome: string
   chatExists?: boolean
+  produtoId?: number | null
   produtoCodigoPdm?: string | null
   produtoIdIntegracao?: string | null
   produtoAmostrasCount?: number
@@ -96,7 +97,13 @@ function DraggableCard({ solicitacao }: { solicitacao: Solicitacao }) {
         </Link>
         <div className="flex items-center gap-1">
           {solicitacao.chatExists && (
-            <MessageSquare size={11} className="text-blue-400" />
+            <Link
+              href={`/comercial/solicitacoes/${solicitacao.id}`}
+              onClick={(e) => e.stopPropagation()}
+              title="Abrir chat da solicitação"
+            >
+              <MessageSquare size={11} className="text-blue-500 hover:text-blue-700" />
+            </Link>
           )}
           <span className="text-[10px] text-slate-400">{solicitacao.solicitanteNome}</span>
         </div>
@@ -114,7 +121,14 @@ function DraggableCard({ solicitacao }: { solicitacao: Solicitacao }) {
             <span className="text-slate-400">({solicitacao.produtoIdIntegracao})</span>
           )}
           {solicitacao.produtoAmostrasCount !== undefined && solicitacao.produtoAmostrasCount > 0 && (
-            <span className="ml-auto text-blue-500">{solicitacao.produtoAmostrasCount} amostra{solicitacao.produtoAmostrasCount > 1 ? "s" : ""}</span>
+            <Link
+              href={solicitacao.produtoId ? `/cadastros/produto-cru/${solicitacao.produtoId}` : "#"}
+              onClick={(e) => e.stopPropagation()}
+              className="ml-auto text-blue-500 hover:text-blue-700 hover:underline"
+              title="Ver amostras do produto"
+            >
+              {solicitacao.produtoAmostrasCount} amostra{solicitacao.produtoAmostrasCount > 1 ? "s" : ""}
+            </Link>
           )}
         </div>
       )}
@@ -255,7 +269,7 @@ export default function KanbanSolicitacoesPage() {
               <div className="flex items-start justify-between gap-2">
                 <span className="text-xs font-bold text-blue-600 dark:text-blue-400">#{activeCard.id}</span>
                 <div className="flex items-center gap-1">
-                  {activeCard.chatExists && <MessageSquare size={11} className="text-blue-400" />}
+                  {activeCard.chatExists && <MessageSquare size={11} className="text-blue-500" />}
                   <span className="text-[10px] text-slate-400">{activeCard.solicitanteNome}</span>
                 </div>
               </div>
