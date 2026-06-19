@@ -71,14 +71,14 @@ export async function PUT(
         await notificar(
           body.status === "APROVADO" ? "AMOSTRA_APROVADA" : "AMOSTRA_REPROVADA",
           `Amostra #${aid} do produto cru #${id} foi ${body.status === "APROVADO" ? "aprovada" : "reprovada"} por ${session.user.name}${body.motivoAprovacao ? ` — Motivo: ${body.motivoAprovacao}` : ""}`,
-          `/cadastros/produto-cru/${id}`,
+          `/cadastros/produto-cru/${id}?tab=amostras&amostraId=amostra-${aid}`,
           session.user.name
         )
       } else {
         await notificar(
           "AMOSTRA_ATUALIZADA",
           `Amostra #${aid} do produto cru #${id} foi editada por ${session.user.name}`,
-          `/cadastros/produto-cru/${id}`,
+          `/cadastros/produto-cru/${id}?tab=amostras&amostraId=amostra-${aid}`,
           session.user.name
         )
       }
@@ -119,7 +119,7 @@ export async function DELETE(
     await notificar(
       "AMOSTRA_EXCLUIDA",
       `Amostra #${aid} do produto cru #${id} foi excluída por ${session.user.name}`,
-      `/cadastros/produto-cru/${id}`,
+      `/cadastros/produto-cru/${id}?tab=amostras`,
       session.user.name
     )
 
