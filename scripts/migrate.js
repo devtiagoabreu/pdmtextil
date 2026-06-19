@@ -597,7 +597,7 @@ async function migrate() {
     await sql`
       CREATE TABLE IF NOT EXISTS status (
         id SERIAL PRIMARY KEY,
-        nome VARCHAR(100) NOT NULL UNIQUE,
+        nome VARCHAR(100) NOT NULL,
         rotulo VARCHAR(100),
         tipo VARCHAR(50) NOT NULL,
         cor VARCHAR(7),
@@ -607,6 +607,10 @@ async function migrate() {
         updated_at TIMESTAMP DEFAULT NOW()
       )
     `
+    // Remove unique de nome isolado (caso exista de migration anterior) e adiciona composite (nome + tipo)
+    await sql`ALTER TABLE status DROP CONSTRAINT IF EXISTS status_nome_key`
+    await sql`ALTER TABLE status DROP CONSTRAINT IF EXISTS status_unique_nome_tipo`
+    await sql`ALTER TABLE status ADD CONSTRAINT status_unique_nome_tipo UNIQUE (nome, tipo)`
     console.log("✓ Tabela status criada")
 
     // Popula status existentes (idempotente — só insere se não existir)
