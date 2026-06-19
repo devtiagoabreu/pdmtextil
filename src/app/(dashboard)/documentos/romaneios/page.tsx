@@ -449,10 +449,10 @@ export default function RomaneiosPage() {
       }
 
       body.push([
-        { content: `TOTAL GERAL: ${grupo.totalRolos} rolo(s)`, colSpan: 5, styles: { fontStyle: "bold", fontSize: isLandscape ? 6.5 : 6, fillColor: [191, 219, 254] } },
-        { content: formatarMetragem(grupo.totalMetragem), styles: { fontStyle: "bold", fontSize: isLandscape ? 6.5 : 6, fillColor: [191, 219, 254], halign: "right" } },
-        { content: formatarPeso(grupo.totalPesoBruto), styles: { fontStyle: "bold", fontSize: isLandscape ? 6.5 : 6, fillColor: [191, 219, 254], halign: "right" } },
-        { content: formatarPeso(grupo.totalPesoLiquido), styles: { fontStyle: "bold", fontSize: isLandscape ? 6.5 : 6, fillColor: [191, 219, 254], halign: "right" } },
+        { content: `TOTAL GERAL: ${grupo.totalRolos} rolo(s)`, colSpan: 5, styles: { fontStyle: "bold", fontSize: isLandscape ? 9 : 8, fillColor: [191, 219, 254] } },
+        { content: formatarMetragem(grupo.totalMetragem), styles: { fontStyle: "bold", fontSize: isLandscape ? 9 : 8, fillColor: [191, 219, 254], halign: "right" } },
+        { content: formatarPeso(grupo.totalPesoBruto), styles: { fontStyle: "bold", fontSize: isLandscape ? 9 : 8, fillColor: [191, 219, 254], halign: "right" } },
+        { content: formatarPeso(grupo.totalPesoLiquido), styles: { fontStyle: "bold", fontSize: isLandscape ? 9 : 8, fillColor: [191, 219, 254], halign: "right" } },
         { content: "", colSpan: 2, styles: { fillColor: [191, 219, 254] } },
       ])
 
