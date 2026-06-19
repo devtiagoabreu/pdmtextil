@@ -239,6 +239,21 @@ export default function ProdutoCruFormPage() {
     }
   }, [id, isEditing])
 
+  useEffect(() => {
+    if (!loading) {
+      const params = new URLSearchParams(window.location.search)
+      const tab = params.get("tab")
+      const amostraId = params.get("amostraId")
+      if (tab) setActiveTab(tab)
+      if (tab === "amostras" && amostraId) {
+        setTimeout(() => {
+          const el = document.getElementById(amostraId)
+          if (el) el.scrollIntoView({ behavior: "smooth", block: "center" })
+        }, 300)
+      }
+    }
+  }, [loading])
+
   const handleChange = (field: keyof ProdutoCru, value: string | boolean | number | null) => {
     setProduto(prev => ({ ...prev, [field]: value }))
   }
@@ -919,10 +934,10 @@ export default function ProdutoCruFormPage() {
                 <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-4">
                   <h2 id="amostras" className="text-lg font-semibold">Amostras (Tecido Cru)</h2>
 
-                  {amostras.length > 0 && (
+                      {amostras.length > 0 && (
                     <div className="space-y-2">
                         {amostras.map(a => (
-                          <div key={a.id}>
+                          <div key={a.id} id={`amostra-${a.id}`}>
                             <div className="flex items-center justify-between p-3 bg-slate-100 dark:bg-slate-800 rounded-lg">
                               <div>
                                 <p className="font-medium">{a.descricao || "Sem descrição"}</p>
@@ -1032,10 +1047,10 @@ export default function ProdutoCruFormPage() {
                                     <Plus size={14} /> Amostra
                                   </Button>
                                 </div>
-                                {acab.amostras.map(as => {
+                                  {acab.amostras.map(as => {
                                   const key = `${acab.id}-${as.id}`
                                   return (
-                                  <div key={as.id}>
+                                  <div key={as.id} id={`amostra-acab-${acab.id}-${as.id}`}>
                                     <div className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-800/50 rounded mb-1">
                                       <div className="flex-1 min-w-0">
                                         <span className="text-sm">{as.descricao || "Sem descrição"}</span>
