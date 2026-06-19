@@ -299,8 +299,8 @@ export default function RomaneiosPage() {
       const c = grupo.capa
       y += isLandscape ? 6 : 5
 
-      const fsTit = isLandscape ? 7 : 6.5
-      const fsVal = isLandscape ? 6.5 : 6
+      const fsTit = isLandscape ? 8 : 7.5
+      const fsVal = isLandscape ? 7.5 : 7
       const linha1 = isLandscape ? 10 : 10
       const linha2 = isLandscape ? 15 : 16
       const linha3 = isLandscape ? 20 : 22
@@ -348,7 +348,7 @@ export default function RomaneiosPage() {
       // --- TOTAIS (right side, same row as CLIENTE) ---
       doc.setFont("helvetica", "bold").setFontSize(fsTit)
       doc.text("TOTAIS", col4, y + 4)
-      doc.setFont("helvetica", "normal").setFontSize(fsVal)
+      doc.setFont("helvetica", "bold").setFontSize(fsVal)
       doc.text(`${grupo.totalRolos} rolo(s)`, col4, y + linha1)
       doc.text(`Metragem: ${formatarMetragem(grupo.totalMetragem)}`, col4, y + linha2)
       doc.text(`P. Bruto: ${formatarPeso(grupo.totalPesoBruto)}`, col4, y + linha3)
