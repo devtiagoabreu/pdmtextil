@@ -667,11 +667,10 @@ export default function RomaneiosPage() {
                   <Button
                     onClick={gerarPdfConsolidado}
                     disabled={selectedRomaneios.size === 0 || gerandoPdf}
-                    variant="outline"
-                    className="gap-2"
+                    className="gap-2 bg-purple-700 hover:bg-purple-800 text-white"
                   >
                     {gerandoPdf ? <Loader2 size={16} className="animate-spin" /> : <FileText size={16} />}
-                    PDF Consolidado
+                    Consolidado ({selectedRomaneios.size})
                   </Button>
                 </>
               )}
