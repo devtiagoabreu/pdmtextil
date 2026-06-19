@@ -154,6 +154,8 @@ export default function ProdutoCruFormPage() {
 
   const [fios, setFios] = useState<{ id: number; codigoFio: string; nome: string; idIntegracao: string | null }[]>([])
   const [basesUrdume, setBasesUrdume] = useState<{ id: number; nome: string; idIntegracao: string | null }[]>([])
+  const [statusOptionsProd, setStatusOptionsProd] = useState<{ value: string; label: string }[]>([])
+  const [statusOptionsAmostra, setStatusOptionsAmostra] = useState<{ value: string; label: string }[]>([])
 
   const fioLabel = (f: typeof fios[0]) => [f.codigoFio, f.idIntegracao, f.nome].filter(Boolean).join(" — ")
   const baseLabel = (b: typeof basesUrdume[0]) => [b.idIntegracao, b.nome].filter(Boolean).join(" — ")
@@ -190,6 +192,20 @@ export default function ProdutoCruFormPage() {
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) setSolicitacoes(data)
+      })
+      .catch(() => {})
+
+    fetch("/api/admin/status?tipo=PRODUTO_CRU")
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) setStatusOptionsProd(data.map((s: any) => ({ value: s.nome, label: s.rotulo || s.nome })))
+      })
+      .catch(() => {})
+
+    fetch("/api/admin/status?tipo=AMOSTRA")
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) setStatusOptionsAmostra(data.map((s: any) => ({ value: s.nome, label: s.rotulo || s.nome })))
       })
       .catch(() => {})
   }, [])
@@ -673,7 +689,7 @@ export default function ProdutoCruFormPage() {
                     onChange={e => handleStatusChange(e.target.value)}
                     className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
                   >
-                    {STATUS_OPTIONS.map(opt => (
+                    {statusOptionsProd.map(opt => (
                       <option key={opt.value} value={opt.value}>{opt.label}</option>
                     ))}
                   </select>
@@ -922,8 +938,8 @@ export default function ProdutoCruFormPage() {
                                       "bg-yellow-100 text-yellow-700"
                                     }`}
                                   >
-                                    {STATUS_AMOSTRA.map(s => (
-                                      <option key={s} value={s} className="bg-white text-slate-900">{s}</option>
+                                    {statusOptionsAmostra.map(s => (
+                                      <option key={s.value} value={s.value} className="bg-white text-slate-900">{s.label}</option>
                                     ))}
                                   </select>
                                   {a.motivoAprovacao && (
@@ -1046,8 +1062,8 @@ export default function ProdutoCruFormPage() {
                                             "bg-yellow-100 text-yellow-700"
                                           }`}
                                         >
-                                          {STATUS_AMOSTRA.map(s => (
-                                            <option key={s} value={s} className="bg-white text-slate-900">{s}</option>
+                                          {statusOptionsAmostra.map(s => (
+                                            <option key={s.value} value={s.value} className="bg-white text-slate-900">{s.label}</option>
                                           ))}
                                         </select>
                                         <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeAmostraAcabamento(acab.id, as.id)}>

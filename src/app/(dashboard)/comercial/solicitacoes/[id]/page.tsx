@@ -168,7 +168,19 @@ export default function DetalheSolicitacaoPage() {
   const [deleteBlocked, setDeleteBlocked] = useState(false)
   const [novoStatus, setNovoStatus] = useState("")
   const [statusLoading, setStatusLoading] = useState(false)
-  
+  const [statusOptions, setStatusOptions] = useState<{ value: string; label: string }[]>([])
+
+  useEffect(() => {
+    fetch("/api/admin/status?tipo=SOLICITACAO_DESENVOLVIMENTO")
+      .then(r => r.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setStatusOptions(data.map((s: any) => ({ value: s.nome, label: s.rotulo || s.nome })))
+        }
+      })
+      .catch(() => {})
+  }, [])
+
   useEffect(() => {
     setMounted(true)
   }, [])
@@ -213,16 +225,6 @@ export default function DetalheSolicitacaoPage() {
       setDeleteLoading(false)
     }
   }
-
-  const STATUS_TRANSICOES = [
-    { value: "AGUARDANDO_INFO", label: "Aguardando Info" },
-    { value: "AGUARDANDO_MATERIA_PRIMA", label: "Aguard. Matéria Prima" },
-    { value: "EM_DESENVOLVIMENTO", label: "Em Desenvolvimento" },
-    { value: "APROVADO", label: "Aprovar" },
-    { value: "REPROVADO", label: "Reprovar" },
-    { value: "EM_PRODUCAO", label: "Em Produção" },
-    { value: "CONCLUIDO", label: "Concluir" },
-  ]
 
   const handleStatusChange = async () => {
     if (!novoStatus) return
@@ -364,7 +366,7 @@ export default function DetalheSolicitacaoPage() {
                 <SelectValue placeholder="Alterar status..." />
               </SelectTrigger>
               <SelectContent>
-                {STATUS_TRANSICOES
+                {statusOptions
                   .filter(s => s.value !== sol.status)
                   .map(s => (
                     <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>

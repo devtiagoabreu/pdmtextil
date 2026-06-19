@@ -593,6 +593,55 @@ async function migrate() {
     await sql`CREATE INDEX IF NOT EXISTS idx_romaneio_pecas_romaneio_id ON romaneio_pecas(romaneio_id)`
     console.log("✓ Índice romaneio_pecas criado")
 
+    // Tabela de Status
+    await sql`
+      CREATE TABLE IF NOT EXISTS status (
+        id SERIAL PRIMARY KEY,
+        nome VARCHAR(100) NOT NULL UNIQUE,
+        rotulo VARCHAR(100),
+        tipo VARCHAR(50) NOT NULL,
+        cor VARCHAR(7),
+        ordem INTEGER DEFAULT 0,
+        ativo BOOLEAN DEFAULT true,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `
+    console.log("✓ Tabela status criada")
+
+    // Popula status existentes (idempotente — só insere se não existir)
+    const statusExistentes = await sql`SELECT count(*) FROM status`
+    if (statusExistentes[0].count === "0") {
+      await sql`INSERT INTO status (nome, rotulo, tipo, cor, ordem) VALUES
+        -- Solicitação de Desenvolvimento
+        ('PENDENTE', 'Pendente', 'SOLICITACAO_DESENVOLVIMENTO', '#f59e0b', 1),
+        ('AGUARDANDO_INFO', 'Aguardando Info', 'SOLICITACAO_DESENVOLVIMENTO', '#ea580c', 2),
+        ('AGUARDANDO_MATERIA_PRIMA', 'Aguard. Matéria Prima', 'SOLICITACAO_DESENVOLVIMENTO', '#eab308', 3),
+        ('EM_DESENVOLVIMENTO', 'Em Desenvolvimento', 'SOLICITACAO_DESENVOLVIMENTO', '#6366f1', 4),
+        ('APROVADO', 'Aprovado', 'SOLICITACAO_DESENVOLVIMENTO', '#14b8a6', 5),
+        ('REPROVADO', 'Reprovado', 'SOLICITACAO_DESENVOLVIMENTO', '#ef4444', 6),
+        ('EM_PRODUCAO', 'Em Produção', 'SOLICITACAO_DESENVOLVIMENTO', '#a855f7', 7),
+        ('CONCLUIDO', 'Concluído', 'SOLICITACAO_DESENVOLVIMENTO', '#22c55e', 8),
+        -- Produto Cru
+        ('DESENVOLVIMENTO', 'Em Desenvolvimento', 'PRODUTO_CRU', '#6366f1', 1),
+        ('APROVADO', 'Aprovado', 'PRODUTO_CRU', '#14b8a6', 2),
+        ('REPROVADO', 'Reprovado', 'PRODUTO_CRU', '#ef4444', 3),
+        ('EM_PRODUCAO', 'Em Produção', 'PRODUTO_CRU', '#a855f7', 4),
+        ('OBSOLETO', 'Obsoleto', 'PRODUTO_CRU', '#6b7280', 5),
+        -- Amostra (Tecido Cru / Acabamento)
+        ('PENDENTE', 'Pendente', 'AMOSTRA', '#f59e0b', 1),
+        ('APROVADO', 'Aprovado', 'AMOSTRA', '#14b8a6', 2),
+        ('REPROVADO', 'Reprovado', 'AMOSTRA', '#ef4444', 3),
+        -- Requisição de Corte
+        ('SOLICITADO', 'Solicitado', 'REQUISICAO_CORTE', '#f59e0b', 1),
+        ('PROCESSANDO', 'Processando', 'REQUISICAO_CORTE', '#6366f1', 2),
+        ('ATENDIDO', 'Atendido', 'REQUISICAO_CORTE', '#22c55e', 3)
+      `
+      console.log("✓ Status padrão inseridos")
+    } else {
+      console.log("✓ Status já existem — pulando inserção")
+    }
+
     console.log("\n✅ Migration concluída com sucesso!")
     
   } catch (error) {
