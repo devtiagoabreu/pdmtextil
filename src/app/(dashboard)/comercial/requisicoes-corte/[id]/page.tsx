@@ -52,10 +52,17 @@ export default function DetalheRequisicaoCortePage() {
   const [entreguePor, setEntreguePor] = useState("")
   const [status, setStatus] = useState("")
   const [itens, setItens] = useState<ItemLinha[]>([])
+  const [statusOptions, setStatusOptions] = useState<{ value: string; label: string; cor?: string }[]>([])
   const [requisitanteNome, setRequisitanteNome] = useState("")
 
   useEffect(() => {
     setMounted(true)
+    fetch("/api/admin/status?tipo=REQUISICAO_CORTE")
+      .then(r => r.json())
+      .then(data => {
+        if (Array.isArray(data)) setStatusOptions(data.map((s: any) => ({ value: s.nome, label: s.rotulo || s.nome, cor: s.cor })))
+      })
+      .catch(() => {})
   }, [])
 
   useEffect(() => {
@@ -274,9 +281,9 @@ export default function DetalheRequisicaoCortePage() {
                 <SelectValue placeholder="Selecione o status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="SOLICITADO">Solicitado</SelectItem>
-                <SelectItem value="PROCESSANDO">Processando</SelectItem>
-                <SelectItem value="ATENDIDO">Atendido</SelectItem>
+                {statusOptions.map(s => (
+                  <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
