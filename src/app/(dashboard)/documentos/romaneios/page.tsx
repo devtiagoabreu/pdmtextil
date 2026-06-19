@@ -457,6 +457,7 @@ export default function RomaneiosPage() {
       ])
 
       const fontSize = isLandscape ? 7.5 : 7
+      const pageH = doc.internal.pageSize.getHeight()
       ;(doc as any).autoTable({
         head,
         body,
@@ -464,7 +465,7 @@ export default function RomaneiosPage() {
         styles: { fontSize, cellPadding: isLandscape ? 1.5 : 1.2 },
         headStyles: { fillColor: [37, 99, 235], textColor: 255, fontStyle: "bold" },
         alternateRowStyles: { fillColor: [245, 247, 250] },
-        margin: { top: 10, left: margin, right: margin },
+        margin: { top: 10, left: margin, right: margin, bottom: isLandscape ? 10 : 9 },
         tableLineColor: 200,
         tableLineWidth: 0.5,
         columnStyles: {
@@ -472,6 +473,13 @@ export default function RomaneiosPage() {
           4: { halign: "center" },
           8: { halign: "center" },
           9: { halign: "center" },
+        },
+        didDrawPage: (data: any) => {
+          doc.setFontSize(isLandscape ? 6.5 : 6).setFont("helvetica", "normal")
+          doc.setTextColor(130, 130, 130)
+          doc.text(`Romaneio Nº ${numero}`, margin, pageH - (isLandscape ? 6 : 5))
+          doc.text(`Página ${data.pageNumber}`, pageWidth - margin, pageH - (isLandscape ? 6 : 5), { align: "right" })
+          doc.setTextColor(0, 0, 0)
         },
       })
 
