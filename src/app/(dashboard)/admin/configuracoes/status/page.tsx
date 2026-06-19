@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
+import { TIPOS_STATUS } from "@/lib/tipos-status"
 
 interface StatusItem {
   id: number
@@ -20,13 +21,6 @@ interface StatusItem {
   ordem: number
   ativo: boolean
 }
-
-const TIPOS_STATUS = [
-  { value: "SOLICITACAO_DESENVOLVIMENTO", label: "Solicitação de Desenvolvimento" },
-  { value: "PRODUTO_CRU", label: "Produto Cru" },
-  { value: "AMOSTRA", label: "Amostra" },
-  { value: "REQUISICAO_CORTE", label: "Requisição de Corte" },
-]
 
 const TIPO_CORES: Record<string, string> = {
   SOLICITACAO_DESENVOLVIMENTO: "text-blue-600 bg-blue-50 dark:bg-blue-950/50",
@@ -67,7 +61,7 @@ export default function StatusPage() {
     }
   }
 
-  useEffect(() => { carregar() }, [filtroTipo])
+  useEffect(() => { carregar() }, [filtroTipo]) // eslint-disable-line react-hooks/exhaustive-deps
 
   function resetForm() {
     setForm({ nome: "", rotulo: "", tipo: "SOLICITACAO_DESENVOLVIMENTO", cor: "", ordem: 0, ativo: true })
