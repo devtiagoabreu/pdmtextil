@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(item, { status: 201 })
   } catch (error: any) {
     if (error?.code === "23505") {
-      return NextResponse.json({ error: "Já existe um status com este nome" }, { status: 409 })
+      return NextResponse.json({ error: "Já existe um status com este nome para este tipo" }, { status: 409 })
     }
     console.error("[POST /api/admin/status]", error)
     return NextResponse.json({ error: "Erro interno" }, { status: 500 })
@@ -82,7 +82,7 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json(item)
   } catch (error: any) {
     if (error?.code === "23505") {
-      return NextResponse.json({ error: "Já existe um status com este nome" }, { status: 409 })
+      return NextResponse.json({ error: "Já existe um status com este nome para este tipo" }, { status: 409 })
     }
     console.error("[PUT /api/admin/status]", error)
     return NextResponse.json({ error: "Erro interno" }, { status: 500 })
