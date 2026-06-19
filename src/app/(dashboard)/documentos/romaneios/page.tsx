@@ -259,6 +259,9 @@ export default function RomaneiosPage() {
       let y = margin
 
       if (empresa) {
+        const headerH = isLandscape ? 30 : 26
+        doc.setFillColor(30, 58, 95)
+        doc.rect(0, 0, pageWidth, headerH, "F")
         if (empresa.logoUrl) {
           try {
             const img = await loadImage(empresa.logoUrl)
@@ -266,24 +269,32 @@ export default function RomaneiosPage() {
               const maxW = isLandscape ? 35 : 30
               const maxH = isLandscape ? 18 : 15
               const scale = Math.min(maxW / img.width, maxH / img.height, 1)
-              doc.addImage(img, "PNG", margin, y, img.width * scale, img.height * scale)
+              doc.addImage(img, "PNG", margin, y + 3, img.width * scale, img.height * scale)
             }
           } catch {}
         }
-        doc.setFontSize(isLandscape ? 10 : 9).setFont("helvetica", "bold")
-        doc.text(empresa.nome || "", isLandscape ? 48 : 42, y + 4)
-        doc.setFontSize(isLandscape ? 7 : 6.5).setFont("helvetica", "normal")
-        let yOff = y + 9
-        if (empresa.documento) { doc.text(`CNPJ: ${empresa.documento}`, isLandscape ? 48 : 42, yOff); yOff += 3.5 }
-        if (empresa.endereco) { doc.text(empresa.endereco, isLandscape ? 48 : 42, yOff); yOff += 3.5 }
+        doc.setTextColor(255, 255, 255)
+        doc.setFontSize(isLandscape ? 13 : 12).setFont("helvetica", "bold")
+        doc.text(empresa.nome || "", isLandscape ? 48 : 42, y + 6)
+        doc.setFontSize(isLandscape ? 9 : 8.5).setFont("helvetica", "normal")
+        let yOff = y + 12
+        if (empresa.documento) { doc.text(`CNPJ: ${empresa.documento}`, isLandscape ? 48 : 42, yOff); yOff += 4 }
+        if (empresa.endereco) { doc.text(empresa.endereco, isLandscape ? 48 : 42, yOff); yOff += 4 }
         if (empresa.cidade || empresa.uf) { doc.text([empresa.cidade, empresa.uf].filter(Boolean).join("/"), isLandscape ? 48 : 42, yOff) }
-        y = isLandscape ? 32 : 28
+        doc.setTextColor(0, 0, 0)
+        y = headerH + (isLandscape ? 6 : 5)
       } else {
         y = isLandscape ? 18 : 16
       }
 
+      const barTop = y - 4
+      const tituloH = 11
+      doc.setFillColor(30, 58, 95)
+      doc.roundedRect(margin, barTop, pageWidth - margin * 2, tituloH, 2, 2, "F")
+      doc.setTextColor(255, 255, 255)
       doc.setFontSize(isLandscape ? 14 : 12).setFont("helvetica", "bold")
-      doc.text(`Romaneio Nº ${numero}`, margin, y)
+      doc.text(`Romaneio Nº ${numero}`, margin + 3, barTop + tituloH / 2 + 1.5)
+      doc.setTextColor(0, 0, 0)
 
       const c = grupo.capa
       y += isLandscape ? 6 : 5
