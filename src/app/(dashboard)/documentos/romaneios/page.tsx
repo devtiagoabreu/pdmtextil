@@ -430,20 +430,20 @@ export default function RomaneiosPage() {
 
           body.push([
             { content: "", colSpan: 3, styles: { fillColor: [245, 247, 250] } },
-            { content: `${subRolos} rolo(s)`, styles: { fillColor: [245, 247, 250], fontStyle: "bold", fontSize: isLandscape ? 6 : 5.5, halign: "left" } },
+            { content: `${subRolos} rolo(s)`, styles: { fillColor: [245, 247, 250], fontStyle: "bold", fontSize: isLandscape ? 7 : 6.5, halign: "left" } },
             { content: "", styles: { fillColor: [245, 247, 250] } },
-            { content: formatarMetragem(subMetragem), styles: { fillColor: [245, 247, 250], fontStyle: "bold", fontSize: isLandscape ? 6 : 5.5, halign: "right" } },
-            { content: formatarPeso(subPesoBruto), styles: { fillColor: [245, 247, 250], fontStyle: "bold", fontSize: isLandscape ? 6 : 5.5, halign: "right" } },
-            { content: formatarPeso(subPesoLiquido), styles: { fillColor: [245, 247, 250], fontStyle: "bold", fontSize: isLandscape ? 6 : 5.5, halign: "right" } },
+            { content: formatarMetragem(subMetragem), styles: { fillColor: [245, 247, 250], fontStyle: "bold", fontSize: isLandscape ? 7 : 6.5, halign: "right" } },
+            { content: formatarPeso(subPesoBruto), styles: { fillColor: [245, 247, 250], fontStyle: "bold", fontSize: isLandscape ? 7 : 6.5, halign: "right" } },
+            { content: formatarPeso(subPesoLiquido), styles: { fillColor: [245, 247, 250], fontStyle: "bold", fontSize: isLandscape ? 7 : 6.5, halign: "right" } },
             { content: "", colSpan: 2, styles: { fillColor: [245, 247, 250] } },
           ])
         }
 
         body.push([
-          { content: `SUBTOTAL ${prodNome}: ${prodRolos} rolo(s)`, colSpan: 5, styles: { fontStyle: "bold", fontSize: isLandscape ? 6.5 : 6, fillColor: [233, 213, 255] } },
-          { content: formatarMetragem(prodMetragem), styles: { fontStyle: "bold", fontSize: isLandscape ? 6.5 : 6, fillColor: [233, 213, 255], halign: "right" } },
-          { content: formatarPeso(prodPesoBruto), styles: { fontStyle: "bold", fontSize: isLandscape ? 6.5 : 6, fillColor: [233, 213, 255], halign: "right" } },
-          { content: formatarPeso(prodPesoLiquido), styles: { fontStyle: "bold", fontSize: isLandscape ? 6.5 : 6, fillColor: [233, 213, 255], halign: "right" } },
+          { content: `SUBTOTAL ${prodNome}: ${prodRolos} rolo(s)`, colSpan: 5, styles: { fontStyle: "bold", fontSize: isLandscape ? 7.5 : 7, fillColor: [233, 213, 255] } },
+          { content: formatarMetragem(prodMetragem), styles: { fontStyle: "bold", fontSize: isLandscape ? 7.5 : 7, fillColor: [233, 213, 255], halign: "right" } },
+          { content: formatarPeso(prodPesoBruto), styles: { fontStyle: "bold", fontSize: isLandscape ? 7.5 : 7, fillColor: [233, 213, 255], halign: "right" } },
+          { content: formatarPeso(prodPesoLiquido), styles: { fontStyle: "bold", fontSize: isLandscape ? 7.5 : 7, fillColor: [233, 213, 255], halign: "right" } },
           { content: "", colSpan: 2, styles: { fillColor: [233, 213, 255] } },
         ])
       }
