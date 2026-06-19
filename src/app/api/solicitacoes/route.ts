@@ -41,6 +41,7 @@ export async function GET(req: NextRequest) {
         solicitanteId: solicitacoes.solicitanteId,
         solicitanteNome: usuarios.name,
         anexosCount: sql<number>`(SELECT count(*) FROM ${anexos} WHERE ${anexos.solicitacaoId} = ${solicitacoes.id})`,
+        produtoId: sql<number | null>`(SELECT pc.id FROM ${produtosCru} pc WHERE pc.solicitacao_desenvolvimento_id = ${solicitacoes.id} LIMIT 1)`,
         produtoCodigoPdm: sql<string | null>`(SELECT pc.codigo_pdm FROM ${produtosCru} pc WHERE pc.solicitacao_desenvolvimento_id = ${solicitacoes.id} LIMIT 1)`,
         produtoIdIntegracao: sql<string | null>`(SELECT pc.id_integracao FROM ${produtosCru} pc WHERE pc.solicitacao_desenvolvimento_id = ${solicitacoes.id} LIMIT 1)`,
         produtoIdIntegracaoErpCru: sql<string | null>`(SELECT pc.id_integracao_erp_cru FROM ${produtosCru} pc WHERE pc.solicitacao_desenvolvimento_id = ${solicitacoes.id} LIMIT 1)`,
