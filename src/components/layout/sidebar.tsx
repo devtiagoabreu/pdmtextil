@@ -31,7 +31,7 @@ const baseNav = [
   { href: "/dashboard/requisicoes-corte", label: "Dashboard Corte", icon: Scissors },
   { href: "/comercial/solicitacoes", label: "Solicitações", icon: FileText },
   { href: "/comercial/solicitacoes/nova", label: "Nova Solicitação", icon: PlusCircle },
-  { href: "/comercial/solicitacoes/kanban", label: "Kanban", icon: Columns3 },
+  { href: "/comercial/solicitacoes/kanban", label: "Kanban S.D.", icon: Columns3 },
   { href: "/amostras", label: "Amostras", icon: FileText },
   { href: "/comercial/requisicoes-corte", label: "Requisições de Corte", icon: Scissors },
   { href: "/comercial/clientes", label: "Clientes", icon: Building2 },

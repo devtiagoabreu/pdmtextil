@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react"
 import { useRouter, usePathname } from "next/navigation"
 import { toast } from "sonner"
 import { DndContext, DragOverlay, useDraggable, useDroppable, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
-import { Loader2, Plus, ExternalLink, Calendar } from "lucide-react"
+import { Loader2, Plus, ExternalLink, Calendar, MessageSquare } from "lucide-react"
 import Link from "next/link"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
@@ -27,6 +27,7 @@ interface Solicitacao {
   prazoDesejado: string | null
   createdAt: string
   solicitanteNome: string
+  chatExists?: boolean
 }
 
 function DroppableColumn({ id, children, rotulo, cor, count }: { id: string; children: React.ReactNode; rotulo: string; cor: string | null; count: number }) {
@@ -90,7 +91,12 @@ function DraggableCard({ solicitacao }: { solicitacao: Solicitacao }) {
           #{solicitacao.id}
           <ExternalLink size={10} />
         </Link>
-        <span className="text-[10px] text-slate-400">{solicitacao.solicitanteNome}</span>
+        <div className="flex items-center gap-1">
+          {solicitacao.chatExists && (
+            <MessageSquare size={11} className="text-blue-400" />
+          )}
+          <span className="text-[10px] text-slate-400">{solicitacao.solicitanteNome}</span>
+        </div>
       </div>
       <p className="text-sm font-medium text-slate-900 dark:text-slate-100 mt-1 leading-snug line-clamp-2">
         {solicitacao.cliente}
@@ -234,7 +240,10 @@ export default function KanbanSolicitacoesPage() {
             <div className="bg-white dark:bg-slate-800 rounded-lg border border-blue-400 shadow-xl p-3 w-72 opacity-90">
               <div className="flex items-start justify-between gap-2">
                 <span className="text-xs font-bold text-blue-600 dark:text-blue-400">#{activeCard.id}</span>
-                <span className="text-[10px] text-slate-400">{activeCard.solicitanteNome}</span>
+                <div className="flex items-center gap-1">
+                  {activeCard.chatExists && <MessageSquare size={11} className="text-blue-400" />}
+                  <span className="text-[10px] text-slate-400">{activeCard.solicitanteNome}</span>
+                </div>
               </div>
               <p className="text-sm font-medium text-slate-900 dark:text-slate-100 mt-1">{activeCard.cliente}</p>
               {activeCard.projeto && (
