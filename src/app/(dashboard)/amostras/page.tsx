@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Loader2, FileText } from "lucide-react"
-import { usePathname } from "next/navigation"
+import { useState, useEffect, useRef } from "react"
+import { Loader2, FileText, ArrowUp } from "lucide-react"
+import { usePathname, useSearchParams } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { gerarSolicitacaoAmostraPdf } from "@/lib/gerar-solicitacao-amostra-pdf"
@@ -40,12 +40,18 @@ const STATUS_COLORS: Record<string, string> = {
 
 export default function AmostrasPage() {
   const pathname = usePathname()
+  const searchParams = useSearchParams()
   const info = getInfoContent(pathname)
   const [aba, setAba] = useState<"tecidoCru" | "acabamento">("tecidoCru")
   const [tecidoCru, setTecidoCru] = useState<Amostra[]>([])
   const [acabamento, setAcabamento] = useState<Amostra[]>([])
   const [loading, setLoading] = useState(true)
   const [gerando, setGerando] = useState<number | null>(null)
+  const [focoId, setFocoId] = useState<number | null>(null)
+  const focoRef = useRef<HTMLTableRowElement | null>(null)
+
+  const focoAmostra = searchParams.get("focoAmostra")
+  const focoTipo = searchParams.get("tipo")
 
   useEffect(() => {
     setLoading(true)
@@ -58,6 +64,25 @@ export default function AmostrasPage() {
       .catch(() => {})
       .finally(() => setLoading(false))
   }, [])
+
+  useEffect(() => {
+    if (focoTipo === "ACABAMENTO") {
+      setAba("acabamento")
+    } else {
+      setAba("tecidoCru")
+    }
+    if (focoAmostra) {
+      setFocoId(parseInt(focoAmostra))
+    }
+  }, [focoAmostra, focoTipo])
+
+  useEffect(() => {
+    if (!loading && focoId !== null && focoRef.current) {
+      focoRef.current.scrollIntoView({ behavior: "smooth", block: "center" })
+      const timer = setTimeout(() => setFocoId(null), 2000)
+      return () => clearTimeout(timer)
+    }
+  }, [loading, focoId])
 
   const lista = aba === "tecidoCru" ? tecidoCru : acabamento
 
@@ -154,11 +179,24 @@ export default function AmostrasPage() {
               </tr>
             </thead>
             <tbody>
-              {lista.map((a) => (
-                <tr key={`${a.tipoAmostra}-${a.id}`} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
+              {lista.map((a) => {
+                const isFoco = focoId === a.id
+                return (
+                <tr
+                  key={`${a.tipoAmostra}-${a.id}`}
+                  ref={isFoco ? focoRef : undefined}
+                  className={`border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 ${isFoco ? "ring-2 ring-purple-500/40 bg-purple-50 dark:bg-purple-950/20" : ""}`}
+                >
                   <td className="p-4 text-sm font-medium">
-                    <span className="text-xs text-slate-400">{a.produtoCodigo}</span>
-                    <p className="text-xs text-slate-500 mt-0.5">{a.produtoDescricao}</p>
+                    <div className="flex items-center gap-2">
+                      {isFoco && (
+                        <ArrowUp size={18} className="text-purple-500 animate-piscar shrink-0" />
+                      )}
+                      <div>
+                        <span className="text-xs text-slate-400">{a.produtoCodigo}</span>
+                        <p className="text-xs text-slate-500 mt-0.5">{a.produtoDescricao}</p>
+                      </div>
+                    </div>
                   </td>
                   <td className="p-4 text-sm text-slate-600 dark:text-slate-300">{a.descricao || "—"}</td>
                   <td className="p-4">
@@ -186,7 +224,7 @@ export default function AmostrasPage() {
                     </button>
                   </td>
                 </tr>
-              ))}
+              )})}
             </tbody>
           </table>
         )}

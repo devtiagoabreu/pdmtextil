@@ -331,6 +331,95 @@ Com isso, o sistema passa a ter capacidade de:
 
 ---
 
+# 0003 - INTEGRAÇÃO WHATSAPP VIA EVOLUTION API
+
+---
+
+## 🎯 Objetivo
+
+Permitir que o usuário do PDM crie uma nova **Solicitação de Desenvolvimento** diretamente pelo WhatsApp, sem precisar acessar o sistema web.
+
+---
+
+## 🧩 Visão Geral da Solução
+
+O módulo usará o **Evolution API** (self-hosted via Docker) como gateway WhatsApp, que se conecta via WebSocket à conta do WhatsApp (não precisa de API Business oficial).
+
+### Fluxo proposto
+
+```
+Usuário envia WhatsApp → Evolution API → Webhook PDM → Cria solicitação → Confirma via WhatsApp
+```
+
+---
+
+## 🧱 O que precisamos implementar
+
+### 1. Database
+
+| Tabela | Mudança |
+|--------|---------|
+| `usuarios` | Adicionar campo `whatsapp` (varchar, unique) para vincular número à conta |
+| `solicitacoes` | Já possui `idIntegracao` — usaremos para marcar origem "WHATSAPP" |
+
+### 2. Tela de Integração (Admin)
+
+Usar o sistema de integrações existente para configurar a Evolution API:
+
+| Campo | Valor |
+|-------|-------|
+| Nome | Evolution API |
+| Base URL | `http://localhost:8080` (ou IP/DNS do servidor) |
+| Tipo Auth | `api_key` |
+| Auth Config | `{ "key": "seu-api-key", "key_name": "apiKey", "in": "header" }` |
+| Telas | `whatsapp` |
+
+### 3. Webhook Endpoint
+
+`POST /api/whatsapp/webhook` — Rota pública que recebe mensagens da Evolution API:
+
+- Validar assinatura/hash (security)
+- Buscar usuário pelo número de WhatsApp
+- Interpretar a mensagem
+- Criar solicitação com dados enviados
+- Responder confirmação via Evolution API
+- Logar a operação
+
+### 4. Parser de Mensagens
+
+Formato esperado da mensagem:
+
+```
+Nova solicitação:
+Cliente: Nome do Cliente
+Projeto: Nome do Projeto
+Tipo: TECELAGEM ou BENEFICIAMENTO
+```
+
+Fallback: se não reconhecer o formato, responder com instruções.
+
+### 5. Response Service
+
+Função para enviar mensagem de volta via Evolution API:
+
+```
+/send-message
+```
+
+### 6. Observações de Segurança
+
+- Autenticar as requisições do webhook (validação de API Key ou hash)
+- Validar que o número de WhatsApp está vinculado a um usuário ativo
+- Sanitizar entrada de dados antes de criar a solicitação
+
+---
+
+## 🚧 Status
+
+**AGUARDANDO** — Decisão de implementação futura.
+
+---
+
 ````md
 # 🚀 SKILL DE INSIGHTS
 

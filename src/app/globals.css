@@ -101,6 +101,15 @@
     from { transform: translateX(-100%); }
     to { transform: translateX(0); }
   }
+
+  .animate-piscar {
+    animation: piscar 0.4s ease-in-out infinite;
+  }
+
+  @keyframes piscar {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.3; transform: scale(1.2); }
+  }
 }
 
 @layer utilities {
