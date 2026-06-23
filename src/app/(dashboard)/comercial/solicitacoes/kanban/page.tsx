@@ -47,11 +47,11 @@ function DroppableColumn({ id, children, rotulo, cor, count }: { id: string; chi
   return (
     <div
       ref={setNodeRef}
-      className={`flex-shrink-0 w-72 bg-slate-100 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 transition-colors ${
+      className={`flex flex-col h-full w-72 bg-slate-100 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 transition-colors shrink-0 ${
         isOver ? "border-blue-400 bg-blue-50 dark:bg-blue-950/30" : ""
       }`}
     >
-      <div className="flex items-center gap-2 px-3 py-2.5 border-b border-slate-200 dark:border-slate-800">
+      <div className="flex items-center gap-2 px-3 py-2.5 border-b border-slate-200 dark:border-slate-800 shrink-0">
         <div
           className="w-3 h-3 rounded-full shrink-0"
           style={{ backgroundColor: cor || "#94a3b8" }}
@@ -61,7 +61,7 @@ function DroppableColumn({ id, children, rotulo, cor, count }: { id: string; chi
           {count}
         </span>
       </div>
-      <div className="p-2 space-y-2 min-h-[200px] max-h-[calc(100vh-220px)] overflow-y-auto">
+      <div className="flex-1 min-h-0 p-2 space-y-2 overflow-y-auto">
         {children}
       </div>
     </div>
@@ -271,6 +271,12 @@ export default function KanbanSolicitacoesPage() {
     const novoStatus = over.id as string
     if (solicitacao.status === novoStatus) return
 
+    const statusAntigo = solicitacao.status
+
+    setSolicitacoes(prev =>
+      prev.map(s => s.id === solicitacao.id ? { ...s, status: novoStatus } : s)
+    )
+
     try {
       const res = await fetch(`/api/solicitacoes/${solicitacao.id}/status`, {
         method: "PATCH",
@@ -282,8 +288,10 @@ export default function KanbanSolicitacoesPage() {
         throw new Error(err.error || "Erro ao alterar status")
       }
       toast.success(`Solicitação #${solicitacao.id} movida para ${statusList.find(s => s.nome === novoStatus)?.rotulo || novoStatus}`)
-      carregar()
     } catch (err: any) {
+      setSolicitacoes(prev =>
+        prev.map(s => s.id === solicitacao.id ? { ...s, status: statusAntigo } : s)
+      )
       toast.error(err.message)
     }
   }
@@ -297,8 +305,8 @@ export default function KanbanSolicitacoesPage() {
   }
 
   return (
-    <div className="space-y-4 animate-fade-in">
-      <div className="flex items-center justify-between">
+    <div className="flex flex-col h-screen animate-fade-in">
+      <div className="flex items-center justify-between shrink-0 px-6 pt-6 pb-2">
         <div className="flex items-center gap-2">
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Kanban — Solicitações{info && <InfoButton content={info} />}</h1>
           {podeArrastar && (
@@ -316,13 +324,15 @@ export default function KanbanSolicitacoesPage() {
       </div>
 
       {!podeArrastar && (
-        <p className="text-sm text-amber-600 bg-amber-50 dark:bg-amber-950/50 px-3 py-2 rounded-lg">
-          Seu perfil não tem permissão para mover solicitações entre colunas.
-        </p>
+        <div className="shrink-0 px-6 pb-2">
+          <p className="text-sm text-amber-600 bg-amber-50 dark:bg-amber-950/50 px-3 py-2 rounded-lg">
+            Seu perfil não tem permissão para mover solicitações entre colunas.
+          </p>
+        </div>
       )}
 
       <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-        <div className="flex gap-4 pb-4 overflow-x-auto">
+        <div className="flex-1 min-h-0 flex gap-4 overflow-x-auto px-6 pb-6">
           {colunas.map(col => (
             <DroppableColumn key={col.nome} id={col.nome} rotulo={col.rotulo} cor={col.cor} count={col.cards.length}>
               {col.cards.map(card => (
