@@ -60,12 +60,12 @@ export async function GET() {
       const t = Number(r.total)
       entry.total += t
       if (r.status === "PENDENTE") entry.pendentes += t
-      else if (r.status === "EM_DESENVOLVIMENTO") entry.emDesenvolvimento += t
-      else if (r.status === "CONCLUIDO") entry.concluidas += t
+      else if (r.status === "EM_DESENVOLVIMENTO" || r.status === "PILOTAGEM") entry.emDesenvolvimento += t
+      else if (r.status === "CONCLUIDO_DEV" || r.status === "APROVADO_CLI" || r.status === "CONCLUIDO") entry.concluidas += t
       geralTotal += t
       if (r.status === "PENDENTE") geralPendentes += t
-      else if (r.status === "EM_DESENVOLVIMENTO") geralEmDesenvolvimento += t
-      else if (r.status === "CONCLUIDO") geralConcluidas += t
+      else if (r.status === "EM_DESENVOLVIMENTO" || r.status === "PILOTAGEM") geralEmDesenvolvimento += t
+      else if (r.status === "CONCLUIDO_DEV" || r.status === "APROVADO_CLI" || r.status === "CONCLUIDO") geralConcluidas += t
     }
 
     const trendData: { mes: string; total: number }[] = []

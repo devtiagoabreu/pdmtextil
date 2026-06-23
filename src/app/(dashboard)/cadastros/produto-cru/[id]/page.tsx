@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, type MouseEvent } from "react"
 import { useRouter, useParams, usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
@@ -1033,7 +1033,7 @@ export default function ProdutoCruFormPage() {
                                 <span className="text-xs text-slate-400">ERP: {acab.idIntegracaoErpAcabado}</span>
                               )}
                             </div>
-                            <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); removeAcabamento(acab.id) }}>
+                            <Button variant="ghost" size="icon" onClick={(e: MouseEvent<HTMLButtonElement>) => { e.stopPropagation(); removeAcabamento(acab.id) }}>
                               <Trash2 size={16} />
                             </Button>
                           </div>

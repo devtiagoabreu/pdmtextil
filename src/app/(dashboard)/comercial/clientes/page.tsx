@@ -10,6 +10,7 @@ import { getInfoContent } from "@/lib/info-content"
 import { Button } from "@/components/ui/button"
 import ImportarApiModal from "@/components/integracao/ImportarApiModal"
 import { ExportarDados } from "@/components/exportar/ExportarDados"
+import { useStatuses, hexToRgba } from "@/hooks/use-statuses"
 
 type Cliente = {
   id: number
@@ -46,16 +47,7 @@ type AmostraResumo = {
   acabamentoDescricao?: string | null
 }
 
-const STATUS_BADGE: Record<string, string> = {
-  PENDENTE: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300",
-  AGUARDANDO_INFO: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300",
-  AGUARDANDO_MATERIA_PRIMA: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
-  EM_DESENVOLVIMENTO: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
-  APROVADO: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300",
-  REPROVADO: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300",
-  EM_PRODUCAO: "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300",
-  CONCLUIDO: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300",
-}
+
 
 const AMOSTRA_STATUS_BADGE: Record<string, string> = {
   PENDENTE: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300",
@@ -66,6 +58,7 @@ const AMOSTRA_STATUS_BADGE: Record<string, string> = {
 export default function ClientesPage() {
   const pathname = usePathname()
   const info = getInfoContent(pathname)
+  const { getLabel: getStatusLabel, getColor: getStatusColor } = useStatuses("SOLICITACAO_DESENVOLVIMENTO")
   const [search, setSearch] = useState("")
   const [clientes, setClientes] = useState<Cliente[]>([])
   const [loading, setLoading] = useState(true)
@@ -289,8 +282,11 @@ export default function ClientesPage() {
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
                           <span className="text-sm font-medium text-slate-900 dark:text-slate-100">#{s.id}</span>
-                          <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${STATUS_BADGE[s.status] || "bg-slate-100 text-slate-600"}`}>
-                            {s.status}
+                          <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium" style={{
+                            backgroundColor: hexToRgba(getStatusColor(s.status), 0.15),
+                            color: getStatusColor(s.status),
+                          }}>
+                            {getStatusLabel(s.status)}
                           </span>
                           <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 uppercase">
                             {s.tipo === "DESENVOLVIMENTO_TECELAGEM" ? "TECELAGEM" : "BENEFICIAMENTO"}

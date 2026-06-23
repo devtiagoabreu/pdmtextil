@@ -368,7 +368,7 @@ export default function KanbanSolicitacoesPage() {
       </DndContext>
 
       {/* Modal do Chat */}
-      <Dialog open={!!chatTarget} onOpenChange={(open) => { if (!open) setChatTarget(null) }}>
+      <Dialog open={!!chatTarget} onOpenChange={(open: boolean) => { if (!open) setChatTarget(null) }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Chat — #{chatTarget?.id} {chatTarget?.cliente}</DialogTitle>
@@ -406,7 +406,7 @@ export default function KanbanSolicitacoesPage() {
       </Dialog>
 
       {/* Modal de Amostras */}
-      <Dialog open={!!amostrasTarget} onOpenChange={(open) => { if (!open) setAmostrasTarget(null) }}>
+      <Dialog open={!!amostrasTarget} onOpenChange={(open: boolean) => { if (!open) setAmostrasTarget(null) }}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>Amostras — {amostrasTarget?.produtoCodigoPdm || `#${amostrasTarget?.id}`}</DialogTitle>

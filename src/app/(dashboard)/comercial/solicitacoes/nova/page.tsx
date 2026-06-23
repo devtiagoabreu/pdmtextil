@@ -221,7 +221,7 @@ export default function NovaSolicitacaoPage() {
                   control={control}
                   render={({ field }) => (
                     <Select 
-                      onValueChange={(val) => {
+                      onValueChange={(val: string) => {
                         field.onChange(val)
                         setComercialData(prev => ({ ...prev, tipo: val as any }))
                       }} 

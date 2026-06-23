@@ -7,16 +7,7 @@ import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { exportCSV, exportPDF, statsToHTML, tableToHTML } from "@/lib/export-utils"
-
-const STATUS_COLORS: Record<string, string> = {
-  PENDENTE: "#eab308",
-  AGUARDANDO_INFO: "#ea580c",
-  EM_DESENVOLVIMENTO: "#6366f1",
-  APROVADO: "#14b8a6",
-  REPROVADO: "#ef4444",
-  EM_PRODUCAO: "#a855f7",
-  CONCLUIDO: "#22c55e",
-}
+import { useStatuses, hexToRgba } from "@/hooks/use-statuses"
 
 const TIPO_LABELS: Record<string, string> = {
   DESENVOLVIMENTO_TECELAGEM: "Tecelagem",
@@ -47,6 +38,7 @@ type Resultado = {
 }
 
 export default function RelatorioTempoStatus() {
+  const { statuses, getLabel: getStatusLabel, getColor: getStatusColor } = useStatuses("SOLICITACAO_DESENVOLVIMENTO")
   const [resultados, setResultados] = useState<Resultado[]>([])
   const [stats, setStats] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -145,11 +137,9 @@ export default function RelatorioTempoStatus() {
             className="h-9 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 text-sm"
           >
             <option value="">Todos</option>
-            <option value="PENDENTE">Pendente</option>
-            <option value="EM_DESENVOLVIMENTO">Em Desenvolvimento</option>
-            <option value="APROVADO">Aprovado</option>
-            <option value="REPROVADO">Reprovado</option>
-            <option value="CONCLUIDO">Concluído</option>
+            {statuses.map((st) => (
+              <option key={st.nome} value={st.nome}>{st.rotulo || st.nome}</option>
+            ))}
           </select>
         </div>
         <div>
@@ -229,7 +219,7 @@ export default function RelatorioTempoStatus() {
                   <span className="text-sm text-slate-600 dark:text-slate-300">{r.cliente}</span>
                   <span className="text-xs text-slate-400">{TIPO_LABELS[r.tipo] || r.tipo}</span>
                   <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium`}
-                    style={{ backgroundColor: STATUS_COLORS[r.statusAtual] + "20", color: STATUS_COLORS[r.statusAtual] }}
+                    style={{ backgroundColor: hexToRgba(getStatusColor(r.statusAtual), 0.12), color: getStatusColor(r.statusAtual) }}
                   >
                     {r.statusAtualLabel}
                   </span>
@@ -249,7 +239,7 @@ export default function RelatorioTempoStatus() {
                   ) : (
                     <div className="space-y-3">
                       {r.timeline.map((t, i) => {
-                        const cor = STATUS_COLORS[t.status] || "#94a3b8"
+                        const cor = getStatusColor(t.status)
                         const larguraPct = r.timeline.reduce((a, x) => a + x.duracaoMs, 0) > 0
                           ? (t.duracaoMs / r.timeline.reduce((a, x) => a + x.duracaoMs, 0)) * 100
                           : 0

@@ -38,8 +38,8 @@ export async function GET(req: NextRequest) {
     const agregado = (await rows(sql`
       SELECT
         COUNT(*)::int AS total,
-        COUNT(*) FILTER (WHERE status = 'CONCLUIDO')::int AS concluidas,
-        COUNT(*) FILTER (WHERE status != 'CONCLUIDO')::int AS em_andamento
+        COUNT(*) FILTER (WHERE status IN ('CONCLUIDO', 'CONCLUIDO_DEV', 'APROVADO_CLI'))::int AS concluidas,
+        COUNT(*) FILTER (WHERE status NOT IN ('CONCLUIDO', 'CONCLUIDO_DEV', 'APROVADO_CLI'))::int AS em_andamento
       FROM solicitacoes WHERE ${fc}
     `))[0] || { total: 0, concluidas: 0, em_andamento: 0 }
 
@@ -70,7 +70,7 @@ export async function GET(req: NextRequest) {
 
     const concluidasPorMes = await rows(sql`
       SELECT TO_CHAR(data_conclusao, 'YYYY-MM') AS mes, COUNT(*)::int AS concluidas
-      FROM solicitacoes WHERE status = 'CONCLUIDO' AND ${fdc}
+      FROM solicitacoes WHERE status IN ('CONCLUIDO', 'CONCLUIDO_DEV', 'APROVADO_CLI') AND ${fdc}
       GROUP BY mes ORDER BY mes
     `)
 

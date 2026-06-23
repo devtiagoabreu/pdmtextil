@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { exportCSV, exportPDF, statsToHTML, tableToHTML } from "@/lib/export-utils"
+import { useStatuses, hexToRgba } from "@/hooks/use-statuses"
 
 type Stats = {
   totalCriadas: number
@@ -31,27 +32,8 @@ type Recente = {
   createdAt: string
 }
 
-const STATUS_COLORS: Record<string, string> = {
-  PENDENTE: "#eab308",
-  AGUARDANDO_INFO: "#ea580c",
-  EM_DESENVOLVIMENTO: "#6366f1",
-  APROVADO: "#14b8a6",
-  REPROVADO: "#ef4444",
-  EM_PRODUCAO: "#a855f7",
-  CONCLUIDO: "#22c55e",
-}
-
-const STATUS_LABELS: Record<string, string> = {
-  PENDENTE: "Pendente",
-  AGUARDANDO_INFO: "Aguardando Info",
-  EM_DESENVOLVIMENTO: "Em Desenvolvimento",
-  APROVADO: "Aprovado",
-  REPROVADO: "Reprovado",
-  EM_PRODUCAO: "Em Produção",
-  CONCLUIDO: "Concluído",
-}
-
 export default function RelatorioSolicitacoesCriadas() {
+  const { statuses, getLabel: getStatusLabel, getColor: getStatusColor } = useStatuses("SOLICITACAO_DESENVOLVIMENTO")
   const [stats, setStats] = useState<Stats | null>(null)
   const [porMes, setPorMes] = useState<MesData[]>([])
   const [recentes, setRecentes] = useState<Recente[]>([])
@@ -85,7 +67,7 @@ export default function RelatorioSolicitacoesCriadas() {
         r.id,
         r.cliente,
         r.tipo === "DESENVOLVIMENTO_TECELAGEM" ? "Tecelagem" : "Beneficiamento",
-        STATUS_LABELS[r.status] || r.status,
+        getStatusLabel(r.status),
         r.createdAt ? new Date(r.createdAt).toLocaleDateString("pt-BR") : "-",
       ]))
     }, 200)
@@ -104,7 +86,7 @@ export default function RelatorioSolicitacoesCriadas() {
       r.id,
       r.cliente,
       r.tipo === "DESENVOLVIMENTO_TECELAGEM" ? "Tecelagem" : "Beneficiamento",
-      STATUS_LABELS[r.status] || r.status,
+      getStatusLabel(r.status),
       r.createdAt ? new Date(r.createdAt).toLocaleDateString("pt-BR") : "-",
     ]))
     exportPDF("Relatório de Solicitações Criadas / Deletadas", statsHtml + mesTable + recentTable)
@@ -254,9 +236,9 @@ export default function RelatorioSolicitacoesCriadas() {
                     <td className="p-3">
                       <span
                         className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
-                        style={{ backgroundColor: (STATUS_COLORS[r.status] || "#94a3b8") + "20", color: STATUS_COLORS[r.status] || "#94a3b8" }}
+                        style={{ backgroundColor: hexToRgba(getStatusColor(r.status), 0.12), color: getStatusColor(r.status) }}
                       >
-                        {STATUS_LABELS[r.status] || r.status}
+                        {getStatusLabel(r.status)}
                       </span>
                     </td>
                     <td className="p-3 text-slate-500 text-xs">

@@ -8,27 +8,8 @@ import { usePathname, useRouter } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { Button } from "@/components/ui/button"
+import { useStatuses, hexToRgba } from "@/hooks/use-statuses"
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
-
-const STATUS_LABELS: Record<string, string> = {
-  PENDENTE: "Pendente",
-  EM_DESENVOLVIMENTO: "Em Desenvolvimento",
-  AGUARDANDO_INFO: "Aguard. Info",
-  APROVADO: "Aprovado",
-  REPROVADO: "Reprovado",
-  EM_PRODUCAO: "Em Produção",
-  CONCLUIDO: "Concluído",
-}
-
-const STATUS_CLASSES: Record<string, string> = {
-  PENDENTE: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400",
-  EM_DESENVOLVIMENTO: "bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-400",
-  AGUARDANDO_INFO: "bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-400",
-  APROVADO: "bg-teal-100 text-teal-700 dark:bg-teal-950 dark:text-teal-400",
-  REPROVADO: "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400",
-  EM_PRODUCAO: "bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-400",
-  CONCLUIDO: "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400",
-}
 
 const TIPO_LABELS: Record<string, string> = {
   DESENVOLVIMENTO_TECELAGEM: "Tecelagem",
@@ -40,16 +21,6 @@ const PRODUTO_STATUS_LABELS: Record<string, string> = {
   APROVADO: "Aprovado",
   EM_PRODUCAO: "Em Produção",
   OBSOLETO: "Obsoleto",
-}
-
-const STATUS_COLORS: Record<string, string> = {
-  PENDENTE: "#f59e0b",
-  EM_DESENVOLVIMENTO: "#6366f1",
-  AGUARDANDO_INFO: "#ea580c",
-  APROVADO: "#14b8a6",
-  REPROVADO: "#ef4444",
-  EM_PRODUCAO: "#a855f7",
-  CONCLUIDO: "#22c55e",
 }
 
 const TIPO_COLORS: Record<string, string> = {
@@ -73,6 +44,8 @@ export default function DashboardPage() {
   const [stats, setStats] = useState<any>(null)
   const [atividades, setAtividades] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+
+  const { getLabel: getStatusLabel, getColor: getStatusColor } = useStatuses("SOLICITACAO_DESENVOLVIMENTO")
 
   const [modalFiltro, setModalFiltro] = useState<string | null>(null)
   const [modalLista, setModalLista] = useState<any[]>([])
@@ -189,9 +162,9 @@ export default function DashboardPage() {
                 <PieChart>
                   <Pie
                     data={(stats?.statusDistribution || []).map((s: any) => ({
-                      name: STATUS_LABELS[s.status] || s.status,
+                      name: getStatusLabel(s.status),
                       value: s.total,
-                      fill: STATUS_COLORS[s.status] || "#94a3b8",
+                      fill: getStatusColor(s.status),
                     }))}
                     cx="50%" cy="50%" innerRadius={50} outerRadius={90}
                     dataKey="value"
@@ -205,10 +178,9 @@ export default function DashboardPage() {
                   const map: Record<string, string> = {
                     PENDENTE: "pendentes",
                     EM_DESENVOLVIMENTO: "em-desenvolvimento",
-                    AGUARDANDO_INFO: "pendentes",
-                    APROVADO: "concluidas",
-                    REPROVADO: "pendentes",
-                    EM_PRODUCAO: "pendentes",
+                    PILOTAGEM: "em-desenvolvimento",
+                    CONCLUIDO_DEV: "concluidas",
+                    APROVADO_CLI: "concluidas",
                     CONCLUIDO: "concluidas",
                   }
                   return (
@@ -218,8 +190,8 @@ export default function DashboardPage() {
                       onClick={() => openModal(map[s.status] || "pendentes")}
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium hover:opacity-80 transition-opacity border border-slate-200 dark:border-slate-700"
                     >
-                      <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: STATUS_COLORS[s.status] || "#94a3b8" }} />
-                      {STATUS_LABELS[s.status] || s.status}: {s.total}
+                      <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: getStatusColor(s.status) }} />
+                      {getStatusLabel(s.status)}: {s.total}
                     </button>
                   )
                 })}
@@ -317,15 +289,11 @@ export default function DashboardPage() {
                         <td className="p-4 text-sm">{TIPO_LABELS[item.tipo] || item.tipo}</td>
                         <td className="p-4 text-sm">{item.cliente}</td>
                         <td className="p-4 text-sm">
-                          <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
-                            item.status === "PENDENTE" ? "bg-amber-100 text-amber-700" :
-                            item.status === "EM_DESENVOLVIMENTO" ? "bg-indigo-100 text-indigo-700" :
-                            item.status === "APROVADO" ? "bg-teal-100 text-teal-700" :
-                            item.status === "REPROVADO" ? "bg-red-100 text-red-700" :
-                            item.status === "CONCLUIDO" ? "bg-green-100 text-green-700" :
-                            "bg-slate-100 text-slate-700"
-                          }`}>
-                            {STATUS_LABELS[item.status] || item.status}
+                          <span className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium" style={{
+                            backgroundColor: hexToRgba(getStatusColor(item.status), 0.15),
+                            color: getStatusColor(item.status),
+                          }}>
+                            {getStatusLabel(item.status)}
                           </span>
                         </td>
                         <td className="p-4 text-sm text-slate-500">
@@ -399,8 +367,11 @@ export default function DashboardPage() {
                         <p className="text-xs text-slate-400">{TIPO_LABELS[item.tipo] || item.tipo}</p>
                       </div>
                       <div className="flex items-center gap-3 ml-3 shrink-0">
-                        <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_CLASSES[item.status] || "bg-slate-100 text-slate-600"}`}>
-                          {STATUS_LABELS[item.status] || item.status}
+                        <span className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium" style={{
+                          backgroundColor: hexToRgba(getStatusColor(item.status), 0.15),
+                          color: getStatusColor(item.status),
+                        }}>
+                          {getStatusLabel(item.status)}
                         </span>
                         <span className="text-xs text-slate-400">{item.createdAt ? new Date(item.createdAt).toLocaleDateString("pt-BR") : ""}</span>
                       </div>
