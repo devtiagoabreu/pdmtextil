@@ -479,14 +479,15 @@ export default function ProdutoCruFormPage() {
       const res = await fetch(`/api/cadastros/produto-cru/${id}/amostras/${amostraId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status, motivoAprovacao: motivo }),
+        body: JSON.stringify({ status, motivoAprovacao: motivo || null }),
       })
       if (!res.ok) {
         const err = await res.json()
         toast.error(err.error || "Erro ao atualizar status")
         return
       }
-      setAmostras(amostras.map(a => a.id === amostraId ? { ...a, status, motivoAprovacao: motivo } : a))
+      const atualizado = await res.json()
+      setAmostras(amostras.map(a => a.id === amostraId ? atualizado : a))
       toast.success("Status atualizado")
     } catch {
       toast.error("Erro ao atualizar status")
