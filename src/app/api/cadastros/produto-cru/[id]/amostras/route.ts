@@ -36,7 +36,7 @@ export async function POST(
     const id = parseInt((await params).id)
     const body = await req.json()
 
-    const novo = await db
+    const [novo] = await db
       .insert(produtoCruAmostra)
       .values({
         produtoCruId: id,
@@ -53,18 +53,31 @@ export async function POST(
           status: body.status || "PENDENTE",
         }],
       })
-      .returning()
+      .returning({
+        id: produtoCruAmostra.id,
+        produtoCruId: produtoCruAmostra.produtoCruId,
+        descricao: produtoCruAmostra.descricao,
+        status: produtoCruAmostra.status,
+        motivoAprovacao: produtoCruAmostra.motivoAprovacao,
+        observacoes: produtoCruAmostra.observacoes,
+        quantidadeProduzida: produtoCruAmostra.quantidadeProduzida,
+        idIntegracaoErpCru: produtoCruAmostra.idIntegracaoErpCru,
+        links: produtoCruAmostra.links,
+        historico: produtoCruAmostra.historico,
+        data: produtoCruAmostra.data,
+        createdAt: produtoCruAmostra.createdAt,
+      })
 
     await notificar(
       "AMOSTRA_CRIADA",
       `Nova amostra de tecido cru #${id} criada por ${session.user.name}${body.descricao ? ` — ${body.descricao}` : ""}`,
-      `/cadastros/produto-cru/${id}?tab=amostras&amostraId=amostra-${novo[0].id}`,
+      `/cadastros/produto-cru/${id}?tab=amostras&amostraId=amostra-${novo.id}`,
       session.user.name
     )
 
-    await registrarLog({ tipo: "CADASTRO", acao: "criar", descricao: `Amostra de tecido cru #${novo[0].id} criada para produto #${id}`, entidade: "AmostraTecidoCru", entidadeId: novo[0].id, usuarioNome: session.user.name })
+    await registrarLog({ tipo: "CADASTRO", acao: "criar", descricao: `Amostra de tecido cru #${novo.id} criada para produto #${id}`, entidade: "AmostraTecidoCru", entidadeId: novo.id, usuarioNome: session.user.name })
 
-    return NextResponse.json(novo[0])
+    return NextResponse.json(novo)
   } catch (error) {
     console.error("[POST /api/cadastros/produto-cru/[id]/amostras]", error)
     return NextResponse.json({ error: "Erro ao adicionar amostra" }, { status: 500 })
