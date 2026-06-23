@@ -32,7 +32,9 @@ const FILTROS_DASH = [
               { key: "total-mes", label: "Total", icon: "solicitacao" },
   { key: "pendentes", label: "Pendentes", icon: "solicitacao" },
   { key: "em-desenvolvimento", label: "Em Desenvolvimento", icon: "solicitacao" },
-  { key: "concluidas", label: "Concluídas", icon: "solicitacao" },
+  { key: "pilotagem", label: "Pilotagem", icon: "solicitacao" },
+  { key: "concluido-dev", label: "Concluído Desenvolvimento", icon: "solicitacao" },
+  { key: "aprovado-cliente", label: "Aprovado pelo Cliente", icon: "solicitacao" },
   { key: "produtos-cru", label: "Produtos CAD", icon: "produto" },
 ] as const
 
@@ -119,12 +121,14 @@ export default function DashboardPage() {
       ) : (
         <>
           {/* Stats cards */}
-          <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-7">
             {[
               { key: "total-mes", label: "Total este mês", value: stats?.totalEsteMes ?? 0, color: "text-slate-700 dark:text-slate-200", bg: "bg-slate-100 dark:bg-slate-800" },
               { key: "pendentes", label: "Pendentes", value: stats?.pendentes ?? 0, color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-50 dark:bg-amber-950/50" },
               { key: "em-desenvolvimento", label: "Em Desenvolvimento", value: stats?.emDesenvolvimento ?? 0, color: "text-indigo-600 dark:text-indigo-400", bg: "bg-indigo-50 dark:bg-indigo-950/50" },
-              { key: "concluidas", label: "Concluídas", value: stats?.concluidas ?? 0, color: "text-green-600 dark:text-green-400", bg: "bg-green-50 dark:bg-green-950/50" },
+              { key: "pilotagem", label: "Pilotagem", value: stats?.pilotagem ?? 0, color: "text-cyan-600 dark:text-cyan-400", bg: "bg-cyan-50 dark:bg-cyan-950/50" },
+              { key: "concluido-dev", label: "Concluído Desenvolvimento", value: stats?.concluidoDev ?? 0, color: "text-purple-600 dark:text-purple-400", bg: "bg-purple-50 dark:bg-purple-950/50" },
+              { key: "aprovado-cliente", label: "Aprovado pelo Cliente", value: stats?.aprovadoCliente ?? 0, color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-50 dark:bg-emerald-950/50" },
               { key: "produtos-cru", label: "Produtos CAD", value: stats?.totalProdutosCru ?? 0, color: "text-cyan-600 dark:text-cyan-400", bg: "bg-cyan-50 dark:bg-cyan-950/50" },
             ].map((stat) => (
               <button
@@ -178,9 +182,9 @@ export default function DashboardPage() {
                   const map: Record<string, string> = {
                     PENDENTE: "pendentes",
                     EM_DESENVOLVIMENTO: "em-desenvolvimento",
-                    PILOTAGEM: "em-desenvolvimento",
-                    CONCLUIDO_DEV: "concluidas",
-                    APROVADO_CLI: "concluidas",
+                    PILOTAGEM: "pilotagem",
+                    CONCLUIDO_DEV: "concluido-dev",
+                    APROVADO_CLI: "aprovado-cliente",
                     CONCLUIDO: "concluidas",
                   }
                   return (

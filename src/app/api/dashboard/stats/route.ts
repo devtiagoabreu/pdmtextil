@@ -51,21 +51,27 @@ export async function GET() {
     const tipoRows = Array.isArray(tipoRaw) ? tipoRaw : []
     const pcRows = Array.isArray(pcRaw) ? pcRaw : []
 
-    const monthMap = new Map<string, { pendentes: number; emDesenvolvimento: number; concluidas: number; total: number }>()
-    let geralPendentes = 0, geralEmDesenvolvimento = 0, geralConcluidas = 0, geralTotal = 0
+    const monthMap = new Map<string, { pendentes: number; emDesenvolvimento: number; pilotagem: number; concluidoDev: number; aprovadoCliente: number; concluidas: number; total: number }>()
+    let geralPendentes = 0, geralEmDesenvolvimento = 0, geralPilotagem = 0, geralConcluidoDev = 0, geralAprovadoCliente = 0, geralConcluidas = 0, geralTotal = 0
 
     for (const r of monthlyRows) {
-      if (!monthMap.has(r.mes)) monthMap.set(r.mes, { pendentes: 0, emDesenvolvimento: 0, concluidas: 0, total: 0 })
+      if (!monthMap.has(r.mes)) monthMap.set(r.mes, { pendentes: 0, emDesenvolvimento: 0, pilotagem: 0, concluidoDev: 0, aprovadoCliente: 0, concluidas: 0, total: 0 })
       const entry = monthMap.get(r.mes)!
       const t = Number(r.total)
       entry.total += t
       if (r.status === "PENDENTE") entry.pendentes += t
-      else if (r.status === "EM_DESENVOLVIMENTO" || r.status === "PILOTAGEM") entry.emDesenvolvimento += t
-      else if (r.status === "CONCLUIDO_DEV" || r.status === "APROVADO_CLI" || r.status === "CONCLUIDO") entry.concluidas += t
+      else if (r.status === "EM_DESENVOLVIMENTO") entry.emDesenvolvimento += t
+      else if (r.status === "PILOTAGEM") entry.pilotagem += t
+      else if (r.status === "CONCLUIDO_DEV") entry.concluidoDev += t
+      else if (r.status === "APROVADO_CLI") entry.aprovadoCliente += t
+      else if (r.status === "CONCLUIDO") entry.concluidas += t
       geralTotal += t
       if (r.status === "PENDENTE") geralPendentes += t
-      else if (r.status === "EM_DESENVOLVIMENTO" || r.status === "PILOTAGEM") geralEmDesenvolvimento += t
-      else if (r.status === "CONCLUIDO_DEV" || r.status === "APROVADO_CLI" || r.status === "CONCLUIDO") geralConcluidas += t
+      else if (r.status === "EM_DESENVOLVIMENTO") geralEmDesenvolvimento += t
+      else if (r.status === "PILOTAGEM") geralPilotagem += t
+      else if (r.status === "CONCLUIDO_DEV") geralConcluidoDev += t
+      else if (r.status === "APROVADO_CLI") geralAprovadoCliente += t
+      else if (r.status === "CONCLUIDO") geralConcluidas += t
     }
 
     const trendData: { mes: string; total: number }[] = []
@@ -82,6 +88,9 @@ export async function GET() {
       totalEsteMes: geralTotal,
       pendentes: geralPendentes,
       emDesenvolvimento: geralEmDesenvolvimento,
+      pilotagem: geralPilotagem,
+      concluidoDev: geralConcluidoDev,
+      aprovadoCliente: geralAprovadoCliente,
       concluidas: geralConcluidas,
       monthlyTrend: trendData,
       statusDistribution: statusRows.map((r: any) => ({ status: r.status, total: Number(r.total) })),

@@ -31,8 +31,11 @@ export async function GET(req: NextRequest) {
 
     let whereClause = sql`WHERE 1=1`
     if (filtro === "pendentes") whereClause = sql`WHERE status = 'PENDENTE'`
-    else if (filtro === "em-desenvolvimento") whereClause = sql`WHERE status IN ('EM_DESENVOLVIMENTO', 'PILOTAGEM')`
-    else if (filtro === "concluidas") whereClause = sql`WHERE status IN ('CONCLUIDO_DEV', 'APROVADO_CLI', 'CONCLUIDO')`
+    else if (filtro === "em-desenvolvimento") whereClause = sql`WHERE status = 'EM_DESENVOLVIMENTO'`
+    else if (filtro === "pilotagem") whereClause = sql`WHERE status = 'PILOTAGEM'`
+    else if (filtro === "concluido-dev") whereClause = sql`WHERE status = 'CONCLUIDO_DEV'`
+    else if (filtro === "aprovado-cliente") whereClause = sql`WHERE status = 'APROVADO_CLI'`
+    else if (filtro === "concluidas") whereClause = sql`WHERE status = 'CONCLUIDO'`
 
     const rows = await db.execute(sql`
       SELECT id, tipo, cliente, projeto, status, created_at
