@@ -976,15 +976,28 @@ export default function ProdutoCruFormPage() {
                         {amostras.map(a => (
                           <div key={a.id} id={`amostra-${a.id}`}>
                             <div className="flex items-center justify-between p-3 bg-slate-100 dark:bg-slate-800 rounded-lg">
-                              <div>
-                                <p className="font-medium">{a.descricao || "Sem descrição"}</p>
-                                <p className="text-sm text-slate-500">
-                                  {a.quantidadeProduzida && <span className="text-xs font-medium text-slate-600 mr-2">Qtd: {a.quantidadeProduzida}</span>}
-                                  {a.idIntegracaoErpCru && <span className="text-xs font-medium text-slate-600 mr-2">ERP: {a.idIntegracaoErpCru}</span>}
+                              <div className="min-w-0">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <p className="font-medium truncate">{a.descricao || "Sem descrição"}</p>
+                                  {a.quantidadeProduzida ? (
+                                    <span className="text-xs font-medium text-purple-600 bg-purple-100 dark:bg-purple-900/30 px-2 py-0.5 rounded">Qtd: {a.quantidadeProduzida}</span>
+                                  ) : (
+                                    <span className="text-xs text-slate-400">Qtd: -</span>
+                                  )}
+                                  {a.idIntegracaoErpCru ? (
+                                    <span className="text-xs font-medium text-blue-600 bg-blue-100 dark:bg-blue-900/30 px-2 py-0.5 rounded">ERP: {a.idIntegracaoErpCru}</span>
+                                  ) : (
+                                    <span className="text-xs text-slate-400">ERP: -</span>
+                                  )}
+                                </div>
+                                <p className="text-xs text-slate-500 mt-1">
+                                  {a.observacoes && (
+                                    <span className="text-slate-400">{a.observacoes}</span>
+                                  )}
                                   <select
                                     value={a.status}
                                     onChange={e => updateStatusAmostra(a.id, e.target.value)}
-                                    className={`text-xs rounded-full px-2 py-0.5 border-0 font-medium mr-2 cursor-pointer ${
+                                    className={`text-xs rounded-full px-2 py-0.5 border-0 font-medium ml-1 cursor-pointer ${
                                       a.status === "APROVADO" ? "bg-green-100 text-green-700" :
                                       a.status === "REPROVADO" ? "bg-red-100 text-red-700" :
                                       "bg-yellow-100 text-yellow-700"
@@ -995,10 +1008,7 @@ export default function ProdutoCruFormPage() {
                                     ))}
                                   </select>
                                   {a.motivoAprovacao && (
-                                    <span className="text-xs text-slate-400 italic ml-1">Motivo: {a.motivoAprovacao}</span>
-                                  )}
-                                  {a.observacoes && !a.motivoAprovacao && (
-                                    <span className="text-xs text-slate-400 ml-1">{a.observacoes}</span>
+                                    <span className="text-slate-400 italic ml-2">Motivo: {a.motivoAprovacao}</span>
                                   )}
                                 </p>
                               </div>
