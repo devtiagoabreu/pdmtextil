@@ -29,15 +29,25 @@ export async function PUT(
       return NextResponse.json({ error: "Motivo é obrigatório para aprovar ou reprovar" }, { status: 400 })
     }
 
-    // Buscar estado atual para pegar o historico existente
+    // Buscar estado atual para pegar o historico e observacoes existentes
     const [atual] = await db
-      .select({ status: produtoCruAmostra.status, historico: produtoCruAmostra.historico })
+      .select({
+        status: produtoCruAmostra.status,
+        historico: produtoCruAmostra.historico,
+        observacoes: produtoCruAmostra.observacoes,
+      })
       .from(produtoCruAmostra)
       .where(eq(produtoCruAmostra.id, parseInt(aid)))
       .limit(1)
 
     const historicoAtual: any[] = (atual?.historico as any[]) || []
     const statusAnterior = atual?.status
+
+    // Se for reprovação, anexa o motivo nas observações
+    const observacoesAtual = atual?.observacoes || ""
+    const observacoesFinal = body.status === "REPROVADO" && body.motivoAprovacao?.trim()
+      ? [observacoesAtual, `⛔ Reprovado por ${session.user.name}: ${body.motivoAprovacao.trim()}`].filter(Boolean).join("\n")
+      : body.observacoes
 
     if (body.status && body.status !== statusAnterior) {
       historicoAtual.push({
@@ -58,7 +68,7 @@ export async function PUT(
         status: body.status,
         historico: historicoAtual,
         motivoAprovacao: isAprovacao ? body.motivoAprovacao : body.motivoAprovacao || null,
-        observacoes: body.observacoes || null,
+        observacoes: observacoesFinal,
         quantidadeProduzida: body.quantidadeProduzida || null,
         idIntegracaoErpCru: body.idIntegracaoErpCru || null,
         links: body.links || [],
