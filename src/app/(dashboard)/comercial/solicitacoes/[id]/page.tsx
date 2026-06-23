@@ -18,17 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-
-const STATUS_CONFIG: Record<string, { label: string; classes: string }> = {
-  PENDENTE:       { label: "Pendente",       classes: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400" },
-  AGUARDANDO_INFO:{ label: "Aguard. Info",   classes: "bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-400" },
-  AGUARDANDO_MATERIA_PRIMA: { label: "Aguard. Matéria Prima", classes: "bg-yellow-100 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-400" },
-  EM_DESENVOLVIMENTO: { label: "Em Desenvolvimento", classes: "bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-400" },
-  APROVADO:       { label: "Aprovado",       classes: "bg-teal-100 text-teal-700 dark:bg-teal-950 dark:text-teal-400" },
-  REPROVADO:      { label: "Reprovado",      classes: "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400" },
-  EM_PRODUCAO:    { label: "Em Produção",    classes: "bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-400" },
-  CONCLUIDO:      { label: "Concluído",      classes: "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400" },
-}
+import { useStatuses, hexToRgba } from "@/hooks/use-statuses"
 
 const TIPO_CONFIG: Record<string, string> = {
   DESENVOLVIMENTO_TECELAGEM:      "Desenvolvimento Tecelagem",
@@ -169,6 +159,7 @@ export default function DetalheSolicitacaoPage() {
   const [novoStatus, setNovoStatus] = useState("")
   const [statusLoading, setStatusLoading] = useState(false)
   const [statusOptions, setStatusOptions] = useState<{ value: string; label: string }[]>([])
+  const { getLabel: getStatusLabel, getColor: getStatusColor } = useStatuses("SOLICITACAO_DESENVOLVIMENTO")
 
   useEffect(() => {
     fetch("/api/admin/status?tipo=SOLICITACAO_DESENVOLVIMENTO")
@@ -272,7 +263,6 @@ export default function DetalheSolicitacaoPage() {
     )
   }
 
-  const statusCfg = STATUS_CONFIG[sol.status] ?? { label: sol.status, classes: "bg-slate-100 text-slate-600" }
   const briefing = sol.briefing || {}
 
   const handleExportPdf = () => {
@@ -357,11 +347,14 @@ export default function DetalheSolicitacaoPage() {
           <p className="text-slate-500 dark:text-slate-400 mt-1">{sol.projeto || "Sem projeto"}</p>
         </div>
         <div className="flex items-center gap-2">
-          <span className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${statusCfg.classes}`}>
-            {statusCfg.label}
+          <span className="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium" style={{
+            backgroundColor: hexToRgba(getStatusColor(sol.status), 0.15),
+            color: getStatusColor(sol.status),
+          }}>
+            {getStatusLabel(sol.status)}
           </span>
           <div className="flex items-center gap-1">
-            <Select value={novoStatus} onValueChange={(v) => v && setNovoStatus(v)}>
+            <Select value={novoStatus} onValueChange={(v: string) => v && setNovoStatus(v)}>
               <SelectTrigger className="h-8 text-xs w-44">
                 <SelectValue placeholder="Alterar status..." />
               </SelectTrigger>

@@ -296,7 +296,7 @@ const onStep2Submit = (data: BriefingTecelagem) => {
                   control={control}
                   render={({ field }) => (
                     <Select 
-                      onValueChange={(val) => {
+                      onValueChange={(val: string) => {
                         field.onChange(val)
                         setComercialData(prev => ({ ...prev, tipo: val as any }))
                       }} 

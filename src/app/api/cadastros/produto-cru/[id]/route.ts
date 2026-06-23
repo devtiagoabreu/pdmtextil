@@ -108,20 +108,22 @@ export async function PUT(
       }
     }
 
+    const updateData: Record<string, unknown> = {
+      codigoPdm: body.codigoPdm,
+      descricao: body.descricao,
+      solicitacaoDesenvolvimentoId: body.solicitacaoDesenvolvimentoId || null,
+      fichaTecnica: body.fichaTecnica || null,
+      links: body.links || [],
+      ativo: body.ativo ?? true,
+      idIntegracaoErpCru: body.idIntegracaoErpCru || null,
+      idIntegracao: body.idIntegracao || null,
+      updatedAt: new Date(),
+    }
+    if (body.status !== undefined) updateData.status = body.status
+
     const atualizado = await db
       .update(produtosCru)
-      .set({
-        codigoPdm: body.codigoPdm,
-        descricao: body.descricao,
-        solicitacaoDesenvolvimentoId: body.solicitacaoDesenvolvimentoId || null,
-        status: body.status || "DESENVOLVIMENTO",
-        fichaTecnica: body.fichaTecnica || null,
-        links: body.links || [],
-        ativo: body.ativo ?? true,
-        idIntegracaoErpCru: body.idIntegracaoErpCru || null,
-        idIntegracao: body.idIntegracao || null,
-        updatedAt: new Date(),
-      })
+      .set(updateData)
       .where(eq(produtosCru.id, id))
       .returning()
 
@@ -139,7 +141,7 @@ export async function PUT(
             .from(solicitacoes)
             .where(eq(solicitacoes.id, solId))
             .limit(1)
-          if (sol && (sol.status === "PENDENTE" || sol.status === "AGUARDANDO_INFO")) {
+          if (sol && sol.status === "PENDENTE") {
             const historico = (sol.historicoComunicacao as any[]) || []
             historico.push({
               data: new Date().toISOString(),
@@ -157,25 +159,6 @@ export async function PUT(
         } catch (err) {
           console.error("[PUT /api/cadastros/produto-cru/[id]] erro ao atualizar solicitação", err)
         }
-      }
-    }
-
-    // Se COMERCIAL aprovou produto, atualiza solicitação vinculada para CONCLUIDO
-    if (body.status === "APROVADO" && body.solicitacaoDesenvolvimentoId && ["COMERCIAL", "ADMIN", "SUDO"].includes(session.user.role)) {
-      const solicitacaoId = Number(body.solicitacaoDesenvolvimentoId)
-      try {
-        await db
-          .update(solicitacoes)
-          .set({ status: "CONCLUIDO", dataConclusao: new Date(), updatedAt: new Date() })
-          .where(eq(solicitacoes.id, solicitacaoId))
-        await notificar(
-          "SOLICITACAO_ATUALIZADA",
-          `Produto cru #${id} aprovado por ${session.user.name} — Solicitação #${solicitacaoId} concluída`,
-          `/comercial/solicitacoes/${solicitacaoId}`,
-          session.user.name
-        )
-      } catch (err) {
-        console.error("[PUT /api/cadastros/produto-cru/[id]] erro ao atualizar solicitação", err)
       }
     }
 

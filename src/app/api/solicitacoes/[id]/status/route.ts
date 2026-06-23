@@ -4,17 +4,7 @@ import { db } from "@/lib/db"
 import { solicitacoes } from "@/lib/db/schema/solicitacoes"
 import { eq } from "drizzle-orm"
 import { notificar } from "@/lib/notificar"
-
-const STATUS_VALIDOS = [
-  "PENDENTE",
-  "AGUARDANDO_INFO",
-  "AGUARDANDO_MATERIA_PRIMA",
-  "EM_DESENVOLVIMENTO",
-  "APROVADO",
-  "REPROVADO",
-  "EM_PRODUCAO",
-  "CONCLUIDO",
-]
+import { getValidStatuses } from "@/lib/status-utils"
 
 // PATCH - Mudar status da solicitação
 export async function PATCH(
@@ -33,8 +23,9 @@ export async function PATCH(
 
     const { status, comentario } = await req.json()
 
-    if (!status || !STATUS_VALIDOS.includes(status)) {
-      return NextResponse.json({ error: `Status inválido. Use: ${STATUS_VALIDOS.join(", ")}` }, { status: 400 })
+    const validStatuses = await getValidStatuses("SOLICITACAO_DESENVOLVIMENTO")
+    if (!status || !validStatuses.includes(status)) {
+      return NextResponse.json({ error: `Status inválido. Use: ${validStatuses.join(", ")}` }, { status: 400 })
     }
 
     const [solicitacaoAtual] = await db
@@ -67,7 +58,7 @@ export async function PATCH(
       updatedAt: new Date(),
     }
 
-    if (status === "CONCLUIDO") {
+    if (status === "CONCLUIDO" || status === "CONCLUIDO_DEV") {
       updateData.dataConclusao = new Date()
     }
 
@@ -77,10 +68,10 @@ export async function PATCH(
       .where(eq(solicitacoes.id, id))
       .returning()
 
-    if (status === "APROVADO" || status === "REPROVADO") {
+    if (status === "APROVADO_CLI") {
       await notificar(
-        status === "APROVADO" ? "SOLICITACAO_APROVADA" : "SOLICITACAO_REPROVADA",
-        `Solicitação #${id} foi ${status === "APROVADO" ? "aprovada" : "reprovada"} por ${session.user.name}${comentario ? ` — ${comentario}` : ""}`,
+        "SOLICITACAO_APROVADA",
+        `Solicitação #${id} foi aprovada pelo cliente por ${session.user.name}${comentario ? ` — ${comentario}` : ""}`,
         `/comercial/solicitacoes/${id}`,
         session.user.name
       )

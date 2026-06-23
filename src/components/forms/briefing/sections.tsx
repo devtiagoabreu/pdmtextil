@@ -68,7 +68,7 @@ export function SecaoAplicacao({ control, errors }: { control: Control<BriefingT
             {SEGMENTOS.map((segmento) => (
               <div key={segmento} className="flex items-center space-x-2">
                 <Checkbox id={segmento} checked={field.value?.includes(segmento)}
-                  onCheckedChange={(checked) => checked
+                  onCheckedChange={(checked: boolean) => checked
                     ? field.onChange([...(field.value || []), segmento])
                     : field.onChange(field.value?.filter((val) => val !== segmento))} />
                 <Label htmlFor={segmento} className="text-sm font-normal cursor-pointer">{SEGMENTOS_LABELS[segmento]}</Label>
@@ -132,7 +132,7 @@ export function SecaoRequisitosTecnicos({ control, errors }: { control: Control<
               {TIPO_FIBRA.map((fibra) => (
                 <div key={fibra} className="flex items-center space-x-2">
                   <Checkbox id={fibra} checked={field.value?.includes(fibra)}
-                    onCheckedChange={(checked) => checked
+                    onCheckedChange={(checked: boolean) => checked
                       ? field.onChange([...(field.value || []), fibra])
                       : field.onChange(field.value?.filter((val) => val !== fibra))} />
                   <Label htmlFor={fibra} className="text-sm font-normal cursor-pointer">{TIPO_FIBRA_LABELS[fibra]}</Label>
@@ -191,7 +191,7 @@ export function SecaoTecnologias({ control }: { control: Control<BriefingTecelag
             {TECNOLOGIAS.map((tec) => (
               <div key={tec} className="flex items-center space-x-2">
                 <Checkbox id={tec} checked={field.value?.includes(tec)}
-                  onCheckedChange={(checked) => checked
+                  onCheckedChange={(checked: boolean) => checked
                     ? field.onChange([...(field.value || []), tec])
                     : field.onChange(field.value?.filter((val) => val !== tec))} />
                 <Label htmlFor={tec} className="text-sm font-normal cursor-pointer">{TECNOLOGIAS_LABELS[tec]}</Label>
@@ -273,7 +273,7 @@ export function SecaoAcabamento({ control, errors }: { control: Control<Briefing
               {TIPOS_ACABAMENTO.map((tipo) => (
                 <div key={tipo} className="flex items-center space-x-2">
                   <Checkbox id={`acab_${tipo}`} checked={field.value?.includes(tipo)}
-                    onCheckedChange={(checked) => checked
+                    onCheckedChange={(checked: boolean) => checked
                       ? field.onChange([...(field.value || []), tipo])
                       : field.onChange(field.value?.filter((val) => val !== tipo))} />
                   <Label htmlFor={`acab_${tipo}`} className="text-sm font-normal cursor-pointer">{TIPOS_ACABAMENTO_LABELS[tipo]}</Label>

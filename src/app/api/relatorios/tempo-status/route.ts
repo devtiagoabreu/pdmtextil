@@ -4,17 +4,8 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { solicitacoes } from "@/lib/db/schema/solicitacoes"
 import { sql, desc } from "drizzle-orm"
+import { getStatusMap } from "@/lib/status-utils"
 export const dynamic = "force-dynamic"
-
-const STATUS_LABELS: Record<string, string> = {
-  PENDENTE: "Pendente",
-  AGUARDANDO_INFO: "Aguardando Info",
-  EM_DESENVOLVIMENTO: "Em Desenvolvimento",
-  APROVADO: "Aprovado",
-  REPROVADO: "Reprovado",
-  EM_PRODUCAO: "Em Produção",
-  CONCLUIDO: "Concluído",
-}
 
 function calcularDias(ms: number): string {
   const horas = ms / (1000 * 60 * 60)
@@ -24,7 +15,7 @@ function calcularDias(ms: number): string {
   return `${h}h`
 }
 
-function processarTimeline(historico: any[], statusAtual: string, dataConclusao: string | null) {
+function processarTimeline(historico: any[], statusAtual: string, dataConclusao: string | null, labelsMap: Map<string, string>) {
   const entries = [...(historico || [])].sort(
     (a, b) => new Date(a.data).getTime() - new Date(b.data).getTime()
   )
@@ -41,6 +32,10 @@ function processarTimeline(historico: any[], statusAtual: string, dataConclusao:
   let currentStatus = "PENDENTE"
   let currentStart: string | null = null
 
+  function getLabel(nome: string) {
+    return labelsMap.get(nome) || nome
+  }
+
   for (const entry of entries) {
     if (entry.acao === "CRIACAO") {
       currentStart = entry.data
@@ -49,7 +44,7 @@ function processarTimeline(historico: any[], statusAtual: string, dataConclusao:
         const duracao = new Date(entry.data).getTime() - new Date(currentStart).getTime()
         timeline.push({
           status: entry.de,
-          statusLabel: STATUS_LABELS[entry.de] || entry.de,
+          statusLabel: getLabel(entry.de),
           entrada: currentStart,
           saida: entry.data,
           duracaoMs: duracao,
@@ -63,15 +58,16 @@ function processarTimeline(historico: any[], statusAtual: string, dataConclusao:
 
   // Último status (atual)
   if (currentStart) {
-    const fim = statusAtual === "CONCLUIDO" && dataConclusao
+    const finalizado = statusAtual === "CONCLUIDO" || statusAtual === "CONCLUIDO_DEV" || statusAtual === "APROVADO_CLI"
+    const fim = finalizado && dataConclusao
       ? dataConclusao
       : new Date().toISOString()
     const duracao = new Date(fim).getTime() - new Date(currentStart).getTime()
     timeline.push({
       status: statusAtual,
-      statusLabel: STATUS_LABELS[statusAtual] || statusAtual,
+      statusLabel: getLabel(statusAtual),
       entrada: currentStart,
-      saida: statusAtual === "CONCLUIDO" ? fim : null,
+      saida: finalizado ? fim : null,
       duracaoMs: duracao,
       duracaoLabel: calcularDias(duracao),
     })
@@ -111,11 +107,16 @@ export async function GET(req: NextRequest) {
       .where(where)
       .orderBy(desc(solicitacoes.createdAt))
 
+    const statusMap = await getStatusMap("SOLICITACAO_DESENVOLVIMENTO")
+    const labelsMap = new Map<string, string>()
+    for (const [k, v] of statusMap) labelsMap.set(k, v.rotulo || k)
+
     const resultados = rows.map((r) => {
       const timeline = processarTimeline(
         r.historico as any[],
         r.status,
-        r.dataConclusao ? r.dataConclusao.toISOString() : null
+        r.dataConclusao ? r.dataConclusao.toISOString() : null,
+        labelsMap
       )
 
       const tempoTotalMs = timeline.reduce((acc, t) => acc + (t.duracaoMs ?? 0), 0)
@@ -126,7 +127,7 @@ export async function GET(req: NextRequest) {
         cliente: r.cliente,
         tipo: r.tipo,
         statusAtual: r.status,
-        statusAtualLabel: STATUS_LABELS[r.status] || r.status,
+        statusAtualLabel: labelsMap.get(r.status) || r.status,
         criadoEm: r.createdAt?.toISOString() || null,
         concluidoEm: r.dataConclusao?.toISOString() || null,
         tempoTotalLabel: calcularDias(tempoTotalMs),
@@ -139,7 +140,7 @@ export async function GET(req: NextRequest) {
     // Agregados
     const stats = {
       totalSolicitacoes: resultados.length,
-      concluidas: resultados.filter((r) => r.statusAtual === "CONCLUIDO").length,
+      concluidas: resultados.filter((r) => r.statusAtual === "CONCLUIDO" || r.statusAtual === "CONCLUIDO_DEV" || r.statusAtual === "APROVADO_CLI").length,
       tempoMedioHoras: resultados.length > 0
         ? Math.round(resultados.reduce((a, r) => a + r.tempoTotalHoras, 0) / resultados.length * 100) / 100
         : 0,

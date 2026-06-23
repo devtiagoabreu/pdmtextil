@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
             .from(solicitacoes)
             .where(eq(solicitacoes.id, solId))
             .limit(1)
-          if (sol && (sol.status === "PENDENTE" || sol.status === "AGUARDANDO_INFO")) {
+          if (sol && sol.status === "PENDENTE") {
             const historico = (sol.historicoComunicacao as any[]) || []
             historico.push({
               data: new Date().toISOString(),

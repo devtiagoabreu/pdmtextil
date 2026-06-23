@@ -276,7 +276,7 @@ export default function DetalheRequisicaoCortePage() {
 
           <div className="space-y-2">
             <Label htmlFor="status">Status</Label>
-            <Select value={status} onValueChange={(v) => v && setStatus(v)}>
+            <Select value={status} onValueChange={(v: string) => v && setStatus(v)}>
               <SelectTrigger id="status">
                 <SelectValue placeholder="Selecione o status" />
               </SelectTrigger>

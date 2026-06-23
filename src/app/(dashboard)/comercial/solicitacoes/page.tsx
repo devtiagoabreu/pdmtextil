@@ -9,17 +9,7 @@ import { getInfoContent } from "@/lib/info-content"
 import { PlusCircle, FileText, Clock, Pencil, Trash2, MessageSquare } from "lucide-react"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
-
-const STATUS_CONFIG: Record<string, { label: string; classes: string }> = {
-  PENDENTE:       { label: "Pendente",       classes: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400" },
-  AGUARDANDO_INFO:{ label: "Aguard. Info",   classes: "bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-400" },
-  AGUARDANDO_MATERIA_PRIMA: { label: "Aguard. Matéria Prima", classes: "bg-yellow-100 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-400" },
-  EM_DESENVOLVIMENTO: { label: "Em Desenvolvimento", classes: "bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-400" },
-  APROVADO:       { label: "Aprovado",       classes: "bg-teal-100 text-teal-700 dark:bg-teal-950 dark:text-teal-400" },
-  REPROVADO:      { label: "Reprovado",      classes: "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400" },
-  EM_PRODUCAO:    { label: "Em Produção",    classes: "bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-400" },
-  CONCLUIDO:      { label: "Concluído",      classes: "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400" },
-}
+import { useStatuses, hexToRgba } from "@/hooks/use-statuses"
 
 const TIPO_CONFIG: Record<string, string> = {
   DESENVOLVIMENTO_TECELAGEM:      "Tecelagem",
@@ -43,6 +33,7 @@ export default function ListaSolicitacoesPage() {
   const [deleteTarget, setDeleteTarget] = useState<any>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [deleteBlocked, setDeleteBlocked] = useState(false)
+  const { getLabel: getStatusLabel, getColor: getStatusColor } = useStatuses("SOLICITACAO_DESENVOLVIMENTO")
 
   useEffect(() => {
     setMounted(true)
@@ -156,7 +147,6 @@ if (isLoading) {
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                 {lista.map((s: any) => {
-                  const statusCfg = STATUS_CONFIG[s.status] ?? { label: s.status, classes: "bg-slate-100 text-slate-600" }
                   return (
                     <tr
                       key={s.id}
@@ -182,8 +172,11 @@ if (isLoading) {
                         )}
                       </td>
                       <td className="px-4 py-3">
-                        <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${statusCfg.classes}`}>
-                          {statusCfg.label}
+                        <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium" style={{
+                          backgroundColor: hexToRgba(getStatusColor(s.status), 0.15),
+                          color: getStatusColor(s.status),
+                        }}>
+                          {getStatusLabel(s.status)}
                         </span>
                       </td>
                       <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">
