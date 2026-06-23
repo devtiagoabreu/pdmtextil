@@ -51,7 +51,7 @@ export async function PUT(
       })
     }
 
-    const atualizado = await db
+    const [atualizado] = await db
       .update(produtoCruAmostra)
       .set({
         descricao: body.descricao,
@@ -64,9 +64,22 @@ export async function PUT(
         links: body.links || [],
       })
       .where(eq(produtoCruAmostra.id, parseInt(aid)))
-      .returning()
+      .returning({
+        id: produtoCruAmostra.id,
+        produtoCruId: produtoCruAmostra.produtoCruId,
+        descricao: produtoCruAmostra.descricao,
+        status: produtoCruAmostra.status,
+        motivoAprovacao: produtoCruAmostra.motivoAprovacao,
+        observacoes: produtoCruAmostra.observacoes,
+        quantidadeProduzida: produtoCruAmostra.quantidadeProduzida,
+        idIntegracaoErpCru: produtoCruAmostra.idIntegracaoErpCru,
+        links: produtoCruAmostra.links,
+        historico: produtoCruAmostra.historico,
+        data: produtoCruAmostra.data,
+        createdAt: produtoCruAmostra.createdAt,
+      })
 
-    if (atualizado[0]) {
+    if (atualizado) {
       if (isAprovacao) {
         await notificar(
           body.status === "APROVADO" ? "AMOSTRA_APROVADA" : "AMOSTRA_REPROVADA",
@@ -86,7 +99,7 @@ export async function PUT(
 
     await registrarLog({ tipo: "ATUALIZACAO", acao: "atualizar_status", descricao: `Amostra tecido cru #${aid} alterada para ${body.status}`, entidade: "AmostraTecidoCru", entidadeId: parseInt(aid), usuarioNome: session.user.name })
 
-    return NextResponse.json(atualizado[0])
+    return NextResponse.json(atualizado)
   } catch (error) {
     console.error("[PUT /api/cadastros/produto-cru/[id]/amostras/[aid]]", error)
     return NextResponse.json({ error: "Erro ao atualizar amostra" }, { status: 500 })

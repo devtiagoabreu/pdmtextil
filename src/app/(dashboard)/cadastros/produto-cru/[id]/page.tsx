@@ -179,6 +179,12 @@ export default function ProdutoCruFormPage() {
   const [motivoText, setMotivoText] = useState("")
   const [receitaDialog, setReceitaDialog] = useState<{ amostraId: number; acabamentoId: number } | null>(null)
 
+  const [editAmostra, setEditAmostra] = useState<Amostra | null>(null)
+  const [editAmostraDescricao, setEditAmostraDescricao] = useState("")
+  const [editAmostraObs, setEditAmostraObs] = useState("")
+  const [editAmostraQtd, setEditAmostraQtd] = useState("")
+  const [editAmostraErp, setEditAmostraErp] = useState("")
+
   useEffect(() => {
     fetch("/api/cadastros/fios")
       .then(res => res.json())
@@ -571,6 +577,37 @@ export default function ProdutoCruFormPage() {
       setAmostras(amostras.filter(a => a.id !== amostraId))
     } catch {
       toast.error("Erro ao remover amostra")
+    }
+  }
+
+  const editarAmostraAbrir = (a: Amostra) => {
+    setEditAmostra(a)
+    setEditAmostraDescricao(a.descricao || "")
+    setEditAmostraObs(a.observacoes || "")
+    setEditAmostraQtd(a.quantidadeProduzida || "")
+    setEditAmostraErp(a.idIntegracaoErpCru || "")
+  }
+
+  const saveAmostraEdit = async () => {
+    if (!id || !editAmostra) return
+    try {
+      const res = await fetch(`/api/cadastros/produto-cru/${id}/amostras/${editAmostra.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          descricao: editAmostraDescricao || null,
+          observacoes: editAmostraObs || null,
+          quantidadeProduzida: editAmostraQtd || null,
+          idIntegracaoErpCru: editAmostraErp || null,
+        }),
+      })
+      if (!res.ok) throw new Error()
+      const atualizado = await res.json()
+      setAmostras(amostras.map(a => a.id === editAmostra.id ? atualizado : a))
+      setEditAmostra(null)
+      toast.success("Amostra atualizada")
+    } catch {
+      toast.error("Erro ao atualizar amostra")
     }
   }
 
@@ -970,6 +1007,9 @@ export default function ProdutoCruFormPage() {
                                   {gerandoPdf === `TECIDO_CRU-${a.id}` ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />}
                                   Solic. Amostra
                                 </Button>
+                                <Button variant="ghost" size="sm" className="text-xs" onClick={() => editarAmostraAbrir(a)}>
+                                  Editar
+                                </Button>
                                 <Button variant="ghost" size="sm" className="text-xs" onClick={() => setAmostraLinksAberta(amostraLinksAberta === a.id ? null : a.id)}>
                                   Links {a.links?.length ? `(${a.links.length})` : ""}
                                 </Button>
@@ -1221,6 +1261,36 @@ export default function ProdutoCruFormPage() {
               >
                 {motivoModal.novoStatus === "APROVADO" ? "Aprovar" : "Reprovar"}
               </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {editAmostra && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-xl p-6 w-full max-w-lg mx-4 space-y-4">
+            <h3 className="text-lg font-semibold">Editar Amostra</h3>
+            <div className="space-y-3">
+              <div>
+                <Label>Descrição</Label>
+                <Input value={editAmostraDescricao} onChange={e => setEditAmostraDescricao(e.target.value)} placeholder="AMOSTRA - PILOTAGEM 001" />
+              </div>
+              <div>
+                <Label>Observações</Label>
+                <Input value={editAmostraObs} onChange={e => setEditAmostraObs(e.target.value)} placeholder="Observações" />
+              </div>
+              <div>
+                <Label>Qtd Produzida</Label>
+                <Input value={editAmostraQtd} onChange={e => setEditAmostraQtd(e.target.value)} placeholder="10 M" />
+              </div>
+              <div>
+                <Label>ERP (Cru)</Label>
+                <Input value={editAmostraErp} onChange={e => setEditAmostraErp(e.target.value)} placeholder="ERP.00001" />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setEditAmostra(null)}>Cancelar</Button>
+              <Button onClick={saveAmostraEdit}>Salvar</Button>
             </div>
           </div>
         </div>
