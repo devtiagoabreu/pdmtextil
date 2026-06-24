@@ -5,7 +5,7 @@ import { useSession, signOut } from "next-auth/react"
 import { useRouter, usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
-import { User, LogOut, Settings, Key, Loader2, Eye, EyeOff, Shuffle } from "lucide-react"
+import { User, LogOut, Settings, Key, Loader2, Eye, EyeOff, Shuffle, Menu, ExternalLink } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -133,6 +133,24 @@ export default function PerfilPage() {
               Sair
             </Button>
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Menu className="w-5 h-5" />
+            Menu de Navegação
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground mb-4">
+            Personalize os menus do nav e escolha sua página inicial.
+          </p>
+          <Button variant="outline" size="sm" onClick={() => router.push("/perfil/menus")} className="gap-2">
+            <ExternalLink className="w-4 h-4" />
+            Configurar Menus
+          </Button>
         </CardContent>
       </Card>
 
