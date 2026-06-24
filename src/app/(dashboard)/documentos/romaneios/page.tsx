@@ -459,7 +459,7 @@ export default function RomaneiosPage() {
       },
       didDrawPage: (data: any) => {
         doc.setFontSize(isLandscape ? 6.5 : 6).setFont("helvetica", "normal")
-        doc.setTextColor(130, 130, 130)
+        doc.setTextColor(0, 0, 0)
         doc.text(`Romaneio Nº ${numero}`, margin, pageH - (isLandscape ? 6 : 5))
         doc.text(`Página ${data.pageNumber}`, pageWidth - margin, pageH - (isLandscape ? 6 : 5), { align: "right" })
         doc.setTextColor(0, 0, 0)
