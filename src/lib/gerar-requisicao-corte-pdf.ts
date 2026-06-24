@@ -59,7 +59,7 @@ export async function gerarRequisicaoCortePdf(data: RequisicaoCorteData) {
   const pageHeight = doc.internal.pageSize.getHeight()
   const margin = 14
 
-  const corHeader: [number, number, number] = [220, 222, 228]
+  const corHeader: [number, number, number] = [180, 182, 188]
   const corHeaderText: [number, number, number] = [51, 51, 51]
   const corPrimaria: [number, number, number] = [37, 99, 235]
   const corSecundaria: [number, number, number] = [245, 247, 250]
@@ -307,7 +307,7 @@ export async function gerarRequisicaoCortePdfConsolidado(lista: RequisicaoCorteD
   const pageHeight = doc.internal.pageSize.getHeight()
   const margin = 14
 
-  const corHeader: [number, number, number] = [220, 222, 228]
+  const corHeader: [number, number, number] = [180, 182, 188]
   const corHeaderText: [number, number, number] = [51, 51, 51]
   const corPrimaria: [number, number, number] = [37, 99, 235]
   const corSecundaria: [number, number, number] = [245, 247, 250]
