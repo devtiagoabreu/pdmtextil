@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
-import { produtoCruAmostra } from "@/lib/db/schema/produto-cru"
+import { produtoCruAmostra, produtosCru } from "@/lib/db/schema/produto-cru"
+import { solicitacoes } from "@/lib/db/schema/solicitacoes"
 import { eq, and } from "drizzle-orm"
 import { notificar, registrarLog } from "@/lib/notificar"
 import { handleApiError } from "@/lib/api-error"
@@ -104,6 +105,22 @@ export async function PUT(
           `/cadastros/produto-cru/${id}?tab=amostras&amostraId=amostra-${aid}`,
           session.user.name
         )
+      }
+    }
+
+    // Se a amostra entrou em produção na tecelagem, avança solicitação para Pilotagem
+    if (body.status === "EM_PRODUCAO_TEC") {
+      const [prod] = await db
+        .select({ solicitacaoDesenvolvimentoId: produtosCru.solicitacaoDesenvolvimentoId })
+        .from(produtosCru)
+        .where(eq(produtosCru.id, parseInt(id)))
+        .limit(1)
+      if (prod?.solicitacaoDesenvolvimentoId) {
+        await db
+          .update(solicitacoes)
+          .set({ status: "PILOTAGEM", updatedAt: new Date() })
+          .where(eq(solicitacoes.id, prod.solicitacaoDesenvolvimentoId))
+        await notificar("SOLICITACAO_ATUALIZADA", `Solicitação #${prod.solicitacaoDesenvolvimentoId} avançou para Pilotagem (amostra tecido cru #${aid})`, `/comercial/solicitacoes/${prod.solicitacaoDesenvolvimentoId}`, session.user.name)
       }
     }
 

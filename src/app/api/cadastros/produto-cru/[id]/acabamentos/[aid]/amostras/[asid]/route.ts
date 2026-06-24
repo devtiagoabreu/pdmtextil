@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
-import { produtoCruAcabamento, produtoCruAcabamentoAmostra } from "@/lib/db/schema/produto-cru"
+import { produtoCruAcabamento, produtoCruAcabamentoAmostra, produtosCru } from "@/lib/db/schema/produto-cru"
+import { solicitacoes } from "@/lib/db/schema/solicitacoes"
 import { eq, and } from "drizzle-orm"
 import { notificar, registrarLog } from "@/lib/notificar"
 import { handleApiError } from "@/lib/api-error"
@@ -90,6 +91,29 @@ export async function PUT(
           `/cadastros/produto-cru/${id}?tab=amostras&amostraId=amostra-acab-${aid}-${asid}`,
           session.user.name
         )
+      }
+    }
+
+    // Se a amostra entrou em produção no beneficiamento, avança solicitação para Pilotagem
+    if (body.status === "EM_PRODUCAO_BEN") {
+      const [acab] = await db
+        .select({ produtoCruId: produtoCruAcabamento.produtoCruId })
+        .from(produtoCruAcabamento)
+        .where(eq(produtoCruAcabamento.id, parseInt(aid)))
+        .limit(1)
+      if (acab?.produtoCruId) {
+        const [prod] = await db
+          .select({ solicitacaoDesenvolvimentoId: produtosCru.solicitacaoDesenvolvimentoId })
+          .from(produtosCru)
+          .where(eq(produtosCru.id, acab.produtoCruId))
+          .limit(1)
+        if (prod?.solicitacaoDesenvolvimentoId) {
+          await db
+            .update(solicitacoes)
+            .set({ status: "PILOTAGEM", updatedAt: new Date() })
+            .where(eq(solicitacoes.id, prod.solicitacaoDesenvolvimentoId))
+          await notificar("SOLICITACAO_ATUALIZADA", `Solicitação #${prod.solicitacaoDesenvolvimentoId} avançou para Pilotagem (amostra acabamento #${asid})`, `/comercial/solicitacoes/${prod.solicitacaoDesenvolvimentoId}`, session.user.name)
+        }
       }
     }
 

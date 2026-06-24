@@ -624,8 +624,9 @@ async function migrate() {
         ('EM_DESENVOLVIMENTO', 'Em Desenvolvimento', 'SOLICITACAO_DESENVOLVIMENTO', '#6366f1', 4),
         ('APROVADO', 'Aprovado', 'SOLICITACAO_DESENVOLVIMENTO', '#14b8a6', 5),
         ('REPROVADO', 'Reprovado', 'SOLICITACAO_DESENVOLVIMENTO', '#ef4444', 6),
-        ('EM_PRODUCAO', 'Em Produção', 'SOLICITACAO_DESENVOLVIMENTO', '#a855f7', 7),
-        ('CONCLUIDO', 'Concluído', 'SOLICITACAO_DESENVOLVIMENTO', '#22c55e', 8),
+        ('CONCLUIDO_DEV', 'Concluído Desenvolvimento', 'SOLICITACAO_DESENVOLVIMENTO', '#22c55e', 9),
+        ('APROVADO_CLI', 'Aprovado pelo Cliente', 'SOLICITACAO_DESENVOLVIMENTO', '#06b6d4', 10),
+        ('CONCLUIDO', 'Concluído', 'SOLICITACAO_DESENVOLVIMENTO', '#16a34a', 11),
         -- Produto Cru
         ('DESENVOLVIMENTO', 'Em Desenvolvimento', 'PRODUTO_CRU', '#6366f1', 1),
         ('APROVADO', 'Aprovado', 'PRODUTO_CRU', '#14b8a6', 2),
@@ -636,6 +637,8 @@ async function migrate() {
         ('PENDENTE', 'Pendente', 'AMOSTRA', '#f59e0b', 1),
         ('APROVADO', 'Aprovado', 'AMOSTRA', '#14b8a6', 2),
         ('REPROVADA', 'Reprovada', 'AMOSTRA', '#ef4444', 3),
+        ('EM_PRODUCAO_TEC', 'Em Produção Tecelagem', 'AMOSTRA', '#a855f7', 4),
+        ('EM_PRODUCAO_BEN', 'Em Produção Beneficiamento', 'AMOSTRA', '#a855f7', 5),
         -- Requisição de Corte
         ('SOLICITADO', 'Solicitado', 'REQUISICAO_CORTE', '#f59e0b', 1),
         ('PROCESSANDO', 'Processando', 'REQUISICAO_CORTE', '#6366f1', 2),
