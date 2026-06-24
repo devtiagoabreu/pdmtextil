@@ -8,6 +8,7 @@ export const usuarios = pgTable("usuarios", {
   role: varchar("role", { length: 50 }).notNull().default("COMERCIAL"),
   ativo: boolean("ativo").default(true),
   idIntegracao: varchar("id_integracao", { length: 100 }),
+  paginaInicial: varchar("pagina_inicial", { length: 255 }),
   ultimoAcesso: timestamp("ultimo_acesso"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),

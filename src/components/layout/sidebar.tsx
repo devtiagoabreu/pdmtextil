@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useSession } from "next-auth/react"
+import { useState, useEffect } from "react"
 import {
   LayoutDashboard,
   FileText,
@@ -19,13 +20,28 @@ import {
   Scissors,
   FileSpreadsheet,
   Columns3,
+  ChevronDown,
+  ChevronRight,
+  Loader2,
 } from "lucide-react"
+
+interface MenuItem {
+  id: number
+  titulo: string
+  url: string
+}
+
+interface UserMenu {
+  id: number
+  titulo: string
+  itens: MenuItem[]
+}
 
 const adminItems = [
   { href: "/admin/configuracoes", label: "Configurações", icon: Settings },
 ] as const
 
-const baseNav = [
+const defaultNav = [
   { href: "/dashboard", label: "Dashboard Solicitações", icon: LayoutDashboard },
   { href: "/dashboard/amostras", label: "Dashboard Amostras", icon: ClipboardList },
   { href: "/dashboard/requisicoes-corte", label: "Dashboard Corte", icon: Scissors },
@@ -53,7 +69,62 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
   const { data: session } = useSession()
   const role = session?.user?.role as string | undefined
   const isAdminOuSudo = role === "ADMIN" || role === "SUDO"
-  const items = isAdminOuSudo ? [...baseNav, ...adminItems] : baseNav
+
+  const [menus, setMenus] = useState<UserMenu[] | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [expandedMenus, setExpandedMenus] = useState<Set<number>>(new Set())
+
+  useEffect(() => {
+    fetch("/api/user/menus")
+      .then(r => r.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          setMenus(data)
+          for (const menu of data) {
+            if (menu.itens.some((i: MenuItem) => pathname === i.url || pathname?.startsWith(i.url + "/"))) {
+              setExpandedMenus(prev => new Set(prev).add(menu.id))
+            }
+          }
+        } else {
+          setMenus(null)
+        }
+      })
+      .catch(() => setMenus(null))
+      .finally(() => setLoading(false))
+  }, [pathname])
+
+  function toggleMenu(id: number) {
+    setExpandedMenus(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  function isAtiva(url: string) {
+    return pathname === url || pathname?.startsWith(url + "/")
+  }
+
+  function renderItem(href: string, label: string, Icon?: React.ElementType) {
+    const active = isAtiva(href)
+    return (
+      <Link
+        key={href}
+        href={href}
+        onClick={onClose}
+        className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
+          active
+            ? "bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400 shadow-sm"
+            : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+        }`}
+      >
+        {Icon && <Icon size={18} className={active ? "text-blue-600 dark:text-blue-400" : ""} />}
+        {label}
+        {active && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />}
+      </Link>
+    )
+  }
 
   return (
     <div className="flex h-full flex-col bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800">
@@ -74,28 +145,63 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
 
       {/* Nav */}
       <nav className="flex-1 space-y-1 overflow-y-auto p-4 scrollbar-hide">
-        {items.map((item) => {
-          const isActive = pathname === item.href || pathname?.startsWith(item.href + "/")
-          const Icon = item.icon
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={onClose}
-              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
-                isActive
-                  ? "bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400 shadow-sm"
-                  : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
-              }`}
-            >
-              <Icon size={18} className={isActive ? "text-blue-600 dark:text-blue-400" : ""} />
-              {item.label}
-              {isActive && (
-                <span className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />
-              )}
-            </Link>
-          )
-        })}
+        {loading ? (
+          <div className="flex justify-center py-8">
+            <Loader2 size={18} className="animate-spin text-slate-400" />
+          </div>
+        ) : menus && menus.length > 0 ? (
+          menus.map(menu => {
+            const menuActive = menu.itens.some((i: MenuItem) => isAtiva(i.url))
+            const isExpanded = expandedMenus.has(menu.id)
+            return (
+              <div key={menu.id}>
+                <button
+                  onClick={() => toggleMenu(menu.id)}
+                  className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
+                    menuActive
+                      ? "bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400"
+                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+                  }`}
+                >
+                  {isExpanded ? <ChevronDown size={16} className="shrink-0" /> : <ChevronRight size={16} className="shrink-0" />}
+                  <span className="flex-1 text-left">{menu.titulo}</span>
+                  {menuActive && <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />}
+                </button>
+                {isExpanded && (
+                  <div className="ml-4 mt-0.5 space-y-0.5 border-l border-slate-200 dark:border-slate-700 pl-2">
+                    {menu.itens.map(item => (
+                      <Link
+                        key={item.id}
+                        href={item.url}
+                        onClick={onClose}
+                        className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-all ${
+                          isAtiva(item.url)
+                            ? "text-blue-600 dark:text-blue-400 font-medium bg-blue-50/50 dark:bg-blue-950/30"
+                            : "text-slate-500 hover:text-slate-700 hover:bg-slate-50 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800/50"
+                        }`}
+                      >
+                        <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-600 shrink-0" />
+                        {item.titulo}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )
+          })
+        ) : (
+          /* Fallback: menu padrão hardcoded */
+          <>
+            {defaultNav.map(item => renderItem(item.href, item.label, item.icon))}
+            {isAdminOuSudo && adminItems.map(item => renderItem(item.href, item.label, item.icon))}
+          </>
+        )}
+
+        {menus && menus.length > 0 && isAdminOuSudo && (
+          <div className="pt-2 mt-2 border-t border-slate-100 dark:border-slate-800">
+            {adminItems.map(item => renderItem(item.href, item.label, item.icon))}
+          </div>
+        )}
       </nav>
 
       {/* Footer */}
