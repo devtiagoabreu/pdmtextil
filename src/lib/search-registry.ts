@@ -11,6 +11,7 @@ export const searchRegistry: SearchItem[] = [
   // Dashboard
   { id: "dashboard-solicitacoes", label: "Dashboard Solicitações", keywords: ["dashboard", "inicio", "home", "painel", "solicitacoes", "metricas"], href: "/dashboard", description: "Painel principal com métricas de solicitações", module: "Dashboard" },
   { id: "dashboard-amostras", label: "Dashboard Amostras", keywords: ["dashboard", "amostras", "painel", "metricas", "amostra"], href: "/dashboard/amostras", description: "Painel de métricas de amostras", module: "Dashboard" },
+  { id: "dashboard-corte", label: "Dashboard Corte", keywords: ["dashboard", "corte", "requisicao", "painel", "metricas", "requisições"], href: "/dashboard/requisicoes-corte", description: "Painel de métricas de requisições de corte", module: "Dashboard" },
 
   // Comercial - Solicitações
   { id: "solicitacoes", label: "Solicitações", keywords: ["solicitacao", "pedido", "comercial", "lista", "solicitacoes"], href: "/comercial/solicitacoes", description: "Lista de solicitações comerciais", module: "Comercial" },
