@@ -5,7 +5,7 @@ import { useRouter, useParams, usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import Link from "next/link"
-import { ArrowLeft, Plus, Trash2 } from "lucide-react"
+import { ArrowLeft, Plus, Trash2, Printer } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -18,6 +18,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+
+import { gerarRequisicaoCortePdf } from "@/lib/gerar-requisicao-corte-pdf"
 
 const STATUS_CONFIG: Record<string, { label: string; classes: string }> = {
   SOLICITADO: { label: "Solicitado", classes: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400" },
@@ -164,9 +166,27 @@ export default function DetalheRequisicaoCortePage() {
             <span className="text-sm text-slate-500">{totalCortes} corte(s) — Qtd total: {totalQtd}</span>
           </div>
         </div>
-        <Button onClick={handleSave} disabled={saving} className="bg-blue-600 hover:bg-blue-700 text-white">
-          {saving ? "Salvando..." : "Salvar"}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => gerarRequisicaoCortePdf({
+              id: parseInt(id),
+              status,
+              observacoes,
+              entreguePor,
+              requisitanteNome,
+              itens,
+            })}
+            className="gap-2"
+          >
+            <Printer size={16} />
+            Imprimir
+          </Button>
+          <Button onClick={handleSave} disabled={saving} className="bg-blue-600 hover:bg-blue-700 text-white">
+            {saving ? "Salvando..." : "Salvar"}
+          </Button>
+        </div>
       </div>
 
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-4">
