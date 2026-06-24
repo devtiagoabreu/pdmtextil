@@ -102,7 +102,7 @@ export function ExportarDados({ data, columns, filename, title }: Props) {
         body,
         startY: titleY + 6,
         styles: { fontSize: 7, cellPadding: 2 },
-        headStyles: { fillColor: [37, 99, 235], textColor: 255, fontStyle: "bold" },
+        headStyles: { fillColor: [7, 63, 184], textColor: 255, fontStyle: "bold" },
         alternateRowStyles: { fillColor: [245, 247, 250] },
         margin: { top: 10 },
       })

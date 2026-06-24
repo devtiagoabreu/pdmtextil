@@ -98,7 +98,7 @@ export async function gerarSolicitacaoAmostraPdf(params: {
   const margin = 18
   let y = margin
 
-  const corPrimaria: [number, number, number] = [37, 99, 235]
+  const corPrimaria: [number, number, number] = [7, 63, 184]
   const corSecundaria: [number, number, number] = [245, 247, 250]
   const corBorda: [number, number, number] = [200, 200, 200]
   const corTexto: [number, number, number] = [51, 51, 51]
