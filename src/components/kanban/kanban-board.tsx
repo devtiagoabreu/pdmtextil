@@ -13,6 +13,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog"
+import { Checkbox } from "@/components/ui/checkbox"
 
 const ROLES_PERMITIDOS = ["COMERCIAL", "DESENVOLVIMENTO", "QUALIDADE", "PCP", "ADMIN", "SUDO"]
 
@@ -171,6 +172,12 @@ export function KanbanBoard() {
   const [amostrasData, setAmostrasData] = useState<{ tipo: string; descricao: string | null; status: string; id: number; scrollId: string }[]>([])
   const [amostrasLoading, setAmostrasLoading] = useState(false)
 
+  const [pilotagemTarget, setPilotagemTarget] = useState<Solicitacao | null>(null)
+  const [pilotagemAmostras, setPilotagemAmostras] = useState<{ id: number; tipo: "tecido_cru" | "acabamento"; descricao: string | null; status: string; produtoCruId: number; acabamentoId?: number; rotulo: string }[]>([])
+  const [pilotagemSelecionadas, setPilotagemSelecionadas] = useState<Set<string>>(new Set())
+  const [pilotagemLoading, setPilotagemLoading] = useState(false)
+  const [pilotagemSubmitting, setPilotagemSubmitting] = useState(false)
+
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
   )
@@ -264,6 +271,46 @@ export function KanbanBoard() {
     const novoStatus = over.id as string
     if (solicitacao.status === novoStatus) return
 
+    // Se arrastou para Pilotagem, abre modal de seleção de amostras
+    if (novoStatus === "PILOTAGEM") {
+      setPilotagemTarget(solicitacao)
+      setPilotagemAmostras([])
+      setPilotagemSelecionadas(new Set())
+      if (!solicitacao.produtoId) {
+        toast.error("Solicitação não possui produto vinculado")
+        return
+      }
+      setPilotagemLoading(true)
+      try {
+        const res = await fetch(`/api/cadastros/produto-cru/${solicitacao.produtoId}`)
+        const data = await res.json()
+        const lista: { id: number; tipo: "tecido_cru" | "acabamento"; descricao: string | null; status: string; produtoCruId: number; acabamentoId?: number; rotulo: string }[] = []
+        if (Array.isArray(data.amostras)) {
+          for (const a of data.amostras) {
+            if (a.status !== "EM_PRODUCAO_TEC" && a.status !== "EM_PRODUCAO_BEN") {
+              lista.push({ id: a.id, tipo: "tecido_cru", descricao: a.descricao, status: a.status, produtoCruId: data.id, rotulo: "Tecido Cru" })
+            }
+          }
+        }
+        if (Array.isArray(data.acabamentos)) {
+          for (const ac of data.acabamentos) {
+            if (Array.isArray(ac.amostras)) {
+              for (const a of ac.amostras) {
+                if (a.status !== "EM_PRODUCAO_TEC" && a.status !== "EM_PRODUCAO_BEN") {
+                  lista.push({ id: a.id, tipo: "acabamento", descricao: a.descricao, status: a.status, produtoCruId: data.id, acabamentoId: ac.id, rotulo: `Acabamento (${ac.tipoAcabamento || ""})` })
+                }
+              }
+            }
+          }
+        }
+        setPilotagemAmostras(lista)
+      } catch {
+        toast.error("Erro ao carregar amostras")
+      }
+      setPilotagemLoading(false)
+      return
+    }
+
     const statusAntigo = solicitacao.status
 
     setSolicitacoes(prev =>
@@ -287,6 +334,52 @@ export function KanbanBoard() {
       )
       toast.error(err.message)
     }
+  }
+
+  async function confirmarPilotagem() {
+    if (!pilotagemTarget || pilotagemSelecionadas.size === 0) return
+    setPilotagemSubmitting(true)
+    try {
+      const promises: Promise<any>[] = []
+      for (const key of pilotagemSelecionadas) {
+        const [tipo, amostraId] = key.split("-")
+        const amostra = pilotagemAmostras.find(a => a.id === parseInt(amostraId) && a.tipo === tipo)
+        if (!amostra) continue
+        if (tipo === "tecido_cru") {
+          promises.push(
+            fetch(`/api/cadastros/produto-cru/${amostra.produtoCruId}/amostras/${amostra.id}`, {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ status: "EM_PRODUCAO_TEC" }),
+            })
+          )
+        } else if (tipo === "acabamento" && amostra.acabamentoId) {
+          promises.push(
+            fetch(`/api/cadastros/produto-cru/${amostra.produtoCruId}/acabamentos/${amostra.acabamentoId}/amostras/${amostra.id}`, {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ status: "EM_PRODUCAO_BEN" }),
+            })
+          )
+        }
+      }
+      promises.push(
+        fetch(`/api/solicitacoes/${pilotagemTarget.id}/status`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: "PILOTAGEM" }),
+        })
+      )
+      await Promise.all(promises)
+      setSolicitacoes(prev =>
+        prev.map(s => s.id === pilotagemTarget.id ? { ...s, status: "PILOTAGEM" } : s)
+      )
+      toast.success(`Solicitação #${pilotagemTarget.id} movida para Pilotagem com ${pilotagemSelecionadas.size} amostra(s)`)
+      setPilotagemTarget(null)
+    } catch {
+      toast.error("Erro ao iniciar pilotagem")
+    }
+    setPilotagemSubmitting(false)
   }
 
   if (loading) {
@@ -423,6 +516,71 @@ export function KanbanBoard() {
                 </Link>
               ))
             )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!pilotagemTarget} onOpenChange={(open: boolean) => { if (!open) setPilotagemTarget(null) }}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Iniciar Pilotagem — #{pilotagemTarget?.id} {pilotagemTarget?.cliente}</DialogTitle>
+            <DialogDescription>
+              Selecione as amostras que entrarão em produção
+            </DialogDescription>
+          </DialogHeader>
+          <div className="max-h-72 overflow-y-auto space-y-2">
+            {pilotagemLoading ? (
+              <div className="flex justify-center py-4"><Loader2 size={16} className="animate-spin text-slate-400" /></div>
+            ) : pilotagemAmostras.length === 0 ? (
+              <p className="text-sm text-slate-400 text-center py-4">Nenhuma amostra disponível</p>
+            ) : (
+              pilotagemAmostras.map((a, i) => {
+                const key = `${a.tipo}-${a.id}`
+                const checked = pilotagemSelecionadas.has(key)
+                return (
+                  <label
+                    key={i}
+                    className="flex items-start gap-3 bg-slate-50 dark:bg-slate-900 rounded-lg p-2.5 hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-colors cursor-pointer"
+                  >
+                    <Checkbox
+                      checked={checked}
+                      onCheckedChange={() => {
+                        const next = new Set(pilotagemSelecionadas)
+                        if (next.has(key)) next.delete(key)
+                        else next.add(key)
+                        setPilotagemSelecionadas(next)
+                      }}
+                      className="mt-0.5"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-medium text-slate-700 dark:text-slate-300">{a.rotulo}</span>
+                        <span className="text-[10px] uppercase text-slate-400">{a.status}</span>
+                      </div>
+                      <p className="text-sm text-slate-600 dark:text-slate-400 truncate">{a.descricao || "Sem descrição"}</p>
+                    </div>
+                  </label>
+                )
+              })
+            )}
+          </div>
+          <div className="flex justify-end gap-2 pt-2">
+            <button
+              type="button"
+              onClick={() => setPilotagemTarget(null)}
+              className="text-sm bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-3 py-1.5 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              disabled={pilotagemSelecionadas.size === 0 || pilotagemSubmitting}
+              onClick={confirmarPilotagem}
+              className="inline-flex items-center gap-1 text-sm bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {pilotagemSubmitting && <Loader2 size={14} className="animate-spin" />}
+              Confirmar ({pilotagemSelecionadas.size})
+            </button>
           </div>
         </DialogContent>
       </Dialog>
