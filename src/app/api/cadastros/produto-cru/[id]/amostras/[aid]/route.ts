@@ -19,7 +19,7 @@ export async function PUT(
     const { id, aid } = await params
     const body = await req.json()
 
-    const isAprovacao = body.status === "APROVADO" || body.status === "REPROVADO"
+    const isAprovacao = body.status === "APROVADO" || body.status === "REPROVADA"
 
     if (isAprovacao && !["COMERCIAL", "ADMIN", "SUDO"].includes(session.user.role)) {
       return NextResponse.json({ error: "Apenas COMERCIAL, ADMIN e SUDO podem aprovar/reprovar amostras" }, { status: 403 })
@@ -45,7 +45,7 @@ export async function PUT(
 
     // Se for reprovação, anexa o motivo nas observações
     const observacoesAtual = atual?.observacoes || ""
-    const observacoesFinal = body.status === "REPROVADO" && body.motivoAprovacao?.trim()
+    const observacoesFinal = body.status === "REPROVADA" && body.motivoAprovacao?.trim()
       ? [observacoesAtual, `⛔ Reprovado por ${session.user.name}: ${body.motivoAprovacao.trim()}`].filter(Boolean).join("\n")
       : body.observacoes
 

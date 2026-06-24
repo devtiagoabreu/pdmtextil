@@ -94,7 +94,7 @@ const STATUS_OPTIONS = [
 ]
 
 const TIPO_ESTRUTURA = ["TRAMA", "URDUME"]
-const STATUS_AMOSTRA = ["PENDENTE", "APROVADO", "REPROVADO"]
+const STATUS_AMOSTRA = ["PENDENTE", "APROVADO", "REPROVADA"]
 const TIPO_ACABAMENTO = ["TINGIMENTO", "ESTAMPARIA", "TERMOFIXACAO", "LAVAGEM", "OUTRO"]
 
 const TABS = [
@@ -456,7 +456,7 @@ export default function ProdutoCruFormPage() {
   }
 
   const updateStatusAmostra = async (amostraId: number, novoStatus: string) => {
-    const allow = ["APROVADO", "REPROVADO"]
+    const allow = ["APROVADO", "REPROVADA"]
     if (allow.includes(novoStatus)) {
       setMotivoModal({ open: true, target: { type: "amostra", id: amostraId }, novoStatus })
     } else {
@@ -465,7 +465,7 @@ export default function ProdutoCruFormPage() {
   }
 
   const updateStatusAmostraAcabamento = async (acabamentoId: number, asid: number, novoStatus: string) => {
-    const allow = ["APROVADO", "REPROVADO"]
+    const allow = ["APROVADO", "REPROVADA"]
     if (allow.includes(novoStatus)) {
       setMotivoModal({ open: true, target: { type: "acabamento", id: asid, acabamentoId }, novoStatus })
     } else {
@@ -1000,7 +1000,7 @@ export default function ProdutoCruFormPage() {
                                     onChange={e => updateStatusAmostra(a.id, e.target.value)}
                                     className={`text-xs rounded-full px-2 py-0.5 border-0 font-medium ml-1 cursor-pointer ${
                                       a.status === "APROVADO" ? "bg-green-100 text-green-700" :
-                                      a.status === "REPROVADO" ? "bg-red-100 text-red-700" :
+                                      a.status === "REPROVADA" ? "bg-red-100 text-red-700" :
                                       "bg-yellow-100 text-yellow-700"
                                     }`}
                                   >
@@ -1124,7 +1124,7 @@ export default function ProdutoCruFormPage() {
                                           onChange={e => updateStatusAmostraAcabamento(acab.id, as.id, e.target.value)}
                                           className={`text-xs rounded-full px-2 py-0.5 border-0 font-medium cursor-pointer ${
                                             as.status === "APROVADO" ? "bg-green-100 text-green-700" :
-                                            as.status === "REPROVADO" ? "bg-red-100 text-red-700" :
+                                            as.status === "REPROVADA" ? "bg-red-100 text-red-700" :
                                             "bg-yellow-100 text-yellow-700"
                                           }`}
                                         >
@@ -1165,7 +1165,7 @@ export default function ProdutoCruFormPage() {
                                         {as.descricao || `Amostra #${as.id}`}
                                         <span className={`ml-2 text-xs font-medium px-1.5 py-0.5 rounded ${
                                           as.status === "APROVADO" ? "bg-green-100 text-green-700" :
-                                          as.status === "REPROVADO" ? "bg-red-100 text-red-700" :
+                                          as.status === "REPROVADA" ? "bg-red-100 text-red-700" :
                                           "bg-yellow-100 text-yellow-700"
                                         }`}>{as.status}</span>
                                       </span>

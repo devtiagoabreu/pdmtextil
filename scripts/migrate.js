@@ -635,7 +635,7 @@ async function migrate() {
         -- Amostra (Tecido Cru / Acabamento)
         ('PENDENTE', 'Pendente', 'AMOSTRA', '#f59e0b', 1),
         ('APROVADO', 'Aprovado', 'AMOSTRA', '#14b8a6', 2),
-        ('REPROVADO', 'Reprovado', 'AMOSTRA', '#ef4444', 3),
+        ('REPROVADA', 'Reprovada', 'AMOSTRA', '#ef4444', 3),
         -- Requisição de Corte
         ('SOLICITADO', 'Solicitado', 'REQUISICAO_CORTE', '#f59e0b', 1),
         ('PROCESSANDO', 'Processando', 'REQUISICAO_CORTE', '#6366f1', 2),

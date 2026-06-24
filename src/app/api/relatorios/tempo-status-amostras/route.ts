@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic"
 const STATUS_LABELS: Record<string, string> = {
   PENDENTE: "Pendente",
   APROVADO: "Aprovado",
-  REPROVADO: "Reprovado",
+  REPROVADA: "Reprovada",
 }
 
 function calcDias(ms: number): string {
@@ -150,7 +150,7 @@ export async function GET(req: NextRequest) {
         totalAcabamento: acabamentoProcessados.length,
         pendentes: [...tecidoCruProcessados, ...acabamentoProcessados].filter((r) => r.statusAtual === "PENDENTE").length,
         aprovadas: [...tecidoCruProcessados, ...acabamentoProcessados].filter((r) => r.statusAtual === "APROVADO").length,
-        reprovadas: [...tecidoCruProcessados, ...acabamentoProcessados].filter((r) => r.statusAtual === "REPROVADO").length,
+        reprovadas: [...tecidoCruProcessados, ...acabamentoProcessados].filter((r) => r.statusAtual === "REPROVADA").length,
       },
     })
   } catch (error) {

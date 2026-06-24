@@ -6,7 +6,7 @@ export const outrosContent: Record<string, InfoContent> = {
     description: "Lista central de todas as amostras de tecido cru e acabamento registradas no sistema.",
     rules: [
       "Amostras são vinculadas a um produto cru ou a um acabamento específico.",
-      "Cada amostra passa por um fluxo de aprovação: PENDENTE → APROVADO ou REPROVADO.",
+      "Cada amostra passa por um fluxo de aprovação: PENDENTE → APROVADO ou REPROVADA.",
       "O histórico de status é registrado automaticamente para auditoria.",
       "Amostras aprovadas podem ser usadas como referência para produção.",
     ],
