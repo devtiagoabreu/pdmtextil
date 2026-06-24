@@ -3,7 +3,8 @@ import { usuarios } from "./usuarios"
 
 export const userMenus = pgTable("user_menus", {
   id: serial("id").primaryKey(),
-  usuarioId: integer("usuario_id").notNull().references(() => usuarios.id, { onDelete: "cascade" }),
+  usuarioId: integer("usuario_id").references(() => usuarios.id, { onDelete: "cascade" }),
+  role: varchar("role", { length: 50 }),
   titulo: varchar("titulo", { length: 100 }).notNull(),
   icone: varchar("icone", { length: 50 }),
   ordem: integer("ordem").notNull().default(0),
