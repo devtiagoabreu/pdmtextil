@@ -237,7 +237,7 @@ export default function ConfigurarMenusPage() {
 
         {menus.length === 0 ? (
           <p className="text-sm text-slate-400 text-center py-8">
-            Nenhum menu criado. Clique em "Novo Menu" para começar.
+            Nenhum menu criado. Clique em &ldquo;Novo Menu&rdquo; para começar.
           </p>
         ) : (
           <div className="space-y-3">
