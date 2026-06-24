@@ -639,6 +639,8 @@ async function migrate() {
         ('REPROVADA', 'Reprovada', 'AMOSTRA', '#ef4444', 3),
         ('EM_PRODUCAO_TEC', 'Em Produção Tecelagem', 'AMOSTRA', '#a855f7', 4),
         ('EM_PRODUCAO_BEN', 'Em Produção Beneficiamento', 'AMOSTRA', '#a855f7', 5),
+        ('APROVADO_DESENVOLVIMENTO', 'Aprovado Desenvolvimento', 'AMOSTRA', '#14b8a6', 6),
+        ('APROVADO_COMERCIAL', 'Aprovado Comercial', 'AMOSTRA', '#14b8a6', 7),
         -- Requisição de Corte
         ('SOLICITADO', 'Solicitado', 'REQUISICAO_CORTE', '#f59e0b', 1),
         ('PROCESSANDO', 'Processando', 'REQUISICAO_CORTE', '#6366f1', 2),
