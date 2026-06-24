@@ -5,7 +5,7 @@ import { useRouter, useParams, usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import Link from "next/link"
-import { ArrowLeft, Plus, Trash2, Printer } from "lucide-react"
+import { ArrowLeft, Plus, Trash2, FileText } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -176,12 +176,13 @@ export default function DetalheRequisicaoCortePage() {
               observacoes,
               entreguePor,
               requisitanteNome,
+              createdAt: undefined,
               itens,
             })}
             className="gap-2"
           >
-            <Printer size={16} />
-            Imprimir
+            <FileText size={16} />
+            PDF
           </Button>
           <Button onClick={handleSave} disabled={saving} className="bg-blue-600 hover:bg-blue-700 text-white">
             {saving ? "Salvando..." : "Salvar"}
