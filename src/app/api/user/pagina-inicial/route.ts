@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { usuarios } from "@/lib/db/schema/usuarios"
+import { roles as rolesTable } from "@/lib/db/schema/roles"
 import { eq } from "drizzle-orm"
 import { handleApiError } from "@/lib/api-error"
 
@@ -10,14 +11,39 @@ export async function GET() {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
     const userId = auth.userId
+    const userRole = auth.session?.user?.role
 
+    // 1. Página inicial personalizada do usuário
     const [user] = await db
       .select({ paginaInicial: usuarios.paginaInicial })
       .from(usuarios)
       .where(eq(usuarios.id, userId))
       .limit(1)
 
-    return NextResponse.json({ paginaInicial: user?.paginaInicial || "/dashboard" })
+    if (user?.paginaInicial) return NextResponse.json({ paginaInicial: user.paginaInicial })
+
+    // 2. Página inicial configurada para o role do usuário
+    if (userRole) {
+      const [role] = await db
+        .select({ paginaInicial: rolesTable.paginaInicial })
+        .from(rolesTable)
+        .where(eq(rolesTable.name, userRole))
+        .limit(1)
+
+      if (role?.paginaInicial) return NextResponse.json({ paginaInicial: role.paginaInicial })
+    }
+
+    // 3. Página inicial do role DEFAULT
+    const [defaultRole] = await db
+      .select({ paginaInicial: rolesTable.paginaInicial })
+      .from(rolesTable)
+      .where(eq(rolesTable.name, "DEFAULT"))
+      .limit(1)
+
+    if (defaultRole?.paginaInicial) return NextResponse.json({ paginaInicial: defaultRole.paginaInicial })
+
+    // 4. Fallback
+    return NextResponse.json({ paginaInicial: "/comercial/solicitacoes" })
   } catch (error) {
     return handleApiError(error, "PaginaInicialGet")
   }

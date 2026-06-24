@@ -5,21 +5,8 @@ import { usePathname } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { useState, useEffect } from "react"
 import {
-  LayoutDashboard,
-  FileText,
-  PlusCircle,
-  Factory,
   Settings,
-  Database,
   X,
-  Building2,
-  ClipboardList,
-  BarChart3,
-  FlaskConical,
-  Wrench,
-  Scissors,
-  FileSpreadsheet,
-  Columns3,
   ChevronDown,
   ChevronRight,
   Loader2,
@@ -37,28 +24,6 @@ interface UserMenu {
   itens: MenuItem[]
 }
 
-const adminItems = [
-  { href: "/admin/configuracoes", label: "Configurações", icon: Settings },
-] as const
-
-const defaultNav = [
-  { href: "/dashboard", label: "Dashboard Solicitações", icon: LayoutDashboard },
-  { href: "/dashboard/amostras", label: "Dashboard Amostras", icon: ClipboardList },
-  { href: "/dashboard/requisicoes-corte", label: "Dashboard Corte", icon: Scissors },
-  { href: "/comercial/solicitacoes", label: "Solicitações", icon: FileText },
-  { href: "/comercial/solicitacoes/nova", label: "Nova Solicitação", icon: PlusCircle },
-  { href: "/comercial/solicitacoes/kanban", label: "Kanban S.D.", icon: Columns3 },
-  { href: "/amostras", label: "Amostras", icon: FileText },
-  { href: "/comercial/requisicoes-corte", label: "Requisições de Corte", icon: Scissors },
-  { href: "/comercial/clientes", label: "Clientes", icon: Building2 },
-  { href: "/cadastros", label: "Cadastros", icon: Database },
-  { href: "/cadastros/produto-cru", label: "Produtos Cru", icon: Factory },
-  { href: "/cadastros/receitas", label: "Receitas", icon: FlaskConical },
-  { href: "/documentos", label: "Documentos", icon: FileSpreadsheet },
-  { href: "/dashboard/relatorios", label: "Relatórios", icon: BarChart3 },
-  { href: "/ferramentas", label: "Ferramentas", icon: Wrench },
-] as const
-
 interface SidebarProps {
   isOpen: boolean
   onClose: () => void
@@ -70,7 +35,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
   const role = session?.user?.role as string | undefined
   const isAdminOuSudo = role === "ADMIN" || role === "SUDO"
 
-  const [menus, setMenus] = useState<UserMenu[] | null>(null)
+  const [menus, setMenus] = useState<UserMenu[]>([])
   const [loading, setLoading] = useState(true)
   const [expandedMenus, setExpandedMenus] = useState<Set<number>>(new Set())
 
@@ -78,18 +43,16 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
     fetch("/api/user/menus")
       .then(r => r.json())
       .then(data => {
-        if (Array.isArray(data) && data.length > 0) {
+        if (Array.isArray(data)) {
           setMenus(data)
           for (const menu of data) {
             if (menu.itens.some((i: MenuItem) => pathname === i.url || pathname?.startsWith(i.url + "/"))) {
               setExpandedMenus(prev => new Set(prev).add(menu.id))
             }
           }
-        } else {
-          setMenus(null)
         }
       })
-      .catch(() => setMenus(null))
+      .catch(() => setMenus([]))
       .finally(() => setLoading(false))
   }, [pathname])
 
@@ -104,26 +67,6 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
 
   function isAtiva(url: string) {
     return pathname === url || pathname?.startsWith(url + "/")
-  }
-
-  function renderItem(href: string, label: string, Icon?: React.ElementType) {
-    const active = isAtiva(href)
-    return (
-      <Link
-        key={href}
-        href={href}
-        onClick={onClose}
-        className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
-          active
-            ? "bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400 shadow-sm"
-            : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
-        }`}
-      >
-        {Icon && <Icon size={18} className={active ? "text-blue-600 dark:text-blue-400" : ""} />}
-        {label}
-        {active && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />}
-      </Link>
-    )
   }
 
   return (
@@ -149,7 +92,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
           <div className="flex justify-center py-8">
             <Loader2 size={18} className="animate-spin text-slate-400" />
           </div>
-        ) : menus && menus.length > 0 ? (
+        ) : menus.length > 0 ? (
           menus.map(menu => {
             const menuActive = menu.itens.some((i: MenuItem) => isAtiva(i.url))
             const isExpanded = expandedMenus.has(menu.id)
@@ -190,16 +133,26 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
             )
           })
         ) : (
-          /* Fallback: menu padrão hardcoded */
-          <>
-            {defaultNav.map(item => renderItem(item.href, item.label, item.icon))}
-            {isAdminOuSudo && adminItems.map(item => renderItem(item.href, item.label, item.icon))}
-          </>
+          <div className="text-center py-8">
+            <p className="text-xs text-slate-400">Nenhum menu configurado</p>
+          </div>
         )}
 
-        {menus && menus.length > 0 && isAdminOuSudo && (
+        {menus.length > 0 && isAdminOuSudo && (
           <div className="pt-2 mt-2 border-t border-slate-100 dark:border-slate-800">
-            {adminItems.map(item => renderItem(item.href, item.label, item.icon))}
+            <Link
+              href="/admin/configuracoes"
+              onClick={onClose}
+              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
+                isAtiva("/admin/configuracoes")
+                  ? "bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400 shadow-sm"
+                  : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+              }`}
+            >
+              <Settings size={18} className={isAtiva("/admin/configuracoes") ? "text-blue-600 dark:text-blue-400" : ""} />
+              Configurações
+              {isAtiva("/admin/configuracoes") && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />}
+            </Link>
           </div>
         )}
       </nav>

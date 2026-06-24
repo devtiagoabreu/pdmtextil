@@ -6,6 +6,7 @@ export const roles = pgTable("roles", {
   label: varchar("label", { length: 100 }).notNull(),
   description: text("description"),
   permissions: jsonb("permissions").default({}),
+  paginaInicial: varchar("pagina_inicial", { length: 255 }),
   ativo: boolean("ativo").default(true),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
