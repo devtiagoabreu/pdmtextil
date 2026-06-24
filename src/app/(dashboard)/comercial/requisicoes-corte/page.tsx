@@ -5,9 +5,11 @@ import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
-import { Scissors, Plus } from "lucide-react"
+import { Scissors, Plus, FileText, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
+import { Button } from "@/components/ui/button"
+import { gerarRequisicaoCortePdf, gerarRequisicaoCortePdfConsolidado, RequisicaoCorteData } from "@/lib/gerar-requisicao-corte-pdf"
 
 const STATUS_CONFIG: Record<string, { label: string; classes: string }> = {
   SOLICITADO: { label: "Solicitado", classes: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400" },
@@ -25,6 +27,9 @@ export default function ListaRequisicoesCortePage() {
   const [deleteTarget, setDeleteTarget] = useState<any>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
 
+  const [selected, setSelected] = useState<Set<number>>(new Set())
+  const [gerandoPdf, setGerandoPdf] = useState(false)
+
   useEffect(() => {
     setMounted(true)
   }, [])
@@ -38,6 +43,81 @@ export default function ListaRequisicoesCortePage() {
       .finally(() => setLoading(false))
   }, [mounted])
 
+  function toggleSel(id: number) {
+    setSelected(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  async function fetchDetalhe(id: number): Promise<RequisicaoCorteData | null> {
+    try {
+      const res = await fetch(`/api/comercial/requisicoes-corte/${id}?t=${Date.now()}`)
+      if (!res.ok) return null
+      const d = await res.json()
+      return {
+        id: d.id,
+        status: d.status,
+        observacoes: d.observacoes,
+        entreguePor: d.entreguePor,
+        createdAt: d.createdAt,
+        requisitanteNome: d.requisitanteNome,
+        itens: Array.isArray(d.itens) ? d.itens.map((i: any) => ({
+          codigoProduto: i.codigoProduto || "",
+          ordem: i.ordem || "",
+          artigo: i.artigo || "",
+          cor: i.cor || "",
+          desenho: i.desenho || "",
+          quantidade: i.quantidade || "0",
+        })) : [],
+      }
+    } catch {
+      return null
+    }
+  }
+
+  async function gerarPdfUnico(id: number) {
+    setGerandoPdf(true)
+    const detalhe = await fetchDetalhe(id)
+    if (!detalhe) {
+      toast.error(`Erro ao carregar requisição #${id}`)
+      setGerandoPdf(false)
+      return
+    }
+    await gerarRequisicaoCortePdf(detalhe)
+    setGerandoPdf(false)
+  }
+
+  async function gerarPdfsSelecionados() {
+    if (selected.size === 0) {
+      toast.error("Selecione ao menos uma requisição")
+      return
+    }
+    setGerandoPdf(true)
+    for (const id of selected) {
+      const detalhe = await fetchDetalhe(id)
+      if (detalhe) await gerarRequisicaoCortePdf(detalhe)
+    }
+    setGerandoPdf(false)
+  }
+
+  async function gerarConsolidado() {
+    if (selected.size === 0) {
+      toast.error("Selecione ao menos uma requisição")
+      return
+    }
+    setGerandoPdf(true)
+    const detalhes: RequisicaoCorteData[] = []
+    for (const id of selected) {
+      const d = await fetchDetalhe(id)
+      if (d) detalhes.push(d)
+    }
+    if (detalhes.length > 0) await gerarRequisicaoCortePdfConsolidado(detalhes)
+    setGerandoPdf(false)
+  }
+
   const handleDelete = async () => {
     if (!deleteTarget) return
     setDeleteLoading(true)
@@ -50,6 +130,7 @@ export default function ListaRequisicoesCortePage() {
       toast.success("Requisição excluída com sucesso")
       setDeleteTarget(null)
       setData(prev => prev.filter(item => item.id !== deleteTarget.id))
+      setSelected(prev => { const next = new Set(prev); next.delete(deleteTarget.id); return next })
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erro ao excluir")
       setDeleteTarget(null)
@@ -79,13 +160,36 @@ export default function ListaRequisicoesCortePage() {
             {data.length} requisição(ões)
           </p>
         </div>
-        <Link
-          href="/comercial/requisicoes-corte/nova"
-          className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors shadow-sm"
-        >
-          <Plus size={16} />
-          Nova Requisição
-        </Link>
+        <div className="flex items-center gap-2">
+          {data.length > 0 && (
+            <>
+              <Button
+                onClick={gerarPdfsSelecionados}
+                disabled={selected.size === 0 || gerandoPdf}
+                variant="outline"
+                className="gap-2"
+              >
+                {gerandoPdf ? <Loader2 size={16} className="animate-spin" /> : <FileText size={16} />}
+                PDF ({selected.size})
+              </Button>
+              <Button
+                onClick={gerarConsolidado}
+                disabled={selected.size === 0 || gerandoPdf}
+                className="gap-2 bg-purple-700 hover:bg-purple-800 text-white"
+              >
+                {gerandoPdf ? <Loader2 size={16} className="animate-spin" /> : <FileText size={16} />}
+                Consolidado ({selected.size})
+              </Button>
+            </>
+          )}
+          <Link
+            href="/comercial/requisicoes-corte/nova"
+            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors shadow-sm"
+          >
+            <Plus size={16} />
+            Nova Requisição
+          </Link>
+        </div>
       </div>
 
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
@@ -102,6 +206,17 @@ export default function ListaRequisicoesCortePage() {
             <table className="w-full">
               <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
                 <tr>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase w-10">
+                    <input
+                      type="checkbox"
+                      checked={data.length > 0 && selected.size === data.length}
+                      onChange={() => {
+                        if (selected.size === data.length) setSelected(new Set())
+                        else setSelected(new Set(data.map(d => d.id)))
+                      }}
+                      className="rounded"
+                    />
+                  </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">#</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Requisitante</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Cortes</th>
@@ -114,12 +229,21 @@ export default function ListaRequisicoesCortePage() {
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                 {data.map((item: any) => {
                   const statusCfg = STATUS_CONFIG[item.status] ?? { label: item.status, classes: "bg-slate-100 text-slate-600" }
+                  const isSel = selected.has(item.id)
                   return (
                     <tr
                       key={item.id}
-                      className="hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"
+                      className={`hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors ${isSel ? "bg-blue-50/50 dark:bg-blue-950/20" : ""}`}
                       onClick={() => router.push(`/comercial/requisicoes-corte/${item.id}`)}
                     >
+                      <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
+                        <input
+                          type="checkbox"
+                          checked={isSel}
+                          onChange={() => toggleSel(item.id)}
+                          className="rounded"
+                        />
+                      </td>
                       <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-slate-200">#{item.id}</td>
                       <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">{item.requisitanteNome || "—"}</td>
                       <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">{item.totalCortes ?? 0}</td>
@@ -132,20 +256,26 @@ export default function ListaRequisicoesCortePage() {
                       <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">
                         {item.createdAt ? new Date(item.createdAt).toLocaleDateString("pt-BR") : "—"}
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
                         <div className="flex items-center gap-2">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => gerarPdfUnico(item.id)}
+                            disabled={gerandoPdf}
+                            className="gap-1 text-xs h-8 px-2"
+                          >
+                            <FileText size={13} />
+                            PDF
+                          </Button>
                           <Link
                             href={`/comercial/requisicoes-corte/${item.id}`}
                             className="text-blue-600 dark:text-blue-400 hover:underline text-xs font-medium"
-                            onClick={(e) => e.stopPropagation()}
                           >
                             Ver
                           </Link>
                           <button
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              setDeleteTarget(item)
-                            }}
+                            onClick={() => setDeleteTarget(item)}
                             className="text-red-600 dark:text-red-400 hover:underline text-xs font-medium"
                           >
                             Excluir
