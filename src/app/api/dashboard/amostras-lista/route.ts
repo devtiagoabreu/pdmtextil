@@ -26,8 +26,8 @@ export async function GET(req: NextRequest) {
       whereCru = sql`AND am.status = 'APROVADO'`
       whereAcab = sql`AND aam.status = 'APROVADO'`
     } else if (filtro === "reprovadas") {
-      whereCru = sql`AND am.status = 'REPROVADO'`
-      whereAcab = sql`AND aam.status = 'REPROVADO'`
+      whereCru = sql`AND am.status = 'REPROVADA'`
+      whereAcab = sql`AND aam.status = 'REPROVADA'`
     } else if (filtro === "pendentes-cru") {
       whereCru = sql`AND am.status = 'PENDENTE'`
       whereAcab = sql`AND 1=0`

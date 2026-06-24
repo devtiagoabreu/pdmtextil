@@ -93,12 +93,12 @@ export async function GET() {
 
     const pendentesCru = getCount(cruStatus, "PENDENTE")
     const aprovadasCru = getCount(cruStatus, "APROVADO")
-    const reprovadasCru = getCount(cruStatus, "REPROVADO")
+    const reprovadasCru = getCount(cruStatus, "REPROVADA")
     const totalCru = pendentesCru + aprovadasCru + reprovadasCru
 
     const pendentesAcab = getCount(acabStatus, "PENDENTE")
     const aprovadasAcab = getCount(acabStatus, "APROVADO")
-    const reprovadasAcab = getCount(acabStatus, "REPROVADO")
+    const reprovadasAcab = getCount(acabStatus, "REPROVADA")
     const totalAcab = pendentesAcab + aprovadasAcab + reprovadasAcab
 
     const totalGeral = totalCru + totalAcab
@@ -130,7 +130,7 @@ export async function GET() {
       statusDistribution: [
         { status: "PENDENTE", total: totalPendentes },
         { status: "APROVADO", total: totalAprovadas },
-        { status: "REPROVADO", total: totalReprovadas },
+        { status: "REPROVADA", total: totalReprovadas },
       ],
       tipoDistribution: [
         { tipo: "TECIDO_CRU", total: totalCru },

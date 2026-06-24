@@ -342,7 +342,7 @@ export async function gerarSolicitacaoAmostraPdf(params: {
   const statusLabel: Record<string, string> = {
     PENDENTE: "Pendente",
     APROVADO: "Aprovado",
-    REPROVADO: "Reprovado",
+    REPROVADA: "Reprovada",
   }
   doc.text(statusLabel[amostra.status] || amostra.status, cx2, ay2 + 4)
   const obsParts = doc.splitTextToSize(amostra.observacoes || "—", colW - 4)

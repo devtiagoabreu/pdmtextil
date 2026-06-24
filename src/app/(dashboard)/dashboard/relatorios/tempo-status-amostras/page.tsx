@@ -10,13 +10,13 @@ import { exportCSV, exportPDF, statsToHTML, tableToHTML } from "@/lib/export-uti
 const STATUS_LABELS: Record<string, string> = {
   PENDENTE: "Pendente",
   APROVADO: "Aprovado",
-  REPROVADO: "Reprovado",
+  REPROVADA: "Reprovado",
 }
 
 const STATUS_COLORS: Record<string, string> = {
   PENDENTE: "#eab308",
   APROVADO: "#22c55e",
-  REPROVADO: "#ef4444",
+  REPROVADA: "#ef4444",
 }
 
 type TimelineEntry = {
