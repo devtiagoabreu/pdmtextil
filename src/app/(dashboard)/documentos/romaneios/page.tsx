@@ -248,7 +248,7 @@ export default function RomaneiosPage() {
 
     if (empresa) {
       const headerH = isLandscape ? 30 : 28
-      doc.setFillColor(37, 99, 235)
+      doc.setFillColor(180, 182, 188)
       doc.rect(0, 0, pageWidth, headerH, "F")
       if (logoImg) {
         const maxW = isLandscape ? 35 : 30
@@ -272,7 +272,7 @@ export default function RomaneiosPage() {
 
     const barTop = y - 4
     const tituloH = 11
-    doc.setFillColor(37, 99, 235)
+    doc.setFillColor(180, 182, 188)
     doc.roundedRect(margin, barTop, pageWidth - margin * 2, tituloH, 2, 2, "F")
     doc.setTextColor(255, 255, 255)
     doc.setFontSize(isLandscape ? 14 : 12).setFont("helvetica", "bold")
@@ -446,7 +446,7 @@ export default function RomaneiosPage() {
       body,
       startY: y,
       styles: { fontSize, cellPadding: isLandscape ? 1.5 : 1.2 },
-      headStyles: { fillColor: [37, 99, 235], textColor: 255, fontStyle: "bold" },
+      headStyles: { fillColor: [180, 182, 188], textColor: [51, 51, 51], fontStyle: "bold" },
       alternateRowStyles: { fillColor: [245, 247, 250] },
       margin: { top: 10, left: margin, right: margin, bottom: isLandscape ? 10 : 9 },
       tableLineColor: 200,
