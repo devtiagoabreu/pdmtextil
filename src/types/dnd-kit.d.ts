@@ -119,3 +119,42 @@ declare module "@dnd-kit/core" {
   export const defaultKeyboardCoordinateGetter: any
   export const defaultScreenReaderInstructions: any
 }
+
+declare module "@dnd-kit/sortable" {
+  import React from "react"
+
+  export interface SortableContextProps {
+    id?: string
+    items: (string | number)[]
+    strategy?: any
+    children?: React.ReactNode
+  }
+  export const SortableContext: React.NamedExoticComponent<SortableContextProps>
+
+  export function useSortable(options: {
+    id: string | number
+    data?: any
+    disabled?: boolean
+    attributes?: any
+    transition?: any
+  }): {
+    attributes: Record<string, any>
+    listeners: Record<string, any>
+    setNodeRef: (node: HTMLElement | null) => void
+    setActivatorNodeRef: (node: HTMLElement | null) => void
+    isDragging: boolean
+    isSorting: boolean
+    over: any
+    active: any
+    transform: any | null
+    transition: string | undefined
+    index: number
+    node: HTMLElement | null
+  }
+
+  export function arrayMove<T>(array: T[], fromIndex: number, toIndex: number): T[]
+
+  export const verticalListSortingStrategy: any
+  export const horizontalListSortingStrategy: any
+  export const sortableKeyboardCoordinates: any
+}
