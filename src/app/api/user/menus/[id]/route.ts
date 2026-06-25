@@ -5,37 +5,33 @@ import { userMenus, userMenuItens } from "@/lib/db/schema/user-menus"
 import { eq, and, asc, isNull } from "drizzle-orm"
 import { handleApiError } from "@/lib/api-error"
 
-async function forkRoleMenusToUser(userId: number, userRole: string) {
-  // Copia menus do role (e DEFAULT) para o usuário, retorna map old_id → new_id
-  const roles = [userRole, "DEFAULT"]
+async function forkRoleMenusToUser(userId: number, roleName: string) {
   const idMap = new Map<number, number>()
 
-  for (const role of roles) {
-    const menus = await db
+  const menus = await db
+    .select()
+    .from(userMenus)
+    .where(and(eq(userMenus.role, roleName), isNull(userMenus.usuarioId)))
+    .orderBy(asc(userMenus.ordem))
+
+  for (const menu of menus) {
+    const [novo] = await db
+      .insert(userMenus)
+      .values({ usuarioId: userId, titulo: menu.titulo, icone: menu.icone, ordem: menu.ordem })
+      .returning()
+
+    idMap.set(menu.id, novo.id)
+
+    const itens = await db
       .select()
-      .from(userMenus)
-      .where(and(eq(userMenus.role, role), isNull(userMenus.usuarioId)))
-      .orderBy(asc(userMenus.ordem))
+      .from(userMenuItens)
+      .where(eq(userMenuItens.userMenuId, menu.id))
+      .orderBy(asc(userMenuItens.ordem))
 
-    for (const menu of menus) {
-      const [novo] = await db
-        .insert(userMenus)
-        .values({ usuarioId: userId, titulo: menu.titulo, icone: menu.icone, ordem: menu.ordem })
-        .returning()
-
-      idMap.set(menu.id, novo.id)
-
-      const itens = await db
-        .select()
-        .from(userMenuItens)
-        .where(eq(userMenuItens.userMenuId, menu.id))
-        .orderBy(asc(userMenuItens.ordem))
-
-      for (const item of itens) {
-        await db
-          .insert(userMenuItens)
-          .values({ userMenuId: novo.id, titulo: item.titulo, url: item.url, ordem: item.ordem })
-      }
+    for (const item of itens) {
+      await db
+        .insert(userMenuItens)
+        .values({ userMenuId: novo.id, titulo: item.titulo, url: item.url, ordem: item.ordem })
     }
   }
 
@@ -67,15 +63,11 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         .from(userMenus)
         .where(eq(userMenus.id, menuId))
 
-      if (!roleMenu || roleMenu.usuarioId !== null) {
+      if (!roleMenu || roleMenu.usuarioId !== null || !roleMenu.role) {
         return NextResponse.json({ error: "Menu não encontrado" }, { status: 404 })
       }
 
-      if (!userRole) {
-        return NextResponse.json({ error: "Sem permissão" }, { status: 403 })
-      }
-
-      const idMap = await forkRoleMenusToUser(userId, userRole)
+      const idMap = await forkRoleMenusToUser(userId, roleMenu.role)
       const newId = idMap.get(menuId)
       if (!newId) return NextResponse.json({ error: "Menu não encontrado" }, { status: 404 })
 
@@ -125,15 +117,11 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
         .from(userMenus)
         .where(eq(userMenus.id, menuId))
 
-      if (!roleMenu || roleMenu.usuarioId !== null) {
+      if (!roleMenu || roleMenu.usuarioId !== null || !roleMenu.role) {
         return NextResponse.json({ error: "Menu não encontrado" }, { status: 404 })
       }
 
-      if (!userRole) {
-        return NextResponse.json({ error: "Sem permissão" }, { status: 403 })
-      }
-
-      const idMap = await forkRoleMenusToUser(userId, userRole)
+      const idMap = await forkRoleMenusToUser(userId, roleMenu.role)
       const newId = idMap.get(menuId)
       if (!newId) return NextResponse.json({ error: "Menu não encontrado" }, { status: 404 })
 
