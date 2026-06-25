@@ -72,7 +72,7 @@ export async function PUT(
         observacoes: observacoesFinal,
         quantidadeProduzida: body.quantidadeProduzida || null,
         idIntegracaoErpCru: body.idIntegracaoErpCru || null,
-        links: body.links || [],
+        links: body.links !== undefined ? body.links : undefined,
       })
       .where(eq(produtoCruAmostra.id, parseInt(aid)))
       .returning({

@@ -66,7 +66,7 @@ export async function PUT(
         motivoAprovacao: isAprovacao ? body.motivoAprovacao : body.motivoAprovacao || null,
         observacoes: body.observacoes || null,
         quantidadeProduzida: body.quantidadeProduzida || null,
-        links: body.links || [],
+        links: body.links !== undefined ? body.links : undefined,
       })
       .where(
         and(
