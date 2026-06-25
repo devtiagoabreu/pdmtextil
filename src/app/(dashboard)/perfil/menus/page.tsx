@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
@@ -8,7 +8,7 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Loader2, Plus, Trash2, Edit3, ChevronDown, ChevronRight, Save } from "lucide-react"
+import { Loader2, Plus, Trash2, Edit3, ChevronDown, ChevronRight, Save, GripVertical } from "lucide-react"
 import {
   Select,
   SelectContent,
@@ -16,6 +16,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { DndContext, PointerSensor, useSensor, useSensors, closestCenter } from "@dnd-kit/core"
+import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable"
 
 interface Tela {
   id: string
@@ -25,18 +27,216 @@ interface Tela {
 }
 
 interface MenuItem {
-  id?: number
+  id: number
   titulo: string
   url: string
   ordem: number
 }
 
 interface Menu {
-  id?: number
+  id: number
   titulo: string
   icone?: string | null
   ordem: number
   itens: MenuItem[]
+}
+
+function SortableMenu({
+  menu,
+  isExpanded,
+  isEditing,
+  editValue,
+  onToggle,
+  onStartEdit,
+  onDelete,
+  onChangeEdit,
+  onSave,
+  onCancelEdit,
+  children,
+}: {
+  menu: Menu
+  isExpanded: boolean
+  isEditing: boolean
+  editValue: string
+  onToggle: () => void
+  onStartEdit: () => void
+  onDelete: () => void
+  onChangeEdit: (v: string) => void
+  onSave: () => void
+  onCancelEdit: () => void
+  children: React.ReactNode
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: menu.id })
+
+  const style = {
+    transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
+    transition: transition || undefined,
+    opacity: isDragging ? 0.4 : 1,
+    position: "relative" as const,
+    zIndex: isDragging ? 10 : undefined,
+  }
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden ${isDragging ? "shadow-lg" : ""}`}
+      {...attributes}
+    >
+      {/* Cabeçalho do Menu */}
+      <div className="flex items-center justify-between px-4 py-3 bg-slate-50 dark:bg-slate-800">
+        <div className="flex items-center gap-2 flex-1 min-w-0">
+          <button
+            className="cursor-grab active:cursor-grabbing p-1 text-slate-400 hover:text-slate-600 touch-none"
+            {...listeners}
+          >
+            <GripVertical size={16} />
+          </button>
+          <button
+            onClick={onToggle}
+            className="text-slate-400 hover:text-slate-600"
+          >
+            {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+          </button>
+          {isEditing ? (
+            <div className="flex items-center gap-2 flex-1">
+              <Input
+                value={editValue}
+                onChange={e => onChangeEdit(e.target.value)}
+                className="h-8 text-sm max-w-xs"
+                placeholder="Título do menu"
+                autoFocus
+              />
+              <Button size="sm" variant="ghost" onClick={onSave} className="h-8">
+                <Save size={14} />
+              </Button>
+              <Button size="sm" variant="ghost" onClick={onCancelEdit} className="h-8">
+                Cancelar
+              </Button>
+            </div>
+          ) : (
+            <>
+              <span className="text-sm font-medium text-slate-900 dark:text-slate-100">{menu.titulo}</span>
+              <span className="text-xs text-slate-400">{menu.itens.length} item(ns)</span>
+            </>
+          )}
+        </div>
+        {!isEditing && (
+          <div className="flex items-center gap-1">
+            <button
+              onClick={onStartEdit}
+              className="p-1.5 text-slate-400 hover:text-blue-600 rounded"
+            >
+              <Edit3 size={14} />
+            </button>
+            <button
+              onClick={onDelete}
+              className="p-1.5 text-slate-400 hover:text-red-600 rounded"
+            >
+              <Trash2 size={14} />
+            </button>
+          </div>
+        )}
+      </div>
+
+      {children}
+    </div>
+  )
+}
+
+function SortableItem({
+  item,
+  menuId,
+  isEditing,
+  editTitulo,
+  editUrl,
+  onChangeTitulo,
+  onChangeUrl,
+  onStartEdit,
+  onSaveEdit,
+  onCancelEdit,
+  onDelete,
+}: {
+  item: MenuItem
+  menuId: number
+  isEditing: boolean
+  editTitulo: string
+  editUrl: string
+  onChangeTitulo: (v: string) => void
+  onChangeUrl: (v: string) => void
+  onStartEdit: () => void
+  onSaveEdit: () => void
+  onCancelEdit: () => void
+  onDelete: () => void
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id })
+
+  const style = {
+    transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
+    transition: transition || undefined,
+    opacity: isDragging ? 0.4 : 1,
+    position: "relative" as const,
+    zIndex: isDragging ? 10 : undefined,
+  }
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`flex items-center justify-between gap-3 py-1.5 ${isDragging ? "shadow-lg" : ""}`}
+      {...attributes}
+    >
+      <button
+        className="cursor-grab active:cursor-grabbing p-1 text-slate-400 hover:text-slate-600 touch-none"
+        {...listeners}
+      >
+        <GripVertical size={14} />
+      </button>
+      {isEditing ? (
+        <div className="flex items-center gap-2 flex-1">
+          <Input
+            value={editTitulo}
+            onChange={e => onChangeTitulo(e.target.value)}
+            className="h-8 text-sm max-w-[200px]"
+            placeholder="Título"
+          />
+          <Input
+            value={editUrl}
+            onChange={e => onChangeUrl(e.target.value)}
+            className="h-8 text-sm flex-1 font-mono"
+            placeholder="/url"
+          />
+          <Button size="sm" variant="ghost" onClick={onSaveEdit} className="h-8">
+            <Save size={14} />
+          </Button>
+          <Button size="sm" variant="ghost" onClick={onCancelEdit} className="h-8">
+            Cancelar
+          </Button>
+        </div>
+      ) : (
+        <>
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            <span className="text-sm text-slate-700 dark:text-slate-300">{item.titulo}</span>
+            <span className="text-xs text-slate-400 font-mono truncate">{item.url}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={onStartEdit}
+              className="p-1 text-slate-400 hover:text-blue-600 rounded"
+            >
+              <Edit3 size={12} />
+            </button>
+            <button
+              onClick={onDelete}
+              className="p-1 text-slate-400 hover:text-red-600 rounded"
+            >
+              <Trash2 size={12} />
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  )
 }
 
 export default function ConfigurarMenusPage() {
@@ -51,6 +251,11 @@ export default function ConfigurarMenusPage() {
   const [editingItemId, setEditingItemId] = useState<string | null>(null)
   const [editForm, setEditForm] = useState<Record<string, any>>({})
   const [saving, setSaving] = useState(false)
+  const [reordering, setReordering] = useState(false)
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
+  )
 
   useEffect(() => {
     Promise.all([
@@ -183,6 +388,67 @@ export default function ConfigurarMenusPage() {
     }
   }
 
+  async function handleMenuDragEnd(event: { active: any; over: any }) {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+
+    const oldIndex = menus.findIndex(m => m.id === active.id)
+    const newIndex = menus.findIndex(m => m.id === over.id)
+    if (oldIndex === -1 || newIndex === -1) return
+
+    setReordering(true)
+
+    const reordered = arrayMove(menus, oldIndex, newIndex)
+    setMenus(reordered)
+
+    try {
+      const res = await fetch("/api/user/menus/reorder", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: reordered.map(m => m.id) }),
+      })
+      if (!res.ok) throw new Error()
+      const data = await res.json()
+      if (Array.isArray(data)) setMenus(data)
+    } catch {
+      toast.error("Erro ao reordenar menus")
+      setMenus(arrayMove(reordered, newIndex, oldIndex))
+    }
+
+    setReordering(false)
+  }
+
+  async function handleItemDragEnd(event: { active: any; over: any }, menuId: number) {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+
+    const menu = menus.find(m => m.id === menuId)
+    if (!menu) return
+
+    const oldIndex = menu.itens.findIndex(i => i.id === active.id)
+    const newIndex = menu.itens.findIndex(i => i.id === over.id)
+    if (oldIndex === -1 || newIndex === -1) return
+
+    const reordered = arrayMove(menu.itens, oldIndex, newIndex)
+    setMenus(prev => prev.map(m => m.id === menuId ? { ...m, itens: reordered } : m))
+
+    try {
+      const res = await fetch(`/api/user/menus/${menuId}/itens/reorder`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: reordered.map(i => i.id) }),
+      })
+      if (!res.ok) throw new Error()
+      const data = await res.json()
+      if (Array.isArray(data)) {
+        setMenus(prev => prev.map(m => m.id === menuId ? { ...m, itens: data } : m))
+      }
+    } catch {
+      toast.error("Erro ao reordenar itens")
+      setMenus(prev => prev.map(m => m.id === menuId ? { ...m, itens: arrayMove(reordered, newIndex, oldIndex) } : m))
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -198,7 +464,7 @@ export default function ConfigurarMenusPage() {
           Menu de Navegação{info && <InfoButton content={info} />}
         </h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-          Personalize os menus e a página inicial do seu nav
+          Personalize os menus e a página inicial do seu nav. Arraste os itens para reordenar.
         </p>
       </div>
 
@@ -230,7 +496,7 @@ export default function ConfigurarMenusPage() {
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">Menus</h2>
-          <Button onClick={criarMenu} size="sm" className="gap-1">
+          <Button onClick={criarMenu} size="sm" className="gap-1" disabled={reordering}>
             <Plus size={14} />
             Novo Menu
           </Button>
@@ -241,144 +507,92 @@ export default function ConfigurarMenusPage() {
             Nenhum menu criado. Clique em &ldquo;Novo Menu&rdquo; para começar.
           </p>
         ) : (
-          <div className="space-y-3">
-            {menus.map((menu, idx) => (
-              <div key={menu.id} className="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
-                {/* Cabeçalho do Menu */}
-                <div className="flex items-center justify-between px-4 py-3 bg-slate-50 dark:bg-slate-800">
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <button
-                      onClick={() => setExpandedMenu(expandedMenu === menu.id ? null : menu.id!)}
-                      className="text-slate-400 hover:text-slate-600"
-                    >
-                      {expandedMenu === menu.id ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
-                    </button>
-                    {editingMenuId === menu.id ? (
-                      <div className="flex items-center gap-2 flex-1">
-                        <Input
-                          value={editForm[`menu-${menu.id}`]?.titulo || ""}
-                          onChange={e => setEditForm(prev => ({ ...prev, [`menu-${menu.id}`]: { ...prev[`menu-${menu.id}`], titulo: e.target.value } }))}
-                          className="h-8 text-sm max-w-xs"
-                          placeholder="Título do menu"
-                        />
-                        <Button size="sm" variant="ghost" onClick={() => salvarMenu(menu.id!)} className="h-8">
-                          <Save size={14} />
-                        </Button>
-                        <Button size="sm" variant="ghost" onClick={() => setEditingMenuId(null)} className="h-8">
-                          Cancelar
-                        </Button>
-                      </div>
-                    ) : (
-                      <>
-                        <span className="text-sm font-medium text-slate-900 dark:text-slate-100">{menu.titulo}</span>
-                        <span className="text-xs text-slate-400">{menu.itens.length} item(ns)</span>
-                      </>
-                    )}
-                  </div>
-                  {editingMenuId !== menu.id && (
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => {
-                          setEditingMenuId(menu.id!)
-                          setEditForm(prev => ({ ...prev, [`menu-${menu.id}`]: { titulo: menu.titulo, icone: menu.icone, ordem: menu.ordem } }))
-                        }}
-                        className="p-1.5 text-slate-400 hover:text-blue-600 rounded"
-                      >
-                        <Edit3 size={14} />
-                      </button>
-                      <button
-                        onClick={() => deletarMenu(menu.id!)}
-                        className="p-1.5 text-slate-400 hover:text-red-600 rounded"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                {/* Itens */}
-                {expandedMenu === menu.id && (
-                  <div className="px-4 py-3 space-y-2">
-                    {menu.itens.map(item => (
-                      <div key={item.id} className="flex items-center justify-between gap-3 pl-6 py-1.5">
-                        {editingItemId === `item-${item.id}` ? (
-                          <div className="flex items-center gap-2 flex-1">
-                            <Input
-                              value={editForm[`item-${item.id}`]?.titulo || ""}
-                              onChange={e => setEditForm(prev => ({ ...prev, [`item-${item.id}`]: { ...prev[`item-${item.id}`], titulo: e.target.value } }))}
-                              className="h-8 text-sm max-w-[200px]"
-                              placeholder="Título"
-                            />
-                            <Input
-                              value={editForm[`item-${item.id}`]?.url || ""}
-                              onChange={e => setEditForm(prev => ({ ...prev, [`item-${item.id}`]: { ...prev[`item-${item.id}`], url: e.target.value } }))}
-                              className="h-8 text-sm flex-1 font-mono"
-                              placeholder="/url"
-                            />
-                            <Button size="sm" variant="ghost" onClick={() => salvarItem(menu.id!, item.id!)} className="h-8">
-                              <Save size={14} />
-                            </Button>
-                            <Button size="sm" variant="ghost" onClick={() => setEditingItemId(null)} className="h-8">
-                              Cancelar
-                            </Button>
-                          </div>
-                        ) : (
-                          <>
-                            <div className="flex items-center gap-2 flex-1 min-w-0">
-                              <span className="text-sm text-slate-700 dark:text-slate-300">{item.titulo}</span>
-                              <span className="text-xs text-slate-400 font-mono truncate">{item.url}</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <button
-                                onClick={() => {
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleMenuDragEnd}
+          >
+            <SortableContext items={menus.map(m => m.id)} strategy={verticalListSortingStrategy}>
+              <div className="space-y-3">
+                {menus.map(menu => (
+                  <SortableMenu
+                    key={menu.id}
+                    menu={menu}
+                    isExpanded={expandedMenu === menu.id}
+                    isEditing={editingMenuId === menu.id}
+                    editValue={editForm[`menu-${menu.id}`]?.titulo || ""}
+                    onToggle={() => setExpandedMenu(expandedMenu === menu.id ? null : menu.id)}
+                    onStartEdit={() => {
+                      setEditingMenuId(menu.id)
+                      setEditForm(prev => ({ ...prev, [`menu-${menu.id}`]: { titulo: menu.titulo, icone: menu.icone, ordem: menu.ordem } }))
+                    }}
+                    onDelete={() => deletarMenu(menu.id)}
+                    onChangeEdit={v => setEditForm(prev => ({ ...prev, [`menu-${menu.id}`]: { ...prev[`menu-${menu.id}`], titulo: v } }))}
+                    onSave={() => salvarMenu(menu.id)}
+                    onCancelEdit={() => setEditingMenuId(null)}
+                  >
+                    {/* Itens */}
+                    {expandedMenu === menu.id && (
+                      <div className="px-4 py-3 space-y-2">
+                        <DndContext
+                          sensors={sensors}
+                          collisionDetection={closestCenter}
+                          onDragEnd={(event) => handleItemDragEnd(event, menu.id)}
+                        >
+                          <SortableContext items={menu.itens.map(i => i.id)} strategy={verticalListSortingStrategy}>
+                            {menu.itens.map(item => (
+                              <SortableItem
+                                key={item.id}
+                                item={item}
+                                menuId={menu.id}
+                                isEditing={editingItemId === `item-${item.id}`}
+                                editTitulo={editForm[`item-${item.id}`]?.titulo || ""}
+                                editUrl={editForm[`item-${item.id}`]?.url || ""}
+                                onChangeTitulo={v => setEditForm(prev => ({ ...prev, [`item-${item.id}`]: { ...prev[`item-${item.id}`], titulo: v } }))}
+                                onChangeUrl={v => setEditForm(prev => ({ ...prev, [`item-${item.id}`]: { ...prev[`item-${item.id}`], url: v } }))}
+                                onStartEdit={() => {
                                   setEditingItemId(`item-${item.id}`)
                                   setEditForm(prev => ({ ...prev, [`item-${item.id}`]: { titulo: item.titulo, url: item.url, ordem: item.ordem } }))
                                 }}
-                                className="p-1 text-slate-400 hover:text-blue-600 rounded"
-                              >
-                                <Edit3 size={12} />
-                              </button>
-                              <button
-                                onClick={() => deletarItem(menu.id!, item.id!)}
-                                className="p-1 text-slate-400 hover:text-red-600 rounded"
-                              >
-                                <Trash2 size={12} />
-                              </button>
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    ))}
-
-                    {/* Adicionar novo item */}
-                    <div className="flex items-center gap-2 pl-6 pt-2 border-t border-slate-100 dark:border-slate-800">
-                      <div className="flex-1">
-                        <Select
-                          value={editForm[`novo-item-${menu.id}`] || ""}
-                          onValueChange={(v: string | null) => {
-                            if (v) setEditForm(prev => ({ ...prev, [`novo-item-${menu.id}`]: v }))
-                          }}
-                        >
-                          <SelectTrigger className="h-8 text-sm">
-                            <SelectValue placeholder="Selecionar tela..." />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {telas.map(t => (
-                              <SelectItem key={t.id} value={t.id}>{t.label}</SelectItem>
+                                onSaveEdit={() => salvarItem(menu.id, item.id)}
+                                onCancelEdit={() => setEditingItemId(null)}
+                                onDelete={() => deletarItem(menu.id, item.id)}
+                              />
                             ))}
-                          </SelectContent>
-                        </Select>
+                          </SortableContext>
+                        </DndContext>
+
+                        {/* Adicionar novo item */}
+                        <div className="flex items-center gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                          <div className="flex-1">
+                            <Select
+                              value={editForm[`novo-item-${menu.id}`] || ""}
+                              onValueChange={(v: string | null) => {
+                                if (v) setEditForm(prev => ({ ...prev, [`novo-item-${menu.id}`]: v }))
+                              }}
+                            >
+                              <SelectTrigger className="h-8 text-sm">
+                                <SelectValue placeholder="Selecionar tela..." />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {telas.map(t => (
+                                  <SelectItem key={t.id} value={t.id}>{t.label}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <Button size="sm" variant="outline" onClick={() => criarItem(menu.id)} className="h-8 gap-1">
+                            <Plus size={12} />
+                            Adicionar
+                          </Button>
+                        </div>
                       </div>
-                      <Button size="sm" variant="outline" onClick={() => criarItem(menu.id!)} className="h-8 gap-1">
-                        <Plus size={12} />
-                        Adicionar
-                      </Button>
-                    </div>
-                  </div>
-                )}
+                    )}
+                  </SortableMenu>
+                ))}
               </div>
-            ))}
-          </div>
+            </SortableContext>
+          </DndContext>
         )}
       </div>
     </div>
