@@ -104,7 +104,8 @@ export default function ConfigurarMenusPage() {
     try {
       const res = await fetch(`/api/user/menus/${id}`, { method: "DELETE" })
       if (!res.ok) throw new Error()
-      setMenus(prev => prev.filter(m => m.id !== id))
+      const data = await fetch("/api/user/menus").then(r => r.json())
+      if (Array.isArray(data)) setMenus(data)
       toast.success("Menu excluído")
     } catch {
       toast.error("Erro ao excluir menu")
@@ -121,8 +122,8 @@ export default function ConfigurarMenusPage() {
         body: JSON.stringify(form),
       })
       if (!res.ok) throw new Error()
-      const updated = await res.json()
-      setMenus(prev => prev.map(m => m.id === id ? { ...m, ...updated } : m))
+      const data = await fetch("/api/user/menus").then(r => r.json())
+      if (Array.isArray(data)) setMenus(data)
       setEditingMenuId(null)
       toast.success("Menu atualizado")
     } catch {
