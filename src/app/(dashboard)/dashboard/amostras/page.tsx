@@ -262,7 +262,7 @@ export default function DashboardAmostras() {
                     {stats.recent.map((a: any, i: number) => (
                       <tr key={`${a.tipoAmostra}-${a.id}-${i}`} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
                         <td className="p-4 text-sm">
-                          <Link href={`/cadastros/produto-cru/${a.produtoId}#amostras`} className="flex items-center gap-1.5 group">
+                          <Link href={`/cadastros/produto-cru/${a.produtoId}?tab=amostras`} className="flex items-center gap-1.5 group">
                             <div>
                               <span className="text-xs text-slate-400">{a.produtoCodigo}</span>
                               <p className="text-xs text-slate-500 mt-0.5">{a.produtoDescricao}</p>
@@ -352,7 +352,7 @@ export default function DashboardAmostras() {
                     <button
                       key={`${item.tipoAmostra}-${item.id}-${i}`}
                       type="button"
-                      onClick={() => { router.push(`/cadastros/produto-cru/${item.produtoId}#amostras`); setModalFiltro(null) }}
+                      onClick={() => { router.push(`/cadastros/produto-cru/${item.produtoId}?tab=amostras`); setModalFiltro(null) }}
                       className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/50 text-left"
                     >
                       <div className="min-w-0 flex-1">

@@ -12,10 +12,14 @@ export const searchRegistry: SearchItem[] = [
   { id: "dashboard-solicitacoes", label: "Dashboard Solicitações", keywords: ["dashboard", "inicio", "home", "painel", "solicitacoes", "metricas"], href: "/dashboard", description: "Painel principal com métricas de solicitações", module: "Dashboard" },
   { id: "dashboard-amostras", label: "Dashboard Amostras", keywords: ["dashboard", "amostras", "painel", "metricas", "amostra"], href: "/dashboard/amostras", description: "Painel de métricas de amostras", module: "Dashboard" },
   { id: "dashboard-corte", label: "Dashboard Corte", keywords: ["dashboard", "corte", "requisicao", "painel", "metricas", "requisições"], href: "/dashboard/requisicoes-corte", description: "Painel de métricas de requisições de corte", module: "Dashboard" },
+  { id: "dashboard-relatorios", label: "Relatórios (Dashboard)", keywords: ["dashboard", "relatorio", "painel", "metricas", "relatorios"], href: "/dashboard/relatorios", description: "Central de relatórios do sistema", module: "Dashboard" },
 
   // Comercial - Solicitações
   { id: "solicitacoes", label: "Solicitações", keywords: ["solicitacao", "pedido", "comercial", "lista", "solicitacoes"], href: "/comercial/solicitacoes", description: "Lista de solicitações comerciais", module: "Comercial" },
   { id: "solicitacoes-nova", label: "Nova Solicitação", keywords: ["solicitacao", "nova", "criar", "pedido", "cadastro"], href: "/comercial/solicitacoes/nova", description: "Criar nova solicitação", module: "Comercial" },
+  { id: "solicitacoes-detalhe", label: "Solicitação (Detalhe)", keywords: ["solicitacao", "detalhe", "editar", "ficha"], href: "/comercial/solicitacoes/[id]", description: "Ficha completa da solicitação", module: "Comercial" },
+  { id: "solicitacoes-editar", label: "Solicitação (Editar)", keywords: ["solicitacao", "editar", "alterar"], href: "/comercial/solicitacoes/[id]/editar", description: "Editar solicitação existente", module: "Comercial" },
+  { id: "solicitacoes-kanban", label: "Kanban — Solicitações", keywords: ["solicitacao", "kanban", "quadro", "status", "arrastar"], href: "/comercial/solicitacoes/kanban", description: "Kanban de solicitações com drag-and-drop", module: "Comercial" },
 
   // Comercial - Requisições de Corte
   { id: "requisicoes-corte", label: "Requisições de Corte", keywords: ["requisicao", "corte", "comercial", "lista", "requisicoes"], href: "/comercial/requisicoes-corte", description: "Lista de requisições de corte", module: "Comercial" },
@@ -25,9 +29,11 @@ export const searchRegistry: SearchItem[] = [
   // Comercial - Clientes
   { id: "clientes", label: "Clientes", keywords: ["cliente", "comercial", "lista", "empresa"], href: "/comercial/clientes", description: "Lista de clientes", module: "Comercial" },
   { id: "clientes-novo", label: "Novo Cliente", keywords: ["cliente", "novo", "criar", "cadastro", "empresa"], href: "/comercial/clientes/novo", description: "Cadastrar novo cliente", module: "Comercial" },
+  { id: "clientes-detalhe", label: "Cliente (Detalhe)", keywords: ["cliente", "detalhe", "editar", "ficha"], href: "/comercial/clientes/[id]", description: "Ficha completa do cliente", module: "Comercial" },
 
   // Cadastros
   { id: "cadastros", label: "Cadastros", keywords: ["cadastro", "dados", "tabelas", "config"], href: "/cadastros", description: "Módulo de cadastros do sistema", module: "Cadastros" },
+  { id: "cadastros-clientes", label: "Clientes (Cadastros)", keywords: ["cliente", "cadastro", "lista", "empresa"], href: "/cadastros/clientes", description: "Lista de clientes no módulo de cadastros", module: "Cadastros" },
 
   // Cadastros - Produto Cru
   { id: "produto-cru", label: "Produtos Cru", keywords: ["produto", "cru", "tecido", "malha", "listagem"], href: "/cadastros/produto-cru", description: "Lista de produtos cru (tecidos/malhas)", module: "Cadastros" },
@@ -75,11 +81,31 @@ export const searchRegistry: SearchItem[] = [
   { id: "admin-usuarios-detalhe", label: "Usuário (Detalhe)", keywords: ["usuario", "detalhe", "editar", "admin"], href: "/admin/usuarios/[id]", description: "Ficha do usuário", module: "Administrativo" },
   { id: "admin-roles", label: "Perfis (Roles)", keywords: ["role", "perfil", "acesso", "permissao", "admin"], href: "/admin/roles", description: "Gerenciamento de perfis de acesso", module: "Administrativo" },
   { id: "admin-email-massa", label: "Email em Massa", keywords: ["email", "massa", "disparo", "notificacao", "admin"], href: "/admin/email-massa", description: "Envio de emails em massa", module: "Administrativo" },
+  { id: "admin-notificacoes", label: "Notificações", keywords: ["notificacao", "admin", "alerta", "aviso"], href: "/admin/notificacoes", description: "Gerenciamento de notificações do sistema", module: "Administrativo" },
   { id: "admin-configuracoes", label: "Configurações", keywords: ["configuracao", "admin", "sistema", "ajustes"], href: "/admin/configuracoes", description: "Configurações gerais do sistema", module: "Administrativo" },
+  { id: "admin-banco-dados", label: "Banco de Dados", keywords: ["banco", "dados", "backup", "admin", "configuracao"], href: "/admin/configuracoes/banco-dados", description: "Configuração de banco de dados", module: "Administrativo" },
+  { id: "admin-empresa", label: "Empresa", keywords: ["empresa", "dados", "admin", "configuracao"], href: "/admin/configuracoes/empresa", description: "Dados da empresa", module: "Administrativo" },
+  { id: "admin-integracoes", label: "Integrações", keywords: ["integracao", "api", "admin", "configuracao"], href: "/admin/configuracoes/integracoes", description: "Configuração de integrações", module: "Administrativo" },
   { id: "admin-permissoes", label: "Permissões", keywords: ["permissao", "acesso", "admin", "seguranca", "role"], href: "/admin/configuracoes/permissoes", description: "Configuração de permissões por perfil", module: "Administrativo" },
+  { id: "admin-smtp", label: "SMTP", keywords: ["smtp", "email", "admin", "configuracao", "servidor"], href: "/admin/configuracoes/smtp", description: "Configuração de servidor SMTP", module: "Administrativo" },
+  { id: "admin-status", label: "Status", keywords: ["status", "admin", "configuracao", "tipo"], href: "/admin/configuracoes/status", description: "Configuração de status por módulo", module: "Administrativo" },
+  { id: "admin-telas", label: "Telas (Menus)", keywords: ["tela", "menu", "admin", "configuracao", "perfil"], href: "/admin/configuracoes/telas", description: "Configuração de menus por perfil de acesso", module: "Administrativo" },
 
   // Perfil
   { id: "perfil", label: "Meu Perfil", keywords: ["perfil", "usuario", "conta", "senha", "dados"], href: "/perfil", description: "Meus dados de usuário", module: "Conta" },
+  { id: "perfil-menus", label: "Meus Menus", keywords: ["perfil", "menu", "personalizar", "navegacao"], href: "/perfil/menus", description: "Personalizar meus menus de navegação", module: "Conta" },
+
+  // Ferramentas
+  { id: "ferramentas", label: "Ferramentas", keywords: ["ferramenta", "util", "calculadora", "conversor"], href: "/ferramentas", description: "Ferramentas utilitárias", module: "Ferramentas" },
+  { id: "ferramentas-conversores", label: "Conversores", keywords: ["conversor", "unidade", "medida", "ferramenta"], href: "/ferramentas/conversores", description: "Conversores de unidades", module: "Ferramentas" },
+  { id: "ferramentas-regra-tres", label: "Regra de Três", keywords: ["regra", "tres", "calculadora", "proporcao", "ferramenta"], href: "/ferramentas/regra-de-tres", description: "Calculadora de regra de três", module: "Ferramentas" },
+
+  // Documentos
+  { id: "documentos", label: "Documentos", keywords: ["documento", "romaneio", "danfe", "pedido", "relatorio"], href: "/documentos", description: "Central de documentos", module: "Documentos" },
+  { id: "documentos-romaneios", label: "Romaneios", keywords: ["romaneio", "documento", "expedicao"], href: "/documentos/romaneios", description: "Gerenciamento de romaneios", module: "Documentos" },
+
+  // Chat
+  { id: "chat", label: "Chat", keywords: ["chat", "mensagem", "conversa", "comunicacao"], href: "/chat", description: "Chat interno do sistema", module: "Comunicação" },
 ]
 
 export function searchItems(query: string): SearchItem[] {

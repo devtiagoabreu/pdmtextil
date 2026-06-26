@@ -40,6 +40,10 @@ export async function GET(req: NextRequest) {
     } else if (filtro === "aprovadas-acab") {
       whereCru = sql`AND 1=0`
       whereAcab = sql`AND aam.status = 'APROVADO'`
+    } else if (filtro.startsWith("status-")) {
+      const statusNome = filtro.slice(7)
+      whereCru = sql`AND am.status = ${statusNome}`
+      whereAcab = sql`AND aam.status = ${statusNome}`
     } else {
       whereCru = sql``
       whereAcab = sql``
