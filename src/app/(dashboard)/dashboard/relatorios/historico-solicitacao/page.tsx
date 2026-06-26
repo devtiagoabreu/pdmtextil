@@ -192,10 +192,10 @@ export default function HistoricoSolicitacaoPage() {
     <div className="space-y-6 animate-fade-in">
       <div>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
-          Histórico de Solicitação{info && <InfoButton content={info} />}
+          Histórico de Solicitação de Desenvolvimento{info && <InfoButton content={info} />}
         </h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-          Acompanhe todo o histórico de uma solicitação: dados, produtos, amostras e timeline
+          Acompanhe todo o histórico de uma solicitação de desenvolvimento: dados, produtos, amostras e timeline
         </p>
       </div>
 

@@ -102,9 +102,9 @@ export default function RelatorioSolicitacoesCriadas() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Relatório: Solicitações Criadas / Deletadas{info && <InfoButton content={info} />}</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Relatório: Solicitações de Desenvolvimento Criadas / Deletadas{info && <InfoButton content={info} />}</h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-          Acompanhe o volume de solicitações criadas, deletadas, concluídas e a taxa de sucesso
+          Acompanhe o volume de solicitações de desenvolvimento criadas, deletadas, concluídas e a taxa de sucesso
         </p>
       </div>
 

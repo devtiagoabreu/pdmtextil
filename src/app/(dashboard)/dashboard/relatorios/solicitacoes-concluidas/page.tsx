@@ -106,7 +106,7 @@ export default function RelatorioSolicitacoesConcluidas() {
       <div>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Relatório: Concluídas Desenvolvimento{info && <InfoButton content={info} />}</h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-          Solicitações com status Concluído Desenvolvimento — total, distribuição por tipo e detalhamento
+          Solicitações de desenvolvimento com status Concluído Desenvolvimento — total, distribuição por tipo e detalhamento
         </p>
       </div>
 

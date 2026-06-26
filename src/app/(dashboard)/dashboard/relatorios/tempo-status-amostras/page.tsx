@@ -128,9 +128,9 @@ export default function RelatorioTempoStatusAmostras() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Relatório: Amostras - Tempo em cada Status{info && <InfoButton content={info} />}</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Relatório: Amostras de Desenvolvimento - Tempo em cada Status{info && <InfoButton content={info} />}</h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-          Histórico de status de todas as amostras do sistema
+          Histórico de status de todas as amostras de desenvolvimento do sistema
         </p>
       </div>
 
