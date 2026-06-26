@@ -86,6 +86,7 @@ export async function exportPDFRelatorio(options: {
   period?: string
   filename?: string
   orientation?: "portrait" | "landscape"
+  statsLayout?: "boxes" | "list"
 }) {
   const { default: jsPDF } = await import("jspdf")
   await import("jspdf-autotable")
@@ -135,20 +136,40 @@ export async function exportPDFRelatorio(options: {
   // Stats
   if (options.stats) {
     const entries = Object.entries(options.stats)
-    const boxW = Math.min(contentW / entries.length - 4, 80)
-    for (const [label, value] of entries) {
-      const x = marginX + (Object.keys(options.stats).indexOf(label) * (boxW + 4))
+    if (options.statsLayout === "list") {
+      const lineH = 5.5
+      const boxPad = 3
+      const totalH = entries.length * lineH + boxPad * 2
       doc.setFillColor(248, 250, 252)
       doc.setDrawColor(200, 200, 200)
-      doc.roundedRect(x, y, boxW, 22, 2, 2, "FD")
-      doc.setFontSize(6).setFont("helvetica", "normal")
-      doc.setTextColor(0, 0, 0)
-      doc.text(label.toUpperCase(), x + 3, y + 6)
-      doc.setFontSize(11).setFont("helvetica", "bold")
-      doc.setTextColor(0, 0, 0)
-      doc.text(String(value), x + 3, y + 17)
+      doc.roundedRect(marginX, y, contentW, totalH, 2, 2, "FD")
+      let ly = y + boxPad + lineH - 1
+      for (const [label, value] of entries) {
+        doc.setFontSize(8).setFont("helvetica", "bold")
+        doc.setTextColor(0, 0, 0)
+        doc.text(`${label}:`, marginX + 4, ly)
+        const labelW = doc.getTextWidth(`${label}: `)
+        doc.setFont("helvetica", "normal")
+        doc.text(String(value), marginX + 4 + labelW, ly)
+        ly += lineH
+      }
+      y += totalH + 8
+    } else {
+      const boxW = Math.min(contentW / entries.length - 4, 80)
+      for (const [label, value] of entries) {
+        const x = marginX + (Object.keys(options.stats).indexOf(label) * (boxW + 4))
+        doc.setFillColor(248, 250, 252)
+        doc.setDrawColor(200, 200, 200)
+        doc.roundedRect(x, y, boxW, 22, 2, 2, "FD")
+        doc.setFontSize(6).setFont("helvetica", "normal")
+        doc.setTextColor(0, 0, 0)
+        doc.text(label.toUpperCase(), x + 3, y + 6)
+        doc.setFontSize(11).setFont("helvetica", "bold")
+        doc.setTextColor(0, 0, 0)
+        doc.text(String(value), x + 3, y + 17)
+      }
+      y += 30
     }
-    y += 30
   }
 
   // Tables
