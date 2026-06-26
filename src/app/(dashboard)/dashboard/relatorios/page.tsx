@@ -15,6 +15,7 @@ const relatorios = [
   { href: "/dashboard/relatorios/solicitacoes-por-status", label: "Solicitações por Status", desc: "Filtre solicitações por status — total, distribuição por tipo e detalhes", icon: Filter },
   { href: "/dashboard/relatorios/amostras-por-status", label: "Amostras por Status", desc: "Filtre amostras por status — total, tipo (cru/acab.) e detalhamento", icon: Beaker },
   { href: "/dashboard/relatorios/historico-solicitacao", label: "Histórico de Solicitação", desc: "Histórico completo de uma solicitação: dados, produtos, amostras e timeline", icon: History },
+  { href: "/dashboard/relatorios/historico-amostra", label: "Histórico de Amostra", desc: "Histórico completo de uma amostra: dados, produto, solicitação e timeline", icon: Beaker },
 ]
 
 export default function RelatoriosHubPage() {

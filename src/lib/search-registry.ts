@@ -79,6 +79,7 @@ export const searchRegistry: SearchItem[] = [
   { id: "relatorio-solicitacoes-por-status", label: "Relatório: Solicitações por Status", keywords: ["relatorio", "solicitacoes", "status", "filtro", "dinamico"], href: "/dashboard/relatorios/solicitacoes-por-status", description: "Filtre solicitações por qualquer status do cadastro", module: "Relatórios" },
   { id: "relatorio-amostras-por-status", label: "Relatório: Amostras por Status", keywords: ["relatorio", "amostras", "status", "filtro", "amostra"], href: "/dashboard/relatorios/amostras-por-status", description: "Filtre amostras por qualquer status do cadastro", module: "Relatórios" },
   { id: "relatorio-historico-solicitacao", label: "Relatório: Histórico de Solicitação", keywords: ["relatorio", "historico", "solicitacao", "timeline", "amostras", "produtos", "log"], href: "/dashboard/relatorios/historico-solicitacao", description: "Histórico completo de uma solicitação: dados, produtos, amostras e timeline", module: "Relatórios" },
+  { id: "relatorio-historico-amostra", label: "Relatório: Histórico de Amostra", keywords: ["relatorio", "historico", "amostra", "timeline", "produto", "solicitacao", "log"], href: "/dashboard/relatorios/historico-amostra", description: "Histórico completo de uma amostra: dados, produto, solicitação e timeline", module: "Relatórios" },
 
   // Admin
   { id: "admin-usuarios", label: "Usuários", keywords: ["usuario", "admin", "lista", "pessoa", "colaborador"], href: "/admin/usuarios", description: "Gerenciamento de usuários do sistema", module: "Administrativo" },
