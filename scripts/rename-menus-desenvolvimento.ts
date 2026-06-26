@@ -2,7 +2,7 @@ import * as dotenv from "dotenv"
 dotenv.config({ path: ".env.local" })
 import { db } from "../src/lib/db/index"
 import { userMenuItens, userMenus } from "../src/lib/db/schema/user-menus"
-import { eq, and } from "drizzle-orm"
+import { eq, and, isNull } from "drizzle-orm"
 
 async function main() {
   console.log("Renomeando itens de menu...")
@@ -26,12 +26,12 @@ async function main() {
   // Grupos de menu (apenas role-based, não user-specific)
   const r4 = await db.update(userMenus)
     .set({ titulo: "Solicitações de Desenvolvimento" })
-    .where(and(eq(userMenus.titulo, "Solicitações"), eq(userMenus.usuarioId, null)))
+    .where(and(eq(userMenus.titulo, "Solicitações"), isNull(userMenus.usuarioId)))
   console.log(`  Menu group "Solicitações": ${r4.count} linha(s)`)
 
   const r5 = await db.update(userMenus)
     .set({ titulo: "Amostras de Desenvolvimento" })
-    .where(and(eq(userMenus.titulo, "Amostras"), eq(userMenus.usuarioId, null)))
+    .where(and(eq(userMenus.titulo, "Amostras"), isNull(userMenus.usuarioId)))
   console.log(`  Menu group "Amostras": ${r5.count} linha(s)`)
 
   console.log("✅ Concluído!")
