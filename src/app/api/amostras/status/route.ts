@@ -36,7 +36,7 @@ export async function PATCH(req: NextRequest) {
       }
 
       const [amostra] = await db
-        .select({ status: produtoCruAmostra.status, historico: produtoCruAmostra.historico })
+        .select({ status: produtoCruAmostra.status, historico: produtoCruAmostra.historico, observacoes: produtoCruAmostra.observacoes })
         .from(produtoCruAmostra)
         .where(and(eq(produtoCruAmostra.id, id), eq(produtoCruAmostra.produtoCruId, produtoCruId)))
 
@@ -55,9 +55,14 @@ export async function PATCH(req: NextRequest) {
         motivo: motivo || null,
       })
 
+      const observacoesAtual = amostra.observacoes || ""
+      const observacoesFinal = motivo?.trim()
+        ? [observacoesAtual, `⛔ ${novoStatus.startsWith("APROVADA") ? "Aprovado" : "Reprovado"} por ${session?.user?.name || "Sistema"}: ${motivo.trim()}`].filter(Boolean).join("\n")
+        : observacoesAtual
+
       const [updated] = await db
         .update(produtoCruAmostra)
-        .set({ status: novoStatus, historico, motivoAprovacao: motivo || null })
+        .set({ status: novoStatus, historico, motivoAprovacao: motivo || null, observacoes: observacoesFinal })
         .where(eq(produtoCruAmostra.id, id))
         .returning()
 
@@ -78,7 +83,7 @@ export async function PATCH(req: NextRequest) {
       }
 
       const [amostra] = await db
-        .select({ status: produtoCruAcabamentoAmostra.status, historico: produtoCruAcabamentoAmostra.historico })
+        .select({ status: produtoCruAcabamentoAmostra.status, historico: produtoCruAcabamentoAmostra.historico, observacoes: produtoCruAcabamentoAmostra.observacoes })
         .from(produtoCruAcabamentoAmostra)
         .where(and(eq(produtoCruAcabamentoAmostra.id, id), eq(produtoCruAcabamentoAmostra.acabamentoId, acabamentoId)))
 
@@ -97,9 +102,14 @@ export async function PATCH(req: NextRequest) {
         motivo: motivo || null,
       })
 
+      const observacoesAtual = amostra.observacoes || ""
+      const observacoesFinal = motivo?.trim()
+        ? [observacoesAtual, `⛔ ${novoStatus.startsWith("APROVADA") ? "Aprovado" : "Reprovado"} por ${session?.user?.name || "Sistema"}: ${motivo.trim()}`].filter(Boolean).join("\n")
+        : observacoesAtual
+
       const [updated] = await db
         .update(produtoCruAcabamentoAmostra)
-        .set({ status: novoStatus, historico, motivoAprovacao: motivo || null })
+        .set({ status: novoStatus, historico, motivoAprovacao: motivo || null, observacoes: observacoesFinal })
         .where(eq(produtoCruAcabamentoAmostra.id, id))
         .returning()
 
