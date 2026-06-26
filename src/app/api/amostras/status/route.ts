@@ -4,7 +4,7 @@ import { db } from "@/lib/db"
 import { produtoCruAmostra, produtoCruAcabamento, produtoCruAcabamentoAmostra } from "@/lib/db/schema/produto-cru"
 import { eq, and } from "drizzle-orm"
 import { getValidStatuses } from "@/lib/status-utils"
-import { registrarLog } from "@/lib/notificar"
+import { registrarLog, notificar } from "@/lib/notificar"
 
 export async function PATCH(req: NextRequest) {
   try {
@@ -75,6 +75,15 @@ export async function PATCH(req: NextRequest) {
         usuarioNome: session?.user?.name || "Sistema",
       })
 
+      if (precisaMotivo) {
+        await notificar(
+          novoStatus.startsWith("APROVADA") ? "AMOSTRA_APROVADA" : "AMOSTRA_REPROVADA",
+          `Amostra tecido cru #${id} foi ${novoStatus.startsWith("APROVADA") ? "aprovada" : "reprovada"} por ${session?.user?.name || "Sistema"}${motivo ? ` — Motivo: ${motivo}` : ""}`,
+          `/cadastros/produto-cru/${produtoCruId}?tab=amostras&amostraId=amostra-${id}`,
+          session?.user?.name || "Sistema"
+        )
+      }
+
       return NextResponse.json(updated)
 
     } else if (tipo === "acabamento") {
@@ -121,6 +130,16 @@ export async function PATCH(req: NextRequest) {
         entidadeId: id,
         usuarioNome: session?.user?.name || "Sistema",
       })
+
+      if (precisaMotivo) {
+        const pid = produtoCruId || acabamentoId
+        await notificar(
+          novoStatus.startsWith("APROVADA") ? "AMOSTRA_APROVADA" : "AMOSTRA_REPROVADA",
+          `Amostra acabamento #${id} foi ${novoStatus.startsWith("APROVADA") ? "aprovada" : "reprovada"} por ${session?.user?.name || "Sistema"}${motivo ? ` — Motivo: ${motivo}` : ""}`,
+          `/cadastros/produto-cru/${pid}?tab=amostras&amostraId=amostra-acab-${acabamentoId}-${id}`,
+          session?.user?.name || "Sistema"
+        )
+      }
 
       return NextResponse.json(updated)
     }
