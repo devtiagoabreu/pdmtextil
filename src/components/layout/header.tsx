@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react"
 import { signOut, useSession } from "next-auth/react"
 import { Bell, Menu, Search, X, User, LogOut, Settings, CheckCheck, Loader2 } from "lucide-react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { ThemeToggle } from "./theme-toggle"
 import { CommandSearch } from "./command-search"
 import { ChatButton } from "./chat/ChatButton"
@@ -23,6 +24,7 @@ interface Notificacao {
 
 export function Header({ onMenuClick }: HeaderProps) {
   const { data: session } = useSession()
+  const router = useRouter()
   const [showNotifications, setShowNotifications] = useState(false)
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [showMobileSearch, setShowMobileSearch] = useState(false)
@@ -58,6 +60,19 @@ export function Header({ onMenuClick }: HeaderProps) {
     const interval = setInterval(fetchNotificacoes, 30000)
     return () => clearInterval(interval)
   }, [fetchNotificacoes])
+
+  const handleNotificacaoClick = async (n: Notificacao) => {
+    if (!n.lida) {
+      await fetch("/api/notificacoes", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: n.id }),
+      })
+      setNotificacoes(prev => prev.filter(p => p.id !== n.id))
+    }
+    setShowNotifications(false)
+    if (n.link) router.push(n.link)
+  }
 
   const marcarLidas = async () => {
     await fetch("/api/notificacoes", {
@@ -155,10 +170,14 @@ export function Header({ onMenuClick }: HeaderProps) {
                   <div className="p-6 text-center text-sm text-slate-500">Nenhuma notificação</div>
                 )}
                 {notificacoes.map(n => (
-                  <div key={n.id} className="p-3 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                  <button
+                    key={n.id}
+                    onClick={() => handleNotificacaoClick(n)}
+                    className="w-full text-left p-3 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                  >
                     <p className="text-sm font-medium text-slate-800 dark:text-slate-200">{n.mensagem}</p>
                     <p className="text-xs text-slate-500 mt-0.5">{formatTime(n.createdAt)}</p>
-                  </div>
+                  </button>
                 ))}
               </div>
             </div>
