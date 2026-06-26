@@ -34,6 +34,7 @@ export async function GET() {
       acabStatusRaw,
       trendRaw,
       recentRaw,
+      totalMesRaw,
     ] = await Promise.all([
       q(sql`
         SELECT status, COUNT(*)::int AS total
@@ -89,12 +90,23 @@ export async function GET() {
         ORDER BY "createdAt" DESC
         LIMIT 10
       `, []),
+      q(sql`
+        SELECT COUNT(*)::int AS total
+        FROM (
+          SELECT id FROM produto_cru_amostra
+          WHERE created_at >= date_trunc('month', now())
+          UNION ALL
+          SELECT id FROM produto_cru_acabamento_amostra
+          WHERE created_at >= date_trunc('month', now())
+        ) sub
+      `, { total: 0 }),
     ])
 
     const cruStatus = Array.isArray(cruStatusRaw) ? cruStatusRaw : []
     const acabStatus = Array.isArray(acabStatusRaw) ? acabStatusRaw : []
     const trendRows = Array.isArray(trendRaw) ? trendRaw : []
     const recent = Array.isArray(recentRaw) ? recentRaw : []
+    const totalMes = totalMesRaw?.total ?? 0
 
     const getCount = (rows: any[], s: string) => {
       const r = rows.find((x: any) => x.status === s)
@@ -134,6 +146,7 @@ export async function GET() {
 
     return NextResponse.json({
       totalGeral,
+      totalMes,
       totalCru,
       totalAcab,
       statusDistribution,

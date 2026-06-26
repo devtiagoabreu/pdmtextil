@@ -28,7 +28,7 @@ const TIPO_BG: Record<string, string> = {
 const TREND_COLOR = "#06b6d4"
 
 const MAIN_CARDS = [
-  { key: "total-geral", label: "Total Geral", color: "text-slate-700 dark:text-slate-200", bg: "bg-slate-100 dark:bg-slate-800", icon: ClipboardList, statField: "totalGeral" },
+  { key: "total-mes", label: "Total Mês", color: "text-slate-700 dark:text-slate-200", bg: "bg-slate-100 dark:bg-slate-800", icon: ClipboardList, statField: "totalMes" },
   { key: "tecido-cru", label: "Tecido Cru", color: "text-cyan-600 dark:text-cyan-400", bg: "bg-cyan-50 dark:bg-cyan-950/50", icon: FlaskConical, statField: "totalCru" },
   { key: "acabamento", label: "Acabamento", color: "text-orange-600 dark:text-orange-400", bg: "bg-orange-50 dark:bg-orange-950/50", icon: FlaskConical, statField: "totalAcab" },
 ]

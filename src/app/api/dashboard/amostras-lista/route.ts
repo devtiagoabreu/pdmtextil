@@ -25,6 +25,9 @@ export async function GET(req: NextRequest) {
     } else if (filtro === "aprovadas") {
       whereCru = sql`AND am.status = 'APROVADO'`
       whereAcab = sql`AND aam.status = 'APROVADO'`
+    } else if (filtro === "total-mes") {
+      whereCru = sql`AND am.created_at >= date_trunc('month', now())`
+      whereAcab = sql`AND aam.created_at >= date_trunc('month', now())`
     } else if (filtro === "reprovadas") {
       whereCru = sql`AND am.status = 'REPROVADA'`
       whereAcab = sql`AND aam.status = 'REPROVADA'`
@@ -61,7 +64,7 @@ export async function GET(req: NextRequest) {
       FROM produto_cru_amostra am
       JOIN produtos_cru p ON p.id = am.produto_cru_id
       LEFT JOIN solicitacoes s ON s.id = p.solicitacao_desenvolvimento_id
-      ${whereCru})
+      WHERE 1=1 ${whereCru})
       UNION ALL
       (SELECT
         aam.id, aam.descricao, aam.status, aam.motivo_aprovacao as "motivoAprovacao",
@@ -75,7 +78,7 @@ export async function GET(req: NextRequest) {
       JOIN produto_cru_acabamento ac ON ac.id = aam.acabamento_id
       JOIN produtos_cru p ON p.id = ac.produto_cru_id
       LEFT JOIN solicitacoes s ON s.id = p.solicitacao_desenvolvimento_id
-      ${whereAcab})
+      WHERE 1=1 ${whereAcab})
       ORDER BY "createdAt" DESC
     `)
 
