@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
-import { produtoCruAmostra, produtoCruAcabamento, produtoCruAcabamentoAmostra } from "@/lib/db/schema/produto-cru"
+import { produtoCruAmostra, produtoCruAcabamento, produtoCruAcabamentoAmostra, produtosCru } from "@/lib/db/schema/produto-cru"
+import { solicitacoes } from "@/lib/db/schema/solicitacoes"
 import { eq, and } from "drizzle-orm"
 import { getValidStatuses } from "@/lib/status-utils"
 import { registrarLog, notificar } from "@/lib/notificar"
@@ -84,6 +85,22 @@ export async function PATCH(req: NextRequest) {
         )
       }
 
+      // Se estava em produção e foi reprovada, volta solicitação para Em Desenvolvimento
+      if (novoStatus === "REPROVADA" && (amostra.status === "EM_PRODUCAO_TEC" || amostra.status === "EM_PRODUCAO_BEN")) {
+        const [prod] = await db
+          .select({ solicitacaoDesenvolvimentoId: produtosCru.solicitacaoDesenvolvimentoId })
+          .from(produtosCru)
+          .where(eq(produtosCru.id, produtoCruId))
+          .limit(1)
+        if (prod?.solicitacaoDesenvolvimentoId) {
+          await db
+            .update(solicitacoes)
+            .set({ status: "EM_DESENVOLVIMENTO", updatedAt: new Date() })
+            .where(eq(solicitacoes.id, prod.solicitacaoDesenvolvimentoId))
+          await notificar("SOLICITACAO_ATUALIZADA", `Solicitação #${prod.solicitacaoDesenvolvimentoId} voltou para Em Desenvolvimento (amostra tecido cru #${id} reprovada)`, `/comercial/solicitacoes/${prod.solicitacaoDesenvolvimentoId}`, session?.user?.name || "Sistema")
+        }
+      }
+
       return NextResponse.json(updated)
 
     } else if (tipo === "acabamento") {
@@ -139,6 +156,25 @@ export async function PATCH(req: NextRequest) {
           `/cadastros/produto-cru/${pid}?tab=amostras&amostraId=amostra-acab-${acabamentoId}-${id}`,
           session?.user?.name || "Sistema"
         )
+      }
+
+      // Se estava em produção e foi reprovada, volta solicitação para Em Desenvolvimento
+      if (novoStatus === "REPROVADA" && (amostra.status === "EM_PRODUCAO_BEN" || amostra.status === "EM_PRODUCAO_TEC")) {
+        const pid = produtoCruId
+        if (pid) {
+          const [prod] = await db
+            .select({ solicitacaoDesenvolvimentoId: produtosCru.solicitacaoDesenvolvimentoId })
+            .from(produtosCru)
+            .where(eq(produtosCru.id, pid))
+            .limit(1)
+          if (prod?.solicitacaoDesenvolvimentoId) {
+            await db
+              .update(solicitacoes)
+              .set({ status: "EM_DESENVOLVIMENTO", updatedAt: new Date() })
+              .where(eq(solicitacoes.id, prod.solicitacaoDesenvolvimentoId))
+            await notificar("SOLICITACAO_ATUALIZADA", `Solicitação #${prod.solicitacaoDesenvolvimentoId} voltou para Em Desenvolvimento (amostra acabamento #${id} reprovada)`, `/comercial/solicitacoes/${prod.solicitacaoDesenvolvimentoId}`, session?.user?.name || "Sistema")
+          }
+        }
       }
 
       return NextResponse.json(updated)
