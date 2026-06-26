@@ -64,6 +64,7 @@ export async function GET() {
         (SELECT
           am.id, am.descricao, am.status, am.motivo_aprovacao as "motivoAprovacao",
           am.data, am.created_at as "createdAt",
+          am.dados,
           p.id as "produtoId",
           p.codigo_pdm as "produtoCodigo", p.descricao as "produtoDescricao",
           p.id_integracao as "idIntegracao",
@@ -77,6 +78,7 @@ export async function GET() {
         (SELECT
           aam.id, aam.descricao, aam.status, aam.motivo_aprovacao as "motivoAprovacao",
           aam.data, aam.created_at as "createdAt",
+          aam.dados,
           p.id as "produtoId",
           p.codigo_pdm as "produtoCodigo", p.descricao as "produtoDescricao",
           p.id_integracao as "idIntegracao",

@@ -64,6 +64,7 @@ interface Amostra {
   data: string
   quantidadeProduzida?: string
   idIntegracaoErpCru?: string
+  dados: Record<string, string> | null
 }
 
 interface Acabamento {
@@ -84,6 +85,7 @@ interface AcabamentoAmostra {
   links?: { url: string; descricao: string }[]
   data: string
   quantidadeProduzida?: string
+  dados: Record<string, string> | null
 }
 
 const STATUS_OPTIONS = [
@@ -184,6 +186,7 @@ export default function ProdutoCruFormPage() {
   const [editAmostraObs, setEditAmostraObs] = useState("")
   const [editAmostraQtd, setEditAmostraQtd] = useState("")
   const [editAmostraErp, setEditAmostraErp] = useState("")
+  const [editAmostraTear, setEditAmostraTear] = useState("")
 
   useEffect(() => {
     fetch("/api/cadastros/fios")
@@ -587,6 +590,7 @@ export default function ProdutoCruFormPage() {
     setEditAmostraObs(a.observacoes || "")
     setEditAmostraQtd(a.quantidadeProduzida || "")
     setEditAmostraErp(a.idIntegracaoErpCru || "")
+    setEditAmostraTear(a.dados?.tear || "")
   }
 
   const saveAmostraEdit = async () => {
@@ -600,6 +604,7 @@ export default function ProdutoCruFormPage() {
           observacoes: editAmostraObs || null,
           quantidadeProduzida: editAmostraQtd || null,
           idIntegracaoErpCru: editAmostraErp || null,
+          dados: { tear: editAmostraTear || "" },
         }),
       })
       if (!res.ok) throw new Error()
@@ -990,6 +995,9 @@ export default function ProdutoCruFormPage() {
                                   ) : (
                                     <span className="text-xs text-slate-400">ERP: -</span>
                                   )}
+                                  {a.dados?.tear ? (
+                                    <span className="text-xs font-medium text-amber-600 bg-amber-100 dark:bg-amber-900/30 px-2 py-0.5 rounded">Tear: {a.dados.tear}</span>
+                                  ) : null}
                                 </div>
                                 <p className="text-xs text-slate-500 mt-1">
                                   {a.observacoes && (
@@ -1105,6 +1113,9 @@ export default function ProdutoCruFormPage() {
                                     <div className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-800/50 rounded mb-1">
                                       <div className="flex-1 min-w-0">
                                         <span className="text-sm">{as.descricao || "Sem descrição"}</span>
+                                        {as.dados?.tear && (
+                                          <span className="text-xs font-medium text-amber-600 bg-amber-100 dark:bg-amber-900/30 px-1.5 py-0.5 rounded ml-2">Tear: {as.dados.tear}</span>
+                                        )}
                                         {as.quantidadeProduzida && (
                                           <span className="text-xs text-slate-400 ml-2">Qtd: {as.quantidadeProduzida}</span>
                                         )}
@@ -1163,6 +1174,7 @@ export default function ProdutoCruFormPage() {
                                     <div key={as.id} className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-800/50 rounded text-sm">
                                       <span className="text-slate-600">
                                         {as.descricao || `Amostra #${as.id}`}
+                                        {as.dados?.tear && <span className="text-xs text-amber-500 ml-1">[Tear: {as.dados.tear}]</span>}
                                         <span className={`ml-2 text-xs font-medium px-1.5 py-0.5 rounded ${
                                           as.status.startsWith("APROVADA") ? "bg-green-100 text-green-700" :
                                           as.status === "REPROVADA" ? "bg-red-100 text-red-700" :
@@ -1297,6 +1309,10 @@ export default function ProdutoCruFormPage() {
               <div>
                 <Label>ERP (Cru)</Label>
                 <Input value={editAmostraErp} onChange={e => setEditAmostraErp(e.target.value)} placeholder="ERP.00001" />
+              </div>
+              <div>
+                <Label>Tear</Label>
+                <Input value={editAmostraTear} onChange={e => setEditAmostraTear(e.target.value)} placeholder="Tear 01" />
               </div>
             </div>
             <div className="flex justify-end gap-2">

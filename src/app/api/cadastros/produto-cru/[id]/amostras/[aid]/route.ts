@@ -73,6 +73,7 @@ export async function PUT(
         quantidadeProduzida: body.quantidadeProduzida || null,
         idIntegracaoErpCru: body.idIntegracaoErpCru || null,
         links: body.links !== undefined ? body.links : undefined,
+        dados: body.dados !== undefined ? body.dados : undefined,
       })
       .where(eq(produtoCruAmostra.id, parseInt(aid)))
       .returning({
@@ -85,6 +86,7 @@ export async function PUT(
         quantidadeProduzida: produtoCruAmostra.quantidadeProduzida,
         idIntegracaoErpCru: produtoCruAmostra.idIntegracaoErpCru,
         links: produtoCruAmostra.links,
+        dados: produtoCruAmostra.dados,
         historico: produtoCruAmostra.historico,
         data: produtoCruAmostra.data,
         createdAt: produtoCruAmostra.createdAt,
