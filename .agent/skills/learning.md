@@ -2817,6 +2817,74 @@ Erro 500 se a migration não foi executada mas o código já referencia a tabela
 
 ---
 
+## Seção 52: Padronização de Nomes nas Telas (26/06/2026)
+
+### Tópico 52.1: Contexto
+
+Para suportar futuros tipos de solicitação e amostra (ex: Amostra Comercial com produto PDM vinculado), padronizamos os nomes de todas as telas, menus, páginas e relatórios com o sufixo explícito **"de Desenvolvimento"**.
+
+### Tópico 52.2: Nomenclatura Padrão
+
+| Antes | Depois |
+|-------|--------|
+| Solicitação | Solicitação de Desenvolvimento |
+| Amostra (cru/acab.) | Amostra de Desenvolvimento |
+| Dashboard Solicitações | Dashboard Solicitações de Desenvolvimento |
+| Dashboard Amostras | Dashboard Amostras de Desenvolvimento |
+| Kanban — Solicitações | Kanban — Solicitações de Desenvolvimento |
+| Kanban — Amostras | Kanban — Amostras de Desenvolvimento |
+| Minhas Solicitações | Minhas Solicitações de Desenvolvimento |
+
+### Tópico 52.3: Abrangência
+
+**Source code (14 arquivos):**
+- `search-registry.ts` — labels usados no dropdown de Telas (admin) e busca global
+- `info-content/dashboard.ts` e `outros.ts` — títulos dos info buttons
+- `dashboard/page.tsx` — título da página
+- `dashboard/amostras/page.tsx` — título da página
+- `comercial/solicitacoes/page.tsx` — título da página
+- `comercial/solicitacoes/kanban/page.tsx` — título da página
+- `amostras/page.tsx` — título da página
+- `amostras/kanban/page.tsx` — título da página
+- `kanban-standalone/page.tsx` — título da página standalone
+- `kanban-amostras-standalone/page.tsx` — título da página standalone
+- `page.tsx` (hub relatórios) — 6 cards renomeados
+- 7 páginas de relatórios: titles e subtitles atualizados
+- `mobile-bottom-nav.tsx` — labels da navegação mobile
+- `seed-perfil-menus.sql` — 9 grupos de menu + itens renomeados
+
+**Database (via script `rename-menus-desenvolvimento.cjs`):**
+- `user_menu_itens` com url `/comercial/solicitacoes` → 10 itens
+- `user_menu_itens` com url `/comercial/solicitacoes/nova` → 3 itens
+- `user_menu_itens` com url `/amostras` → 6 itens
+- `user_menu_itens` com url `/dashboard` → 11 itens (user-specific)
+- `user_menu_itens` com url `/dashboard/amostras` → 11 itens (user-specific)
+- `user_menu_itens` com url Kanban — Solicitações → 2 itens
+- `user_menu_itens` com url Kanban — Amostras → 3 itens
+- `user_menus` grupo "Solicitações" → 9 grupos
+- `user_menus` grupo "Amostras" → 6 grupos
+
+### Tópico 52.4: Scripts de Atualização
+
+| Arquivo | Descrição |
+|---------|-----------|
+| `scripts/seed-perfil-menus.sql` | Seed atualizado com nomes novos |
+| `scripts/rename-menus-desenvolvimento.sql` | SQL puro para UPDATE manual |
+| `scripts/rename-menus-desenvolvimento.cjs` | CJS com postgres driver (funciona no Windows) |
+| `scripts/rename-menus-desenvolvimento.ts` | TS with Drizzle ORM |
+
+### Tópico 52.5: Commits
+
+| Commit | Descrição |
+|--------|-----------|
+| `5089b80` | rename: relatorios com nomes explicitos (10 files) |
+| `3d2a6fe` | rename: menus do sidebar, info-content e mobile-nav (5 files) |
+| `d692428` | chore: scripts de rename dos menus (SQL, TS, CJS) |
+| `87f7ef8` | fix: isNull no lugar de eq(null) no script TS |
+| `1a9e729` | rename: Dashboard, Kanban e page titles com nomes explicitos (14 files) |
+
+---
+
 ## Histórico de Sessões do Projeto (continuação)
 
 ### Sessão 11: Chat Corporativo + Correções (01/06/2026)
@@ -2970,5 +3038,5 @@ router.push(`/cadastros/produto-cru/${item.produtoId}?tab=amostras`)
 ---
 
 **Última atualização:** 26/06/2026
-**Versão:** 3.1 (Kanban Amostras + Dashboard + Telas)
-**Total de seções:** 51
+**Versão:** 3.2 (Padronização de Nomes: Solicitação de Desenvolvimento / Amostra de Desenvolvimento)
+**Total de seções:** 52
