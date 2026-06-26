@@ -6,7 +6,7 @@ import { Activity, Filter, UserCheck } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
-import { exportCSV, exportPDF, statsToHTML, tableToHTML } from "@/lib/export-utils"
+import { exportCSV, exportPDFRelatorio, statsToHTML, tableToHTML } from "@/lib/export-utils"
 
 type Stats = {
   total: number
@@ -105,7 +105,7 @@ export default function RelatorioAtividadeUsuario() {
     }, 200)
   }
 
-  function handleExportPDF() {
+  async function handleExportPDF() {
     const statsHtml = stats ? statsToHTML({
       "Total Ações": stats.total,
       "Usuários Ativos": stats.totalUsuarios,
@@ -122,7 +122,7 @@ export default function RelatorioAtividadeUsuario() {
         r.descricao || "-",
       ])
     )
-    exportPDF("Relatório de Atividade por Usuário", statsHtml + userTable + typeTable + recentTable)
+    await exportPDFRelatorio("Relatório de Atividade por Usuário", statsHtml + userTable + typeTable + recentTable)
   }
 
   const pathname = usePathname()

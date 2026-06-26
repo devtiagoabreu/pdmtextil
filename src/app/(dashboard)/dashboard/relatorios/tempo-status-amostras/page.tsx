@@ -5,7 +5,7 @@ import { Clock, FlaskConical } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
-import { exportCSV, exportPDF, statsToHTML, tableToHTML } from "@/lib/export-utils"
+import { exportCSV, exportPDFRelatorio, statsToHTML, tableToHTML } from "@/lib/export-utils"
 
 const STATUS_LABELS: Record<string, string> = {
   PENDENTE: "Pendente",
@@ -93,7 +93,7 @@ export default function RelatorioTempoStatusAmostras() {
     }, 200)
   }
 
-  function handleExportPDF() {
+  async function handleExportPDF() {
     const currentList = aba === "tecidoCru" ? tecidoCru : acabamento
     const prefix = aba === "tecidoCru" ? "Tecido Cru" : "Acabamento"
 
@@ -115,7 +115,7 @@ export default function RelatorioTempoStatusAmostras() {
         t.duracaoLabel,
       ])
     ))
-    exportPDF(`Relatório de Amostras - ${prefix} - Tempo em cada Status`, statsHtml + resumoTable + detalheTable)
+    await exportPDFRelatorio(`Relatório de Amostras - ${prefix} - Tempo em cada Status`, statsHtml + resumoTable + detalheTable)
   }
 
   const pathname = usePathname()

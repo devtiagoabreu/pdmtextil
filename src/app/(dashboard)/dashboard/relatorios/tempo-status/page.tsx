@@ -6,7 +6,7 @@ import { Clock, Filter } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
-import { exportCSV, exportPDF, statsToHTML, tableToHTML } from "@/lib/export-utils"
+import { exportCSV, exportPDFRelatorio, statsToHTML, tableToHTML } from "@/lib/export-utils"
 import { useStatuses, hexToRgba } from "@/hooks/use-statuses"
 
 const TIPO_LABELS: Record<string, string> = {
@@ -90,7 +90,7 @@ export default function RelatorioTempoStatus() {
     }, 200)
   }
 
-  function handleExportPDF() {
+  async function handleExportPDF() {
     const statsHtml = stats ? statsToHTML({
       "Total": stats.totalSolicitacoes,
       "Concluídas": stats.concluidas,
@@ -109,7 +109,7 @@ export default function RelatorioTempoStatus() {
         t.duracaoLabel,
       ])
     ))
-    exportPDF("Relatório de Tempo em cada Status", statsHtml + resumoTable + detalheTable)
+    await exportPDFRelatorio("Relatório de Tempo em cada Status", statsHtml + resumoTable + detalheTable)
   }
 
   const pathname = usePathname()
