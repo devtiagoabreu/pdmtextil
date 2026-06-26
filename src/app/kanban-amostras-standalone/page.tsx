@@ -29,7 +29,7 @@ export default function KanbanAmostrasStandalonePage() {
   return (
     <div className="flex flex-col h-screen animate-fade-in bg-slate-50 dark:bg-slate-950">
       <div className="flex items-center justify-between shrink-0 px-6 pt-4 pb-2">
-        <h1 className="text-lg font-bold text-slate-900 dark:text-slate-50">Kanban — Amostras</h1>
+        <h1 className="text-lg font-bold text-slate-900 dark:text-slate-50">Kanban — Amostras de Desenvolvimento</h1>
         <button
           onClick={handleReattach}
           className="inline-flex items-center gap-1.5 text-sm bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"

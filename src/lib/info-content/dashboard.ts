@@ -2,8 +2,8 @@ import type { InfoContent } from "./types"
 
 export const dashboardContent: Record<string, InfoContent> = {
   "/dashboard": {
-    title: "Dashboard Solicitações",
-    description: "Painel principal com métricas e indicadores das solicitações comerciais. Acompanhe o volume de solicitações criadas no mês, status atuais, distribuição por tipo e tendência mensal.",
+    title: "Dashboard Solicitações de Desenvolvimento",
+    description: "Painel principal com métricas e indicadores das solicitações de desenvolvimento. Acompanhe o volume de solicitações criadas no mês, status atuais, distribuição por tipo e tendência mensal.",
     rules: [
       "Os dados exibidos refletem o estado atual do banco de dados em tempo real.",
       "O gráfico de tendência mensal mostra os últimos 6 meses.",
@@ -12,8 +12,8 @@ export const dashboardContent: Record<string, InfoContent> = {
     ],
   },
   "/dashboard/amostras": {
-    title: "Dashboard Amostras",
-    description: "Painel de métricas das amostras de tecido cru e acabamento. Acompanhe o total de amostras, aprovações, reprovações e tendência mensal de criação.",
+    title: "Dashboard Amostras de Desenvolvimento",
+    description: "Painel de métricas das amostras de desenvolvimento (tecido cru e acabamento). Acompanhe o total de amostras, aprovações, reprovações e tendência mensal de criação.",
     rules: [
       "Amostras são vinculadas a um produto cru ou a um acabamento.",
       "O status 'APROVADO' indica que a amostra foi validada pelo cliente ou equipe técnica.",

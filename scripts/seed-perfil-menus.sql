@@ -16,7 +16,7 @@ BEGIN
   INSERT INTO user_menus (role, titulo, ordem) VALUES ('DEFAULT', 'Dashboards', 0)
     RETURNING id INTO menu_id;
   INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
-    (menu_id, 'Dashboard Solicitações', '/dashboard', 0),
+    (menu_id, 'Dashboard Solicitações de Desenvolvimento', '/dashboard', 0),
     (menu_id, 'Dashboard Amostras', '/dashboard/amostras', 1),
     (menu_id, 'Dashboard Corte', '/dashboard/requisicoes-corte', 2);
 
@@ -71,7 +71,7 @@ BEGIN
   INSERT INTO user_menus (role, titulo, ordem) VALUES ('ADMIN', 'Dashboards', 0)
     RETURNING id INTO menu_id;
   INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
-    (menu_id, 'Dashboard Solicitações', '/dashboard', 0),
+    (menu_id, 'Dashboard Solicitações de Desenvolvimento', '/dashboard', 0),
     (menu_id, 'Dashboard Amostras', '/dashboard/amostras', 1),
     (menu_id, 'Dashboard Corte', '/dashboard/requisicoes-corte', 2);
 
@@ -134,7 +134,7 @@ BEGIN
   INSERT INTO user_menus (role, titulo, ordem) VALUES ('SUDO', 'Dashboards', 0)
     RETURNING id INTO menu_id;
   INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
-    (menu_id, 'Dashboard Solicitações', '/dashboard', 0),
+    (menu_id, 'Dashboard Solicitações de Desenvolvimento', '/dashboard', 0),
     (menu_id, 'Dashboard Amostras', '/dashboard/amostras', 1),
     (menu_id, 'Dashboard Corte', '/dashboard/requisicoes-corte', 2);
 
@@ -197,7 +197,7 @@ BEGIN
   INSERT INTO user_menus (role, titulo, ordem) VALUES ('TECELAGEM', 'Dashboards', 0)
     RETURNING id INTO menu_id;
   INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
-    (menu_id, 'Dashboard Solicitações', '/dashboard', 0),
+    (menu_id, 'Dashboard Solicitações de Desenvolvimento', '/dashboard', 0),
     (menu_id, 'Dashboard Corte', '/dashboard/requisicoes-corte', 1);
 
   INSERT INTO user_menus (role, titulo, ordem) VALUES ('TECELAGEM', 'Solicitações de Desenvolvimento', 1)
@@ -220,7 +220,7 @@ BEGIN
   INSERT INTO user_menus (role, titulo, ordem) VALUES ('BENEFICIAMENTO', 'Dashboards', 0)
     RETURNING id INTO menu_id;
   INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
-    (menu_id, 'Dashboard Solicitações', '/dashboard', 0),
+    (menu_id, 'Dashboard Solicitações de Desenvolvimento', '/dashboard', 0),
     (menu_id, 'Dashboard Amostras', '/dashboard/amostras', 1);
 
   INSERT INTO user_menus (role, titulo, ordem) VALUES ('BENEFICIAMENTO', 'Solicitações de Desenvolvimento', 1)
@@ -248,7 +248,7 @@ BEGIN
   INSERT INTO user_menus (role, titulo, ordem) VALUES ('QUALIDADE', 'Dashboards', 0)
     RETURNING id INTO menu_id;
   INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
-    (menu_id, 'Dashboard Solicitações', '/dashboard', 0),
+    (menu_id, 'Dashboard Solicitações de Desenvolvimento', '/dashboard', 0),
     (menu_id, 'Dashboard Amostras', '/dashboard/amostras', 1);
 
   INSERT INTO user_menus (role, titulo, ordem) VALUES ('QUALIDADE', 'Solicitações de Desenvolvimento', 1)
@@ -276,7 +276,7 @@ BEGIN
   INSERT INTO user_menus (role, titulo, ordem) VALUES ('PCP', 'Dashboards', 0)
     RETURNING id INTO menu_id;
   INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
-    (menu_id, 'Dashboard Solicitações', '/dashboard', 0),
+    (menu_id, 'Dashboard Solicitações de Desenvolvimento', '/dashboard', 0),
     (menu_id, 'Dashboard Corte', '/dashboard/requisicoes-corte', 1);
 
   INSERT INTO user_menus (role, titulo, ordem) VALUES ('PCP', 'Solicitações de Desenvolvimento', 1)
@@ -299,7 +299,7 @@ BEGIN
   INSERT INTO user_menus (role, titulo, ordem) VALUES ('DESENVOLVIMENTO', 'Dashboards', 0)
     RETURNING id INTO menu_id;
   INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
-    (menu_id, 'Dashboard Solicitações', '/dashboard', 0),
+    (menu_id, 'Dashboard Solicitações de Desenvolvimento', '/dashboard', 0),
     (menu_id, 'Dashboard Amostras', '/dashboard/amostras', 1);
 
   INSERT INTO user_menus (role, titulo, ordem) VALUES ('DESENVOLVIMENTO', 'Solicitações de Desenvolvimento', 1)
