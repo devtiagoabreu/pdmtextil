@@ -5,7 +5,7 @@ import { Clock, FlaskConical } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
-import { exportCSV, exportPDFRelatorio, statsToHTML, tableToHTML } from "@/lib/export-utils"
+import { exportCSV, exportPDFRelatorio } from "@/lib/export-utils"
 
 const STATUS_LABELS: Record<string, string> = {
   PENDENTE: "Pendente",
@@ -97,25 +97,29 @@ export default function RelatorioTempoStatusAmostras() {
     const currentList = aba === "tecidoCru" ? tecidoCru : acabamento
     const prefix = aba === "tecidoCru" ? "Tecido Cru" : "Acabamento"
 
-    const statsHtml = stats ? statsToHTML({
-      "Total": stats.total,
-      [`Total ${prefix}`]: aba === "tecidoCru" ? stats.totalTecidoCru : stats.totalAcabamento,
-      "Pendentes": stats.pendentes,
-      "Aprovadas": stats.aprovadas,
-    }) : ""
-    const resumoTable = tableToHTML(["Produto", "Descrição", "Status", "Tempo Total", "Trocas"], currentList.map((r) => [
-      r.produtoCodigo, r.descricao || r.produtoDescricao, STATUS_LABELS[r.statusAtual] || r.statusAtual, r.tempoTotalLabel, r.trocasStatus,
-    ]))
-    const detalheTable = tableToHTML(["Produto", "Status", "Entrada", "Saída", "Duração"], currentList.flatMap((r) =>
-      r.timeline.map((t) => [
-        `${r.produtoCodigo} - ${r.descricao || r.produtoDescricao}`,
-        t.statusLabel,
-        t.entrada ? new Date(t.entrada).toLocaleString("pt-BR") : "-",
-        t.saida ? new Date(t.saida).toLocaleString("pt-BR") : "Em andamento",
-        t.duracaoLabel,
-      ])
-    ))
-    await exportPDFRelatorio(`Relatório de Amostras - ${prefix} - Tempo em cada Status`, statsHtml + resumoTable + detalheTable)
+    await exportPDFRelatorio({
+      title: `Relatório de Amostras - ${prefix} - Tempo em cada Status`,
+      stats: stats ? {
+        "Total": stats.total,
+        [`Total ${prefix}`]: aba === "tecidoCru" ? stats.totalTecidoCru : stats.totalAcabamento,
+        "Pendentes": stats.pendentes,
+        "Aprovadas": stats.aprovadas,
+      } : undefined,
+      tables: [
+        { headers: ["Produto", "Descrição", "Status", "Tempo Total", "Trocas"], rows: currentList.map((r) => [
+          r.produtoCodigo, r.descricao || r.produtoDescricao, STATUS_LABELS[r.statusAtual] || r.statusAtual, r.tempoTotalLabel, r.trocasStatus,
+        ])},
+        { headers: ["Produto", "Status", "Entrada", "Saída", "Duração"], rows: currentList.flatMap((r) =>
+          r.timeline.map((t) => [
+            `${r.produtoCodigo} - ${r.descricao || r.produtoDescricao}`,
+            t.statusLabel,
+            t.entrada ? new Date(t.entrada).toLocaleString("pt-BR") : "-",
+            t.saida ? new Date(t.saida).toLocaleString("pt-BR") : "Em andamento",
+            t.duracaoLabel,
+          ])
+        )},
+      ],
+    })
   }
 
   const pathname = usePathname()

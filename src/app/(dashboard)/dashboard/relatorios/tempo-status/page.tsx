@@ -6,7 +6,7 @@ import { Clock, Filter } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
-import { exportCSV, exportPDFRelatorio, statsToHTML, tableToHTML } from "@/lib/export-utils"
+import { exportCSV, exportPDFRelatorio } from "@/lib/export-utils"
 import { useStatuses, hexToRgba } from "@/hooks/use-statuses"
 
 const TIPO_LABELS: Record<string, string> = {
@@ -91,25 +91,29 @@ export default function RelatorioTempoStatus() {
   }
 
   async function handleExportPDF() {
-    const statsHtml = stats ? statsToHTML({
-      "Total": stats.totalSolicitacoes,
-      "Concluídas": stats.concluidas,
-      "Tempo Médio": `${stats.tempoMedioHoras}h`,
-      "Média Trocas": stats.mediaTrocasStatus,
-    }) : ""
-    const resumoTable = tableToHTML(["#", "Cliente", "Status", "Tempo Total", "Trocas"], resultados.map((r) => [
-      `#${r.id}`, r.cliente, r.statusAtualLabel, r.tempoTotalLabel, r.trocasStatus,
-    ]))
-    const detalheTable = tableToHTML(["Solicitação", "Status", "Entrada", "Saída", "Duração"], resultados.flatMap((r) =>
-      r.timeline.map((t) => [
-        `#${r.id} - ${r.cliente}`,
-        t.statusLabel,
-        t.entrada ? new Date(t.entrada).toLocaleString("pt-BR") : "-",
-        t.saida ? new Date(t.saida).toLocaleString("pt-BR") : "Em andamento",
-        t.duracaoLabel,
-      ])
-    ))
-    await exportPDFRelatorio("Relatório de Tempo em cada Status", statsHtml + resumoTable + detalheTable)
+    await exportPDFRelatorio({
+      title: "Relatório de Tempo em cada Status",
+      stats: stats ? {
+        "Total": stats.totalSolicitacoes,
+        "Concluídas": stats.concluidas,
+        "Tempo Médio": `${stats.tempoMedioHoras}h`,
+        "Média Trocas": stats.mediaTrocasStatus,
+      } : undefined,
+      tables: [
+        { headers: ["#", "Cliente", "Status", "Tempo Total", "Trocas"], rows: resultados.map((r) => [
+          `#${r.id}`, r.cliente, r.statusAtualLabel, r.tempoTotalLabel, r.trocasStatus,
+        ])},
+        { headers: ["Solicitação", "Status", "Entrada", "Saída", "Duração"], rows: resultados.flatMap((r) =>
+          r.timeline.map((t) => [
+            `#${r.id} - ${r.cliente}`,
+            t.statusLabel,
+            t.entrada ? new Date(t.entrada).toLocaleString("pt-BR") : "-",
+            t.saida ? new Date(t.saida).toLocaleString("pt-BR") : "Em andamento",
+            t.duracaoLabel,
+          ])
+        )},
+      ],
+    })
   }
 
   const pathname = usePathname()

@@ -6,7 +6,7 @@ import { BarChart3, Filter } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
-import { exportCSV, exportPDFRelatorio, statsToHTML, tableToHTML } from "@/lib/export-utils"
+import { exportCSV, exportPDFRelatorio } from "@/lib/export-utils"
 import { useStatuses, hexToRgba } from "@/hooks/use-statuses"
 
 type Stats = {
@@ -74,22 +74,26 @@ export default function RelatorioSolicitacoesCriadas() {
   }
 
   async function handleExportPDF() {
-    const statsHtml = stats ? statsToHTML({
-      "Total Criadas": stats.totalCriadas,
-      "Deletadas": stats.totalDeletadas,
-      "Concluídas": stats.concluidas,
-      "Em Andamento": stats.emAndamento,
-      "Taxa de Sucesso": `${stats.taxaSucesso}%`,
-    }) : ""
-    const mesTable = tableToHTML(["Mês", "Criadas", "Deletadas", "Concluídas"], porMes.map((m) => [m.mes, m.criadas, m.deletadas, m.concluidas]))
-    const recentTable = tableToHTML(["#", "Cliente", "Tipo", "Status", "Criado em"], recentes.map((r) => [
-      r.id,
-      r.cliente,
-      r.tipo === "DESENVOLVIMENTO_TECELAGEM" ? "Tecelagem" : "Beneficiamento",
-      getStatusLabel(r.status),
-      r.createdAt ? new Date(r.createdAt).toLocaleDateString("pt-BR") : "-",
-    ]))
-    await exportPDFRelatorio("Relatório de Solicitações Criadas / Deletadas", statsHtml + mesTable + recentTable)
+    await exportPDFRelatorio({
+      title: "Relatório de Solicitações Criadas / Deletadas",
+      stats: stats ? {
+        "Total Criadas": stats.totalCriadas,
+        "Deletadas": stats.totalDeletadas,
+        "Concluídas": stats.concluidas,
+        "Em Andamento": stats.emAndamento,
+        "Taxa de Sucesso": `${stats.taxaSucesso}%`,
+      } : undefined,
+      tables: [
+        { headers: ["Mês", "Criadas", "Deletadas", "Concluídas"], rows: porMes.map((m) => [m.mes, m.criadas, m.deletadas, m.concluidas]) },
+        { headers: ["#", "Cliente", "Tipo", "Status", "Criado em"], rows: recentes.map((r) => [
+          r.id,
+          r.cliente,
+          r.tipo === "DESENVOLVIMENTO_TECELAGEM" ? "Tecelagem" : "Beneficiamento",
+          getStatusLabel(r.status),
+          r.createdAt ? new Date(r.createdAt).toLocaleDateString("pt-BR") : "-",
+        ])},
+      ],
+    })
   }
 
   const pathname = usePathname()
