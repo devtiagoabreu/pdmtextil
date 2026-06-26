@@ -32,6 +32,7 @@ export default function HistoricoSolicitacaoPage() {
   const [solicitacoesList, setSolicitacoesList] = useState<any[]>([])
   const [searchText, setSearchText] = useState("")
   const [showDropdown, setShowDropdown] = useState(false)
+  const [orientacao, setOrientacao] = useState<"portrait" | "landscape">("portrait")
   const searchRef = useRef<HTMLDivElement>(null)
 
   const fetchHistory = useCallback(async (id: number) => {
@@ -180,6 +181,7 @@ export default function HistoricoSolicitacaoPage() {
       },
       tables,
       filename: `historico-solicitacao-${solicitacao.id}`,
+      orientation: orientacao,
     })
   }
 
@@ -255,9 +257,27 @@ export default function HistoricoSolicitacaoPage() {
           </div>
           {selectedId && (
             <>
-              <button onClick={handleExportPDF} className="h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800">
-                PDF
-              </button>
+              <div className="flex items-center gap-1 h-10 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-2 text-sm">
+                <span className="text-xs text-slate-400 mr-1">PDF</span>
+                <button
+                  onClick={() => setOrientacao("portrait")}
+                  className={`px-2 py-1 rounded text-xs font-medium transition-colors ${orientacao === "portrait" ? "bg-blue-600 text-white" : "text-slate-500 hover:text-slate-700"}`}
+                >
+                  Retrato
+                </button>
+                <button
+                  onClick={() => setOrientacao("landscape")}
+                  className={`px-2 py-1 rounded text-xs font-medium transition-colors ${orientacao === "landscape" ? "bg-blue-600 text-white" : "text-slate-500 hover:text-slate-700"}`}
+                >
+                  Paisagem
+                </button>
+                <button
+                  onClick={handleExportPDF}
+                  className="ml-1 px-2 py-1 rounded text-xs font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                >
+                  Exportar
+                </button>
+              </div>
               <button onClick={() => router.push(pathname)} className="h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 text-sm hover:bg-slate-50 dark:hover:bg-slate-800">
                 Limpar
               </button>
