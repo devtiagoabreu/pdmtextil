@@ -78,6 +78,7 @@ export const searchRegistry: SearchItem[] = [
   { id: "relatorio-concluidas-desenvolvimento", label: "Relatório: Concluídas Desenvolvimento", keywords: ["relatorio", "concluidas", "desenvolvimento", "solicitacoes", "finalizadas"], href: "/dashboard/relatorios/solicitacoes-concluidas", description: "Solicitações com status Concluído Desenvolvimento", module: "Relatórios" },
   { id: "relatorio-solicitacoes-por-status", label: "Relatório: Solicitações por Status", keywords: ["relatorio", "solicitacoes", "status", "filtro", "dinamico"], href: "/dashboard/relatorios/solicitacoes-por-status", description: "Filtre solicitações por qualquer status do cadastro", module: "Relatórios" },
   { id: "relatorio-amostras-por-status", label: "Relatório: Amostras por Status", keywords: ["relatorio", "amostras", "status", "filtro", "amostra"], href: "/dashboard/relatorios/amostras-por-status", description: "Filtre amostras por qualquer status do cadastro", module: "Relatórios" },
+  { id: "relatorio-historico-solicitacao", label: "Relatório: Histórico de Solicitação", keywords: ["relatorio", "historico", "solicitacao", "timeline", "amostras", "produtos", "log"], href: "/dashboard/relatorios/historico-solicitacao", description: "Histórico completo de uma solicitação: dados, produtos, amostras e timeline", module: "Relatórios" },
 
   // Admin
   { id: "admin-usuarios", label: "Usuários", keywords: ["usuario", "admin", "lista", "pessoa", "colaborador"], href: "/admin/usuarios", description: "Gerenciamento de usuários do sistema", module: "Administrativo" },
