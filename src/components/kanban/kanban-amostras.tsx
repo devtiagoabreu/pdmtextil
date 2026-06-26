@@ -2,10 +2,10 @@
 
 import { useEffect, useState, useCallback } from "react"
 import { useSession } from "next-auth/react"
+import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { DndContext, DragOverlay, useDraggable, useDroppable, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
-import { Loader2, Calendar, FileText, ExternalLink } from "lucide-react"
-import Link from "next/link"
+import { Loader2, Calendar, ExternalLink, Package } from "lucide-react"
 
 const ROLES_PERMITIDOS = ["COMERCIAL", "DESENVOLVIMENTO", "QUALIDADE", "PCP", "ADMIN", "SUDO"]
 
@@ -13,6 +13,11 @@ interface StatusCol {
   nome: string
   rotulo: string
   cor: string | null
+}
+
+interface AmostraLink {
+  url: string
+  descricao: string
 }
 
 interface AmostraCard {
@@ -28,6 +33,8 @@ interface AmostraCard {
   acabamentoDescricao?: string | null
   solicitacaoDesenvolvimentoId?: number | null
   tipoAmostra: string
+  links?: AmostraLink[] | null
+  quantidadeProduzida?: number | null
 }
 
 function DroppableColumn({ id, children, rotulo, cor, count }: { id: string; children: React.ReactNode; rotulo: string; cor: string | null; count: number }) {
@@ -58,6 +65,7 @@ function DroppableColumn({ id, children, rotulo, cor, count }: { id: string; chi
 }
 
 function DraggableAmostraCard({ amostra }: { amostra: AmostraCard }) {
+  const router = useRouter()
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: `amostra-${amostra.tipo}-${amostra.id}`,
     data: { amostra },
@@ -70,15 +78,26 @@ function DraggableAmostraCard({ amostra }: { amostra: AmostraCard }) {
 
   const dataDate = amostra.data ? new Date(amostra.data) : null
 
+  const scrollId = amostra.tipo === "tecido_cru"
+    ? `amostra-${amostra.id}`
+    : `amostra-acab-${amostra.acabamentoId}-${amostra.id}`
+
+  const handleClick = () => {
+    if (amostra.produtoCruId) {
+      router.push(`/cadastros/produto-cru/${amostra.produtoCruId}?tab=amostras&amostraId=${scrollId}`)
+    }
+  }
+
   return (
     <div
       ref={setNodeRef}
       {...attributes}
       {...listeners}
       style={style}
+      onClick={handleClick}
       className={`bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-3 cursor-grab active:cursor-grabbing transition-shadow hover:shadow-md ${
         isDragging ? "opacity-50 shadow-lg" : ""
-      }`}
+      } ${amostra.produtoCruId ? "cursor-pointer" : "cursor-grab"}`}
     >
       <div className="flex items-start justify-between gap-2">
         <span className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${
@@ -99,10 +118,37 @@ function DraggableAmostraCard({ amostra }: { amostra: AmostraCard }) {
       {amostra.tipo === "acabamento" && amostra.acabamentoDescricao && (
         <p className="text-[10px] text-slate-500 mt-0.5 italic">{amostra.acabamentoDescricao}</p>
       )}
-      {dataDate && (
-        <div className="flex items-center gap-1 mt-2 text-[10px] text-slate-400">
-          <Calendar size={10} />
-          <span>{dataDate.toLocaleDateString("pt-BR")}</span>
+
+      <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+        {amostra.quantidadeProduzida != null && (
+          <span className="inline-flex items-center gap-0.5 text-[10px] font-medium text-purple-600 bg-purple-100 dark:bg-purple-900/30 dark:text-purple-300 px-1.5 py-0.5 rounded">
+            <Package size={10} />
+            {amostra.quantidadeProduzida}
+          </span>
+        )}
+        {dataDate && (
+          <span className="inline-flex items-center gap-0.5 text-[10px] text-slate-400">
+            <Calendar size={10} />
+            {dataDate.toLocaleDateString("pt-BR")}
+          </span>
+        )}
+      </div>
+
+      {amostra.links && amostra.links.length > 0 && (
+        <div className="flex flex-col gap-0.5 mt-1.5 border-t border-slate-100 dark:border-slate-700 pt-1.5">
+          {amostra.links.map((link, i) => (
+            <a
+              key={i}
+              href={link.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={e => e.stopPropagation()}
+              className="inline-flex items-center gap-1 text-[10px] text-blue-600 dark:text-blue-400 hover:underline truncate"
+            >
+              <ExternalLink size={10} className="shrink-0" />
+              <span className="truncate">{link.descricao || link.url}</span>
+            </a>
+          ))}
         </div>
       )}
     </div>
@@ -256,6 +302,12 @@ export function KanbanAmostras() {
               </div>
               <p className="text-xs font-mono text-blue-600 mt-1">{activeCard.produtoCodigo}</p>
               <p className="text-sm font-medium text-slate-900 mt-0.5">{activeCard.descricao || "Sem descrição"}</p>
+              {activeCard.quantidadeProduzida != null && (
+                <div className="flex items-center gap-1 mt-1 text-[10px] text-purple-600">
+                  <Package size={10} />
+                  <span>Qtd: {activeCard.quantidadeProduzida}</span>
+                </div>
+              )}
             </div>
           )}
         </DragOverlay>

@@ -8,12 +8,14 @@ export async function GET() {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
 
-    const telas = searchRegistry.map(item => ({
-      id: item.id,
-      label: item.label,
-      href: item.href,
-      module: item.module,
-    }))
+    const telas = searchRegistry
+      .map(item => ({
+        id: item.id,
+        label: item.label,
+        href: item.href,
+        module: item.module,
+      }))
+      .sort((a, b) => a.label.localeCompare(b.label, "pt-BR"))
 
     return NextResponse.json(telas)
   } catch (error) {
