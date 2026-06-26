@@ -23,8 +23,8 @@ export async function GET(req: NextRequest) {
       whereCru = sql`AND 1=0`
       whereAcab = sql``
     } else if (filtro === "aprovadas") {
-      whereCru = sql`AND am.status = 'APROVADO'`
-      whereAcab = sql`AND aam.status = 'APROVADO'`
+      whereCru = sql`AND am.status LIKE 'APROVADA%'`
+      whereAcab = sql`AND aam.status LIKE 'APROVADA%'`
     } else if (filtro === "total-mes") {
       whereCru = sql`AND am.created_at >= date_trunc('month', now())`
       whereAcab = sql`AND aam.created_at >= date_trunc('month', now())`
@@ -38,11 +38,11 @@ export async function GET(req: NextRequest) {
       whereCru = sql`AND 1=0`
       whereAcab = sql`AND aam.status = 'PENDENTE'`
     } else if (filtro === "aprovadas-cru") {
-      whereCru = sql`AND am.status = 'APROVADO'`
+      whereCru = sql`AND am.status LIKE 'APROVADA%'`
       whereAcab = sql`AND 1=0`
     } else if (filtro === "aprovadas-acab") {
       whereCru = sql`AND 1=0`
-      whereAcab = sql`AND aam.status = 'APROVADO'`
+      whereAcab = sql`AND aam.status LIKE 'APROVADA%'`
     } else if (filtro.startsWith("status-")) {
       const statusNome = filtro.slice(7)
       whereCru = sql`AND am.status = ${statusNome}`
