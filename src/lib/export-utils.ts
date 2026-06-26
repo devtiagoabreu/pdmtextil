@@ -85,6 +85,7 @@ export async function exportPDFRelatorio(options: {
   tables?: { headers: string[]; rows: (string | number | null | undefined)[][] }[]
   period?: string
   filename?: string
+  orientation?: "portrait" | "landscape"
 }) {
   const { default: jsPDF } = await import("jspdf")
   await import("jspdf-autotable")
@@ -96,7 +97,7 @@ export async function exportPDFRelatorio(options: {
     empresa = list.find((e: any) => e.isDefault) || list[0] || null
   } catch {}
 
-  const doc = new jsPDF("landscape")
+  const doc = new jsPDF(options.orientation || "landscape")
   const pageW = doc.internal.pageSize.getWidth()
   const pageH = doc.internal.pageSize.getHeight()
   const marginX = 14
