@@ -122,12 +122,12 @@ export async function exportPDFRelatorio(options: {
 
   // Title
   let y = 40
-  doc.setTextColor(7, 63, 184)
+  doc.setTextColor(0, 0, 0)
   doc.setFontSize(14).setFont("helvetica", "bold")
   doc.text(options.title, marginX, y)
   y += 6
   doc.setFontSize(8).setFont("helvetica", "normal")
-  doc.setTextColor(100, 116, 139)
+  doc.setTextColor(0, 0, 0)
   const periodText = options.period || `Exportado em ${new Date().toLocaleString("pt-BR")}`
   doc.text(periodText, marginX, y)
   y += 8
@@ -139,13 +139,13 @@ export async function exportPDFRelatorio(options: {
     for (const [label, value] of entries) {
       const x = marginX + (Object.keys(options.stats).indexOf(label) * (boxW + 4))
       doc.setFillColor(248, 250, 252)
-      doc.setDrawColor(226, 232, 240)
+      doc.setDrawColor(200, 200, 200)
       doc.roundedRect(x, y, boxW, 22, 2, 2, "FD")
       doc.setFontSize(6).setFont("helvetica", "normal")
-      doc.setTextColor(100, 116, 139)
+      doc.setTextColor(0, 0, 0)
       doc.text(label.toUpperCase(), x + 3, y + 6)
       doc.setFontSize(11).setFont("helvetica", "bold")
-      doc.setTextColor(7, 63, 184)
+      doc.setTextColor(0, 0, 0)
       doc.text(String(value), x + 3, y + 17)
     }
     y += 30
@@ -165,7 +165,7 @@ export async function exportPDFRelatorio(options: {
         startY: y,
         margin: { left: marginX, right: marginX },
         tableWidth: contentW,
-        styles: { fontSize: 7, cellPadding: 2, textColor: [51, 65, 85] },
+        styles: { fontSize: 7, cellPadding: 2, textColor: [0, 0, 0] },
         headStyles: { fillColor: [7, 63, 184], textColor: 255, fontStyle: "bold", fontSize: 6 },
         alternateRowStyles: { fillColor: [248, 250, 252] },
         columnStyles: {},
@@ -181,7 +181,7 @@ export async function exportPDFRelatorio(options: {
     for (let i = 1; i <= pageCount; i++) {
       doc.setPage(i)
       doc.setFontSize(6).setFont("helvetica", "normal")
-      doc.setTextColor(148, 163, 184)
+      doc.setTextColor(80, 80, 80)
       const empresaNome = empresa?.nome || "PDM PRO TÊXTIL"
       doc.text(`${empresaNome} — Relatório gerado automaticamente`, marginX, pageH - 6)
       doc.text(`Página ${i}`, pageW - marginX, pageH - 6, { align: "right" })
