@@ -126,6 +126,22 @@ export async function PUT(
       }
     }
 
+    // Se a amostra estava em produção e foi reprovada, volta solicitação para Em Desenvolvimento
+    if (body.status === "REPROVADA" && (statusAnterior === "EM_PRODUCAO_TEC" || statusAnterior === "EM_PRODUCAO_BEN")) {
+      const [prod] = await db
+        .select({ solicitacaoDesenvolvimentoId: produtosCru.solicitacaoDesenvolvimentoId })
+        .from(produtosCru)
+        .where(eq(produtosCru.id, parseInt(id)))
+        .limit(1)
+      if (prod?.solicitacaoDesenvolvimentoId) {
+        await db
+          .update(solicitacoes)
+          .set({ status: "EM_DESENVOLVIMENTO", updatedAt: new Date() })
+          .where(eq(solicitacoes.id, prod.solicitacaoDesenvolvimentoId))
+        await notificar("SOLICITACAO_ATUALIZADA", `Solicitação #${prod.solicitacaoDesenvolvimentoId} voltou para Em Desenvolvimento (amostra tecido cru #${aid} reprovada)`, `/comercial/solicitacoes/${prod.solicitacaoDesenvolvimentoId}`, session.user.name)
+      }
+    }
+
     await registrarLog({ tipo: "ATUALIZACAO", acao: "atualizar_status", descricao: `Amostra tecido cru #${aid} alterada para ${body.status}`, entidade: "AmostraTecidoCru", entidadeId: parseInt(aid), usuarioNome: session.user.name })
 
     return NextResponse.json(atualizado)
