@@ -20,7 +20,7 @@ export async function PUT(
     const { id, aid } = await params
     const body = await req.json()
 
-    const isAprovacao = body.status === "APROVADO" || body.status === "REPROVADA"
+    const isAprovacao = body.status.startsWith("APROVADA") || body.status === "REPROVADA"
 
     if (isAprovacao && !["COMERCIAL", "ADMIN", "SUDO"].includes(session.user.role)) {
       return NextResponse.json({ error: "Apenas COMERCIAL, ADMIN e SUDO podem aprovar/reprovar amostras" }, { status: 403 })
@@ -93,8 +93,8 @@ export async function PUT(
     if (atualizado) {
       if (isAprovacao) {
         await notificar(
-          body.status === "APROVADO" ? "AMOSTRA_APROVADA" : "AMOSTRA_REPROVADA",
-          `Amostra #${aid} do produto cru #${id} foi ${body.status === "APROVADO" ? "aprovada" : "reprovada"} por ${session.user.name}${body.motivoAprovacao ? ` — Motivo: ${body.motivoAprovacao}` : ""}`,
+          body.status.startsWith("APROVADA") ? "AMOSTRA_APROVADA" : "AMOSTRA_REPROVADA",
+          `Amostra #${aid} do produto cru #${id} foi ${body.status.startsWith("APROVADA") ? "aprovada" : "reprovada"} por ${session.user.name}${body.motivoAprovacao ? ` — Motivo: ${body.motivoAprovacao}` : ""}`,
           `/cadastros/produto-cru/${id}?tab=amostras&amostraId=amostra-${aid}`,
           session.user.name
         )

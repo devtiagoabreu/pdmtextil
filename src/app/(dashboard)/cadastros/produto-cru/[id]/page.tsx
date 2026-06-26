@@ -94,7 +94,7 @@ const STATUS_OPTIONS = [
 ]
 
 const TIPO_ESTRUTURA = ["TRAMA", "URDUME"]
-const STATUS_AMOSTRA = ["PENDENTE", "APROVADO", "REPROVADA"]
+const STATUS_AMOSTRA = ["PENDENTE", "APROVADA_DESEN", "APROVADA_COMERCIAL", "REPROVADA", "EM_PRODUCAO_TEC", "EM_PRODUCAO_BEN", "AGUARDANDO_MP"]
 const TIPO_ACABAMENTO = ["TINGIMENTO", "ESTAMPARIA", "TERMOFIXACAO", "LAVAGEM", "OUTRO"]
 
 const TABS = [
@@ -266,7 +266,7 @@ export default function ProdutoCruFormPage() {
 
   const handleStatusChange = (newStatus: string) => {
     if (newStatus === "APROVADO") {
-      const temAmostraCruAprovada = amostras.some(a => a.status === "APROVADO")
+      const temAmostraCruAprovada = amostras.some(a => a.status.startsWith("APROVADA"))
       if (!temAmostraCruAprovada) {
         toast.error("É necessário pelo menos uma amostra de tecido cru aprovada para aprovar o produto")
         return
@@ -290,7 +290,7 @@ export default function ProdutoCruFormPage() {
     }
 
     if (produto.status === "APROVADO") {
-      const temAmostraCruAprovada = amostras.some(a => a.status === "APROVADO")
+      const temAmostraCruAprovada = amostras.some(a => a.status.startsWith("APROVADA"))
       if (!temAmostraCruAprovada) {
         toast.error("É necessário pelo menos uma amostra de tecido cru aprovada para aprovar o produto")
         return
@@ -456,8 +456,8 @@ export default function ProdutoCruFormPage() {
   }
 
   const updateStatusAmostra = async (amostraId: number, novoStatus: string) => {
-    const allow = ["APROVADO", "REPROVADA"]
-    if (allow.includes(novoStatus)) {
+    const allow = ["REPROVADA"]
+    if (novoStatus.startsWith("APROVADA") || allow.includes(novoStatus)) {
       setMotivoModal({ open: true, target: { type: "amostra", id: amostraId }, novoStatus })
     } else {
       await confirmUpdateStatusAmostra(amostraId, novoStatus)
@@ -465,8 +465,8 @@ export default function ProdutoCruFormPage() {
   }
 
   const updateStatusAmostraAcabamento = async (acabamentoId: number, asid: number, novoStatus: string) => {
-    const allow = ["APROVADO", "REPROVADA"]
-    if (allow.includes(novoStatus)) {
+    const allow = ["REPROVADA"]
+    if (novoStatus.startsWith("APROVADA") || allow.includes(novoStatus)) {
       setMotivoModal({ open: true, target: { type: "acabamento", id: asid, acabamentoId }, novoStatus })
     } else {
       await confirmUpdateStatusAmostraAcabamento(acabamentoId, asid, novoStatus)
@@ -999,7 +999,7 @@ export default function ProdutoCruFormPage() {
                                     value={a.status}
                                     onChange={e => updateStatusAmostra(a.id, e.target.value)}
                                     className={`text-xs rounded-full px-2 py-0.5 border-0 font-medium ml-1 cursor-pointer ${
-                                      a.status === "APROVADO" ? "bg-green-100 text-green-700" :
+                                      a.status.startsWith("APROVADA") ? "bg-green-100 text-green-700" :
                                       a.status === "REPROVADA" ? "bg-red-100 text-red-700" :
                                       "bg-yellow-100 text-yellow-700"
                                     }`}
@@ -1123,7 +1123,7 @@ export default function ProdutoCruFormPage() {
                                           value={as.status}
                                           onChange={e => updateStatusAmostraAcabamento(acab.id, as.id, e.target.value)}
                                           className={`text-xs rounded-full px-2 py-0.5 border-0 font-medium cursor-pointer ${
-                                            as.status === "APROVADO" ? "bg-green-100 text-green-700" :
+                                            as.status.startsWith("APROVADA") ? "bg-green-100 text-green-700" :
                                             as.status === "REPROVADA" ? "bg-red-100 text-red-700" :
                                             "bg-yellow-100 text-yellow-700"
                                           }`}
@@ -1164,7 +1164,7 @@ export default function ProdutoCruFormPage() {
                                       <span className="text-slate-600">
                                         {as.descricao || `Amostra #${as.id}`}
                                         <span className={`ml-2 text-xs font-medium px-1.5 py-0.5 rounded ${
-                                          as.status === "APROVADO" ? "bg-green-100 text-green-700" :
+                                          as.status.startsWith("APROVADA") ? "bg-green-100 text-green-700" :
                                           as.status === "REPROVADA" ? "bg-red-100 text-red-700" :
                                           "bg-yellow-100 text-yellow-700"
                                         }`}>{as.status}</span>
@@ -1236,10 +1236,10 @@ export default function ProdutoCruFormPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-xl p-6 w-full max-w-md mx-4 space-y-4">
             <h3 className="text-lg font-semibold">
-              {motivoModal.novoStatus === "APROVADO" ? "Aprovar" : "Reprovar"} Amostra
+              {motivoModal.novoStatus.startsWith("APROVADA") ? "Aprovar" : "Reprovar"} Amostra
             </h3>
             <p className="text-sm text-slate-500">
-              {motivoModal.novoStatus === "APROVADO"
+              {motivoModal.novoStatus.startsWith("APROVADA")
                 ? "Informe o motivo da aprovação"
                 : "Informe o motivo da reprovação"}
             </p>
@@ -1268,9 +1268,9 @@ export default function ProdutoCruFormPage() {
                   }
                   setMotivoModal({ ...motivoModal, open: false })
                 }}
-                className={motivoModal.novoStatus === "APROVADO" ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"}
+                className={motivoModal.novoStatus.startsWith("APROVADA") ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"}
               >
-                {motivoModal.novoStatus === "APROVADO" ? "Aprovar" : "Reprovar"}
+                {motivoModal.novoStatus.startsWith("APROVADA") ? "Aprovar" : "Reprovar"}
               </Button>
             </div>
           </div>
