@@ -108,7 +108,7 @@ export async function GET() {
     const acabStatus = Array.isArray(acabStatusRaw) ? acabStatusRaw : []
     const trendRows = Array.isArray(trendRaw) ? trendRaw : []
     const recent = Array.isArray(recentRaw) ? recentRaw : []
-    const totalMes = totalMesRaw?.total ?? 0
+    const totalMes = Array.isArray(totalMesRaw) ? (totalMesRaw[0]?.total ?? 0) : (totalMesRaw?.total ?? 0)
 
     const getCount = (rows: any[], s: string) => {
       const r = rows.find((x: any) => x.status === s)
