@@ -14,10 +14,15 @@ export async function PATCH(req: NextRequest) {
     const userId = auth.userId
 
     const body = await req.json()
-    const { tipo, id, status: novoStatus, produtoCruId, acabamentoId } = body
+    const { tipo, id, status: novoStatus, produtoCruId, acabamentoId, motivo } = body
 
     if (!tipo || !id || !novoStatus) {
       return NextResponse.json({ error: "tipo, id e status são obrigatórios" }, { status: 400 })
+    }
+
+    const precisaMotivo = novoStatus.startsWith("APROVADA") || novoStatus === "REPROVADA"
+    if (precisaMotivo && !motivo?.trim()) {
+      return NextResponse.json({ error: "Motivo é obrigatório para aprovar ou reprovar" }, { status: 400 })
     }
 
     const validStatuses = await getValidStatuses("AMOSTRA")
@@ -47,11 +52,12 @@ export async function PATCH(req: NextRequest) {
         acao: "MUDANCA_STATUS",
         de: amostra.status,
         para: novoStatus,
+        motivo: motivo || null,
       })
 
       const [updated] = await db
         .update(produtoCruAmostra)
-        .set({ status: novoStatus, historico })
+        .set({ status: novoStatus, historico, motivoAprovacao: motivo || null })
         .where(eq(produtoCruAmostra.id, id))
         .returning()
 
@@ -88,11 +94,12 @@ export async function PATCH(req: NextRequest) {
         acao: "MUDANCA_STATUS",
         de: amostra.status,
         para: novoStatus,
+        motivo: motivo || null,
       })
 
       const [updated] = await db
         .update(produtoCruAcabamentoAmostra)
-        .set({ status: novoStatus, historico })
+        .set({ status: novoStatus, historico, motivoAprovacao: motivo || null })
         .where(eq(produtoCruAcabamentoAmostra.id, id))
         .returning()
 

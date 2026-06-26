@@ -5,7 +5,8 @@ import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { DndContext, DragOverlay, useDraggable, useDroppable, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
-import { Loader2, Calendar, ExternalLink, Package } from "lucide-react"
+import { Loader2, Calendar, ExternalLink, Package, AlertTriangle } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 const ROLES_PERMITIDOS = ["COMERCIAL", "DESENVOLVIMENTO", "QUALIDADE", "PCP", "ADMIN", "SUDO"]
 
@@ -170,6 +171,8 @@ export function KanbanAmostras() {
   const [amostras, setAmostras] = useState<AmostraCard[]>([])
   const [loading, setLoading] = useState(true)
   const [activeCard, setActiveCard] = useState<AmostraCard | null>(null)
+  const [motivoModal, setMotivoModal] = useState<{ amostra: AmostraCard; novoStatus: string } | null>(null)
+  const [motivoText, setMotivoText] = useState("")
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
@@ -233,6 +236,18 @@ export function KanbanAmostras() {
     const novoStatus = over.id as string
     if (amostra.status === novoStatus) return
 
+    const precisaMotivo = novoStatus.startsWith("APROVADA") || novoStatus === "REPROVADA"
+
+    if (precisaMotivo) {
+      setMotivoModal({ amostra, novoStatus })
+      setMotivoText("")
+      return
+    }
+
+    await executarMudancaStatus(amostra, novoStatus)
+  }
+
+  const executarMudancaStatus = async (amostra: AmostraCard, novoStatus: string, motivo?: string) => {
     const statusAntigo = amostra.status
 
     setAmostras(prev =>
@@ -249,6 +264,7 @@ export function KanbanAmostras() {
           status: novoStatus,
           produtoCruId: amostra.produtoCruId,
           acabamentoId: amostra.acabamentoId,
+          motivo: motivo || null,
         }),
       })
       if (!res.ok) {
@@ -318,6 +334,47 @@ export function KanbanAmostras() {
           )}
         </DragOverlay>
       </DndContext>
+
+      {motivoModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-xl p-6 w-full max-w-md mx-4 space-y-4">
+            <div className="flex items-center gap-2">
+              <AlertTriangle size={20} className="text-amber-500" />
+              <h3 className="text-lg font-semibold">
+                {motivoModal.novoStatus.startsWith("APROVADA") ? "Aprovar" : "Reprovar"} Amostra
+              </h3>
+            </div>
+            <p className="text-sm text-slate-500">
+              {motivoModal.novoStatus.startsWith("APROVADA")
+                ? "Informe o motivo da aprovação"
+                : "Informe o motivo da reprovação"}
+            </p>
+            <textarea
+              value={motivoText}
+              onChange={e => setMotivoText(e.target.value)}
+              className="w-full p-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+              rows={4}
+              placeholder="Motivo / Observação *"
+              autoFocus
+            />
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setMotivoModal(null)}>
+                Cancelar
+              </Button>
+              <Button
+                disabled={!motivoText.trim()}
+                onClick={async () => {
+                  const { amostra, novoStatus } = motivoModal
+                  setMotivoModal(null)
+                  await executarMudancaStatus(amostra, novoStatus, motivoText.trim())
+                }}
+              >
+                {motivoModal.novoStatus.startsWith("APROVADA") ? "Aprovar" : "Reprovar"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
 }
