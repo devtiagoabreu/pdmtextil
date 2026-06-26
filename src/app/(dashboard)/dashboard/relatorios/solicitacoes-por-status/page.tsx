@@ -116,9 +116,9 @@ export default function RelatorioSolicitacoesPorStatus() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Relatório: Solicitações por Status{info && <InfoButton content={info} />}</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Relatório: Solicitações de Desenvolvimento por Status{info && <InfoButton content={info} />}</h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-          Filtre solicitações por status — total, distribuição por tipo e detalhamento
+          Filtre solicitações de desenvolvimento por status — total, distribuição por tipo e detalhamento
         </p>
       </div>
 

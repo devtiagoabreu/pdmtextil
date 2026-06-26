@@ -122,9 +122,9 @@ export default function RelatorioTempoStatus() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Relatório: Tempo em cada Status{info && <InfoButton content={info} />}</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Relatório: Tempo em cada Status (Solic. de Desenvolvimento){info && <InfoButton content={info} />}</h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-          Acompanhe o tempo que cada solicitação permaneceu em cada status
+          Acompanhe o tempo que cada solicitação de desenvolvimento permaneceu em cada status
         </p>
       </div>
 

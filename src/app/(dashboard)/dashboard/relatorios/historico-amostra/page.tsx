@@ -181,10 +181,10 @@ export default function HistoricoAmostraPage() {
     <div className="space-y-6 animate-fade-in">
       <div>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
-          Histórico de Amostra{info && <InfoButton content={info} />}
+          Histórico de Amostra de Desenvolvimento{info && <InfoButton content={info} />}
         </h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-          Acompanhe todo o histórico de uma amostra: dados, produto, solicitação e timeline
+          Acompanhe todo o histórico de uma amostra de desenvolvimento: dados, produto, solicitação e timeline
         </p>
       </div>
 
