@@ -62,6 +62,7 @@ export const searchRegistry: SearchItem[] = [
 
   // Amostras
   { id: "amostras", label: "Amostras", keywords: ["amostra", "amostras", "lista"], href: "/amostras", description: "Lista de amostras", module: "Amostras" },
+  { id: "amostras-kanban", label: "Kanban — Amostras", keywords: ["amostra", "kanban", "quadro", "status", "arrastar"], href: "/amostras/kanban", description: "Kanban de amostras com drag-and-drop", module: "Amostras" },
 
   // Relatórios
   { id: "relatorio-atividade-usuario", label: "Relatório: Atividade por Usuário", keywords: ["relatorio", "atividade", "usuario", "log", "auditoria"], href: "/dashboard/relatorios/atividade-usuario", description: "Registro de ações por usuário", module: "Relatórios" },

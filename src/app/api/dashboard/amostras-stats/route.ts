@@ -2,7 +2,8 @@ import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
-import { sql } from "drizzle-orm"
+import { status } from "@/lib/db/schema/status"
+import { eq, asc, sql } from "drizzle-orm"
 export const dynamic = "force-dynamic"
 
 async function q(sqlFragment: ReturnType<typeof sql>, fallback: any = null) {
@@ -18,6 +19,15 @@ export async function GET() {
   try {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
+
+    // Load dynamic status config for AMOSTRA
+    const statusConfigs = await db
+      .select({ nome: status.nome, rotulo: status.rotulo, cor: status.cor, ordem: status.ordem })
+      .from(status)
+      .where(eq(status.tipo, "AMOSTRA"))
+      .orderBy(asc(status.ordem), asc(status.nome))
+
+    const statusNomes = statusConfigs.map(s => s.nome)
 
     const [
       cruStatusRaw,
@@ -86,25 +96,33 @@ export async function GET() {
     const trendRows = Array.isArray(trendRaw) ? trendRaw : []
     const recent = Array.isArray(recentRaw) ? recentRaw : []
 
-    const getCount = (rows: any[], status: string) => {
-      const r = rows.find((x: any) => x.status === status)
+    const getCount = (rows: any[], s: string) => {
+      const r = rows.find((x: any) => x.status === s)
       return r ? Number(r.total) : 0
     }
 
-    const pendentesCru = getCount(cruStatus, "PENDENTE")
-    const aprovadasCru = getCount(cruStatus, "APROVADO")
-    const reprovadasCru = getCount(cruStatus, "REPROVADA")
-    const totalCru = pendentesCru + aprovadasCru + reprovadasCru
+    // Dynamically build counts per status
+    const statusDistribution = statusConfigs.map(c => ({
+      status: c.nome,
+      rotulo: c.rotulo,
+      cor: c.cor,
+      total: getCount(cruStatus, c.nome) + getCount(acabStatus, c.nome),
+    }))
 
-    const pendentesAcab = getCount(acabStatus, "PENDENTE")
-    const aprovadasAcab = getCount(acabStatus, "APROVADO")
-    const reprovadasAcab = getCount(acabStatus, "REPROVADA")
-    const totalAcab = pendentesAcab + aprovadasAcab + reprovadasAcab
+    // Totals
+    const totalGeral = statusDistribution.reduce((acc, s) => acc + s.total, 0)
+    const totalCru = cruStatus.reduce((acc: number, r: any) => acc + Number(r.total), 0)
+    const totalAcab = acabStatus.reduce((acc: number, r: any) => acc + Number(r.total), 0)
 
-    const totalGeral = totalCru + totalAcab
-    const totalPendentes = pendentesCru + pendentesAcab
-    const totalAprovadas = aprovadasCru + aprovadasAcab
-    const totalReprovadas = reprovadasCru + reprovadasAcab
+    // Sub-totals by type per status
+    const statusDistribCru = statusConfigs.map(c => ({
+      status: c.nome,
+      total: getCount(cruStatus, c.nome),
+    }))
+    const statusDistribAcab = statusConfigs.map(c => ({
+      status: c.nome,
+      total: getCount(acabStatus, c.nome),
+    }))
 
     const trendData = trendRows.map((r: any) => {
       const d = new Date(r.mes)
@@ -118,20 +136,10 @@ export async function GET() {
       totalGeral,
       totalCru,
       totalAcab,
-      totalPendentes,
-      totalAprovadas,
-      totalReprovadas,
-      pendentesCru,
-      aprovadasCru,
-      reprovadasCru,
-      pendentesAcab,
-      aprovadasAcab,
-      reprovadasAcab,
-      statusDistribution: [
-        { status: "PENDENTE", total: totalPendentes },
-        { status: "APROVADO", total: totalAprovadas },
-        { status: "REPROVADA", total: totalReprovadas },
-      ],
+      statusDistribution,
+      statusDistribCru,
+      statusDistribAcab,
+      statusConfigs,
       tipoDistribution: [
         { tipo: "TECIDO_CRU", total: totalCru },
         { tipo: "ACABAMENTO", total: totalAcab },
