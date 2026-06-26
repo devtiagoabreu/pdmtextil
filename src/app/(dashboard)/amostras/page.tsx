@@ -21,6 +21,7 @@ type Amostra = {
   createdAt: string
   links?: { url: string; descricao: string }[] | null
   quantidadeProduzida?: string | null
+  dados?: Record<string, string> | null
   produtoCodigo: string
   produtoDescricao: string
   tipoAmostra: string
@@ -90,6 +91,7 @@ export default function AmostrasPage() {
           data: a.data,
           links: a.links,
           quantidadeProduzida: a.quantidadeProduzida,
+          dados: a.dados,
           produtoCodigo: a.produtoCodigo,
           produtoDescricao: a.produtoDescricao,
         },

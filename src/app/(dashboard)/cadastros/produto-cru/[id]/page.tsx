@@ -422,7 +422,7 @@ export default function ProdutoCruFormPage() {
     }
   }
 
-  const handleGerarPdfAmostra = async (amostra: { id: number; descricao?: string; status: string; observacoes?: string; data?: string; links?: { url: string; descricao: string }[]; quantidadeProduzida?: string }, tipoAmostra: string) => {
+  const handleGerarPdfAmostra = async (amostra: { id: number; descricao?: string; status: string; observacoes?: string; data?: string; links?: { url: string; descricao: string }[]; quantidadeProduzida?: string; dados?: Record<string, string> | null }, tipoAmostra: string) => {
     const key = `${tipoAmostra}-${amostra.id}`
     setGerandoPdf(key)
     try {
@@ -436,6 +436,7 @@ export default function ProdutoCruFormPage() {
           data: amostra.data,
           links: amostra.links,
           quantidadeProduzida: amostra.quantidadeProduzida,
+          dados: amostra.dados,
           produtoCodigo: produto.codigoPdm,
           produtoDescricao: produto.descricao,
         },
