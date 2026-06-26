@@ -2860,3 +2860,115 @@ Erro 500 se a migration não foi executada mas o código já referencia a tabela
 - [jsdom - JavaScript implementation of web standards](https://github.com/jsdom/jsdom)
 - [Recharts PieChart Legend](https://recharts.org/en-US/api/PieChart)
 - [Drizzle Subquery with sql tag](https://orm.drizzle.team/docs/sql)
+
+---
+
+## Seção 51: Kanban Amostras + Dashboard + Telas (26/06/2026)
+
+### Tópico 51.1: Navegação de Cards Kanban para Produto Cru
+
+**Problema:** Clicar em um card do kanban não fazia nada. O usuário precisava ir manualmente até o produto e achar a amostra.
+
+**Solução:** Adicionar `onClick` com `router.push` no `DraggableAmostraCard`:
+
+```tsx
+const scrollId = amostra.tipo === "tecido_cru"
+  ? `amostra-${amostra.id}`
+  : `amostra-acab-${amostra.acabamentoId}-${amostra.id}`
+
+const handleClick = () => {
+  if (amostra.produtoCruId) {
+    router.push(`/cadastros/produto-cru/${amostra.produtoCruId}?tab=amostras&amostraId=${scrollId}`)
+  }
+}
+```
+
+**Regra:** O `onClick` funciona junto com `@dnd-kit/core` `listeners` porque a constraint `distance: 5` impede que um clique simples (sem movimento) acione o drag.
+
+### Tópico 51.2: Links e Quantidade nos Cards do Kanban
+
+Adicionar `quantidadeProduzida` e `links` ao `AmostraCard`:
+
+```typescript
+interface AmostraCard {
+  // ...campos existentes
+  links?: AmostraLink[] | null
+  quantidadeProduzida?: number | null
+}
+```
+
+- Quantidade exibida como badge roxo com ícone `Package`
+- Links exibidos ao final do card com `stopPropagation` no clique para não navegar nem arrastar
+- Links abrem em nova aba (`target="_blank"`)
+
+### Tópico 51.3: Hash `#amostras` vs Query Param `?tab=amostras`
+
+**Problema:** Vários links usavam `#amostras` (hash) para navegar à aba de amostras do produto. O código da página de produto só lia `?tab=...` e `?amostraId=...` do `URLSearchParams`, ignorando a hash.
+
+**Solução:** Substituir `#amostras` por `?tab=amostras` em todos os lugares:
+
+```tsx
+// ERRADO - hash não ativa a aba
+router.push(`/cadastros/produto-cru/${item.produtoId}#amostras`)
+
+// CORRETO - query param ativa a aba via useEffect
+router.push(`/cadastros/produto-cru/${item.produtoId}?tab=amostras`)
+```
+
+**Regra:** Sempre usar `?tab=amostras&amostraId=...` (query params) em vez de `#amostras` (hash) para navegação interna com tabs.
+
+### Tópico 51.4: Dashboard Modal Filtrado por Status
+
+**Problema:** A API `/api/dashboard/amostras-lista` recebia `filtro = "status-PENDENTE"` dos cards dinâmicos, mas só tratava `"total-geral"`, `"tecido-cru"`, etc. Caía no `else` e retornava **todas** as amostras.
+
+**Solução:** Adicionar tratamento para `status-*`:
+
+```typescript
+} else if (filtro.startsWith("status-")) {
+  const statusNome = filtro.slice(7)
+  whereCru = sql`AND am.status = ${statusNome}`
+  whereAcab = sql`AND aam.status = ${statusNome}`
+}
+```
+
+**Regra:** Parâmetros dinâmicos como `status-*` precisam ser tratados explicitamente na API.
+
+### Tópico 51.5: searchRegistry - Lista de Telas para Criação de Menus
+
+**Problema:** A API `/api/user/menus/todas-telas` retorna os itens do `searchRegistry`, mas faltavam muitas telas (24 de 63 páginas). Novas telas não aparecem automaticamente.
+
+**Regras:**
+1. **Não é automático** — o `searchRegistry` é manual. Toda nova tela precisa ser registrada lá.
+2. **Ordenação** — fazer `.sort((a, b) => a.label.localeCompare(b.label, "pt-BR"))` na API.
+3. **20 novas telas adicionadas** nesta sessão:
+   - Kanban Solicitações, Detalhe/Editar Solicitação, Detalhe Cliente
+   - Clientes (Cadastros)
+   - Notificações, Banco de Dados, Empresa, Integrações, SMTP, Status, Telas
+   - Meus Menus
+   - Relatórios (Dashboard)
+   - Ferramentas hub, Conversores, Regra de Três
+   - Documentos hub, Romaneios
+   - Chat
+
+### Tópico 51.6: Status REPROVADO vs REPROVADA
+
+**Commit:** `d3dccfc` padronizou amostras de `REPROVADO` (masculino) para `REPROVADA` (feminino).
+
+**Problema investigado:** Amostras antigas com `REPROVADO` não apareciam no kanban porque o kanban faz `a.status === col.nome` (igualdade estrita). O script `scripts/migrar-reprovado.mjs` foi criado para migrar mas já foi removido.
+
+**Verificação:** Query no banco confirmou que não existem mais registros com `REPROVADO` em nenhuma das tabelas de amostra. A migração já foi executada.
+
+**Regra:** Ao padronizar valores de coluna no código, criar script de migração e **executá-lo** antes de remover o script.
+
+### Tópico 51.7: Commits desta Sessão
+
+| Commit | Descrição |
+|--------|-----------|
+| `a48fcc3` | Kanban amostras + dashboard dinâmico + API status unificada |
+| `5a7f67b` | Kanban cards navegam para amostra, modal dashboard filtrado, +20 telas no registry, ordenação A-Z |
+
+---
+
+**Última atualização:** 26/06/2026
+**Versão:** 3.1 (Kanban Amostras + Dashboard + Telas)
+**Total de seções:** 51
