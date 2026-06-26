@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { BarChart3, Activity, FileText, Clock, FlaskConical, CheckCircle2 } from "lucide-react"
+import { BarChart3, Activity, FileText, Clock, FlaskConical, CheckCircle2, Filter } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
@@ -12,6 +12,7 @@ const relatorios = [
   { href: "/dashboard/relatorios/tempo-status", label: "Tempo em cada Status (Solic.)", desc: "Tempo gasto em cada status das solicitações", icon: Clock },
   { href: "/dashboard/relatorios/tempo-status-amostras", label: "Tempo em cada Status (Amostras)", desc: "Tempo gasto em cada status das amostras", icon: FlaskConical },
   { href: "/dashboard/relatorios/solicitacoes-concluidas", label: "Concluídas Desenvolvimento", desc: "Solicitações concluídas em desenvolvimento — total, tipo e detalhes", icon: CheckCircle2 },
+  { href: "/dashboard/relatorios/solicitacoes-por-status", label: "Solicitações por Status", desc: "Filtre solicitações por status — total, distribuição por tipo e detalhes", icon: Filter },
 ]
 
 export default function RelatoriosHubPage() {

@@ -39,7 +39,7 @@ export default function KanbanAmostrasPage() {
   }
 
   return (
-    <div className="flex flex-col h-screen animate-fade-in -mx-4 md:-mx-6 max-w-none">
+    <div className="flex flex-col h-screen animate-fade-in">
       <div className="flex items-center justify-between shrink-0 px-6 pt-6 pb-2">
         <div className="flex items-center gap-2">
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Kanban — Amostras{info && <InfoButton content={info} />}</h1>
@@ -75,7 +75,7 @@ export default function KanbanAmostrasPage() {
           </div>
         </div>
       ) : (
-        <div className="flex-1 min-h-0 flex flex-col pb-6">
+        <div className="flex-1 min-h-0 flex flex-col px-6 pb-6">
           <KanbanAmostras />
         </div>
       )}
