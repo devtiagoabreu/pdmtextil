@@ -44,7 +44,7 @@ function DroppableColumn({ id, children, rotulo, cor, count }: { id: string; chi
   return (
     <div
       ref={setNodeRef}
-      className={`flex flex-col h-full flex-1 min-w-[280px] max-w-[400px] bg-slate-100 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 transition-colors shrink-0 ${
+      className={`flex flex-col h-full flex-1 min-w-[280px] max-w-[500px] bg-slate-100 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 transition-colors shrink-0 ${
         isOver ? "border-blue-400 bg-blue-50 dark:bg-blue-950/30" : ""
       }`}
     >
