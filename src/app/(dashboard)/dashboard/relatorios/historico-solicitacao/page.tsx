@@ -5,6 +5,7 @@ import { useRouter, useSearchParams, usePathname } from "next/navigation"
 import { BarChart3, Search, Clock, FileText, FlaskConical, CheckCircle, XCircle, AlertCircle, ExternalLink, Activity, History } from "lucide-react"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
+import { exportPDFRelatorio } from "@/lib/export-utils"
 import Link from "next/link"
 
 type TimelineEntry = {
@@ -115,6 +116,73 @@ export default function HistoricoSolicitacaoPage() {
     return entries
   }, [solicitacao, logs])
 
+  async function handleExportPDF() {
+    if (!solicitacao) return
+    const clienteLabel = solicitacao.cliente
+    const tipoLabel = solicitacao.tipo === "DESENVOLVIMENTO_TECELAGEM" ? "Tecelagem" : "Beneficiamento"
+    const statusLabel = solicitacao.status
+
+    const amostraRows: (string | number | null | undefined)[][] = []
+    for (const prod of produtos) {
+      if (prod.amostras && prod.amostras.length > 0) {
+        for (const a of prod.amostras) {
+          amostraRows.push([prod.codigoPdm, a.descricao || `#${a.id}`, "Tecido Cru", a.status])
+        }
+      }
+      if (prod.acabamentos) {
+        for (const ac of prod.acabamentos) {
+          if (ac.amostras && ac.amostras.length > 0) {
+            for (const aa of ac.amostras) {
+              amostraRows.push([prod.codigoPdm, aa.descricao || `#${aa.id}`, `${ac.tipoAcabamento}`, aa.status])
+            }
+          }
+        }
+      }
+    }
+
+    const timelineRows: (string | number | null | undefined)[][] = timeline.map((e) => [
+      new Date(e.data).toLocaleString("pt-BR"),
+      e.usuario,
+      e.descricao,
+    ])
+
+    const tables: { headers: string[]; rows: (string | number | null | undefined)[][] }[] = []
+
+    tables.push({
+      headers: ["#", "Cliente", "Projeto", "Status", "Tipo", "Criado em", "Prazo"],
+      rows: [[
+        solicitacao.id,
+        clienteLabel,
+        solicitacao.projeto || "-",
+        statusLabel,
+        tipoLabel,
+        solicitacao.createdAt ? new Date(solicitacao.createdAt).toLocaleDateString("pt-BR") : "-",
+        solicitacao.prazoDesejado ? new Date(solicitacao.prazoDesejado).toLocaleDateString("pt-BR") : "-",
+      ]]
+    })
+
+    if (amostraRows.length > 0) {
+      tables.push({ headers: ["Produto", "Amostra", "Tipo", "Status"], rows: amostraRows })
+    }
+
+    if (timelineRows.length > 0) {
+      tables.push({ headers: ["Data", "Usuário", "Evento"], rows: timelineRows })
+    }
+
+    await exportPDFRelatorio({
+      title: `Histórico — Solicitação #${solicitacao.id}`,
+      stats: {
+        "Cliente": clienteLabel,
+        "Status": statusLabel,
+        "Tipo": tipoLabel,
+        "Produtos": produtos.length,
+        "Eventos": timeline.length,
+      },
+      tables,
+      filename: `historico-solicitacao-${solicitacao.id}`,
+    })
+  }
+
   const info = getInfoContent(pathname)
 
   return (
@@ -186,9 +254,14 @@ export default function HistoricoSolicitacaoPage() {
             </div>
           </div>
           {selectedId && (
-            <button onClick={() => router.push(pathname)} className="h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 text-sm hover:bg-slate-50 dark:hover:bg-slate-800">
-              Limpar
-            </button>
+            <>
+              <button onClick={handleExportPDF} className="h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800">
+                PDF
+              </button>
+              <button onClick={() => router.push(pathname)} className="h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 text-sm hover:bg-slate-50 dark:hover:bg-slate-800">
+                Limpar
+              </button>
+            </>
           )}
         </div>
       </div>
