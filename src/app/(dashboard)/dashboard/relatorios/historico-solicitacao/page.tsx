@@ -182,6 +182,7 @@ export default function HistoricoSolicitacaoPage() {
       tables,
       filename: `historico-solicitacao-${solicitacao.id}`,
       orientation: orientacao,
+      statsLayout: "list",
     })
   }
 
