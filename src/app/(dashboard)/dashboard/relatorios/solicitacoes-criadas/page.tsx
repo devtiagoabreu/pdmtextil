@@ -6,7 +6,7 @@ import { BarChart3, Filter } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
-import { exportCSV, exportPDF, statsToHTML, tableToHTML } from "@/lib/export-utils"
+import { exportCSV, exportPDFRelatorio, statsToHTML, tableToHTML } from "@/lib/export-utils"
 import { useStatuses, hexToRgba } from "@/hooks/use-statuses"
 
 type Stats = {
@@ -73,7 +73,7 @@ export default function RelatorioSolicitacoesCriadas() {
     }, 200)
   }
 
-  function handleExportPDF() {
+  async function handleExportPDF() {
     const statsHtml = stats ? statsToHTML({
       "Total Criadas": stats.totalCriadas,
       "Deletadas": stats.totalDeletadas,
@@ -89,7 +89,7 @@ export default function RelatorioSolicitacoesCriadas() {
       getStatusLabel(r.status),
       r.createdAt ? new Date(r.createdAt).toLocaleDateString("pt-BR") : "-",
     ]))
-    exportPDF("Relatório de Solicitações Criadas / Deletadas", statsHtml + mesTable + recentTable)
+    await exportPDFRelatorio("Relatório de Solicitações Criadas / Deletadas", statsHtml + mesTable + recentTable)
   }
 
   const pathname = usePathname()

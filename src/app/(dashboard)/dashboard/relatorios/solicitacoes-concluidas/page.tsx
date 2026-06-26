@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation"
 import Link from "next/link"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
-import { exportCSV, exportPDF, statsToHTML, tableToHTML } from "@/lib/export-utils"
+import { exportCSV, exportPDFRelatorio, statsToHTML, tableToHTML } from "@/lib/export-utils"
 import { useStatuses, hexToRgba } from "@/hooks/use-statuses"
 
 type Stats = {
@@ -75,7 +75,7 @@ export default function RelatorioSolicitacoesConcluidas() {
     }, 200)
   }
 
-  function handleExportPDF() {
+  async function handleExportPDF() {
     const statsHtml = stats ? statsToHTML({
       "Total Concluídas": stats.total,
       "Tecelagem": stats.tecelagem,
@@ -91,7 +91,7 @@ export default function RelatorioSolicitacoesConcluidas() {
       r.dataConclusao ? new Date(r.dataConclusao).toLocaleDateString("pt-BR") : "-",
       r.diasEmDev !== null ? String(r.diasEmDev) : "-",
     ]))
-    exportPDF("Relatório de Solicitações Concluídas (Desenvolvimento)", statsHtml + mesTable + listaTable)
+    await exportPDFRelatorio("Relatório de Solicitações Concluídas (Desenvolvimento)", statsHtml + mesTable + listaTable)
   }
 
   const pathname = usePathname()
