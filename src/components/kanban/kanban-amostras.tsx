@@ -35,6 +35,7 @@ interface AmostraCard {
   tipoAmostra: string
   links?: AmostraLink[] | null
   quantidadeProduzida?: number | null
+  dados: Record<string, string> | null
 }
 
 function DroppableColumn({ id, children, rotulo, cor, count }: { id: string; children: React.ReactNode; rotulo: string; cor: string | null; count: number }) {
@@ -120,6 +121,11 @@ function DraggableAmostraCard({ amostra }: { amostra: AmostraCard }) {
       )}
 
       <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+        {amostra.dados?.tear && (
+          <span className="inline-flex items-center gap-0.5 text-[10px] font-medium text-amber-600 bg-amber-100 dark:bg-amber-900/30 dark:text-amber-300 px-1.5 py-0.5 rounded">
+            Tear: {amostra.dados.tear}
+          </span>
+        )}
         {amostra.quantidadeProduzida != null && (
           <span className="inline-flex items-center gap-0.5 text-[10px] font-medium text-purple-600 bg-purple-100 dark:bg-purple-900/30 dark:text-purple-300 px-1.5 py-0.5 rounded">
             <Package size={10} />

@@ -66,12 +66,15 @@ export const produtoCruAmostra = pgTable("produto_cru_amostra", {
   idIntegracaoErpCru: varchar("id_integracao_erp_cru", { length: 100 }),
   links: jsonb("links").$type<{ url: string; descricao: string }[]>().default([]),
   historico: jsonb("historico").default([]),
+  dados: jsonb("dados").$type<Record<string, string>>().default({}),
   data: timestamp("data").defaultNow(),
   createdAt: timestamp("created_at").defaultNow(),
 })
 
 export type ProdutoCruAmostra = typeof produtoCruAmostra.$inferSelect
 export type NewProdutoCruAmostra = typeof produtoCruAmostra.$inferInsert
+
+export type AmostraDados = Record<string, string>
 
 export const produtoCruAcabamento = pgTable("produto_cru_acabamento", {
   id: serial("id").primaryKey(),
@@ -95,6 +98,7 @@ export const produtoCruAcabamentoAmostra = pgTable("produto_cru_acabamento_amost
   quantidadeProduzida: varchar("quantidade_produzida", { length: 50 }),
   links: jsonb("links").$type<{ url: string; descricao: string }[]>().default([]),
   historico: jsonb("historico").default([]),
+  dados: jsonb("dados").$type<Record<string, string>>().default({}),
   data: timestamp("data").defaultNow(),
   createdAt: timestamp("created_at").defaultNow(),
 })
