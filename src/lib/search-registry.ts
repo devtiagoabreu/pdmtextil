@@ -9,8 +9,8 @@ export type SearchItem = {
 
 export const searchRegistry: SearchItem[] = [
   // Dashboard
-  { id: "dashboard-solicitacoes", label: "Dashboard Solicitações", keywords: ["dashboard", "inicio", "home", "painel", "solicitacoes", "metricas"], href: "/dashboard", description: "Painel principal com métricas de solicitações", module: "Dashboard" },
-  { id: "dashboard-amostras", label: "Dashboard Amostras", keywords: ["dashboard", "amostras", "painel", "metricas", "amostra"], href: "/dashboard/amostras", description: "Painel de métricas de amostras", module: "Dashboard" },
+  { id: "dashboard-solicitacoes", label: "Dashboard Solicitações de Desenvolvimento", keywords: ["dashboard", "inicio", "home", "painel", "solicitacoes", "metricas", "desenvolvimento"], href: "/dashboard", description: "Painel principal com métricas de solicitações de desenvolvimento", module: "Dashboard" },
+  { id: "dashboard-amostras", label: "Dashboard Amostras de Desenvolvimento", keywords: ["dashboard", "amostras", "painel", "metricas", "amostra", "desenvolvimento"], href: "/dashboard/amostras", description: "Painel de métricas de amostras de desenvolvimento", module: "Dashboard" },
   { id: "dashboard-corte", label: "Dashboard Corte", keywords: ["dashboard", "corte", "requisicao", "painel", "metricas", "requisições"], href: "/dashboard/requisicoes-corte", description: "Painel de métricas de requisições de corte", module: "Dashboard" },
   { id: "dashboard-relatorios", label: "Relatórios (Dashboard)", keywords: ["dashboard", "relatorio", "painel", "metricas", "relatorios"], href: "/dashboard/relatorios", description: "Central de relatórios do sistema", module: "Dashboard" },
 
@@ -19,7 +19,7 @@ export const searchRegistry: SearchItem[] = [
   { id: "solicitacoes-nova", label: "Nova Solicitação", keywords: ["solicitacao", "nova", "criar", "pedido", "cadastro"], href: "/comercial/solicitacoes/nova", description: "Criar nova solicitação", module: "Comercial" },
   { id: "solicitacoes-detalhe", label: "Solicitação (Detalhe)", keywords: ["solicitacao", "detalhe", "editar", "ficha"], href: "/comercial/solicitacoes/[id]", description: "Ficha completa da solicitação", module: "Comercial" },
   { id: "solicitacoes-editar", label: "Solicitação (Editar)", keywords: ["solicitacao", "editar", "alterar"], href: "/comercial/solicitacoes/[id]/editar", description: "Editar solicitação existente", module: "Comercial" },
-  { id: "solicitacoes-kanban", label: "Kanban — Solicitações", keywords: ["solicitacao", "kanban", "quadro", "status", "arrastar"], href: "/comercial/solicitacoes/kanban", description: "Kanban de solicitações com drag-and-drop", module: "Comercial" },
+  { id: "solicitacoes-kanban", label: "Kanban — Solicitações de Desenvolvimento", keywords: ["solicitacao", "kanban", "quadro", "status", "arrastar", "desenvolvimento"], href: "/comercial/solicitacoes/kanban", description: "Kanban de solicitações de desenvolvimento com drag-and-drop", module: "Comercial" },
 
   // Comercial - Requisições de Corte
   { id: "requisicoes-corte", label: "Requisições de Corte", keywords: ["requisicao", "corte", "comercial", "lista", "requisicoes"], href: "/comercial/requisicoes-corte", description: "Lista de requisições de corte", module: "Comercial" },
@@ -68,7 +68,7 @@ export const searchRegistry: SearchItem[] = [
 
   // Amostras
   { id: "amostras", label: "Amostras", keywords: ["amostra", "amostras", "lista"], href: "/amostras", description: "Lista de amostras", module: "Amostras" },
-  { id: "amostras-kanban", label: "Kanban — Amostras", keywords: ["amostra", "kanban", "quadro", "status", "arrastar"], href: "/amostras/kanban", description: "Kanban de amostras com drag-and-drop", module: "Amostras" },
+  { id: "amostras-kanban", label: "Kanban — Amostras de Desenvolvimento", keywords: ["amostra", "kanban", "quadro", "status", "arrastar", "desenvolvimento"], href: "/amostras/kanban", description: "Kanban de amostras de desenvolvimento com drag-and-drop", module: "Amostras" },
 
   // Relatórios
   { id: "relatorio-atividade-usuario", label: "Relatório: Atividade por Usuário", keywords: ["relatorio", "atividade", "usuario", "log", "auditoria"], href: "/dashboard/relatorios/atividade-usuario", description: "Registro de ações por usuário", module: "Relatórios" },

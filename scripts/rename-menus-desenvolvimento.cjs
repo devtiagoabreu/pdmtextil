@@ -41,16 +41,45 @@ async function main() {
   const r4 = await sql.unsafe(`
     UPDATE user_menus
     SET titulo = 'Solicitações de Desenvolvimento'
-    WHERE titulo = 'Solicitações' AND usuario_id IS NULL
+    WHERE titulo = 'Solicitações'
   `)
   console.log(`  Menu group "Solicitações": ${r4.count} linha(s)`)
 
   const r5 = await sql.unsafe(`
     UPDATE user_menus
     SET titulo = 'Amostras de Desenvolvimento'
-    WHERE titulo = 'Amostras' AND usuario_id IS NULL
+    WHERE titulo = 'Amostras'
   `)
   console.log(`  Menu group "Amostras": ${r5.count} linha(s)`)
+
+  // User-specific menu items (custom menus added by users)
+  const r6 = await sql.unsafe(`
+    UPDATE user_menu_itens
+    SET titulo = 'Dashboard Solicitações de Desenvolvimento'
+    WHERE url = '/dashboard' AND titulo = 'Dashboard Solicitações'
+  `)
+  console.log(`  "/dashboard" (user): ${r6.count} linha(s)`)
+
+  const r7 = await sql.unsafe(`
+    UPDATE user_menu_itens
+    SET titulo = 'Dashboard Amostras de Desenvolvimento'
+    WHERE url = '/dashboard/amostras' AND titulo = 'Dashboard Amostras'
+  `)
+  console.log(`  "/dashboard/amostras" (user): ${r7.count} linha(s)`)
+
+  const r8 = await sql.unsafe(`
+    UPDATE user_menu_itens
+    SET titulo = 'Kanban — Solicitações de Desenvolvimento'
+    WHERE url = '/comercial/solicitacoes/kanban' AND titulo = 'Kanban — Solicitações'
+  `)
+  console.log(`  "/comercial/solicitacoes/kanban" (user): ${r8.count} linha(s)`)
+
+  const r9 = await sql.unsafe(`
+    UPDATE user_menu_itens
+    SET titulo = 'Kanban — Amostras de Desenvolvimento'
+    WHERE url = '/amostras/kanban' AND titulo = 'Kanban — Amostras'
+  `)
+  console.log(`  "/amostras/kanban" (user): ${r9.count} linha(s)`)
 
   console.log("✅ Concluído!")
   await sql.end()
