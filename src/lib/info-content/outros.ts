@@ -6,9 +6,19 @@ export const outrosContent: Record<string, InfoContent> = {
     description: "Lista central de todas as amostras de tecido cru e acabamento registradas no sistema.",
     rules: [
       "Amostras são vinculadas a um produto cru ou a um acabamento específico.",
-      "Cada amostra passa por um fluxo de aprovação: PENDENTE → APROVADO ou REPROVADA.",
+      "Cada amostra passa por um fluxo de aprovação com status configuráveis.",
       "O histórico de status é registrado automaticamente para auditoria.",
       "Amostras aprovadas podem ser usadas como referência para produção.",
+    ],
+  },
+  "/amostras/kanban": {
+    title: "Kanban — Amostras",
+    description: "Kanban de amostras para visualizar e mover amostras entre colunas de status.",
+    rules: [
+      "Arraste os cards para mover amostras entre status.",
+      "Cada coluna representa um status do fluxo de amostras.",
+      "Apenas perfis autorizados podem mover amostras entre colunas.",
+      "Amostras de tecido cru e acabamento aparecem juntas no kanban.",
     ],
   },
   "/perfil": {

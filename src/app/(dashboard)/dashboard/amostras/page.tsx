@@ -2,24 +2,13 @@
 
 import { useEffect, useState, useCallback } from "react"
 import { PieChart, Pie, BarChart, Bar, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
-import { ClipboardList, FlaskConical, ThumbsUp, ThumbsDown, Clock, ExternalLink, X, Loader2, FileText } from "lucide-react"
+import { ClipboardList, FlaskConical, ExternalLink, X, Loader2, FileText, LayoutGrid } from "lucide-react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { gerarSolicitacaoAmostraPdf } from "@/lib/gerar-solicitacao-amostra-pdf"
-
-const STATUS_LABELS: Record<string, string> = {
-  PENDENTE: "Pendente",
-  APROVADO: "Aprovado",
-  REPROVADA: "Reprovado",
-}
-
-const STATUS_COLORS: Record<string, string> = {
-  PENDENTE: "#eab308",
-  APROVADO: "#22c55e",
-  REPROVADA: "#ef4444",
-}
+import { useStatuses, hexToRgba } from "@/hooks/use-statuses"
 
 const TIPO_LABELS: Record<string, string> = {
   TECIDO_CRU: "Tecido Cru",
@@ -38,25 +27,10 @@ const TIPO_BG: Record<string, string> = {
 
 const TREND_COLOR = "#06b6d4"
 
-const STATUS_BG: Record<string, string> = {
-  PENDENTE: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
-  APROVADO: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
-  REPROVADA: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
-}
-
-const CARDS = [
+const MAIN_CARDS = [
   { key: "total-geral", label: "Total Geral", color: "text-slate-700 dark:text-slate-200", bg: "bg-slate-100 dark:bg-slate-800", icon: ClipboardList, statField: "totalGeral" },
   { key: "tecido-cru", label: "Tecido Cru", color: "text-cyan-600 dark:text-cyan-400", bg: "bg-cyan-50 dark:bg-cyan-950/50", icon: FlaskConical, statField: "totalCru" },
   { key: "acabamento", label: "Acabamento", color: "text-orange-600 dark:text-orange-400", bg: "bg-orange-50 dark:bg-orange-950/50", icon: FlaskConical, statField: "totalAcab" },
-  { key: "aprovadas", label: "Aprovadas", color: "text-green-600 dark:text-green-400", bg: "bg-green-50 dark:bg-green-950/50", icon: ThumbsUp, statField: "totalAprovadas" },
-  { key: "reprovadas", label: "Reprovadas", color: "text-red-600 dark:text-red-400", bg: "bg-red-50 dark:bg-red-950/50", icon: ThumbsDown, statField: "totalReprovadas" },
-]
-
-const SUB_CARDS = [
-  { key: "pendentes-cru", label: "Pendentes Tecido Cru", color: "text-yellow-600 dark:text-yellow-400", bg: "bg-yellow-50 dark:bg-yellow-950/50", statField: "pendentesCru" },
-  { key: "pendentes-acab", label: "Pendentes Acabamento", color: "text-yellow-600 dark:text-yellow-400", bg: "bg-yellow-50 dark:bg-yellow-950/50", statField: "pendentesAcab" },
-  { key: "aprovadas-cru", label: "Aprovadas Cru", color: "text-green-600 dark:text-green-400", bg: "bg-green-50 dark:bg-green-950/50", statField: "aprovadasCru" },
-  { key: "aprovadas-acab", label: "Aprovadas Acabamento", color: "text-green-600 dark:text-green-400", bg: "bg-green-50 dark:bg-green-950/50", statField: "aprovadasAcab" },
 ]
 
 export default function DashboardAmostras() {
@@ -64,6 +38,7 @@ export default function DashboardAmostras() {
   const [stats, setStats] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
+  const { getLabel, getColor } = useStatuses("AMOSTRA")
 
   const [modalFiltro, setModalFiltro] = useState<string | null>(null)
   const [modalLista, setModalLista] = useState<any[]>([])
@@ -124,13 +99,35 @@ export default function DashboardAmostras() {
   const pathname = usePathname()
   const info = getInfoContent(pathname)
 
+  const statusCards = stats?.statusConfigs?.map((c: any) => {
+    const dist = stats?.statusDistribution?.find((d: any) => d.status === c.nome)
+    return {
+      key: `status-${c.nome}`,
+      label: c.rotulo || c.nome,
+      color: `text-[${c.cor}]`,
+      bg: "bg-white dark:bg-slate-900",
+      icon: null,
+      total: dist?.total || 0,
+      cor: c.cor,
+    }
+  }) || []
+
   return (
     <div className="space-y-6 animate-fade-in">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Dashboard de Amostras{info && <InfoButton content={info} />}</h1>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-          Acompanhe todas as amostras do sistema
-        </p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Dashboard de Amostras{info && <InfoButton content={info} />}</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+            Acompanhe todas as amostras do sistema
+          </p>
+        </div>
+        <Link
+          href="/amostras/kanban"
+          className="inline-flex items-center gap-2 rounded-lg border border-slate-300 dark:border-slate-600 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+        >
+          <LayoutGrid size={16} />
+          Kanban
+        </Link>
       </div>
 
       {loading ? (
@@ -145,8 +142,8 @@ export default function DashboardAmostras() {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
-            {CARDS.map((stat) => (
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
+            {MAIN_CARDS.map((stat) => (
               <button
                 key={stat.key}
                 type="button"
@@ -162,19 +159,25 @@ export default function DashboardAmostras() {
             ))}
           </div>
 
-          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-            {SUB_CARDS.map((stat) => (
-              <button
-                key={stat.key}
-                type="button"
-                onClick={() => openModal(stat.key, stat.label)}
-                className={`rounded-xl border border-slate-200 dark:border-slate-800 ${stat.bg} p-3 card-hover text-left w-full cursor-pointer transition-shadow hover:shadow-md`}
-              >
-                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{stat.label}</p>
-                <p className={`text-2xl font-bold mt-1 ${stat.color}`}>{stats?.[stat.statField] ?? 0}</p>
-              </button>
-            ))}
-          </div>
+          {/* Status cards - dynamically from DB config */}
+          {statusCards.length > 0 && (
+            <div className="grid grid-cols-2 gap-4 lg:grid-cols-6">
+              {statusCards.map((card: any) => (
+                <button
+                  key={card.key}
+                  type="button"
+                  onClick={() => openModal(card.key, card.label)}
+                  className={`rounded-xl border border-slate-200 dark:border-slate-800 ${card.bg} p-3 card-hover text-left w-full cursor-pointer transition-shadow hover:shadow-md`}
+                >
+                  <p className="text-xs text-slate-500 dark:text-slate-400 font-medium truncate">{card.label}</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: card.cor || "#94a3b8" }} />
+                    <p className="text-2xl font-bold" style={{ color: card.cor || "#94a3b8" }}>{card.total}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
@@ -183,14 +186,14 @@ export default function DashboardAmostras() {
                 <PieChart>
                   <Pie
                     data={(stats?.statusDistribution || []).map((s: any) => ({
-                      name: STATUS_LABELS[s.status] || s.status,
+                      name: getLabel(s.status) || s.status,
                       value: s.total,
                     }))}
                     cx="50%" cy="50%" innerRadius={50} outerRadius={85}
-                    dataKey="value" label={({ name, value }) => value > 0 ? `${name}: ${value}` : ""}
+                    dataKey="value" label={({ name, value }: any) => value > 0 ? `${name}: ${value}` : ""}
                   >
                     {(stats?.statusDistribution || []).map((s: any) => (
-                      <Cell key={s.status} fill={STATUS_COLORS[s.status] || "#94a3b8"} />
+                      <Cell key={s.status} fill={getColor(s.status) || "#94a3b8"} />
                     ))}
                   </Pie>
                   <Tooltip />
@@ -237,7 +240,7 @@ export default function DashboardAmostras() {
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
               {!stats?.recent || stats.recent.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16 text-center">
-                  <Clock className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
+                  <ClipboardList className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
                   <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nenhuma amostra recente</p>
                   <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">As amostras aparecerão aqui</p>
                 </div>
@@ -290,8 +293,11 @@ export default function DashboardAmostras() {
                           </span>
                         </td>
                         <td className="p-4">
-                          <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_BG[a.status] || "bg-slate-100 text-slate-600"}`}>
-                            {STATUS_LABELS[a.status] || a.status}
+                          <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium" style={{
+                            backgroundColor: hexToRgba(getColor(a.status), 0.15),
+                            color: getColor(a.status),
+                          }}>
+                            {getLabel(a.status)}
                           </span>
                         </td>
                         <td className="p-4 text-sm text-slate-500">
@@ -359,8 +365,11 @@ export default function DashboardAmostras() {
                         <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${TIPO_BG[item.tipoAmostra] || "bg-slate-100 text-slate-600"}`}>
                           {TIPO_LABELS[item.tipoAmostra] || item.tipoAmostra}
                         </span>
-                        <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_BG[item.status] || "bg-slate-100 text-slate-600"}`}>
-                          {STATUS_LABELS[item.status] || item.status}
+                        <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium" style={{
+                          backgroundColor: hexToRgba(getColor(item.status), 0.15),
+                          color: getColor(item.status),
+                        }}>
+                          {getLabel(item.status)}
                         </span>
                         <span className="text-xs text-slate-400">{item.createdAt ? new Date(item.createdAt).toLocaleDateString("pt-BR") : ""}</span>
                       </div>
