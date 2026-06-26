@@ -11,6 +11,7 @@ interface AmostraData {
   data?: string | null
   links?: { url: string; descricao: string }[] | null
   quantidadeProduzida?: string | null
+  dados?: Record<string, string> | null
   produtoCodigo?: string | null
   produtoDescricao?: string | null
 }
@@ -302,7 +303,9 @@ export async function gerarSolicitacaoAmostraPdf(params: {
   const tipoLabelAmostra = amostra.tipoAmostra === "TECIDO_CRU" ? "TECIDO CRU" : amostra.tipoAmostra === "ACABAMENTO" ? "ACABAMENTO" : amostra.tipoAmostra
   const temLinks = amostra.links && amostra.links.length > 0
   const temQuant = amostra.quantidadeProduzida
-  const amostraBoxH = temLinks || temQuant ? 44 : 30
+  const temTear = amostra.dados?.tear
+  const extraRows = [temLinks, temTear].filter(Boolean).length
+  const amostraBoxH = 30 + extraRows * 12
 
   doc.setFillColor(...corPrimaria)
   doc.roundedRect(margin, y, pageWidth - margin * 2, 8, 2, 2, "F")
@@ -348,12 +351,22 @@ export async function gerarSolicitacaoAmostraPdf(params: {
   const obsParts = doc.splitTextToSize(amostra.observacoes || "—", colW - 4)
   doc.text(obsParts, cx3, ay2 + 4)
 
+  let nextRow = ay3
+
+  if (temTear) {
+    doc.setFont("helvetica", "bold").setFontSize(7)
+    doc.text("Tear", cx1, nextRow)
+    doc.setFont("helvetica", "normal").setFontSize(8)
+    doc.text(amostra.dados!.tear!, cx1, nextRow + 4)
+    nextRow += 12
+  }
+
   if (temLinks) {
     doc.setFont("helvetica", "bold").setFontSize(7)
-    doc.text("Links", cx1, ay3)
+    doc.text("Links", cx1, nextRow)
     doc.setTextColor(37, 99, 235)
     doc.setFont("helvetica", "normal").setFontSize(7)
-    let ly3 = ay3 + 4
+    let ly3 = nextRow + 4
     for (const link of amostra.links!) {
       const txt = link.descricao || link.url
       doc.textWithLink(txt, cx1, ly3, { url: link.url })

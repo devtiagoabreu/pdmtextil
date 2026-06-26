@@ -67,6 +67,7 @@ export default function DashboardAmostras() {
           observacoes: a.motivoAprovacao,
           data: a.data,
           quantidadeProduzida: a.quantidadeProduzida,
+          dados: a.dados,
           produtoCodigo: a.produtoCodigo,
           produtoDescricao: a.produtoDescricao,
         },
