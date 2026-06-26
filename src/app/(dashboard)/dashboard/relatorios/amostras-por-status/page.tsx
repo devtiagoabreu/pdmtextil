@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation"
 import Link from "next/link"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
-import { exportCSV, exportPDFRelatorio, statsToHTML, tableToHTML } from "@/lib/export-utils"
+import { exportCSV, exportPDFRelatorio } from "@/lib/export-utils"
 import { useStatuses, hexToRgba } from "@/hooks/use-statuses"
 
 type Stats = {
@@ -85,21 +85,26 @@ export default function RelatorioAmostrasPorStatus() {
   }
 
   async function handleExportPDF() {
-    const statsHtml = stats ? statsToHTML({
-      "Total": stats.total,
-      "Tecido Cru": stats.tecidoCru,
-      "Acabamento": stats.acabamento,
-    }) : ""
-    const mesTable = tableToHTML(["Mês", "Total"], porMes.map((m) => [m.mes, m.total]))
-    const listaTable = tableToHTML(["#", "Tipo", "Produto", "Descrição", "Data", "Criado em"], lista.map((r) => [
-      r.id,
-      r.tipoAmostra === "TECIDO_CRU" ? "Cru" : "Acab.",
-      r.produtoCodigo,
-      r.descricao || "-",
-      r.data ? new Date(r.data).toLocaleDateString("pt-BR") : "-",
-      r.createdAt ? new Date(r.createdAt).toLocaleDateString("pt-BR") : "-",
-    ]))
-    await exportPDFRelatorio(`Relatório: Amostras ${getStatusLabel(selectedStatus)}`, statsHtml + mesTable + listaTable)
+    const rotulo = getStatusLabel(selectedStatus)
+    await exportPDFRelatorio({
+      title: `Relatório: Amostras ${rotulo}`,
+      stats: stats ? {
+        "Total": stats.total,
+        "Tecido Cru": stats.tecidoCru,
+        "Acabamento": stats.acabamento,
+      } : undefined,
+      tables: [
+        { headers: ["Mês", "Total"], rows: porMes.map((m) => [m.mes, m.total]) },
+        { headers: ["#", "Tipo", "Produto", "Descrição", "Data", "Criado em"], rows: lista.map((r) => [
+          r.id,
+          r.tipoAmostra === "TECIDO_CRU" ? "Cru" : "Acab.",
+          r.produtoCodigo,
+          r.descricao || "-",
+          r.data ? new Date(r.data).toLocaleDateString("pt-BR") : "-",
+          r.createdAt ? new Date(r.createdAt).toLocaleDateString("pt-BR") : "-",
+        ])},
+      ],
+    })
   }
 
   const pathname = usePathname()

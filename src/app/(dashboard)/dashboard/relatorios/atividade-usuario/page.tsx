@@ -6,7 +6,7 @@ import { Activity, Filter, UserCheck } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
-import { exportCSV, exportPDFRelatorio, statsToHTML, tableToHTML } from "@/lib/export-utils"
+import { exportCSV, exportPDFRelatorio } from "@/lib/export-utils"
 
 type Stats = {
   total: number
@@ -106,23 +106,24 @@ export default function RelatorioAtividadeUsuario() {
   }
 
   async function handleExportPDF() {
-    const statsHtml = stats ? statsToHTML({
-      "Total Ações": stats.total,
-      "Usuários Ativos": stats.totalUsuarios,
-    }) : ""
-    const userTable = tableToHTML(["Usuário", "Ações"], porUsuario.map((u) => [u.usuario, u.total]))
-    const typeTable = tableToHTML(["Tipo", "Total"], porTipo.map((t) => [TIPO_LABELS[t.tipo] || t.tipo, t.total]))
-    const recentTable = tableToHTML(
-      ["Data", "Usuário", "Tipo", "Ação", "Descrição"],
-      recentes.map((r) => [
-        r.createdAt ? new Date(r.createdAt).toLocaleString("pt-BR") : "-",
-        r.usuario || "-",
-        TIPO_LABELS[r.tipo] || r.tipo,
-        r.acao,
-        r.descricao || "-",
-      ])
-    )
-    await exportPDFRelatorio("Relatório de Atividade por Usuário", statsHtml + userTable + typeTable + recentTable)
+    await exportPDFRelatorio({
+      title: "Relatório de Atividade por Usuário",
+      stats: stats ? {
+        "Total Ações": stats.total,
+        "Usuários Ativos": stats.totalUsuarios,
+      } : undefined,
+      tables: [
+        { headers: ["Usuário", "Ações"], rows: porUsuario.map((u) => [u.usuario, u.total]) },
+        { headers: ["Tipo", "Total"], rows: porTipo.map((t) => [TIPO_LABELS[t.tipo] || t.tipo, t.total]) },
+        { headers: ["Data", "Usuário", "Tipo", "Ação", "Descrição"], rows: recentes.map((r) => [
+          r.createdAt ? new Date(r.createdAt).toLocaleString("pt-BR") : "-",
+          r.usuario || "-",
+          TIPO_LABELS[r.tipo] || r.tipo,
+          r.acao,
+          r.descricao || "-",
+        ])},
+      ],
+    })
   }
 
   const pathname = usePathname()

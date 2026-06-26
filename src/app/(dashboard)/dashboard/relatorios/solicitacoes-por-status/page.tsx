@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation"
 import Link from "next/link"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
-import { exportCSV, exportPDFRelatorio, statsToHTML, tableToHTML } from "@/lib/export-utils"
+import { exportCSV, exportPDFRelatorio } from "@/lib/export-utils"
 import { useStatuses, hexToRgba } from "@/hooks/use-statuses"
 
 type Stats = {
@@ -88,22 +88,26 @@ export default function RelatorioSolicitacoesPorStatus() {
 
   async function handleExportPDF() {
     const rotulo = getStatusLabel(selectedStatus)
-    const statsHtml = stats ? statsToHTML({
-      "Total": stats.total,
-      "Tecelagem": stats.tecelagem,
-      "Beneficiamento": stats.beneficiamento,
-    }) : ""
-    const mesTable = tableToHTML(["Mês", "Total"], porMes.map((m) => [m.mes, m.total]))
-    const listaTable = tableToHTML(["#", "Cliente", "Projeto", "Tipo", "Criado em", "Concluído em", "Prazo"], lista.map((r) => [
-      r.id,
-      r.cliente,
-      r.projeto || "-",
-      r.tipo === "DESENVOLVIMENTO_TECELAGEM" ? "Tecelagem" : "Beneficiamento",
-      r.createdAt ? new Date(r.createdAt).toLocaleDateString("pt-BR") : "-",
-      r.dataConclusao ? new Date(r.dataConclusao).toLocaleDateString("pt-BR") : "-",
-      r.prazoDesejado ? new Date(r.prazoDesejado).toLocaleDateString("pt-BR") : "-",
-    ]))
-    await exportPDFRelatorio(`Relatório: Solicitações ${rotulo}`, statsHtml + mesTable + listaTable)
+    await exportPDFRelatorio({
+      title: `Relatório: Solicitações ${rotulo}`,
+      stats: stats ? {
+        "Total": stats.total,
+        "Tecelagem": stats.tecelagem,
+        "Beneficiamento": stats.beneficiamento,
+      } : undefined,
+      tables: [
+        { headers: ["Mês", "Total"], rows: porMes.map((m) => [m.mes, m.total]) },
+        { headers: ["#", "Cliente", "Projeto", "Tipo", "Criado em", "Concluído em", "Prazo"], rows: lista.map((r) => [
+          r.id,
+          r.cliente,
+          r.projeto || "-",
+          r.tipo === "DESENVOLVIMENTO_TECELAGEM" ? "Tecelagem" : "Beneficiamento",
+          r.createdAt ? new Date(r.createdAt).toLocaleDateString("pt-BR") : "-",
+          r.dataConclusao ? new Date(r.dataConclusao).toLocaleDateString("pt-BR") : "-",
+          r.prazoDesejado ? new Date(r.prazoDesejado).toLocaleDateString("pt-BR") : "-",
+        ])},
+      ],
+    })
   }
 
   const pathname = usePathname()
