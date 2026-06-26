@@ -39,8 +39,8 @@ export const dashboardContent: Record<string, InfoContent> = {
     ],
   },
   "/dashboard/relatorios/solicitacoes-criadas": {
-    title: "Solicitações Criadas / Deletadas",
-    description: "Relatório comparativo entre solicitações criadas, deletadas e concluídas, com taxa de sucesso.",
+    title: "Solicitações de Desenvolvimento Criadas / Deletadas",
+    description: "Relatório comparativo entre solicitações de desenvolvimento criadas, deletadas e concluídas, com taxa de sucesso.",
     rules: [
       "A taxa de sucesso é calculada como (concluídas / total criadas) × 100.",
       "Solicitações deletadas são contabilizadas a partir dos logs do sistema.",
@@ -48,8 +48,8 @@ export const dashboardContent: Record<string, InfoContent> = {
     ],
   },
   "/dashboard/relatorios/tempo-status": {
-    title: "Tempo em cada Status",
-    description: "Relatório detalhado do tempo que cada solicitação permaneceu em cada status do fluxo.",
+    title: "Tempo em cada Status (Solic. de Desenvolvimento)",
+    description: "Relatório detalhado do tempo que cada solicitação de desenvolvimento permaneceu em cada status do fluxo.",
     rules: [
       "O cálculo do tempo é baseado no histórico de comunicação da solicitação.",
       "O status atual conta o tempo até o momento presente (se não concluído).",
@@ -57,8 +57,8 @@ export const dashboardContent: Record<string, InfoContent> = {
     ],
   },
   "/dashboard/relatorios/tempo-status-amostras": {
-    title: "Tempo em cada Status (Amostras)",
-    description: "Relatório de tempo por status específico para amostras de tecido cru e acabamento.",
+    title: "Tempo em cada Status (Amostras de Desenvolvimento)",
+    description: "Relatório de tempo por status específico para amostras de desenvolvimento (tecido cru e acabamento).",
     rules: [
       "O histórico é extraído da coluna historico (JSONB) de cada amostra.",
       "Amostras sem histórico registrado não aparecem no relatório.",

@@ -6,8 +6,8 @@ import { useSession } from "next-auth/react"
 import { LayoutDashboard, FileText, ClipboardList, User } from "lucide-react"
 
 const mobileNavItems = [
-  { href: "/dashboard", icon: LayoutDashboard, label: "Solicitações" },
-  { href: "/dashboard/amostras", icon: ClipboardList, label: "Amostras" },
+  { href: "/dashboard", icon: LayoutDashboard, label: "Solicitações Desenv." },
+  { href: "/dashboard/amostras", icon: ClipboardList, label: "Amostras Desenv." },
   { href: "/comercial/solicitacoes", icon: FileText, label: "Lista" },
   { href: "/perfil", icon: User, label: "Perfil" },
 ] as const
