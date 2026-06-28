@@ -427,6 +427,39 @@ async function migrate() {
     `
     console.log("✓ Tabela requisicoes_corte_itens criada")
 
+    await sql`
+      CREATE TABLE IF NOT EXISTS requisicoes_amostra_comercial (
+        id SERIAL PRIMARY KEY,
+        status VARCHAR(30) NOT NULL DEFAULT 'PENDENTE',
+        solicitante_id INTEGER NOT NULL REFERENCES usuarios(id),
+        responsavel_id INTEGER REFERENCES usuarios(id),
+        cliente VARCHAR(200),
+        produto_cru_id INTEGER NOT NULL REFERENCES produtos_cru(id),
+        solicitacao_desenvolvimento_id INTEGER,
+        titulo VARCHAR(500),
+        quantidade VARCHAR(100),
+        motivo TEXT,
+        observacoes TEXT,
+        historico JSONB DEFAULT '[]'::jsonb,
+        prazo_desejado TIMESTAMP,
+        id_integracao VARCHAR(100),
+        criado_por INTEGER REFERENCES usuarios(id),
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `
+    console.log("✓ Tabela requisicoes_amostra_comercial criada")
+
+    // Insere regras de notificação para amostra comercial caso não existam
+    const amostraComercialRegras = await sql`SELECT count(*) FROM notificacao_regras WHERE tipo = 'AMOSTRA_COMERCIAL_CRIADA'`
+    if (amostraComercialRegras[0].count === "0") {
+      const rolesDefault = '["COMERCIAL","DESENVOLVIMENTO","ADMIN","SUDO","QUALIDADE","TECELAGEM","PCP"]'
+      await sql`INSERT INTO notificacao_regras (tipo, roles) VALUES
+        ('AMOSTRA_COMERCIAL_CRIADA', ${rolesDefault}::jsonb),
+        ('AMOSTRA_COMERCIAL_STATUS', ${rolesDefault}::jsonb)`
+      console.log("✓ Regras de notificação para amostra comercial inseridas")
+    }
+
     // Insere regras de notificação para requisições de corte caso não existam
     const reqCorteExistentes = await sql`SELECT count(*) FROM notificacao_regras WHERE tipo = 'REQUISICAO_CORTE'`
     if (reqCorteExistentes[0].count === "0") {
@@ -644,9 +677,16 @@ async function migrate() {
         -- Requisição de Corte
         ('SOLICITADO', 'Solicitado', 'REQUISICAO_CORTE', '#f59e0b', 1),
         ('PROCESSANDO', 'Processando', 'REQUISICAO_CORTE', '#6366f1', 2),
-        ('ATENDIDO', 'Atendido', 'REQUISICAO_CORTE', '#22c55e', 3)
+        ('ATENDIDO', 'Atendido', 'REQUISICAO_CORTE', '#22c55e', 3),
+        -- Amostra Comercial
+        ('PENDENTE', 'Pendente', 'AMOSTRA_COMERCIAL', '#f59e0b', 1),
+        ('AGUARDANDO_INFO', 'Aguardando Info', 'AMOSTRA_COMERCIAL', '#ea580c', 2),
+        ('EM_PRODUCAO', 'Em Produção', 'AMOSTRA_COMERCIAL', '#6366f1', 3),
+        ('APROVADO', 'Aprovado', 'AMOSTRA_COMERCIAL', '#22c55e', 4),
+        ('REPROVADO', 'Reprovado', 'AMOSTRA_COMERCIAL', '#ef4444', 5),
+        ('CONCLUIDO', 'Concluído', 'AMOSTRA_COMERCIAL', '#16a34a', 6)
       `
-      console.log("✓ Status padrão inseridos")
+    console.log("✓ Status padrão inseridos")
     } else {
       console.log("✓ Status já existem — pulando inserção")
     }

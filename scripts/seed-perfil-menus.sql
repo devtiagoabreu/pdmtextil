@@ -18,7 +18,8 @@ BEGIN
   INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
     (menu_id, 'Dashboard Solicitações de Desenvolvimento', '/dashboard', 0),
     (menu_id, 'Dashboard Amostras', '/dashboard/amostras', 1),
-    (menu_id, 'Dashboard Corte', '/dashboard/requisicoes-corte', 2);
+    (menu_id, 'Dashboard Amostras Comerciais', '/dashboard/amostra-comercial', 2),
+    (menu_id, 'Dashboard Corte', '/dashboard/requisicoes-corte', 3);
 
   INSERT INTO user_menus (role, titulo, ordem) VALUES ('DEFAULT', 'Solicitações de Desenvolvimento', 1)
     RETURNING id INTO menu_id;
@@ -37,29 +38,36 @@ BEGIN
   INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
     (menu_id, 'Amostras de Desenvolvimento', '/amostras', 0);
 
-  INSERT INTO user_menus (role, titulo, ordem) VALUES ('DEFAULT', 'Cadastros', 4)
+  INSERT INTO user_menus (role, titulo, ordem) VALUES ('DEFAULT', 'Amostras Comerciais', 4)
+    RETURNING id INTO menu_id;
+  INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
+    (menu_id, 'Requisições de Amostra Comercial', '/comercial/requisicoes-amostra-comercial', 0),
+    (menu_id, 'Nova Requisição', '/comercial/requisicoes-amostra-comercial/novo', 1),
+    (menu_id, 'Kanban A.C.', '/comercial/requisicoes-amostra-comercial/kanban', 2);
+
+  INSERT INTO user_menus (role, titulo, ordem) VALUES ('DEFAULT', 'Cadastros', 5)
     RETURNING id INTO menu_id;
   INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
     (menu_id, 'Cadastros', '/cadastros', 0),
     (menu_id, 'Produtos Cru', '/cadastros/produto-cru', 1),
     (menu_id, 'Receitas', '/cadastros/receitas', 2);
 
-  INSERT INTO user_menus (role, titulo, ordem) VALUES ('DEFAULT', 'Documentos', 5)
+  INSERT INTO user_menus (role, titulo, ordem) VALUES ('DEFAULT', 'Documentos', 6)
     RETURNING id INTO menu_id;
   INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
     (menu_id, 'Documentos', '/documentos', 0);
 
-  INSERT INTO user_menus (role, titulo, ordem) VALUES ('DEFAULT', 'Relatórios', 6)
+  INSERT INTO user_menus (role, titulo, ordem) VALUES ('DEFAULT', 'Relatórios', 7)
     RETURNING id INTO menu_id;
   INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
     (menu_id, 'Relatórios', '/dashboard/relatorios', 0);
 
-  INSERT INTO user_menus (role, titulo, ordem) VALUES ('DEFAULT', 'Ferramentas', 7)
+  INSERT INTO user_menus (role, titulo, ordem) VALUES ('DEFAULT', 'Ferramentas', 8)
     RETURNING id INTO menu_id;
   INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
     (menu_id, 'Ferramentas', '/ferramentas', 0);
 
-  INSERT INTO user_menus (role, titulo, ordem) VALUES ('DEFAULT', 'Conta', 8)
+  INSERT INTO user_menus (role, titulo, ordem) VALUES ('DEFAULT', 'Conta', 9)
     RETURNING id INTO menu_id;
   INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
     (menu_id, 'Meu Perfil', '/perfil', 0);
@@ -73,7 +81,8 @@ BEGIN
   INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
     (menu_id, 'Dashboard Solicitações de Desenvolvimento', '/dashboard', 0),
     (menu_id, 'Dashboard Amostras', '/dashboard/amostras', 1),
-    (menu_id, 'Dashboard Corte', '/dashboard/requisicoes-corte', 2);
+    (menu_id, 'Dashboard Amostras Comerciais', '/dashboard/amostra-comercial', 2),
+    (menu_id, 'Dashboard Corte', '/dashboard/requisicoes-corte', 3);
 
   INSERT INTO user_menus (role, titulo, ordem) VALUES ('ADMIN', 'Solicitações de Desenvolvimento', 1)
     RETURNING id INTO menu_id;
@@ -92,7 +101,14 @@ BEGIN
   INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
     (menu_id, 'Amostras de Desenvolvimento', '/amostras', 0);
 
-  INSERT INTO user_menus (role, titulo, ordem) VALUES ('ADMIN', 'Cadastros', 4)
+  INSERT INTO user_menus (role, titulo, ordem) VALUES ('ADMIN', 'Amostras Comerciais', 4)
+    RETURNING id INTO menu_id;
+  INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
+    (menu_id, 'Requisições de Amostra Comercial', '/comercial/requisicoes-amostra-comercial', 0),
+    (menu_id, 'Nova Requisição', '/comercial/requisicoes-amostra-comercial/novo', 1),
+    (menu_id, 'Kanban A.C.', '/comercial/requisicoes-amostra-comercial/kanban', 2);
+
+  INSERT INTO user_menus (role, titulo, ordem) VALUES ('ADMIN', 'Cadastros', 5)
     RETURNING id INTO menu_id;
   INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
     (menu_id, 'Cadastros', '/cadastros', 0),
@@ -100,17 +116,17 @@ BEGIN
     (menu_id, 'Clientes', '/comercial/clientes', 2),
     (menu_id, 'Receitas', '/cadastros/receitas', 3);
 
-  INSERT INTO user_menus (role, titulo, ordem) VALUES ('ADMIN', 'Documentos', 5)
+  INSERT INTO user_menus (role, titulo, ordem) VALUES ('ADMIN', 'Documentos', 6)
     RETURNING id INTO menu_id;
   INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
     (menu_id, 'Documentos', '/documentos', 0);
 
-  INSERT INTO user_menus (role, titulo, ordem) VALUES ('ADMIN', 'Relatórios', 6)
+  INSERT INTO user_menus (role, titulo, ordem) VALUES ('ADMIN', 'Relatórios', 7)
     RETURNING id INTO menu_id;
   INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
     (menu_id, 'Relatórios', '/dashboard/relatorios', 0);
 
-  INSERT INTO user_menus (role, titulo, ordem) VALUES ('ADMIN', 'Administrativo', 7)
+  INSERT INTO user_menus (role, titulo, ordem) VALUES ('ADMIN', 'Administrativo', 8)
     RETURNING id INTO menu_id;
   INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
     (menu_id, 'Configurações', '/admin/configuracoes', 0),
@@ -120,12 +136,12 @@ BEGIN
     (menu_id, 'Notificações', '/admin/notificacoes', 4),
     (menu_id, 'Email em Massa', '/admin/email-massa', 5);
 
-  INSERT INTO user_menus (role, titulo, ordem) VALUES ('ADMIN', 'Ferramentas', 8)
+  INSERT INTO user_menus (role, titulo, ordem) VALUES ('ADMIN', 'Ferramentas', 9)
     RETURNING id INTO menu_id;
   INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
     (menu_id, 'Ferramentas', '/ferramentas', 0);
 
-  INSERT INTO user_menus (role, titulo, ordem) VALUES ('ADMIN', 'Conta', 9)
+  INSERT INTO user_menus (role, titulo, ordem) VALUES ('ADMIN', 'Conta', 10)
     RETURNING id INTO menu_id;
   INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
     (menu_id, 'Meu Perfil', '/perfil', 0);
@@ -136,7 +152,8 @@ BEGIN
   INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
     (menu_id, 'Dashboard Solicitações de Desenvolvimento', '/dashboard', 0),
     (menu_id, 'Dashboard Amostras', '/dashboard/amostras', 1),
-    (menu_id, 'Dashboard Corte', '/dashboard/requisicoes-corte', 2);
+    (menu_id, 'Dashboard Amostras Comerciais', '/dashboard/amostra-comercial', 2),
+    (menu_id, 'Dashboard Corte', '/dashboard/requisicoes-corte', 3);
 
   INSERT INTO user_menus (role, titulo, ordem) VALUES ('SUDO', 'Solicitações de Desenvolvimento', 1)
     RETURNING id INTO menu_id;
@@ -155,7 +172,14 @@ BEGIN
   INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
     (menu_id, 'Amostras de Desenvolvimento', '/amostras', 0);
 
-  INSERT INTO user_menus (role, titulo, ordem) VALUES ('SUDO', 'Cadastros', 4)
+  INSERT INTO user_menus (role, titulo, ordem) VALUES ('SUDO', 'Amostras Comerciais', 4)
+    RETURNING id INTO menu_id;
+  INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
+    (menu_id, 'Requisições de Amostra Comercial', '/comercial/requisicoes-amostra-comercial', 0),
+    (menu_id, 'Nova Requisição', '/comercial/requisicoes-amostra-comercial/novo', 1),
+    (menu_id, 'Kanban A.C.', '/comercial/requisicoes-amostra-comercial/kanban', 2);
+
+  INSERT INTO user_menus (role, titulo, ordem) VALUES ('SUDO', 'Cadastros', 5)
     RETURNING id INTO menu_id;
   INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
     (menu_id, 'Cadastros', '/cadastros', 0),
@@ -163,17 +187,17 @@ BEGIN
     (menu_id, 'Clientes', '/comercial/clientes', 2),
     (menu_id, 'Receitas', '/cadastros/receitas', 3);
 
-  INSERT INTO user_menus (role, titulo, ordem) VALUES ('SUDO', 'Documentos', 5)
+  INSERT INTO user_menus (role, titulo, ordem) VALUES ('SUDO', 'Documentos', 6)
     RETURNING id INTO menu_id;
   INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
     (menu_id, 'Documentos', '/documentos', 0);
 
-  INSERT INTO user_menus (role, titulo, ordem) VALUES ('SUDO', 'Relatórios', 6)
+  INSERT INTO user_menus (role, titulo, ordem) VALUES ('SUDO', 'Relatórios', 7)
     RETURNING id INTO menu_id;
   INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
     (menu_id, 'Relatórios', '/dashboard/relatorios', 0);
 
-  INSERT INTO user_menus (role, titulo, ordem) VALUES ('SUDO', 'Administrativo', 7)
+  INSERT INTO user_menus (role, titulo, ordem) VALUES ('SUDO', 'Administrativo', 8)
     RETURNING id INTO menu_id;
   INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
     (menu_id, 'Configurações', '/admin/configuracoes', 0),
@@ -183,12 +207,12 @@ BEGIN
     (menu_id, 'Notificações', '/admin/notificacoes', 4),
     (menu_id, 'Email em Massa', '/admin/email-massa', 5);
 
-  INSERT INTO user_menus (role, titulo, ordem) VALUES ('SUDO', 'Ferramentas', 8)
+  INSERT INTO user_menus (role, titulo, ordem) VALUES ('SUDO', 'Ferramentas', 9)
     RETURNING id INTO menu_id;
   INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
     (menu_id, 'Ferramentas', '/ferramentas', 0);
 
-  INSERT INTO user_menus (role, titulo, ordem) VALUES ('SUDO', 'Conta', 9)
+  INSERT INTO user_menus (role, titulo, ordem) VALUES ('SUDO', 'Conta', 10)
     RETURNING id INTO menu_id;
   INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
     (menu_id, 'Meu Perfil', '/perfil', 0);
@@ -300,7 +324,8 @@ BEGIN
     RETURNING id INTO menu_id;
   INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
     (menu_id, 'Dashboard Solicitações de Desenvolvimento', '/dashboard', 0),
-    (menu_id, 'Dashboard Amostras', '/dashboard/amostras', 1);
+    (menu_id, 'Dashboard Amostras', '/dashboard/amostras', 1),
+    (menu_id, 'Dashboard Amostras Comerciais', '/dashboard/amostra-comercial', 2);
 
   INSERT INTO user_menus (role, titulo, ordem) VALUES ('DESENVOLVIMENTO', 'Solicitações de Desenvolvimento', 1)
     RETURNING id INTO menu_id;
@@ -313,7 +338,13 @@ BEGIN
   INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
     (menu_id, 'Amostras de Desenvolvimento', '/amostras', 0);
 
-  INSERT INTO user_menus (role, titulo, ordem) VALUES ('DESENVOLVIMENTO', 'Conta', 3)
+  INSERT INTO user_menus (role, titulo, ordem) VALUES ('DESENVOLVIMENTO', 'Amostras Comerciais', 3)
+    RETURNING id INTO menu_id;
+  INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
+    (menu_id, 'Requisições de Amostra Comercial', '/comercial/requisicoes-amostra-comercial', 0),
+    (menu_id, 'Kanban A.C.', '/comercial/requisicoes-amostra-comercial/kanban', 1);
+
+  INSERT INTO user_menus (role, titulo, ordem) VALUES ('DESENVOLVIMENTO', 'Conta', 4)
     RETURNING id INTO menu_id;
   INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
     (menu_id, 'Meu Perfil', '/perfil', 0);
