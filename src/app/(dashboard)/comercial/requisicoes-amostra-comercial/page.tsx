@@ -1,14 +1,15 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
-import { FlaskConical, Plus, Search, Trash2 } from "lucide-react"
+import { FlaskConical, Plus, Search, Trash2, FileText, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { useStatuses, hexToRgba } from "@/hooks/use-statuses"
+import { gerarRequisicaoAmostraComercialPdf } from "@/lib/gerar-requisicao-amostra-comercial-pdf"
 
 export default function ListaRequisicoesAmostraComercialPage() {
   const router = useRouter()
@@ -21,6 +22,7 @@ export default function ListaRequisicoesAmostraComercialPage() {
   const [mounted, setMounted] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<any>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
+  const [gerandoPdf, setGerandoPdf] = useState<number | null>(null)
   const { getLabel, getColor } = useStatuses("AMOSTRA_COMERCIAL")
 
   useEffect(() => {
@@ -52,6 +54,12 @@ export default function ListaRequisicoesAmostraComercialPage() {
       )
     )
   }, [search, data])
+
+  const handleGerarPdf = useCallback(async (id: number) => {
+    setGerandoPdf(id)
+    await gerarRequisicaoAmostraComercialPdf(id)
+    setGerandoPdf(null)
+  }, [])
 
   const handleDelete = async () => {
     if (!deleteTarget) return
@@ -174,6 +182,14 @@ export default function ListaRequisicoesAmostraComercialPage() {
                         >
                           Visualizar
                         </Link>
+                        <button
+                          onClick={() => handleGerarPdf(item.id)}
+                          disabled={gerandoPdf === item.id}
+                          className="text-blue-600 dark:text-blue-400 hover:underline text-xs font-medium inline-flex items-center gap-1 disabled:opacity-50"
+                        >
+                          {gerandoPdf === item.id ? <Loader2 size={12} className="animate-spin" /> : <FileText size={12} />}
+                          {gerandoPdf === item.id ? "..." : "PDF"}
+                        </button>
                         <button
                           onClick={() => setDeleteTarget(item)}
                           className="text-red-600 dark:text-red-400 hover:underline text-xs font-medium inline-flex items-center gap-1"

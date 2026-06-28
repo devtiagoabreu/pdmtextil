@@ -1,13 +1,14 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useRouter, useParams, usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import Link from "next/link"
-import { ArrowLeft, Clock, User, FileText, Package } from "lucide-react"
+import { ArrowLeft, Clock, User, FileText, Package, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import { useStatuses, hexToRgba } from "@/hooks/use-statuses"
+import { gerarRequisicaoAmostraComercialPdf } from "@/lib/gerar-requisicao-amostra-comercial-pdf"
 
 export default function DetalheRequisicaoAmostraComercialPage() {
   const params = useParams()
@@ -18,7 +19,14 @@ export default function DetalheRequisicaoAmostraComercialPage() {
   const [mounted, setMounted] = useState(false)
   const [loading, setLoading] = useState(true)
   const [data, setData] = useState<any>(null)
+  const [gerandoPdf, setGerandoPdf] = useState(false)
   const { getLabel, getColor } = useStatuses("AMOSTRA_COMERCIAL")
+
+  const handleGerarPdf = useCallback(async () => {
+    setGerandoPdf(true)
+    await gerarRequisicaoAmostraComercialPdf(id)
+    setGerandoPdf(false)
+  }, [id])
 
   useEffect(() => {
     setMounted(true)
@@ -83,6 +91,14 @@ export default function DetalheRequisicaoAmostraComercialPage() {
           }}>
             {getLabel(data.status)}
           </span>
+          <button
+            onClick={handleGerarPdf}
+            disabled={gerandoPdf}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 text-white px-3 py-1.5 text-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            {gerandoPdf ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />}
+            {gerandoPdf ? "Gerando..." : "PDF"}
+          </button>
         </div>
       </div>
 
