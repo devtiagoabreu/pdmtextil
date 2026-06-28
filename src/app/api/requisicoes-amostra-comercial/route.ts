@@ -18,7 +18,16 @@ export async function GET(req: NextRequest) {
     const url = new URL(req.url)
     const search = url.searchParams.get("search")
 
-    let query = db
+    const conditions = search
+      ? or(
+          ilike(requisicoesAmostraComercial.titulo, `%${search}%`),
+          ilike(requisicoesAmostraComercial.cliente, `%${search}%`),
+          ilike(produtosCru.codigoPdm, `%${search}%`),
+          ilike(produtosCru.descricao, `%${search}%`),
+        )
+      : undefined
+
+    const lista = await db
       .select({
         id: requisicoesAmostraComercial.id,
         status: requisicoesAmostraComercial.status,
@@ -34,19 +43,8 @@ export async function GET(req: NextRequest) {
       .from(requisicoesAmostraComercial)
       .innerJoin(produtosCru, eq(requisicoesAmostraComercial.produtoCruId, produtosCru.id))
       .leftJoin(usuarios, eq(requisicoesAmostraComercial.solicitanteId, usuarios.id))
-
-    if (search) {
-      query = query.where(
-        or(
-          ilike(requisicoesAmostraComercial.titulo, `%${search}%`),
-          ilike(requisicoesAmostraComercial.cliente, `%${search}%`),
-          ilike(produtosCru.codigoPdm, `%${search}%`),
-          ilike(produtosCru.descricao, `%${search}%`),
-        )
-      )
-    }
-
-    const lista = await query.orderBy(desc(requisicoesAmostraComercial.createdAt))
+      .where(conditions)
+      .orderBy(desc(requisicoesAmostraComercial.createdAt))
 
     return NextResponse.json(lista)
   } catch (error) {
@@ -96,7 +94,7 @@ export async function POST(req: NextRequest) {
     await notificar(
       "AMOSTRA_COMERCIAL_CRIADA",
       `Nova requisição de amostra comercial #${result.id} criada por ${session.user.name}`,
-      `/requisicoes-amostra-comercial/${result.id}`,
+      `/comercial/requisicoes-amostra-comercial/${result.id}`,
       session.user.name
     )
 
