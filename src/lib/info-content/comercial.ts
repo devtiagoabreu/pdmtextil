@@ -43,6 +43,41 @@ export const comercialContent: Record<string, InfoContent> = {
       { name: "Contato", desc: "Nome e telefone do contato comercial" },
     ],
   },
+  "/comercial/requisicoes-amostra-comercial": {
+    title: "Requisições de Amostra Comercial",
+    description: "Lista de requisições de amostra comercial. Gerencie solicitações de amostras para clientes, vinculadas a produtos cadastrados.",
+    rules: [
+      "Cada requisição deve estar vinculada a um produto cru existente.",
+      "O título é obrigatório; os demais campos são opcionais.",
+      "O status é gerenciado pelo fluxo configurado em AMOSTRA_COMERCIAL.",
+      "Apenas perfis COMERCIAL, ADMIN ou SUDO podem mover cards no kanban.",
+      "Ao aprovar ou reprovar, um motivo deve ser informado.",
+    ],
+    fields: [
+      { name: "Produto", desc: "Produto cru vinculado à requisição (autocomplete)" },
+      { name: "Título", desc: "Identificação da requisição" },
+      { name: "Status", desc: "Etapa atual no fluxo de amostra comercial" },
+    ],
+  },
+  "/comercial/requisicoes-amostra-comercial/novo": {
+    title: "Nova Requisição de Amostra Comercial",
+    description: "Formulário de criação de uma nova requisição de amostra comercial.",
+    rules: [
+      "Selecione um produto cru existente.",
+      "O título é obrigatório.",
+      "O prazo desejado pode ser informado para controle de prioridade.",
+      "Após criar, a requisição aparecerá na lista e kanban.",
+    ],
+  },
+  "/comercial/requisicoes-amostra-comercial/kanban": {
+    title: "Kanban — Amostras Comerciais",
+    description: "Quadro kanban para gerenciar requisições de amostra comercial com drag-and-drop.",
+    rules: [
+      "Arraste os cards entre colunas para alterar o status.",
+      "Status APROVADO/REPROVADO exigem motivo obrigatório.",
+      "Apenas COMERCIAL, ADMIN e SUDO podem arrastar cards.",
+    ],
+  },
   "/comercial/requisicoes-corte": {
     title: "Requisições de Corte",
     description: "Gerencie as requisições de corte de produtos. Uma requisição pode conter múltiplos itens (cortes) para diferentes produtos.",

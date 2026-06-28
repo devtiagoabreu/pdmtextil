@@ -16,6 +16,7 @@ const relatorios = [
   { href: "/dashboard/relatorios/amostras-por-status", label: "Amostras de Desenvolvimento por Status", desc: "Filtre amostras de desenvolvimento por status — total, tipo (cru/acab.) e detalhamento", icon: Beaker },
   { href: "/dashboard/relatorios/historico-solicitacao", label: "Histórico de Solicitação de Desenvolvimento", desc: "Histórico completo de uma solicitação de desenvolvimento: dados, produtos, amostras e timeline", icon: History },
   { href: "/dashboard/relatorios/historico-amostra", label: "Histórico de Amostra de Desenvolvimento", desc: "Histórico completo de uma amostra de desenvolvimento: dados, produto, solicitação e timeline", icon: Beaker },
+  { href: "/dashboard/relatorios/amostra-comercial-por-status", label: "Amostras Comerciais por Status", desc: "Filtre requisições de amostra comercial por status — total, distribuição e detalhamento", icon: Filter },
 ]
 
 export default function RelatoriosHubPage() {

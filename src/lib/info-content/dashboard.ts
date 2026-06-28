@@ -1,6 +1,21 @@
 import type { InfoContent } from "./types"
 
 export const dashboardContent: Record<string, InfoContent> = {
+  "/dashboard/amostra-comercial": {
+    title: "Dashboard — Amostras Comerciais",
+    description: "Painel com métricas e indicadores das requisições de amostra comercial.",
+    rules: [
+      "Os cards principais mostram total, pendentes, em produção e concluídos.",
+      "Clique em qualquer card para abrir o drill-down com a lista detalhada.",
+      "O gráfico de pizza mostra a distribuição por status.",
+    ],
+    fields: [
+      { name: "Total", desc: "Total de requisições cadastradas" },
+      { name: "Pendentes", desc: "Requisições com status inicial" },
+      { name: "Em Produção", desc: "Requisições em andamento" },
+      { name: "Concluídos", desc: "Requisições finalizadas" },
+    ],
+  },
   "/dashboard": {
     title: "Dashboard Solicitações de Desenvolvimento",
     description: "Painel principal com métricas e indicadores das solicitações de desenvolvimento. Acompanhe o volume de solicitações criadas no mês, status atuais, distribuição por tipo e tendência mensal.",
@@ -27,6 +42,15 @@ export const dashboardContent: Record<string, InfoContent> = {
       "Cada relatório possui filtros próprios para refinar a consulta.",
       "Os dados são extraídos em tempo real do banco de dados.",
       "Relatórios estão disponíveis para usuários ADMIN e SUDO.",
+    ],
+  },
+  "/dashboard/relatorios/amostra-comercial-por-status": {
+    title: "Relatório: Amostras Comerciais por Status",
+    description: "Relatório de requisições de amostra comercial filtradas por status, com gráfico mensal e exportação CSV/PDF.",
+    rules: [
+      "Selecione um status no filtro para carregar os dados.",
+      "Use os filtros de data para restringir o período.",
+      "Exporte CSV para análise em planilha ou PDF para relatório formal.",
     ],
   },
   "/dashboard/relatorios/atividade-usuario": {
