@@ -8,7 +8,7 @@ import { DndContext, DragOverlay, useDraggable, useDroppable, PointerSensor, use
 import { Loader2, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
-const ROLES_PERMITIDOS = ["COMERCIAL", "ADMIN", "SUDO"]
+const ROLES_PERMITIDOS = ["COMERCIAL", "DESENVOLVIMENTO", "PCP", "ADMIN", "SUDO"]
 
 interface StatusCol {
   nome: string

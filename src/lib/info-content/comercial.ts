@@ -50,7 +50,7 @@ export const comercialContent: Record<string, InfoContent> = {
       "Cada requisição deve estar vinculada a um produto cru existente.",
       "O título é obrigatório; os demais campos são opcionais.",
       "O status é gerenciado pelo fluxo configurado em AMOSTRA_COMERCIAL.",
-      "Apenas perfis COMERCIAL, ADMIN ou SUDO podem mover cards no kanban.",
+      "Apenas perfis COMERCIAL, DESENVOLVIMENTO, PCP, ADMIN ou SUDO podem mover cards no kanban.",
       "Ao aprovar ou reprovar, um motivo deve ser informado.",
     ],
     fields: [
@@ -75,7 +75,7 @@ export const comercialContent: Record<string, InfoContent> = {
     rules: [
       "Arraste os cards entre colunas para alterar o status.",
       "Status APROVADO/REPROVADO exigem motivo obrigatório.",
-      "Apenas COMERCIAL, ADMIN e SUDO podem arrastar cards.",
+      "Apenas COMERCIAL, DESENVOLVIMENTO, PCP, ADMIN e SUDO podem arrastar cards.",
     ],
   },
   "/comercial/requisicoes-corte": {
