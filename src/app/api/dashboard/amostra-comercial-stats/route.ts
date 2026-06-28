@@ -2,56 +2,57 @@ import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
-import { sql } from "drizzle-orm"
+import { requisicoesAmostraComercial } from "@/lib/db/schema/requisicoes-amostra-comercial"
+import { produtosCru } from "@/lib/db/schema/produto-cru"
+import { usuarios } from "@/lib/db/schema/usuarios"
+import { eq, desc, sql, count } from "drizzle-orm"
 
 export const dynamic = "force-dynamic"
-
-async function q(sqlFragment: ReturnType<typeof sql>, fallback: unknown = null) {
-  try {
-    return await db.execute(sqlFragment)
-  } catch (e) {
-    console.error("[DB]", e)
-    return fallback
-  }
-}
 
 export async function GET() {
   try {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
-    const [statusRaw, totalMesRaw, recentRaw] = await Promise.all([
-      q(sql`
-        SELECT status, COUNT(*)::int AS count
-        FROM requisicoes_amostra_comercial
-        GROUP BY status
-      `, []),
-      q(sql`
-        SELECT COUNT(*)::int AS total
-        FROM requisicoes_amostra_comercial
-        WHERE created_at >= date_trunc('month', CURRENT_TIMESTAMP)
-      `, { total: 0 }),
-      q(sql`
-        SELECT
-          r.id, r.status, r.titulo, r.cliente, r.quantidade,
-          r.created_at AS "createdAt", r.prazo_desejado AS "prazoDesejado",
-          p.codigo_pdm AS "produtoCodigo", p.descricao AS "produtoDescricao",
-          u.name AS "solicitanteNome"
-        FROM requisicoes_amostra_comercial r
-        JOIN produtos_cru p ON p.id = r.produto_cru_id
-        LEFT JOIN usuarios u ON u.id = r.solicitante_id
-        ORDER BY r.created_at DESC
-        LIMIT 10
-      `, []),
-    ])
+    const porStatus = await db
+      .select({
+        status: requisicoesAmostraComercial.status,
+        count: count().mapWith(Number),
+      })
+      .from(requisicoesAmostraComercial)
+      .groupBy(requisicoesAmostraComercial.status)
 
-    const porStatus = Array.isArray(statusRaw) ? statusRaw : []
-    const totalMes = Array.isArray(totalMesRaw) ? (totalMesRaw[0]?.total ?? 0) : (totalMesRaw?.total ?? 0)
-    const recent = Array.isArray(recentRaw) ? recentRaw : []
+    const [totalMesRow] = await db
+      .select({
+        total: count().mapWith(Number),
+      })
+      .from(requisicoesAmostraComercial)
+      .where(
+        sql`${requisicoesAmostraComercial.createdAt} >= date_trunc('month', CURRENT_TIMESTAMP)`
+      )
+
+    const recent = await db
+      .select({
+        id: requisicoesAmostraComercial.id,
+        status: requisicoesAmostraComercial.status,
+        titulo: requisicoesAmostraComercial.titulo,
+        cliente: requisicoesAmostraComercial.cliente,
+        quantidade: requisicoesAmostraComercial.quantidade,
+        createdAt: requisicoesAmostraComercial.createdAt,
+        prazoDesejado: requisicoesAmostraComercial.prazoDesejado,
+        produtoCodigo: produtosCru.codigoPdm,
+        produtoDescricao: produtosCru.descricao,
+        solicitanteNome: usuarios.name,
+      })
+      .from(requisicoesAmostraComercial)
+      .innerJoin(produtosCru, eq(requisicoesAmostraComercial.produtoCruId, produtosCru.id))
+      .leftJoin(usuarios, eq(requisicoesAmostraComercial.solicitanteId, usuarios.id))
+      .orderBy(desc(requisicoesAmostraComercial.createdAt))
+      .limit(10)
 
     return NextResponse.json({
       porStatus,
-      totalMes,
+      totalMes: totalMesRow?.total ?? 0,
       recent,
     })
   } catch (error) {
