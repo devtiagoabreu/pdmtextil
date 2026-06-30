@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { Loader2, FileText, ArrowUp, LayoutGrid, List } from "lucide-react"
-import { usePathname, useSearchParams } from "next/navigation"
+import { usePathname, useSearchParams, useRouter } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { gerarSolicitacaoAmostraPdf } from "@/lib/gerar-solicitacao-amostra-pdf"
@@ -32,6 +32,7 @@ type Amostra = {
 export default function AmostrasPage() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const router = useRouter()
   const info = getInfoContent(pathname)
   const [aba, setAba] = useState<"tecidoCru" | "acabamento">("tecidoCru")
   const [tecidoCru, setTecidoCru] = useState<Amostra[]>([])
@@ -185,13 +186,22 @@ export default function AmostrasPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {lista.map((a) => {
+                  {lista.map((a) => {
                   const isFoco = focoId === a.id
+                  const temProduto = !!a.produtoCruId
+                  const handleRowClick = () => {
+                    if (!temProduto) return
+                    const amostraId = aba === "acabamento" && a.acabamentoId
+                      ? `amostra-acab-${a.acabamentoId}-${a.id}`
+                      : `amostra-${a.id}`
+                    router.push(`/cadastros/produto-cru/${a.produtoCruId}?tab=amostras&amostraId=${amostraId}`)
+                  }
                   return (
                     <tr
                       key={`${a.tipoAmostra}-${a.id}`}
                       ref={isFoco ? focoRef : undefined}
-                      className={`hover:bg-slate-50 dark:hover:bg-slate-800/50 ${isFoco ? "ring-2 ring-purple-500/40 bg-purple-50 dark:bg-purple-950/20" : ""}`}
+                      onClick={handleRowClick}
+                      className={`${temProduto ? "cursor-pointer" : ""} hover:bg-slate-50 dark:hover:bg-slate-800/50 ${isFoco ? "ring-2 ring-purple-500/40 bg-purple-50 dark:bg-purple-950/20" : ""}`}
                     >
                       <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-slate-200">#{a.id}</td>
                       <td className="px-4 py-3 text-sm">
@@ -214,7 +224,10 @@ export default function AmostrasPage() {
                       <td className="px-4 py-3 text-sm text-slate-500 max-w-[200px] truncate">{a.motivoAprovacao || "—"}</td>
                       <td className="px-4 py-3">
                         <button
-                          onClick={() => handleGerarPdf(a)}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleGerarPdf(a)
+                          }}
                           disabled={gerando === a.id}
                           className="inline-flex items-center gap-1.5 text-xs font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                         >
