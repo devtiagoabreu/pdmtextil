@@ -132,7 +132,7 @@ function NovoChatDialog({ onClose }: { onClose: () => void }) {
   const destRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    fetch("/api/admin/usuarios")
+    fetch("/api/usuarios/ativos")
       .then((r) => r.json())
       .then((data) => setUsuarios(Array.isArray(data) ? data : []))
       .catch(() => {})
