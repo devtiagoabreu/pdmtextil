@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useSession } from "next-auth/react"
-import { MessageSquare, Plus, Send, CheckCheck, Users, ArrowLeft, MessageCircle, AtSign } from "lucide-react"
+import { MessageSquare, Plus, Send, CheckCheck, Users, ArrowLeft, MessageCircle, AtSign, Pencil, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { EmojiPicker } from "@/components/chat/emoji-picker"
 import { toast } from "sonner"
@@ -260,6 +260,12 @@ function ConversationView({ chatId, onBack }: { chatId: number; onBack: () => vo
   const [mentionSearch, setMentionSearch] = useState("")
   const [mentionIndex, setMentionIndex] = useState(0)
   const [cursorPos, setCursorPos] = useState(0)
+  const [editMsgId, setEditMsgId] = useState<number | null>(null)
+  const [editText, setEditText] = useState("")
+
+  function isWithin5Min(data: string) {
+    return (Date.now() - new Date(data).getTime()) < 5 * 60 * 1000
+  }
 
   const { data: chat } = useQuery({
     queryKey: ["chat", chatId],
@@ -313,6 +319,44 @@ function ConversationView({ chatId, onBack }: { chatId: number; onBack: () => vo
       queryClient.invalidateQueries({ queryKey: ["chats"] })
     },
     onError: (err) => toast.error(err instanceof Error ? err.message : "Erro ao enviar"),
+  })
+
+  const editMsg = useMutation({
+    mutationFn: async ({ msgId, mensagem }: { msgId: number; mensagem: string }) => {
+      const res = await fetch(`/api/chats/${chatId}/mensagens/${msgId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mensagem }),
+      })
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.error || "Erro ao editar")
+      }
+      return res.json()
+    },
+    onSuccess: () => {
+      setEditMsgId(null)
+      setEditText("")
+      refetch()
+      queryClient.invalidateQueries({ queryKey: ["chats"] })
+    },
+    onError: (err) => toast.error(err instanceof Error ? err.message : "Erro ao editar"),
+  })
+
+  const deleteMsg = useMutation({
+    mutationFn: async (msgId: number) => {
+      const res = await fetch(`/api/chats/${chatId}/mensagens/${msgId}`, { method: "DELETE" })
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.error || "Erro ao apagar")
+      }
+    },
+    onSuccess: () => {
+      refetch()
+      queryClient.invalidateQueries({ queryKey: ["chats"] })
+      toast.success("Mensagem apagada")
+    },
+    onError: (err) => toast.error(err instanceof Error ? err.message : "Erro ao apagar"),
   })
 
   const insertMention = (userName: string) => {
@@ -425,6 +469,7 @@ function ConversationView({ chatId, onBack }: { chatId: number; onBack: () => vo
         )}
         {mensagens.map((msg) => {
           const isMine = msg.remetenteId === userId
+          const podeEditar = isMine && isWithin5Min(msg.createdAt)
           return (
             <div key={msg.id} className={`flex ${isMine ? "justify-end" : "justify-start"}`}>
               <div
@@ -437,12 +482,63 @@ function ConversationView({ chatId, onBack }: { chatId: number; onBack: () => vo
                 {!isMine && msg.remetenteNome && (
                   <p className="text-[10px] font-semibold mb-0.5 opacity-70">{msg.remetenteNome}</p>
                 )}
-                <p className="whitespace-pre-wrap break-words">{renderMensagem(msg.mensagem)}</p>
+                {editMsgId === msg.id ? (
+                  <div className="flex flex-col gap-2">
+                    <textarea
+                      value={editText}
+                      onChange={(e) => setEditText(e.target.value)}
+                      className={`w-full rounded-lg border px-3 py-2 text-sm resize-none min-h-[60px] ${
+                        isMine ? "border-blue-300 bg-blue-50 text-slate-900" : "border-slate-300 bg-white text-slate-900"
+                      }`}
+                      autoFocus
+                    />
+                    <div className="flex gap-2 justify-end">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setEditMsgId(null)}
+                        className="h-7 text-xs"
+                      >
+                        Cancelar
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={() => editMsg.mutate({ msgId: msg.id, mensagem: editText.trim() })}
+                        disabled={!editText.trim() || editMsg.isPending}
+                        className="h-7 text-xs"
+                      >
+                        {editMsg.isPending ? "Salvando..." : "Salvar"}
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="whitespace-pre-wrap break-words">{renderMensagem(msg.mensagem)}</p>
+                )}
                 <div className={`flex items-center gap-1 mt-1 ${isMine ? "justify-end" : "justify-start"}`}>
                   <span className={`text-[10px] ${isMine ? "text-blue-200" : "text-slate-400"}`}>
                     {new Date(msg.createdAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
                   </span>
                   {isMine && <CheckCheck size={12} className="text-blue-200" />}
+                  {podeEditar && editMsgId !== msg.id && (
+                    <div className="flex gap-1 ml-2">
+                      <button
+                        onClick={() => { setEditMsgId(msg.id); setEditText(msg.mensagem) }}
+                        className="p-0.5 rounded hover:bg-blue-500/20 transition-colors"
+                        title="Editar"
+                      >
+                        <Pencil size={12} className={isMine ? "text-blue-200" : ""} />
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (window.confirm("Apagar esta mensagem?")) deleteMsg.mutate(msg.id)
+                        }}
+                        className="p-0.5 rounded hover:bg-red-500/20 transition-colors"
+                        title="Apagar"
+                      >
+                        <Trash2 size={12} className={isMine ? "text-blue-200" : ""} />
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
