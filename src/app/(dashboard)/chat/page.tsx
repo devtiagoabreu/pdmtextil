@@ -272,16 +272,22 @@ function ConversationView({ chatId, onBack }: { chatId: number; onBack: () => vo
     refetchInterval: 3000,
   })
 
-  const participantes = (chat?.usuarios as { id: number; name: string }[]) || []
-  const activeUsers = participantes.filter(u => u.id !== userId)
+  const { data: allUsers = [] } = useQuery<{ id: number; name: string }[]>({
+    queryKey: ["all-users"],
+    queryFn: () => fetch("/api/admin/usuarios").then(r => r.json()),
+    staleTime: 60000,
+  })
+
+  const allUsersArr = Array.isArray(allUsers) ? allUsers : []
+  const mentionUsers = allUsersArr.filter(u => u.id !== userId)
 
   const textoAntesCursor = mensagem.slice(0, cursorPos)
-  const mentionMatch = textoAntesCursor.match(/@(\w*)$/)
+  const mentionMatch = textoAntesCursor.match(/@([\wÀ-ÿ]*)$/)
   const isMentioning = mentionMatch !== null
   const mentionQuery = mentionMatch?.[1]?.toLowerCase() || ""
 
   const mentionOptions = isMentioning && mentionQuery !== undefined
-    ? activeUsers.filter(u =>
+    ? mentionUsers.filter(u =>
         u.name.toLowerCase().includes(mentionQuery)
       ).slice(0, 8)
     : []
@@ -378,8 +384,8 @@ function ConversationView({ chatId, onBack }: { chatId: number; onBack: () => vo
     return parts.map((part, i) => {
       if (part.startsWith("@")) {
         const nome = part.slice(1).trim()
-        const isParticipant = activeUsers.some(u => u.name.toLowerCase() === nome.toLowerCase())
-        if (isParticipant) {
+        const isKnown = allUsersArr.some(u => u.name.toLowerCase() === nome.toLowerCase())
+        if (isKnown) {
           return (
             <span key={i} className="font-semibold text-blue-500 dark:text-blue-400">
               {part}
@@ -452,7 +458,7 @@ function ConversationView({ chatId, onBack }: { chatId: number; onBack: () => vo
             className="absolute bottom-full left-4 mb-1 w-64 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl overflow-hidden z-50"
           >
             <div className="px-3 py-1.5 text-[10px] font-medium text-slate-400 uppercase tracking-wider bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-700">
-              Participantes
+              Usuários
             </div>
             {mentionOptions.map((user, i) => (
               <button
