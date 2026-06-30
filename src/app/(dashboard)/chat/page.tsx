@@ -280,7 +280,7 @@ function ConversationView({ chatId, onBack }: { chatId: number; onBack: () => vo
 
   const { data: allUsers = [] } = useQuery<{ id: number; name: string }[]>({
     queryKey: ["all-users"],
-    queryFn: () => fetch("/api/admin/usuarios").then(r => r.json()),
+    queryFn: () => fetch("/api/usuarios/ativos").then(r => r.json()),
     staleTime: 60000,
   })
 
@@ -295,7 +295,7 @@ function ConversationView({ chatId, onBack }: { chatId: number; onBack: () => vo
   const mentionOptions = isMentioning && mentionQuery !== undefined
     ? mentionUsers.filter(u =>
         u.name.toLowerCase().includes(mentionQuery)
-      ).slice(0, 8)
+      )
     : []
 
   useEffect(() => {
@@ -551,7 +551,7 @@ function ConversationView({ chatId, onBack }: { chatId: number; onBack: () => vo
         {isMentioning && mentionOptions.length > 0 && (
           <div
             ref={mentionRef}
-            className="absolute bottom-full left-4 mb-1 w-64 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl overflow-hidden z-50"
+            className="absolute bottom-full left-4 mb-1 w-64 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto"
           >
             <div className="px-3 py-1.5 text-[10px] font-medium text-slate-400 uppercase tracking-wider bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-700">
               Usuários
