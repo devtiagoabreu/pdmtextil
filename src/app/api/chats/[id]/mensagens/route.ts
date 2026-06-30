@@ -89,31 +89,22 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       .where(eq(usuarios.id, userId))
       .limit(1)
 
-    // ── @mention parsing ──
+    // ── @mention parsing (todos os usuários ativos) ──
     const mencionados = new Set<number>()
+    const todosUsers = await db
+      .select({ id: usuarios.id, name: usuarios.name, email: usuarios.email })
+      .from(usuarios)
+      .where(eq(usuarios.ativo, true))
+
     const mentionRegex = /@(\w[\wÀ-ÿ\s]*\w|\w)/g
     let match: RegExpExecArray | null
     while ((match = mentionRegex.exec(body.mensagem)) !== null) {
       const nomeProcurado = match[1].trim().toLowerCase()
-
-      const participantes = await db
-        .select({ usuarioId: chatParticipantes.usuarioId })
-        .from(chatParticipantes)
-        .where(eq(chatParticipantes.chatId, chatId))
-
-      if (participantes.length > 0) {
-        const ids = participantes.map(p => p.usuarioId)
-        const users = await db
-          .select({ id: usuarios.id, name: usuarios.name, email: usuarios.email })
-          .from(usuarios)
-          .where(and(inArray(usuarios.id, ids), eq(usuarios.ativo, true)))
-
-        const matched = users.find(u =>
-          u.id !== userId && u.name.toLowerCase() === nomeProcurado
-        )
-        if (matched) {
-          mencionados.add(matched.id)
-        }
+      const matched = todosUsers.find(u =>
+        u.id !== userId && u.name.toLowerCase() === nomeProcurado
+      )
+      if (matched) {
+        mencionados.add(matched.id)
       }
     }
 
