@@ -81,14 +81,14 @@ export async function PUT(
       if (isAprovacao) {
         await notificar(
           body.status.startsWith("APROVADA") ? "AMOSTRA_APROVADA" : "AMOSTRA_REPROVADA",
-          `Amostra de acabamento #${asid} (acabamento #${aid}) do produto cru #${id} foi ${body.status.startsWith("APROVADA") ? "aprovada" : "reprovada"} por ${session.user.name}${body.motivoAprovacao ? ` — Motivo: ${body.motivoAprovacao}` : ""}`,
+           `Amostra de acabamento #${asid} (acabamento #${aid}) do produto #${id} foi ${body.status.startsWith("APROVADA") ? "aprovada" : "reprovada"} por ${session.user.name}${body.motivoAprovacao ? ` — Motivo: ${body.motivoAprovacao}` : ""}`,
           `/cadastros/produto-cru/${id}?tab=amostras&amostraId=amostra-acab-${aid}-${asid}`,
           session.user.name
         )
       } else {
         await notificar(
           "AMOSTRA_ATUALIZADA",
-          `Amostra de acabamento #${asid} (acabamento #${aid}) do produto cru #${id} foi editada por ${session.user.name}`,
+           `Amostra de acabamento #${asid} (acabamento #${aid}) do produto #${id} foi editada por ${session.user.name}`,
           `/cadastros/produto-cru/${id}?tab=amostras&amostraId=amostra-acab-${aid}-${asid}`,
           session.user.name
         )
@@ -178,7 +178,7 @@ export async function DELETE(
 
     await notificar(
       "AMOSTRA_EXCLUIDA",
-      `Amostra de acabamento #${asid} (acabamento #${aid}) do produto cru #${id} foi excluída por ${session.user.name}`,
+       `Amostra de acabamento #${asid} (acabamento #${aid}) do produto #${id} foi excluída por ${session.user.name}`,
       `/cadastros/produto-cru/${id}?tab=amostras`,
       session.user.name
     )

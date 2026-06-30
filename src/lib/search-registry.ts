@@ -42,9 +42,9 @@ export const searchRegistry: SearchItem[] = [
   { id: "cadastros", label: "Cadastros", keywords: ["cadastro", "dados", "tabelas", "config"], href: "/cadastros", description: "Módulo de cadastros do sistema", module: "Cadastros" },
   { id: "cadastros-clientes", label: "Clientes (Cadastros)", keywords: ["cliente", "cadastro", "lista", "empresa"], href: "/cadastros/clientes", description: "Lista de clientes no módulo de cadastros", module: "Cadastros" },
 
-  // Cadastros - Produto Cru
-  { id: "produto-cru", label: "Produtos Cru", keywords: ["produto", "cru", "tecido", "malha", "listagem"], href: "/cadastros/produto-cru", description: "Lista de produtos cru (tecidos/malhas)", module: "Cadastros" },
-  { id: "produto-cru-detalhe", label: "Produto Cru (Detalhe)", keywords: ["produto", "cru", "tecido", "malha", "detalhe", "editar", "ficha"], href: "/cadastros/produto-cru/[id]", description: "Ficha completa do produto cru", module: "Cadastros" },
+  // Cadastros - Produtos
+  { id: "produto-cru", label: "Produtos", keywords: ["produto", "tecido", "malha", "listagem"], href: "/cadastros/produto-cru", description: "Lista de produtos (tecidos/malhas)", module: "Cadastros" },
+  { id: "produto-cru-detalhe", label: "Produto (Detalhe)", keywords: ["produto", "tecido", "malha", "detalhe", "editar", "ficha"], href: "/cadastros/produto-cru/[id]", description: "Ficha completa do produto", module: "Cadastros" },
 
   // Cadastros - Fios
   { id: "fios", label: "Fios", keywords: ["fio", "fios", "listagem", "cadastro"], href: "/cadastros/fios", description: "Lista de fios", module: "Cadastros" },

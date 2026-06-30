@@ -219,7 +219,7 @@ export async function gerarSolicitacaoAmostraPdf(params: {
     y = y + 8 + solBoxH + 6
   }
 
-  // ── Seção 2: Produto Cru ──
+  // ── Seção 2: Produto ──
   if (prodRes) {
     const temLinksProd = prodRes.links && prodRes.links.length > 0
     const prodBoxH = temLinksProd ? 57 : 44
@@ -228,7 +228,7 @@ export async function gerarSolicitacaoAmostraPdf(params: {
     doc.roundedRect(margin, y, pageWidth - margin * 2, 8, 2, 2, "F")
     doc.setTextColor(255, 255, 255)
     doc.setFontSize(9).setFont("helvetica", "bold")
-    doc.text(`PRODUTO CRU — ${prodRes.codigoPdm}`, margin + 4, y + 6)
+    doc.text(`PRODUTO — ${prodRes.codigoPdm}`, margin + 4, y + 6)
 
     const prodBoxY = y + 8
     doc.setTextColor(...corTexto)

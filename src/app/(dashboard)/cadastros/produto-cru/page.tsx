@@ -88,18 +88,18 @@ export default function ProdutoCruPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
-            Produtos Cru
+            Produtos
             {info && <InfoButton content={info} />}
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400">
-            Gerencie os produtos cru (tecidos) cadastrados no sistema
+            Gerencie os produtos (tecidos) cadastrados no sistema
           </p>
         </div>
         <div className="flex gap-2">
           <ExportarDados data={filtered} columns={[
             { key: "codigoPdm", label: "Código PDM" }, { key: "descricao", label: "Descrição" },
             { key: "status", label: "Status" }, { key: "idIntegracaoErpCru", label: "ERP (Cru)" },
-          ]} filename="produtos-cru" title="Produtos Cru" />
+          ]} filename="produtos-cru" title="Produtos" />
           <Button variant="outline" onClick={() => setShowApiImport(true)} className="gap-2">
             <Database size={16} />
             Importar via API

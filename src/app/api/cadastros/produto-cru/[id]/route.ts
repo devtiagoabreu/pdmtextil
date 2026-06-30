@@ -195,12 +195,12 @@ export async function DELETE(
 
     await notificar(
       "PRODUTO_CRU_EXCLUIDO",
-      `Produto cru #${id} foi excluído por ${session.user.name}`,
+      `Produto #${id} foi excluído por ${session.user.name}`,
       "/cadastros/produto-cru",
       session.user.name
     )
 
-    await notificarDelecao("Produto Cru", id.toString(), session?.user?.name)
+    await notificarDelecao("Produto", id.toString(), session?.user?.name)
 
     return NextResponse.json({ success: true })
   } catch (error) {

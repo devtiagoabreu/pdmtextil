@@ -76,7 +76,7 @@ export async function POST(
 
     await notificar(
       "AMOSTRA_CRIADA",
-      `Nova amostra de acabamento #${aid} do produto cru #${id} criada por ${session.user.name}${body.descricao ? ` — ${body.descricao}` : ""}`,
+      `Nova amostra de acabamento #${aid} do produto #${id} criada por ${session.user.name}${body.descricao ? ` — ${body.descricao}` : ""}`,
       `/cadastros/produto-cru/${id}?tab=amostras&amostraId=amostra-acab-${aid}-${novo[0].id}`,
       session.user.name
     )

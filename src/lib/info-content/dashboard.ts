@@ -30,7 +30,7 @@ export const dashboardContent: Record<string, InfoContent> = {
     title: "Dashboard Amostras de Desenvolvimento",
     description: "Painel de métricas das amostras de desenvolvimento (tecido cru e acabamento). Acompanhe o total de amostras, aprovações, reprovações e tendência mensal de criação.",
     rules: [
-      "Amostras são vinculadas a um produto cru ou a um acabamento.",
+      "Amostras são vinculadas a um produto ou a um acabamento.",
       "O status 'APROVADO' indica que a amostra foi validada pelo cliente ou equipe técnica.",
       "A curva de aprovação mostra a relação entre amostras aprovadas e o total.",
     ],
