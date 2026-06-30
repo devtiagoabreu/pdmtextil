@@ -101,6 +101,29 @@ export async function PATCH(req: NextRequest) {
         }
       }
 
+      // Se foi movida para produção, avança solicitação vinculada para Pilotagem
+      if (novoStatus === "EM_PRODUCAO_TEC") {
+        const [prod] = await db
+          .select({ solicitacaoDesenvolvimentoId: produtosCru.solicitacaoDesenvolvimentoId })
+          .from(produtosCru)
+          .where(eq(produtosCru.id, produtoCruId))
+          .limit(1)
+        if (prod?.solicitacaoDesenvolvimentoId) {
+          const [sol] = await db
+            .select({ status: solicitacoes.status })
+            .from(solicitacoes)
+            .where(eq(solicitacoes.id, prod.solicitacaoDesenvolvimentoId))
+            .limit(1)
+          if (sol && sol.status === "EM_DESENVOLVIMENTO") {
+            await db
+              .update(solicitacoes)
+              .set({ status: "PILOTAGEM", updatedAt: new Date() })
+              .where(eq(solicitacoes.id, prod.solicitacaoDesenvolvimentoId))
+            await notificar("SOLICITACAO_ATUALIZADA", `Solicitação #${prod.solicitacaoDesenvolvimentoId} avançou para Pilotagem (amostra tecido cru #${id} em produção)`, `/comercial/solicitacoes/${prod.solicitacaoDesenvolvimentoId}`, session?.user?.name || "Sistema")
+          }
+        }
+      }
+
       return NextResponse.json(updated)
 
     } else if (tipo === "acabamento") {
@@ -173,6 +196,32 @@ export async function PATCH(req: NextRequest) {
               .set({ status: "EM_DESENVOLVIMENTO", updatedAt: new Date() })
               .where(eq(solicitacoes.id, prod.solicitacaoDesenvolvimentoId))
             await notificar("SOLICITACAO_ATUALIZADA", `Solicitação #${prod.solicitacaoDesenvolvimentoId} voltou para Em Desenvolvimento (amostra acabamento #${id} reprovada)`, `/comercial/solicitacoes/${prod.solicitacaoDesenvolvimentoId}`, session?.user?.name || "Sistema")
+          }
+        }
+      }
+
+      // Se foi movida para produção, avança solicitação vinculada para Pilotagem
+      if (novoStatus === "EM_PRODUCAO_BEN") {
+        const pid = produtoCruId
+        if (pid) {
+          const [prod] = await db
+            .select({ solicitacaoDesenvolvimentoId: produtosCru.solicitacaoDesenvolvimentoId })
+            .from(produtosCru)
+            .where(eq(produtosCru.id, pid))
+            .limit(1)
+          if (prod?.solicitacaoDesenvolvimentoId) {
+            const [sol] = await db
+              .select({ status: solicitacoes.status })
+              .from(solicitacoes)
+              .where(eq(solicitacoes.id, prod.solicitacaoDesenvolvimentoId))
+              .limit(1)
+            if (sol && sol.status === "EM_DESENVOLVIMENTO") {
+              await db
+                .update(solicitacoes)
+                .set({ status: "PILOTAGEM", updatedAt: new Date() })
+                .where(eq(solicitacoes.id, prod.solicitacaoDesenvolvimentoId))
+              await notificar("SOLICITACAO_ATUALIZADA", `Solicitação #${prod.solicitacaoDesenvolvimentoId} avançou para Pilotagem (amostra acabamento #${id} em produção)`, `/comercial/solicitacoes/${prod.solicitacaoDesenvolvimentoId}`, session?.user?.name || "Sistema")
+            }
           }
         }
       }
