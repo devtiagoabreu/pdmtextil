@@ -11,8 +11,8 @@ export const cadastrosContent: Record<string, InfoContent> = {
     ],
   },
   "/cadastros/produto-cru": {
-    title: "Produtos Cru",
-    description: "Gerencie os produtos cru (tecidos e malhas) que servem como base para a produção. Cada produto possui composição, estrutura e receitas associadas.",
+    title: "Produtos",
+    description: "Gerencie os produtos (tecidos e malhas) que servem como base para a produção. Cada produto possui composição, estrutura e receitas associadas.",
     rules: [
       "O código do produto segue o padrão 2.KXXXX.CRU.XXXXX gerado automaticamente.",
       "A composição define os materiais (fios) e suas porcentagens.",

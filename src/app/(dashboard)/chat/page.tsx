@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useSession } from "next-auth/react"
-import { MessageSquare, Plus, Send, CheckCheck, Users, ArrowLeft, MessageCircle } from "lucide-react"
+import { MessageSquare, Plus, Send, CheckCheck, Users, ArrowLeft, MessageCircle, AtSign } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { EmojiPicker } from "@/components/chat/emoji-picker"
 import { toast } from "sonner"
@@ -254,7 +254,12 @@ function ConversationView({ chatId, onBack }: { chatId: number; onBack: () => vo
   const [mensagem, setMensagem] = useState("")
   const mensagensEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
+  const mentionRef = useRef<HTMLDivElement>(null)
   const queryClient = useQueryClient()
+
+  const [mentionSearch, setMentionSearch] = useState("")
+  const [mentionIndex, setMentionIndex] = useState(0)
+  const [cursorPos, setCursorPos] = useState(0)
 
   const { data: chat } = useQuery({
     queryKey: ["chat", chatId],
@@ -266,6 +271,24 @@ function ConversationView({ chatId, onBack }: { chatId: number; onBack: () => vo
     queryFn: () => fetchMensagens(chatId),
     refetchInterval: 3000,
   })
+
+  const participantes = (chat?.usuarios as { id: number; name: string }[]) || []
+  const activeUsers = participantes.filter(u => u.id !== userId)
+
+  const textoAntesCursor = mensagem.slice(0, cursorPos)
+  const mentionMatch = textoAntesCursor.match(/@(\w*)$/)
+  const isMentioning = mentionMatch !== null
+  const mentionQuery = mentionMatch?.[1]?.toLowerCase() || ""
+
+  const mentionOptions = isMentioning && mentionQuery !== undefined
+    ? activeUsers.filter(u =>
+        u.name.toLowerCase().includes(mentionQuery)
+      ).slice(0, 8)
+    : []
+
+  useEffect(() => {
+    setMentionIndex(0)
+  }, [mentionQuery])
 
   useEffect(() => {
     marcarLidas(chatId).catch(() => {})
@@ -286,6 +309,23 @@ function ConversationView({ chatId, onBack }: { chatId: number; onBack: () => vo
     onError: (err) => toast.error(err instanceof Error ? err.message : "Erro ao enviar"),
   })
 
+  const insertMention = (userName: string) => {
+    const el = inputRef.current
+    if (!el) return
+    const atPos = mensagem.lastIndexOf("@", cursorPos - 1)
+    if (atPos === -1) return
+    const before = mensagem.slice(0, atPos)
+    const after = mensagem.slice(cursorPos)
+    const nova = `${before}@${userName} ${after}`
+    setMensagem(nova)
+    requestAnimationFrame(() => {
+      el.focus()
+      const newPos = atPos + userName.length + 2
+      el.selectionStart = el.selectionEnd = newPos
+      setCursorPos(newPos)
+    })
+  }
+
   const insertEmoji = (emoji: string) => {
     const el = inputRef.current
     if (!el) return
@@ -299,11 +339,56 @@ function ConversationView({ chatId, onBack }: { chatId: number; onBack: () => vo
     })
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setMensagem(e.target.value)
+    setCursorPos(e.target.selectionStart)
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (isMentioning && mentionOptions.length > 0) {
+      if (e.key === "ArrowDown") {
+        e.preventDefault()
+        setMentionIndex(i => Math.min(i + 1, mentionOptions.length - 1))
+        return
+      }
+      if (e.key === "ArrowUp") {
+        e.preventDefault()
+        setMentionIndex(i => Math.max(i - 1, 0))
+        return
+      }
+      if (e.key === "Enter" || e.key === "Tab") {
+        e.preventDefault()
+        insertMention(mentionOptions[mentionIndex].name)
+        return
+      }
+      if (e.key === "Escape") {
+        e.preventDefault()
+        setMensagem(mensagem)
+        return
+      }
+    }
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault()
       if (mensagem.trim()) sendMsg.mutate()
     }
+  }
+
+  function renderMensagem(texto: string) {
+    const parts = texto.split(/(@\w[\wÀ-ÿ\s]*\w|\B@\w+)/g)
+    return parts.map((part, i) => {
+      if (part.startsWith("@")) {
+        const nome = part.slice(1).trim()
+        const isParticipant = activeUsers.some(u => u.name.toLowerCase() === nome.toLowerCase())
+        if (isParticipant) {
+          return (
+            <span key={i} className="font-semibold text-blue-500 dark:text-blue-400">
+              {part}
+            </span>
+          )
+        }
+      }
+      return part
+    })
   }
 
   const mensagens = msgsData?.mensagens || []
@@ -346,7 +431,7 @@ function ConversationView({ chatId, onBack }: { chatId: number; onBack: () => vo
                 {!isMine && msg.remetenteNome && (
                   <p className="text-[10px] font-semibold mb-0.5 opacity-70">{msg.remetenteNome}</p>
                 )}
-                <p className="whitespace-pre-wrap break-words">{msg.mensagem}</p>
+                <p className="whitespace-pre-wrap break-words">{renderMensagem(msg.mensagem)}</p>
                 <div className={`flex items-center gap-1 mt-1 ${isMine ? "justify-end" : "justify-start"}`}>
                   <span className={`text-[10px] ${isMine ? "text-blue-200" : "text-slate-400"}`}>
                     {new Date(msg.createdAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
@@ -360,17 +445,46 @@ function ConversationView({ chatId, onBack }: { chatId: number; onBack: () => vo
         <div ref={mensagensEndRef} />
       </div>
 
-      <div className="border-t border-slate-200 dark:border-slate-700 p-4">
+      <div className="border-t border-slate-200 dark:border-slate-700 p-4 relative">
+        {isMentioning && mentionOptions.length > 0 && (
+          <div
+            ref={mentionRef}
+            className="absolute bottom-full left-4 mb-1 w-64 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl overflow-hidden z-50"
+          >
+            <div className="px-3 py-1.5 text-[10px] font-medium text-slate-400 uppercase tracking-wider bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-700">
+              Participantes
+            </div>
+            {mentionOptions.map((user, i) => (
+              <button
+                key={user.id}
+                type="button"
+                onMouseDown={(e) => { e.preventDefault(); insertMention(user.name) }}
+                className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2 transition-colors ${
+                  i === mentionIndex
+                    ? "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+                    : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                }`}
+              >
+                <AtSign size={14} className="shrink-0 text-slate-400" />
+                <span className="font-medium">{user.name}</span>
+              </button>
+            ))}
+          </div>
+        )}
         <div className="flex gap-2">
-          <textarea
-            ref={inputRef}
-            value={mensagem}
-            onChange={(e) => setMensagem(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Digite sua mensagem... (Enter para enviar)"
-            className="flex-1 min-h-[40px] max-h-[120px] rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent px-3 py-2 text-sm resize-none"
-            rows={1}
-          />
+          <div className="flex-1 relative">
+            <textarea
+              ref={inputRef}
+              value={mensagem}
+              onChange={handleInputChange}
+              onKeyDown={handleKeyDown}
+              onSelect={(e) => setCursorPos(e.currentTarget.selectionStart)}
+              onClick={(e) => setCursorPos(e.currentTarget.selectionStart)}
+              placeholder="Digite sua mensagem... (@ para mencionar)"
+              className="w-full min-h-[40px] max-h-[120px] rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent px-3 py-2 text-sm resize-none"
+              rows={1}
+            />
+          </div>
           <EmojiPicker onSelect={insertEmoji} />
           <Button
             size="icon"

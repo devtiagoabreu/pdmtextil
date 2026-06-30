@@ -44,8 +44,8 @@ const modulos = [
     icon: Users,
   },
   {
-    titulo: "Produtos Cru",
-    descricao: "Produtos cru (tecidos) - engenharia têxtil",
+    titulo: "Produtos",
+    descricao: "Produtos (tecidos) - engenharia têxtil",
     href: "/cadastros/produto-cru",
     icon: Layers,
   },

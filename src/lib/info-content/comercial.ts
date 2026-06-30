@@ -47,14 +47,14 @@ export const comercialContent: Record<string, InfoContent> = {
     title: "Requisições de Amostra Comercial",
     description: "Lista de requisições de amostra comercial. Gerencie solicitações de amostras para clientes, vinculadas a produtos cadastrados.",
     rules: [
-      "Cada requisição deve estar vinculada a um produto cru existente.",
+      "Cada requisição deve estar vinculada a um produto existente.",
       "O título é obrigatório; os demais campos são opcionais.",
       "O status é gerenciado pelo fluxo configurado em AMOSTRA_COMERCIAL.",
       "Apenas perfis COMERCIAL, DESENVOLVIMENTO, PCP, ADMIN ou SUDO podem mover cards no kanban.",
       "Ao aprovar ou reprovar, um motivo deve ser informado.",
     ],
     fields: [
-      { name: "Produto", desc: "Produto cru vinculado à requisição (autocomplete)" },
+      { name: "Produto", desc: "Produto vinculado à requisição (autocomplete)" },
       { name: "Título", desc: "Identificação da requisição" },
       { name: "Status", desc: "Etapa atual no fluxo de amostra comercial" },
     ],
@@ -63,7 +63,7 @@ export const comercialContent: Record<string, InfoContent> = {
     title: "Nova Requisição de Amostra Comercial",
     description: "Formulário de criação de uma nova requisição de amostra comercial.",
     rules: [
-      "Selecione um produto cru existente.",
+      "Selecione um produto existente.",
       "O título é obrigatório.",
       "O prazo desejado pode ser informado para controle de prioridade.",
       "Após criar, a requisição aparecerá na lista e kanban.",

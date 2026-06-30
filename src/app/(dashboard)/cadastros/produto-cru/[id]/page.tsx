@@ -695,7 +695,7 @@ export default function ProdutoCruFormPage() {
         </Link>
         <div className="flex-1">
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
-            {isEditing ? "Editar Produto Cru" : "Novo Produto Cru"}
+            {isEditing ? "Editar Produto" : "Novo Produto"}
             {info && <InfoButton content={info} />}
           </h1>
         </div>
@@ -703,7 +703,7 @@ export default function ProdutoCruFormPage() {
           <EntityChatButton
             entidadeTipo="PRODUTO_CRU"
             entidadeId={id}
-            titulo={produto.codigoPdm ? `Produto Cru ${produto.codigoPdm} — ${produto.descricao}` : `Produto Cru #${id}`}
+            titulo={produto.codigoPdm ? `Produto ${produto.codigoPdm} — ${produto.descricao}` : `Produto #${id}`}
           />
         )}
       </div>

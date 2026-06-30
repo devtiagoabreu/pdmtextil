@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
               acao: "MUDANCA_STATUS",
               de: sol.status,
               para: "EM_DESENVOLVIMENTO",
-              mensagem: "Produto cru vinculado à solicitação",
+                mensagem: "Produto vinculado à solicitação",
             })
             await db
               .update(solicitacoes)
@@ -94,16 +94,16 @@ export async function POST(req: NextRequest) {
 
     await notificar(
       "PRODUTO_CRU_CRIADO",
-      `Novo produto cru #${novo[0].id} criado por ${session.user.name} — ${body.codigoPdm}: ${body.descricao}`,
+      `Novo produto #${novo[0].id} criado por ${session.user.name} — ${body.codigoPdm}: ${body.descricao}`,
       `/cadastros/produto-cru/${novo[0].id}`,
       session.user.name
     )
 
-    await registrarLog({ tipo: "CADASTRO", acao: "criar", descricao: `Produto cru #${novo[0].id} criado - ${body.descricao}`, entidade: "ProdutoCru", entidadeId: novo[0].id, usuarioNome: session.user.name })
+    await registrarLog({ tipo: "CADASTRO", acao: "criar", descricao: `Produto #${novo[0].id} criado - ${body.descricao}`, entidade: "ProdutoCru", entidadeId: novo[0].id, usuarioNome: session.user.name })
 
     return NextResponse.json(novo[0])
   } catch (error) {
     console.error("[POST /api/cadastros/produto-cru]", error)
-    return NextResponse.json({ error: "Erro ao criar produto cru" }, { status: 500 })
+    return NextResponse.json({ error: "Erro ao criar produto" }, { status: 500 })
   }
 }

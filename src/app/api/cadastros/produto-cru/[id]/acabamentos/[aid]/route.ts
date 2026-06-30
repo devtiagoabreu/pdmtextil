@@ -29,7 +29,7 @@ export async function DELETE(
 
     await notificar(
       "ACABAMENTO_EXCLUIDO",
-      `Acabamento #${aid} do produto cru #${id} foi excluído por ${session.user.name}`,
+      `Acabamento #${aid} do produto #${id} foi excluído por ${session.user.name}`,
       `/cadastros/produto-cru/${id}`,
       session.user.name
     )

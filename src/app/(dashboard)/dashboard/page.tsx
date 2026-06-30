@@ -253,7 +253,7 @@ export default function DashboardPage() {
                       <Package size={20} />
                     </div>
                     <div>
-                      <p className="font-medium text-sm text-slate-800 dark:text-slate-100">Produtos Cru</p>
+                      <p className="font-medium text-sm text-slate-800 dark:text-slate-100">Produtos</p>
                       <p className="text-xs text-slate-500">Gerenciar fichas técnicas</p>
                     </div>
                   </Link>

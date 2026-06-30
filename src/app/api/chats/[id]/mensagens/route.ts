@@ -2,7 +2,12 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { chatMensagens, chatLeituras, chatParticipantes, chats, usuarios } from "@/lib/db/schema"
-import { eq, desc, and, inArray } from "drizzle-orm"
+import { notificacoes } from "@/lib/db/schema/notificacoes"
+import { eq, and, inArray } from "drizzle-orm"
+import { sendEmail } from "@/lib/email"
+
+const SITE_URL = process.env.NEXT_PUBLIC_APP_URL
+  || (process.env.NODE_ENV === "development" ? "http://localhost:3000" : "https://pdmprotextil.vercel.app")
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -83,6 +88,75 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       .from(usuarios)
       .where(eq(usuarios.id, userId))
       .limit(1)
+
+    // ── @mention parsing ──
+    const mencionados = new Set<number>()
+    const mentionRegex = /@(\w[\wÀ-ÿ\s]*\w|\w)/g
+    let match: RegExpExecArray | null
+    while ((match = mentionRegex.exec(body.mensagem)) !== null) {
+      const nomeProcurado = match[1].trim().toLowerCase()
+
+      const participantes = await db
+        .select({ usuarioId: chatParticipantes.usuarioId })
+        .from(chatParticipantes)
+        .where(eq(chatParticipantes.chatId, chatId))
+
+      if (participantes.length > 0) {
+        const ids = participantes.map(p => p.usuarioId)
+        const users = await db
+          .select({ id: usuarios.id, name: usuarios.name, email: usuarios.email })
+          .from(usuarios)
+          .where(and(inArray(usuarios.id, ids), eq(usuarios.ativo, true)))
+
+        const matched = users.find(u =>
+          u.id !== userId && u.name.toLowerCase() === nomeProcurado
+        )
+        if (matched) {
+          mencionados.add(matched.id)
+        }
+      }
+    }
+
+    if (mencionados.size > 0) {
+      const chatLink = `/chat?chatId=${chatId}`
+      const remetenteNome = remetente?.name || "Alguém"
+
+      const notificacoesData = Array.from(mencionados).map(uid => ({
+        tipo: "CHAT_MENCAO",
+        mensagem: `${remetenteNome} mencionou você no chat "${chat.titulo}"`,
+        usuarioId: uid,
+        usuarioNome: session?.user?.name || null,
+        link: chatLink,
+      }))
+
+      await db.insert(notificacoes).values(notificacoesData)
+
+      const usersMencionados = await db
+        .select({ id: usuarios.id, name: usuarios.name, email: usuarios.email })
+        .from(usuarios)
+        .where(and(inArray(usuarios.id, Array.from(mencionados)), eq(usuarios.ativo, true)))
+
+      const emailsValidos = usersMencionados
+        .map(u => u.email)
+        .filter((e): e is string => !!e && e.includes("@"))
+
+      if (emailsValidos.length > 0) {
+        await sendEmail({
+          to: emailsValidos,
+          subject: `[PDM Têxtil] ${remetenteNome} mencionou você no chat "${chat.titulo}"`,
+          html: `<div style="font-family:Arial,sans-serif;padding:20px;max-width:600px">
+<h2 style="color:#1e3a5f">💬 Chat Corporativo</h2>
+<p style="font-size:15px"><strong>${remetenteNome}</strong> mencionou você no chat <strong>"${chat.titulo}"</strong></p>
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px;margin:16px 0;font-style:italic;color:#475569">
+  ${body.mensagem.trim().replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br>")}
+</div>
+<p><a href="${SITE_URL}${chatLink}" style="background:#1e3a5f;color:#fff;padding:10px 20px;text-decoration:none;border-radius:6px;display:inline-block">Abrir conversa</a></p>
+<hr style="border:none;border-top:1px solid #e2e8f0;margin:20px 0" />
+<p style="color:#94a3b8;font-size:12px">Sistema PDM Têxtil</p>
+</div>`,
+        })
+      }
+    }
 
     return NextResponse.json({ ...msg, remetenteNome: remetente?.name }, { status: 201 })
   } catch (error) {

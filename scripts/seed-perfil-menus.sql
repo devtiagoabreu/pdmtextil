@@ -49,7 +49,7 @@ BEGIN
     RETURNING id INTO menu_id;
   INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
     (menu_id, 'Cadastros', '/cadastros', 0),
-    (menu_id, 'Produtos Cru', '/cadastros/produto-cru', 1),
+    (menu_id, 'Produtos', '/cadastros/produto-cru', 1),
     (menu_id, 'Receitas', '/cadastros/receitas', 2);
 
   INSERT INTO user_menus (role, titulo, ordem) VALUES ('DEFAULT', 'Documentos', 6)
@@ -112,7 +112,7 @@ BEGIN
     RETURNING id INTO menu_id;
   INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
     (menu_id, 'Cadastros', '/cadastros', 0),
-    (menu_id, 'Produtos Cru', '/cadastros/produto-cru', 1),
+    (menu_id, 'Produtos', '/cadastros/produto-cru', 1),
     (menu_id, 'Clientes', '/comercial/clientes', 2),
     (menu_id, 'Receitas', '/cadastros/receitas', 3);
 
@@ -183,7 +183,7 @@ BEGIN
     RETURNING id INTO menu_id;
   INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
     (menu_id, 'Cadastros', '/cadastros', 0),
-    (menu_id, 'Produtos Cru', '/cadastros/produto-cru', 1),
+    (menu_id, 'Produtos', '/cadastros/produto-cru', 1),
     (menu_id, 'Clientes', '/comercial/clientes', 2),
     (menu_id, 'Receitas', '/cadastros/receitas', 3);
 

@@ -31,7 +31,7 @@ const TIPO_CORES: Record<string, string> = {
 
 const TIPO_LABELS: Record<string, string> = {
   SOLICITACAO_DESENVOLVIMENTO: "Solic. Desenv.",
-  PRODUTO_CRU: "Produto Cru",
+  PRODUTO_CRU: "Produto",
   AMOSTRA: "Amostra",
   REQUISICAO_CORTE: "Req. Corte",
 }
