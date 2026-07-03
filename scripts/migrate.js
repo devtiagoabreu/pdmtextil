@@ -691,6 +691,66 @@ async function migrate() {
       console.log("✓ Status já existem — pulando inserção")
     }
 
+    // ==================== CRM (Fase 1) ====================
+    await sql`
+      CREATE TABLE IF NOT EXISTS crm_empresas (
+        id SERIAL PRIMARY KEY,
+        razao_social VARCHAR(250) NOT NULL,
+        nome_fantasia VARCHAR(200),
+        cnpj VARCHAR(18) NOT NULL UNIQUE,
+        segmento VARCHAR(100),
+        porte VARCHAR(50),
+        site VARCHAR(255),
+        observacoes TEXT,
+        status VARCHAR(30) NOT NULL DEFAULT 'NOVO',
+        responsavel_id INTEGER REFERENCES usuarios(id),
+        ativo BOOLEAN DEFAULT true,
+        id_integracao VARCHAR(100),
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `
+    console.log("✓ Tabela crm_empresas criada")
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS crm_leads (
+        id SERIAL PRIMARY KEY,
+        nome VARCHAR(200) NOT NULL,
+        email VARCHAR(255),
+        telefone VARCHAR(20),
+        celular VARCHAR(20),
+        empresa_nome VARCHAR(200),
+        cargo VARCHAR(100),
+        origem VARCHAR(30) NOT NULL DEFAULT 'OUTRO',
+        status VARCHAR(30) NOT NULL DEFAULT 'NOVO',
+        descricao TEXT,
+        responsavel_id INTEGER REFERENCES usuarios(id),
+        empresa_id INTEGER REFERENCES crm_empresas(id),
+        id_integracao VARCHAR(100),
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `
+    console.log("✓ Tabela crm_leads criada")
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS crm_contatos (
+        id SERIAL PRIMARY KEY,
+        nome VARCHAR(200) NOT NULL,
+        cargo VARCHAR(100),
+        email VARCHAR(255),
+        telefone VARCHAR(20),
+        celular VARCHAR(20),
+        whatsapp VARCHAR(20),
+        principal BOOLEAN DEFAULT false,
+        observacoes TEXT,
+        empresa_id INTEGER NOT NULL REFERENCES crm_empresas(id),
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `
+    console.log("✓ Tabela crm_contatos criada")
+
     console.log("\n✅ Migration concluída com sucesso!")
     
   } catch (error) {

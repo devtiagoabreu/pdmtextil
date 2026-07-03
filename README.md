@@ -4,7 +4,7 @@
 
 > *⚠️ Adicione um print da landing page como `public/landing.png` para exibir aqui.*
 
-Sistema de gestão de desenvolvimento de produtos têxteis. Conecta os departamentos **Comercial**, **Desenvolvimento (Tecelagem e Beneficiamento)** e **PCP** em uma plataforma única, eliminando retrabalhos e garantindo rastreabilidade completa.
+Sistema de gestão de desenvolvimento de produtos têxteis (PDM — Product Data Management). Conecta os departamentos **Comercial**, **Desenvolvimento (Tecelagem e Beneficiamento)** e **PCP** em uma plataforma única, eliminando retrabalhos e garantindo rastreabilidade completa do briefing à produção.
 
 [![Next.js](https://img.shields.io/badge/Next.js-14.2-black?logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://www.typescriptlang.org/)
@@ -19,42 +19,90 @@ Sistema de gestão de desenvolvimento de produtos têxteis. Conecta os departame
 ## Funcionalidades
 
 ### Módulo Comercial
-- Solicitações de desenvolvimento com briefing completo (8 seções)
-- Anexos (PDF, DOCX, XLSX, JPG, PNG, MP4) via Vercel Blob
-- Links integrados (YouTube, Google Sheets, Docs, Agenda)
-- Histórico de comunicação por solicitação
-- Cadastro de clientes com importação de API externa
-- Requisições de corte com itens
+- **Solicitações de Desenvolvimento** — briefing completo dividido em 8 seções (Tecelagem e Beneficiamento), com anexos (PDF, DOCX, XLSX, JPG, PNG, MP4 via Vercel Blob) e links incorporados (YouTube, Google Sheets, Docs, Agenda)
+- **Kanban de Solicitações** — arraste e solte para avançar etapas do desenvolvimento
+- **Detalhe da Solicitação** — linha do tempo de status, histórico de comunicação, produtos vinculados, chat por entidade
+- **Requisições de Amostra Comercial** — solicitação de amostras para clientes com kanban de acompanhamento
+- **Requisições de Corte** — requisições com itens, geração de PDF
+- **Clientes** — cadastro completo com importação via API externa e modelo de planilha
 
-### Módulo de Cadastros
-- **Fios**: cadastro completo com composição, titulagem, NCM, fornecedores
-- **Cores**: sólidas e de fundo com código, pantone, família
-- **Estampas**: desenhos com variantes e imagens
-- **Bases de Urdume**: com fios associados
-- **Acabamentos**: categorizados por tipo
-- **Máquinas e Operações**: cadastro técnico
-- **Produtos Químicos**: com concentração, densidade, pH, FISPQ
-- **Produto Cru**: ficha técnica completa com composição, estrutura, amostras e acabamentos
-- **Receitas**: versionadas com itens, estágios e produtos químicos
+### Módulo de Amostras (Desenvolvimento)
+- **Listagem de Amostras** — tabela com abas Tecido Cru / Acabamento, links diretos para ficha técnica do produto, filtros por status, geração de PDF "Solicitação de Amostra"
+- **Kanban de Amostras** — arraste e solte por colunas de status configuráveis
+- **Vínculo com Produto** — cada amostra pertence a um produto cru (tecido ou acabamento) com rastreabilidade completa
+- **Avanço Automático** — ao mover amostra para "Em Produção" no kanban, a solicitação vinculada avança automaticamente para "Pilotagem"
 
-### Romaneios de Expedição
-- Consulta de romaneios via integração com ERP
-- Agrupamento por lote com subtotais
-- Geração de PDF em retrato ou paisagem
-- Grade completa de rolos com metragem, pesos, largura e endereço
+### Módulo de Cadastros (Engenharia Têxtil)
+- **Fios** — cadastro completo: composição, titulagem (Ne, Nm, Tex), NCM, fornecedores vinculados, importação em lote
+- **Cores** — cores sólidas e de fundo com código, pantone, família de cor, importação em lote
+- **Estampas** — desenhos com variantes e imagens, importação em lote
+- **Bases de Urdume** — cadastro com fios associados, importação em lote
+- **Fornecedores** — cadastro com importação em lote
+- **Acabamentos** — categorizados por tipo (químico, mecânico, lavagem etc.)
+- **Máquinas e Operações** — cadastro técnico de máquinas e operações do beneficiamento
+- **Produtos Químicos** — cadastro com concentração, densidade, pH, FISPQ, importação em lote
+- **Produtos (Tecidos)** — ficha técnica completa do produto cru:
+  - Composição (liga de fios com percentuais)
+  - Estrutura têxtil (trama, urdume, batidas, gramatura)
+  - Amostras de tecido cru (com status, links, motivos, PDF)
+  - Acabamentos vinculados (com receitas, amostras de acabamento)
+  - Receitas de beneficiamento versionadas
+- **Receitas** — receitas de beneficiamento com itens, estágios, produtos químicos, versionamento, duplicação
+
+### Chat Corporativo
+- **Chat por Entidade** — conversas vinculadas a solicitações ou produtos
+- **Mensagens com @mention** — autocomplete de todos os usuários ativos, com suporte a acentos, destaque visual nas bolhas
+- **Notificações** — ao mencionar alguém com `@Nome`, o usuário recebe notificação in-app e e-mail com link direto para a conversa
+- **Editar / Apagar** — própria mensagem dentro da janela de 5 minutos
+- **Indicador de Não Lidas** — badge no header e ícone de visualizado (duplo check)
+- **Emoji Picker** — seletor de emojis integrado
+
+### Dashboard e Indicadores
+- **Dashboard Principal** — cards com totais do mês, pendentes, em desenvolvimento, pilotagem, concluídos, produtos CAD
+- **Gráficos** — tendência mensal (linha), distribuição por status (barras), distribuição por tipo (pizza)
+- **Atividades Recentes** — feed com últimas movimentações do sistema
+- **Dashboard Amostras** — indicadores específicos de amostras de desenvolvimento
+- **Dashboard Amostra Comercial** — indicadores de requisições de amostra comercial
+- **Dashboard Requisições de Corte** — métricas de corte
+
+### Relatórios (10 tipos)
+- Solicitações Criadas (período)
+- Solicitações por Status
+- Solicitações Concluídas
+- Histórico de Solicitação (auditoria completa)
+- Amostras por Status
+- Amostra Comercial por Status
+- Histórico de Amostra
+- Tempo em Status (solicitações e amostras)
+- Atividade por Usuário
+
+### Documentos
+- **Romaneios de Expedição** — consulta via integração com ERP, agrupamento por lote com subtotais, grade de rolos (metragem, pesos, largura, endereço), geração de PDF retrato ou paisagem
+- **Pré-DANFE** — geração de pré-DANFE para faturamento (em desenvolvimento)
+
+### Ferramentas
+- **Calculadora de Regra de Três** — resolve regra de três simples (direta/inversa) e composta
+- **Conversor de Numeração de Fio** — conversão entre Ne, Nm, Tex, Dtex e Denier
+- **Email em Massa** — envio para múltiplos destinatários com listas e modelos
 
 ### Administração
-- Gestão de usuários com perfis e permissões
-- Configuração de empresa (logo, dados fiscais)
-- Integrações com APIs externas (ERP, WMS)
-- Notificações in-app + e-mail (SMTP)
-- Logs de auditoria
-- Chat corporativo por entidade
+- **Usuários** — CRUD completo com perfis de acesso
+- **Perfis (Roles)** — gestão de papéis (ADMIN, COMERCIAL, TECELAGEM, BENEFICIAMENTO, PCP)
+- **Permissões** — controle CRUD granular por perfil e módulo
+- **Telas / Menus** — configuração de menus por perfil com drag-and-drop, reordenação, página inicial personalizada
+- **Status** — gerenciamento de fluxos de status por módulo (solicitações, amostras, produtos)
+- **Empresa** — configuração de logo, CNPJ, endereço, dados fiscais para relatórios e exportações
+- **SMTP** — configuração de servidor de e-mail com teste de envio
+- **Integrações** — conexões com sistemas externos (ERP, API, WMS) via endpoints configuráveis
+- **Notificações** — regras de quem recebe cada tipo de notificação
+- **Banco de Dados** — gerenciamento de conexões, criação, clone, backup
+- **Email em Massa** — listas de contatos, modelos de e-mail, envio programado
+- **Logs de Auditoria** — rastreamento de todas as ações no sistema
 
-### Dashboard e Relatórios
-- Gráficos de tendência mensal, distribuição por status e tipo
-- Cards com indicadores: total do mês, pendentes, desenvolvimento, concluídos
-- Relatórios exportáveis
+### Perfil do Usuário
+- **Dados do Perfil** — visualizar nome, email, perfil
+- **Alterar Senha** — com gerador de senha segura, mostrar/ocultar
+- **Menus Personalizados** — criar, editar, reordenar menus com drag-and-drop, adicionar telas disponíveis
 
 ---
 
@@ -64,7 +112,7 @@ Sistema de gestão de desenvolvimento de produtos têxteis. Conecta os departame
 |--------|------------|
 | Frontend / Backend | Next.js 14 (App Router) |
 | Linguagem | TypeScript 5 |
-| UI | React 18 + Tailwind CSS 3.4 + shadcn/ui |
+| UI | React 18 + Tailwind CSS 3.4 + shadcn/ui + Base UI |
 | ORM | Drizzle ORM 0.45 |
 | Database | PostgreSQL (Neon Serverless) |
 | Auth | NextAuth.js 4 (Credentials + JWT) |
@@ -75,7 +123,11 @@ Sistema de gestão de desenvolvimento de produtos têxteis. Conecta os departame
 | Drag & Drop | dnd-kit |
 | Tabelas | TanStack Table |
 | Upload | react-dropzone |
-| Notificações | Sonner |
+| Notificações | Sonner (toast) |
+| Cache/Estado | TanStack Query |
+| E-mail | Nodemailer |
+| Criptografia | AES-256-GCM |
+| Testes | Vitest + Testing Library |
 | Hospedagem | Vercel |
 
 ---
@@ -85,61 +137,130 @@ Sistema de gestão de desenvolvimento de produtos têxteis. Conecta os departame
 ```
 src/
 ├── app/
-│   ├── (dashboard)/           # Área logada
+│   ├── (dashboard)/           # Área logada (protegida por middleware)
 │   │   ├── admin/             # Configurações, usuários, integrações
-│   │   ├── cadastros/         # Fios, cores, estampas, bases, etc.
-│   │   ├── comercial/         # Solicitações, clientes, req. corte
-│   │   ├── dashboard/         # Gráficos e indicadores
-│   │   ├── documentos/        # Romaneios de expedição
+│   │   │   └── configuracoes/ # SMTP, BD, permissões, empresa, telas, status
+│   │   ├── amostras/          # Listagem e kanban de amostras
+│   │   ├── cadastros/         # Fios, cores, estampas, produtos, receitas...
 │   │   ├── chat/              # Chat corporativo
+│   │   ├── comercial/         # Solicitações, clientes, req. corte
+│   │   │   ├── solicitacoes/  # Lista, kanban, nova, editar, detalhe
+│   │   │   ├── clientes/      # Lista, detalhe, novo
+│   │   │   ├── requisicoes-corte/
+│   │   │   └── requisicoes-amostra-comercial/
+│   │   ├── dashboard/         # Dashboard + 10 relatórios
+│   │   ├── documentos/        # Romaneios, pré-DANFE
 │   │   ├── ferramentas/       # Regra de três, conversores
-│   │   └── perfil/            # Perfil do usuário
-│   ├── api/                   # API Routes (16 módulos)
+│   │   └── perfil/            # Perfil, senha, menus personalizados
+│   ├── api/                   # API Routes (100+ endpoints)
+│   │   ├── admin/             # CRUDs administrativos
+│   │   ├── amostras/          # Amostras + status
+│   │   ├── cadastros/         # Todos os cadastros
+│   │   ├── chats/             # Mensagens, menções, notificações
+│   │   ├── clientes/          # Clientes + importação
+│   │   ├── comercial/         # Requisições de corte
+│   │   ├── dashboard/         # Stats e listas
+│   │   ├── db/                # Migrations, seed
+│   │   ├── integracao/        # Importação via API externa
+│   │   ├── notificacoes/      # Notificações in-app
+│   │   ├── perfil/            # Senha
+│   │   ├── proxy-image/       # Proxy de imagens
+│   │   ├── receitas/          # Receitas
+│   │   ├── relatorios/        # 10 endpoints de relatório
+│   │   ├── requisicoes-amostra-comercial/
+│   │   ├── solicitacoes/      # Solicitações + status
+│   │   ├── user/              # Menus, página inicial
+│   │   └── usuarios/          # Usuários ativos
 │   ├── login/                 # Página de login
-│   └── page.tsx               # Landing page
+│   └── page.tsx               # Landing page com animação
 ├── components/
-│   ├── chat/                  # Componentes de chat
-│   ├── forms/                 # Formulários reutilizáveis
+│   ├── chat/                  # Emoji picker, entity button
+│   ├── exportar/              # Exportação de dados
+│   ├── forms/                 # Briefing, anexos, autocomplete
+│   ├── importar/              # Importação em lote (CSV/planilha)
 │   ├── integracao/            # Modal de importação via API
-│   ├── layout/                # Sidebar, header, nav
+│   ├── kanban/                # Kanban de solicitações e amostras
+│   ├── layout/                # Sidebar, header, nav, command search
+│   ├── links/                 # Editor de links
+│   ├── receita/               # Dialog de receita de acabamento
 │   ├── ui/                    # shadcn/ui components
-│   └── providers.tsx          # Providers (auth, theme)
+│   └── providers.tsx          # Providers (auth, theme, query)
+├── hooks/
+│   └── use-statuses.ts        # Hook de status com labels e cores
 ├── lib/
 │   ├── db/
-│   │   ├── schema/            # 27 tabelas (Drizzle)
-│   │   ├── migrations/        # 18 migrations SQL
+│   │   ├── schema/            # 31 tabelas (Drizzle)
+│   │   ├── index.ts           # Conexão com banco
 │   │   └── seed.ts            # Dados iniciais
 │   ├── auth.ts                # NextAuth config
 │   ├── email.ts               # Nodemailer
-│   ├── notificar.ts           # Notificações
+│   ├── notificar.ts           # Notificações + email
 │   ├── log.ts                 # Auditoria
 │   ├── crypto.ts              # Criptografia AES-256-GCM
-│   ├── info-content/          # Ajuda contextual
-│   └── validation.ts          # Schemas Zod
-├── middleware.ts               # Proteção de rotas
+│   ├── info-content/          # Ajuda contextual (8 módulos)
+│   ├── validation.ts          # Schemas Zod
+│   ├── error-handler.ts       # Tratamento de erros
+│   ├── api-error.ts           # Erros de API
+│   ├── dump.ts                # Exportação de dados
+│   ├── db-admin.ts            # Admin de banco de dados
+│   ├── export-utils.ts        # Utilitários de exportação
+│   ├── search-registry.ts     # Registro de busca
+│   ├── status-utils.ts        # Utilitários de status
+│   ├── tipos-status.ts        # Tipos de status
+│   ├── utils.ts               # Utilitários gerais
+│   └── gerar-*-pdf.ts         # Geradores de PDF (3 tipos)
+├── middleware.ts               # Proteção de rotas (NextAuth)
 └── types/                      # Tipos TypeScript
 ```
 
 ---
 
-## Banco de Dados (27 tabelas)
+## Banco de Dados (31 tabelas)
 
 ```
-usuarios, sessions,
-solicitacoes, anexos,
-clientes, fios, fornecedores,
-cores_solidas, cores_fundo,
-acabamentos, maquinas, operacoes,
-bases_urdume, base_urdume_fios,
-estampas, produtos_cru, (composicao, estrutura, amostra, acabamento, receita),
-produtos_quimicos, produto_cru_receita, produto_cru_receita_item,
-integracoes, config_empresa,
-email_config, email_modelos, email_listas, email_lista_contatos,
-notificacoes, notificacao_regras,
-logs, roles, bancos_dados,
-requisicoes_corte, requisicoes_corte_itens,
-chats, chat_mensagens, chat_participantes, chat_leituras,
-romaneios, romaneio_pecas
+🔐 Usuários e Acesso
+  usuarios, sessions, roles
+
+📄 Solicitações e Desenvolvimento
+  solicitacoes, anexos,
+  clientes,
+  requisicoes_corte, requisicoes_corte_itens,
+  requisicoes_amostra_comercial
+
+🧵 Cadastro Técnico
+  fios, fornecedores,
+  cores_solidas, cores_fundo,
+  acabamentos, maquinas, operacoes,
+  bases_urdume, base_urdume_fios,
+  estampas,
+  produtos_quimicos
+
+🏭 Produto Cru (Engenharia)
+  produtos_cru,
+  produto_cru_composicao,
+  produto_cru_estrutura,
+  produto_cru_amostra,
+  produto_cru_acabamento,
+  produto_cru_receita, produto_cru_receita_item
+
+🧪 Receitas de Beneficiamento
+  receitas, receita_itens
+
+💬 Comunicação
+  chats, chat_mensagens, chat_participantes, chat_leituras
+
+📦 Documentos
+  romaneios, romaneio_pecas
+
+⚙️ Administração
+  integracoes,
+  config_empresa,
+  email_config, email_modelos, email_listas, email_lista_contatos,
+  notificacoes, notificacao_regras,
+  logs,
+  bancos_dados,
+  status,
+  user_menus, user_menu_itens
 ```
 
 ---
@@ -168,6 +289,7 @@ NEXTAUTH_URL="http://localhost:3000"
 NEXTAUTH_SECRET="openssl rand -base64 32"
 BLOB_READ_WRITE_TOKEN="vercel_blob_token"
 ENCRYPTION_KEY="chave-32-caracteres-ou-mais"
+NEXT_PUBLIC_APP_URL="https://pdmprotextil.vercel.app"
 ```
 
 ---
