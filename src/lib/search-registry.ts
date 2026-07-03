@@ -16,10 +16,10 @@ export const searchRegistry: SearchItem[] = [
   { id: "dashboard-relatorios", label: "Relatórios (Dashboard)", keywords: ["dashboard", "relatorio", "painel", "metricas", "relatorios"], href: "/dashboard/relatorios", description: "Central de relatórios do sistema", module: "Dashboard" },
 
   // Comercial - Solicitações
-  { id: "solicitacoes", label: "Solicitações", keywords: ["solicitacao", "pedido", "comercial", "lista", "solicitacoes"], href: "/comercial/solicitacoes", description: "Lista de solicitações comerciais", module: "Comercial" },
-  { id: "solicitacoes-nova", label: "Nova Solicitação", keywords: ["solicitacao", "nova", "criar", "pedido", "cadastro"], href: "/comercial/solicitacoes/nova", description: "Criar nova solicitação", module: "Comercial" },
-  { id: "solicitacoes-detalhe", label: "Solicitação (Detalhe)", keywords: ["solicitacao", "detalhe", "editar", "ficha"], href: "/comercial/solicitacoes/[id]", description: "Ficha completa da solicitação", module: "Comercial" },
-  { id: "solicitacoes-editar", label: "Solicitação (Editar)", keywords: ["solicitacao", "editar", "alterar"], href: "/comercial/solicitacoes/[id]/editar", description: "Editar solicitação existente", module: "Comercial" },
+  { id: "solicitacoes", label: "Solicitações de Desenvolvimento", keywords: ["solicitacao", "pedido", "comercial", "lista", "solicitacoes", "desenvolvimento"], href: "/comercial/solicitacoes", description: "Lista de solicitações de desenvolvimento", module: "Comercial" },
+  { id: "solicitacoes-nova", label: "Nova Solicitação de Desenvolvimento", keywords: ["solicitacao", "nova", "criar", "pedido", "cadastro", "desenvolvimento"], href: "/comercial/solicitacoes/nova", description: "Criar nova solicitação de desenvolvimento", module: "Comercial" },
+  { id: "solicitacoes-detalhe", label: "Solicitação de Desenvolvimento (Detalhe)", keywords: ["solicitacao", "detalhe", "editar", "ficha", "desenvolvimento"], href: "/comercial/solicitacoes/[id]", description: "Ficha completa da solicitação de desenvolvimento", module: "Comercial" },
+  { id: "solicitacoes-editar", label: "Solicitação de Desenvolvimento (Editar)", keywords: ["solicitacao", "editar", "alterar", "desenvolvimento"], href: "/comercial/solicitacoes/[id]/editar", description: "Editar solicitação de desenvolvimento existente", module: "Comercial" },
   { id: "solicitacoes-kanban", label: "Kanban — Solicitações de Desenvolvimento", keywords: ["solicitacao", "kanban", "quadro", "status", "arrastar", "desenvolvimento"], href: "/comercial/solicitacoes/kanban", description: "Kanban de solicitações de desenvolvimento com drag-and-drop", module: "Comercial" },
 
   // Comercial - Requisições de Corte
@@ -43,8 +43,8 @@ export const searchRegistry: SearchItem[] = [
   { id: "cadastros-clientes", label: "Clientes (Cadastros)", keywords: ["cliente", "cadastro", "lista", "empresa"], href: "/cadastros/clientes", description: "Lista de clientes no módulo de cadastros", module: "Cadastros" },
 
   // Cadastros - Produtos
-  { id: "produto-cru", label: "Produtos", keywords: ["produto", "tecido", "malha", "listagem"], href: "/cadastros/produto-cru", description: "Lista de produtos (tecidos/malhas)", module: "Cadastros" },
-  { id: "produto-cru-detalhe", label: "Produto (Detalhe)", keywords: ["produto", "tecido", "malha", "detalhe", "editar", "ficha"], href: "/cadastros/produto-cru/[id]", description: "Ficha completa do produto", module: "Cadastros" },
+  { id: "produto-cru", label: "Produtos (Tecidos/Malhas)", keywords: ["produto", "tecido", "malha", "listagem", "cru"], href: "/cadastros/produto-cru", description: "Lista de produtos (tecidos/malhas)", module: "Cadastros" },
+  { id: "produto-cru-detalhe", label: "Produto (Tecido/Malha) (Detalhe)", keywords: ["produto", "tecido", "malha", "detalhe", "editar", "ficha", "cru"], href: "/cadastros/produto-cru/[id]", description: "Ficha completa do produto (tecido/malha)", module: "Cadastros" },
 
   // Cadastros - Fios
   { id: "fios", label: "Fios", keywords: ["fio", "fios", "listagem", "cadastro"], href: "/cadastros/fios", description: "Lista de fios", module: "Cadastros" },
@@ -71,10 +71,10 @@ export const searchRegistry: SearchItem[] = [
   { id: "produtos-quimicos-detalhe", label: "Produtos Químicos (Detalhe)", keywords: ["quimico", "detalhe", "editar"], href: "/cadastros/produtos-quimicos/[id]", description: "Ficha do produto químico", module: "Cadastros" },
 
   // Receitas
-  { id: "receitas", label: "Receitas", keywords: ["receita", "receitas", "formula", "beneficiamento", "quimica"], href: "/cadastros/receitas", description: "Receitas de beneficiamento", module: "Cadastros" },
+  { id: "receitas", label: "Receitas de Beneficiamento", keywords: ["receita", "receitas", "formula", "beneficiamento", "quimica"], href: "/cadastros/receitas", description: "Receitas de beneficiamento", module: "Cadastros" },
 
   // Amostras
-  { id: "amostras", label: "Amostras", keywords: ["amostra", "amostras", "lista"], href: "/amostras", description: "Lista de amostras", module: "Amostras" },
+  { id: "amostras", label: "Amostras de Desenvolvimento", keywords: ["amostra", "amostras", "lista", "desenvolvimento"], href: "/amostras", description: "Lista de amostras de desenvolvimento", module: "Amostras" },
   { id: "amostras-kanban", label: "Kanban — Amostras de Desenvolvimento", keywords: ["amostra", "kanban", "quadro", "status", "arrastar", "desenvolvimento"], href: "/amostras/kanban", description: "Kanban de amostras de desenvolvimento com drag-and-drop", module: "Amostras" },
 
   // Relatórios
