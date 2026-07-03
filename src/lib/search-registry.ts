@@ -119,6 +119,14 @@ export const searchRegistry: SearchItem[] = [
 
   // Chat
   { id: "chat", label: "Chat", keywords: ["chat", "mensagem", "conversa", "comunicacao"], href: "/chat", description: "Chat interno do sistema", module: "Comunicação" },
+
+  // CRM
+  { id: "crm-dashboard", label: "CRM — Dashboard", keywords: ["crm", "dashboard", "comercial", "painel", "leads", "empresas", "clientes"], href: "/comercial/crm", description: "Dashboard do CRM com métricas de leads e empresas", module: "CRM" },
+  { id: "crm-empresas", label: "CRM — Empresas", keywords: ["crm", "empresa", "empresas", "lista", "prospecto", "comercial"], href: "/comercial/crm/empresas", description: "Lista de empresas do CRM", module: "CRM" },
+  { id: "crm-empresas-nova", label: "CRM — Nova Empresa", keywords: ["crm", "empresa", "nova", "criar", "cadastro", "prospecto"], href: "/comercial/crm/empresas/novo", description: "Cadastrar nova empresa no CRM", module: "CRM" },
+  { id: "crm-empresas-detalhe", label: "CRM — Empresa (Detalhe)", keywords: ["crm", "empresa", "detalhe", "ficha", "contatos"], href: "/comercial/crm/empresas/[id]", description: "Ficha completa da empresa com contatos", module: "CRM" },
+  { id: "crm-leads", label: "CRM — Leads", keywords: ["crm", "lead", "leads", "lista", "prospeccao", "comercial"], href: "/comercial/crm/leads", description: "Lista de leads do CRM", module: "CRM" },
+  { id: "crm-leads-novo", label: "CRM — Novo Lead", keywords: ["crm", "lead", "novo", "criar", "cadastro", "prospeccao"], href: "/comercial/crm/leads/novo", description: "Cadastrar novo lead no CRM", module: "CRM" },
 ]
 
 export function searchItems(query: string): SearchItem[] {
