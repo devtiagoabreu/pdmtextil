@@ -138,6 +138,7 @@ export default function CrmLeadsPage() {
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Nome</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Contato</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Empresa</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Score IA</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Origem</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Responsável</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Status</th>
@@ -159,6 +160,21 @@ export default function CrmLeadsPage() {
                           {lead.empresaRazaoSocial}
                         </Link>
                       ) : "—")}
+                    </td>
+                    <td className="px-4 py-3">
+                      {lead.score != null ? (
+                        <span className={`inline-flex text-[10px] px-2 py-0.5 rounded-full font-medium ${
+                          lead.score >= 70
+                            ? "text-green-600 bg-green-50 dark:bg-green-950/50 dark:text-green-400"
+                            : lead.score >= 40
+                            ? "text-amber-600 bg-amber-50 dark:bg-amber-950/50 dark:text-amber-400"
+                            : "text-red-600 bg-red-50 dark:bg-red-950/50 dark:text-red-400"
+                        }`}>
+                          {lead.score}%
+                        </span>
+                      ) : (
+                        <span className="text-[10px] text-slate-400">—</span>
+                      )}
                     </td>
                     <td className="px-4 py-3">
                       <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 font-medium">
