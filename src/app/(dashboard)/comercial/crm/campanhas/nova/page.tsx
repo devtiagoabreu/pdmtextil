@@ -1,7 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { InfoButton } from "@/components/ui/info-button"
+import { getInfoContent } from "@/lib/info-content"
+import { useRouter, usePathname } from "next/navigation"
 import { ArrowLeft, Megaphone, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -14,6 +16,8 @@ const TIPO_OPTIONS = [
 
 export default function NovaCampanhaPage() {
   const router = useRouter()
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
   const [form, setForm] = useState({
     nome: "",
     tipo: "WHATSAPP",
@@ -62,7 +66,7 @@ export default function NovaCampanhaPage() {
           <ArrowLeft size={18} className="text-slate-500" />
         </button>
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">Nova Campanha</h1>
+          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">Nova Campanha{info && <InfoButton content={info} />}</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400">Criar campanha de marketing</p>
         </div>
       </div>

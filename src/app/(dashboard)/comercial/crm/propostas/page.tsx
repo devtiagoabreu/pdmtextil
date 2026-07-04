@@ -1,9 +1,11 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
+import { InfoButton } from "@/components/ui/info-button"
+import { getInfoContent } from "@/lib/info-content"
 import Link from "next/link"
 import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { PlusCircle, FileText, Search } from "lucide-react"
 
 async function fetchPropostas() {
@@ -28,6 +30,8 @@ const STATUS_CORES: Record<string, string> = {
 
 export default function PropostasPage() {
   const router = useRouter()
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
   const [search, setSearch] = useState("")
 
   const { data: propostas, isLoading } = useQuery({
@@ -45,7 +49,7 @@ export default function PropostasPage() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Propostas</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Propostas{info && <InfoButton content={info} />}</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             {isLoading ? "Carregando..." : `${filtered.length} proposta(s)`}
           </p>

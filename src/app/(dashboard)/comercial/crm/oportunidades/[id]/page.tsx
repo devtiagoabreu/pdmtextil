@@ -1,7 +1,9 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter, useParams } from "next/navigation"
+import { InfoButton } from "@/components/ui/info-button"
+import { getInfoContent } from "@/lib/info-content"
+import { useRouter, useParams, usePathname } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft, Target, Trash2 } from "lucide-react"
 import { toast } from "sonner"
@@ -27,6 +29,8 @@ const STATUS_LABELS: Record<string, string> = {
 
 export default function DetalheOportunidadePage() {
   const router = useRouter()
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
   const params = useParams()
   const [oportunidade, setOportunidade] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -86,7 +90,7 @@ export default function DetalheOportunidadePage() {
         </button>
         <div className="flex-1">
           <div className="flex items-center gap-3">
-            <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">{oportunidade.titulo}</h1>
+            <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">{oportunidade.titulo}{info && <InfoButton content={info} />}</h1>
             <span className={`inline-flex text-[10px] px-2 py-0.5 rounded-full font-medium ${STATUS_CORES[oportunidade.status] || ""}`}>
               {STATUS_LABELS[oportunidade.status] || oportunidade.status}
             </span>

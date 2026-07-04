@@ -1,13 +1,17 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { InfoButton } from "@/components/ui/info-button"
+import { getInfoContent } from "@/lib/info-content"
+import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft, Save } from "lucide-react"
 import { toast } from "sonner"
 
 export default function NovaOportunidadePage() {
   const router = useRouter()
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
   const [empresas, setEmpresas] = useState<any[]>([])
   const [leads, setLeads] = useState<any[]>([])
   const [usuarios, setUsuarios] = useState<any[]>([])
@@ -87,7 +91,7 @@ export default function NovaOportunidadePage() {
           <ArrowLeft size={18} className="text-slate-500" />
         </Link>
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">Nova Oportunidade</h1>
+          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">Nova Oportunidade{info && <InfoButton content={info} />}</h1>
           <p className="text-sm text-slate-500">Cadastrar nova oportunidade de venda</p>
         </div>
       </div>

@@ -1,7 +1,9 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter, useParams } from "next/navigation"
+import { InfoButton } from "@/components/ui/info-button"
+import { getInfoContent } from "@/lib/info-content"
+import { useRouter, useParams, usePathname } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft, Building2, Mail, Phone, Globe, MapPin, User, Plus, Trash2, Pencil, Check, X, Clock, MessageSquare } from "lucide-react"
 import CrmEmpresaTimeline from "@/components/crm/crm-empresa-timeline"
@@ -21,6 +23,8 @@ const STATUS_CORES: Record<string, string> = {
 
 export default function EmpresaDetailPage() {
   const router = useRouter()
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
   const params = useParams()
   const [empresa, setEmpresa] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -133,7 +137,7 @@ export default function EmpresaDetailPage() {
         </button>
         <div className="flex-1">
           <div className="flex items-center gap-3">
-            <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">{empresa.razaoSocial}</h1>
+            <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">{empresa.razaoSocial}{info && <InfoButton content={info} />}</h1>
             <span className={`inline-flex text-[10px] px-2 py-0.5 rounded-full font-medium ${STATUS_CORES[empresa.status] || ""}`}>
               {empresa.status}
             </span>

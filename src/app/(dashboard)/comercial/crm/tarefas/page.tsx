@@ -1,6 +1,9 @@
 "use client"
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { usePathname } from "next/navigation"
+import { InfoButton } from "@/components/ui/info-button"
+import { getInfoContent } from "@/lib/info-content"
 import { useState } from "react"
 import { PlusCircle, ListChecks, CheckCircle2, Circle, Loader2 } from "lucide-react"
 import CriarTarefaDialog from "./criar-dialog"
@@ -38,6 +41,8 @@ const FILTROS = [
 
 export default function TarefasPage() {
   const queryClient = useQueryClient()
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
   const [filtro, setFiltro] = useState("pendentes")
   const [dialogOpen, setDialogOpen] = useState(false)
 
@@ -81,7 +86,7 @@ export default function TarefasPage() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Minhas Tarefas</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Minhas Tarefas{info && <InfoButton content={info} />}</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             {isLoading ? "Carregando..." : `${tarefas?.length || 0} tarefa(s)`}
           </p>

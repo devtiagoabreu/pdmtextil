@@ -1,7 +1,9 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter, useParams } from "next/navigation"
+import { InfoButton } from "@/components/ui/info-button"
+import { getInfoContent } from "@/lib/info-content"
+import { useRouter, useParams, usePathname } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft, Megaphone, Calendar, Users, DollarSign, TrendingUp, Edit3, Loader2 } from "lucide-react"
 import { toast } from "sonner"
@@ -17,6 +19,8 @@ const STATUS_OPTIONS = ["ATIVA", "PAUSADA", "CONCLUIDA"]
 
 export default function CampanhaDetailPage() {
   const router = useRouter()
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
   const params = useParams()
   const [campanha, setCampanha] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -84,7 +88,7 @@ export default function CampanhaDetailPage() {
           <ArrowLeft size={18} className="text-slate-500" />
         </button>
         <div className="flex-1">
-          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">{campanha.nome}</h1>
+          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">{campanha.nome}{info && <InfoButton content={info} />}</h1>
           <p className="text-sm text-slate-500">{TIPO_LABELS[campanha.tipo] || campanha.tipo}</p>
         </div>
         <button

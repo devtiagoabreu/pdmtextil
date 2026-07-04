@@ -1,6 +1,9 @@
 "use client"
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { usePathname } from "next/navigation"
+import { InfoButton } from "@/components/ui/info-button"
+import { getInfoContent } from "@/lib/info-content"
 import { useState } from "react"
 import { PlusCircle, Users, Pencil, Trash2, Loader2, Search } from "lucide-react"
 
@@ -24,6 +27,8 @@ async function fetchUsuarios() {
 
 export default function EquipesPage() {
   const queryClient = useQueryClient()
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
   const [nome, setNome] = useState("")
@@ -109,7 +114,7 @@ export default function EquipesPage() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Equipes</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Equipes{info && <InfoButton content={info} />}</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             {isLoading ? "Carregando..." : `${filtradas?.length || 0} equipe(s)`}
           </p>

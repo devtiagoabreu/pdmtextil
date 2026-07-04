@@ -1,7 +1,9 @@
 "use client"
 
 import { useEffect, useState, useCallback } from "react"
-import { useRouter } from "next/navigation"
+import { InfoButton } from "@/components/ui/info-button"
+import { getInfoContent } from "@/lib/info-content"
+import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import { toast } from "sonner"
 import { DndContext, DragOverlay, useDraggable, useDroppable, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
@@ -98,6 +100,8 @@ function DraggableCard({ oportunidade }: { oportunidade: OportunidadeCard }) {
 }
 
 export default function KanbanOportunidadesPage() {
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
   const { statuses, loading: statusLoading, getLabel } = useStatuses("OPORTUNIDADE")
   const [oportunidades, setOportunidades] = useState<OportunidadeCard[]>([])
   const [loading, setLoading] = useState(true)
@@ -239,7 +243,7 @@ export default function KanbanOportunidadesPage() {
     <div className="flex flex-col h-screen animate-fade-in">
       <div className="flex items-center justify-between shrink-0 px-6 pt-6 pb-2">
         <div className="flex items-center gap-2">
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Kanban — Oportunidades CRM</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Kanban — Oportunidades CRM{info && <InfoButton content={info} />}</h1>
           <span className="text-xs text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">Arraste os cards para mover</span>
         </div>
         <div className="flex items-center gap-2">
