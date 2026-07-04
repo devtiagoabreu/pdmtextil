@@ -1,7 +1,9 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter, useParams } from "next/navigation"
+import { InfoButton } from "@/components/ui/info-button"
+import { getInfoContent } from "@/lib/info-content"
+import { useRouter, useParams, usePathname } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft, CalendarDays, Trash2, ExternalLink } from "lucide-react"
 import { toast } from "sonner"
@@ -16,6 +18,8 @@ const TIPO_LABELS: Record<string, string> = {
 
 export default function DetalheVisitaPage() {
   const router = useRouter()
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
   const params = useParams()
   const { getLabel, getColor } = useStatuses("VISITA")
   const [visita, setVisita] = useState<any>(null)
@@ -104,7 +108,7 @@ export default function DetalheVisitaPage() {
         <div className="flex-1">
           <div className="flex items-center gap-3">
             <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">
-              Visita — {visita.empresaNome || `#${visita.id}`}
+              Visita — {visita.empresaNome || `#${visita.id}`}{info && <InfoButton content={info} />}
             </h1>
             <span
               className="inline-flex text-[10px] px-2 py-0.5 rounded-full font-medium"

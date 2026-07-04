@@ -1,8 +1,10 @@
 "use client"
 
 import { useQuery, useMutation } from "@tanstack/react-query"
+import { InfoButton } from "@/components/ui/info-button"
+import { getInfoContent } from "@/lib/info-content"
 import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { Loader2, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 
@@ -20,6 +22,8 @@ async function fetchOportunidades() {
 
 export default function NovaPropostaPage() {
   const router = useRouter()
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
   const [titulo, setTitulo] = useState("")
   const [empresaId, setEmpresaId] = useState("")
   const [oportunidadeId, setOportunidadeId] = useState("")
@@ -54,7 +58,7 @@ export default function NovaPropostaPage() {
           <ArrowLeft size={20} />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Nova Proposta</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Nova Proposta{info && <InfoButton content={info} />}</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Preencha os dados da proposta comercial</p>
         </div>
       </div>

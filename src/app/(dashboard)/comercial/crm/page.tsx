@@ -1,6 +1,9 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
+import { usePathname } from "next/navigation"
+import { InfoButton } from "@/components/ui/info-button"
+import { getInfoContent } from "@/lib/info-content"
 import Link from "next/link"
 import {
   Building2, Users, Target, UserPlus, TrendingUp, Clock, CheckCircle2,
@@ -83,6 +86,8 @@ function getTipoBg(tipo: string) {
 }
 
 export default function CrmDashboardPage() {
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
   const { data, isLoading } = useQuery<CrmDashboardData>({
     queryKey: ["crm-dashboard"],
     queryFn: () => fetch("/api/crm/dashboard").then((r) => r.json()),
@@ -104,7 +109,7 @@ export default function CrmDashboardPage() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">CRM</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">CRM{info && <InfoButton content={info} />}</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             Dashboard comercial com métricas de pipeline, atividades e previsão
           </p>

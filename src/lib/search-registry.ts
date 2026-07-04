@@ -160,6 +160,10 @@ export const searchRegistry: SearchItem[] = [
 
   // CRM — Relatórios
   { id: "crm-relatorios", label: "CRM — Relatórios", keywords: ["crm", "relatorio", "relatorios", "grafico", "dashboard", "analise", "metricas", "conversao", "pipeline"], href: "/comercial/crm/relatorios", description: "Relatórios e análises do CRM", module: "CRM" },
+
+  // CRM — Treinamento
+  { id: "crm-treinamento", label: "CRM — Treinamento", keywords: ["crm", "treinamento", "treino", "documentacao", "manual", "ajuda", "guia", "tutorial", "aprender"], href: "/comercial/crm/treinamento", description: "Documentação e treinamento do CRM com explicações campo a campo", module: "CRM" },
+  { id: "crm-treinamento-admin", label: "CRM — Gerenciar Treinamento", keywords: ["crm", "treinamento", "admin", "gerenciar", "conteudo", "licoes", "modulos"], href: "/comercial/crm/treinamento/admin", description: "Gerenciar conteúdo do treinamento CRM", module: "CRM" },
 ]
 
 export function searchItems(query: string): SearchItem[] {

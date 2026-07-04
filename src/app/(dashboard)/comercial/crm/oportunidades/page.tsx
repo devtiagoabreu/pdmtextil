@@ -1,9 +1,11 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
+import { InfoButton } from "@/components/ui/info-button"
+import { getInfoContent } from "@/lib/info-content"
 import Link from "next/link"
 import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { PlusCircle, Target, Search } from "lucide-react"
 import { toast } from "sonner"
 
@@ -33,6 +35,8 @@ const STATUS_LABELS: Record<string, string> = {
 
 export default function OportunidadesPage() {
   const router = useRouter()
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
   const [search, setSearch] = useState("")
 
   const { data: oportunidades, isLoading } = useQuery({
@@ -55,7 +59,7 @@ export default function OportunidadesPage() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Oportunidades</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Oportunidades{info && <InfoButton content={info} />}</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             {isLoading ? "Carregando..." : `${filtered.length} oportunidade(s)`}
           </p>

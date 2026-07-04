@@ -1,6 +1,9 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
+import { InfoButton } from "@/components/ui/info-button"
+import { getInfoContent } from "@/lib/info-content"
+import { usePathname } from "next/navigation"
 import Link from "next/link"
 import { Plus, Megaphone, Calendar, TrendingUp, Users, DollarSign, ArrowRight, Loader2 } from "lucide-react"
 
@@ -25,6 +28,8 @@ const STATUS_CORES: Record<string, string> = {
 }
 
 export default function CampanhasPage() {
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
   const { data, isLoading } = useQuery({
     queryKey: ["crm-campanhas"],
     queryFn: () => fetch("/api/crm/campanhas").then((r) => r.json()),
@@ -36,7 +41,7 @@ export default function CampanhasPage() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Campanhas</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Campanhas{info && <InfoButton content={info} />}</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             Gerencie campanhas de marketing e comunicação
           </p>

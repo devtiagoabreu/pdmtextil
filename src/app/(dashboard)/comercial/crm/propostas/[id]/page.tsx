@@ -1,7 +1,9 @@
 "use client"
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { useParams, useRouter } from "next/navigation"
+import { InfoButton } from "@/components/ui/info-button"
+import { getInfoContent } from "@/lib/info-content"
+import { useParams, useRouter, usePathname } from "next/navigation"
 import { ArrowLeft, ExternalLink, CheckCircle2, XCircle, RefreshCw, Clock } from "lucide-react"
 import Link from "next/link"
 
@@ -20,6 +22,8 @@ const STATUS_OPCOES = [
 
 export default function DetalhePropostaPage() {
   const params = useParams()
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
   const router = useRouter()
   const queryClient = useQueryClient()
   const id = params.id as string
@@ -72,7 +76,7 @@ export default function DetalhePropostaPage() {
           <ArrowLeft size={20} />
         </button>
         <div className="flex-1">
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">{proposta.titulo}</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">{proposta.titulo}{info && <InfoButton content={info} />}</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Proposta #{proposta.id}</p>
         </div>
       </div>

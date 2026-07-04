@@ -1,7 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { InfoButton } from "@/components/ui/info-button"
+import { getInfoContent } from "@/lib/info-content"
+import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft, Save } from "lucide-react"
 import { toast } from "sonner"
@@ -19,6 +21,8 @@ const ORIGEM_OPTIONS = [
 
 export default function NovoLeadPage() {
   const router = useRouter()
+  const pathname = usePathname()
+  const info = getInfoContent(pathname)
   const [form, setForm] = useState({
     nome: "",
     email: "",
@@ -68,7 +72,7 @@ export default function NovoLeadPage() {
           <ArrowLeft size={18} className="text-slate-500" />
         </Link>
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">Novo Lead</h1>
+          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">Novo Lead{info && <InfoButton content={info} />}</h1>
           <p className="text-sm text-slate-500">Cadastrar novo lead no CRM</p>
         </div>
       </div>
