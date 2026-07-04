@@ -909,6 +909,42 @@ async function migrate() {
     `
     console.log("✓ Tabela crm_equipes criada")
 
+    // ==================== CRM (Fase 10) ====================
+    await sql`
+      CREATE TABLE IF NOT EXISTS crm_whatsapp_mensagens (
+        id SERIAL PRIMARY KEY,
+        empresa_id INTEGER REFERENCES crm_empresas(id),
+        contato_id INTEGER REFERENCES crm_contatos(id),
+        mensagem TEXT NOT NULL,
+        tipo VARCHAR(10) NOT NULL DEFAULT 'RECEBIDA',
+        status VARCHAR(10) NOT NULL DEFAULT 'RECEBIDA',
+        lida BOOLEAN DEFAULT false,
+        external_id VARCHAR(255),
+        remote_jid VARCHAR(255),
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `
+    console.log("✓ Tabela crm_whatsapp_mensagens criada")
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS crm_campanhas (
+        id SERIAL PRIMARY KEY,
+        nome VARCHAR(300) NOT NULL,
+        tipo VARCHAR(20) NOT NULL DEFAULT 'WHATSAPP',
+        descricao TEXT,
+        data_inicio DATE,
+        data_fim DATE,
+        orcamento NUMERIC(12,2),
+        leads_gerados INTEGER DEFAULT 0,
+        custo_aquisicao NUMERIC(12,2),
+        status VARCHAR(20) NOT NULL DEFAULT 'ATIVA',
+        criado_por INTEGER REFERENCES usuarios(id),
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `
+    console.log("✓ Tabela crm_campanhas criada")
+
     console.log("\n✅ Migration concluída com sucesso!")
     
   } catch (error) {
