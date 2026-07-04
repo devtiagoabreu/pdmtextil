@@ -1,12 +1,14 @@
 "use client"
 
-import { useQuery, useMutation } from "@tanstack/react-query"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { Loader2, ArrowLeft } from "lucide-react"
 import Link from "next/link"
+import { QuickCreateEmpresa } from "@/components/crm/quick-create-empresa"
+import { QuickCreateOportunidade } from "@/components/crm/quick-create-oportunidade"
 
 async function fetchEmpresas() {
   const res = await fetch("/api/crm/empresas")
@@ -24,6 +26,7 @@ export default function NovaPropostaPage() {
   const router = useRouter()
   const pathname = usePathname()
   const info = getInfoContent(pathname)
+  const queryClient = useQueryClient()
   const [titulo, setTitulo] = useState("")
   const [empresaId, setEmpresaId] = useState("")
   const [oportunidadeId, setOportunidadeId] = useState("")
@@ -35,6 +38,16 @@ export default function NovaPropostaPage() {
 
   const { data: empresas } = useQuery({ queryKey: ["crm-empresas"], queryFn: fetchEmpresas })
   const { data: oportunidades } = useQuery({ queryKey: ["crm-oportunidades"], queryFn: fetchOportunidades })
+
+  function handleEmpresaCreated(id: number) {
+    queryClient.invalidateQueries({ queryKey: ["crm-empresas"] })
+    setEmpresaId(String(id))
+  }
+
+  function handleOportunidadeCreated(id: number) {
+    queryClient.invalidateQueries({ queryKey: ["crm-oportunidades"] })
+    setOportunidadeId(String(id))
+  }
 
   const mutation = useMutation({
     mutationFn: async (body: any) => {
@@ -77,7 +90,10 @@ export default function NovaPropostaPage() {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Empresa *</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Empresa *
+              <QuickCreateEmpresa onCreated={handleEmpresaCreated} />
+            </label>
             <select
               value={empresaId}
               onChange={(e) => setEmpresaId(e.target.value)}
@@ -90,7 +106,10 @@ export default function NovaPropostaPage() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Oportunidade</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Oportunidade
+              <QuickCreateOportunidade empresaId={empresaId} onCreated={handleOportunidadeCreated} />
+            </label>
             <select
               value={oportunidadeId}
               onChange={(e) => setOportunidadeId(e.target.value)}

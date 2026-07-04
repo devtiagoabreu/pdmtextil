@@ -7,6 +7,9 @@ import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft, Save, Plus, X } from "lucide-react"
 import { toast } from "sonner"
+import { QuickCreateEmpresa } from "@/components/crm/quick-create-empresa"
+import { QuickCreateContato } from "@/components/crm/quick-create-contato"
+import { QuickCreateOportunidade } from "@/components/crm/quick-create-oportunidade"
 
 const TIPO_OPTIONS = [
   { value: "PRESENCIAL", label: "Presencial" },
@@ -53,18 +56,51 @@ export default function NovaVisitaPage() {
   }, [])
 
   useEffect(() => {
-    if (!form.empresaId) {
-      setContatos([])
-      return
-    }
-    fetch(`/api/crm/empresas/${form.empresaId}`)
-      .then(r => r.json())
-      .then(data => {
-        if (Array.isArray(data.contatos)) setContatos(data.contatos)
-        else setContatos([])
-      })
-      .catch(() => setContatos([]))
+    loadContatos(form.empresaId)
   }, [form.empresaId])
+
+  async function loadEmpresas() {
+    try {
+      const res = await fetch("/api/crm/empresas")
+      const data = await res.json()
+      if (Array.isArray(data)) setEmpresas(data)
+    } catch {}
+  }
+
+  async function loadOportunidades() {
+    try {
+      const res = await fetch("/api/crm/oportunidades")
+      const data = await res.json()
+      if (Array.isArray(data)) setOportunidades(data)
+    } catch {}
+  }
+
+  function handleEmpresaCreated(id: number, razaoSocial: string) {
+    loadEmpresas()
+    setField("empresaId", String(id))
+    setField("oportunidadeId", "")
+    setField("contatoId", "")
+  }
+
+  function handleContatoCreated(id: number) {
+    loadContatos(form.empresaId)
+    setField("contatoId", String(id))
+  }
+
+  function handleOportunidadeCreated(id: number) {
+    loadOportunidades()
+    setField("oportunidadeId", String(id))
+  }
+
+  async function loadContatos(empresaId: string) {
+    if (!empresaId) { setContatos([]); return }
+    try {
+      const res = await fetch(`/api/crm/empresas/${empresaId}`)
+      const data = await res.json()
+      if (Array.isArray(data.contatos)) setContatos(data.contatos)
+      else setContatos([])
+    } catch { setContatos([]) }
+  }
 
   function addFotoInput() {
     setFotoInputs(prev => [...prev, ""])
@@ -132,7 +168,10 @@ export default function NovaVisitaPage() {
       <form onSubmit={handleSubmit} className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-5">
         <div className="grid gap-5 sm:grid-cols-2">
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Empresa *</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Empresa *
+              <QuickCreateEmpresa onCreated={handleEmpresaCreated} />
+            </label>
             <select
               value={form.empresaId}
               onChange={e => {
@@ -172,7 +211,10 @@ export default function NovaVisitaPage() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Oportunidade</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Oportunidade
+              <QuickCreateOportunidade empresaId={form.empresaId} onCreated={handleOportunidadeCreated} />
+            </label>
             <select
               value={form.oportunidadeId}
               onChange={e => setField("oportunidadeId", e.target.value)}
@@ -187,7 +229,10 @@ export default function NovaVisitaPage() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Contato</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Contato
+              <QuickCreateContato empresaId={form.empresaId} onCreated={handleContatoCreated} />
+            </label>
             <select
               value={form.contatoId}
               onChange={e => setField("contatoId", e.target.value)}
