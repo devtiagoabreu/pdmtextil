@@ -945,6 +945,36 @@ async function migrate() {
     `
     console.log("✓ Tabela crm_campanhas criada")
 
+    // ==================== CRM (Fase 11 - IA) ====================
+    await sql`
+      ALTER TABLE crm_leads
+        ADD COLUMN IF NOT EXISTS score INTEGER,
+        ADD COLUMN IF NOT EXISTS segmento_ia VARCHAR(100),
+        ADD COLUMN IF NOT EXISTS porte_ia VARCHAR(50),
+        ADD COLUMN IF NOT EXISTS data_classificacao_ia TIMESTAMP
+    `
+    console.log("✓ Colunas IA adicionadas em crm_leads")
+
+    await sql`
+      ALTER TABLE crm_empresas
+        ADD COLUMN IF NOT EXISTS resumo_ia TEXT,
+        ADD COLUMN IF NOT EXISTS sugestao_ia TEXT,
+        ADD COLUMN IF NOT EXISTS data_resumo_ia TIMESTAMP
+    `
+    console.log("✓ Colunas IA adicionadas em crm_empresas")
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS crm_previsao_vendas (
+        id SERIAL PRIMARY KEY,
+        periodo VARCHAR(7) NOT NULL,
+        valor_previsto NUMERIC(14,2) NOT NULL,
+        valor_real NUMERIC(14,2),
+        dados JSONB DEFAULT '{}'::jsonb,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `
+    console.log("✓ Tabela crm_previsao_vendas criada")
+
     console.log("\n✅ Migration concluída com sucesso!")
     
   } catch (error) {

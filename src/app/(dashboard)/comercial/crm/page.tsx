@@ -29,6 +29,7 @@ type CrmDashboardData = {
   forecast: number
   conversao: { oportunidadesConvertidas: number; totalOportunidades: number }
   recentes: { id: number; tipo: string; descricao: string; dataEvento: string }[]
+  previsaoVendas: { periodo: string; valorPrevisto: number; valorReal: number | null; dados: any }[]
 }
 
 const STATUS_CORES: Record<string, string> = {
@@ -223,6 +224,21 @@ export default function CrmDashboardPage() {
                   </div>
                 </div>
               </div>
+              {data?.previsaoVendas && data.previsaoVendas.length > 0 && (
+                <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                  <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400 mb-2">Histórico de Previsão (últimos meses)</p>
+                  <ResponsiveContainer width="100%" height={140}>
+                    <LineChart data={[...data.previsaoVendas].reverse()}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                      <XAxis dataKey="periodo" tick={{ fontSize: 10 }} stroke="#94a3b8" />
+                      <YAxis tick={{ fontSize: 10 }} stroke="#94a3b8" tickFormatter={(v) => `R$${(v/1000).toFixed(0)}k`} />
+                      <Tooltip formatter={(value: any) => [formatCurrency(value), ""]} />
+                      <Line type="monotone" dataKey="valorPrevisto" stroke="#6366f1" strokeWidth={2} dot={false} name="Previsto" />
+                      <Line type="monotone" dataKey="valorReal" stroke="#22c55e" strokeWidth={2} dot={false} name="Real" />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
             </div>
 
             {/* Oportunidades por Status (Pizza) */}

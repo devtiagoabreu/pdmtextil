@@ -9,6 +9,7 @@ import { crmVisitas } from "@/lib/db/schema/crm-visitas"
 import { crmTarefas } from "@/lib/db/schema/crm-tarefas"
 import { crmTimelineEventos } from "@/lib/db/schema/crm-timeline-eventos"
 import { crmContatos } from "@/lib/db/schema/crm-contatos"
+import { crmPrevisaoVendas } from "@/lib/db/schema/crm-previsao-vendas"
 import { eq, desc, sql, and, gte, lte, count } from "drizzle-orm"
 
 export const dynamic = "force-dynamic"
@@ -38,6 +39,7 @@ export async function GET() {
       topEmpresasRaw,
       forecastRaw,
       recentesRaw,
+      previsaoVendasRaw,
     ] = await Promise.all([
       db.select({ total: count() }).from(crmLeads),
       db.select({ total: count() }).from(crmLeads).where(gte(crmLeads.createdAt, new Date(inicioMes))),
@@ -86,6 +88,16 @@ export async function GET() {
         .from(crmTimelineEventos)
         .orderBy(desc(crmTimelineEventos.dataEvento))
         .limit(10),
+      db
+        .select({
+          periodo: crmPrevisaoVendas.periodo,
+          valorPrevisto: crmPrevisaoVendas.valorPrevisto,
+          valorReal: crmPrevisaoVendas.valorReal,
+          dados: crmPrevisaoVendas.dados,
+        })
+        .from(crmPrevisaoVendas)
+        .orderBy(desc(crmPrevisaoVendas.periodo))
+        .limit(12),
     ])
 
     const getCount = (rows: { total: number }[]) => Number(rows[0]?.total ?? 0)
@@ -125,6 +137,12 @@ export async function GET() {
         tipo: r.tipo,
         descricao: r.descricao,
         dataEvento: r.dataEvento,
+      })),
+      previsaoVendas: previsaoVendasRaw.map((r) => ({
+        periodo: r.periodo,
+        valorPrevisto: Number(r.valorPrevisto),
+        valorReal: r.valorReal ? Number(r.valorReal) : null,
+        dados: r.dados,
       })),
     })
   } catch (error) {
