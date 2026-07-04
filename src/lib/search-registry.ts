@@ -157,6 +157,9 @@ export const searchRegistry: SearchItem[] = [
   { id: "crm-campanhas", label: "CRM — Campanhas", keywords: ["crm", "campanha", "campanhas", "marketing", "whatsapp", "email", "comercial"], href: "/comercial/crm/campanhas", description: "Campanhas de marketing e comunicação", module: "CRM" },
   { id: "crm-campanhas-nova", label: "CRM — Nova Campanha", keywords: ["crm", "campanha", "nova", "criar", "marketing"], href: "/comercial/crm/campanhas/nova", description: "Criar nova campanha de marketing", module: "CRM" },
   { id: "crm-campanhas-detalhe", label: "CRM — Campanha (Detalhe)", keywords: ["crm", "campanha", "detalhe", "ficha", "marketing"], href: "/comercial/crm/campanhas/[id]", description: "Detalhe da campanha de marketing", module: "CRM" },
+
+  // CRM — Relatórios
+  { id: "crm-relatorios", label: "CRM — Relatórios", keywords: ["crm", "relatorio", "relatorios", "grafico", "dashboard", "analise", "metricas", "conversao", "pipeline"], href: "/comercial/crm/relatorios", description: "Relatórios e análises do CRM", module: "CRM" },
 ]
 
 export function searchItems(query: string): SearchItem[] {
