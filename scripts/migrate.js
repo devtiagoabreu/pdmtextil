@@ -684,11 +684,34 @@ async function migrate() {
         ('EM_PRODUCAO', 'Em Produção', 'AMOSTRA_COMERCIAL', '#6366f1', 3),
         ('APROVADO', 'Aprovado', 'AMOSTRA_COMERCIAL', '#22c55e', 4),
         ('REPROVADO', 'Reprovado', 'AMOSTRA_COMERCIAL', '#ef4444', 5),
-        ('CONCLUIDO', 'Concluído', 'AMOSTRA_COMERCIAL', '#16a34a', 6)
+        ('CONCLUIDO', 'Concluído', 'AMOSTRA_COMERCIAL', '#16a34a', 6),
+        -- Oportunidades (Pipeline CRM)
+        ('NOVO', 'Novo', 'OPORTUNIDADE', '#3b82f6', 1),
+        ('QUALIFICACAO', 'Qualificação', 'OPORTUNIDADE', '#8b5cf6', 2),
+        ('PROPOSTA', 'Proposta', 'OPORTUNIDADE', '#f59e0b', 3),
+        ('NEGOCIACAO', 'Negociação', 'OPORTUNIDADE', '#f97316', 4),
+        ('FECHADO_GANHO', 'Ganho', 'OPORTUNIDADE', '#22c55e', 5),
+        ('FECHADO_PERDIDO', 'Perdido', 'OPORTUNIDADE', '#ef4444', 6),
+        -- Visitas CRM
+        ('AGENDADA', 'Agendada', 'VISITA', '#3b82f6', 1),
+        ('REALIZADA', 'Realizada', 'VISITA', '#22c55e', 2),
+        ('CANCELADA', 'Cancelada', 'VISITA', '#ef4444', 3)
       `
     console.log("✓ Status padrão inseridos")
     } else {
       console.log("✓ Status já existem — pulando inserção")
+    }
+
+    // Insere status TAREFA (idempotente)
+    const tarefaPendente = await sql`SELECT id FROM status WHERE nome = 'PENDENTE' AND tipo = 'TAREFA'`
+    if (tarefaPendente.length === 0) {
+      await sql`INSERT INTO status (nome, rotulo, tipo, cor, ordem) VALUES
+        ('PENDENTE', 'Pendente', 'TAREFA', '#f59e0b', 1),
+        ('CONCLUIDO', 'Concluído', 'TAREFA', '#22c55e', 2)
+      `
+      console.log("✓ Status TAREFA inseridos")
+    } else {
+      console.log("✓ Status TAREFA já existem")
     }
 
     // ==================== CRM (Fase 1) ====================
@@ -750,6 +773,64 @@ async function migrate() {
       )
     `
     console.log("✓ Tabela crm_contatos criada")
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS crm_oportunidades (
+        id SERIAL PRIMARY KEY,
+        titulo VARCHAR(300) NOT NULL,
+        descricao TEXT,
+        valor_estimado NUMERIC(12,2),
+        status VARCHAR(30) NOT NULL DEFAULT 'NOVO',
+        lead_id INTEGER REFERENCES crm_leads(id),
+        empresa_id INTEGER REFERENCES crm_empresas(id),
+        contato_id INTEGER REFERENCES crm_contatos(id),
+        responsavel_id INTEGER REFERENCES usuarios(id),
+        data_fechamento_prevista DATE,
+        probabilidade INTEGER DEFAULT 0,
+        motivo_perda TEXT,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `
+    console.log("✓ Tabela crm_oportunidades criada")
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS crm_visitas (
+        id SERIAL PRIMARY KEY,
+        empresa_id INTEGER NOT NULL REFERENCES crm_empresas(id),
+        oportunidade_id INTEGER REFERENCES crm_oportunidades(id),
+        contato_id INTEGER REFERENCES crm_contatos(id),
+        data_visita DATE NOT NULL,
+        tipo VARCHAR(20) NOT NULL DEFAULT 'PRESENCIAL',
+        status VARCHAR(20) NOT NULL DEFAULT 'AGENDADA',
+        motivo_cancelamento TEXT,
+        relato TEXT,
+        fotos JSONB DEFAULT '[]'::jsonb,
+        criado_por INTEGER REFERENCES usuarios(id),
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `
+    console.log("✓ Tabela crm_visitas criada")
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS crm_tarefas (
+        id SERIAL PRIMARY KEY,
+        empresa_id INTEGER REFERENCES crm_empresas(id),
+        oportunidade_id INTEGER REFERENCES crm_oportunidades(id),
+        titulo VARCHAR(300) NOT NULL,
+        descricao TEXT,
+        tipo VARCHAR(20) NOT NULL DEFAULT 'TAREFA',
+        data_prevista DATE,
+        data_conclusao DATE,
+        status VARCHAR(20) NOT NULL DEFAULT 'PENDENTE',
+        responsavel_id INTEGER REFERENCES usuarios(id),
+        criado_por INTEGER REFERENCES usuarios(id),
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `
+    console.log("✓ Tabela crm_tarefas criada")
 
     console.log("\n✅ Migration concluída com sucesso!")
     

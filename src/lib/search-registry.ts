@@ -127,6 +127,20 @@ export const searchRegistry: SearchItem[] = [
   { id: "crm-empresas-detalhe", label: "CRM — Empresa (Detalhe)", keywords: ["crm", "empresa", "detalhe", "ficha", "contatos"], href: "/comercial/crm/empresas/[id]", description: "Ficha completa da empresa com contatos", module: "CRM" },
   { id: "crm-leads", label: "CRM — Leads", keywords: ["crm", "lead", "leads", "lista", "prospeccao", "comercial"], href: "/comercial/crm/leads", description: "Lista de leads do CRM", module: "CRM" },
   { id: "crm-leads-novo", label: "CRM — Novo Lead", keywords: ["crm", "lead", "novo", "criar", "cadastro", "prospeccao"], href: "/comercial/crm/leads/novo", description: "Cadastrar novo lead no CRM", module: "CRM" },
+
+  // CRM — Oportunidades
+  { id: "crm-oportunidades", label: "CRM — Oportunidades", keywords: ["crm", "oportunidade", "oportunidades", "lista", "pipeline", "funil", "venda", "comercial"], href: "/comercial/crm/oportunidades", description: "Lista de oportunidades de venda do CRM", module: "CRM" },
+  { id: "crm-oportunidades-nova", label: "CRM — Nova Oportunidade", keywords: ["crm", "oportunidade", "nova", "criar", "pipeline", "venda"], href: "/comercial/crm/oportunidades/novo", description: "Criar nova oportunidade de venda no CRM", module: "CRM" },
+  { id: "crm-oportunidades-detalhe", label: "CRM — Oportunidade (Detalhe)", keywords: ["crm", "oportunidade", "detalhe", "ficha", "pipeline"], href: "/comercial/crm/oportunidades/[id]", description: "Ficha completa da oportunidade de venda", module: "CRM" },
+  { id: "crm-oportunidades-kanban", label: "Kanban — Oportunidades CRM", keywords: ["crm", "oportunidade", "kanban", "quadro", "status", "arrastar", "pipeline", "funil", "venda"], href: "/comercial/crm/oportunidades/kanban", description: "Kanban de oportunidades com drag-and-drop para o pipeline de vendas", module: "CRM" },
+
+  // CRM — Visitas
+  { id: "crm-visitas", label: "CRM — Visitas", keywords: ["crm", "visita", "visitas", "agenda", "ata", "comercial"], href: "/comercial/crm/visitas", description: "Agenda de visitas comerciais", module: "CRM" },
+  { id: "crm-visitas-nova", label: "CRM — Nova Visita", keywords: ["crm", "visita", "nova", "agendar", "ata"], href: "/comercial/crm/visitas/novo", description: "Agendar nova visita comercial", module: "CRM" },
+  { id: "crm-visitas-detalhe", label: "CRM — Visita (Detalhe)", keywords: ["crm", "visita", "detalhe", "ata", "fotos"], href: "/comercial/crm/visitas/[id]", description: "Detalhe da visita com ata e fotos", module: "CRM" },
+
+  // CRM — Tarefas
+  { id: "crm-tarefas", label: "CRM — Minhas Tarefas", keywords: ["crm", "tarefa", "tarefas", "agenda", "produtividade", "comercial"], href: "/comercial/crm/tarefas", description: "Minhas tarefas e agenda CRM", module: "CRM" },
 ]
 
 export function searchItems(query: string): SearchItem[] {
