@@ -85,7 +85,7 @@ export default function ExportarPdfPage() {
             <h1 className="text-2xl font-bold text-slate-900">Exportar Treinamento Completo</h1>
             <p className="text-sm text-slate-500 mt-1">
               Esta página contém todos os módulos e lições do treinamento CRM.
-              Clique em "Exportar PDF" para gerar o arquivo completo.
+              Clique em {'\u201C'}Exportar PDF{'\u201D'} para gerar o arquivo completo.
             </p>
           </div>
           <button
@@ -130,8 +130,8 @@ export default function ExportarPdfPage() {
               <div className="mt-8 text-xs text-slate-400 max-w-md mx-auto leading-relaxed">
                 <p>CRM construído com carinho por <strong>Tiago de Abreu — Engenheiro de Dados</strong></p>
                 <p className="mt-2">
-                  "CRM não é sobre tecnologia, é sobre pessoas. 
-                  Pessoas atendendo melhor outras pessoas."
+                  {'\u201C'}CRM não é sobre tecnologia, é sobre pessoas.
+                  Pessoas atendendo melhor outras pessoas.{'\u201D'}
                 </p>
               </div>
             </div>
