@@ -7,6 +7,8 @@ import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft, Save } from "lucide-react"
 import { toast } from "sonner"
+import { QuickCreateEmpresa } from "@/components/crm/quick-create-empresa"
+import { QuickCreateLead } from "@/components/crm/quick-create-lead"
 
 export default function NovaOportunidadePage() {
   const router = useRouter()
@@ -29,6 +31,32 @@ export default function NovaOportunidadePage() {
 
   function setField(field: string, value: string) {
     setForm(prev => ({ ...prev, [field]: value }))
+  }
+
+  async function loadEmpresas() {
+    try {
+      const res = await fetch("/api/crm/empresas")
+      const data = await res.json()
+      if (Array.isArray(data)) setEmpresas(data)
+    } catch {}
+  }
+
+  async function loadLeads() {
+    try {
+      const res = await fetch("/api/crm/leads")
+      const data = await res.json()
+      if (Array.isArray(data)) setLeads(data)
+    } catch {}
+  }
+
+  function handleEmpresaCreated(id: number) {
+    loadEmpresas()
+    setField("empresaId", String(id))
+  }
+
+  function handleLeadCreated(id: number) {
+    loadLeads()
+    setField("leadId", String(id))
   }
 
   useEffect(() => {
@@ -110,7 +138,10 @@ export default function NovaOportunidadePage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Empresa</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Empresa
+              <QuickCreateEmpresa onCreated={handleEmpresaCreated} />
+            </label>
             <select
               value={form.empresaId}
               onChange={e => setField("empresaId", e.target.value)}
@@ -123,7 +154,10 @@ export default function NovaOportunidadePage() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Lead</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Lead
+              <QuickCreateLead onCreated={handleLeadCreated} />
+            </label>
             <select
               value={form.leadId}
               onChange={e => setField("leadId", e.target.value)}

@@ -48,13 +48,22 @@ export default function TreinamentoPage() {
             Treinamento CRM{info && <InfoButton content={info} />}
           </h1>
         </div>
-        <Link
-          href="/comercial/crm/treinamento/admin"
-          className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
-        >
-          <Settings size={16} />
-          Gerenciar
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/comercial/crm/treinamento/exportar-pdf"
+            className="inline-flex items-center gap-1.5 text-sm text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors"
+          >
+            <Printer size={16} />
+            Exportar Treinamento Completo
+          </Link>
+          <Link
+            href="/comercial/crm/treinamento/admin"
+            className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
+          >
+            <Settings size={16} />
+            Gerenciar
+          </Link>
+        </div>
       </div>
 
       <p className="text-slate-600 dark:text-slate-400 mb-8 max-w-3xl">

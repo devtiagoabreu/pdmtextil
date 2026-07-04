@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query"
 import { usePathname, useParams, useRouter } from "next/navigation"
 import Link from "next/link"
+import { useRef, useState } from "react"
 import {
   ArrowLeft, BookOpen, Video, ExternalLink, Printer,
   FileText, GraduationCap, Loader2, ChevronLeft, ChevronRight,
@@ -11,6 +12,7 @@ import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
+import { exportElementToPdf } from "@/lib/export-pdf"
 
 type Licao = {
   id: number
@@ -41,6 +43,8 @@ export default function LicaoDetailPage() {
   const info = getInfoContent(pathname)
   const params = useParams()
   const router = useRouter()
+  const contentRef = useRef<HTMLDivElement>(null)
+  const [exportando, setExportando] = useState(false)
 
   const { data: licao, isLoading } = useQuery<Licao>({
     queryKey: ["crm-treinamento", params.id],
@@ -58,8 +62,18 @@ export default function LicaoDetailPage() {
   const licaoAnterior = indexAtual > 0 ? licoesModulo[indexAtual - 1] : null
   const proximaLicao = indexAtual < licoesModulo.length - 1 ? licoesModulo[indexAtual + 1] : null
 
-  const handlePrint = () => {
-    window.print()
+  const handleExportPdf = async () => {
+    if (!contentRef.current || !licao) return
+    setExportando(true)
+    try {
+      const filename = `CRM-${licao.moduloTitulo}-${licao.titulo}.pdf`.replace(/[^a-zA-Z0-9-_.]/g, "_")
+      await exportElementToPdf({
+        element: contentRef.current,
+        filename,
+      })
+    } finally {
+      setExportando(false)
+    }
   }
 
   if (isLoading) {
@@ -83,35 +97,73 @@ export default function LicaoDetailPage() {
       <style>{`
         @media print {
           .no-print { display: none !important; }
+          @page {
+            size: A4;
+            margin: 55px 25px 45px 25px;
+            @bottom-center {
+              content: counter(page);
+              font-size: 9px;
+              color: #666;
+              font-family: Arial, sans-serif;
+            }
+          }
           .print-header {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
-            padding: 10px 20px;
-            border-bottom: 1px solid #ddd;
-            font-size: 10px;
-            color: #666;
+            padding: 8px 25px;
+            border-bottom: 1px solid #ccc;
+            font-size: 9px;
+            color: #555;
             background: white;
             z-index: 1000;
             display: flex;
             justify-content: space-between;
+            font-family: Arial, sans-serif;
           }
-          .print-footer {
+          .print-footer-text {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            padding: 8px 20px;
-            border-top: 1px solid #ddd;
-            font-size: 9px;
-            color: #999;
+            padding: 5px 25px;
+            border-top: 1px solid #ccc;
+            font-size: 8px;
+            color: #888;
             background: white;
             z-index: 1000;
             text-align: center;
+            font-family: Arial, sans-serif;
           }
-          body { padding-top: 40px; padding-bottom: 30px; }
-          @page { margin: 50px 30px; }
+          body {
+            padding-top: 0;
+            padding-bottom: 0;
+            font-size: 11px;
+            line-height: 1.5;
+            color: #222;
+            font-family: Arial, sans-serif;
+          }
+          .max-w-4xl {
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+          h1 {
+            font-size: 18px !important;
+            margin-top: 0 !important;
+            padding-top: 0 !important;
+          }
+          h2 { font-size: 15px !important; page-break-after: avoid; }
+          h3 { font-size: 13px !important; page-break-after: avoid; }
+          table { font-size: 10px !important; }
+          .prose { max-width: 100% !important; }
+          .prose pre { white-space: pre-wrap; word-break: break-word; }
+          .prose code { font-size: 10px; }
+          .prose img { max-height: 300px; }
+          .prose p, .prose li, .prose td { font-size: 11px; }
+          .rounded-xl, .rounded-lg { border-radius: 4px !important; }
+          .border { border-color: #ddd !important; }
         }
       `}</style>
 
@@ -154,11 +206,12 @@ export default function LicaoDetailPage() {
             </div>
           </div>
           <button
-            onClick={handlePrint}
-            className="no-print inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-slate-600 dark:text-slate-400 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+            onClick={handleExportPdf}
+            disabled={exportando}
+            className="no-print inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-white bg-indigo-600 border border-indigo-600 rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-colors"
           >
-            <Printer size={16} />
-            Exportar PDF
+            {exportando ? <Loader2 size={16} className="animate-spin" /> : <Printer size={16} />}
+            {exportando ? "Gerando PDF..." : "Exportar PDF"}
           </button>
         </div>
 
@@ -167,17 +220,19 @@ export default function LicaoDetailPage() {
           <span>{licao.moduloTitulo} / {licao.titulo}</span>
         </div>
 
-        {licao.preRequisitos && (
-          <div className="mb-8 p-4 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl no-print">
-            <h3 className="text-sm font-semibold text-amber-800 dark:text-amber-300 mb-2">Pré-cadastros Necessários</h3>
-            <p className="text-sm text-amber-700 dark:text-amber-400 whitespace-pre-wrap">{licao.preRequisitos}</p>
-          </div>
-        )}
+        <div ref={contentRef} className="pdf-content">
+          {licao.preRequisitos && (
+            <div className="mb-8 p-4 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl">
+              <h3 className="text-sm font-semibold text-amber-800 dark:text-amber-300 mb-2">Pré-cadastros Necessários</h3>
+              <p className="text-sm text-amber-700 dark:text-amber-400 whitespace-pre-wrap">{licao.preRequisitos}</p>
+            </div>
+          )}
 
-        <div className="prose prose-slate dark:prose-invert max-w-none mb-8">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>
-            {licao.conteudoMd}
-          </ReactMarkdown>
+          <div className="prose prose-slate dark:prose-invert max-w-none mb-8">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {licao.conteudoMd}
+            </ReactMarkdown>
+          </div>
         </div>
 
         {(licao.linksPop?.length > 0 || licao.linksVideo?.length > 0) && (
@@ -257,7 +312,7 @@ export default function LicaoDetailPage() {
         </div>
       </div>
 
-      <div className="print-footer">
+      <div className="print-footer-text">
         PDM Têxtil - {licao.moduloTitulo} / {licao.titulo} — Gerado em {new Date().toLocaleDateString("pt-BR")}
       </div>
     </>
