@@ -35,6 +35,7 @@ async function seed() {
     { userMenuId: menuCrm.id, titulo: "Propostas", url: "/comercial/crm/propostas", ordem: 7 },
     { userMenuId: menuCrm.id, titulo: "Regiões", url: "/comercial/crm/regioes", ordem: 8 },
     { userMenuId: menuCrm.id, titulo: "Equipes", url: "/comercial/crm/equipes", ordem: 9 },
+    { userMenuId: menuCrm.id, titulo: "Campanhas", url: "/comercial/crm/campanhas", ordem: 10 },
   ])
 
   // Menu CRM para role CRM
@@ -56,6 +57,7 @@ async function seed() {
     { userMenuId: menuCrmRole.id, titulo: "Propostas", url: "/comercial/crm/propostas", ordem: 8 },
     { userMenuId: menuCrmRole.id, titulo: "Regiões", url: "/comercial/crm/regioes", ordem: 9 },
     { userMenuId: menuCrmRole.id, titulo: "Equipes", url: "/comercial/crm/equipes", ordem: 10 },
+    { userMenuId: menuCrmRole.id, titulo: "Campanhas", url: "/comercial/crm/campanhas", ordem: 11 },
   ])
 
   // Menu CRM também visível para ADMIN
@@ -76,6 +78,7 @@ async function seed() {
     { userMenuId: menuCrmAdmin.id, titulo: "Propostas", url: "/comercial/crm/propostas", ordem: 7 },
     { userMenuId: menuCrmAdmin.id, titulo: "Regiões", url: "/comercial/crm/regioes", ordem: 8 },
     { userMenuId: menuCrmAdmin.id, titulo: "Equipes", url: "/comercial/crm/equipes", ordem: 9 },
+    { userMenuId: menuCrmAdmin.id, titulo: "Campanhas", url: "/comercial/crm/campanhas", ordem: 10 },
   ])
 
   console.log("✅ Seed concluído!")

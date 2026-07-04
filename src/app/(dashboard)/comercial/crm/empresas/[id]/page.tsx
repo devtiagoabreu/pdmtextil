@@ -3,8 +3,9 @@
 import { useState, useEffect } from "react"
 import { useRouter, useParams } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Building2, Mail, Phone, Globe, MapPin, User, Plus, Trash2, Pencil, Check, X, Clock } from "lucide-react"
+import { ArrowLeft, Building2, Mail, Phone, Globe, MapPin, User, Plus, Trash2, Pencil, Check, X, Clock, MessageSquare } from "lucide-react"
 import CrmEmpresaTimeline from "@/components/crm/crm-empresa-timeline"
+import CrmEmpresaWhatsapp from "@/components/crm/crm-empresa-whatsapp"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 
@@ -218,12 +219,22 @@ export default function EmpresaDetailPage() {
         </div>
       </div>
 
-      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <Clock size={16} className="text-slate-400" />
-          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50">Timeline</h2>
+      <div className="grid gap-6 md:grid-cols-2">
+        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
+          <div className="flex items-center gap-2 p-4 border-b border-slate-100 dark:border-slate-800">
+            <Clock size={16} className="text-slate-400" />
+            <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50">Timeline</h2>
+          </div>
+          <CrmEmpresaTimeline empresaId={params.id as string} />
         </div>
-        <CrmEmpresaTimeline empresaId={params.id as string} />
+
+        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
+          <div className="flex items-center gap-2 p-4 border-b border-slate-100 dark:border-slate-800">
+            <MessageSquare size={16} className="text-emerald-500" />
+            <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50">WhatsApp</h2>
+          </div>
+          <CrmEmpresaWhatsapp empresaId={params.id as string} />
+        </div>
       </div>
 
       <ConfirmModal
