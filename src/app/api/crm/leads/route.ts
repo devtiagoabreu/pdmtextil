@@ -6,6 +6,7 @@ import { crmEmpresas } from "@/lib/db/schema/crm-empresas"
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq, desc, like, or, sql } from "drizzle-orm"
 import { registrarLog } from "@/lib/notificar"
+import { inserirTimelineEvento } from "@/lib/crm-timeline"
 
 export async function GET(req: NextRequest) {
   try {
@@ -96,6 +97,15 @@ export async function POST(req: NextRequest) {
       entidadeId: novo.id,
       usuarioNome: session.user.name,
     })
+
+    if (novo.empresaId) {
+      await inserirTimelineEvento({
+        empresaId: novo.empresaId,
+        tipo: "LEAD",
+        descricao: `Lead "${novo.nome}" foi vinculado a esta empresa`,
+        metadados: { leadId: novo.id },
+      })
+    }
 
     return NextResponse.json(novo, { status: 201 })
   } catch (error) {

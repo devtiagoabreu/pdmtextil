@@ -32,6 +32,9 @@ async function seed() {
     { userMenuId: menuCrm.id, titulo: "Oportunidades (Kanban)", url: "/comercial/crm/oportunidades/kanban", ordem: 4 },
     { userMenuId: menuCrm.id, titulo: "Visitas", url: "/comercial/crm/visitas", ordem: 5 },
     { userMenuId: menuCrm.id, titulo: "Tarefas", url: "/comercial/crm/tarefas", ordem: 6 },
+    { userMenuId: menuCrm.id, titulo: "Propostas", url: "/comercial/crm/propostas", ordem: 7 },
+    { userMenuId: menuCrm.id, titulo: "Regiões", url: "/comercial/crm/regioes", ordem: 8 },
+    { userMenuId: menuCrm.id, titulo: "Equipes", url: "/comercial/crm/equipes", ordem: 9 },
   ])
 
   // Menu CRM para role CRM
@@ -50,6 +53,9 @@ async function seed() {
     { userMenuId: menuCrmRole.id, titulo: "Oportunidades (Kanban)", url: "/comercial/crm/oportunidades/kanban", ordem: 5 },
     { userMenuId: menuCrmRole.id, titulo: "Visitas", url: "/comercial/crm/visitas", ordem: 6 },
     { userMenuId: menuCrmRole.id, titulo: "Tarefas", url: "/comercial/crm/tarefas", ordem: 7 },
+    { userMenuId: menuCrmRole.id, titulo: "Propostas", url: "/comercial/crm/propostas", ordem: 8 },
+    { userMenuId: menuCrmRole.id, titulo: "Regiões", url: "/comercial/crm/regioes", ordem: 9 },
+    { userMenuId: menuCrmRole.id, titulo: "Equipes", url: "/comercial/crm/equipes", ordem: 10 },
   ])
 
   // Menu CRM também visível para ADMIN
@@ -67,6 +73,9 @@ async function seed() {
     { userMenuId: menuCrmAdmin.id, titulo: "Oportunidades (Kanban)", url: "/comercial/crm/oportunidades/kanban", ordem: 4 },
     { userMenuId: menuCrmAdmin.id, titulo: "Visitas", url: "/comercial/crm/visitas", ordem: 5 },
     { userMenuId: menuCrmAdmin.id, titulo: "Tarefas", url: "/comercial/crm/tarefas", ordem: 6 },
+    { userMenuId: menuCrmAdmin.id, titulo: "Propostas", url: "/comercial/crm/propostas", ordem: 7 },
+    { userMenuId: menuCrmAdmin.id, titulo: "Regiões", url: "/comercial/crm/regioes", ordem: 8 },
+    { userMenuId: menuCrmAdmin.id, titulo: "Equipes", url: "/comercial/crm/equipes", ordem: 9 },
   ])
 
   console.log("✅ Seed concluído!")

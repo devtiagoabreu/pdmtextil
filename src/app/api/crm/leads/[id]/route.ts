@@ -4,6 +4,7 @@ import { db } from "@/lib/db"
 import { crmLeads } from "@/lib/db/schema/crm-leads"
 import { eq } from "drizzle-orm"
 import { registrarLog, notificarDelecao } from "@/lib/notificar"
+import { inserirTimelineEvento } from "@/lib/crm-timeline"
 import { handleApiError } from "@/lib/api-error"
 
 export async function GET(
@@ -80,6 +81,15 @@ export async function PUT(
       entidadeId: atualizado.id,
       usuarioNome: session.user.name,
     })
+
+    if (body.status && body.status !== existente.status && atualizado.empresaId) {
+      await inserirTimelineEvento({
+        empresaId: atualizado.empresaId,
+        tipo: "LEAD",
+        descricao: `Lead "${atualizado.nome}" mudou para "${body.status}"`,
+        metadados: { leadId: atualizado.id, statusAnterior: existente.status, statusNovo: body.status },
+      })
+    }
 
     return NextResponse.json(atualizado)
   } catch (error) {

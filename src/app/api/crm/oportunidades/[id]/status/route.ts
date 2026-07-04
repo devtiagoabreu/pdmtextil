@@ -2,8 +2,50 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { crmOportunidades } from "@/lib/db/schema/crm-oportunidades"
+import { crmEmpresas } from "@/lib/db/schema/crm-empresas"
+import { clientes } from "@/lib/db/schema/clientes"
 import { eq } from "drizzle-orm"
 import { registrarLog } from "@/lib/notificar"
+import { inserirTimelineEvento } from "@/lib/crm-timeline"
+
+async function sincronizarEmpresaCliente(empresaId: number) {
+  const [empresa] = await db
+    .select()
+    .from(crmEmpresas)
+    .where(eq(crmEmpresas.id, empresaId))
+    .limit(1)
+
+  if (!empresa) return
+  if (empresa.clienteId) return // já vinculada
+
+  const [existente] = await db
+    .select()
+    .from(clientes)
+    .where(eq(clientes.cnpj, empresa.cnpj))
+    .limit(1)
+
+  if (existente) {
+    await db
+      .update(crmEmpresas)
+      .set({ clienteId: existente.id, updatedAt: new Date() })
+      .where(eq(crmEmpresas.id, empresaId))
+    return
+  }
+
+  const [novoCliente] = await db
+    .insert(clientes)
+    .values({
+      nome: empresa.nomeFantasia || empresa.razaoSocial,
+      cnpj: empresa.cnpj,
+      razaoSocial: empresa.razaoSocial,
+    })
+    .returning()
+
+  await db
+    .update(crmEmpresas)
+    .set({ clienteId: novoCliente.id, updatedAt: new Date() })
+    .where(eq(crmEmpresas.id, empresaId))
+}
 
 export async function PATCH(
   req: NextRequest,
@@ -15,7 +57,7 @@ export async function PATCH(
     const session = auth.session
 
     const { id } = await params
-    const { status } = await req.json()
+    const { status, motivoPerda } = await req.json()
 
     const [existente] = await db
       .select()
@@ -27,9 +69,16 @@ export async function PATCH(
       return NextResponse.json({ error: "Oportunidade não encontrada" }, { status: 404 })
     }
 
+    if (status === "FECHADO_PERDIDO" && !motivoPerda) {
+      return NextResponse.json({ error: "Motivo da perda é obrigatório" }, { status: 400 })
+    }
+
+    const values: Record<string, any> = { status, updatedAt: new Date() }
+    if (motivoPerda) values.motivoPerda = motivoPerda
+
     const [atualizada] = await db
       .update(crmOportunidades)
-      .set({ status, updatedAt: new Date() })
+      .set(values)
       .where(eq(crmOportunidades.id, parseInt(id)))
       .returning()
 
@@ -41,6 +90,26 @@ export async function PATCH(
       entidadeId: atualizada.id,
       usuarioNome: session.user.name,
     })
+
+    if (existente.empresaId) {
+      await inserirTimelineEvento({
+        empresaId: existente.empresaId,
+        tipo: "OPORTUNIDADE",
+        descricao: `Oportunidade "${existente.titulo}" ${status === "FECHADO_GANHO" ? "GANHA" : status === "FECHADO_PERDIDO" ? "PERDIDA" : `movida para ${status}`}`,
+        metadados: { oportunidadeId: atualizada.id, statusAnterior: existente.status, statusNovo: status, motivoPerda },
+      })
+
+      if (status === "FECHADO_GANHO") {
+        await sincronizarEmpresaCliente(existente.empresaId)
+
+        await inserirTimelineEvento({
+          empresaId: existente.empresaId,
+          tipo: "OPORTUNIDADE",
+          descricao: `Empresa vinculada ao cadastro de Clientes PDM`,
+          metadados: { oportunidadeId: atualizada.id },
+        })
+      }
+    }
 
     return NextResponse.json(atualizada)
   } catch (error) {

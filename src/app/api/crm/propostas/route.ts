@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
-import { crmVisitas } from "@/lib/db/schema/crm-visitas"
+import { crmPropostas } from "@/lib/db/schema/crm-propostas"
 import { crmEmpresas } from "@/lib/db/schema/crm-empresas"
 import { crmOportunidades } from "@/lib/db/schema/crm-oportunidades"
 import { usuarios } from "@/lib/db/schema/usuarios"
@@ -16,40 +16,44 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url)
     const empresaId = searchParams.get("empresaId")
     const status = searchParams.get("status")
+    const oportunidadeId = searchParams.get("oportunidadeId")
 
     const conditions = []
-    if (empresaId) conditions.push(eq(crmVisitas.empresaId, parseInt(empresaId)))
-    if (status) conditions.push(eq(crmVisitas.status, status))
+    if (empresaId) conditions.push(eq(crmPropostas.empresaId, parseInt(empresaId)))
+    if (status) conditions.push(eq(crmPropostas.status, status))
+    if (oportunidadeId) conditions.push(eq(crmPropostas.oportunidadeId, parseInt(oportunidadeId)))
 
     const where = conditions.length > 0 ? sql`${conditions.reduce((a, b) => sql`${a} AND ${b}`)}` : undefined
 
     const lista = await db
       .select({
-        id: crmVisitas.id,
-        dataVisita: crmVisitas.dataVisita,
-        tipo: crmVisitas.tipo,
-        status: crmVisitas.status,
-        relato: crmVisitas.relato,
-        empresaId: crmVisitas.empresaId,
+        id: crmPropostas.id,
+        titulo: crmPropostas.titulo,
+        valor: crmPropostas.valor,
+        status: crmPropostas.status,
+        empresaId: crmPropostas.empresaId,
         empresaNome: crmEmpresas.razaoSocial,
-        oportunidadeId: crmVisitas.oportunidadeId,
+        oportunidadeId: crmPropostas.oportunidadeId,
         oportunidadeTitulo: crmOportunidades.titulo,
-        contatoId: crmVisitas.contatoId,
+        descricao: crmPropostas.descricao,
+        condicoesPagamento: crmPropostas.condicoesPagamento,
+        prazoEntrega: crmPropostas.prazoEntrega,
+        arquivoUrl: crmPropostas.arquivoUrl,
+        dataEnvio: crmPropostas.dataEnvio,
+        dataResposta: crmPropostas.dataResposta,
         criadoPorNome: usuarios.name,
-        fotos: crmVisitas.fotos,
-        motivoCancelamento: crmVisitas.motivoCancelamento,
-        createdAt: crmVisitas.createdAt,
+        createdAt: crmPropostas.createdAt,
       })
-      .from(crmVisitas)
-      .leftJoin(crmEmpresas, eq(crmVisitas.empresaId, crmEmpresas.id))
-      .leftJoin(crmOportunidades, eq(crmVisitas.oportunidadeId, crmOportunidades.id))
-      .leftJoin(usuarios, eq(crmVisitas.criadoPor, usuarios.id))
+      .from(crmPropostas)
+      .leftJoin(crmEmpresas, eq(crmPropostas.empresaId, crmEmpresas.id))
+      .leftJoin(crmOportunidades, eq(crmPropostas.oportunidadeId, crmOportunidades.id))
+      .leftJoin(usuarios, eq(crmPropostas.criadoPor, usuarios.id))
       .where(where)
-      .orderBy(desc(crmVisitas.dataVisita))
+      .orderBy(desc(crmPropostas.createdAt))
 
     return NextResponse.json(lista)
   } catch (error) {
-    console.error("[GET /api/crm/visitas]", error)
+    console.error("[GET /api/crm/propostas]", error)
     return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
   }
 }
@@ -64,16 +68,18 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
 
     const [nova] = await db
-      .insert(crmVisitas)
+      .insert(crmPropostas)
       .values({
         empresaId: body.empresaId,
         oportunidadeId: body.oportunidadeId || null,
-        contatoId: body.contatoId || null,
-        dataVisita: body.dataVisita,
-        tipo: body.tipo || "PRESENCIAL",
-        status: "AGENDADA",
-        relato: body.relato || null,
-        fotos: body.fotos || [],
+        titulo: body.titulo,
+        valor: body.valor || null,
+        descricao: body.descricao || null,
+        condicoesPagamento: body.condicoesPagamento || null,
+        prazoEntrega: body.prazoEntrega || null,
+        arquivoUrl: body.arquivoUrl || null,
+        status: "ENVIADA",
+        dataEnvio: new Date(),
         criadoPor: userId,
       })
       .returning()
@@ -81,22 +87,22 @@ export async function POST(req: NextRequest) {
     await registrarLog({
       tipo: "CADASTRO",
       acao: "criar",
-      descricao: `Visita criada para empresa ID ${body.empresaId} em ${body.dataVisita}`,
-      entidade: "CrmVisita",
+      descricao: `Proposta criada: ${body.titulo}`,
+      entidade: "CrmProposta",
       entidadeId: nova.id,
       usuarioNome: session.user.name,
     })
 
     await inserirTimelineEvento({
       empresaId: nova.empresaId,
-      tipo: "VISITA",
-      descricao: `Visita ${nova.tipo} agendada para ${new Date(nova.dataVisita + "T12:00:00").toLocaleDateString("pt-BR")}`,
-      metadados: { visitaId: nova.id, tipo: nova.tipo, dataVisita: nova.dataVisita },
+      tipo: "PROPOSTA",
+      descricao: `Proposta "${nova.titulo}" enviada${nova.valor ? ` — valor: R$ ${Number(nova.valor).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : ""}`,
+      metadados: { propostaId: nova.id },
     })
 
     return NextResponse.json(nova, { status: 201 })
   } catch (error) {
-    console.error("[POST /api/crm/visitas]", error)
+    console.error("[POST /api/crm/propostas]", error)
     return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
   }
 }
