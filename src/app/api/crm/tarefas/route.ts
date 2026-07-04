@@ -7,6 +7,7 @@ import { crmOportunidades } from "@/lib/db/schema/crm-oportunidades"
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq, desc, sql } from "drizzle-orm"
 import { registrarLog } from "@/lib/notificar"
+import { inserirTimelineEvento } from "@/lib/crm-timeline"
 
 export async function GET(req: NextRequest) {
   try {
@@ -90,6 +91,15 @@ export async function POST(req: NextRequest) {
       entidadeId: nova.id,
       usuarioNome: session.user.name,
     })
+
+    if (nova.empresaId) {
+      await inserirTimelineEvento({
+        empresaId: nova.empresaId,
+        tipo: "TAREFA",
+        descricao: `Tarefa "${nova.titulo}" criada${nova.dataPrevista ? ` — prevista para ${new Date(nova.dataPrevista + "T12:00:00").toLocaleDateString("pt-BR")}` : ""}`,
+        metadados: { tarefaId: nova.id },
+      })
+    }
 
     return NextResponse.json(nova, { status: 201 })
   } catch (error) {

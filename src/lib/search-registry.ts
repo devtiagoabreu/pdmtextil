@@ -141,6 +141,17 @@ export const searchRegistry: SearchItem[] = [
 
   // CRM — Tarefas
   { id: "crm-tarefas", label: "CRM — Minhas Tarefas", keywords: ["crm", "tarefa", "tarefas", "agenda", "produtividade", "comercial"], href: "/comercial/crm/tarefas", description: "Minhas tarefas e agenda CRM", module: "CRM" },
+
+  // CRM — Propostas
+  { id: "crm-propostas", label: "CRM — Propostas", keywords: ["crm", "proposta", "propostas", "lista", "comercial", "pdf", "venda"], href: "/comercial/crm/propostas", description: "Lista de propostas comerciais", module: "CRM" },
+  { id: "crm-propostas-nova", label: "CRM — Nova Proposta", keywords: ["crm", "proposta", "nova", "criar", "comercial", "pdf"], href: "/comercial/crm/propostas/novo", description: "Criar nova proposta comercial", module: "CRM" },
+  { id: "crm-propostas-detalhe", label: "CRM — Proposta (Detalhe)", keywords: ["crm", "proposta", "detalhe", "ficha", "pdf"], href: "/comercial/crm/propostas/[id]", description: "Detalhe da proposta comercial com status e PDF", module: "CRM" },
+
+  // CRM — Regiões
+  { id: "crm-regioes", label: "CRM — Regiões", keywords: ["crm", "regiao", "regioes", "gerente", "hierarquia", "comercial"], href: "/comercial/crm/regioes", description: "Cadastro de regiões comerciais", module: "CRM" },
+
+  // CRM — Equipes
+  { id: "crm-equipes", label: "CRM — Equipes", keywords: ["crm", "equipe", "equipes", "representante", "hierarquia", "comercial"], href: "/comercial/crm/equipes", description: "Cadastro de equipes comerciais", module: "CRM" },
 ]
 
 export function searchItems(query: string): SearchItem[] {

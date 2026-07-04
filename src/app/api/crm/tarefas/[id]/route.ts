@@ -4,6 +4,7 @@ import { db } from "@/lib/db"
 import { crmTarefas } from "@/lib/db/schema/crm-tarefas"
 import { eq } from "drizzle-orm"
 import { registrarLog, notificarDelecao } from "@/lib/notificar"
+import { inserirTimelineEvento } from "@/lib/crm-timeline"
 import { handleApiError } from "@/lib/api-error"
 
 export async function GET(
@@ -82,6 +83,15 @@ export async function PUT(
       entidadeId: atualizada.id,
       usuarioNome: session.user.name,
     })
+
+    if (body.status && body.status !== existente.status && existente.empresaId) {
+      await inserirTimelineEvento({
+        empresaId: existente.empresaId,
+        tipo: "TAREFA",
+        descricao: `Tarefa "${existente.titulo}" ${body.status === "CONCLUIDO" ? "concluída" : "reaberta"}`,
+        metadados: { tarefaId: atualizada.id, statusAnterior: existente.status, statusNovo: body.status },
+      })
+    }
 
     return NextResponse.json(atualizada)
   } catch (error) {

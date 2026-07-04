@@ -714,6 +714,20 @@ async function migrate() {
       console.log("✓ Status TAREFA já existem")
     }
 
+    // Insere status PROPOSTA (idempotente)
+    const propostaEnviada = await sql`SELECT id FROM status WHERE nome = 'ENVIADA' AND tipo = 'PROPOSTA'`
+    if (propostaEnviada.length === 0) {
+      await sql`INSERT INTO status (nome, rotulo, tipo, cor, ordem) VALUES
+        ('ENVIADA', 'Enviada', 'PROPOSTA', '#3b82f6', 1),
+        ('ACEITA', 'Aceita', 'PROPOSTA', '#22c55e', 2),
+        ('RECUSADA', 'Recusada', 'PROPOSTA', '#ef4444', 3),
+        ('REVISAO', 'Em Revisão', 'PROPOSTA', '#f59e0b', 4)
+      `
+      console.log("✓ Status PROPOSTA inseridos")
+    } else {
+      console.log("✓ Status PROPOSTA já existem")
+    }
+
     // ==================== CRM (Fase 1) ====================
     await sql`
       CREATE TABLE IF NOT EXISTS crm_empresas (
@@ -727,6 +741,7 @@ async function migrate() {
         observacoes TEXT,
         status VARCHAR(30) NOT NULL DEFAULT 'NOVO',
         responsavel_id INTEGER REFERENCES usuarios(id),
+        cliente_id INTEGER REFERENCES clientes(id),
         ativo BOOLEAN DEFAULT true,
         id_integracao VARCHAR(100),
         created_at TIMESTAMP DEFAULT NOW(),
@@ -734,6 +749,9 @@ async function migrate() {
       )
     `
     console.log("✓ Tabela crm_empresas criada")
+    // Coluna cliente_id (para quem já tem a tabela)
+    await sql`ALTER TABLE crm_empresas ADD COLUMN IF NOT EXISTS cliente_id INTEGER REFERENCES clientes(id)`
+    console.log("✓ Coluna cliente_id em crm_empresas")
 
     await sql`
       CREATE TABLE IF NOT EXISTS crm_leads (
@@ -831,6 +849,65 @@ async function migrate() {
       )
     `
     console.log("✓ Tabela crm_tarefas criada")
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS crm_propostas (
+        id SERIAL PRIMARY KEY,
+        oportunidade_id INTEGER REFERENCES crm_oportunidades(id),
+        empresa_id INTEGER NOT NULL REFERENCES crm_empresas(id),
+        titulo VARCHAR(300) NOT NULL,
+        valor NUMERIC(12,2),
+        descricao TEXT,
+        condicoes_pagamento TEXT,
+        prazo_entrega VARCHAR(200),
+        arquivo_url VARCHAR(500),
+        status VARCHAR(20) NOT NULL DEFAULT 'ENVIADA',
+        data_envio TIMESTAMP,
+        data_resposta TIMESTAMP,
+        criado_por INTEGER REFERENCES usuarios(id),
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `
+    console.log("✓ Tabela crm_propostas criada")
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS crm_timeline_eventos (
+        id SERIAL PRIMARY KEY,
+        empresa_id INTEGER NOT NULL REFERENCES crm_empresas(id),
+        tipo VARCHAR(30) NOT NULL,
+        descricao TEXT NOT NULL,
+        metadados JSONB DEFAULT '{}'::jsonb,
+        data_evento TIMESTAMP DEFAULT NOW(),
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `
+    console.log("✓ Tabela crm_timeline_eventos criada")
+
+    // ==================== CRM (Fase 7) ====================
+    await sql`
+      CREATE TABLE IF NOT EXISTS crm_regioes (
+        id SERIAL PRIMARY KEY,
+        nome VARCHAR(200) NOT NULL,
+        uf VARCHAR(2),
+        gerente_id INTEGER REFERENCES usuarios(id),
+        ativo BOOLEAN DEFAULT true,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `
+    console.log("✓ Tabela crm_regioes criada")
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS crm_equipes (
+        id SERIAL PRIMARY KEY,
+        nome VARCHAR(200) NOT NULL,
+        regiao_id INTEGER REFERENCES crm_regioes(id),
+        responsavel_id INTEGER REFERENCES usuarios(id),
+        ativo BOOLEAN DEFAULT true,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `
+    console.log("✓ Tabela crm_equipes criada")
 
     console.log("\n✅ Migration concluída com sucesso!")
     

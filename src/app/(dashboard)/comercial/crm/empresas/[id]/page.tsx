@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react"
 import { useRouter, useParams } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Building2, Mail, Phone, Globe, MapPin, User, Plus, Trash2, Pencil, Check, X } from "lucide-react"
+import { ArrowLeft, Building2, Mail, Phone, Globe, MapPin, User, Plus, Trash2, Pencil, Check, X, Clock } from "lucide-react"
+import CrmEmpresaTimeline from "@/components/crm/crm-empresa-timeline"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 
@@ -215,6 +216,14 @@ export default function EmpresaDetailPage() {
             </div>
           )}
         </div>
+      </div>
+
+      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <Clock size={16} className="text-slate-400" />
+          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50">Timeline</h2>
+        </div>
+        <CrmEmpresaTimeline empresaId={params.id as string} />
       </div>
 
       <ConfirmModal

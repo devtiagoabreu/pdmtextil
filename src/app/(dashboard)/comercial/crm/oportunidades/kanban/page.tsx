@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { toast } from "sonner"
 import { DndContext, DragOverlay, useDraggable, useDroppable, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
-import { Loader2, Plus } from "lucide-react"
+import { Loader2, Plus, X } from "lucide-react"
 import { useStatuses } from "@/hooks/use-statuses"
 
 interface OportunidadeCard {
@@ -103,6 +103,10 @@ export default function KanbanOportunidadesPage() {
   const [loading, setLoading] = useState(true)
   const [activeCard, setActiveCard] = useState<OportunidadeCard | null>(null)
 
+  const [showMotivoPerda, setShowMotivoPerda] = useState(false)
+  const [motivoPerda, setMotivoPerda] = useState("")
+  const [pendingMove, setPendingMove] = useState<{ id: number; status: string; statusAntigo: string } | null>(null)
+
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
   )
@@ -157,6 +161,16 @@ export default function KanbanOportunidadesPage() {
 
     const statusAntigo = oportunidade.status
 
+    if (novoStatus === "FECHADO_PERDIDO") {
+      setPendingMove({ id: oportunidade.id, status: novoStatus, statusAntigo })
+      setMotivoPerda("")
+      setShowMotivoPerda(true)
+      setOportunidades(prev =>
+        prev.map(o => o.id === oportunidade.id ? { ...o, status: novoStatus } : o)
+      )
+      return
+    }
+
     setOportunidades(prev =>
       prev.map(o => o.id === oportunidade.id ? { ...o, status: novoStatus } : o)
     )
@@ -178,6 +192,39 @@ export default function KanbanOportunidadesPage() {
       )
       toast.error(err.message)
     }
+  }
+
+  async function confirmarPerda() {
+    if (!pendingMove || !motivoPerda.trim()) return
+
+    try {
+      const res = await fetch(`/api/crm/oportunidades/${pendingMove.id}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "FECHADO_PERDIDO", motivoPerda: motivoPerda.trim() }),
+      })
+      if (!res.ok) throw new Error((await res.json()).error || "Erro ao confirmar perda")
+      toast.success("Oportunidade marcada como Perdida")
+    } catch (err: any) {
+      setOportunidades(prev =>
+        prev.map(o => o.id === pendingMove.id ? { ...o, status: pendingMove.statusAntigo } : o)
+      )
+      toast.error(err.message)
+    }
+    setShowMotivoPerda(false)
+    setMotivoPerda("")
+    setPendingMove(null)
+  }
+
+  function cancelarPerda() {
+    if (pendingMove) {
+      setOportunidades(prev =>
+        prev.map(o => o.id === pendingMove.id ? { ...o, status: pendingMove.statusAntigo } : o)
+      )
+    }
+    setShowMotivoPerda(false)
+    setMotivoPerda("")
+    setPendingMove(null)
   }
 
   if (loading || statusLoading) {
@@ -233,8 +280,43 @@ export default function KanbanOportunidadesPage() {
               </div>
             </DragOverlay>
           )}
-        </DndContext>
-      </div>
+          </DndContext>
+        </div>
+
+        {showMotivoPerda && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={cancelarPerda}>
+            <div className="bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 p-6 w-full max-w-md mx-4" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-50">Motivo da Perda</h3>
+                <button onClick={cancelarPerda} className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <X size={18} className="text-slate-400" />
+                </button>
+              </div>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
+                Informe o motivo pelo qual esta oportunidade foi perdida:
+              </p>
+              <textarea
+                value={motivoPerda}
+                onChange={e => setMotivoPerda(e.target.value)}
+                className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 min-h-[100px] resize-none"
+                placeholder="Ex: Cliente optou por concorrente, orçamento acima do esperado..."
+                autoFocus
+              />
+              <div className="flex gap-2 justify-end mt-4">
+                <button onClick={cancelarPerda} className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
+                  Cancelar
+                </button>
+                <button
+                  onClick={confirmarPerda}
+                  disabled={!motivoPerda.trim()}
+                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 rounded-lg transition-colors"
+                >
+                  Confirmar Perda
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
     </div>
   )
 }
