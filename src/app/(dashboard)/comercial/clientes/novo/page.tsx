@@ -55,7 +55,8 @@ export default function NovoClientePage() {
       }
 
       toast.success("Cliente cadastrado com sucesso!")
-      router.push("/comercial/clientes")
+      const data = await res.json()
+      router.push(`/comercial/clientes/${data.id}`)
     } catch (error: any) {
       toast.error(error.message || "Erro ao cadastrar cliente")
     } finally {
