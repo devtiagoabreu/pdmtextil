@@ -1,10 +1,12 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { useRouter, useParams, usePathname } from "next/navigation"
 import Link from "next/link"
+import { SelectUf } from "@/components/crm/select-uf"
+import { SelectCidade } from "@/components/crm/select-cidade"
 import { ArrowLeft, Building2, Mail, Phone, Globe, MapPin, User, Plus, Trash2, Pencil, Check, X, Clock, MessageSquare } from "lucide-react"
 import CrmEmpresaTimeline from "@/components/crm/crm-empresa-timeline"
 import CrmEmpresaWhatsapp from "@/components/crm/crm-empresa-whatsapp"
@@ -32,6 +34,26 @@ export default function EmpresaDetailPage() {
   const [form, setForm] = useState<any>({})
   const [showDelete, setShowDelete] = useState(false)
   const [deleteLoading, setDeleteLoading] = useState(false)
+  const [estadoId, setEstadoId] = useState<number | null>(null)
+  const [estados, setEstados] = useState<{ id: number; uf: string }[]>([])
+
+  const fetchEstados = useCallback(async () => {
+    try {
+      const res = await fetch("/api/crm/estados")
+      if (res.ok) setEstados(await res.json())
+    } catch {}
+  }, [])
+
+  useEffect(() => { fetchEstados() }, [fetchEstados])
+
+  useEffect(() => {
+    if (form.uf) {
+      const found = estados.find(e => e.uf === form.uf)
+      setEstadoId(found ? found.id : null)
+    } else {
+      setEstadoId(null)
+    }
+  }, [form.uf, estados])
 
   useEffect(() => {
     fetch(`/api/crm/empresas/${params.id}`)
@@ -226,12 +248,12 @@ export default function EmpresaDetailPage() {
                   <input type="text" value={form.bairro || ""} onChange={e => setForm((p: any) => ({ ...p, bairro: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1">Cidade</label>
-                  <input type="text" value={form.cidade || ""} onChange={e => setForm((p: any) => ({ ...p, cidade: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                  <label className="block text-xs font-medium text-slate-500 mb-1">UF</label>
+                  <SelectUf value={form.uf || ""} onChange={v => setForm((p: any) => ({ ...p, uf: v }))} />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1">UF</label>
-                  <input type="text" value={form.uf || ""} onChange={e => setForm((p: any) => ({ ...p, uf: e.target.value }))} maxLength={2} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                  <label className="block text-xs font-medium text-slate-500 mb-1">Cidade</label>
+                  <SelectCidade value={form.cidade || ""} onChange={v => setForm((p: any) => ({ ...p, cidade: v }))} estadoId={estadoId} />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-slate-500 mb-1">CEP</label>

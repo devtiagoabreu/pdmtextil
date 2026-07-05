@@ -236,3 +236,22 @@ ALTER TABLE crm_visitas ADD COLUMN IF NOT EXISTS bairro VARCHAR(150);
 ALTER TABLE crm_visitas ADD COLUMN IF NOT EXISTS cidade VARCHAR(150);
 ALTER TABLE crm_visitas ADD COLUMN IF NOT EXISTS uf VARCHAR(2);
 ALTER TABLE crm_visitas ADD COLUMN IF NOT EXISTS cep VARCHAR(10);
+
+-- CRM: Estados (UF)
+CREATE TABLE IF NOT EXISTS crm_estados (
+  id SERIAL PRIMARY KEY,
+  nome VARCHAR(100) NOT NULL UNIQUE,
+  uf VARCHAR(2) NOT NULL UNIQUE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+COMMENT ON TABLE crm_estados IS 'Estados brasileiros usados nos dropdowns de UF do CRM';
+
+-- CRM: Cidades
+CREATE TABLE IF NOT EXISTS crm_cidades (
+  id SERIAL PRIMARY KEY,
+  nome VARCHAR(200) NOT NULL,
+  estado_id INTEGER NOT NULL REFERENCES crm_estados(id),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE (nome, estado_id)
+);
+COMMENT ON TABLE crm_cidades IS 'Cidades brasileiras usadas nos dropdowns de cidade do CRM';

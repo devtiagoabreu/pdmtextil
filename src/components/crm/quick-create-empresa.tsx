@@ -1,11 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Plus, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import {
   Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogClose,
 } from "@/components/ui/dialog"
+import { SelectUf } from "./select-uf"
+import { SelectCidade } from "./select-cidade"
 
 type Props = {
   onCreated: (id: number, razaoSocial: string) => void
@@ -26,6 +28,26 @@ export function QuickCreateEmpresa({ onCreated }: Props) {
   const [cidade, setCidade] = useState("")
   const [uf, setUf] = useState("")
   const [cep, setCep] = useState("")
+  const [estadoId, setEstadoId] = useState<number | null>(null)
+  const [estados, setEstados] = useState<{ id: number; uf: string }[]>([])
+
+  const fetchEstados = useCallback(async () => {
+    try {
+      const res = await fetch("/api/crm/estados")
+      if (res.ok) setEstados(await res.json())
+    } catch {}
+  }, [])
+
+  useEffect(() => { fetchEstados() }, [fetchEstados])
+
+  useEffect(() => {
+    if (uf) {
+      const found = estados.find(e => e.uf === uf)
+      setEstadoId(found ? found.id : null)
+    } else {
+      setEstadoId(null)
+    }
+  }, [uf, estados])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -179,12 +201,12 @@ export function QuickCreateEmpresa({ onCreated }: Props) {
                 <input type="text" value={bairro} onChange={e => setBairro(e.target.value)} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Cidade</label>
-                <input type="text" value={cidade} onChange={e => setCidade(e.target.value)} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">UF</label>
+                <SelectUf value={uf} onChange={setUf} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">UF</label>
-                <input type="text" value={uf} onChange={e => setUf(e.target.value)} maxLength={2} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Cidade</label>
+                <SelectCidade value={cidade} onChange={setCidade} estadoId={estadoId} />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">CEP</label>
