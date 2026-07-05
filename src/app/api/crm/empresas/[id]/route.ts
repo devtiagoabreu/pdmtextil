@@ -69,6 +69,13 @@ export async function PUT(
     if (body.segmento !== undefined) values.segmento = body.segmento || null
     if (body.porte !== undefined) values.porte = body.porte || null
     if (body.site !== undefined) values.site = body.site || null
+    if (body.endereco !== undefined) values.endereco = body.endereco || null
+    if (body.numero !== undefined) values.numero = body.numero || null
+    if (body.complemento !== undefined) values.complemento = body.complemento || null
+    if (body.bairro !== undefined) values.bairro = body.bairro || null
+    if (body.cidade !== undefined) values.cidade = body.cidade || null
+    if (body.uf !== undefined) values.uf = body.uf || null
+    if (body.cep !== undefined) values.cep = body.cep || null
     if (body.observacoes !== undefined) values.observacoes = body.observacoes || null
     if (body.status !== undefined) values.status = body.status
     if (body.responsavelId !== undefined) values.responsavelId = body.responsavelId

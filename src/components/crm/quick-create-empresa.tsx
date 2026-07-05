@@ -19,6 +19,13 @@ export function QuickCreateEmpresa({ onCreated }: Props) {
   const [cnpj, setCnpj] = useState("")
   const [segmento, setSegmento] = useState("")
   const [porte, setPorte] = useState("")
+  const [endereco, setEndereco] = useState("")
+  const [numero, setNumero] = useState("")
+  const [complemento, setComplemento] = useState("")
+  const [bairro, setBairro] = useState("")
+  const [cidade, setCidade] = useState("")
+  const [uf, setUf] = useState("")
+  const [cep, setCep] = useState("")
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -37,6 +44,13 @@ export function QuickCreateEmpresa({ onCreated }: Props) {
           cnpj,
           segmento: segmento || null,
           porte: porte || null,
+          endereco: endereco || null,
+          numero: numero || null,
+          complemento: complemento || null,
+          bairro: bairro || null,
+          cidade: cidade || null,
+          uf: uf || null,
+          cep: cep || null,
         }),
       })
       if (!res.ok) {
@@ -51,6 +65,13 @@ export function QuickCreateEmpresa({ onCreated }: Props) {
       setCnpj("")
       setSegmento("")
       setPorte("")
+      setEndereco("")
+      setNumero("")
+      setComplemento("")
+      setBairro("")
+      setCidade("")
+      setUf("")
+      setCep("")
       toast.success("Empresa criada com sucesso")
     } catch (err: any) {
       toast.error(err.message)
@@ -135,6 +156,40 @@ export function QuickCreateEmpresa({ onCreated }: Props) {
                 <option value="MEDIO">Médio</option>
                 <option value="GRANDE">Grande</option>
               </select>
+            </div>
+          </div>
+
+          <div className="border-t border-slate-100 dark:border-slate-800 pt-3">
+            <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2">Endereço</p>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="col-span-2">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Logradouro</label>
+                <input type="text" value={endereco} onChange={e => setEndereco(e.target.value)} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Número</label>
+                <input type="text" value={numero} onChange={e => setNumero(e.target.value)} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Complemento</label>
+                <input type="text" value={complemento} onChange={e => setComplemento(e.target.value)} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Bairro</label>
+                <input type="text" value={bairro} onChange={e => setBairro(e.target.value)} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Cidade</label>
+                <input type="text" value={cidade} onChange={e => setCidade(e.target.value)} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">UF</label>
+                <input type="text" value={uf} onChange={e => setUf(e.target.value)} maxLength={2} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">CEP</label>
+                <input type="text" value={cep} onChange={e => setCep(e.target.value)} placeholder="00.000-000" className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+              </div>
             </div>
           </div>
           <div className="flex justify-end gap-2 pt-2">

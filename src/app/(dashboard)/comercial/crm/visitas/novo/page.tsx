@@ -26,12 +26,20 @@ export default function NovaVisitaPage() {
   const [contatos, setContatos] = useState<any[]>([])
   const [saving, setSaving] = useState(false)
   const [fotoInputs, setFotoInputs] = useState<string[]>([""])
+  const [empresaEndereco, setEmpresaEndereco] = useState<any>({})
   const [form, setForm] = useState({
     empresaId: "",
     oportunidadeId: "",
     contatoId: "",
     dataVisita: new Date().toISOString().split("T")[0],
     tipo: "PRESENCIAL",
+    endereco: "",
+    numero: "",
+    complemento: "",
+    bairro: "",
+    cidade: "",
+    uf: "",
+    cep: "",
     relato: "",
   })
 
@@ -57,6 +65,7 @@ export default function NovaVisitaPage() {
 
   useEffect(() => {
     loadContatos(form.empresaId)
+    loadEmpresaEndereco(form.empresaId)
   }, [form.empresaId])
 
   async function loadEmpresas() {
@@ -100,6 +109,36 @@ export default function NovaVisitaPage() {
       if (Array.isArray(data.contatos)) setContatos(data.contatos)
       else setContatos([])
     } catch { setContatos([]) }
+  }
+
+  async function loadEmpresaEndereco(empresaId: string) {
+    if (!empresaId) { setEmpresaEndereco({}); return }
+    try {
+      const res = await fetch(`/api/crm/empresas/${empresaId}?simple=1`)
+      const data = await res.json()
+      setEmpresaEndereco({
+        endereco: data.endereco || "",
+        numero: data.numero || "",
+        complemento: data.complemento || "",
+        bairro: data.bairro || "",
+        cidade: data.cidade || "",
+        uf: data.uf || "",
+        cep: data.cep || "",
+      })
+    } catch { setEmpresaEndereco({}) }
+  }
+
+  function copiarEnderecoEmpresa() {
+    setForm(prev => ({
+      ...prev,
+      endereco: empresaEndereco.endereco || "",
+      numero: empresaEndereco.numero || "",
+      complemento: empresaEndereco.complemento || "",
+      bairro: empresaEndereco.bairro || "",
+      cidade: empresaEndereco.cidade || "",
+      uf: empresaEndereco.uf || "",
+      cep: empresaEndereco.cep || "",
+    }))
   }
 
   function addFotoInput() {
@@ -243,6 +282,88 @@ export default function NovaVisitaPage() {
                 <option key={c.id} value={String(c.id)}>{c.nome}{c.cargo ? ` (${c.cargo})` : ""}</option>
               ))}
             </select>
+          </div>
+        </div>
+
+        <div className="border-t border-slate-100 dark:border-slate-800 pt-4">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Endereço da Visita</h3>
+            {form.empresaId && (
+              <button
+                type="button"
+                onClick={copiarEnderecoEmpresa}
+                className="text-xs text-blue-600 hover:underline flex items-center gap-1"
+              >
+                Copiar endereço da empresa
+              </button>
+            )}
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="sm:col-span-2">
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Logradouro</label>
+              <input
+                type="text"
+                value={form.endereco}
+                onChange={e => setField("endereco", e.target.value)}
+                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Número</label>
+              <input
+                type="text"
+                value={form.numero}
+                onChange={e => setField("numero", e.target.value)}
+                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Complemento</label>
+              <input
+                type="text"
+                value={form.complemento}
+                onChange={e => setField("complemento", e.target.value)}
+                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Bairro</label>
+              <input
+                type="text"
+                value={form.bairro}
+                onChange={e => setField("bairro", e.target.value)}
+                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Cidade</label>
+              <input
+                type="text"
+                value={form.cidade}
+                onChange={e => setField("cidade", e.target.value)}
+                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">UF</label>
+              <input
+                type="text"
+                value={form.uf}
+                onChange={e => setField("uf", e.target.value)}
+                maxLength={2}
+                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">CEP</label>
+              <input
+                type="text"
+                value={form.cep}
+                onChange={e => setField("cep", e.target.value)}
+                placeholder="00.000-000"
+                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
           </div>
         </div>
 
