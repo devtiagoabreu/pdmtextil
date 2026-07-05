@@ -164,6 +164,10 @@ export const searchRegistry: SearchItem[] = [
   { id: "crm-campanhas-nova", label: "CRM — Nova Campanha", keywords: ["crm", "campanha", "nova", "criar", "marketing"], href: "/comercial/crm/campanhas/nova", description: "Criar nova campanha de marketing", module: "CRM" },
   { id: "crm-campanhas-detalhe", label: "CRM — Campanha (Detalhe)", keywords: ["crm", "campanha", "detalhe", "ficha", "marketing"], href: "/comercial/crm/campanhas/[id]", description: "Detalhe da campanha de marketing", module: "CRM" },
 
+  // CRM — Representantes
+  { id: "crm-representantes", label: "CRM — Representantes", keywords: ["crm", "representante", "representantes", "comercial", "gerente", "vendedor"], href: "/comercial/representantes", description: "Cadastro de representantes comerciais", module: "CRM" },
+  { id: "crm-representantes-novo", label: "CRM — Novo Representante", keywords: ["crm", "representante", "novo", "criar", "cadastrar"], href: "/comercial/representantes/novo", description: "Cadastrar novo representante comercial", module: "CRM" },
+
   // CRM — Relatórios
   { id: "crm-relatorios", label: "CRM — Relatórios", keywords: ["crm", "relatorio", "relatorios", "grafico", "dashboard", "analise", "metricas", "conversao", "pipeline"], href: "/comercial/crm/relatorios", description: "Relatórios e análises do CRM", module: "CRM" },
 

@@ -169,6 +169,31 @@ export async function POST(req: NextRequest) {
       BEGIN
         ALTER TABLE bases_urdume ALTER COLUMN densidade TYPE numeric(8,2);
       END $$`,
+      // crm_estados: add gerente_id
+      `DO $$
+      BEGIN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'crm_estados' AND column_name = 'gerente_id') THEN
+          ALTER TABLE crm_estados ADD COLUMN gerente_id INTEGER REFERENCES usuarios(id);
+        END IF;
+      END $$`,
+      // representantes table
+      `CREATE TABLE IF NOT EXISTS representantes (
+        id SERIAL PRIMARY KEY,
+        nome VARCHAR(200) NOT NULL,
+        cnpj VARCHAR(18) NOT NULL UNIQUE,
+        razao_social VARCHAR(250),
+        email VARCHAR(150),
+        telefone VARCHAR(20),
+        contato VARCHAR(100),
+        endereco VARCHAR(300),
+        cidade VARCHAR(100),
+        uf VARCHAR(2),
+        gerente_id INTEGER REFERENCES usuarios(id),
+        ativo BOOLEAN DEFAULT true,
+        id_integracao VARCHAR(100),
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )`,
       // seed default permissions for existing roles
       `UPDATE roles SET permissions = '{
   "SOLICITACOES": ["VIEW", "INSERT", "UPDATE", "DELETE"],

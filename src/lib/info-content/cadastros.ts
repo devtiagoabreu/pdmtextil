@@ -54,6 +54,17 @@ export const cadastrosContent: Record<string, InfoContent> = {
       { name: "Tipo", desc: "Categoria: Fio, Químico, Serviço, Transporte" },
     ],
   },
+  "/cadastros/representantes": {
+    title: "Representantes",
+    description: "Gerencie os representantes comerciais cadastrados no sistema.",
+    fields: [
+      { name: "Nome", desc: "Nome fantasia do representante" },
+      { name: "CNPJ", desc: "CNPJ do representante" },
+      { name: "Email", desc: "Email de contato" },
+      { name: "Telefone", desc: "Telefone de contato" },
+      { name: "Status", desc: "Se o representante está ativo ou inativo" },
+    ],
+  },
   "/cadastros/bases-urdume": {
     title: "Bases Urdume",
     description: "Gerencie as bases de urdume utilizadas na tecelagem. Cada base define fios e comprimentos para preparação do tear.",
