@@ -447,6 +447,7 @@ export const crmContent: Record<string, InfoContent> = {
       { name: "UF", desc: "Sigla de 2 caracteres do estado" },
       { name: "Nome", desc: "Nome completo do estado" },
       { name: "Região", desc: "Região geográfica atribuída ao estado" },
+      { name: "Gerente", desc: "Gerente comercial responsável pelo estado" },
     ],
   },
 
