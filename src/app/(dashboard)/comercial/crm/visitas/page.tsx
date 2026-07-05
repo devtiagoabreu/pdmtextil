@@ -6,8 +6,9 @@ import { getInfoContent } from "@/lib/info-content"
 import Link from "next/link"
 import { useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
-import { PlusCircle, CalendarDays, Search } from "lucide-react"
+import { PlusCircle, CalendarDays, Table, Search } from "lucide-react"
 import { useStatuses } from "@/hooks/use-statuses"
+import VisitasCalendario from "@/components/crm/visitas-calendario"
 
 async function fetchVisitas() {
   const res = await fetch("/api/crm/visitas")
@@ -27,12 +28,15 @@ const TIPO_CORES: Record<string, string> = {
   TELEFONE: "text-emerald-600 bg-emerald-50 dark:bg-emerald-950/50 dark:text-emerald-400",
 }
 
+type ModoVisao = "tabela" | "calendario"
+
 export default function VisitasPage() {
   const router = useRouter()
   const pathname = usePathname()
   const info = getInfoContent(pathname)
   const { getLabel, getColor } = useStatuses("VISITA")
   const [search, setSearch] = useState("")
+  const [modo, setModo] = useState<ModoVisao>("tabela")
 
   const { data: visitas, isLoading } = useQuery({
     queryKey: ["crm-visitas"],
@@ -54,28 +58,64 @@ export default function VisitasPage() {
             {isLoading ? "Carregando..." : `${filtered.length} visita(s)`}
           </p>
         </div>
-        <Link
-          href="/comercial/crm/visitas/novo"
-          className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors shadow-sm"
-        >
-          <PlusCircle size={16} />
-          Nova Visita
-        </Link>
+        <div className="flex items-center gap-3">
+          <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-0.5 shadow-sm">
+            <button
+              onClick={() => setModo("tabela")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                modo === "tabela"
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+              }`}
+            >
+              <Table size={14} />
+              Tabela
+            </button>
+            <button
+              onClick={() => setModo("calendario")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                modo === "calendario"
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+              }`}
+            >
+              <CalendarDays size={14} />
+              Calendário
+            </button>
+          </div>
+          <Link
+            href="/comercial/crm/visitas/novo"
+            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors shadow-sm"
+          >
+            <PlusCircle size={16} />
+            Nova Visita
+          </Link>
+        </div>
       </div>
 
-      <div className="relative max-w-md">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-        <input
-          type="text"
-          placeholder="Buscar por empresa ou oportunidade..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-      </div>
+      {modo === "tabela" && (
+        <div className="relative max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+          <input
+            type="text"
+            placeholder="Buscar por empresa ou oportunidade..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+      )}
 
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
-        {isLoading ? (
+        {modo === "calendario" ? (
+          isLoading ? (
+            <div className="flex justify-center py-20">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+            </div>
+          ) : (
+            <VisitasCalendario visitas={visitas || []} />
+          )
+        ) : isLoading ? (
           <div className="flex justify-center py-20">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
           </div>
