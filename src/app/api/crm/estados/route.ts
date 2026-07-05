@@ -49,9 +49,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Nome do estado é obrigatório" }, { status: 400 })
     }
 
+    const regiao = String(body.regiao || "").toUpperCase().trim() || null
+
     const [novo] = await db
       .insert(crmEstados)
-      .values({ nome, uf })
+      .values({ nome, uf, regiao })
       .returning()
 
     return NextResponse.json(novo, { status: 201 })

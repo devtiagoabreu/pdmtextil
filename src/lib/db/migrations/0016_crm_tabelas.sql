@@ -258,3 +258,6 @@ COMMENT ON TABLE crm_cidades IS 'Cidades brasileiras usadas nos dropdowns de cid
 
 -- Regioes: muda UF de VARCHAR(2) para VARCHAR(3) (comporta NE, CO etc.)
 ALTER TABLE crm_regioes ALTER COLUMN uf TYPE VARCHAR(3);
+
+-- Estados: coluna regiao (N, NE, CO, SE, S)
+ALTER TABLE crm_estados ADD COLUMN IF NOT EXISTS regiao VARCHAR(3);
