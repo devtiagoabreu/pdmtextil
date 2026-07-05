@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { crmEstados } from "@/lib/db/schema/crm-estados"
+import { crmPaises } from "@/lib/db/schema/crm-paises"
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq, desc } from "drizzle-orm"
 
@@ -22,10 +23,13 @@ export async function GET(req: NextRequest) {
           regiao: crmEstados.regiao,
           gerenteId: crmEstados.gerenteId,
           gerenteNome: usuarios.name,
+          paisId: crmEstados.paisId,
+          paisNome: crmPaises.nome,
           createdAt: crmEstados.createdAt,
         })
         .from(crmEstados)
         .leftJoin(usuarios, eq(crmEstados.gerenteId, usuarios.id))
+        .leftJoin(crmPaises, eq(crmEstados.paisId, crmPaises.id))
         .where(eq(crmEstados.id, Number(id)))
         .limit(1)
       return NextResponse.json(estado || null)
@@ -39,10 +43,13 @@ export async function GET(req: NextRequest) {
         regiao: crmEstados.regiao,
         gerenteId: crmEstados.gerenteId,
         gerenteNome: usuarios.name,
+        paisId: crmEstados.paisId,
+        paisNome: crmPaises.nome,
         createdAt: crmEstados.createdAt,
       })
       .from(crmEstados)
       .leftJoin(usuarios, eq(crmEstados.gerenteId, usuarios.id))
+      .leftJoin(crmPaises, eq(crmEstados.paisId, crmPaises.id))
       .orderBy(crmEstados.nome)
 
     return NextResponse.json(lista)
@@ -69,10 +76,11 @@ export async function POST(req: NextRequest) {
     }
 
     const regiao = String(body.regiao || "").toUpperCase().trim() || null
+    const paisId = body.paisId ? parseInt(body.paisId) : null
 
     const [novo] = await db
       .insert(crmEstados)
-      .values({ nome, uf, regiao })
+      .values({ nome, uf, regiao, paisId })
       .returning()
 
     return NextResponse.json(novo, { status: 201 })

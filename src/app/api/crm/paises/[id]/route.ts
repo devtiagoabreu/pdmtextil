@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
-import { crmEstados } from "@/lib/db/schema/crm-estados"
+import { crmPaises } from "@/lib/db/schema/crm-paises"
 import { eq } from "drizzle-orm"
-import { handleApiError } from "@/lib/api-error"
 
 export async function PUT(
   req: NextRequest,
@@ -18,30 +17,28 @@ export async function PUT(
 
     const [existente] = await db
       .select()
-      .from(crmEstados)
-      .where(eq(crmEstados.id, parseInt(id)))
+      .from(crmPaises)
+      .where(eq(crmPaises.id, parseInt(id)))
       .limit(1)
 
     if (!existente) {
-      return NextResponse.json({ error: "Estado não encontrado" }, { status: 404 })
+      return NextResponse.json({ error: "País não encontrado" }, { status: 404 })
     }
 
     const values: Record<string, any> = {}
-    if (body.nome !== undefined) values.nome = body.nome
-    if (body.uf !== undefined) values.uf = String(body.uf).toUpperCase().trim()
-    if (body.regiao !== undefined) values.regiao = String(body.regiao).toUpperCase().trim() || null
-    if (body.gerenteId !== undefined) values.gerenteId = body.gerenteId || null
-    if (body.paisId !== undefined) values.paisId = body.paisId || null
+    if (body.nome !== undefined) values.nome = String(body.nome).trim()
+    if (body.codigo !== undefined) values.codigo = String(body.codigo).trim()
 
     const [atualizado] = await db
-      .update(crmEstados)
+      .update(crmPaises)
       .set(values)
-      .where(eq(crmEstados.id, parseInt(id)))
+      .where(eq(crmPaises.id, parseInt(id)))
       .returning()
 
     return NextResponse.json(atualizado)
   } catch (error) {
-    return handleApiError(error, "PUT /api/crm/estados/[id]")
+    console.error("[PUT /api/crm/paises/[id]]", error)
+    return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
   }
 }
 
@@ -54,9 +51,10 @@ export async function DELETE(
     if (auth instanceof NextResponse) return auth
 
     const { id } = await params
-    await db.delete(crmEstados).where(eq(crmEstados.id, parseInt(id)))
+    await db.delete(crmPaises).where(eq(crmPaises.id, parseInt(id)))
     return NextResponse.json({ success: true })
   } catch (error) {
-    return handleApiError(error, "DELETE /api/crm/estados/[id]")
+    console.error("[DELETE /api/crm/paises/[id]]", error)
+    return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
   }
 }
