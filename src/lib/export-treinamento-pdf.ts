@@ -140,6 +140,16 @@ class TreinamentoPdfRenderer {
     return h
   }
 
+  private stripMarkdown(text: string): string {
+    return text
+      .replace(/\*\*\*(.+?)\*\*\*/g, "$1")
+      .replace(/\*\*(.+?)\*\*/g, "$1")
+      .replace(/\*(.+?)\*/g, "$1")
+      .replace(/`(.+?)`/g, "$1")
+      .replace(/~~(.+?)~~/g, "$1")
+      .replace(/\[(.+?)\]\(.+?\)/g, "$1")
+  }
+
   private renderInlineText(text: string, x: number, y: number, maxWidth?: number, opts?: {
     fontSize?: number
     bold?: boolean
@@ -156,8 +166,8 @@ class TreinamentoPdfRenderer {
 
     if (opts?.color) this.doc.setTextColor(...opts.color)
 
-    const lines = this.doc.splitTextToSize(stripEmojis(text), w)
-    this.doc.text(lines, x, y)
+    const lines = this.doc.splitTextToSize(stripEmojis(this.stripMarkdown(text)), w)
+    this.doc.text(lines, x, y, { align: "left" })
 
     this.doc.setFont("helvetica", "normal")
     this.doc.setTextColor(0, 0, 0)
@@ -165,115 +175,22 @@ class TreinamentoPdfRenderer {
   }
 
   private renderParagraph(text: string) {
-    if (!text.trim()) return
+    const clean = stripEmojis(this.stripMarkdown(text.trim()))
+    if (!clean) return
 
     const fs = FONT_SIZE_BODY
     const lh = fs * 0.3528 * 1.5
 
-    const parts = this.parseInline(text)
-    const totalHeight = this.measureInlineHeight(parts, fs, this.cw)
-    this.checkPageBreak(totalHeight)
+    const lines = this.doc.splitTextToSize(clean, this.cw)
+    const totalH = lines.length * lh + PARAGRAPH_SPACE
 
-    let cx = MARGIN_LEFT
-    let cy = this.y
-    let currentLine = ""
-    let lineNum = 0
+    this.checkPageBreak(totalH)
 
-    for (const part of parts) {
-      if (part.type === "text") {
-        const words = part.text.split(/(\s+)/)
-        for (const word of words) {
-          const testLine = currentLine ? currentLine + word : word
-          const testW = this.doc.getStringUnitWidth(testLine) * fs * 0.3528
-          if (testW > this.cw && currentLine) {
-            this.renderInlineText(currentLine, cx, cy, this.cw, { fontSize: fs, ...part.opts })
-            cy += lh
-            lineNum++
-            currentLine = word.trim() ? word : ""
-          } else {
-            currentLine = testLine
-          }
-        }
-      } else {
-        if (currentLine) {
-          this.renderInlineText(currentLine, cx, cy, this.cw, { fontSize: fs })
-          cy += lh
-          lineNum++
-          currentLine = ""
-        }
-        this.renderInlineText(part.text, cx, cy, this.cw, { fontSize: fs, ...part.opts })
-        cy += lh
-        lineNum++
-      }
-    }
-    if (currentLine.trim()) {
-      this.renderInlineText(currentLine, cx, cy, this.cw, { fontSize: fs })
-    }
+    this.doc.setFontSize(fs)
+    this.doc.setFont("helvetica", "normal")
+    this.doc.text(lines, MARGIN_LEFT, this.y + lh * 0.75, { align: "left" })
 
-    this.y = cy + PARAGRAPH_SPACE
-  }
-
-  private parseInline(md: string): { type: "text" | "break"; text: string; opts?: any }[] {
-    const parts: { type: "text" | "break"; text: string; opts?: any }[] = []
-
-    const regex = /(\*\*\*(.+?)\*\*\*|\*\*(.+?)\*\*|\*(.+?)\*|`(.+?)`|\[(.+?)\]\((.+?)\))/g
-    let lastIdx = 0
-    let match: RegExpExecArray | null
-
-    while ((match = regex.exec(md)) !== null) {
-      if (match.index > lastIdx) {
-        parts.push({ type: "text", text: stripEmojis(md.slice(lastIdx, match.index)) })
-      }
-
-      if (match[2]) {
-        parts.push({ type: "text", text: stripEmojis(match[2]), opts: { bold: true, italic: true } })
-      } else if (match[3]) {
-        parts.push({ type: "text", text: stripEmojis(match[3]), opts: { bold: true } })
-      } else if (match[4]) {
-        parts.push({ type: "text", text: stripEmojis(match[4]), opts: { italic: true } })
-      } else if (match[5]) {
-        parts.push({ type: "text", text: stripEmojis(match[5]), opts: { fontSize: FONT_SIZE_BODY - 1, color: [0, 0, 200] } })
-      } else if (match[6] && match[7]) {
-        parts.push({ type: "text", text: `${stripEmojis(match[6])} (${stripEmojis(match[7])})`, opts: { fontSize: FONT_SIZE_BODY - 1, color: [0, 0, 200] } })
-      }
-
-      lastIdx = regex.lastIndex
-    }
-
-    if (lastIdx < md.length) {
-      parts.push({ type: "text", text: stripEmojis(md.slice(lastIdx)) })
-    }
-
-    return parts.length > 0 ? parts : [{ type: "text", text: stripEmojis(md) }]
-  }
-
-  private measureInlineHeight(parts: { type: string; text: string; opts?: any }[], fontSize: number, maxWidth: number): number {
-    const lh = fontSize * 0.3528 * 1.5
-    let lines = 1
-    let currentLine = ""
-    for (const part of parts) {
-      if (part.type === "text") {
-        const words = part.text.split(/(\s+)/)
-        for (const word of words) {
-          const testLine = currentLine ? currentLine + word : word
-          const testW = this.doc.getStringUnitWidth(testLine) * fontSize * 0.3528
-          if (testW > maxWidth && currentLine) {
-            lines++
-            currentLine = word.trim() ? word : ""
-          } else {
-            currentLine = testLine
-          }
-        }
-      } else {
-        if (currentLine) {
-          lines++
-          currentLine = ""
-        }
-        lines++
-      }
-    }
-    if (currentLine.trim()) lines++
-    return lines * lh
+    this.y += lines.length * lh + PARAGRAPH_SPACE
   }
 
   private renderHeading(text: string, level: number) {
@@ -304,30 +221,28 @@ class TreinamentoPdfRenderer {
   }
 
   private renderList(items: string[], ordered: boolean) {
-    const cleaned = items.map((item) => stripEmojis(item))
+    const cleaned = items.map((item) => stripEmojis(this.stripMarkdown(item)))
     const fs = FONT_SIZE_BODY
     const lh = fs * 0.3528 * 1.5
     const indent = 6
     let totalH = 0
 
+    const renderedItems: { prefix: string; lines: string[] }[] = []
     for (let i = 0; i < cleaned.length; i++) {
       const prefix = ordered ? `${i + 1}. ` : "- "
-      const lineH = this.measureTextHeight(prefix + cleaned[i], fs, this.cw - indent)
-      totalH += Math.max(lineH, lh) + 2
+      const lines = this.doc.splitTextToSize(prefix + cleaned[i], this.cw - indent)
+      totalH += lines.length * lh + 2
+      renderedItems.push({ prefix, lines })
     }
 
     this.checkPageBreak(totalH)
 
-    for (let i = 0; i < cleaned.length; i++) {
-      const prefix = ordered ? `${i + 1}. ` : "- "
-      const text = prefix + cleaned[i]
-
-      const wordH = this.measureTextHeight(text, fs, this.cw - indent)
-      const h = Math.max(wordH, lh)
-
-      this.checkPageBreak(h)
-
-      this.renderInlineText(text, MARGIN_LEFT + indent, this.y + lh * 0.75, this.cw - indent, { fontSize: fs })
+    for (const item of renderedItems) {
+      const h = item.lines.length * lh
+      this.checkPageBreak(h + 2)
+      this.doc.setFontSize(fs)
+      this.doc.setFont("helvetica", "normal")
+      this.doc.text(item.lines, MARGIN_LEFT + indent, this.y + lh * 0.75, { align: "left" })
       this.y += h + 2
     }
   }
@@ -414,26 +329,26 @@ class TreinamentoPdfRenderer {
     const fs = FONT_SIZE_BODY
     const lh = fs * 0.3528 * 1.5
 
-    const cleanText = stripEmojis(text.replace(/^>\s*/, "").trim())
-    const h = this.measureTextHeight(cleanText, fs, this.cw - 10)
+    const cleanText = stripEmojis(this.stripMarkdown(text.replace(/^>\s*/, "").trim()))
+    const lines = this.doc.splitTextToSize(cleanText, this.cw - 10)
+    const h = lines.length * lh + 6
 
     this.checkPageBreak(h + 6)
 
     this.doc.setFillColor(238, 240, 255)
-    this.doc.rect(MARGIN_LEFT - 2, this.y - 1, this.cw + 4, h + 6, "F")
+    this.doc.rect(MARGIN_LEFT - 2, this.y - 1, this.cw + 4, h, "F")
     this.doc.setDrawColor(99, 102, 241)
     this.doc.setLineWidth(1.2)
-    this.doc.line(MARGIN_LEFT - 2, this.y - 1, MARGIN_LEFT - 2, this.y + h + 5)
+    this.doc.line(MARGIN_LEFT - 2, this.y - 1, MARGIN_LEFT - 2, this.y + h)
 
     this.doc.setTextColor(80, 80, 90)
     this.doc.setFont("helvetica", "italic")
     this.doc.setFontSize(fs)
-    const lines = this.doc.splitTextToSize(cleanText, this.cw - 10)
-    this.doc.text(lines, MARGIN_LEFT + 3, this.y + lh * 0.75)
+    this.doc.text(lines, MARGIN_LEFT + 3, this.y + lh * 0.75, { align: "left" })
 
     this.doc.setTextColor(0, 0, 0)
     this.doc.setFont("helvetica", "normal")
-    this.y += h + 8
+    this.y += h + 6
   }
 
   private renderImage(alt: string, url: string) {
