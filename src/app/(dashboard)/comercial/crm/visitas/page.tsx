@@ -6,9 +6,10 @@ import { getInfoContent } from "@/lib/info-content"
 import Link from "next/link"
 import { useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
-import { PlusCircle, CalendarDays, Table, Search } from "lucide-react"
+import { PlusCircle, CalendarDays, Table, Columns, Search } from "lucide-react"
 import { useStatuses } from "@/hooks/use-statuses"
 import VisitasCalendario from "@/components/crm/visitas-calendario"
+import VisitasKanban from "@/components/crm/visitas-kanban"
 
 async function fetchVisitas() {
   const res = await fetch("/api/crm/visitas")
@@ -28,7 +29,7 @@ const TIPO_CORES: Record<string, string> = {
   TELEFONE: "text-emerald-600 bg-emerald-50 dark:bg-emerald-950/50 dark:text-emerald-400",
 }
 
-type ModoVisao = "tabela" | "calendario"
+type ModoVisao = "tabela" | "calendario" | "kanban"
 
 export default function VisitasPage() {
   const router = useRouter()
@@ -82,6 +83,17 @@ export default function VisitasPage() {
               <CalendarDays size={14} />
               Calendário
             </button>
+            <button
+              onClick={() => setModo("kanban")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                modo === "kanban"
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+              }`}
+            >
+              <Columns size={14} />
+              Kanban
+            </button>
           </div>
           <Link
             href="/comercial/crm/visitas/novo"
@@ -114,6 +126,14 @@ export default function VisitasPage() {
             </div>
           ) : (
             <VisitasCalendario visitas={visitas || []} />
+          )
+        ) : modo === "kanban" ? (
+          isLoading ? (
+            <div className="flex justify-center py-20">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+            </div>
+          ) : (
+            <VisitasKanban visitas={visitas || []} />
           )
         ) : isLoading ? (
           <div className="flex justify-center py-20">

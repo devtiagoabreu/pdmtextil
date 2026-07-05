@@ -179,8 +179,9 @@ export const crmContent: Record<string, InfoContent> = {
       "Visitas FUTURAS aparecem destacadas — são compromissos agendados.",
       "O status da visita muda automaticamente com base na data.",
       "É possível registrar fotos da visita no detalhe.",
-      "Alterne entre as visões Tabela e Calendário para visualizar os agendamentos por mês.",
+      "Alterne entre as visões Tabela, Calendário e Kanban.",
       "No calendário, clique em um dia para ver as visitas daquele dia. Clique em uma visita para ir ao detalhe.",
+      "No Kanban, arraste os cards entre colunas para alterar o status da visita.",
     ],
     fields: [
       { name: "Empresa", desc: "Empresa visitada" },
