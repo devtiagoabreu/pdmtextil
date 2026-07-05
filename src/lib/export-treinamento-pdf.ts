@@ -543,7 +543,7 @@ class TreinamentoPdfRenderer {
       `Total: ${modulosCount} modulos, ${licoesCount} licoes.`,
       "",
       "Conteudo didatico desenvolvido para capacitacao",
-      "da equipe comercial da PDM Textil.",
+      "da equipe comercial da Pro Moda Textil.",
     ]
 
     let ty = 120
@@ -562,7 +562,7 @@ class TreinamentoPdfRenderer {
     this.doc.setFont("helvetica", "italic")
     this.doc.text("CRM não é sobre tecnologia, é sobre pessoas.", this.pw / 2, ty, { align: "center" })
     this.doc.text("Pessoas atendendo melhor outras pessoas.", this.pw / 2, ty + 6, { align: "center" })
-    this.doc.text("— O Desenvolvedor", this.pw / 2, ty + 12, { align: "center" })
+    this.doc.text("— ", this.pw / 2, ty + 12, { align: "center" })
 
     this.doc.setTextColor(0, 0, 0)
     this.doc.setFont("helvetica", "normal")
