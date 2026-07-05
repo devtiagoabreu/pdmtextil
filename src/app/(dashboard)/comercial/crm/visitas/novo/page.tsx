@@ -54,12 +54,12 @@ export default function NovaVisitaPage() {
   useEffect(() => {
     async function load() {
       try {
-        const [empresasRes, oportunidadesRes] = await Promise.all([
+        const [empresasRes, oportunidadesRes] = await Promise.allSettled([
           fetch("/api/crm/empresas").then(r => r.json()),
           fetch("/api/crm/oportunidades").then(r => r.json()),
         ])
-        if (Array.isArray(empresasRes)) setEmpresas(empresasRes)
-        if (Array.isArray(oportunidadesRes)) setOportunidades(oportunidadesRes)
+        if (empresasRes.status === "fulfilled" && Array.isArray(empresasRes.value)) setEmpresas(empresasRes.value)
+        if (oportunidadesRes.status === "fulfilled" && Array.isArray(oportunidadesRes.value)) setOportunidades(oportunidadesRes.value)
       } catch {
         toast.error("Erro ao carregar dados")
       }
