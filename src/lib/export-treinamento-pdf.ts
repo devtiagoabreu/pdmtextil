@@ -250,9 +250,10 @@ class TreinamentoPdfRenderer {
   private renderTable(mdLines: string[]) {
     if (mdLines.length < 2) return
 
-    const headerCells = mdLines[0].split("|").filter(Boolean).map((s) => stripEmojis(s.trim()))
+    const clean = (s: string) => stripEmojis(this.stripMarkdown(s.trim()))
+    const headerCells = mdLines[0].split("|").filter(Boolean).map(clean)
     const dataRows = mdLines.slice(2).map((line) =>
-      line.split("|").filter(Boolean).map((s) => stripEmojis(s.trim()))
+      line.split("|").filter(Boolean).map(clean)
     )
 
     if (headerCells.length === 0) return
@@ -298,7 +299,7 @@ class TreinamentoPdfRenderer {
   private renderCodeBlock(code: string) {
     const fs = 8
     const lh = fs * 0.3528 * 1.4
-    const lines = code.split("\n")
+    const lines = stripEmojis(code).split("\n")
     const h = lines.length * lh + 8
 
     this.checkPageBreak(h + 4)
