@@ -51,14 +51,12 @@ export function QuickCreateLead({ onCreated }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <button
-          type="button"
-          className="p-1 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 rounded transition-colors"
-          title="Cadastrar novo lead"
-        >
-          <Plus size={14} />
-        </button>
+      <DialogTrigger
+        type="button"
+        className="p-1 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 rounded transition-colors"
+        title="Cadastrar novo lead"
+      >
+        <Plus size={14} />
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
@@ -102,13 +100,11 @@ export function QuickCreateLead({ onCreated }: Props) {
             </select>
           </div>
           <div className="flex justify-end gap-2 pt-2">
-            <DialogClose asChild>
-              <button
-                type="button"
-                className="px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-              >
-                Cancelar
-              </button>
+            <DialogClose
+              type="button"
+              className="px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+            >
+              Cancelar
             </DialogClose>
             <button
               type="submit"
