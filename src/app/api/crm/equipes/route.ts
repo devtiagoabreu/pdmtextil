@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { crmEquipes } from "@/lib/db/schema/crm-equipes"
+import { crmEquipeMembros } from "@/lib/db/schema/crm-equipe-membros"
 import { crmRegioes } from "@/lib/db/schema/crm-regioes"
 import { usuarios } from "@/lib/db/schema/usuarios"
-import { eq, desc } from "drizzle-orm"
+import { eq, desc, sql } from "drizzle-orm"
 import { registrarLog } from "@/lib/notificar"
 
 export async function GET(req: NextRequest) {
@@ -29,6 +30,7 @@ export async function GET(req: NextRequest) {
         responsavelNome: usuarios.name,
         ativo: crmEquipes.ativo,
         createdAt: crmEquipes.createdAt,
+        membrosCount: sql<number>`(SELECT count(*) FROM ${crmEquipeMembros} WHERE ${crmEquipeMembros.equipeId} = ${crmEquipes.id})`,
       })
       .from(crmEquipes)
       .leftJoin(crmRegioes, eq(crmEquipes.regiaoId, crmRegioes.id))

@@ -176,6 +176,14 @@ export async function POST(req: NextRequest) {
           ALTER TABLE crm_estados ADD COLUMN gerente_id INTEGER REFERENCES usuarios(id);
         END IF;
       END $$`,
+      // crm_equipe_membros table
+      `CREATE TABLE IF NOT EXISTS crm_equipe_membros (
+        id SERIAL PRIMARY KEY,
+        equipe_id INTEGER NOT NULL REFERENCES crm_equipes(id) ON DELETE CASCADE,
+        representante_id INTEGER NOT NULL REFERENCES representantes(id) ON DELETE CASCADE,
+        created_at TIMESTAMP DEFAULT NOW(),
+        UNIQUE(equipe_id, representante_id)
+      )`,
       // representantes table
       `CREATE TABLE IF NOT EXISTS representantes (
         id SERIAL PRIMARY KEY,

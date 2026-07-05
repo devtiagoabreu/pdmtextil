@@ -308,17 +308,19 @@ export const crmContent: Record<string, InfoContent> = {
   // ==================== EQUIPES ====================
   "/comercial/crm/equipes": {
     title: "Equipes",
-    description: "Cadastro de equipes comerciais. Cada equipe pertence a uma região e tem um responsável. Organize a hierarquia comercial da empresa.",
+    description: "Cadastro de equipes comerciais. Crie equipes com ou sem região definida e adicione representantes de qualquer estado/região.",
     rules: [
-      "Cada equipe está vinculada a uma região.",
-      "O responsável pela equipe é o líder/coordenador.",
+      "A região é opcional — a equipe pode ter representantes de qualquer localidade.",
+      "Clique em uma equipe para gerenciar seus membros.",
+      "Adicione representantes buscando por nome ou CNPJ.",
       "Apenas ADMIN/SUDO podem excluir equipes.",
       "Equipes ativas aparecem na distribuição de leads e relatórios.",
     ],
     fields: [
       { name: "Nome", desc: "Nome da equipe comercial" },
-      { name: "Região", desc: "Região geográfica da equipe" },
+      { name: "Região", desc: "Região geográfica (opcional)" },
       { name: "Responsável", desc: "Líder/coordenador da equipe" },
+      { name: "Membros", desc: "Representantes que compõem a equipe" },
     ],
   },
 
