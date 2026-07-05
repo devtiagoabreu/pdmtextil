@@ -30,6 +30,7 @@ export async function PUT(
     if (body.nome !== undefined) values.nome = body.nome
     if (body.uf !== undefined) values.uf = String(body.uf).toUpperCase().trim()
     if (body.regiao !== undefined) values.regiao = String(body.regiao).toUpperCase().trim() || null
+    if (body.gerenteId !== undefined) values.gerenteId = body.gerenteId || null
 
     const [atualizado] = await db
       .update(crmEstados)

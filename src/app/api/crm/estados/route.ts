@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { crmEstados } from "@/lib/db/schema/crm-estados"
+import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq, desc } from "drizzle-orm"
 
 export async function GET(req: NextRequest) {
@@ -14,16 +15,34 @@ export async function GET(req: NextRequest) {
 
     if (id) {
       const [estado] = await db
-        .select()
+        .select({
+          id: crmEstados.id,
+          nome: crmEstados.nome,
+          uf: crmEstados.uf,
+          regiao: crmEstados.regiao,
+          gerenteId: crmEstados.gerenteId,
+          gerenteNome: usuarios.name,
+          createdAt: crmEstados.createdAt,
+        })
         .from(crmEstados)
+        .leftJoin(usuarios, eq(crmEstados.gerenteId, usuarios.id))
         .where(eq(crmEstados.id, Number(id)))
         .limit(1)
       return NextResponse.json(estado || null)
     }
 
     const lista = await db
-      .select()
+      .select({
+        id: crmEstados.id,
+        nome: crmEstados.nome,
+        uf: crmEstados.uf,
+        regiao: crmEstados.regiao,
+        gerenteId: crmEstados.gerenteId,
+        gerenteNome: usuarios.name,
+        createdAt: crmEstados.createdAt,
+      })
       .from(crmEstados)
+      .leftJoin(usuarios, eq(crmEstados.gerenteId, usuarios.id))
       .orderBy(crmEstados.nome)
 
     return NextResponse.json(lista)

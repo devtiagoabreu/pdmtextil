@@ -11,11 +11,18 @@ import { REGIAO_LABELS } from "@/lib/db/schema/crm-regioes"
 
 const REGIAO_SIGLAS = ["N", "NE", "CO", "SE", "S"]
 
-type Estado = { id: number; nome: string; uf: string; regiao: string | null }
+type Estado = { id: number; nome: string; uf: string; regiao: string | null; gerenteId: number | null; gerenteNome: string | null }
+type Usuario = { id: number; name: string }
 
 async function fetchEstados() {
   const res = await fetch("/api/crm/estados")
   if (!res.ok) throw new Error("Falha ao carregar")
+  return res.json()
+}
+
+async function fetchUsuarios() {
+  const res = await fetch("/api/usuarios/ativos")
+  if (!res.ok) throw new Error("Falha ao carregar usuários")
   return res.json()
 }
 
@@ -26,18 +33,27 @@ export default function EstadosConfigPage() {
   const [busca, setBusca] = useState("")
   const [editId, setEditId] = useState<number | null>(null)
   const [editRegiao, setEditRegiao] = useState("")
+  const [editGerenteId, setEditGerenteId] = useState("")
 
   const { data: estados, isLoading } = useQuery({
     queryKey: ["crm-estados"],
     queryFn: fetchEstados,
   })
 
+  const { data: usuarios } = useQuery({
+    queryKey: ["usuarios-ativos"],
+    queryFn: fetchUsuarios,
+  })
+
   const saveMutation = useMutation({
-    mutationFn: async ({ id, regiao }: { id: number; regiao: string }) => {
+    mutationFn: async ({ id, regiao, gerenteId }: { id: number; regiao: string; gerenteId: string }) => {
       const res = await fetch(`/api/crm/estados/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ regiao: regiao || null }),
+        body: JSON.stringify({
+          regiao: regiao || null,
+          gerenteId: gerenteId ? parseInt(gerenteId) : null,
+        }),
       })
       if (!res.ok) throw new Error("Falha ao salvar")
       return res.json()
@@ -51,6 +67,7 @@ export default function EstadosConfigPage() {
   function startEdit(estado: Estado) {
     setEditId(estado.id)
     setEditRegiao(estado.regiao || "")
+    setEditGerenteId(estado.gerenteId ? String(estado.gerenteId) : "")
   }
 
   const filtrados = (estados || []).filter((e: Estado) =>
@@ -58,6 +75,11 @@ export default function EstadosConfigPage() {
   )
 
   const getRegiaoLabel = (sigla: string | null) => sigla ? (REGIAO_LABELS[sigla] || sigla) : "—"
+  const getGerenteNome = (id: number | null) => {
+    if (!id) return null
+    const u = (usuarios || []).find((u: Usuario) => u.id === id)
+    return u?.name || null
+  }
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -104,6 +126,7 @@ export default function EstadosConfigPage() {
                   <th className="text-left px-4 py-3 font-medium text-slate-500 text-xs uppercase">UF</th>
                   <th className="text-left px-4 py-3 font-medium text-slate-500 text-xs uppercase">Nome</th>
                   <th className="text-left px-4 py-3 font-medium text-slate-500 text-xs uppercase">Região</th>
+                  <th className="text-left px-4 py-3 font-medium text-slate-500 text-xs uppercase">Gerente</th>
                   <th className="w-20 px-4 py-3" />
                 </tr>
               </thead>
@@ -114,20 +137,41 @@ export default function EstadosConfigPage() {
                     <td className="px-4 py-3 text-slate-700 dark:text-slate-300">{e.nome}</td>
                     <td className="px-4 py-3">
                       {editId === e.id ? (
+                        <select
+                          value={editRegiao}
+                          onChange={(e) => setEditRegiao(e.target.value)}
+                          className="w-full px-2 py-1 text-sm rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+                        >
+                          <option value="">Selecione...</option>
+                          {REGIAO_SIGLAS.map(s => (
+                            <option key={s} value={s}>{s} — {REGIAO_LABELS[s]}</option>
+                          ))}
+                        </select>
+                      ) : (
+                        <span className="text-slate-700 dark:text-slate-300">{getRegiaoLabel(e.regiao)}</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
+                      {editId === e.id ? (
+                        <select
+                          value={editGerenteId}
+                          onChange={(e) => setEditGerenteId(e.target.value)}
+                          className="w-full px-2 py-1 text-sm rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+                        >
+                          <option value="">Sem gerente</option>
+                          {(usuarios || []).map((u: Usuario) => (
+                            <option key={u.id} value={u.id}>{u.name}</option>
+                          ))}
+                        </select>
+                      ) : (
+                        <span className="text-slate-700 dark:text-slate-300">{getGerenteNome(e.gerenteId) || "—"}</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      {editId === e.id ? (
                         <div className="flex items-center gap-1">
-                          <select
-                            value={editRegiao}
-                            onChange={(e) => setEditRegiao(e.target.value)}
-                            className="w-full px-2 py-1 text-sm rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
-                            autoFocus
-                          >
-                            <option value="">Selecione...</option>
-                            {REGIAO_SIGLAS.map(s => (
-                              <option key={s} value={s}>{s} — {REGIAO_LABELS[s]}</option>
-                            ))}
-                          </select>
                           <button
-                            onClick={() => saveMutation.mutate({ id: e.id, regiao: editRegiao })}
+                            onClick={() => saveMutation.mutate({ id: e.id, regiao: editRegiao, gerenteId: editGerenteId })}
                             disabled={saveMutation.isPending}
                             className="p-1 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 rounded"
                           >
@@ -141,11 +185,6 @@ export default function EstadosConfigPage() {
                           </button>
                         </div>
                       ) : (
-                        <span className="text-slate-700 dark:text-slate-300">{getRegiaoLabel(e.regiao)}</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      {editId !== e.id && (
                         <button onClick={() => startEdit(e)} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
                           <Pencil size={14} />
                         </button>
