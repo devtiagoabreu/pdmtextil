@@ -26,9 +26,18 @@ export default function RegioesPage() {
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
   const [nome, setNome] = useState("")
-  const [uf, setUf] = useState("")
+  const [sigla, setSigla] = useState("")
   const [gerenteId, setGerenteId] = useState("")
   const [busca, setBusca] = useState("")
+
+  const REGIAO_SIGLAS = ["N", "NE", "CO", "SE", "S"]
+  const REGIAO_LABELS: Record<string, string> = {
+    N: "Norte",
+    NE: "Nordeste",
+    CO: "Centro-Oeste",
+    SE: "Sudeste",
+    S: "Sul",
+  }
 
   const { data: regioes, isLoading } = useQuery({
     queryKey: ["crm-regioes"],
@@ -44,7 +53,7 @@ export default function RegioesPage() {
 
   const saveMutation = useMutation({
     mutationFn: async () => {
-      const payload = { nome, uf: uf || null, gerenteId: gerenteId ? parseInt(gerenteId) : null }
+      const payload = { nome, uf: sigla || null, gerenteId: gerenteId ? parseInt(gerenteId) : null }
       if (editingId) {
         const res = await fetch(`/api/crm/regioes/${editingId}`, {
           method: "PUT",
@@ -82,20 +91,20 @@ export default function RegioesPage() {
     setShowForm(false)
     setEditingId(null)
     setNome("")
-    setUf("")
+    setSigla("")
     setGerenteId("")
   }
 
   function startEdit(r: any) {
     setEditingId(r.id)
     setNome(r.nome)
-    setUf(r.uf || "")
+    setSigla(r.uf || "")
     setGerenteId(r.gerenteId ? String(r.gerenteId) : "")
     setShowForm(true)
   }
 
   const filtradas = regioes?.filter((r: any) =>
-    !busca || r.nome.toLowerCase().includes(busca.toLowerCase()) || (r.uf || "").toLowerCase().includes(busca.toLowerCase())
+    !busca || r.nome.toLowerCase().includes(busca.toLowerCase()) || (r.uf || "").toLowerCase().includes(busca.toLowerCase()) || (REGIAO_LABELS[r.uf] || "").toLowerCase().includes(busca.toLowerCase())
   )
 
   return (
@@ -144,15 +153,17 @@ export default function RegioesPage() {
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">UF</label>
-              <input
-                type="text"
-                value={uf}
-                onChange={(e) => setUf(e.target.value.toUpperCase())}
-                maxLength={2}
+              <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Sigla</label>
+              <select
+                value={sigla}
+                onChange={(e) => setSigla(e.target.value)}
                 className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
-                placeholder="Ex: SP"
-              />
+              >
+                <option value="">Selecione...</option>
+                {REGIAO_SIGLAS.map(s => (
+                  <option key={s} value={s}>{s} — {REGIAO_LABELS[s]}</option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Gerente</label>
@@ -210,7 +221,7 @@ export default function RegioesPage() {
                   <div>
                     <p className="text-sm font-medium text-slate-900 dark:text-slate-200">{r.nome}</p>
                     <p className="text-xs text-slate-500 dark:text-slate-400">
-                      {r.uf && `${r.uf} — `}{r.gerenteNome || "Sem gerente"}
+                      {r.uf ? `${REGIAO_LABELS[r.uf] || r.uf} — ` : ""}{r.gerenteNome || "Sem gerente"}
                     </p>
                   </div>
                 </div>

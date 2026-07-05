@@ -255,3 +255,6 @@ CREATE TABLE IF NOT EXISTS crm_cidades (
   UNIQUE (nome, estado_id)
 );
 COMMENT ON TABLE crm_cidades IS 'Cidades brasileiras usadas nos dropdowns de cidade do CRM';
+
+-- Regioes: muda UF de VARCHAR(2) para VARCHAR(3) (comporta NE, CO etc.)
+ALTER TABLE crm_regioes ALTER COLUMN uf TYPE VARCHAR(3);
