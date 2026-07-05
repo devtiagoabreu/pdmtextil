@@ -10,6 +10,8 @@ import { toast } from "sonner"
 import { QuickCreateEmpresa } from "@/components/crm/quick-create-empresa"
 import { QuickCreateContato } from "@/components/crm/quick-create-contato"
 import { QuickCreateOportunidade } from "@/components/crm/quick-create-oportunidade"
+import { SelectUf } from "@/components/crm/select-uf"
+import { SelectCidade } from "@/components/crm/select-cidade"
 
 const TIPO_OPTIONS = [
   { value: "PRESENCIAL", label: "Presencial" },
@@ -27,6 +29,8 @@ export default function NovaVisitaPage() {
   const [saving, setSaving] = useState(false)
   const [fotoInputs, setFotoInputs] = useState<string[]>([""])
   const [empresaEndereco, setEmpresaEndereco] = useState<any>({})
+  const [estadoId, setEstadoId] = useState<number | null>(null)
+  const [estados, setEstados] = useState<{ id: number; uf: string }[]>([])
   const [form, setForm] = useState({
     empresaId: "",
     oportunidadeId: "",
@@ -67,6 +71,19 @@ export default function NovaVisitaPage() {
     loadContatos(form.empresaId)
     loadEmpresaEndereco(form.empresaId)
   }, [form.empresaId])
+
+  useEffect(() => {
+    fetch("/api/crm/estados").then(r => r.json()).then(setEstados).catch(() => {})
+  }, [])
+
+  useEffect(() => {
+    if (form.uf) {
+      const found = estados.find(e => e.uf === form.uf)
+      setEstadoId(found ? found.id : null)
+    } else {
+      setEstadoId(null)
+    }
+  }, [form.uf, estados])
 
   async function loadEmpresas() {
     try {
@@ -343,23 +360,12 @@ export default function NovaVisitaPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Cidade</label>
-              <input
-                type="text"
-                value={form.cidade}
-                onChange={e => setField("cidade", e.target.value)}
-                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">UF</label>
+              <SelectUf value={form.uf} onChange={v => setField("uf", v)} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">UF</label>
-              <input
-                type="text"
-                value={form.uf}
-                onChange={e => setField("uf", e.target.value)}
-                maxLength={2}
-                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Cidade</label>
+              <SelectCidade value={form.cidade} onChange={v => setField("cidade", v)} estadoId={estadoId} />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">CEP</label>

@@ -1,12 +1,14 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft, Save } from "lucide-react"
 import { toast } from "sonner"
+import { SelectUf } from "@/components/crm/select-uf"
+import { SelectCidade } from "@/components/crm/select-cidade"
 
 export default function NovaEmpresaPage() {
   const router = useRouter()
@@ -29,6 +31,26 @@ export default function NovaEmpresaPage() {
     observacoes: "",
   })
   const [saving, setSaving] = useState(false)
+  const [estadoId, setEstadoId] = useState<number | null>(null)
+  const [estados, setEstados] = useState<{ id: number; uf: string }[]>([])
+
+  const fetchEstados = useCallback(async () => {
+    try {
+      const res = await fetch("/api/crm/estados")
+      if (res.ok) setEstados(await res.json())
+    } catch {}
+  }, [])
+
+  useEffect(() => { fetchEstados() }, [fetchEstados])
+
+  useEffect(() => {
+    if (form.uf) {
+      const found = estados.find(e => e.uf === form.uf)
+      setEstadoId(found ? found.id : null)
+    } else {
+      setEstadoId(null)
+    }
+  }, [form.uf, estados])
 
   function setField(field: string, value: string) {
     setForm(prev => ({ ...prev, [field]: value }))
@@ -179,23 +201,12 @@ export default function NovaEmpresaPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Cidade</label>
-            <input
-              type="text"
-              value={form.cidade}
-              onChange={e => setField("cidade", e.target.value)}
-              className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">UF</label>
+            <SelectUf value={form.uf} onChange={v => setField("uf", v)} />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">UF</label>
-            <input
-              type="text"
-              value={form.uf}
-              onChange={e => setField("uf", e.target.value)}
-              maxLength={2}
-              className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Cidade</label>
+            <SelectCidade value={form.cidade} onChange={v => setField("cidade", v)} estadoId={estadoId} />
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">CEP</label>

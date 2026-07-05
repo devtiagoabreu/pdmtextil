@@ -10,6 +10,8 @@ import { Label } from "@/components/ui/label"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
+import { SelectUf } from "@/components/crm/select-uf"
+import { SelectCidade } from "@/components/crm/select-cidade"
 
 interface Empresa {
   id: number
@@ -42,6 +44,8 @@ export default function EmpresaPage() {
   const [email, setEmail] = useState("")
   const [logoUrl, setLogoUrl] = useState("")
   const [isDefault, setIsDefault] = useState(false)
+  const [estadoId, setEstadoId] = useState<number | null>(null)
+  const [estados, setEstados] = useState<{ id: number; uf: string }[]>([])
 
   useEffect(() => {
     fetch("/api/admin/config/empresa")
@@ -50,6 +54,19 @@ export default function EmpresaPage() {
       .catch(() => toast.error("Erro ao carregar empresas"))
       .finally(() => setLoading(false))
   }, [])
+
+  useEffect(() => {
+    fetch("/api/crm/estados").then(r => r.json()).then(setEstados).catch(() => {})
+  }, [])
+
+  useEffect(() => {
+    if (uf) {
+      const found = estados.find(e => e.uf === uf)
+      setEstadoId(found ? found.id : null)
+    } else {
+      setEstadoId(null)
+    }
+  }, [uf, estados])
 
   function resetForm() {
     setNome(""); setDocumento(""); setEndereco(""); setCidade(""); setUf("")
@@ -163,8 +180,8 @@ export default function EmpresaPage() {
             <div className="space-y-2"><Label>Nome *</Label><Input value={nome} onChange={e => setNome(e.target.value)} /></div>
             <div className="space-y-2"><Label>CNPJ</Label><Input value={documento} onChange={e => setDocumento(e.target.value)} /></div>
             <div className="space-y-2"><Label>Endereço</Label><Input value={endereco} onChange={e => setEndereco(e.target.value)} /></div>
-            <div className="space-y-2"><Label>Cidade</Label><Input value={cidade} onChange={e => setCidade(e.target.value)} /></div>
-            <div className="space-y-2"><Label>UF</Label><Input value={uf} onChange={e => setUf(e.target.value)} maxLength={2} /></div>
+            <div className="space-y-2"><Label>UF</Label><SelectUf value={uf} onChange={setUf} className="w-full" /></div>
+            <div className="space-y-2"><Label>Cidade</Label><SelectCidade value={cidade} onChange={setCidade} estadoId={estadoId} className="w-full" /></div>
             <div className="space-y-2"><Label>Telefone</Label><Input value={telefone} onChange={e => setTelefone(e.target.value)} /></div>
             <div className="space-y-2"><Label>Email</Label><Input value={email} onChange={e => setEmail(e.target.value)} type="email" /></div>
             <div className="space-y-2"><Label>Logo URL</Label><Input value={logoUrl} onChange={e => setLogoUrl(e.target.value)} placeholder="https://drive.google.com/..." /></div>
