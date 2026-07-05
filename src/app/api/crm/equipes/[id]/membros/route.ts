@@ -3,7 +3,7 @@ import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { crmEquipeMembros } from "@/lib/db/schema/crm-equipe-membros"
 import { representantes } from "@/lib/db/schema/representantes"
-import { eq, desc } from "drizzle-orm"
+import { eq, and, desc } from "drizzle-orm"
 
 export async function GET(
   req: NextRequest,
@@ -59,8 +59,7 @@ export async function POST(
     const [existente] = await db
       .select()
       .from(crmEquipeMembros)
-      .where(eq(crmEquipeMembros.equipeId, parseInt(id)))
-      .where(eq(crmEquipeMembros.representanteId, representanteId))
+      .where(and(eq(crmEquipeMembros.equipeId, parseInt(id)), eq(crmEquipeMembros.representanteId, representanteId)))
       .limit(1)
 
     if (existente) {
@@ -97,14 +96,12 @@ export async function DELETE(
     if (membroId) {
       await db
         .delete(crmEquipeMembros)
-        .where(eq(crmEquipeMembros.id, parseInt(membroId)))
-        .where(eq(crmEquipeMembros.equipeId, parseInt(id)))
+        .where(and(eq(crmEquipeMembros.id, parseInt(membroId)), eq(crmEquipeMembros.equipeId, parseInt(id))))
     } else {
       const body = await req.json()
       await db
         .delete(crmEquipeMembros)
-        .where(eq(crmEquipeMembros.equipeId, parseInt(id)))
-        .where(eq(crmEquipeMembros.representanteId, body.representanteId))
+        .where(and(eq(crmEquipeMembros.equipeId, parseInt(id)), eq(crmEquipeMembros.representanteId, body.representanteId)))
     }
 
     return NextResponse.json({ success: true })
