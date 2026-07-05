@@ -33,6 +33,20 @@ export const clienteSchema = z.object({
   idIntegracao: idIntegracaoSchema,
 })
 
+export const representanteSchema = z.object({
+  nome: z.string().trim().min(1, "Nome é obrigatório"),
+  cnpj: z.string().trim().min(1, "CNPJ é obrigatório"),
+  razaoSocial: z.string().trim().optional().nullable(),
+  email: z.string().trim().email("Email inválido").optional().nullable().or(z.literal("")),
+  telefone: z.string().trim().max(20).optional().nullable(),
+  contato: z.string().trim().max(100).optional().nullable(),
+  endereco: z.string().trim().max(300).optional().nullable(),
+  cidade: z.string().trim().max(100).optional().nullable(),
+  uf: z.string().trim().length(2, "UF deve ter 2 caracteres").optional().nullable(),
+  gerenteId: z.number().int().positive().optional().nullable(),
+  idIntegracao: idIntegracaoSchema,
+})
+
 export const produtoCruSchema = z.object({
   codigoPdm: z.string().trim().min(1, "Código PDM é obrigatório").max(30),
   descricao: z.string().trim().min(1, "Descrição é obrigatória").max(500),

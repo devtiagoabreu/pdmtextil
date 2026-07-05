@@ -451,6 +451,61 @@ export const crmContent: Record<string, InfoContent> = {
     ],
   },
 
+  // ==================== REPRESENTANTES ====================
+  "/comercial/representantes": {
+    title: "Representantes",
+    description: "Cadastro de representantes comerciais. Cada representante possui endereço e está vinculado a uma região através do gerente responsável pelo seu estado.",
+    rules: [
+      "O CNPJ é único e obrigatório para cada representante.",
+      "O gerente responsável é definido automaticamente com base no estado/região onde o representante atua.",
+      "Representantes inativos não aparecem nos filtros de seleção do CRM.",
+    ],
+    fields: [
+      { name: "Nome", desc: "Nome fantasia do representante" },
+      { name: "CNPJ", desc: "CNPJ do representante (único)" },
+      { name: "Razão Social", desc: "Razão social completa" },
+      { name: "Email", desc: "Email de contato" },
+      { name: "Telefone", desc: "Telefone de contato" },
+      { name: "Contato", desc: "Nome da pessoa de contato" },
+      { name: "Endereço", desc: "Endereço completo" },
+      { name: "Cidade", desc: "Cidade onde está localizado" },
+      { name: "UF", desc: "Estado onde está localizado" },
+      { name: "Gerente", desc: "Gerente comercial responsável pelo representante" },
+    ],
+  },
+  "/comercial/representantes/novo": {
+    title: "Novo Representante",
+    description: "Preencha os dados para cadastrar um novo representante comercial no sistema.",
+    fields: [
+      { name: "Nome", desc: "Nome fantasia do representante (obrigatório)" },
+      { name: "CNPJ", desc: "CNPJ do representante (obrigatório, único)" },
+      { name: "Razão Social", desc: "Razão social completa" },
+      { name: "Contato", desc: "Nome da pessoa de contato" },
+      { name: "Email", desc: "Email de contato" },
+      { name: "Telefone", desc: "Telefone de contato" },
+      { name: "Endereço", desc: "Endereço completo" },
+      { name: "Cidade", desc: "Cidade onde está localizado" },
+      { name: "UF", desc: "Estado onde está localizado" },
+      { name: "Gerente", desc: "ID do usuário gerente responsável pelo representante" },
+    ],
+  },
+  "/comercial/representantes/[id]": {
+    title: "Editar Representante",
+    description: "Edite os dados cadastrais do representante comercial.",
+    fields: [
+      { name: "Nome", desc: "Nome fantasia do representante" },
+      { name: "CNPJ", desc: "CNPJ do representante" },
+      { name: "Razão Social", desc: "Razão social completa" },
+      { name: "Email", desc: "Email de contato" },
+      { name: "Telefone", desc: "Telefone de contato" },
+      { name: "Contato", desc: "Nome da pessoa de contato" },
+      { name: "Endereço", desc: "Endereço completo" },
+      { name: "Cidade", desc: "Cidade onde está localizado" },
+      { name: "UF", desc: "Estado onde está localizado" },
+      { name: "Gerente", desc: "ID do usuário gerente responsável" },
+    ],
+  },
+
   // ==================== CIDADES (CONFIG) ====================
   "/comercial/crm/configuracoes/cidades": {
     title: "Cidades",
