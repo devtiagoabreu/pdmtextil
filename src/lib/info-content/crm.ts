@@ -432,4 +432,38 @@ export const crmContent: Record<string, InfoContent> = {
       { name: "Links Vídeos", desc: "Links para vídeos tutoriais explicativos" },
     ],
   },
+
+  // ==================== ESTADOS (CONFIG) ====================
+  "/comercial/crm/configuracoes/estados": {
+    title: "Estados (UF)",
+    description: "Consulta e edição dos estados cadastrados. A coluna Região define a região geográfica de cada estado para fins de organização comercial.",
+    rules: [
+      "Os estados são carregados automaticamente da base do IBGE.",
+      "Você pode alterar a região de cada estado manualmente.",
+      "As regiões disponíveis são: N (Norte), NE (Nordeste), CO (Centro-Oeste), SE (Sudeste), S (Sul).",
+      "A região do estado influencia filtros e relatórios regionais.",
+    ],
+    fields: [
+      { name: "UF", desc: "Sigla de 2 caracteres do estado" },
+      { name: "Nome", desc: "Nome completo do estado" },
+      { name: "Região", desc: "Região geográfica atribuída ao estado" },
+    ],
+  },
+
+  // ==================== CIDADES (CONFIG) ====================
+  "/comercial/crm/configuracoes/cidades": {
+    title: "Cidades",
+    description: "Consulta de todas as cidades cadastradas, carregadas automaticamente da base do IBGE. Utilize os filtros para localizar cidades por nome ou estado.",
+    rules: [
+      "As cidades são carregadas automaticamente da API do IBGE.",
+      "São 5570 municípios brasileiros cadastrados.",
+      "Utilize o campo de busca para filtrar por nome da cidade ou estado.",
+      "Utilize o filtro de UF para exibir cidades de um estado específico.",
+    ],
+    fields: [
+      { name: "Cidade", desc: "Nome do município" },
+      { name: "Estado", desc: "Nome do estado ao qual pertence" },
+      { name: "UF", desc: "Sigla do estado" },
+    ],
+  },
 }
