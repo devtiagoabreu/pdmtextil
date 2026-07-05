@@ -61,18 +61,14 @@ export default function NovaOportunidadePage() {
 
   useEffect(() => {
     async function load() {
-      try {
-        const [empresasRes, leadsRes, usuariosRes] = await Promise.all([
-          fetch("/api/crm/empresas").then(r => r.json()),
-          fetch("/api/crm/leads").then(r => r.json()),
-          fetch("/api/usuarios").then(r => r.json()),
-        ])
-        if (Array.isArray(empresasRes)) setEmpresas(empresasRes)
-        if (Array.isArray(leadsRes)) setLeads(leadsRes)
-        if (Array.isArray(usuariosRes)) setUsuarios(usuariosRes)
-      } catch {
-        toast.error("Erro ao carregar dados auxiliares")
-      }
+      const [empresasRes, leadsRes, usuariosRes] = await Promise.allSettled([
+        fetch("/api/crm/empresas").then(r => r.json()),
+        fetch("/api/crm/leads").then(r => r.json()),
+        fetch("/api/usuarios").then(r => r.json()),
+      ])
+      if (empresasRes.status === "fulfilled" && Array.isArray(empresasRes.value)) setEmpresas(empresasRes.value)
+      if (leadsRes.status === "fulfilled" && Array.isArray(leadsRes.value)) setLeads(leadsRes.value)
+      if (usuariosRes.status === "fulfilled" && Array.isArray(usuariosRes.value)) setUsuarios(usuariosRes.value)
     }
     load()
   }, [])
