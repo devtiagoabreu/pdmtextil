@@ -5,7 +5,7 @@ import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { useRouter, useParams, usePathname } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, CalendarDays, Trash2, ExternalLink } from "lucide-react"
+import { ArrowLeft, CalendarDays, Trash2, ExternalLink, Copy, MapPin } from "lucide-react"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { useStatuses } from "@/hooks/use-statuses"
@@ -131,6 +131,9 @@ export default function DetalheVisitaPage() {
           <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4">Informações</h2>
           <div className="space-y-3 text-sm">
             <Field label="Empresa" value={visita.empresaNome} />
+            {visita.empresaEndereco && (
+              <Field label="End. Empresa" value={[visita.empresaEndereco, visita.empresaNumero, visita.empresaBairro, visita.empresaCidade, visita.empresaUf].filter(Boolean).join(", ")} />
+            )}
             <Field label="Oportunidade" value={visita.oportunidadeTitulo} />
             <Field label="Contato" value={visita.contatoNome} />
             <Field label="Data" value={visita.dataVisita ? new Date(visita.dataVisita + "T12:00:00").toLocaleDateString("pt-BR") : "—"} />
@@ -186,6 +189,19 @@ export default function DetalheVisitaPage() {
           )}
         </div>
       </div>
+
+      {visita.endereco && (
+        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
+          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-3 flex items-center gap-2">
+            <MapPin size={16} className="text-slate-400" />
+            Endereço da Visita
+          </h2>
+          <p className="text-sm text-slate-700 dark:text-slate-300">
+            {[visita.endereco, visita.numero, visita.complemento, visita.bairro, visita.cidade, visita.uf].filter(Boolean).join(", ")}
+            {visita.cep ? ` — CEP: ${visita.cep}` : ""}
+          </p>
+        </div>
+      )}
 
       {visita.relato && (
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
