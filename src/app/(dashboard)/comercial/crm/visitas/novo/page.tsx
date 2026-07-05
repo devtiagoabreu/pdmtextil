@@ -114,7 +114,7 @@ export default function NovaVisitaPage() {
   async function loadEmpresaEndereco(empresaId: string) {
     if (!empresaId) { setEmpresaEndereco({}); return }
     try {
-      const res = await fetch(`/api/crm/empresas/${empresaId}?simple=1`)
+      const res = await fetch(`/api/crm/empresas/${empresaId}`)
       const data = await res.json()
       setEmpresaEndereco({
         endereco: data.endereco || "",
@@ -175,6 +175,13 @@ export default function NovaVisitaPage() {
           contatoId: form.contatoId ? parseInt(form.contatoId) : null,
           dataVisita: form.dataVisita,
           tipo: form.tipo,
+          endereco: form.endereco || null,
+          numero: form.numero || null,
+          complemento: form.complemento || null,
+          bairro: form.bairro || null,
+          cidade: form.cidade || null,
+          uf: form.uf || null,
+          cep: form.cep || null,
           relato: form.relato || null,
           fotos: fotos.length > 0 ? fotos : [],
         }),
