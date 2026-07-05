@@ -1,20 +1,24 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { useRouter, useParams, usePathname } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, CalendarDays, Trash2, ExternalLink, Copy, MapPin } from "lucide-react"
+import { ArrowLeft, Trash2, Pencil, Check, X, MapPin, Plus, ExternalLink } from "lucide-react"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { useStatuses } from "@/hooks/use-statuses"
+import { SelectUf } from "@/components/crm/select-uf"
+import { SelectCidade } from "@/components/crm/select-cidade"
 
-const TIPO_LABELS: Record<string, string> = {
-  PRESENCIAL: "Presencial",
-  VIDEO: "Vídeo",
-  TELEFONE: "Telefone",
-}
+const TIPO_OPTIONS = [
+  { value: "PRESENCIAL", label: "Presencial" },
+  { value: "VIDEO", label: "Vídeo" },
+  { value: "TELEFONE", label: "Telefone" },
+]
+
+const TIPO_LABELS: Record<string, string> = Object.fromEntries(TIPO_OPTIONS.map(o => [o.value, o.label]))
 
 export default function DetalheVisitaPage() {
   const router = useRouter()
@@ -28,32 +32,78 @@ export default function DetalheVisitaPage() {
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [editing, setEditing] = useState(false)
   const [form, setForm] = useState<any>({})
+  const [fotoInputs, setFotoInputs] = useState<string[]>([""])
+  const [estadoId, setEstadoId] = useState<number | null>(null)
+  const [estados, setEstados] = useState<{ id: number; uf: string }[]>([])
+
+  const fetchEstados = useCallback(async () => {
+    try {
+      const res = await fetch("/api/crm/estados")
+      if (res.ok) setEstados(await res.json())
+    } catch {}
+  }, [])
+
+  useEffect(() => { fetchEstados() }, [fetchEstados])
 
   useEffect(() => {
-    fetch(`/api/crm/visitas/${params.id}`)
-      .then(r => r.json())
-      .then(data => {
-        setVisita(data)
-        setForm(data)
-      })
-      .catch(() => toast.error("Erro ao carregar visita"))
-      .finally(() => setLoading(false))
-  }, [params.id])
+    if (form.uf) {
+      const found = estados.find(e => e.uf === form.uf)
+      setEstadoId(found ? found.id : null)
+    } else {
+      setEstadoId(null)
+    }
+  }, [form.uf, estados])
+
+  async function loadVisita() {
+    try {
+      const res = await fetch(`/api/crm/visitas/${params.id}`)
+      const data = await res.json()
+      setVisita(data)
+      setForm(data)
+      if (data.fotos?.length > 0) {
+        setFotoInputs([...data.fotos, ""])
+      }
+    } catch {
+      toast.error("Erro ao carregar visita")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => { loadVisita() }, [params.id])
+
+  function setField(field: string, value: any) {
+    setForm((prev: any) => ({ ...prev, [field]: value }))
+  }
+
+  function startEditing() {
+    setForm({ ...visita })
+    setFotoInputs(visita.fotos?.length > 0 ? [...visita.fotos, ""] : [""])
+    setEditing(true)
+  }
+
+  function cancelEditing() {
+    setEditing(false)
+    setForm(visita)
+    setFotoInputs(visita.fotos?.length > 0 ? [...visita.fotos, ""] : [""])
+  }
 
   async function handleSave() {
     try {
+      const fotos = fotoInputs.filter(f => f.trim())
       const res = await fetch(`/api/crm/visitas/${params.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          ...form,
+          fotos: fotos.length > 0 ? fotos : [],
+        }),
       })
       if (!res.ok) {
         const err = await res.json()
-        throw new Error(err.error)
+        throw new Error(err.error || "Erro ao atualizar")
       }
-      const updated = await res.json()
-      setVisita(updated)
-      setForm(updated)
+      await loadVisita()
       setEditing(false)
       toast.success("Visita atualizada")
     } catch (err: any) {
@@ -76,6 +126,22 @@ export default function DetalheVisitaPage() {
     }
   }
 
+  function addFotoInput() {
+    setFotoInputs(prev => [...prev, ""])
+  }
+
+  function updateFotoInput(index: number, value: string) {
+    setFotoInputs(prev => {
+      const next = [...prev]
+      next[index] = value
+      return next
+    })
+  }
+
+  function removeFotoInput(index: number) {
+    setFotoInputs(prev => prev.filter((_, i) => i !== index))
+  }
+
   if (loading) {
     return (
       <div className="flex justify-center py-20">
@@ -91,10 +157,6 @@ export default function DetalheVisitaPage() {
         <Link href="/comercial/crm/visitas" className="text-blue-600 hover:underline mt-2 inline-block">Voltar</Link>
       </div>
     )
-  }
-
-  function setField(field: string, value: any) {
-    setForm((prev: any) => ({ ...prev, [field]: value }))
   }
 
   const STATUS_OPTIONS = ["AGENDADA", "REALIZADA", "CANCELADA"]
@@ -121,132 +183,243 @@ export default function DetalheVisitaPage() {
             {TIPO_LABELS[visita.tipo] || visita.tipo} — {visita.dataVisita ? new Date(visita.dataVisita + "T12:00:00").toLocaleDateString("pt-BR") : "—"}
           </p>
         </div>
-        <button onClick={() => setShowDelete(true)} className="flex items-center gap-1 text-xs font-medium text-red-600 hover:underline">
-          <Trash2 size={14} /> Excluir
-        </button>
-      </div>
-
-      <div className="grid gap-6 md:grid-cols-2">
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
-          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4">Informações</h2>
-          <div className="space-y-3 text-sm">
-            <Field label="Empresa" value={visita.empresaNome} />
-            {visita.empresaEndereco && (
-              <Field label="End. Empresa" value={[visita.empresaEndereco, visita.empresaNumero, visita.empresaBairro, visita.empresaCidade, visita.empresaUf].filter(Boolean).join(", ")} />
-            )}
-            <Field label="Oportunidade" value={visita.oportunidadeTitulo} />
-            <Field label="Contato" value={visita.contatoNome} />
-            <Field label="Data" value={visita.dataVisita ? new Date(visita.dataVisita + "T12:00:00").toLocaleDateString("pt-BR") : "—"} />
-            <Field label="Tipo" value={TIPO_LABELS[visita.tipo] || visita.tipo} />
-          </div>
-        </div>
-
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50">Status</h2>
-            {!editing && (
-              <button onClick={() => setEditing(true)} className="text-xs text-blue-600 hover:underline">
-                Alterar status
-              </button>
-            )}
-          </div>
+        <div className="flex gap-2">
           {editing ? (
-            <div className="space-y-3">
-              <select
-                value={form.status || visita.status}
-                onChange={e => setField("status", e.target.value)}
-                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
-              >
-                {STATUS_OPTIONS.map(s => (
-                  <option key={s} value={s}>{getLabel(s)}</option>
-                ))}
-              </select>
-              {form.status === "CANCELADA" && (
-                <textarea
-                  value={form.motivoCancelamento || ""}
-                  onChange={e => setField("motivoCancelamento", e.target.value)}
-                  placeholder="Motivo do cancelamento..."
-                  rows={3}
-                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
-                />
-              )}
-              <div className="flex gap-2">
-                <button onClick={handleSave} className="text-xs bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700">
-                  Salvar
-                </button>
-                <button onClick={() => { setEditing(false); setForm(visita) }} className="text-xs bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-3 py-1.5 rounded-lg">
-                  Cancelar
-                </button>
-              </div>
-            </div>
+            <>
+              <button onClick={handleSave} className="flex items-center gap-1 text-xs font-medium text-emerald-600 hover:underline">
+                <Check size={14} /> Salvar
+              </button>
+              <button onClick={cancelEditing} className="flex items-center gap-1 text-xs font-medium text-slate-500 hover:underline">
+                <X size={14} /> Cancelar
+              </button>
+            </>
           ) : (
-            <div className="space-y-3 text-sm">
-              <Field label="Status" value={getLabel(visita.status)} />
-              {visita.motivoCancelamento && (
-                <Field label="Motivo Cancelamento" value={visita.motivoCancelamento} />
-              )}
-            </div>
+            <>
+              <button onClick={startEditing} className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:underline">
+                <Pencil size={14} /> Editar
+              </button>
+              <button onClick={() => setShowDelete(true)} className="flex items-center gap-1 text-xs font-medium text-red-600 hover:underline">
+                <Trash2 size={14} /> Excluir
+              </button>
+            </>
           )}
         </div>
       </div>
 
-      {visita.endereco && (
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
-          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-3 flex items-center gap-2">
-            <MapPin size={16} className="text-slate-400" />
-            Endereço da Visita
-          </h2>
-          <p className="text-sm text-slate-700 dark:text-slate-300">
-            {[visita.endereco, visita.numero, visita.complemento, visita.bairro, visita.cidade, visita.uf].filter(Boolean).join(", ")}
-            {visita.cep ? ` — CEP: ${visita.cep}` : ""}
-          </p>
-        </div>
-      )}
-
-      {visita.relato && (
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
-          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-2">Relato / Ata</h2>
-          <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap">{visita.relato}</p>
-        </div>
-      )}
-
-      {visita.fotos && visita.fotos.length > 0 && (
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
-          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4">Fotos</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {visita.fotos.map((url: string, i: number) => (
-              <a
-                key={i}
-                href={url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="relative group aspect-video rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden bg-slate-100 dark:bg-slate-800 flex items-center justify-center"
-              >
-                <img
-                  src={url}
-                  alt={`Foto ${i + 1}`}
-                  className="object-cover w-full h-full"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = "none"
-                    const parent = (e.target as HTMLImageElement).parentElement
-                    if (parent) {
-                      parent.innerHTML = `<span class="text-xs text-slate-400">URL inválida</span>`
-                    }
-                  }}
-                />
-                <div className="absolute inset-0 bg-black/0 hover:bg-black/30 transition-colors flex items-center justify-center">
-                  <ExternalLink size={16} className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+      <div className="grid gap-6 md:grid-cols-2">
+        {editing ? (
+          <>
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
+              <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4">Informações</h2>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-medium text-slate-500 mb-1">Status</label>
+                  <select
+                    value={form.status || visita.status}
+                    onChange={e => setField("status", e.target.value)}
+                    className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+                  >
+                    {STATUS_OPTIONS.map(s => (
+                      <option key={s} value={s}>{getLabel(s)}</option>
+                    ))}
+                  </select>
                 </div>
-              </a>
-            ))}
+                {form.status === "CANCELADA" && (
+                  <div>
+                    <label className="block text-xs font-medium text-slate-500 mb-1">Motivo do Cancelamento</label>
+                    <textarea
+                      value={form.motivoCancelamento || ""}
+                      onChange={e => setField("motivoCancelamento", e.target.value)}
+                      rows={3}
+                      className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+                    />
+                  </div>
+                )}
+                <div>
+                  <label className="block text-xs font-medium text-slate-500 mb-1">Tipo</label>
+                  <select
+                    value={form.tipo}
+                    onChange={e => setField("tipo", e.target.value)}
+                    className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+                  >
+                    {TIPO_OPTIONS.map(opt => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-500 mb-1">Data da Visita</label>
+                  <input
+                    type="date"
+                    value={form.dataVisita ? form.dataVisita.split("T")[0] : ""}
+                    onChange={e => setField("dataVisita", e.target.value)}
+                    className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
+              <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4">Endereço</h2>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs font-medium text-slate-500 mb-1">Logradouro</label>
+                  <input type="text" value={form.endereco || ""} onChange={e => setField("endereco", e.target.value)} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-medium text-slate-500 mb-1">Número</label>
+                    <input type="text" value={form.numero || ""} onChange={e => setField("numero", e.target.value)} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-slate-500 mb-1">Complemento</label>
+                    <input type="text" value={form.complemento || ""} onChange={e => setField("complemento", e.target.value)} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-slate-500 mb-1">Bairro</label>
+                    <input type="text" value={form.bairro || ""} onChange={e => setField("bairro", e.target.value)} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-slate-500 mb-1">CEP</label>
+                    <input type="text" value={form.cep || ""} onChange={e => setField("cep", e.target.value)} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-slate-500 mb-1">UF</label>
+                    <SelectUf value={form.uf || ""} onChange={v => setField("uf", v)} />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-slate-500 mb-1">Cidade</label>
+                    <SelectCidade value={form.cidade || ""} onChange={v => setField("cidade", v)} estadoId={estadoId} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
+              <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4">Informações</h2>
+              <div className="space-y-3 text-sm">
+                <Field label="Empresa" value={visita.empresaNome} />
+                {visita.empresaEndereco && (
+                  <Field label="End. Empresa" value={[visita.empresaEndereco, visita.empresaNumero, visita.empresaBairro, visita.empresaCidade, visita.empresaUf].filter(Boolean).join(", ")} />
+                )}
+                <Field label="Oportunidade" value={visita.oportunidadeTitulo} />
+                <Field label="Contato" value={visita.contatoNome} />
+                <Field label="Data" value={visita.dataVisita ? new Date(visita.dataVisita + "T12:00:00").toLocaleDateString("pt-BR") : "—"} />
+                <Field label="Tipo" value={TIPO_LABELS[visita.tipo] || visita.tipo} />
+                <Field label="Status" value={getLabel(visita.status)} />
+                {visita.motivoCancelamento && (
+                  <Field label="Motivo Cancelamento" value={visita.motivoCancelamento} />
+                )}
+                {visita.criadoPorNome && (
+                  <Field label="Criado por" value={visita.criadoPorNome} />
+                )}
+              </div>
+            </div>
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
+              <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-3 flex items-center gap-2">
+                <MapPin size={16} className="text-slate-400" />
+                Endereço
+              </h2>
+              {visita.endereco ? (
+                <p className="text-sm text-slate-700 dark:text-slate-300">
+                  {[visita.endereco, visita.numero, visita.complemento, visita.bairro, visita.cidade, visita.uf].filter(Boolean).join(", ")}
+                  {visita.cep ? ` — CEP: ${visita.cep}` : ""}
+                </p>
+              ) : (
+                <p className="text-sm text-slate-400">Nenhum endereço informado</p>
+              )}
+            </div>
+          </>
+        )}
+      </div>
+
+      {editing ? (
+        <>
+          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
+            <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-2">Relato / Ata</h2>
+            <textarea
+              value={form.relato || ""}
+              onChange={e => setField("relato", e.target.value)}
+              rows={5}
+              className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+            />
           </div>
-        </div>
+          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50">Fotos (URLs)</h2>
+              <button type="button" onClick={addFotoInput} className="text-xs text-blue-600 hover:underline flex items-center gap-1">
+                <Plus size={12} /> Adicionar foto
+              </button>
+            </div>
+            <div className="space-y-2">
+              {fotoInputs.map((url, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <input
+                    type="url"
+                    value={url}
+                    onChange={e => updateFotoInput(i, e.target.value)}
+                    placeholder="https://..."
+                    className="flex-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+                  />
+                  {fotoInputs.length > 1 && (
+                    <button type="button" onClick={() => removeFotoInput(i)} className="p-1 text-slate-400 hover:text-red-500">
+                      <X size={14} />
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
+      ) : (
+        <>
+          {visita.relato && (
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
+              <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-2">Relato / Ata</h2>
+              <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap">{visita.relato}</p>
+            </div>
+          )}
+
+          {visita.fotos && visita.fotos.length > 0 && (
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
+              <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4">Fotos</h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {visita.fotos.map((url: string, i: number) => (
+                  <a
+                    key={i}
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="relative group aspect-video rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden bg-slate-100 dark:bg-slate-800 flex items-center justify-center"
+                  >
+                    <img
+                      src={url}
+                      alt={`Foto ${i + 1}`}
+                      className="object-cover w-full h-full"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = "none"
+                        const parent = (e.target as HTMLImageElement).parentElement
+                        if (parent) {
+                          parent.innerHTML = `<span class="text-xs text-slate-400">URL inválida</span>`
+                        }
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-black/0 hover:bg-black/30 transition-colors flex items-center justify-center">
+                      <ExternalLink size={16} className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+        </>
       )}
 
       <ConfirmModal
         open={showDelete}
         title="Excluir visita?"
-        message={`Tem certeza que deseja excluir esta visita?`}
+        message="Tem certeza que deseja excluir esta visita?"
         confirmLabel="Excluir"
         variant="danger"
         loading={deleteLoading}
