@@ -27,7 +27,9 @@ BEGIN
     RETURNING id INTO menu_id;
   INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
     (menu_id, 'Regiões', '/comercial/crm/regioes', 0),
-    (menu_id, 'Equipes', '/comercial/crm/equipes', 1);
+    (menu_id, 'Equipes', '/comercial/crm/equipes', 1),
+    (menu_id, 'Estados', '/comercial/crm/configuracoes/estados', 2),
+    (menu_id, 'Cidades', '/comercial/crm/configuracoes/cidades', 3);
 
   INSERT INTO user_menus (role, titulo, ordem) VALUES ('CRM', 'Dashboards', 2)
     RETURNING id INTO menu_id;
