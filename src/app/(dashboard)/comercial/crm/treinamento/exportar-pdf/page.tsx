@@ -2,14 +2,13 @@
 
 import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
-import { useRef, useState } from "react"
+import { useState } from "react"
 import {
-  ArrowLeft, Printer, Loader2, FileText, GraduationCap, BookOpen,
-  Download,
+  ArrowLeft, Loader2, GraduationCap, BookOpen, Download,
 } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
-import { exportElementToPdf } from "@/lib/export-pdf"
+import { exportTreinamentoCompletoPdf } from "@/lib/export-treinamento-pdf"
 
 type LicaoCompleta = {
   id: number
@@ -33,7 +32,6 @@ type ModuloCompleto = {
 
 export default function ExportarPdfPage() {
   const router = useRouter()
-  const contentRef = useRef<HTMLDivElement>(null)
   const [exportando, setExportando] = useState(false)
 
   const { data: modulos, isLoading } = useQuery<ModuloCompleto[]>({
@@ -42,13 +40,10 @@ export default function ExportarPdfPage() {
   })
 
   const handleExportPdf = async () => {
-    if (!contentRef.current) return
+    if (!modulos || modulos.length === 0) return
     setExportando(true)
     try {
-      await exportElementToPdf({
-        element: contentRef.current,
-        filename: "Treinamento_CRM_Completo.pdf",
-      })
+      await exportTreinamentoCompletoPdf(modulos)
     } finally {
       setExportando(false)
     }
@@ -107,7 +102,7 @@ export default function ExportarPdfPage() {
             Nenhum módulo de treinamento encontrado.
           </div>
         ) : (
-          <div ref={contentRef} className="pdf-content">
+          <div className="pdf-content">
             <div className="no-print mb-8 p-4 bg-indigo-50 border border-indigo-200 rounded-xl">
               <h2 className="font-semibold text-indigo-800 mb-2">📄 Resumo do Documento</h2>
               <p className="text-sm text-indigo-700">

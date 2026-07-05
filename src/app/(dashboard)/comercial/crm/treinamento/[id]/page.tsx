@@ -3,16 +3,16 @@
 import { useQuery } from "@tanstack/react-query"
 import { usePathname, useParams, useRouter } from "next/navigation"
 import Link from "next/link"
-import { useRef, useState } from "react"
+import { useState } from "react"
 import {
   ArrowLeft, BookOpen, Video, ExternalLink, Printer,
-  FileText, GraduationCap, Loader2, ChevronLeft, ChevronRight,
+  FileText, GraduationCap, Loader2, ChevronLeft, ChevronRight, Download,
 } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
-import { exportElementToPdf } from "@/lib/export-pdf"
+import { exportLicaoPdf } from "@/lib/export-treinamento-pdf"
 
 type Licao = {
   id: number
@@ -43,7 +43,6 @@ export default function LicaoDetailPage() {
   const info = getInfoContent(pathname)
   const params = useParams()
   const router = useRouter()
-  const contentRef = useRef<HTMLDivElement>(null)
   const [exportando, setExportando] = useState(false)
 
   const { data: licao, isLoading } = useQuery<Licao>({
@@ -59,18 +58,15 @@ export default function LicaoDetailPage() {
   const moduloAtual = modulos?.find((m) => m.id === licao?.moduloId)
   const licoesModulo = moduloAtual?.licoes?.filter((l) => l.ativo) || []
   const indexAtual = licoesModulo.findIndex((l) => l.id === licao?.id)
+  const moduloIndex = modulos?.findIndex((m) => m.id === moduloAtual?.id) ?? 0
   const licaoAnterior = indexAtual > 0 ? licoesModulo[indexAtual - 1] : null
   const proximaLicao = indexAtual < licoesModulo.length - 1 ? licoesModulo[indexAtual + 1] : null
 
   const handleExportPdf = async () => {
-    if (!contentRef.current || !licao) return
+    if (!licao || !moduloAtual) return
     setExportando(true)
     try {
-      const filename = `CRM-${licao.moduloTitulo}-${licao.titulo}.pdf`.replace(/[^a-zA-Z0-9-_.]/g, "_")
-      await exportElementToPdf({
-        element: contentRef.current,
-        filename,
-      })
+      await exportLicaoPdf(licao, moduloAtual.titulo, moduloIndex, indexAtual)
     } finally {
       setExportando(false)
     }
@@ -220,7 +216,7 @@ export default function LicaoDetailPage() {
           <span>{licao.moduloTitulo} / {licao.titulo}</span>
         </div>
 
-        <div ref={contentRef} className="pdf-content">
+        <div>
           {licao.preRequisitos && (
             <div className="mb-8 p-4 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl">
               <h3 className="text-sm font-semibold text-amber-800 dark:text-amber-300 mb-2">Pré-cadastros Necessários</h3>
