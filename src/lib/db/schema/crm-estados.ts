@@ -1,5 +1,6 @@
 import { pgTable, serial, varchar, integer, timestamp } from "drizzle-orm/pg-core"
 import { usuarios } from "./usuarios"
+import { crmPaises } from "./crm-paises"
 import { REGIAO_SIGLAS } from "./crm-regioes"
 
 export const crmEstados = pgTable("crm_estados", {
@@ -8,6 +9,7 @@ export const crmEstados = pgTable("crm_estados", {
   uf: varchar("uf", { length: 2 }).notNull().unique(),
   regiao: varchar("regiao", { length: 3 }),
   gerenteId: integer("gerente_id").references(() => usuarios.id),
+  paisId: integer("pais_id").references(() => crmPaises.id),
   createdAt: timestamp("created_at").defaultNow(),
 })
 

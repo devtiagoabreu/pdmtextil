@@ -11,8 +11,9 @@ import { REGIAO_LABELS } from "@/lib/db/schema/crm-regioes"
 
 const REGIAO_SIGLAS = ["N", "NE", "CO", "SE", "S"]
 
-type Estado = { id: number; nome: string; uf: string; regiao: string | null; gerenteId: number | null; gerenteNome: string | null }
+type Estado = { id: number; nome: string; uf: string; regiao: string | null; gerenteId: number | null; gerenteNome: string | null; paisId: number | null; paisNome: string | null }
 type Usuario = { id: number; name: string }
+type Pais = { id: number; nome: string; codigo: string }
 
 async function fetchEstados() {
   const res = await fetch("/api/crm/estados")
@@ -26,6 +27,12 @@ async function fetchUsuarios() {
   return res.json()
 }
 
+async function fetchPaises() {
+  const res = await fetch("/api/crm/paises")
+  if (!res.ok) throw new Error("Falha ao carregar países")
+  return res.json()
+}
+
 export default function EstadosConfigPage() {
   const queryClient = useQueryClient()
   const pathname = usePathname()
@@ -34,6 +41,7 @@ export default function EstadosConfigPage() {
   const [editId, setEditId] = useState<number | null>(null)
   const [editRegiao, setEditRegiao] = useState("")
   const [editGerenteId, setEditGerenteId] = useState("")
+  const [editPaisId, setEditPaisId] = useState("")
 
   const { data: estados, isLoading } = useQuery({
     queryKey: ["crm-estados"],
@@ -45,14 +53,20 @@ export default function EstadosConfigPage() {
     queryFn: fetchUsuarios,
   })
 
+  const { data: paises } = useQuery({
+    queryKey: ["crm-paises"],
+    queryFn: fetchPaises,
+  })
+
   const saveMutation = useMutation({
-    mutationFn: async ({ id, regiao, gerenteId }: { id: number; regiao: string; gerenteId: string }) => {
+    mutationFn: async ({ id, regiao, gerenteId, paisId }: { id: number; regiao: string; gerenteId: string; paisId: string }) => {
       const res = await fetch(`/api/crm/estados/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           regiao: regiao || null,
           gerenteId: gerenteId ? parseInt(gerenteId) : null,
+          paisId: paisId ? parseInt(paisId) : null,
         }),
       })
       if (!res.ok) throw new Error("Falha ao salvar")
@@ -68,6 +82,7 @@ export default function EstadosConfigPage() {
     setEditId(estado.id)
     setEditRegiao(estado.regiao || "")
     setEditGerenteId(estado.gerenteId ? String(estado.gerenteId) : "")
+    setEditPaisId(estado.paisId ? String(estado.paisId) : "")
   }
 
   const filtrados = (estados || []).filter((e: Estado) =>
@@ -127,6 +142,7 @@ export default function EstadosConfigPage() {
                   <th className="text-left px-4 py-3 font-medium text-slate-500 text-xs uppercase">Nome</th>
                   <th className="text-left px-4 py-3 font-medium text-slate-500 text-xs uppercase">Região</th>
                   <th className="text-left px-4 py-3 font-medium text-slate-500 text-xs uppercase">Gerente</th>
+                  <th className="text-left px-4 py-3 font-medium text-slate-500 text-xs uppercase">País</th>
                   <th className="w-20 px-4 py-3" />
                 </tr>
               </thead>
@@ -167,11 +183,27 @@ export default function EstadosConfigPage() {
                         <span className="text-slate-700 dark:text-slate-300">{getGerenteNome(e.gerenteId) || "—"}</span>
                       )}
                     </td>
+                    <td className="px-4 py-3">
+                      {editId === e.id ? (
+                        <select
+                          value={editPaisId}
+                          onChange={(e) => setEditPaisId(e.target.value)}
+                          className="w-full px-2 py-1 text-sm rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+                        >
+                          <option value="">Selecione...</option>
+                          {(paises || []).map((p: Pais) => (
+                            <option key={p.id} value={p.id}>{p.nome} ({p.codigo})</option>
+                          ))}
+                        </select>
+                      ) : (
+                        <span className="text-slate-700 dark:text-slate-300">{e.paisNome || "—"}</span>
+                      )}
+                    </td>
                     <td className="px-4 py-3 text-right">
                       {editId === e.id ? (
                         <div className="flex items-center gap-1">
                           <button
-                            onClick={() => saveMutation.mutate({ id: e.id, regiao: editRegiao, gerenteId: editGerenteId })}
+                            onClick={() => saveMutation.mutate({ id: e.id, regiao: editRegiao, gerenteId: editGerenteId, paisId: editPaisId })}
                             disabled={saveMutation.isPending}
                             className="p-1 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 rounded"
                           >

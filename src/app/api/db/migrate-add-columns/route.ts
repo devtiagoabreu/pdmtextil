@@ -210,6 +210,20 @@ export async function POST(req: NextRequest) {
         created_at TIMESTAMP DEFAULT NOW(),
         UNIQUE(cliente_id, representante_id)
       )`,
+      // crm_paises table
+      `CREATE TABLE IF NOT EXISTS crm_paises (
+        id SERIAL PRIMARY KEY,
+        nome VARCHAR(100) NOT NULL,
+        codigo VARCHAR(5) NOT NULL,
+        created_at TIMESTAMP DEFAULT NOW()
+      )`,
+      // crm_estados: add pais_id
+      `DO $$
+      BEGIN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'crm_estados' AND column_name = 'pais_id') THEN
+          ALTER TABLE crm_estados ADD COLUMN pais_id INTEGER REFERENCES crm_paises(id);
+        END IF;
+      END $$`,
       // seed default permissions for existing roles
       `UPDATE roles SET permissions = '{
   "SOLICITACOES": ["VIEW", "INSERT", "UPDATE", "DELETE"],
