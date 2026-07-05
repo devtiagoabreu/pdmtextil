@@ -153,6 +153,12 @@ export const searchRegistry: SearchItem[] = [
   // CRM — Equipes
   { id: "crm-equipes", label: "CRM — Equipes", keywords: ["crm", "equipe", "equipes", "representante", "hierarquia", "comercial"], href: "/comercial/crm/equipes", description: "Cadastro de equipes comerciais", module: "CRM" },
 
+  // CRM — Estados (Config)
+  { id: "crm-config-estados", label: "CRM — Estados (UF)", keywords: ["crm", "estado", "uf", "regiao", "configuracao", "ibge"], href: "/comercial/crm/configuracoes/estados", description: "Consulta e edição dos estados e suas regiões geográficas", module: "CRM" },
+
+  // CRM — Cidades (Config)
+  { id: "crm-config-cidades", label: "CRM — Cidades", keywords: ["crm", "cidade", "cidades", "municipio", "ibge", "configuracao"], href: "/comercial/crm/configuracoes/cidades", description: "Consulta de todas as cidades por estado", module: "CRM" },
+
   // CRM — Campanhas
   { id: "crm-campanhas", label: "CRM — Campanhas", keywords: ["crm", "campanha", "campanhas", "marketing", "whatsapp", "email", "comercial"], href: "/comercial/crm/campanhas", description: "Campanhas de marketing e comunicação", module: "CRM" },
   { id: "crm-campanhas-nova", label: "CRM — Nova Campanha", keywords: ["crm", "campanha", "nova", "criar", "marketing"], href: "/comercial/crm/campanhas/nova", description: "Criar nova campanha de marketing", module: "CRM" },
