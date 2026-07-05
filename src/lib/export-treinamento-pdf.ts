@@ -529,7 +529,7 @@ class TreinamentoPdfRenderer {
     this.doc.text("PDM Têxtil", this.pw / 2, 68, { align: "center" })
 
     this.doc.setFontSize(10)
-    this.doc.text("Sistema de Gestão Comercial", this.pw / 2, 80, { align: "center" })
+    this.doc.text("Sistema de Gestao de Desenvolvimento", this.pw / 2, 80, { align: "center" })
 
     this.doc.setFillColor(240, 242, 245)
     this.doc.rect(0, 90, this.pw, this.ph - 90, "F")
@@ -562,7 +562,7 @@ class TreinamentoPdfRenderer {
     this.doc.setFont("helvetica", "italic")
     this.doc.text("CRM não é sobre tecnologia, é sobre pessoas.", this.pw / 2, ty, { align: "center" })
     this.doc.text("Pessoas atendendo melhor outras pessoas.", this.pw / 2, ty + 6, { align: "center" })
-    this.doc.text("— Tiago de Abreu, Engenheiro de Dados", this.pw / 2, ty + 12, { align: "center" })
+    this.doc.text("— O Desenvolvedor", this.pw / 2, ty + 12, { align: "center" })
 
     this.doc.setTextColor(0, 0, 0)
     this.doc.setFont("helvetica", "normal")
