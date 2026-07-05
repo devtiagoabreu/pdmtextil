@@ -42,8 +42,21 @@ function removerAcentos(texto: string): string {
   return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
 }
 
-function stripEmojis(text: string): string {
-  return text
+function sanitizeText(text: string): string {
+  let t = text
+    .replace(/\u2192/g, "->")
+    .replace(/\u2190/g, "<-")
+    .replace(/\u2191/g, "^")
+    .replace(/\u2193/g, "v")
+    .replace(/[\u{2500}-\u{257F}]/gu, "")
+    .replace(/[\u{2580}-\u{259F}]/gu, "")
+    .replace(/[\u{25A0}-\u{25FF}]/gu, "")
+    .replace(/\u{00AB}/gu, '"')
+    .replace(/\u{00BB}/gu, '"')
+    .replace(/[\u{2010}-\u{2015}]/gu, "-")
+    .replace(/[\u{2018}\u{2019}]/gu, "'")
+    .replace(/[\u{201C}\u{201D}]/gu, '"')
+    .replace(/\u{2026}/gu, "...")
     .replace(/[\u{1F300}-\u{1FAFF}]/gu, "")
     .replace(/[\u{1F600}-\u{1F64F}]/gu, "")
     .replace(/[\u{1F680}-\u{1F6FF}]/gu, "")
@@ -57,7 +70,7 @@ function stripEmojis(text: string): string {
     .replace(/[\u{2B05}\u{2B06}\u{2B07}\u{2B1B}\u{2B1C}\u{2B50}\u{2B55}]/gu, "")
     .replace(/[\u{3030}\u{303D}\u{3297}\u{3299}]/gu, "")
     .replace(/\ufe0f/gu, "")
-    .trim()
+  return t.trim()
 }
 
 class TreinamentoPdfRenderer {
@@ -166,7 +179,7 @@ class TreinamentoPdfRenderer {
 
     if (opts?.color) this.doc.setTextColor(...opts.color)
 
-    const lines = this.doc.splitTextToSize(stripEmojis(this.stripMarkdown(text)), w)
+    const lines = this.doc.splitTextToSize(sanitizeText(this.stripMarkdown(text)), w)
     this.doc.text(lines, x, y, { align: "left" })
 
     this.doc.setFont("helvetica", "normal")
@@ -175,7 +188,7 @@ class TreinamentoPdfRenderer {
   }
 
   private renderParagraph(text: string) {
-    const clean = stripEmojis(this.stripMarkdown(text.trim()))
+    const clean = sanitizeText(this.stripMarkdown(text.trim()))
     if (!clean) return
 
     const fs = FONT_SIZE_BODY
@@ -199,7 +212,7 @@ class TreinamentoPdfRenderer {
     const lh = fs * 0.3528 * 1.5
     const space = level === 1 ? 8 : level === 2 ? 6 : 4
 
-    const cleanText = stripEmojis(text.replace(/^#+\s*/, "").trim())
+    const cleanText = sanitizeText(text.replace(/^#+\s*/, "").trim())
     const cleanDisplay = cleanText.replace(/^\*\*(.+)\*\*\s*/, "$1 ")
 
     const h = lh + space
@@ -221,7 +234,7 @@ class TreinamentoPdfRenderer {
   }
 
   private renderList(items: string[], ordered: boolean) {
-    const cleaned = items.map((item) => stripEmojis(this.stripMarkdown(item)))
+    const cleaned = items.map((item) => sanitizeText(this.stripMarkdown(item)))
     const fs = FONT_SIZE_BODY
     const lh = fs * 0.3528 * 1.5
     const indent = 6
@@ -250,7 +263,7 @@ class TreinamentoPdfRenderer {
   private renderTable(mdLines: string[]) {
     if (mdLines.length < 2) return
 
-    const clean = (s: string) => stripEmojis(this.stripMarkdown(s.trim()))
+    const clean = (s: string) => sanitizeText(this.stripMarkdown(s.trim()))
     const headerCells = mdLines[0].split("|").filter(Boolean).map(clean)
     const dataRows = mdLines.slice(2).map((line) =>
       line.split("|").filter(Boolean).map(clean)
@@ -299,7 +312,7 @@ class TreinamentoPdfRenderer {
   private renderCodeBlock(code: string) {
     const fs = 8
     const lh = fs * 0.3528 * 1.4
-    const lines = stripEmojis(code).split("\n")
+    const lines = sanitizeText(code).split("\n")
     const h = lines.length * lh + 8
 
     this.checkPageBreak(h + 4)
@@ -330,7 +343,7 @@ class TreinamentoPdfRenderer {
     const fs = FONT_SIZE_BODY
     const lh = fs * 0.3528 * 1.5
 
-    const cleanText = stripEmojis(this.stripMarkdown(text.replace(/^>\s*/, "").trim()))
+    const cleanText = sanitizeText(this.stripMarkdown(text.replace(/^>\s*/, "").trim()))
     const lines = this.doc.splitTextToSize(cleanText, this.cw - 10)
     const h = lines.length * lh + 6
 
@@ -382,7 +395,7 @@ class TreinamentoPdfRenderer {
   }
 
   private renderPrerequisito(text: string) {
-    const cleanText = stripEmojis(text)
+    const cleanText = sanitizeText(text)
     const fs = 9
     const lh = fs * 0.3528 * 1.5
     const h = this.measureTextHeight(cleanText, fs, this.cw - 8) + 8
@@ -578,7 +591,7 @@ class TreinamentoPdfRenderer {
       this.doc.setFont("helvetica", "bold")
       this.doc.setTextColor(60, 60, 70)
 
-      const label = stripEmojis(item.titulo)
+      const label = sanitizeText(item.titulo)
       const pageLabel = `p. ${item.pageNum}`
       const dots = ".".repeat(Math.max(1, Math.floor((this.cw - this.doc.getStringUnitWidth(label) * 11 * 0.3528 - this.doc.getStringUnitWidth(pageLabel) * 11 * 0.3528 - 4) / 0.5)))
 
@@ -605,7 +618,7 @@ class TreinamentoPdfRenderer {
   renderModulo(modulo: ModuloData, moduloIndex: number) {
     this.addPageAndTrack()
 
-    const moduloTitle = stripEmojis(modulo.titulo)
+    const moduloTitle = sanitizeText(modulo.titulo)
     this.headerLeft = `Modulo ${moduloIndex + 1}: ${moduloTitle}`
     this.headerRight = `Modulo ${moduloIndex + 1}`
 
@@ -622,7 +635,7 @@ class TreinamentoPdfRenderer {
       this.doc.setFontSize(FONT_SIZE_BODY)
       this.doc.setFont("helvetica", "italic")
       this.doc.setTextColor(80, 80, 90)
-      const lines = this.doc.splitTextToSize(stripEmojis(modulo.descricao), this.cw)
+      const lines = this.doc.splitTextToSize(sanitizeText(modulo.descricao), this.cw)
       this.doc.text(lines, MARGIN_LEFT, this.y)
       this.y += lines.length * LINE_HEIGHT + 4
       this.doc.setTextColor(0, 0, 0)
@@ -633,7 +646,7 @@ class TreinamentoPdfRenderer {
     for (let idx = 0; idx < licoesAtivas.length; idx++) {
       const licao = licoesAtivas[idx]
 
-      const licaoTitle = stripEmojis(licao.titulo)
+      const licaoTitle = sanitizeText(licao.titulo)
       this.headerRight = `${moduloIndex + 1}.${idx + 1} ${licaoTitle}`
 
       this.checkPageBreak(10)
@@ -655,8 +668,8 @@ class TreinamentoPdfRenderer {
     this.y = MARGIN_TOP
     this.pageNum = 1
 
-    const cleanModTitulo = stripEmojis(moduloTitulo)
-    const cleanLicaoTitulo = stripEmojis(licao.titulo)
+    const cleanModTitulo = sanitizeText(moduloTitulo)
+    const cleanLicaoTitulo = sanitizeText(licao.titulo)
     this.headerLeft = `Treinamento CRM — ${cleanModTitulo}`
     this.headerRight = `${moduloIndex + 1}.${licaoIndex + 1} ${cleanLicaoTitulo}`
 
@@ -720,8 +733,8 @@ export async function exportTreinamentoCompletoPdf(modulos: ModuloData[]) {
 
 export async function exportLicaoPdf(licao: LicaoData, moduloTitulo: string, moduloIndex: number, licaoIndex: number) {
   const renderer = new TreinamentoPdfRenderer()
-  const cleanMod = removerAcentos(stripEmojis(moduloTitulo))
-  const cleanLic = removerAcentos(stripEmojis(licao.titulo))
+  const cleanMod = removerAcentos(sanitizeText(moduloTitulo))
+  const cleanLic = removerAcentos(sanitizeText(licao.titulo))
   const filename = `CRM-${cleanMod}-${cleanLic}.pdf`.replace(/[^a-zA-Z0-9-_.]/g, "_")
 
   renderer.renderLicaoIndividual(licao, moduloTitulo, moduloIndex, licaoIndex)
