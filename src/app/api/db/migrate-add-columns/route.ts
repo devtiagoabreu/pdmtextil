@@ -224,6 +224,23 @@ export async function POST(req: NextRequest) {
           ALTER TABLE crm_estados ADD COLUMN pais_id INTEGER REFERENCES crm_paises(id);
         END IF;
       END $$`,
+      // accounts table (NextAuth OAuth support)
+      `CREATE TABLE IF NOT EXISTS accounts (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+        type VARCHAR(50) NOT NULL,
+        provider VARCHAR(50) NOT NULL,
+        provider_account_id VARCHAR(100) NOT NULL,
+        refresh_token TEXT,
+        access_token TEXT,
+        expires_at INTEGER,
+        token_type VARCHAR(50),
+        scope TEXT,
+        id_token TEXT,
+        session_state TEXT,
+        created_at TIMESTAMP DEFAULT NOW(),
+        UNIQUE(provider, provider_account_id)
+      )`,
       // seed default permissions for existing roles
       `UPDATE roles SET permissions = '{
   "SOLICITACOES": ["VIEW", "INSERT", "UPDATE", "DELETE"],

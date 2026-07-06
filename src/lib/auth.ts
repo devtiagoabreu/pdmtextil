@@ -1,10 +1,11 @@
 import { NextAuthOptions, getServerSession } from "next-auth"
 import { NextResponse } from "next/server"
 import CredentialsProvider from "next-auth/providers/credentials"
+import GoogleProvider from "next-auth/providers/google"
 import { DrizzleAdapter } from "@auth/drizzle-adapter"
 import { db } from "@/lib/db"
-import { usuarios } from "@/lib/db/schema/usuarios"
-import { eq } from "drizzle-orm"
+import { usuarios, accounts } from "@/lib/db/schema"
+import { eq, and } from "drizzle-orm"
 import bcrypt from "bcryptjs"
 
 export function getUserId(session: { user?: { id?: string } } | null): number | NextResponse {
@@ -48,22 +49,70 @@ export const authOptions: NextAuthOptions = {
         if (!user[0].ativo) throw new Error("Usuário inativo")
         return { id: user[0].id.toString(), email: user[0].email, name: user[0].name, role: user[0].role }
       }
-    })
+    }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID || "",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+      authorization: {
+        params: {
+          scope: "openid email profile https://www.googleapis.com/auth/drive.file",
+          access_type: "offline",
+          prompt: "consent",
+        },
+      },
+    }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async signIn({ user, account }) {
+      if (account?.provider === "google") {
+        const existing = await db.select().from(usuarios).where(eq(usuarios.email, user.email!)).limit(1)
+        if (existing[0]) {
+          const link = await db.select().from(accounts).where(
+            and(eq(accounts.provider, "google"), eq(accounts.providerAccountId, account.providerAccountId!))
+          ).limit(1)
+          if (!link[0]) {
+            await db.insert(accounts).values({
+              userId: existing[0].id,
+              type: account.type,
+              provider: account.provider,
+              providerAccountId: account.providerAccountId!,
+              refreshToken: account.refresh_token,
+              accessToken: account.access_token,
+              expiresAt: account.expires_at,
+              tokenType: account.token_type,
+              scope: account.scope,
+              idToken: account.id_token,
+            })
+          }
+          user.id = existing[0].id.toString()
+          user.role = existing[0].role
+        } else {
+          return false
+        }
+      }
+      return true
+    },
+    async jwt({ token, user, account }) {
       if (user) {
         token.id = user.id
         token.role = user.role
+        if (account?.provider === "google") {
+          token.accessToken = account.access_token
+          token.refreshToken = account.refresh_token
+        }
         try {
           const { registrarLog } = await import("@/lib/notificar")
-          await registrarLog({ tipo: "LOGIN", acao: "logar", descricao: `Login realizado`, entidade: "Usuario", entidadeId: parseInt(String(user.id)), usuarioNome: user.name })
+          await registrarLog({ tipo: "LOGIN", acao: "logar", descricao: `Login realizado via ${account?.provider || "credentials"}`, entidade: "Usuario", entidadeId: parseInt(String(user.id)), usuarioNome: user.name })
         } catch {}
       }
       return token
     },
     async session({ session, token }) {
-      if (session.user) { session.user.id = token.id as string; session.user.role = token.role as string }
+      if (session.user) {
+        session.user.id = token.id as string
+        session.user.role = token.role as string
+        ;(session.user as any).accessToken = token.accessToken
+      }
       return session
     }
   },
