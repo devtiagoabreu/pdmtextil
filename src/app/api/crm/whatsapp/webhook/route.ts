@@ -10,6 +10,15 @@ export const dynamic = "force-dynamic"
 
 export async function POST(req: NextRequest) {
   try {
+    const webhookSecret = process.env.WHATSAPP_WEBHOOK_SECRET
+    if (webhookSecret) {
+      const authHeader = req.headers.get("authorization")
+      const querySecret = req.nextUrl.searchParams.get("secret")
+      if (authHeader !== `Bearer ${webhookSecret}` && querySecret !== webhookSecret) {
+        return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
+      }
+    }
+
     const body = await req.json()
 
     const { remoteJid, mensagem, externalId } = body
