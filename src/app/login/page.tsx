@@ -18,7 +18,8 @@ export default function LoginPage() {
 
   useEffect(() => {
     const err = searchParams.get("error")
-    if (err === "OAuthSignin") setError("Erro ao iniciar login com Google. Tente novamente.")
+    if (err === "EmailNaoCadastrado") setError("Este email não possui cadastro no sistema. Solicite a um administrador.")
+    else if (err === "OAuthSignin") setError("Erro ao iniciar login com Google. Tente novamente.")
     else if (err === "OAuthCallback") setError("Erro ao processar login com Google. Tente novamente.")
     else if (err === "AccessDenied") setError("Acesso negado. Sua conta não tem permissão.")
     else if (err) setError("Erro de autenticação. Tente novamente.")
