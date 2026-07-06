@@ -2,7 +2,6 @@ import { NextAuthOptions, getServerSession } from "next-auth"
 import { NextResponse } from "next/server"
 import CredentialsProvider from "next-auth/providers/credentials"
 import GoogleProvider from "next-auth/providers/google"
-import { DrizzleAdapter } from "@auth/drizzle-adapter"
 import { db } from "@/lib/db"
 import { usuarios, accounts } from "@/lib/db/schema"
 import { eq, and } from "drizzle-orm"
@@ -28,7 +27,6 @@ export async function requireAuth() {
 }
 
 export const authOptions: NextAuthOptions = {
-  adapter: DrizzleAdapter(db) as any,
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -69,23 +67,25 @@ export const authOptions: NextAuthOptions = {
         if (!existing[0]) {
           return "/login?error=EmailNaoCadastrado"
         }
-        const link = await db.select().from(accounts).where(
-          and(eq(accounts.provider, "google"), eq(accounts.providerAccountId, account.providerAccountId!))
-        ).limit(1)
-        if (!link[0]) {
-          await db.insert(accounts).values({
-            userId: existing[0].id,
-            type: account.type,
-            provider: account.provider,
-            providerAccountId: account.providerAccountId!,
-            refreshToken: account.refresh_token,
-            accessToken: account.access_token,
-            expiresAt: account.expires_at,
-            tokenType: account.token_type,
-            scope: account.scope,
-            idToken: account.id_token,
-          })
-        }
+        try {
+          const link = await db.select().from(accounts).where(
+            and(eq(accounts.provider, "google"), eq(accounts.providerAccountId, account.providerAccountId!))
+          ).limit(1)
+          if (!link[0]) {
+            await db.insert(accounts).values({
+              userId: existing[0].id,
+              type: account.type,
+              provider: account.provider,
+              providerAccountId: account.providerAccountId!,
+              refreshToken: account.refresh_token,
+              accessToken: account.access_token,
+              expiresAt: account.expires_at,
+              tokenType: account.token_type,
+              scope: account.scope,
+              idToken: account.id_token,
+            })
+          }
+        } catch {}
         user.id = existing[0].id.toString()
         user.role = existing[0].role
       }
