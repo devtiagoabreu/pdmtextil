@@ -65,30 +65,36 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async signIn({ user, account }) {
       if (account?.provider === "google") {
-        const existing = await db.select().from(usuarios).where(eq(usuarios.email, user.email!)).limit(1)
-        if (existing[0]) {
-          const link = await db.select().from(accounts).where(
-            and(eq(accounts.provider, "google"), eq(accounts.providerAccountId, account.providerAccountId!))
-          ).limit(1)
-          if (!link[0]) {
-            await db.insert(accounts).values({
-              userId: existing[0].id,
-              type: account.type,
-              provider: account.provider,
-              providerAccountId: account.providerAccountId!,
-              refreshToken: account.refresh_token,
-              accessToken: account.access_token,
-              expiresAt: account.expires_at,
-              tokenType: account.token_type,
-              scope: account.scope,
-              idToken: account.id_token,
-            })
-          }
-          user.id = existing[0].id.toString()
-          user.role = existing[0].role
-        } else {
-          return false
+        let existing = await db.select().from(usuarios).where(eq(usuarios.email, user.email!)).limit(1)
+        if (!existing[0]) {
+          const [novo] = await db.insert(usuarios).values({
+            email: user.email!,
+            name: user.name || user.email!.split("@")[0],
+            role: "COMERCIAL",
+            ativo: true,
+            idIntegracao: account.providerAccountId,
+          }).returning()
+          existing = [novo]
         }
+        const link = await db.select().from(accounts).where(
+          and(eq(accounts.provider, "google"), eq(accounts.providerAccountId, account.providerAccountId!))
+        ).limit(1)
+        if (!link[0]) {
+          await db.insert(accounts).values({
+            userId: existing[0].id,
+            type: account.type,
+            provider: account.provider,
+            providerAccountId: account.providerAccountId!,
+            refreshToken: account.refresh_token,
+            accessToken: account.access_token,
+            expiresAt: account.expires_at,
+            tokenType: account.token_type,
+            scope: account.scope,
+            idToken: account.id_token,
+          })
+        }
+        user.id = existing[0].id.toString()
+        user.role = existing[0].role
       }
       return true
     },
