@@ -65,16 +65,9 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async signIn({ user, account }) {
       if (account?.provider === "google") {
-        let existing = await db.select().from(usuarios).where(eq(usuarios.email, user.email!)).limit(1)
+        const existing = await db.select().from(usuarios).where(eq(usuarios.email, user.email!)).limit(1)
         if (!existing[0]) {
-          const [novo] = await db.insert(usuarios).values({
-            email: user.email!,
-            name: user.name || user.email!.split("@")[0],
-            role: "COMERCIAL",
-            ativo: true,
-            idIntegracao: account.providerAccountId,
-          }).returning()
-          existing = [novo]
+          return "/login?error=EmailNaoCadastrado"
         }
         const link = await db.select().from(accounts).where(
           and(eq(accounts.provider, "google"), eq(accounts.providerAccountId, account.providerAccountId!))
