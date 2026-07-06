@@ -5,42 +5,31 @@ import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { useRouter, useParams, usePathname } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Target, Trash2 } from "lucide-react"
+import { ArrowLeft, Trash2, Pencil, Check, X } from "lucide-react"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
-
-const STATUS_CORES: Record<string, string> = {
-  NOVO: "text-blue-600 bg-blue-50 dark:bg-blue-950/50 dark:text-blue-400",
-  QUALIFICACAO: "text-purple-600 bg-purple-50 dark:bg-purple-950/50 dark:text-purple-400",
-  PROPOSTA: "text-yellow-600 bg-yellow-50 dark:bg-yellow-950/50 dark:text-yellow-400",
-  NEGOCIACAO: "text-orange-600 bg-orange-50 dark:bg-orange-950/50 dark:text-orange-400",
-  FECHADO_GANHO: "text-emerald-600 bg-emerald-50 dark:bg-emerald-950/50 dark:text-emerald-400",
-  FECHADO_PERDIDO: "text-red-600 bg-red-50 dark:bg-red-950/50 dark:text-red-400",
-}
-
-const STATUS_LABELS: Record<string, string> = {
-  NOVO: "Novo",
-  QUALIFICACAO: "Qualificação",
-  PROPOSTA: "Proposta",
-  NEGOCIACAO: "Negociação",
-  FECHADO_GANHO: "Ganho",
-  FECHADO_PERDIDO: "Perdido",
-}
+import { useStatuses } from "@/hooks/use-statuses"
 
 export default function DetalheOportunidadePage() {
   const router = useRouter()
   const pathname = usePathname()
   const info = getInfoContent(pathname)
   const params = useParams()
+  const { statuses } = useStatuses("OPORTUNIDADE")
   const [oportunidade, setOportunidade] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [showDelete, setShowDelete] = useState(false)
   const [deleteLoading, setDeleteLoading] = useState(false)
+  const [editingStatus, setEditingStatus] = useState(false)
+  const [statusValue, setStatusValue] = useState("")
 
   useEffect(() => {
     fetch(`/api/crm/oportunidades/${params.id}`)
       .then(r => r.json())
-      .then(data => setOportunidade(data))
+      .then(data => {
+        setOportunidade(data)
+        setStatusValue(data.status)
+      })
       .catch(() => toast.error("Erro ao carregar oportunidade"))
       .finally(() => setLoading(false))
   }, [params.id])
@@ -60,10 +49,28 @@ export default function DetalheOportunidadePage() {
     }
   }
 
+  async function handleStatusSave() {
+    try {
+      const res = await fetch(`/api/crm/oportunidades/${params.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: statusValue }),
+      })
+      if (!res.ok) throw new Error("Erro ao atualizar")
+      setOportunidade((prev: any) => ({ ...prev, status: statusValue }))
+      setEditingStatus(false)
+      toast.success("Status atualizado")
+    } catch {
+      toast.error("Erro ao atualizar status")
+    }
+  }
+
   function formatarMoeda(valor: string | null | undefined) {
     if (!valor) return "-"
     return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(Number(valor))
   }
+
+  const currentStatus = statuses.find(s => s.nome === oportunidade?.status)
 
   if (loading) {
     return (
@@ -91,9 +98,32 @@ export default function DetalheOportunidadePage() {
         <div className="flex-1">
           <div className="flex items-center gap-3">
             <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">{oportunidade.titulo}{info && <InfoButton content={info} />}</h1>
-            <span className={`inline-flex text-[10px] px-2 py-0.5 rounded-full font-medium ${STATUS_CORES[oportunidade.status] || ""}`}>
-              {STATUS_LABELS[oportunidade.status] || oportunidade.status}
-            </span>
+            {editingStatus ? (
+              <div className="flex items-center gap-1.5">
+                <select
+                  value={statusValue}
+                  onChange={e => setStatusValue(e.target.value)}
+                  className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  autoFocus
+                >
+                  {statuses.map(s => (
+                    <option key={s.id} value={s.nome}>{s.nome}</option>
+                  ))}
+                </select>
+                <button onClick={handleStatusSave} className="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-emerald-600"><Check size={14} /></button>
+                <button onClick={() => { setEditingStatus(false); setStatusValue(oportunidade.status) }} className="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400"><X size={14} /></button>
+              </div>
+            ) : (
+              <button onClick={() => setEditingStatus(true)} className="group relative">
+                <span
+                  className="inline-flex text-[10px] px-2 py-0.5 rounded-full font-medium"
+                  style={{ color: currentStatus?.cor || "#64748b", backgroundColor: `${currentStatus?.cor || "#64748b"}20` }}
+                >
+                  {currentStatus?.nome || oportunidade.status}
+                </span>
+                <Pencil size={12} className="absolute -top-1 -right-2 opacity-0 group-hover:opacity-100 text-slate-400" />
+              </button>
+            )}
           </div>
           {oportunidade.empresaNome && (
             <p className="text-sm text-slate-500">{oportunidade.empresaNome}</p>

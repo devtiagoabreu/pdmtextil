@@ -85,7 +85,7 @@ export async function POST(req: NextRequest) {
         responsavelId: body.responsavelId || userId,
         dataFechamentoPrevista: body.dataFechamentoPrevista || null,
         probabilidade: body.probabilidade || 0,
-        status: "NOVO",
+        status: body.status || "Novo",
       })
       .returning()
 
