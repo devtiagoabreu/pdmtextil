@@ -1,10 +1,11 @@
 "use client"
 
 import { useState, useCallback } from "react"
-import { Link as LinkIcon, X, File as FileIcon } from "lucide-react"
+import { Link as LinkIcon, X, File as FileIcon, Cloud } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { GoogleDrivePicker, type DriveFile } from "@/components/crm/google-drive-picker"
 
 export interface AnexoDraft {
   id: string
@@ -22,6 +23,7 @@ interface AnexosUploadProps {
 export function AnexosUpload({ anexos, onChange }: AnexosUploadProps) {
   const [linkInput, setLinkInput] = useState("")
   const [linkNome, setLinkNome] = useState("")
+  const [showDrivePicker, setShowDrivePicker] = useState(false)
 
   // Removido onDrop e useDropzone
 
@@ -36,6 +38,17 @@ export function AnexosUpload({ anexos, onChange }: AnexosUploadProps) {
     onChange([...anexos, newAnexo])
     setLinkInput("")
     setLinkNome("")
+  }
+
+  const handleDriveSelect = (file: DriveFile) => {
+    const newAnexo: AnexoDraft = {
+      id: Math.random().toString(36).substr(2, 9),
+      link: file.webViewLink,
+      tipo: "LINK",
+      nome: file.name,
+    }
+    onChange([...anexos, newAnexo])
+    setShowDrivePicker(false)
   }
 
   const handleRemove = (id: string) => {
@@ -67,13 +80,23 @@ export function AnexosUpload({ anexos, onChange }: AnexosUploadProps) {
             onChange={(e) => setLinkInput(e.target.value)} 
           />
         </div>
-        <div className="md:col-span-1">
-          <Button type="button" variant="secondary" className="w-full" onClick={handleAddLink}>
+        <div className="md:col-span-1 flex gap-2">
+          <Button type="button" variant="secondary" className="flex-1" onClick={handleAddLink}>
             <LinkIcon className="mr-2 h-4 w-4" />
-            Adicionar Link
+            Link
+          </Button>
+          <Button type="button" variant="outline" className="flex-1" onClick={() => setShowDrivePicker(true)}>
+            <Cloud className="mr-2 h-4 w-4" />
+            Drive
           </Button>
         </div>
       </div>
+
+      <GoogleDrivePicker
+        open={showDrivePicker}
+        onClose={() => setShowDrivePicker(false)}
+        onSelect={handleDriveSelect}
+      />
 
       {anexos.length > 0 && (
         <div className="space-y-3 mt-6">
