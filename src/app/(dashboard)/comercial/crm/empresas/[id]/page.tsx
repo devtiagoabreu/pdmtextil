@@ -7,7 +7,7 @@ import { useRouter, useParams, usePathname } from "next/navigation"
 import Link from "next/link"
 import { SelectUf } from "@/components/crm/select-uf"
 import { SelectCidade } from "@/components/crm/select-cidade"
-import { ArrowLeft, Building2, Mail, Phone, Globe, MapPin, User, Plus, Trash2, Pencil, Check, X, Clock, MessageSquare } from "lucide-react"
+import { ArrowLeft, Mail, Phone, Globe, Plus, Trash2, Pencil, Check, X, Clock, MessageSquare } from "lucide-react"
 import CrmEmpresaTimeline from "@/components/crm/crm-empresa-timeline"
 import CrmEmpresaWhatsapp from "@/components/crm/crm-empresa-whatsapp"
 import { toast } from "sonner"
@@ -272,22 +272,70 @@ export default function EmpresaDetailPage() {
               </div>
             </div>
           ) : (
-            <div className="space-y-3 text-sm">
-              <Field label="CNPJ" value={empresa.cnpj} icon={Building2} />
-              <Field label="Segmento" value={empresa.segmento} />
-              <Field label="Porte" value={empresa.porte} />
-              <Field label="Site" value={empresa.site} icon={Globe} />
-              <Field label="Responsável" value={empresa.responsavelNome || "—"} icon={User} />
-              {empresa.endereco || empresa.cidade ? (
-                <Field label="Endereço" value={[empresa.endereco, empresa.numero, empresa.complemento, empresa.bairro, empresa.cidade, empresa.uf].filter(Boolean).join(", ")} icon={MapPin} />
-              ) : null}
-              {empresa.cep && <Field label="CEP" value={empresa.cep} />}
-            </div>
-          )}
-          {!editing && empresa.observacoes && (
-            <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
-              <p className="text-xs text-slate-500 mb-1">Observações</p>
-              <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap">{empresa.observacoes}</p>
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div className="col-span-2">
+                <p className="text-xs text-slate-500 mb-0.5">Razão Social</p>
+                <p className="text-slate-900 dark:text-slate-200">{empresa.razaoSocial || "—"}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-500 mb-0.5">Nome Fantasia</p>
+                <p className="text-slate-900 dark:text-slate-200">{empresa.nomeFantasia || "—"}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-500 mb-0.5">CNPJ</p>
+                <p className="text-slate-900 dark:text-slate-200">{empresa.cnpj || "—"}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-500 mb-0.5">Segmento</p>
+                <p className="text-slate-900 dark:text-slate-200">{empresa.segmento || "—"}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-500 mb-0.5">Porte</p>
+                <p className="text-slate-900 dark:text-slate-200">{empresa.porte || "—"}</p>
+              </div>
+              <div className="col-span-2">
+                <p className="text-xs text-slate-500 mb-0.5">Site</p>
+                <p className="text-slate-900 dark:text-slate-200">{empresa.site || "—"}</p>
+              </div>
+              <div className="col-span-2">
+                <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800 pb-1 mb-1">Endereço</p>
+              </div>
+              <div className="col-span-2">
+                <p className="text-xs text-slate-500 mb-0.5">Logradouro</p>
+                <p className="text-slate-900 dark:text-slate-200">{empresa.endereco || "—"}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-500 mb-0.5">Número</p>
+                <p className="text-slate-900 dark:text-slate-200">{empresa.numero || "—"}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-500 mb-0.5">Complemento</p>
+                <p className="text-slate-900 dark:text-slate-200">{empresa.complemento || "—"}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-500 mb-0.5">Bairro</p>
+                <p className="text-slate-900 dark:text-slate-200">{empresa.bairro || "—"}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-500 mb-0.5">UF</p>
+                <p className="text-slate-900 dark:text-slate-200">{empresa.uf || "—"}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-500 mb-0.5">Cidade</p>
+                <p className="text-slate-900 dark:text-slate-200">{empresa.cidade || "—"}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-500 mb-0.5">CEP</p>
+                <p className="text-slate-900 dark:text-slate-200">{empresa.cep || "—"}</p>
+              </div>
+              <div className="col-span-2">
+                <p className="text-xs text-slate-500 mb-0.5">Status</p>
+                <p className="text-slate-900 dark:text-slate-200">{empresa.status || "—"}</p>
+              </div>
+              <div className="col-span-2">
+                <p className="text-xs text-slate-500 mb-0.5">Observações</p>
+                <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap">{empresa.observacoes || "—"}</p>
+              </div>
             </div>
           )}
         </div>
@@ -387,12 +435,4 @@ export default function EmpresaDetailPage() {
   )
 }
 
-function Field({ label, value, icon: Icon }: { label: string; value?: string | null; icon?: any }) {
-  return (
-    <div className="flex items-center gap-2">
-      {Icon && <Icon size={14} className="text-slate-400 shrink-0" />}
-      <span className="text-slate-500 min-w-[80px]">{label}:</span>
-      <span className="text-slate-900 dark:text-slate-200">{value || "—"}</span>
-    </div>
-  )
-}
+

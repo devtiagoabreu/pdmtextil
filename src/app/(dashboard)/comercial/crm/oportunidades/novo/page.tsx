@@ -9,11 +9,13 @@ import { ArrowLeft, Save } from "lucide-react"
 import { toast } from "sonner"
 import { QuickCreateEmpresa } from "@/components/crm/quick-create-empresa"
 import { QuickCreateLead } from "@/components/crm/quick-create-lead"
+import { useStatuses } from "@/hooks/use-statuses"
 
 export default function NovaOportunidadePage() {
   const router = useRouter()
   const pathname = usePathname()
   const info = getInfoContent(pathname)
+  const { statuses } = useStatuses("OPORTUNIDADE")
   const [empresas, setEmpresas] = useState<any[]>([])
   const [leads, setLeads] = useState<any[]>([])
   const [usuarios, setUsuarios] = useState<any[]>([])
@@ -27,6 +29,7 @@ export default function NovaOportunidadePage() {
     responsavelId: "",
     dataFechamentoPrevista: "",
     probabilidade: "0",
+    status: "",
   })
 
   function setField(field: string, value: string) {
@@ -73,6 +76,12 @@ export default function NovaOportunidadePage() {
     load()
   }, [])
 
+  useEffect(() => {
+    if (statuses.length > 0 && !form.status) {
+      setField("status", statuses[0].nome)
+    }
+  }, [statuses])
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!form.titulo.trim()) {
@@ -93,6 +102,7 @@ export default function NovaOportunidadePage() {
           responsavelId: form.responsavelId ? parseInt(form.responsavelId) : null,
           dataFechamentoPrevista: form.dataFechamentoPrevista || null,
           probabilidade: form.probabilidade ? parseInt(form.probabilidade) : 0,
+          status: form.status,
         }),
       })
       if (!res.ok) {
@@ -208,6 +218,18 @@ export default function NovaOportunidadePage() {
               onChange={e => setField("probabilidade", e.target.value)}
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Status</label>
+            <select
+              value={form.status}
+              onChange={e => setField("status", e.target.value)}
+              className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              {statuses.map(s => (
+                <option key={s.id} value={s.nome}>{s.nome}</option>
+              ))}
+            </select>
           </div>
           <div className="sm:col-span-2">
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Descrição</label>
