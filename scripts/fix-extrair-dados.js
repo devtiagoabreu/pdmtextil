@@ -1,20 +1,26 @@
 const fs = require("fs");
 const d = JSON.parse(fs.readFileSync("n8n/whatsapp-bot-atendimento.json", "utf8"));
 
-// Fix "Extrair dados" function
-const extract = d.nodes.find(x => x.id === "extract-data");
-extract.parameters.functionCode = `const item = $input.first().json;
+// Fix Extrair dados: resolver @lid usando data.sender
+const ex = d.nodes.find(x => x.id === "extract-data");
+ex.parameters.functionCode = `const item = $input.first().json;
 const body = item.body || item;
 const data = body.data || {};
 const key = data.key || {};
 
 // remoteJid original (pode ser @lid, @s.whatsapp.net, @g.us)
-const remoteJid = key.remoteJid || body.remoteJid || "";
+let remoteJid = key.remoteJid || body.remoteJid || "";
 
 // Pula se for mensagem enviada pela propria instancia
 const fromMe = key.fromMe === true;
 if (fromMe || body.event !== "messages.upsert") {
   return [null];
+}
+
+// Se for @lid, tenta resolver para numero real via data.sender
+// Evolution API inclui data.sender com o JID resolvido
+if (remoteJid.includes("@lid")) {
+  remoteJid = data.sender || remoteJid;
 }
 
 const msg = data.message || {};
@@ -29,11 +35,10 @@ if (!mensagem) {
   return [null];
 }
 
-// Para Evolution API: se remoteJid for @lid, usa o proprio @lid
-// Se for @s.whatsapp.net, extrai so o numero
+// Extrai o numero: remove @s.whatsapp.net se presente, senao mantem
 const numero = remoteJid.includes("@s.whatsapp.net")
   ? remoteJid.replace("@s.whatsapp.net", "")
-  : remoteJid; // mantem @lid ou outro formato
+  : remoteJid;
 
 const pushName = data.pushName || body.pushName || "";
 
@@ -41,13 +46,11 @@ return [{
   json: { remoteJid, numero, mensagem, pushName }
 }];`;
 
-// Fix "Bot Conversacional" - remove $items() dependency, use conversa data directly
+// Fix Bot Conversacional: fallback se $items falhar
 const bot = d.nodes.find(x => x.id === "bot-logic");
-bot.parameters.functionCode = `// Conversa state vem do input, mensagem vem de $items("Extrair dados")
-const conversa = $input.first().json;
+bot.parameters.functionCode = `const conversa = $input.first().json;
 const msgItems = $items("Extrair dados");
 const msgData = (msgItems && msgItems.length > 0) ? msgItems[0].json : {};
-// Se $items falhar, usa o proprio $input como fallback
 const remoteJid = conversa.remoteJid || msgData.remoteJid || "";
 const numero = msgData.numero || "";
 const mensagem = msgData.mensagem || conversa.mensagem || "";
@@ -146,7 +149,7 @@ return [{
   }
 }];`;
 
-// Fix "Enviar resposta WhatsApp" - use $json.numero (do bot, que tem o remoteJid correto)
+// Fix "Enviar resposta WhatsApp" headers
 const send = d.nodes.find(x => x.id === "send-response");
 send.parameters.sendHeaders = true;
 send.parameters.headerParameters = {
@@ -155,19 +158,15 @@ send.parameters.headerParameters = {
   ]
 };
 delete send.parameters.options.headers;
-// Usar $json (input do node anterior = "Salvar estado") - mas numero nao passa pelo POST
-// Entao usa $items("Bot Conversacional")
-send.parameters.bodyParameters.parameters[0].value = '={{ $items("Bot Conversacional")[0].json.numero }}';
-send.parameters.bodyParameters.parameters[1].value = '={{ $items("Bot Conversacional")[0].json.mensagem }}';
 
-// Fix "Criar Lead CRM" - usar $items("Bot Conversacional")
+// Fix "Lead pronto?" filter
+const filter = d.nodes.find(x => x.id === "filter-lead");
+filter.parameters.conditions.boolean[0].value1 = '={{ $items("Bot Conversacional")[0].json.leadPronto }}';
+
+// Fix "Criar Lead CRM"
 const crm = d.nodes.find(x => x.id === "create-lead");
 crm.parameters.bodyParameters.parameters[0].value = '={{ $items("Bot Conversacional")[0].json.remoteJid }}';
 crm.parameters.bodyParameters.parameters[1].value = '={{ "Lead qualificado via bot - " + ($items("Bot Conversacional")[0].json.dados ? ($items("Bot Conversacional")[0].json.dados.razaoSocial || "") : "") }}';
-
-// Fix "Lead pronto?" filter - usar $items("Bot Conversacional")
-const filter = d.nodes.find(x => x.id === "filter-lead");
-filter.parameters.conditions.boolean[0].value1 = '={{ $items("Bot Conversacional")[0].json.leadPronto }}';
 
 fs.writeFileSync("n8n/whatsapp-bot-atendimento.json", JSON.stringify(d, null, 2));
 console.log("✓ All fixes applied");
