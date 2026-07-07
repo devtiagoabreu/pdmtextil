@@ -1,0 +1,168 @@
+{
+  "name": "WhatsApp Evolution → CRM",
+  "nodes": [
+    {
+      "id": "webhook-receiver",
+      "name": "Receber do Evolution",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 300],
+      "webhookId": "whatsapp-evolution",
+      "parameters": {
+        "path": "whatsapp-evolution",
+        "responseMode": "lastNode",
+        "responseData": "allEntries",
+        "options": {
+          "rawBody": true
+        },
+        "httpMethod": "POST"
+      }
+    },
+    {
+      "id": "filter-and-transform",
+      "name": "Filtrar e Transformar",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [450, 300],
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "remoteJid",
+              "value": "={{ $json.data.key.remoteJid || $json.remoteJid }}"
+            },
+            {
+              "name": "mensagem",
+              "value": "={{ $json.data.message?.conversation || $json.data.message?.extendedTextMessage?.text || $json.data.message?.imageMessage?.caption || $json.mensagem || '' }}"
+            },
+            {
+              "name": "externalId",
+              "value": "={{ $json.data.key?.id || $json.externalId }}"
+            },
+            {
+              "name": "fromMe",
+              "value": "={{ $json.data.key?.fromMe || false }}"
+            },
+            {
+              "name": "pushName",
+              "value": "={{ $json.data.pushName || $json.pushName || '' }}"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "filter-fromme",
+      "name": "Ignorar próprias mensagens",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 1,
+      "position": [650, 300],
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.fromMe }}",
+              "value2": "false",
+              "caseSensitive": true
+            }
+          ],
+          "number": [],
+          "boolean": [
+            {
+              "value1": "={{ $json.fromMe }}",
+              "value2": false
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "send-to-crm",
+      "name": "Enviar para CRM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [850, 300],
+      "parameters": {
+        "url": "={{ $env.CRM_WEBHOOK_URL || 'https://pdmprotextil.vercel.app/api/crm/whatsapp/webhook' }}",
+        "authentication": "none",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "createLead",
+              "value": "true"
+            },
+            {
+              "name": "secret",
+              "value": "={{ $env.WHATSAPP_WEBHOOK_SECRET }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "remoteJid",
+              "value": "={{ $json.remoteJid }}"
+            },
+            {
+              "name": "mensagem",
+              "value": "={{ $json.mensagem }}"
+            },
+            {
+              "name": "externalId",
+              "value": "={{ $json.externalId }}"
+            }
+          ]
+        },
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "webhook-receiver": {
+      "main": [
+        [
+          {
+            "node": "Filtrar e Transformar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtrar e Transformar": {
+      "main": [
+        [
+          {
+            "node": "Ignorar próprias mensagens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ignorar próprias mensagens": {
+      "main": [
+        [
+          {
+            "node": "Enviar para CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "versionId": "initial",
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [],
+  "id": "whatsapp-evolution-to-crm",
+  "createdAt": "",
+  "updatedAt": ""
+}
