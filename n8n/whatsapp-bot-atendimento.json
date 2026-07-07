@@ -120,7 +120,7 @@
           "parameters": [
             {
               "name": "number",
-              "value": "={{ $items(\"Bot Conversacional\")[0].json.numero }}"
+              "value": "={{ $json.numeroReal || $items(\"Bot Conversacional\")[0].json.numero }}"
             },
             {
               "name": "text",
@@ -202,6 +202,46 @@
         }
       },
       "continueOnFail": true
+    },
+    {
+      "id": "fetch-contacts",
+      "name": "Buscar contato",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        900,
+        300
+      ],
+      "parameters": {
+        "url": "https://evolutionapi.tiagoabreu.dev/contact/fetchContacts/maketing_pdm_pro_moda",
+        "method": "GET",
+        "authentication": "none",
+        "options": {
+          "timeout": 15000
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "E7CFC0D4875D-46F3-BF90-3946AAD1917A"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "extract-number",
+      "name": "Extrair numero",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1000,
+        300
+      ],
+      "parameters": {
+        "functionCode": "const input = $input.first().json;\n// fetchContacts pode retornar array direto ou objeto com campo contacts\nconst contacts = Array.isArray(input) ? input : (input.contacts || input.response || []);\nif (!Array.isArray(contacts)) {\n  return [{ json: { numeroReal: \"\", contactsCount: 0, error: \"formato inesperado\" } }];\n}\n\nconst msgData = $items(\"Extrair dados\");\nconst pushName = (msgData && msgData.length > 0) ? (msgData[0].json.pushName || \"\") : \"\";\nconst lidJid = (msgData && msgData.length > 0) ? (msgData[0].json.remoteJid || \"\") : \"\";\n\nvar found = null;\n// 1. Tenta match pelo JID (id do contato pode ser o @lid)\nfor (var i = 0; i < contacts.length; i++) {\n  var c = contacts[i];\n  if (c.id === lidJid || c.id === lidJid.replace(\"@lid\", \"\") + \"@s.whatsapp.net\") {\n    found = c; break;\n  }\n}\n// 2. Fallback: match pelo pushName\nif (!found && pushName) {\n  for (var i = 0; i < contacts.length; i++) {\n    var c = contacts[i];\n    if (c.name && c.name.toLowerCase() === pushName.toLowerCase()) { found = c; break; }\n  }\n}\n\nvar numeroReal = \"\";\nif (found) {\n  numeroReal = (found.number || \"\").replace(\"@s.whatsapp.net\", \"\");\n}\n\nreturn [{ json: { numeroReal, contactsCount: contacts.length, pushName, lidJid } }];"
+      }
     }
   ],
   "connections": {
@@ -253,7 +293,7 @@
       "main": [
         [
           {
-            "node": "Enviar resposta WhatsApp",
+            "node": "Buscar contato",
             "type": "main",
             "index": 0
           }
@@ -276,6 +316,28 @@
         [
           {
             "node": "Criar Lead CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar contato": {
+      "main": [
+        [
+          {
+            "node": "Extrair numero",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extrair numero": {
+      "main": [
+        [
+          {
+            "node": "Enviar resposta WhatsApp",
             "type": "main",
             "index": 0
           }
