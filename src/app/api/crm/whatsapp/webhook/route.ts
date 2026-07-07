@@ -13,9 +13,11 @@ async function criarLeadWhatsApp(remoteJid: string, mensagem: string) {
   const numero = remoteJid.replace(/@s\.whatsapp\.net$/, "").replace(/\D/g, "")
   const nomeContato = `WhatsApp ${numero}`
 
+  const cnpjTemp = `000.000.000-${Date.now().toString().slice(-4)}`
   const [empresa] = await db.insert(crmEmpresas).values({
-    nome: nomeContato,
-    telefone: numero,
+    razaoSocial: nomeContato,
+    nomeFantasia: nomeContato,
+    cnpj: cnpjTemp,
   }).returning()
 
   const [contato] = await db.insert(crmContatos).values({
