@@ -782,7 +782,7 @@ async function migrate() {
         email VARCHAR(255),
         telefone VARCHAR(20),
         celular VARCHAR(20),
-        whatsapp VARCHAR(20),
+        whatsapp VARCHAR(255),
         principal BOOLEAN DEFAULT false,
         observacoes TEXT,
         empresa_id INTEGER NOT NULL REFERENCES crm_empresas(id),
@@ -944,6 +944,19 @@ async function migrate() {
       )
     `
     console.log("✓ Tabela crm_campanhas criada")
+
+    // ==================== CRM WhatsApp Conversas (Bot) ====================
+    await sql`
+      CREATE TABLE IF NOT EXISTS crm_whatsapp_conversas (
+        id SERIAL PRIMARY KEY,
+        remote_jid VARCHAR(255) NOT NULL UNIQUE,
+        estado VARCHAR(50) NOT NULL DEFAULT 'SAUDACAO',
+        dados JSONB DEFAULT '{}'::jsonb,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `
+    console.log("✓ Tabela crm_whatsapp_conversas criada")
 
     // ==================== CRM (Fase 11 - IA) ====================
     await sql`

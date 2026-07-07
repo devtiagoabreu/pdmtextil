@@ -8,7 +8,7 @@ export const crmContatos = pgTable("crm_contatos", {
   email: varchar("email", { length: 255 }),
   telefone: varchar("telefone", { length: 20 }),
   celular: varchar("celular", { length: 20 }),
-  whatsapp: varchar("whatsapp", { length: 20 }),
+  whatsapp: varchar("whatsapp", { length: 255 }),
   principal: boolean("principal").default(false),
   observacoes: text("observacoes"),
   empresaId: integer("empresa_id").references(() => crmEmpresas.id).notNull(),
