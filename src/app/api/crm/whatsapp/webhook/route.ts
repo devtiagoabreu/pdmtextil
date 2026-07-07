@@ -3,10 +3,39 @@ import { db } from "@/lib/db"
 import { crmWhatsappMensagens } from "@/lib/db/schema/crm-whatsapp"
 import { crmEmpresas } from "@/lib/db/schema/crm-empresas"
 import { crmContatos } from "@/lib/db/schema/crm-contatos"
-import { eq, like } from "drizzle-orm"
+import { crmLeads } from "@/lib/db/schema/crm-leads"
+import { eq } from "drizzle-orm"
 import { inserirTimelineEvento } from "@/lib/crm-timeline"
 
 export const dynamic = "force-dynamic"
+
+async function criarLeadWhatsApp(remoteJid: string, mensagem: string) {
+  const numero = remoteJid.replace(/@s\.whatsapp\.net$/, "").replace(/\D/g, "")
+  const nomeContato = `WhatsApp ${numero}`
+
+  const [empresa] = await db.insert(crmEmpresas).values({
+    nome: nomeContato,
+    telefone: numero,
+  }).returning()
+
+  const [contato] = await db.insert(crmContatos).values({
+    nome: nomeContato,
+    whatsapp: remoteJid,
+    celular: numero,
+    empresaId: empresa.id,
+    principal: true,
+  }).returning()
+
+  const [lead] = await db.insert(crmLeads).values({
+    nome: nomeContato,
+    celular: numero,
+    origem: "WHATSAPP",
+    descricao: `Lead criado automaticamente via WhatsApp. Mensagem: "${mensagem.substring(0, 200)}"`,
+    empresaId: empresa.id,
+  }).returning()
+
+  return { empresa, contato, lead }
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -19,6 +48,8 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    const createLead = req.nextUrl.searchParams.get("createLead") === "true"
+
     const body = await req.json()
 
     const { remoteJid, mensagem, externalId } = body
@@ -27,17 +58,25 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "remoteJid e mensagem são obrigatórios" }, { status: 400 })
     }
 
-    const contato = await db
+    let contato = await db
       .select()
       .from(crmContatos)
       .where(eq(crmContatos.whatsapp, remoteJid))
       .limit(1)
       .then((r) => r[0] || null)
 
-    const empresaId = contato?.empresaId || null
+    let empresaId = contato?.empresaId || null
+    let leadCriado = null
 
     if (contato && !empresaId) {
       return NextResponse.json({ error: "Contato sem empresa vinculada" }, { status: 400 })
+    }
+
+    if (!contato && createLead) {
+      const criado = await criarLeadWhatsApp(remoteJid, mensagem)
+      contato = criado.contato
+      empresaId = criado.empresa.id
+      leadCriado = criado.lead
     }
 
     const [nova] = await db
@@ -62,7 +101,14 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    return NextResponse.json({ id: nova.id, status: "ok" }, { status: 201 })
+    return NextResponse.json({
+      id: nova.id,
+      status: "ok",
+      leadCriado: !!leadCriado,
+      leadId: leadCriado?.id || null,
+      empresaId,
+      contatoId: contato?.id || null,
+    }, { status: 201 })
   } catch (error) {
     console.error("[POST /api/crm/whatsapp/webhook]", error)
     return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
