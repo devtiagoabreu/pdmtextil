@@ -120,11 +120,11 @@
           "parameters": [
             {
               "name": "number",
-              "value": "={{ $json.numero }}"
+              "value": "={{ $items(\"Bot Conversacional\")[0].json.numero }}"
             },
             {
               "name": "text",
-              "value": "={{ $json.mensagem }}"
+              "value": "={{ $items(\"Bot Conversacional\")[0].json.mensagem }}"
             },
             {
               "name": "options.delay",
@@ -133,10 +133,16 @@
           ]
         },
         "options": {
-          "timeout": 15000,
-          "headers": {
-            "apikey": "E7CFC0D4875D-46F3-BF90-3946AAD1917A"
-          }
+          "timeout": 15000
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "E7CFC0D4875D-46F3-BF90-3946AAD1917A"
+            }
+          ]
         }
       }
     },
@@ -153,7 +159,7 @@
         "conditions": {
           "boolean": [
             {
-              "value1": "={{ $json.leadPronto }}",
+              "value1": "={{ $items(\"Bot Conversacional\")[0].json.leadPronto }}",
               "value2": true
             }
           ]
@@ -179,11 +185,11 @@
           "parameters": [
             {
               "name": "remoteJid",
-              "value": "={{ $json.remoteJid }}"
+              "value": "={{ $items(\"Bot Conversacional\")[0].json.remoteJid }}"
             },
             {
               "name": "mensagem",
-              "value": "={{ 'Lead qualificado via bot - ' + ($json.dados ? ($json.dados.razaoSocial || '') : '') }}"
+              "value": "={{ \"Lead qualificado via bot - \" + ($items(\"Bot Conversacional\")[0].json.dados ? ($items(\"Bot Conversacional\")[0].json.dados.razaoSocial || \"\") : \"\") }}"
             },
             {
               "name": "externalId",
