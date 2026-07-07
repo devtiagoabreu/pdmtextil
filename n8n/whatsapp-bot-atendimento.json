@@ -1,0 +1,174 @@
+{
+  "name": "WhatsApp Bot Atendimento Pro Moda",
+  "nodes": [
+    {
+      "id": "webhook-receiver",
+      "name": "Receber do Evolution",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [200, 300],
+      "webhookId": "whatsapp-evolution",
+      "parameters": {
+        "path": "whatsapp-evolution",
+        "responseMode": "lastNode",
+        "responseData": "allEntries",
+        "options": { "rawBody": true },
+        "httpMethod": "POST"
+      }
+    },
+    {
+      "id": "extract-data",
+      "name": "Extrair dados",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [400, 300],
+      "parameters": {
+        "functionCode": "const item = $input.first().json;\nconst body = item.body || item;\nconst data = body.data || {};\nconst key = data.key || {};\n\nlet remoteJid = key.remoteJid || body.remoteJid || '';\nif ((remoteJid.includes('@lid') || !remoteJid) && body.sender) {\n  remoteJid = body.sender;\n}\n\nif (body.event && body.event !== 'messages.upsert') {\n  return [null];\n}\n\nconst msg = data.message || {};\nconst mensagem = msg.conversation\n  || msg.extendedTextMessage?.text\n  || msg.imageMessage?.caption\n  || msg.documentMessage?.caption\n  || msg.videoMessage?.caption\n  || '';\n\nconst numero = remoteJid.replace('@s.whatsapp.net', '');\nconst pushName = data.pushName || body.pushName || '';\nconst fromMe = key.fromMe === true;\n\nif (fromMe || !mensagem) {\n  return [null];\n}\n\nreturn [{\n  json: { remoteJid, numero, mensagem, pushName }\n}];"
+      }
+    },
+    {
+      "id": "get-conversation",
+      "name": "Buscar conversa",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [600, 300],
+      "parameters": {
+        "url": "=https://pdmprotextil.vercel.app/api/crm/whatsapp/conversa?remoteJid={{ $json.remoteJid }}",
+        "method": "GET",
+        "authentication": "none",
+        "options": { "timeout": 10000 }
+      }
+    },
+    {
+      "id": "bot-logic",
+      "name": "Bot Conversacional",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [800, 300],
+      "parameters": {
+        "functionCode": "const entrada = $input.first().json;\n\nconst { remoteJid, numero, mensagem, pushName } = entrada;\nconst estadoAtual = entrada.estado || 'SAUDACAO';\nconst dados = entrada.dados || {};\n\nconst msgLower = mensagem.toLowerCase().trim();\nconst sim = ['sim', 's', 'ss', 'claro', 'ok', 'pode ser', 'vamos', 'bora', 'yes'];\nconst nao = ['não', 'nao', 'n', 'ñ', 'nem', 'no'];\n\nlet resposta = '';\nlet proximoEstado = estadoAtual;\nlet leadPronto = false;\n\nswitch (estadoAtual) {\n\n  case 'SAUDACAO':\n    resposta = `Olá${pushName ? ', ' + pushName : ''}! 👋\n\nBem-vindo(a) à *PRO MODA Têxtil*!\n\nSomos uma indústria têxtil brasileira com mais de 15 anos de experiência, especializada em tecidos para:\n• Hospitalar 🏥\n• WorkWear (uniformes) 👔\n• Decoração 🏠\n• Colchões 🛏️\n• Forro de Bolso 👖\n\n📌 *Atendemos exclusivamente pessoas jurídicas (empresas).*\n\nVocê é pessoa jurídica? (Sim/Não)`;\n    proximoEstado = 'VALIDANDO_PJ';\n    break;\n\n  case 'VALIDANDO_PJ':\n    ehSim = sim.some(p => msgLower.startsWith(p) || msgLower.includes(' ' + p) || msgLower === p);\n    ehNao = nao.some(p => msgLower.startsWith(p) || msgLower === p);\n\n    if (ehNao || msgLower.includes('física') || msgLower.includes('fisica')) {\n      resposta = 'Infelizmente atendemos apenas pessoas jurídicas (empresas com CNPJ ativo). 😕\n\nSe no futuro você abrir um CNPJ, estaremos aqui para ajudar!\n\nAgradecemos o contato! 🙏';\n      proximoEstado = 'ENCERRADO';\n      leadPronto = false;\n    } else if (ehSim || msgLower.includes('jurídica') || msgLower.includes('juridica') || msgLower.includes('empresa') || msgLower.includes('cnpj') || msgLower.includes('sou')) {\n      resposta = 'Ótimo! 😊\n\nPara continuar, preciso de algumas informações:\n\n1️⃣ *Razão Social* da empresa\n2️⃣ *CNPJ*\n3️⃣ *Nome para contato*\n\nFique à vontade para enviar os dados em uma única mensagem ou separadamente.';\n      proximoEstado = 'COLETANDO_DADOS';\n    } else {\n      resposta = 'Desculpe, não entendi. 🧐\n\nVocê é *pessoa jurídica* (empresa)? Responda Sim ou Não.';\n      proximoEstado = 'VALIDANDO_PJ';\n    }\n    break;\n\n  case 'COLETANDO_DADOS':\n    const cnpjMatch = mensagem.match(/\\d{2}\\.?\\d{3}\\.?\\d{3}\\/?\\d{4}-?\\d{2}/);\n    if (cnpjMatch) {\n      dados.cnpj = cnpjMatch[0];\n    }\n\n    if (mensagem.length > 5 && !dados.razaoSocial) {\n      const linhas = mensagem.split('\\n').filter(l => l.trim());\n      for (const linha of linhas) {\n        const l = linha.trim();\n        const cnpj = l.match(/\\d{2}\\.?\\d{3}\\.?\\d{3}\\/?\\d{4}-?\\d{2}/);\n        if (cnpj && !dados.cnpj) {\n          dados.cnpj = cnpj[0];\n        } else if (l.replace(/\\D/g, '').length >= 8 && l.replace(/\\D/g, '').length <= 14) {\n          if (l.includes('-') || l.includes('/') || l.includes('.')) {\n            dados.cnpj = l;\n          } else {\n            dados.celular = l.replace(/\\D/g, '');\n          }\n        } else if (!dados.razaoSocial && l.length > 5) {\n          dados.razaoSocial = l;\n        }\n      }\n    }\n\n    if (!dados.nomeContato && pushName) {\n      dados.nomeContato = pushName;\n    }\n\n    if (dados.cnpj && dados.razaoSocial) {\n      if (!dados.nomeContato) dados.nomeContato = pushName || 'Não informado';\n      resposta = `Perfeito! ✅ Dados registrados:\n\n📋 *Empresa:* ${dados.razaoSocial}\n🔢 *CNPJ:* ${dados.cnpj}\n👤 *Contato:* ${dados.nomeContato}\n\n---\n\nVocê já conhece os produtos da *PRO MODA Têxtil*? (Sim/Não)`;\n      proximoEstado = 'PERGUNTANDO_PRODUTOS';\n    } else {\n      let pedindo = 'Ainda preciso de algumas informações:\\n\\n';\n      if (!dados.razaoSocial) pedindo += '📌 *Razão Social* da empresa\\n';\n      if (!dados.cnpj) pedindo += '📌 *CNPJ* da empresa\\n';\n      if (!dados.nomeContato) pedindo += '📌 *Nome para contato*\\n';\n      pedindo += '\\nPode enviar os dados que faltam? 🙏';\n      resposta = pedindo;\n      proximoEstado = 'COLETANDO_DADOS';\n    }\n    break;\n\n  case 'PERGUNTANDO_PRODUTOS':\n    ehSim = sim.some(p => msgLower.startsWith(p) || msgLower.includes(' ' + p) || msgLower === p);\n    ehNao = nao.some(p => msgLower.startsWith(p) || msgLower === p);\n\n    if (ehSim || ehNao || msgLower.includes('produto') || msgLower.includes('qual') || msgLower.includes('conheço') || msgLower.includes('conheco')) {\n      resposta = `Ótimo! Conheça nossas linhas de produtos: 🎯\n\n━━━━━━━━━━━━━━━━\n🏥 *LINHA HOSPITALAR*\nTecidos para lençóis hospitalares com resistência, conforto e alta durabilidade.\n\n━━━━━━━━━━━━━━━━\n👔 *WORKWEAR*\nUniformes profissionais com durabilidade, desempenho e padronização de cores.\n\n━━━━━━━━━━━━━━━━\n🏠 *DECORAÇÃO*\nTecidos para lençol e enxoval, com toque macio e visual sofisticado.\n\n━━━━━━━━━━━━━━━━\n🛏️ *COLCHÕES*\nTecidos de alta performance para o setor colchoeiro.\n\n━━━━━━━━━━━━━━━━\n👖 *FORRO DE BOLSO*\nTecidos resistentes ao atrito diário para bolso de calça.\n━━━━━━━━━━━━━━━━\n\nQual linha te despertou mais interesse? 😊`;\n      proximoEstado = 'MOSTRANDO_PRODUTOS';\n    } else {\n      resposta = `Não entendi 😅\n\nVocê já conhece nossos produtos? (Sim/Não)\n\nPosso te mostrar o que fazemos!`;\n      proximoEstado = 'PERGUNTANDO_PRODUTOS';\n    }\n    break;\n\n  case 'MOSTRANDO_PRODUTOS':\n    resposta = `Que bom! Fico feliz com seu interesse! 😊\n\n📞 Um dos nossos *representantes comerciais* entrará em contato com você em *até 5 minutos* pelo WhatsApp para conversarmos sobre suas necessidades.\n\nEnquanto isso, você pode conhecer mais sobre a Pro MODA:\n🌐 www.promodatextil.com.br\n📧 contato@promodatextil.com.br\n📱 (19) 99832-2339\n\nAgradecemos o contato! 🙏🚀`;\n    proximoEstado = 'AGUARDANDO_REPRESENTANTE';\n    leadPronto = true;\n    break;\n\n  case 'AGUARDANDO_REPRESENTANTE':\n    resposta = '✅ Já registramos seu interesse! Um representante entrará em contato em breve. 😊';\n    proximoEstado = 'AGUARDANDO_REPRESENTANTE';\n    break;\n\n  case 'ENCERRADO':\n    resposta = '✅ Conversa encerrada. Se precisar de algo no futuro, é só chamar! 😊';\n    proximoEstado = 'ENCERRADO';\n    break;\n\n  default:\n    resposta = 'Olá! Como posso ajudar? 😊';\n    proximoEstado = 'SAUDACAO';\n}\n\nreturn [{\n  json: {\n    remoteJid,\n    numero,\n    mensagem: resposta,\n    proximoEstado,\n    dados,\n    leadPronto\n  }\n}];"
+      }
+    },
+    {
+      "id": "save-conversation",
+      "name": "Salvar estado",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1000, 300],
+      "parameters": {
+        "url": "https://pdmprotextil.vercel.app/api/crm/whatsapp/conversa",
+        "method": "POST",
+        "authentication": "none",
+        "sendBody": true,
+        "contentType": "json",
+        "bodyParameters": {
+          "parameters": [
+            { "name": "remoteJid", "value": "={{ $json.remoteJid }}" },
+            { "name": "estado", "value": "={{ $json.proximoEstado }}" },
+            { "name": "dados", "value": "={{ $json.dados }}" }
+          ]
+        },
+        "options": { "timeout": 10000 }
+      }
+    },
+    {
+      "id": "send-response",
+      "name": "Enviar resposta WhatsApp",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1200, 300],
+      "parameters": {
+        "url": "https://evolutionapi.tiagoabreu.dev/message/sendText/maketing_pdm_pro_moda",
+        "method": "POST",
+        "authentication": "none",
+        "sendBody": true,
+        "contentType": "json",
+        "bodyParameters": {
+          "parameters": [
+            { "name": "number", "value": "={{ $json.numero }}" },
+            { "name": "text", "value": "={{ $json.mensagem }}" },
+            { "name": "options.delay", "value": "1000" }
+          ]
+        },
+        "options": {
+          "timeout": 15000,
+          "headers": {
+            "apikey": "E7CFC0D4875D-46F3-BF90-3946AAD1917A"
+          }
+        }
+      }
+    },
+    {
+      "id": "filter-lead",
+      "name": "Lead pronto?",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 1,
+      "position": [1400, 200],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            { "value1": "={{ $json.leadPronto }}", "value2": true }
+          ]
+        }
+      }
+    },
+    {
+      "id": "create-lead",
+      "name": "Criar Lead CRM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1400, 400],
+      "parameters": {
+        "url": "https://pdmprotextil.vercel.app/api/crm/whatsapp/webhook?createLead=true&secret=pdm-secret-2024",
+        "method": "POST",
+        "authentication": "none",
+        "sendBody": true,
+        "contentType": "json",
+        "bodyParameters": {
+          "parameters": [
+            { "name": "remoteJid", "value": "={{ $json.remoteJid }}" },
+            { "name": "mensagem", "value": "={{ 'Lead qualificado via bot - ' + ($json.dados ? ($json.dados.razaoSocial || '') : '') }}" },
+            { "name": "externalId", "value": "={{ Date.now().toString() }}" }
+          ]
+        },
+        "options": { "timeout": 15000 }
+      },
+      "continueOnFail": true
+    }
+  ],
+  "connections": {
+    "Receber do Evolution": {
+      "main": [[{ "node": "Extrair dados", "type": "main", "index": 0 }]]
+    },
+    "Extrair dados": {
+      "main": [[{ "node": "Buscar conversa", "type": "main", "index": 0 }]]
+    },
+    "Buscar conversa": {
+      "main": [[{ "node": "Bot Conversacional", "type": "main", "index": 0 }]]
+    },
+    "Bot Conversacional": {
+      "main": [[{ "node": "Salvar estado", "type": "main", "index": 0 }]]
+    },
+    "Salvar estado": {
+      "main": [[{ "node": "Enviar resposta WhatsApp", "type": "main", "index": 0 }]]
+    },
+    "Enviar resposta WhatsApp": {
+      "main": [[{ "node": "Lead pronto?", "type": "main", "index": 0 }]]
+    },
+    "Lead pronto?": {
+      "main": [[{ "node": "Criar Lead CRM", "type": "main", "index": 0 }]]
+    }
+  },
+  "pinData": {},
+  "versionId": "v1",
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Sao_Paulo",
+    "saveManualExecutions": true
+  },
+  "tags": [],
+  "id": "whatsapp-bot-atendimento",
+  "createdAt": "",
+  "updatedAt": ""
+}

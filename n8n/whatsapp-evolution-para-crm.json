@@ -19,63 +19,13 @@
       }
     },
     {
-      "id": "filter-and-transform",
-      "name": "Filtrar e Transformar",
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 2,
+      "id": "transform-code",
+      "name": "Extrair e transformar",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
       "position": [450, 300],
       "parameters": {
-        "values": {
-          "string": [
-            {
-              "name": "remoteJid",
-              "value": "={{ $json.data.key.remoteJid || $json.remoteJid }}"
-            },
-            {
-              "name": "mensagem",
-              "value": "={{ $json.data.message?.conversation || $json.data.message?.extendedTextMessage?.text || $json.data.message?.imageMessage?.caption || $json.mensagem || '' }}"
-            },
-            {
-              "name": "externalId",
-              "value": "={{ $json.data.key?.id || $json.externalId }}"
-            },
-            {
-              "name": "fromMe",
-              "value": "={{ $json.data.key?.fromMe || false }}"
-            },
-            {
-              "name": "pushName",
-              "value": "={{ $json.data.pushName || $json.pushName || '' }}"
-            }
-          ]
-        },
-        "options": {}
-      }
-    },
-    {
-      "id": "filter-fromme",
-      "name": "Ignorar próprias mensagens",
-      "type": "n8n-nodes-base.filter",
-      "typeVersion": 1,
-      "position": [650, 300],
-      "parameters": {
-        "conditions": {
-          "string": [
-            {
-              "value1": "={{ $json.fromMe }}",
-              "value2": "false",
-              "caseSensitive": true
-            }
-          ],
-          "number": [],
-          "boolean": [
-            {
-              "value1": "={{ $json.fromMe }}",
-              "value2": false
-            }
-          ]
-        },
-        "options": {}
+        "functionCode": "const item = $input.first().json;\n\nconst body = item.body || item;\n\n// Ignora eventos que não são messages.upsert\nif (body.event && body.event !== 'messages.upsert') {\n  return [null];\n}\n\nconst data = body.data || body;\nconst key = data.key || {};\nconst msg = data.message || {};\n\nlet remoteJid = key.remoteJid || body.remoteJid || '';\nif ((remoteJid.includes('@lid') || !remoteJid) && body.sender) {\n  remoteJid = body.sender;\n}\n\nconst mensagem = msg.conversation\n  || msg.extendedTextMessage?.text\n  || msg.imageMessage?.caption\n  || msg.documentMessage?.caption\n  || msg.videoMessage?.caption\n  || (msg.audioMessage ? '🎤 Áudio' : '')\n  || '';\n\nconst pushName = data.pushName || body.pushName || '';\nconst fromMe = key.fromMe === true || body.fromMe === true;\n\nif (fromMe) {\n  return [null];\n}\n\nreturn [{\n  json: {\n    remoteJid,\n    mensagem,\n    externalId: key.id || data.messageTimestamp || '',\n    pushName,\n    tipoMensagem: msg.conversation || msg.extendedTextMessage ? 'texto'\n      : msg.imageMessage ? 'imagem'\n      : msg.documentMessage ? 'documento'\n      : msg.audioMessage ? 'audio'\n      : msg.videoMessage ? 'video'\n      : 'desconhecido'\n  }\n}];"
       }
     },
     {
@@ -83,10 +33,12 @@
       "name": "Enviar para CRM",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4,
-      "position": [850, 300],
+      "position": [650, 300],
       "parameters": {
-        "url": "={{ $env.CRM_WEBHOOK_URL || 'https://pdmprotextil.vercel.app/api/crm/whatsapp/webhook' }}",
+        "url": "https://pdmprotextil.vercel.app/api/crm/whatsapp/webhook",
+        "method": "POST",
         "authentication": "none",
+        "sendQuery": true,
         "queryParameters": {
           "parameters": [
             {
@@ -95,11 +47,12 @@
             },
             {
               "name": "secret",
-              "value": "={{ $env.WHATSAPP_WEBHOOK_SECRET }}"
+              "value": "pdm-secret-2024"
             }
           ]
         },
         "sendBody": true,
+        "contentType": "json",
         "bodyParameters": {
           "parameters": [
             {
@@ -113,37 +66,36 @@
             {
               "name": "externalId",
               "value": "={{ $json.externalId }}"
+            },
+            {
+              "name": "tipoMensagem",
+              "value": "={{ $json.tipoMensagem }}"
+            },
+            {
+              "name": "pushName",
+              "value": "={{ $json.pushName }}"
             }
           ]
         },
-        "options": {}
+        "options": {
+          "timeout": 30000
+        }
       }
     }
   ],
   "connections": {
-    "webhook-receiver": {
+    "Receber do Evolution": {
       "main": [
         [
           {
-            "node": "Filtrar e Transformar",
+            "node": "Extrair e transformar",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Filtrar e Transformar": {
-      "main": [
-        [
-          {
-            "node": "Ignorar próprias mensagens",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Ignorar próprias mensagens": {
+    "Extrair e transformar": {
       "main": [
         [
           {
@@ -156,10 +108,12 @@
     }
   },
   "pinData": {},
-  "versionId": "initial",
+  "versionId": "v3",
   "active": false,
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "timezone": "America/Sao_Paulo",
+    "saveManualExecutions": true
   },
   "tags": [],
   "id": "whatsapp-evolution-to-crm",
