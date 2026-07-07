@@ -3,10 +3,17 @@ const fs = require("fs");
 const data = JSON.parse(fs.readFileSync("n8n/whatsapp-bot-atendimento.json", "utf8"));
 const node = data.nodes.find(n => n.id === "bot-logic");
 
-const code = `const entrada = $input.first().json;
-const { remoteJid, numero, mensagem, pushName } = entrada;
-const estadoAtual = entrada.estado || "SAUDACAO";
-const dados = entrada.dados || {};
+const code = `
+// Merge: get conversation state from current input, message data from Extrair dados
+const conversa = $input.first().json;
+const msgItems = $items("Extrair dados");
+const msgData = (msgItems && msgItems.length > 0) ? msgItems[0].json : {};
+const remoteJid = conversa.remoteJid || msgData.remoteJid || "";
+const numero = msgData.numero || "";
+const mensagem = msgData.mensagem || "";
+const pushName = msgData.pushName || "";
+const estadoAtual = conversa.estado || "SAUDACAO";
+const dados = conversa.dados || {};
 const msgLower = mensagem.toLowerCase().trim();
 const sim = ["sim", "s", "ss", "claro", "ok", "pode ser", "vamos", "bora", "yes"];
 const nao = ["não", "nao", "n", "ñ", "nem", "no"];
