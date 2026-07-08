@@ -120,14 +120,11 @@
       "typeVersion": 1,
       "position": [1740, 300],
       "parameters": {
-        "resource": "message",
-        "operation": "sendText",
+        "resource": "messages-api",
         "instanceName": "maketing_pdm_pro_moda",
-        "number": "={{ $json.remetente }}",
-        "text": "={{ $json.resposta }}",
-        "options": {
-          "delay": 1000
-        }
+        "remoteJid": "={{ $json.remetente }}",
+        "messageText": "={{ $json.resposta }}",
+        "options_message": {}
       },
       "credentials": {
         "evolutionApi": {
