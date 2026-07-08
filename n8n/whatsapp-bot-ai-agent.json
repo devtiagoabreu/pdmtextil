@@ -1,0 +1,284 @@
+{
+  "name": "WhatsApp Bot AI Agent Pro Moda",
+  "nodes": [
+    {
+      "id": "webhook-1",
+      "name": "Receber do Evolution",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [200, 300],
+      "webhookId": "whatsapp-evolution",
+      "parameters": {
+        "path": "whatsapp-evolution",
+        "responseMode": "lastNode",
+        "responseData": "allEntries",
+        "options": {
+          "rawBody": true
+        },
+        "httpMethod": "POST"
+      }
+    },
+    {
+      "id": "extract-2",
+      "name": "Extrair dados",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [420, 300],
+      "parameters": {
+        "functionCode": "const item = $input.first().json;\nconst body = item.body || item;\nconst data = body.data || {};\nconst key = data.key || {};\nconst msg = data.message || {};\n\nconst pushName = data.pushName || body.pushName || \"\";\nconst remetente = key.remoteJid || body.remoteJid || body.sender || \"\";\nconst fromMe = key.fromMe === true;\nconst mensagem = msg.conversation\n  || msg.extendedTextMessage?.text\n  || msg.imageMessage?.caption\n  || msg.documentMessage?.caption\n  || msg.videoMessage?.caption\n  || \"\";\nconst msgType = data.messageType || \"\";\nconst destinatario = body.sender || \"\";\n\nreturn [{\n  json: {\n    pushName,\n    remetente,\n    fromMe,\n    msg: mensagem,\n    msgType,\n    destinatario\n  }\n}];"
+      }
+    },
+    {
+      "id": "get-state-4",
+      "name": "Buscar conversa",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [860, 300],
+      "continueOnFail": true,
+      "parameters": {
+        "url": "=https://pdmprotextil.vercel.app/api/crm/whatsapp/conversa?remoteJid={{ $json.remetente }}",
+        "method": "GET",
+        "authentication": "none",
+        "sendQuery": false,
+        "options": {
+          "timeout": 10000
+        }
+      }
+    },
+    {
+      "id": "init-state-5",
+      "name": "Filtrar e estado inicial",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1080, 300],
+      "parameters": {
+        "functionCode": "const extItems = $items(\"Extrair dados\");\nconst extData = (extItems && extItems.length > 0) ? extItems[0].json : {};\n\n// Filtra mensagens enviadas por nos (fromMe = true)\nif (extData.fromMe === true) {\n  return [null];\n}\n\nconst msg = extData.msg || \"\";\n// Filtra mensagens vazias\nif (!msg || msg.trim() === \"\") {\n  return [null];\n}\n\nconst apiData = $input.first().json;\nconst remetente = extData.remetente || \"\";\n\n// Extrai o numero limpo (sem @s.whatsapp.net, @lid, etc)\nconst numero = remetente.split(\"@\")[0] || remetente;\n\nreturn [{\n  json: {\n    remetente: remetente,\n    numero: numero,\n    pushName: extData.pushName || \"\",\n    msg: msg,\n    msgType: extData.msgType || \"\",\n    estado: apiData.estado || \"SAUDACAO\",\n    dados: apiData.dados || {},\n    conversaId: apiData.id || null\n  }\n}];"
+      }
+    },
+    {
+      "id": "ai-agent-6",
+      "name": "IA Atendente",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [1300, 300],
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.msg }}",
+        "options": {
+          "systemMessage": "Voce e um assistente de vendas virtual da Pro Moda Textil, uma industria textil B2B brasileira especializada em tecidos para hospitalar, workwear, decoracao, colchoes e forro de bolso. Atendemos exclusivamente pessoas juridicas (empresas).\n\nContexto atual da conversa:\n- Cliente: {{ $json.pushName }}\n- Estado atual: {{ $json.estado }}\n- Dados coletados ate agora: {{ JSON.stringify($json.dados) }}\n\nFLUXO DA CONVERSA:\nEstado SAUDACAO: Apresente-se e pergunte se a pessoa e pessoa juridica (empresa)\nEstado VALIDANDO_PJ: Confirme o CNPJ e se e B2B. Se for pessoa fisica, encerre educadamente.\nEstado COLETANDO_DADOS: Colete informacoes uma de cada vez. Pergunte o nome, depois email, depois telefone. Nao pergunte tudo de uma vez.\nEstado CONSULTANDO_PRODUTO: Pergunte qual produto ou tecido o cliente precisa\nEstado FINALIZANDO: Confirme os dados, diga que um representante entrara em contato\nEstado ENCERRADO: Nao responda mais, apenas informe que o atendimento foi encerrado\n\nREGRAS:\n1. Responda SEMPRE em portugues brasileiro, de forma natural e cordial\n2. Pergunte UMA COISA de cada vez - nao faca varias perguntas na mesma mensagem\n3. Confirme o que o usuario responder antes de passar para o proximo passo\n4. Nao invente precos ou estoque - um representante entrara em contato\n5. Se for pessoa fisica, explique que atendemos apenas empresas e encerre\n6. Mantenha respostas concisas (max 3 linhas) como numa conversa de WhatsApp\n7. Nao responda com sotaque, seja natural brasileiro\n8. Nao use emojis"
+        }
+      }
+    },
+    {
+      "id": "groq-7",
+      "name": "Groq Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [1200, 550],
+      "parameters": {
+        "model": "groq/compound-mini",
+        "options": {}
+      },
+      "credentials": {
+        "groqApi": {
+          "id": "oG9hErdp3lvAJFwg"
+        }
+      }
+    },
+    {
+      "id": "redis-memory-8",
+      "name": "Redis Chat Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
+      "typeVersion": 1.5,
+      "position": [1400, 550],
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "=session: {{ $json.remetente }}",
+        "sessionTTL": 3600,
+        "contextWindowLength": 15
+      },
+      "credentials": {
+        "redis": {
+          "id": "Uvac3m8TX1g7bg09"
+        }
+      }
+    },
+    {
+      "id": "state-machine-9",
+      "name": "Maquina de estados",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1520, 300],
+      "parameters": {
+        "functionCode": "const item = $input.first().json;\nconst aiRes = item.output || \"\";\nconst curEstado = item.estado || \"SAUDACAO\";\nconst curDados = item.dados || {};\nconst msgOriginal = item.msg || \"\";\nconst msg = msgOriginal.toLowerCase().trim();\n\nlet nextEstado = curEstado;\nconst dados = JSON.parse(JSON.stringify(curDados));\nconst palavrasNao = [\"nao\", \"não\", \"n\", \"nem\", \"ñ\"];\nconst palavrasSim = [\"sim\", \"sou\", \"s\", \"ss\", \"claro\", \"ok\", \"pode ser\", \"confirmo\"];\n\nfunction contem(lista, texto) {\n  return lista.some(p => texto.includes(p));\n}\n\nfunction extrair(msgCmp, msgOrig) {\n  // CNPJ: 14 digitos\n  const cnpj = msgOrig.match(/\\d{2}\\.?\\d{3}\\.?\\d{3}\\/?\\d{4}-?\\d{2}/);\n  if (cnpj && !dados.cnpj) dados.cnpj = cnpj[0];\n  // CPF\n  const cpf = msgOrig.match(/\\d{3}\\.?\\d{3}\\.?\\d{3}-?\\d{2}/);\n  if (cpf && !dados.cpf) dados.cpf = cpf[0];\n  // Email\n  const email = msgCmp.match(/[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}/);\n  if (email && !dados.email) dados.email = email[0];\n  // Telefone\n  const fone = msgOrig.match(/(\\d{2})\\s?9?\\d{4}-?\\d{4}/);\n  if (fone && !dados.telefone) dados.telefone = fone[0];\n  // Nome (qualquer texto > 3 chars que nao seja negacao/afirmacao)\n  if (!dados.nome && msgOrig.length > 3\n      && !contem(palavrasNao, msgCmp)\n      && !contem(palavrasSim, msgCmp)\n      && !email\n      && msgCmp.replace(/[^a-záàãéêíóôúç ]/g,'').length > 3) {\n    dados.nome = msgOrig;\n  }\n}\n\nif (curEstado === \"SAUDACAO\") {\n  nextEstado = \"VALIDANDO_PJ\";\n\n} else if (curEstado === \"VALIDANDO_PJ\") {\n  if (contem(palavrasNao, msg) || msg.includes(\"fisica\") || msg.includes(\"física\")) {\n    nextEstado = \"ENCERRADO\";\n  } else if (contem(palavrasSim, msg) || msg.includes(\"cnpj\") || msg.includes(\"empresa\") || msg.includes(\"juridica\")) {\n    extrair(msg, msgOriginal);\n    nextEstado = \"COLETANDO_DADOS\";\n    dados.pj = true;\n  }\n  // else: stay - AI will clarify\n\n} else if (curEstado === \"COLETANDO_DADOS\") {\n  extrair(msg, msgOriginal);\n  const temNome = dados.nome && dados.nome.length > 0;\n  const temEmail = dados.email && dados.email.length > 0;\n  const temDoc = dados.cnpj || dados.cpf || dados.documento;\n  if (temNome && temEmail && temDoc) {\n    nextEstado = \"CONSULTANDO_PRODUTO\";\n  }\n\n} else if (curEstado === \"CONSULTANDO_PRODUTO\") {\n  dados.produto = msgOriginal;\n  nextEstado = \"FINALIZANDO\";\n\n} else if (curEstado === \"FINALIZANDO\") {\n  dados.finalizado = true;\n  nextEstado = \"ENCERRADO\";\n\n} else if (curEstado === \"ENCERRADO\") {\n  // mantem encerrado\n}\n\nreturn [{\n  json: {\n    remetente: item.remetente,\n    numero: item.numero,\n    pushName: item.pushName,\n    msg: item.msg,\n    resposta: aiRes || \"Desculpe, nao entendi. Pode repetir?\",\n    estado: nextEstado,\n    dados\n  }\n}];"
+      }
+    },
+    {
+      "id": "evolution-send-10",
+      "name": "Enviar WhatsApp",
+      "type": "n8n-nodes-evolution-api.evolutionApi",
+      "typeVersion": 1,
+      "position": [1740, 300],
+      "parameters": {
+        "resource": "message",
+        "operation": "sendText",
+        "instanceName": "maketing_pdm_pro_moda",
+        "number": "={{ $json.remetente }}",
+        "text": "={{ $json.resposta }}",
+        "options": {
+          "delay": 1000
+        }
+      },
+      "credentials": {
+        "evolutionApi": {
+          "id": "zlFrmzQfy0KbWcqo"
+        }
+      }
+    },
+    {
+      "id": "save-state-11",
+      "name": "Salvar estado",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1960, 300],
+      "parameters": {
+        "url": "https://pdmprotextil.vercel.app/api/crm/whatsapp/conversa",
+        "method": "POST",
+        "authentication": "none",
+        "sendBody": true,
+        "contentType": "json",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "remoteJid",
+              "value": "={{ $json.remetente }}"
+            },
+            {
+              "name": "numero",
+              "value": "={{ $json.numero }}"
+            },
+            {
+              "name": "estado",
+              "value": "={{ $json.estado }}"
+            },
+            {
+              "name": "dados",
+              "value": "={{ $json.dados }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 10000
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Receber do Evolution": {
+      "main": [
+        [
+          {
+            "node": "Extrair dados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extrair dados": {
+      "main": [
+        [
+          {
+            "node": "Buscar conversa",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar conversa": {
+      "main": [
+        [
+          {
+            "node": "Filtrar e estado inicial",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtrar e estado inicial": {
+      "main": [
+        [
+          {
+            "node": "IA Atendente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IA Atendente": {
+      "main": [
+        [
+          {
+            "node": "Maquina de estados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ],
+      "ai_languageModel": [
+        [
+          {
+            "node": "Groq Chat Model",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ],
+      "ai_memory": [
+        [
+          {
+            "node": "Redis Chat Memory",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Maquina de estados": {
+      "main": [
+        [
+          {
+            "node": "Enviar WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar WhatsApp": {
+      "main": [
+        [
+          {
+            "node": "Salvar estado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "versionId": "v1",
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Sao_Paulo",
+    "saveManualExecutions": true
+  },
+  "tags": [],
+  "createdAt": "",
+  "updatedAt": ""
+}
