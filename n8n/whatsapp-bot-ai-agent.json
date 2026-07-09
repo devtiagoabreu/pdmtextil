@@ -73,6 +73,26 @@
       }
     },
     {
+      "id": "if-fromme-13",
+      "name": "Contato existe?",
+      "type": "@n8n-nodes-evolution-api.evolutionApi",
+      "typeVersion": 1,
+      "position": [
+        640,
+        300
+      ],
+      "parameters": {
+        "resource": "chat-api",
+        "operation": "find-contacts",
+        "instanceName": "maketing_pdm_pro_moda"
+      },
+      "credentials": {
+        "evolutionApi": {
+          "id": "zlFrmzQfy0KbWcqo"
+        }
+      }
+    },
+    {
       "id": "noop-skip-14",
       "name": "Ignorar",
       "type": "n8n-nodes-base.noOp",
@@ -114,7 +134,7 @@
         300
       ],
       "parameters": {
-        "functionCode": "const remetente = $node[\"Extrair dados\"].json.remetente || \"\";\nconst numero = remetente.replace(\"@s.whatsapp.net\", \"\").replace(\"@lid\", \"\");\n\nlet encontrado = false;\n\ntry {\n  const response = await this.helpers.request({\n    method: \"POST\",\n    url: \"https://evolutionapi.tiagoabreu.dev/chat/findContacts/maketing_pdm_pro_moda\",\n    headers: {\n      \"apikey\": \"evolution_apikey_dqgh3ffrdg\"\n    },\n    body: {\n      where: {\n        id: remetente\n      }\n    },\n    json: true\n  });\n\n  const contatos = Array.isArray(response) ? response : [];\n  encontrado = contatos.some(c => c.number === numero);\n} catch (error) {\n  encontrado = false;\n}\n\nreturn [{\n  json: {\n    ...$node[\"Extrair dados\"].json,\n    contatoConhecido: encontrado\n  }\n}];"
+        "functionCode": "const apiResponse = $input.first().json;\nconst extData = $node[\"Extrair dados\"].json;\nconst remetente = extData.remetente || \"\";\nconst numero = remetente.replace(\"@s.whatsapp.net\", \"\").replace(\"@lid\", \"\");\n\nconst contatos = (apiResponse.success && Array.isArray(apiResponse.data)) ? apiResponse.data : [];\nconst encontrado = contatos.some(c => {\n  const jid = c.remoteJid || \"\";\n  return jid.replace(\"@s.whatsapp.net\", \"\").replace(\"@lid\", \"\") === numero;\n});\n\nreturn [{\n  json: {\n    ...extData,\n    contatoConhecido: encontrado\n  }\n}];"
       }
     },
     {
@@ -340,6 +360,17 @@
       ]
     },
     "Extrair dados": {
+      "main": [
+        [
+          {
+            "node": "Contato existe?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contato existe?": {
       "main": [
         [
           {
