@@ -73,7 +73,7 @@
       }
     },
     {
-      "id": "bc0176e7-c786-46d5-ab98-96132ba088f0",
+      "id": "f79584fd-19e8-495a-ba11-d1a2244a6135",
       "name": "Contato existe?",
       "type": "@n8n-nodes-evolution-api.evolutionApi",
       "typeVersion": 1,
