@@ -36,7 +36,9 @@ export async function GET(req: NextRequest) {
         .insert(crmWhatsappConversas)
         .values({ remoteJid, estado: "SAUDACAO", dados: {} })
         .returning()
-      conversa = nova
+      conversa = { ...nova, isNew: true }
+    } else {
+      conversa = { ...conversa, isNew: false }
     }
 
     return NextResponse.json(conversa)

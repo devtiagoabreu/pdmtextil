@@ -40,7 +40,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        640,
+        1080,
         300
       ],
       "parameters": {
@@ -52,7 +52,7 @@
           },
           "conditions": [
             {
-              "leftValue": "={{ $json.fromMe }}",
+              "leftValue": "={{ $items('Extrair dados')[0].json.fromMe }}",
               "rightValue": false,
               "operator": {
                 "type": "boolean",
@@ -60,7 +60,7 @@
               }
             },
             {
-              "leftValue": "={{ $json.msg }}",
+              "leftValue": "={{ $items('Extrair dados')[0].json.msg }}",
               "rightValue": "",
               "operator": {
                 "type": "string",
@@ -74,24 +74,31 @@
     },
     {
       "id": "if-fromme-13",
-      "name": "Foi o bot?",
-      "type": "@n8n-nodes-evolution-api.evolutionApi",
-      "typeVersion": 1,
+      "name": "Contato existe?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
       "position": [
         860,
         300
       ],
-      "continueOnFail": true,
       "parameters": {
-        "resource": "chat-api",
-        "operation": "find-contacts",
-        "instanceName": "maketing_pdm_pro_moda",
-        "listAll": false,
-        "remoteJid": "={{ $json.remetente }}"
-      },
-      "credentials": {
-        "evolutionApi": {
-          "id": "zlFrmzQfy0KbWcqo"
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.isNew }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "equal"
+              }
+            }
+          ],
+          "combinator": "and"
         }
       }
     },
@@ -128,50 +135,12 @@
       }
     },
     {
-      "id": "if-new-contact-16",
-      "name": "Contato novo?",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2,
-      "position": [
-        1080,
-        300
-      ],
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": false,
-            "leftValue": "",
-            "typeValidation": "strict"
-          },
-          "conditions": [
-            {
-              "leftValue": "={{ $json.success }}",
-              "rightValue": true,
-              "operator": {
-                "type": "boolean",
-                "operation": "equal"
-              }
-            },
-            {
-              "leftValue": "={{ Array.isArray($json.data) ? $json.data.length : -1 }}",
-              "rightValue": 0,
-              "operator": {
-                "type": "number",
-                "operation": "equal"
-              }
-            }
-          ],
-          "combinator": "and"
-        }
-      }
-    },
-    {
       "id": "get-state-4",
       "name": "Buscar conversa",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4,
       "position": [
-        1300,
+        640,
         300
       ],
       "continueOnFail": true,
@@ -191,7 +160,7 @@
       "type": "n8n-nodes-base.function",
       "typeVersion": 1,
       "position": [
-        1080,
+        1300,
         300
       ],
       "parameters": {
@@ -361,7 +330,7 @@
       "main": [
         [
           {
-            "node": "É texto?",
+            "node": "Buscar conversa",
             "type": "main",
             "index": 0
           }
@@ -372,7 +341,25 @@
       "main": [
         [
           {
-            "node": "Filtrar e estado inicial",
+            "node": "Contato existe?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contato existe?": {
+      "main": [
+        [
+          {
+            "node": "Ignorar",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "É texto?",
             "type": "main",
             "index": 0
           }
@@ -461,43 +448,14 @@
       "main": [
         [
           {
-            "node": "Foi o bot?",
+            "node": "Filtrar e estado inicial",
             "type": "main",
             "index": 0
           }
         ],
         [
           {
-            "node": "Ignorar",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Foi o bot?": {
-      "main": [
-        [
-          {
-            "node": "Contato novo?",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Contato novo?": {
-      "main": [
-        [
-          {
-            "node": "Buscar conversa",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Ignorar",
+            "node": "Responder apenas texto",
             "type": "main",
             "index": 0
           }
