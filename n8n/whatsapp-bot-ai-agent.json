@@ -52,7 +52,6 @@
           },
           "conditions": [
             {
-              "id": "cond-1",
               "leftValue": "={{ $json.fromMe }}",
               "rightValue": false,
               "operator": {
@@ -61,7 +60,6 @@
               }
             },
             {
-              "id": "cond-2",
               "leftValue": "={{ $json.msg }}",
               "rightValue": "",
               "operator": {
@@ -92,7 +90,6 @@
           },
           "conditions": [
             {
-              "id": "cond-fm-1",
               "leftValue": "={{ $json.fromMe }}",
               "rightValue": true,
               "operator": {
