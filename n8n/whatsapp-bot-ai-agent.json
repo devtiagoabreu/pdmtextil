@@ -73,19 +73,19 @@
       }
     },
     {
-      "id": "f79584fd-19e8-495a-ba11-d1a2244a6135",
-      "name": "Contato existe?",
-      "type": "@n8n-nodes-evolution-api.evolutionApi",
-      "typeVersion": 1,
-      "position": [
-        640,
-        300
-      ],
       "parameters": {
         "resource": "chat-api",
         "operation": "find-contacts",
         "instanceName": "maketing_pdm_pro_moda"
       },
+      "type": "n8n-nodes-evolution-api.evolutionApi",
+      "typeVersion": 1,
+      "position": [
+        640,
+        300
+      ],
+      "id": "b375e537-4c8d-423a-b10b-25233cd7c754",
+      "name": "Listar contatos",
       "credentials": {
         "evolutionApi": {
           "id": "zlFrmzQfy0KbWcqo",
@@ -157,7 +157,7 @@
           "conditions": [
             {
               "leftValue": "={{ $json.contatoConhecido }}",
-              "rightValue": true,
+              "rightValue": false,
               "operator": {
                 "type": "boolean",
                 "operation": "equal"
@@ -364,14 +364,14 @@
       "main": [
         [
           {
-            "node": "Contato existe?",
+            "node": "Listar contatos",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Contato existe?": {
+    "Listar contatos": {
       "main": [
         [
           {
