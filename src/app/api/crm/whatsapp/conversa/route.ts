@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
 import { pgTable, serial, varchar, jsonb, timestamp } from "drizzle-orm/pg-core"
 import { eq, sql } from "drizzle-orm"
+import { crmLeads } from "@/lib/db/schema/crm-leads"
 
 const crmWhatsappConversas = pgTable("crm_whatsapp_conversas", {
   id: serial("id").primaryKey(),
@@ -11,6 +12,10 @@ const crmWhatsappConversas = pgTable("crm_whatsapp_conversas", {
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 })
+
+function extrairNumero(remoteJid: string): string {
+  return remoteJid.replace(/@s\.whatsapp\.net$/, "").replace(/\D/g, "")
+}
 
 export async function GET(req: NextRequest) {
   try {
@@ -58,7 +63,41 @@ export async function POST(req: NextRequest) {
       })
       .returning()
 
-    return NextResponse.json(atualizada)
+    let lead = null
+    if ((estado === "FINALIZANDO" || estado === "ENCERRADO") && dados?.nome) {
+      const existing = await db
+        .select({ id: crmLeads.id })
+        .from(crmLeads)
+        .where(eq(crmLeads.idIntegracao, `whatsapp:${remoteJid}`))
+        .limit(1)
+        .then((r) => r[0] || null)
+
+      if (!existing) {
+        const numero = extrairNumero(remoteJid)
+        const descricaoParts: string[] = []
+        if (dados.produto) descricaoParts.push(`Produto: ${dados.produto}`)
+        if (dados.documento) descricaoParts.push(`Documento: ${dados.documento}`)
+        if (dados.tipoPessoa) descricaoParts.push(`Tipo: ${dados.tipoPessoa}`)
+        if (dados.empresaNome) descricaoParts.push(`Empresa: ${dados.empresaNome}`)
+
+        const [novo] = await db
+          .insert(crmLeads)
+          .values({
+            nome: dados.nome,
+            email: dados.email || null,
+            celular: numero,
+            empresaNome: dados.tipoPessoa === "PJ" ? (dados.empresaNome || dados.nome) : null,
+            origem: "WHATSAPP",
+            descricao: descricaoParts.length > 0 ? descricaoParts.join(" | ") : null,
+            idIntegracao: `whatsapp:${remoteJid}`,
+          })
+          .returning()
+
+        lead = novo
+      }
+    }
+
+    return NextResponse.json({ ...atualizada, lead })
   } catch (error) {
     console.error("[POST /api/crm/whatsapp/conversa]", error)
     return NextResponse.json({ error: "Erro interno" }, { status: 500 })
