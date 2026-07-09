@@ -73,7 +73,7 @@
       }
     },
     {
-      "id": "if-fromme-13",
+      "id": "bc0176e7-c786-46d5-ab98-96132ba088f0",
       "name": "Contato existe?",
       "type": "@n8n-nodes-evolution-api.evolutionApi",
       "typeVersion": 1,
@@ -88,7 +88,8 @@
       },
       "credentials": {
         "evolutionApi": {
-          "id": "zlFrmzQfy0KbWcqo"
+          "id": "zlFrmzQfy0KbWcqo",
+          "name": "Evolution account"
         }
       }
     },
