@@ -40,7 +40,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        1080,
+        1300,
         300
       ],
       "parameters": {
@@ -52,7 +52,7 @@
           },
           "conditions": [
             {
-              "leftValue": "={{ $items('Extrair dados')[0].json.fromMe }}",
+              "leftValue": "={{ $node[\"Extrair dados\"].json.fromMe }}",
               "rightValue": false,
               "operator": {
                 "type": "boolean",
@@ -60,7 +60,7 @@
               }
             },
             {
-              "leftValue": "={{ $items('Extrair dados')[0].json.msg }}",
+              "leftValue": "={{ $node[\"Extrair dados\"].json.msg }}",
               "rightValue": "",
               "operator": {
                 "type": "string",
@@ -75,30 +75,22 @@
     {
       "id": "if-fromme-13",
       "name": "Contato existe?",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2,
+      "type": "@n8n-nodes-evolution-api.evolutionApi",
+      "typeVersion": 1,
       "position": [
-        860,
+        640,
         300
       ],
+      "continueOnFail": true,
       "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": false,
-            "leftValue": "",
-            "typeValidation": "strict"
-          },
-          "conditions": [
-            {
-              "leftValue": "={{ $json.isNew }}",
-              "rightValue": false,
-              "operator": {
-                "type": "boolean",
-                "operation": "equal"
-              }
-            }
-          ],
-          "combinator": "and"
+        "resource": "chat-api",
+        "instanceName": "maketing_pdm_pro_moda",
+        "remoteJid": "={{ $json.remetente }}",
+        "listAll": false
+      },
+      "credentials": {
+        "evolutionApi": {
+          "id": "zlFrmzQfy0KbWcqo"
         }
       }
     },
@@ -108,7 +100,7 @@
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        1080,
+        1300,
         500
       ]
     },
@@ -118,7 +110,7 @@
       "type": "n8n-nodes-evolution-api.evolutionApi",
       "typeVersion": 1,
       "position": [
-        1080,
+        1300,
         400
       ],
       "parameters": {
@@ -135,12 +127,55 @@
       }
     },
     {
+      "id": "combine-data-17",
+      "name": "Combinar dados",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        860,
+        300
+      ],
+      "parameters": {
+        "functionCode": "const apiResponse = $input.first().json;\nconst extData = $node[\"Extrair dados\"].json;\n\nconst data = Array.isArray(apiResponse.data) ? apiResponse.data : [];\n\nreturn [{\n  json: {\n    ...extData,\n    contatoConhecido: data.length > 0\n  }\n}];"
+      }
+    },
+    {
+      "id": "if-contact-known-16",
+      "name": "Contato conhecido?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1080,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.contatoConhecido }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equal"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
       "id": "get-state-4",
       "name": "Buscar conversa",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4,
       "position": [
-        640,
+        1520,
         300
       ],
       "continueOnFail": true,
@@ -160,7 +195,7 @@
       "type": "n8n-nodes-base.function",
       "typeVersion": 1,
       "position": [
-        1300,
+        1740,
         300
       ],
       "parameters": {
@@ -173,7 +208,7 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 2.2,
       "position": [
-        1300,
+        1740,
         300
       ],
       "parameters": {
@@ -190,7 +225,7 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
       "typeVersion": 1,
       "position": [
-        1200,
+        1640,
         550
       ],
       "parameters": {
@@ -209,7 +244,7 @@
       "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
       "typeVersion": 1.5,
       "position": [
-        1400,
+        1840,
         550
       ],
       "parameters": {
@@ -230,7 +265,7 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 2,
       "position": [
-        1520,
+        1960,
         200
       ],
       "parameters": {
@@ -244,7 +279,7 @@
       "type": "n8n-nodes-base.function",
       "typeVersion": 1,
       "position": [
-        1740,
+        2180,
         300
       ],
       "parameters": {
@@ -257,7 +292,7 @@
       "type": "n8n-nodes-evolution-api.evolutionApi",
       "typeVersion": 1,
       "position": [
-        1740,
+        2180,
         300
       ],
       "parameters": {
@@ -279,7 +314,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4,
       "position": [
-        1960,
+        2400,
         300
       ],
       "parameters": {
@@ -330,17 +365,6 @@
       "main": [
         [
           {
-            "node": "Buscar conversa",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Buscar conversa": {
-      "main": [
-        [
-          {
             "node": "Contato existe?",
             "type": "main",
             "index": 0
@@ -352,6 +376,28 @@
       "main": [
         [
           {
+            "node": "Combinar dados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combinar dados": {
+      "main": [
+        [
+          {
+            "node": "Contato conhecido?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contato conhecido?": {
+      "main": [
+        [
+          {
             "node": "Ignorar",
             "type": "main",
             "index": 0
@@ -360,6 +406,35 @@
         [
           {
             "node": "É texto?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "É texto?": {
+      "main": [
+        [
+          {
+            "node": "Buscar conversa",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responder apenas texto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar conversa": {
+      "main": [
+        [
+          {
+            "node": "Filtrar e estado inicial",
             "type": "main",
             "index": 0
           }
@@ -411,6 +486,17 @@
         ]
       ]
     },
+    "Merge dados": {
+      "main": [
+        [
+          {
+            "node": "Maquina de estados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
     "Maquina de estados": {
       "main": [
         [
@@ -427,35 +513,6 @@
         [
           {
             "node": "Salvar estado",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Merge dados": {
-      "main": [
-        [
-          {
-            "node": "Maquina de estados",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "É texto?": {
-      "main": [
-        [
-          {
-            "node": "Filtrar e estado inicial",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Responder apenas texto",
             "type": "main",
             "index": 0
           }
