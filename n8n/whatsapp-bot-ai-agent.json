@@ -38,7 +38,7 @@
       "id": "if-text-12",
       "name": "É texto?",
       "type": "n8n-nodes-base.if",
-      "typeVersion": 1,
+      "typeVersion": 2,
       "position": [
         640,
         300
@@ -76,7 +76,7 @@
       "id": "if-fromme-13",
       "name": "Foi o bot?",
       "type": "n8n-nodes-base.if",
-      "typeVersion": 1,
+      "typeVersion": 2,
       "position": [
         860,
         500
