@@ -83,7 +83,7 @@
       ],
       "continueOnFail": true,
       "parameters": {
-        "url": "=https://INSIRA_URL_EVOLUTION/chat/findContacts/maketing_pdm_pro_moda",
+        "url": "=https://evolutionapi.tiagoabreu.dev/chat/findContacts/maketing_pdm_pro_moda",
         "method": "POST",
         "authentication": "none",
         "sendHeaders": true,
@@ -95,7 +95,7 @@
             },
             {
               "name": "apikey",
-              "value": "INSIRA_API_KEY"
+              "value": "E7CFC0D4875D-46F3-BF90-3946AAD1917A"
             }
           ]
         },
