@@ -73,48 +73,6 @@
       }
     },
     {
-      "id": "if-fromme-13",
-      "name": "Contato existe?",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        640,
-        300
-      ],
-      "continueOnFail": true,
-      "parameters": {
-        "url": "=https://evolutionapi.tiagoabreu.dev/chat/findContacts/maketing_pdm_pro_moda",
-        "method": "POST",
-        "authentication": "none",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "Content-Type",
-              "value": "application/json"
-            },
-            {
-              "name": "apikey",
-              "value": "E7CFC0D4875D-46F3-BF90-3946AAD1917A"
-            }
-          ]
-        },
-        "sendBody": true,
-        "contentType": "json",
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "where",
-              "value": "={ \"id\": $node[\"Extrair dados\"].json.remetente }"
-            }
-          ]
-        },
-        "options": {
-          "timeout": 10000
-        }
-      }
-    },
-    {
       "id": "noop-skip-14",
       "name": "Ignorar",
       "type": "n8n-nodes-base.noOp",
@@ -156,7 +114,7 @@
         300
       ],
       "parameters": {
-        "functionCode": "const remetente = $node[\"Extrair dados\"].json.remetente || \"\";\nconst numero = remetente.replace(\"@s.whatsapp.net\", \"\").replace(\"@lid\", \"\");\n\nconst response = $input.first().json;\nconst contatos = Array.isArray(response) ? response : (Array.isArray(response.data) ? response.data : []);\nconst encontrado = contatos.some(c => c.number === numero);\n\nreturn [{\n  json: {\n    ...$node[\"Extrair dados\"].json,\n    contatoConhecido: encontrado\n  }\n}];"
+        "functionCode": "const remetente = $node[\"Extrair dados\"].json.remetente || \"\";\nconst numero = remetente.replace(\"@s.whatsapp.net\", \"\").replace(\"@lid\", \"\");\n\nlet encontrado = false;\n\ntry {\n  const response = await this.helpers.request({\n    method: \"POST\",\n    url: \"https://evolutionapi.tiagoabreu.dev/chat/findContacts/maketing_pdm_pro_moda\",\n    headers: {\n      \"apikey\": \"evolution_apikey_dqgh3ffrdg\"\n    },\n    body: {\n      where: {\n        id: remetente\n      }\n    },\n    json: true\n  });\n\n  const contatos = Array.isArray(response) ? response : [];\n  encontrado = contatos.some(c => c.number === numero);\n} catch (error) {\n  encontrado = false;\n}\n\nreturn [{\n  json: {\n    ...$node[\"Extrair dados\"].json,\n    contatoConhecido: encontrado\n  }\n}];"
       }
     },
     {
@@ -382,17 +340,6 @@
       ]
     },
     "Extrair dados": {
-      "main": [
-        [
-          {
-            "node": "Contato existe?",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Contato existe?": {
       "main": [
         [
           {
