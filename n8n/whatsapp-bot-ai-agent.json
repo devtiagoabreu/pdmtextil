@@ -75,22 +75,42 @@
     {
       "id": "if-fromme-13",
       "name": "Contato existe?",
-      "type": "@n8n-nodes-evolution-api.evolutionApi",
-      "typeVersion": 1,
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [
         640,
         300
       ],
       "continueOnFail": true,
       "parameters": {
-        "resource": "chat-api",
-        "instanceName": "maketing_pdm_pro_moda",
-        "remoteJid": "={{ $json.remetente }}",
-        "listAll": false
-      },
-      "credentials": {
-        "evolutionApi": {
-          "id": "zlFrmzQfy0KbWcqo"
+        "url": "=https://INSIRA_URL_EVOLUTION/chat/findContacts/maketing_pdm_pro_moda",
+        "method": "POST",
+        "authentication": "none",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "apikey",
+              "value": "INSIRA_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "where",
+              "value": "={ \"id\": $node[\"Extrair dados\"].json.remetente }"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 10000
         }
       }
     },
@@ -136,7 +156,7 @@
         300
       ],
       "parameters": {
-        "functionCode": "const apiResponse = $input.first().json;\nconst extData = $node[\"Extrair dados\"].json;\n\nconst data = Array.isArray(apiResponse.data) ? apiResponse.data : [];\n\nreturn [{\n  json: {\n    ...extData,\n    contatoConhecido: data.length > 0\n  }\n}];"
+        "functionCode": "const remetente = $node[\"Extrair dados\"].json.remetente || \"\";\nconst numero = remetente.replace(\"@s.whatsapp.net\", \"\").replace(\"@lid\", \"\");\n\nconst response = $input.first().json;\nconst contatos = Array.isArray(response) ? response : (Array.isArray(response.data) ? response.data : []);\nconst encontrado = contatos.some(c => c.number === numero);\n\nreturn [{\n  json: {\n    ...$node[\"Extrair dados\"].json,\n    contatoConhecido: encontrado\n  }\n}];"
       }
     },
     {
