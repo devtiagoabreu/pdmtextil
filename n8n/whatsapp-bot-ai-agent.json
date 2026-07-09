@@ -6,7 +6,10 @@
       "name": "Receber do Evolution",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
-      "position": [200, 300],
+      "position": [
+        200,
+        300
+      ],
       "webhookId": "whatsapp-evolution",
       "parameters": {
         "path": "whatsapp-evolution",
@@ -23,9 +26,115 @@
       "name": "Extrair dados",
       "type": "n8n-nodes-base.function",
       "typeVersion": 1,
-      "position": [420, 300],
+      "position": [
+        420,
+        300
+      ],
       "parameters": {
         "functionCode": "const item = $input.first().json;\nconst body = item.body || item;\nconst data = body.data || {};\nconst key = data.key || {};\nconst msg = data.message || {};\n\nconst pushName = data.pushName || body.pushName || \"\";\nconst remetente = key.remoteJid || body.remoteJid || body.sender || \"\";\nconst fromMe = key.fromMe === true;\nconst mensagem = msg.conversation\n  || msg.extendedTextMessage?.text\n  || msg.imageMessage?.caption\n  || msg.documentMessage?.caption\n  || msg.videoMessage?.caption\n  || \"\";\nconst msgType = data.messageType || \"\";\nconst destinatario = body.sender || \"\";\n\nreturn [{\n  json: {\n    pushName,\n    remetente,\n    fromMe,\n    msg: mensagem,\n    msgType,\n    destinatario\n  }\n}];"
+      }
+    },
+    {
+      "id": "if-text-12",
+      "name": "É texto?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        640,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond-1",
+              "leftValue": "={{ $json.fromMe }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "equal"
+              }
+            },
+            {
+              "id": "cond-2",
+              "leftValue": "={{ $json.msg }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "if-fromme-13",
+      "name": "Foi o bot?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        860,
+        500
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond-fm-1",
+              "leftValue": "={{ $json.fromMe }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equal"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "noop-skip-14",
+      "name": "Ignorar",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1080,
+        500
+      ]
+    },
+    {
+      "id": "evolution-textonly-15",
+      "name": "Responder apenas texto",
+      "type": "n8n-nodes-evolution-api.evolutionApi",
+      "typeVersion": 1,
+      "position": [
+        1080,
+        400
+      ],
+      "parameters": {
+        "resource": "messages-api",
+        "instanceName": "maketing_pdm_pro_moda",
+        "remoteJid": "={{ $json.remetente }}",
+        "messageText": "Olá! Este canal aceita apenas mensagens de texto. Por favor, digite sua mensagem. Obrigado!",
+        "options_message": {}
+      },
+      "credentials": {
+        "evolutionApi": {
+          "id": "zlFrmzQfy0KbWcqo"
+        }
       }
     },
     {
@@ -33,7 +142,10 @@
       "name": "Buscar conversa",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4,
-      "position": [860, 300],
+      "position": [
+        860,
+        300
+      ],
       "continueOnFail": true,
       "parameters": {
         "url": "=https://pdmprotextil.vercel.app/api/crm/whatsapp/conversa?remoteJid={{ $json.remetente }}",
@@ -50,7 +162,10 @@
       "name": "Filtrar e estado inicial",
       "type": "n8n-nodes-base.function",
       "typeVersion": 1,
-      "position": [1080, 300],
+      "position": [
+        1080,
+        300
+      ],
       "parameters": {
         "functionCode": "const extItems = $items(\"Extrair dados\");\nconst extData = (extItems && extItems.length > 0) ? extItems[0].json : {};\n\n// Filtra mensagens enviadas por nos (fromMe = true)\nif (extData.fromMe === true) {\n  return [null];\n}\n\nconst msg = extData.msg || \"\";\n// Filtra mensagens vazias\nif (!msg || msg.trim() === \"\") {\n  return [null];\n}\n\nconst apiData = $input.first().json;\nconst remetente = extData.remetente || \"\";\n\n// Extrai o numero limpo (sem @s.whatsapp.net, @lid, etc)\nconst numero = remetente.split(\"@\")[0] || remetente;\n\nreturn [{\n  json: {\n    remetente: remetente,\n    numero: numero,\n    pushName: extData.pushName || \"\",\n    msg: msg,\n    msgType: extData.msgType || \"\",\n    estado: apiData.estado || \"SAUDACAO\",\n    dados: apiData.dados || {},\n    conversaId: apiData.id || null\n  }\n}];"
       }
@@ -60,12 +175,15 @@
       "name": "IA Atendente",
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 2.2,
-      "position": [1300, 300],
+      "position": [
+        1300,
+        300
+      ],
       "parameters": {
         "promptType": "define",
         "text": "={{ $json.msg }}",
         "options": {
-          "systemMessage": "Voce e um assistente de vendas virtual da Pro Moda Textil, uma industria textil B2B brasileira especializada em tecidos para hospitalar, workwear, decoracao, colchoes e forro de bolso. Atendemos exclusivamente pessoas juridicas (empresas).\n\nContexto atual da conversa:\n- Cliente: {{ $json.pushName }}\n- Estado atual: {{ $json.estado }}\n- Dados coletados ate agora: {{ JSON.stringify($json.dados) }}\n\nFLUXO DA CONVERSA:\nEstado SAUDACAO: Apresente-se e pergunte se a pessoa e pessoa juridica (empresa)\nEstado VALIDANDO_PJ: Confirme o CNPJ e se e B2B. Se for pessoa fisica, encerre educadamente.\nEstado COLETANDO_DADOS: Colete informacoes uma de cada vez. Pergunte o nome, depois email, depois telefone. Nao pergunte tudo de uma vez.\nEstado CONSULTANDO_PRODUTO: Pergunte qual produto ou tecido o cliente precisa\nEstado FINALIZANDO: Confirme os dados, diga que um representante entrara em contato\nEstado ENCERRADO: Nao responda mais, apenas informe que o atendimento foi encerrado\n\nREGRAS:\n1. Responda SEMPRE em portugues brasileiro, de forma natural e cordial\n2. Pergunte UMA COISA de cada vez - nao faca varias perguntas na mesma mensagem\n3. Confirme o que o usuario responder antes de passar para o proximo passo\n4. Nao invente precos ou estoque - um representante entrara em contato\n5. Se for pessoa fisica, explique que atendemos apenas empresas e encerre\n6. Mantenha respostas concisas (max 3 linhas) como numa conversa de WhatsApp\n7. Nao responda com sotaque, seja natural brasileiro\n8. Nao use emojis"
+          "systemMessage": "Voce e um assistente de vendas virtual da Pro Moda Textil, uma industria textil B2B brasileira especializada em tecidos para hospitalar, workwear, decoracao, colchoes e forro de bolso. Atendemos tanto pessoas juridicas (PJ/empresas) quanto pessoas fisicas (PF).\n\nContexto atual da conversa:\n- Cliente: {{ $json.pushName }}\n- Estado atual: {{ $json.estado }}\n- Dados coletados ate agora: {{ JSON.stringify($json.dados) }}\n\nFLUXO DA CONVERSA:\nEstado SAUDACAO: Apresente-se e pergunte se a pessoa e pessoa juridica (PJ/empresa) ou fisica (PF)\nEstado VALIDANDO_TIPO: Confirme se e PF ou PJ. Se PF, peca o CPF. Se PJ, peca o CNPJ.\nEstado COLETANDO_DADOS: Colete informacoes uma de cada vez. Nao pergunte tudo de uma vez.\n  - Se for PF: peca nome completo, depois email, depois telefone\n  - Se for PJ: peca razao social / nome da empresa, depois nome do contato, depois email, depois telefone\nEstado CONSULTANDO_PRODUTO: Pergunte qual produto ou tecido o cliente precisa\nEstado FINALIZANDO: Confirme os dados, diga que um representante entrara em contato\nEstado ENCERRADO: Nao responda mais, apenas informe que o atendimento foi encerrado\n\nREGRAS:\n1. Responda SEMPRE em portugues brasileiro, de forma natural e cordial\n2. Pergunte UMA COISA de cada vez - nao faca varias perguntas na mesma mensagem\n3. Confirme o que o usuario responder antes de passar para o proximo passo\n4. Nao invente precos ou estoque - um representante entrara em contato\n5. Se for pessoa fisica, trate com a mesma atencao que uma empresa\n6. Mantenha respostas concisas (max 3 linhas) como numa conversa de WhatsApp\n7. Nao responda com sotaque, seja natural brasileiro\n8. Nao use emojis\n9. Para PF colete: CPF, nome completo, email, telefone\n10. Para PJ colete: CNPJ, razao social, nome do contato, email, telefone"
         }
       }
     },
@@ -74,7 +192,10 @@
       "name": "Groq Chat Model",
       "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
       "typeVersion": 1,
-      "position": [1200, 550],
+      "position": [
+        1200,
+        550
+      ],
       "parameters": {
         "model": "groq/compound-mini",
         "options": {}
@@ -90,7 +211,10 @@
       "name": "Redis Chat Memory",
       "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
       "typeVersion": 1.5,
-      "position": [1400, 550],
+      "position": [
+        1400,
+        550
+      ],
       "parameters": {
         "sessionIdType": "customKey",
         "sessionKey": "=session: {{ $json.remetente }}",
@@ -104,13 +228,30 @@
       }
     },
     {
+      "id": "merge-12",
+      "name": "Merge dados",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2,
+      "position": [
+        1520,
+        200
+      ],
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "mergeByPosition"
+      }
+    },
+    {
       "id": "state-machine-9",
       "name": "Maquina de estados",
       "type": "n8n-nodes-base.function",
       "typeVersion": 1,
-      "position": [1520, 300],
+      "position": [
+        1740,
+        300
+      ],
       "parameters": {
-        "functionCode": "const item = $input.first().json;\nconst aiRes = item.output || \"\";\n\n// Busca dados originais do nó anterior (AI Agent perde campos extras)\nconst origItems = $items(\"Filtrar e estado inicial\");\nconst orig = (origItems && origItems.length > 0) ? origItems[0].json : {};\n\nconst curEstado = orig.estado || \"SAUDACAO\";\nconst curDados = orig.dados || {};\nconst msgOriginal = orig.msg || \"\";\nconst msg = msgOriginal.toLowerCase().trim();\n\nlet nextEstado = curEstado;\nconst dados = JSON.parse(JSON.stringify(curDados));\nconst palavrasNao = [\"nao\", \"não\", \"n\", \"nem\", \"ñ\"];\nconst palavrasSim = [\"sim\", \"sou\", \"s\", \"ss\", \"claro\", \"ok\", \"pode ser\", \"confirmo\"];\n\nfunction contem(lista, texto) {\n  return lista.some(p => texto.includes(p));\n}\n\nfunction extrair(msgCmp, msgOrig) {\n  // CNPJ: 14 digitos\n  const cnpj = msgOrig.match(/\\d{2}\\.?\\d{3}\\.?\\d{3}\\/?\\d{4}-?\\d{2}/);\n  if (cnpj && !dados.cnpj) dados.cnpj = cnpj[0];\n  // CPF\n  const cpf = msgOrig.match(/\\d{3}\\.?\\d{3}\\.?\\d{3}-?\\d{2}/);\n  if (cpf && !dados.cpf) dados.cpf = cpf[0];\n  // Email\n  const email = msgCmp.match(/[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}/);\n  if (email && !dados.email) dados.email = email[0];\n  // Telefone\n  const fone = msgOrig.match(/(\\d{2})\\s?9?\\d{4}-?\\d{4}/);\n  if (fone && !dados.telefone) dados.telefone = fone[0];\n  // Nome (qualquer texto > 3 chars que nao seja negacao/afirmacao)\n  if (!dados.nome && msgOrig.length > 3\n      && !contem(palavrasNao, msgCmp)\n      && !contem(palavrasSim, msgCmp)\n      && !email\n      && msgCmp.replace(/[^a-záàãéêíóôúç ]/g,'').length > 3) {\n    dados.nome = msgOrig;\n  }\n}\n\nif (curEstado === \"SAUDACAO\") {\n  nextEstado = \"VALIDANDO_PJ\";\n\n} else if (curEstado === \"VALIDANDO_PJ\") {\n  if (contem(palavrasNao, msg) || msg.includes(\"fisica\") || msg.includes(\"física\")) {\n    nextEstado = \"ENCERRADO\";\n  } else if (contem(palavrasSim, msg) || msg.includes(\"cnpj\") || msg.includes(\"empresa\") || msg.includes(\"juridica\")) {\n    extrair(msg, msgOriginal);\n    nextEstado = \"COLETANDO_DADOS\";\n    dados.pj = true;\n  }\n  // else: stay - AI will clarify\n\n} else if (curEstado === \"COLETANDO_DADOS\") {\n  extrair(msg, msgOriginal);\n  const temNome = dados.nome && dados.nome.length > 0;\n  const temEmail = dados.email && dados.email.length > 0;\n  const temDoc = dados.cnpj || dados.cpf || dados.documento;\n  if (temNome && temEmail && temDoc) {\n    nextEstado = \"CONSULTANDO_PRODUTO\";\n  }\n\n} else if (curEstado === \"CONSULTANDO_PRODUTO\") {\n  dados.produto = msgOriginal;\n  nextEstado = \"FINALIZANDO\";\n\n} else if (curEstado === \"FINALIZANDO\") {\n  dados.finalizado = true;\n  nextEstado = \"ENCERRADO\";\n\n} else if (curEstado === \"ENCERRADO\") {\n  // mantem encerrado\n}\n\nreturn [{\n  json: {\n    remetente: orig.remetente,\n    numero: orig.numero,\n    pushName: orig.pushName,\n    msg: orig.msg,\n    resposta: aiRes || \"Desculpe, nao entendi. Pode repetir?\",\n    estado: nextEstado,\n    dados\n  }\n}];""
+        "functionCode": "const item = $input.first().json;\nconst aiRes = item.output || \"\";\n\nconst remetente = item.remetente || \"\";\nconst numero = item.numero || remetente.split(\"@\")[0] || \"\";\nconst curEstado = item.estado || \"SAUDACAO\";\nconst curDados = item.dados || {};\nconst msgOriginal = item.msg || \"\";\nconst msg = msgOriginal.toLowerCase().trim();\n\nlet nextEstado = curEstado;\nconst dados = JSON.parse(JSON.stringify(curDados));\nconst palavrasNao = [\"nao\", \"não\", \"n\", \"nem\", \"ñ\", \"no\"];\nconst palavrasSim = [\"sim\", \"sou\", \"s\", \"ss\", \"claro\", \"ok\", \"pode ser\", \"confirmo\", \"gostaria\"];\n\nfunction contem(lista, texto) {\n  return lista.some(p => texto.includes(p));\n}\n\nfunction extrair(msgCmp, msgOrig) {\n  const cnpj = msgOrig.match(/\\d{2}\\.?\\d{3}\\.?\\d{3}\\/?\\d{4}-?\\d{2}/);\n  if (cnpj && !dados.documento) {\n    dados.documento = cnpj[0];\n    dados.tipoPessoa = \"PJ\";\n  }\n  const cpf = msgOrig.match(/\\d{3}\\.?\\d{3}\\.?\\d{3}-?\\d{2}/);\n  if (cpf && !dados.documento) {\n    dados.documento = cpf[0];\n    dados.tipoPessoa = \"PF\";\n  }\n  const email = msgCmp.match(/[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}/);\n  if (email && !dados.email) dados.email = email[0];\n  const fone = msgOrig.match(/(\\d{2})\\s?9?\\d{3,4}-?\\d{4}/);\n  if (fone && !dados.telefone) dados.telefone = fone[0];\n  if (!dados.nome && msgOrig.length > 3\n      && !contem(palavrasNao, msgCmp)\n      && !contem(palavrasSim, msgCmp)\n      && !email\n      && !cnpj && !cpf\n      && msgCmp.replace(/[^a-záàãéêíóôúç ]/g,\"\").length > 3\n      && msgCmp.replace(/[^a-záàãéêíóôúç ]/g,\"\").length > msgOrig.length * 0.3) {\n    dados.nome = msgOrig;\n  }\n}\n\nif (curEstado === \"SAUDACAO\") {\n  nextEstado = \"VALIDANDO_TIPO\";\n\n} else if (curEstado === \"VALIDANDO_TIPO\") {\n  if (contem(palavrasNao, msg) || msg.includes(\"fisica\") || msg.includes(\"física\")) {\n    dados.tipoPessoa = \"PF\";\n  }\n  if (msg.includes(\"cnpj\") || msg.includes(\"empresa\") || msg.includes(\"juridica\") || msg.includes(\"pj\")) {\n    dados.tipoPessoa = \"PJ\";\n  }\n  if (contem(palavrasSim, msg) || msg.includes(\"cnpj\") || msg.includes(\"cpf\") || msg.includes(\"pf\") || msg.includes(\"pj\") || dados.tipoPessoa) {\n    extrair(msg, msgOriginal);\n    nextEstado = \"COLETANDO_DADOS\";\n  }\n\n} else if (curEstado === \"COLETANDO_DADOS\") {\n  extrair(msg, msgOriginal);\n  const temNome = dados.nome && dados.nome.length > 0;\n  const temEmail = dados.email && dados.email.length > 0;\n  const temDoc = dados.documento && dados.documento.length > 0;\n  const temTel = dados.telefone && dados.telefone.length > 0;\n  if (temNome && temEmail && temDoc && temTel) {\n    nextEstado = \"CONSULTANDO_PRODUTO\";\n  }\n\n} else if (curEstado === \"CONSULTANDO_PRODUTO\") {\n  dados.produto = msgOriginal;\n  nextEstado = \"FINALIZANDO\";\n\n} else if (curEstado === \"FINALIZANDO\") {\n  dados.finalizado = true;\n  nextEstado = \"ENCERRADO\";\n\n} else if (curEstado === \"ENCERRADO\") {\n}\n\nreturn [{\n  json: {\n    remetente: remetente,\n    numero: numero,\n    pushName: item.pushName || \"\",\n    msg: msgOriginal,\n    resposta: aiRes || \"Desculpe, nao entendi. Pode repetir?\",\n    estado: nextEstado,\n    dados\n  }\n}];"
       }
     },
     {
@@ -118,7 +259,10 @@
       "name": "Enviar WhatsApp",
       "type": "n8n-nodes-evolution-api.evolutionApi",
       "typeVersion": 1,
-      "position": [1740, 300],
+      "position": [
+        1740,
+        300
+      ],
       "parameters": {
         "resource": "messages-api",
         "instanceName": "maketing_pdm_pro_moda",
@@ -137,7 +281,10 @@
       "name": "Salvar estado",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4,
-      "position": [1960, 300],
+      "position": [
+        1960,
+        300
+      ],
       "parameters": {
         "url": "https://pdmprotextil.vercel.app/api/crm/whatsapp/conversa",
         "method": "POST",
@@ -148,19 +295,19 @@
           "parameters": [
             {
               "name": "remoteJid",
-              "value": "={{ $json.remetente }}"
+              "value": "={{ $('Maquina de estados').item.json.remetente }}"
             },
             {
               "name": "numero",
-              "value": "={{ $json.numero }}"
+              "value": "={{ $('Maquina de estados').item.json.numero }}"
             },
             {
               "name": "estado",
-              "value": "={{ $json.estado }}"
+              "value": "={{ $('Maquina de estados').item.json.estado }}"
             },
             {
               "name": "dados",
-              "value": "={{ $json.dados }}"
+              "value": "={{ $('Maquina de estados').item.json.dados }}"
             }
           ]
         },
@@ -186,7 +333,7 @@
       "main": [
         [
           {
-            "node": "Buscar conversa",
+            "node": "É texto?",
             "type": "main",
             "index": 0
           }
@@ -211,6 +358,11 @@
             "node": "IA Atendente",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Merge dados",
+            "type": "main",
+            "index": 0
           }
         ]
       ]
@@ -219,9 +371,9 @@
       "main": [
         [
           {
-            "node": "Maquina de estados",
+            "node": "Merge dados",
             "type": "main",
-            "index": 0
+            "index": 1
           }
         ]
       ],
@@ -260,6 +412,53 @@
         [
           {
             "node": "Salvar estado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge dados": {
+      "main": [
+        [
+          {
+            "node": "Maquina de estados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "É texto?": {
+      "main": [
+        [
+          {
+            "node": "Buscar conversa",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Foi o bot?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Foi o bot?": {
+      "main": [
+        [
+          {
+            "node": "Ignorar",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responder apenas texto",
             "type": "main",
             "index": 0
           }
