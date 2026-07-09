@@ -36,12 +36,10 @@ export async function GET(req: NextRequest) {
         .insert(crmWhatsappConversas)
         .values({ remoteJid, estado: "SAUDACAO", dados: {} })
         .returning()
-      conversa = { ...nova, isNew: true }
-    } else {
-      conversa = { ...conversa, isNew: false }
+      return NextResponse.json({ ...nova, isNew: true })
     }
 
-    return NextResponse.json(conversa)
+    return NextResponse.json({ ...conversa, isNew: false })
   } catch (error) {
     console.error("[GET /api/crm/whatsapp/conversa]", error)
     return NextResponse.json({ error: "Erro interno" }, { status: 500 })
