@@ -24,7 +24,7 @@ export async function GET(
       .limit(1)
 
     if (!empresa) {
-      return NextResponse.json({ error: "Empresa não encontrada" }, { status: 404 })
+      return NextResponse.json({ error: "Pessoa não encontrada" }, { status: 404 })
     }
 
     const contatos = await db
@@ -57,15 +57,19 @@ export async function PUT(
       .limit(1)
 
     if (!existente) {
-      return NextResponse.json({ error: "Empresa não encontrada" }, { status: 404 })
+      return NextResponse.json({ error: "Pessoa não encontrada" }, { status: 404 })
     }
 
     const cnpj = body.cnpj ? body.cnpj.replace(/[^a-zA-Z0-9]/g, "") : undefined
+    const cpf = body.cpf ? body.cpf.replace(/[^0-9]/g, "") : undefined
 
     const values: Record<string, any> = { updatedAt: new Date() }
-    if (body.razaoSocial !== undefined) values.razaoSocial = body.razaoSocial
+    if (body.tipoPessoa !== undefined) values.tipoPessoa = body.tipoPessoa
+    if (body.nome !== undefined) values.nome = body.nome || null
+    if (body.razaoSocial !== undefined) values.razaoSocial = body.razaoSocial || null
     if (body.nomeFantasia !== undefined) values.nomeFantasia = body.nomeFantasia || null
-    if (body.cnpj !== undefined) values.cnpj = cnpj
+    if (body.cpf !== undefined) values.cpf = cpf || null
+    if (body.cnpj !== undefined) values.cnpj = cnpj || null
     if (body.segmento !== undefined) values.segmento = body.segmento || null
     if (body.porte !== undefined) values.porte = body.porte || null
     if (body.site !== undefined) values.site = body.site || null
@@ -87,10 +91,11 @@ export async function PUT(
       .where(eq(crmEmpresas.id, parseInt(id)))
       .returning()
 
+    const nomePessoa = atualizada.nome || atualizada.razaoSocial || "Pessoa"
     await registrarLog({
       tipo: "ATUALIZACAO",
       acao: "atualizar",
-      descricao: `Empresa CRM atualizada: ${atualizada.razaoSocial}`,
+      descricao: `Pessoa atualizada: ${nomePessoa}`,
       entidade: "CrmEmpresa",
       entidadeId: atualizada.id,
       usuarioNome: session.user.name,
@@ -119,7 +124,7 @@ export async function DELETE(
     await db.delete(crmContatos).where(eq(crmContatos.empresaId, empresaId))
     await db.delete(crmEmpresas).where(eq(crmEmpresas.id, empresaId))
 
-    await notificarDelecao("Empresa CRM", id, auth.session.user.name)
+    await notificarDelecao("Pessoa CRM", id, auth.session.user.name)
 
     return NextResponse.json({ success: true })
   } catch (error) {

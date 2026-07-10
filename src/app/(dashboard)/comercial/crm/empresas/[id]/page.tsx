@@ -32,6 +32,7 @@ export default function EmpresaDetailPage() {
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(false)
   const [form, setForm] = useState<any>({})
+  const [tipoPessoa, setTipoPessoa] = useState<"PF" | "PJ">("PJ")
   const [showDelete, setShowDelete] = useState(false)
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [estadoId, setEstadoId] = useState<number | null>(null)
@@ -61,8 +62,9 @@ export default function EmpresaDetailPage() {
       .then(data => {
         setEmpresa(data)
         setForm(data)
+        setTipoPessoa(data.tipoPessoa || "PJ")
       })
-      .catch(() => toast.error("Erro ao carregar empresa"))
+      .catch(() => toast.error("Erro ao carregar"))
       .finally(() => setLoading(false))
   }, [params.id])
 
@@ -158,13 +160,25 @@ export default function EmpresaDetailPage() {
           <ArrowLeft size={18} className="text-slate-500" />
         </button>
         <div className="flex-1">
-          <div className="flex items-center gap-3">
-            <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">{empresa.razaoSocial}{info && <InfoButton content={info} />}</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">
+              {empresa.tipoPessoa === "PF" ? (empresa.nome || empresa.razaoSocial) : empresa.razaoSocial}
+              {info && <InfoButton content={info} />}
+            </h1>
+            {empresa.tipoPessoa && (
+              <span className={`inline-flex text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
+                empresa.tipoPessoa === "PF"
+                  ? "text-purple-600 bg-purple-50 dark:bg-purple-950/50 dark:text-purple-400"
+                  : "text-cyan-600 bg-cyan-50 dark:bg-cyan-950/50 dark:text-cyan-400"
+              }`}>
+                {empresa.tipoPessoa === "PF" ? "PF" : "PJ"}
+              </span>
+            )}
             <span className={`inline-flex text-[10px] px-2 py-0.5 rounded-full font-medium ${STATUS_CORES[empresa.status] || ""}`}>
               {empresa.status}
             </span>
           </div>
-          {empresa.nomeFantasia && (
+          {empresa.tipoPessoa === "PJ" && empresa.nomeFantasia && (
             <p className="text-sm text-slate-500">{empresa.nomeFantasia}</p>
           )}
         </div>
@@ -193,22 +207,50 @@ export default function EmpresaDetailPage() {
 
       <div className="grid gap-6 md:grid-cols-2">
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
-          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4">Dados da Empresa</h2>
+          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4">Dados da Pessoa</h2>
           {editing ? (
             <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-medium text-slate-500 mb-1">Tipo</label>
+                <div className="flex gap-2">
+                  <button type="button" onClick={() => { setTipoPessoa("PF"); setForm((p: any) => ({ ...p, tipoPessoa: "PF" })) }}
+                    className={`px-3 py-1.5 text-xs rounded-lg font-medium border ${tipoPessoa === "PF" ? "border-purple-500 bg-purple-50 dark:bg-purple-950/30 text-purple-700 dark:text-purple-300" : "border-slate-200 dark:border-slate-700 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800"}`}>
+                    PF
+                  </button>
+                  <button type="button" onClick={() => { setTipoPessoa("PJ"); setForm((p: any) => ({ ...p, tipoPessoa: "PJ" })) }}
+                    className={`px-3 py-1.5 text-xs rounded-lg font-medium border ${tipoPessoa === "PJ" ? "border-cyan-500 bg-cyan-50 dark:bg-cyan-950/30 text-cyan-700 dark:text-cyan-300" : "border-slate-200 dark:border-slate-700 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800"}`}>
+                    PJ
+                  </button>
+                </div>
+              </div>
               <div className="grid grid-cols-2 gap-3">
-                <div className="col-span-2">
-                  <label className="block text-xs font-medium text-slate-500 mb-1">Razão Social</label>
-                  <input type="text" value={form.razaoSocial || ""} onChange={e => setForm((p: any) => ({ ...p, razaoSocial: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1">Nome Fantasia</label>
-                  <input type="text" value={form.nomeFantasia || ""} onChange={e => setForm((p: any) => ({ ...p, nomeFantasia: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1">CNPJ</label>
-                  <input type="text" value={form.cnpj || ""} onChange={e => setForm((p: any) => ({ ...p, cnpj: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
-                </div>
+                {tipoPessoa === "PF" ? (
+                  <>
+                    <div className="col-span-2">
+                      <label className="block text-xs font-medium text-slate-500 mb-1">Nome</label>
+                      <input type="text" value={form.nome || ""} onChange={e => setForm((p: any) => ({ ...p, nome: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-slate-500 mb-1">CPF</label>
+                      <input type="text" value={form.cpf || ""} onChange={e => setForm((p: any) => ({ ...p, cpf: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="col-span-2">
+                      <label className="block text-xs font-medium text-slate-500 mb-1">Razão Social</label>
+                      <input type="text" value={form.razaoSocial || ""} onChange={e => setForm((p: any) => ({ ...p, razaoSocial: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-slate-500 mb-1">Nome Fantasia</label>
+                      <input type="text" value={form.nomeFantasia || ""} onChange={e => setForm((p: any) => ({ ...p, nomeFantasia: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-slate-500 mb-1">CNPJ</label>
+                      <input type="text" value={form.cnpj || ""} onChange={e => setForm((p: any) => ({ ...p, cnpj: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                    </div>
+                  </>
+                )}
                 <div>
                   <label className="block text-xs font-medium text-slate-500 mb-1">Segmento</label>
                   <input type="text" value={form.segmento || ""} onChange={e => setForm((p: any) => ({ ...p, segmento: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
@@ -273,18 +315,33 @@ export default function EmpresaDetailPage() {
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-3 text-sm">
-              <div className="col-span-2">
-                <p className="text-xs text-slate-500 mb-0.5">Razão Social</p>
-                <p className="text-slate-900 dark:text-slate-200">{empresa.razaoSocial || "—"}</p>
-              </div>
-              <div>
-                <p className="text-xs text-slate-500 mb-0.5">Nome Fantasia</p>
-                <p className="text-slate-900 dark:text-slate-200">{empresa.nomeFantasia || "—"}</p>
-              </div>
-              <div>
-                <p className="text-xs text-slate-500 mb-0.5">CNPJ</p>
-                <p className="text-slate-900 dark:text-slate-200">{empresa.cnpj || "—"}</p>
-              </div>
+              {empresa.tipoPessoa === "PF" ? (
+                <>
+                  <div className="col-span-2">
+                    <p className="text-xs text-slate-500 mb-0.5">Nome</p>
+                    <p className="text-slate-900 dark:text-slate-200">{empresa.nome || "—"}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-slate-500 mb-0.5">CPF</p>
+                    <p className="text-slate-900 dark:text-slate-200">{empresa.cpf || "—"}</p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="col-span-2">
+                    <p className="text-xs text-slate-500 mb-0.5">Razão Social</p>
+                    <p className="text-slate-900 dark:text-slate-200">{empresa.razaoSocial || "—"}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-slate-500 mb-0.5">Nome Fantasia</p>
+                    <p className="text-slate-900 dark:text-slate-200">{empresa.nomeFantasia || "—"}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-slate-500 mb-0.5">CNPJ</p>
+                    <p className="text-slate-900 dark:text-slate-200">{empresa.cnpj || "—"}</p>
+                  </div>
+                </>
+              )}
               <div>
                 <p className="text-xs text-slate-500 mb-0.5">Segmento</p>
                 <p className="text-slate-900 dark:text-slate-200">{empresa.segmento || "—"}</p>

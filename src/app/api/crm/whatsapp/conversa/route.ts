@@ -3,6 +3,7 @@ import { db } from "@/lib/db"
 import { pgTable, serial, varchar, jsonb, timestamp } from "drizzle-orm/pg-core"
 import { eq, sql } from "drizzle-orm"
 import { crmLeads } from "@/lib/db/schema/crm-leads"
+import { crmWhatsappMensagens } from "@/lib/db/schema/crm-whatsapp"
 
 const crmWhatsappConversas = pgTable("crm_whatsapp_conversas", {
   id: serial("id").primaryKey(),
@@ -48,7 +49,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const { remoteJid, estado, dados } = await req.json()
+    const { remoteJid, estado, dados, msg, resposta, pushName } = await req.json()
 
     if (!remoteJid) {
       return NextResponse.json({ error: "remoteJid obrigatório" }, { status: 400 })
@@ -63,8 +64,28 @@ export async function POST(req: NextRequest) {
       })
       .returning()
 
+    // Save user message to crmWhatsappMensagens
+    if (msg && msg.trim()) {
+      await db.insert(crmWhatsappMensagens).values({
+        mensagem: msg,
+        tipo: "RECEBIDA",
+        status: "RECEBIDA",
+        remoteJid,
+      })
+    }
+
+    // Save AI response to crmWhatsappMensagens
+    if (resposta && resposta.trim()) {
+      await db.insert(crmWhatsappMensagens).values({
+        mensagem: resposta,
+        tipo: "ENVIADA",
+        status: "ENVIADA",
+        remoteJid,
+      })
+    }
+
     let lead = null
-    if ((estado === "FINALIZANDO" || estado === "ENCERRADO") && dados?.nome) {
+    if ((estado === "CONFIRMACAO" || estado === "ENCERRADO") && dados?.nome) {
       const existing = await db
         .select({ id: crmLeads.id })
         .from(crmLeads)
@@ -75,18 +96,16 @@ export async function POST(req: NextRequest) {
       if (!existing) {
         const numero = extrairNumero(remoteJid)
         const descricaoParts: string[] = []
-        if (dados.produto) descricaoParts.push(`Produto: ${dados.produto}`)
         if (dados.documento) descricaoParts.push(`Documento: ${dados.documento}`)
         if (dados.tipoPessoa) descricaoParts.push(`Tipo: ${dados.tipoPessoa}`)
-        if (dados.empresaNome) descricaoParts.push(`Empresa: ${dados.empresaNome}`)
+        if (dados.finalizado) descricaoParts.push("Lead finalizado via WhatsApp")
 
         const [novo] = await db
           .insert(crmLeads)
           .values({
             nome: dados.nome,
-            email: dados.email || null,
             celular: numero,
-            empresaNome: dados.tipoPessoa === "PJ" ? (dados.empresaNome || dados.nome) : null,
+            tipoPessoa: dados.tipoPessoa || null,
             origem: "WHATSAPP",
             descricao: descricaoParts.length > 0 ? descricaoParts.join(" | ") : null,
             idIntegracao: `whatsapp:${remoteJid}`,

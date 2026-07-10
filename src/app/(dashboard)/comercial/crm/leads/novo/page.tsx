@@ -24,6 +24,7 @@ export default function NovoLeadPage() {
   const pathname = usePathname()
   const info = getInfoContent(pathname)
   const [form, setForm] = useState({
+    tipoPessoa: "",
     nome: "",
     email: "",
     telefone: "",
@@ -47,10 +48,12 @@ export default function NovoLeadPage() {
     }
     setSaving(true)
     try {
+      const payload = { ...form }
+      if (!payload.tipoPessoa) payload.tipoPessoa = ""
       const res = await fetch("/api/crm/leads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       })
       if (!res.ok) {
         const err = await res.json()
@@ -88,6 +91,18 @@ export default function NovoLeadPage() {
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Tipo</label>
+            <select
+              value={form.tipoPessoa}
+              onChange={e => setField("tipoPessoa", e.target.value)}
+              className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Sem classificação</option>
+              <option value="PF">Pessoa Física</option>
+              <option value="PJ">Pessoa Jurídica</option>
+            </select>
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">E-mail</label>
