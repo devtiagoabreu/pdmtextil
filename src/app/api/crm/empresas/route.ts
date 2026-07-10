@@ -21,8 +21,10 @@ export async function GET(req: NextRequest) {
       conditions.push(
         or(
           like(crmEmpresas.razaoSocial, `%${search}%`),
+          like(crmEmpresas.nome, `%${search}%`),
           like(crmEmpresas.nomeFantasia, `%${search}%`),
           like(crmEmpresas.cnpj, `%${search}%`),
+          like(crmEmpresas.cpf, `%${search}%`),
         )
       )
     }
@@ -32,8 +34,11 @@ export async function GET(req: NextRequest) {
     const lista = await db
       .select({
         id: crmEmpresas.id,
+        tipoPessoa: crmEmpresas.tipoPessoa,
+        nome: crmEmpresas.nome,
         razaoSocial: crmEmpresas.razaoSocial,
         nomeFantasia: crmEmpresas.nomeFantasia,
+        cpf: crmEmpresas.cpf,
         cnpj: crmEmpresas.cnpj,
         segmento: crmEmpresas.segmento,
         porte: crmEmpresas.porte,
@@ -64,14 +69,19 @@ export async function POST(req: NextRequest) {
     const userId = auth.userId
 
     const body = await req.json()
+    const tipoPessoa = body.tipoPessoa || "PJ"
     const cnpj = body.cnpj?.replace(/[^a-zA-Z0-9]/g, "") || null
+    const cpf = body.cpf?.replace(/[^0-9]/g, "") || null
 
     const [nova] = await db
       .insert(crmEmpresas)
       .values({
-        razaoSocial: body.razaoSocial,
-        nomeFantasia: body.nomeFantasia || null,
-        cnpj,
+        tipoPessoa,
+        nome: tipoPessoa === "PF" ? body.nome : null,
+        razaoSocial: tipoPessoa === "PJ" ? body.razaoSocial : null,
+        nomeFantasia: tipoPessoa === "PJ" ? (body.nomeFantasia || null) : null,
+        cpf: tipoPessoa === "PF" ? cpf : null,
+        cnpj: tipoPessoa === "PJ" ? cnpj : null,
         segmento: body.segmento || null,
         porte: body.porte || null,
         site: body.site || null,
@@ -91,7 +101,7 @@ export async function POST(req: NextRequest) {
     await registrarLog({
       tipo: "CADASTRO",
       acao: "criar",
-      descricao: `Empresa CRM criada: ${nova.razaoSocial}`,
+      descricao: `Pessoa ${tipoPessoa === "PF" ? "Física" : "Jurídica"} criada: ${nova.nome || nova.razaoSocial}`,
       entidade: "CrmEmpresa",
       entidadeId: nova.id,
       usuarioNome: session.user.name,
@@ -100,7 +110,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(nova, { status: 201 })
   } catch (error: any) {
     if (error?.code === "23505") {
-      return NextResponse.json({ error: "CNPJ já cadastrado" }, { status: 409 })
+      return NextResponse.json({ error: "Documento já cadastrado" }, { status: 409 })
     }
     console.error("[POST /api/crm/empresas]", error)
     return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })

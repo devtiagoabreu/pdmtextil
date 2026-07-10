@@ -39,6 +39,7 @@ export async function GET(req: NextRequest) {
         celular: crmLeads.celular,
         empresaNome: crmLeads.empresaNome,
         cargo: crmLeads.cargo,
+        tipoPessoa: crmLeads.tipoPessoa,
         origem: crmLeads.origem,
         status: crmLeads.status,
         descricao: crmLeads.descricao,

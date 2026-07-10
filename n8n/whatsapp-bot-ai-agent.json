@@ -35,44 +35,6 @@
       }
     },
     {
-      "id": "if-text-12",
-      "name": "É texto?",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2,
-      "position": [
-        1300,
-        300
-      ],
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": false,
-            "leftValue": "",
-            "typeValidation": "strict"
-          },
-          "conditions": [
-            {
-              "leftValue": "={{ $json.fromMe }}",
-              "rightValue": false,
-              "operator": {
-                "type": "boolean",
-                "operation": "equal"
-              }
-            },
-            {
-              "leftValue": "={{ $json.msg }}",
-              "rightValue": "",
-              "operator": {
-                "type": "string",
-                "operation": "notEmpty"
-              }
-            }
-          ],
-          "combinator": "and"
-        }
-      }
-    },
-    {
       "parameters": {
         "resource": "chat-api",
         "operation": "find-contacts",
@@ -102,28 +64,6 @@
         1300,
         500
       ]
-    },
-    {
-      "id": "evolution-textonly-15",
-      "name": "Responder apenas texto",
-      "type": "n8n-nodes-evolution-api.evolutionApi",
-      "typeVersion": 1,
-      "position": [
-        1300,
-        400
-      ],
-      "parameters": {
-        "resource": "messages-api",
-        "instanceName": "maketing_pdm_pro_moda",
-        "remoteJid": "={{ $json.remetente }}",
-        "messageText": "Olá! Este canal aceita apenas mensagens de texto. Por favor, digite sua mensagem. Obrigado!",
-        "options_message": {}
-      },
-      "credentials": {
-        "evolutionApi": {
-          "id": "zlFrmzQfy0KbWcqo"
-        }
-      }
     },
     {
       "id": "combine-data-17",
@@ -214,7 +154,7 @@
         "promptType": "define",
         "text": "={{ $json.msg }}",
         "options": {
-          "systemMessage": "Voce e um assistente de vendas virtual da Pro Moda Textil, uma industria textil B2B brasileira especializada em tecidos para hospitalar, workwear, decoracao, colchoes e forro de bolso. Atendemos tanto pessoas juridicas (PJ/empresas) quanto pessoas fisicas (PF).\n\nContexto atual da conversa:\n- Cliente: {{ $json.pushName }}\n- Estado atual: {{ $json.estado }}\n- Dados coletados ate agora: {{ JSON.stringify($json.dados) }}\n\nFLUXO DA CONVERSA:\nEstado SAUDACAO: Apresente-se e pergunte se a pessoa e pessoa juridica (PJ/empresa) ou fisica (PF)\nEstado VALIDANDO_TIPO: Confirme se e PF ou PJ. Se PF, peca o CPF. Se PJ, peca o CNPJ.\nEstado COLETANDO_DADOS: Colete informacoes uma de cada vez. Nao pergunte tudo de uma vez.\n  - Se for PF: peca nome completo, depois email, depois telefone\n  - Se for PJ: peca razao social / nome da empresa, depois nome do contato, depois email, depois telefone\nEstado CONSULTANDO_PRODUTO: Pergunte qual produto ou tecido o cliente precisa\nEstado FINALIZANDO: Confirme os dados, diga que um representante entrara em contato\nEstado ENCERRADO: Nao responda mais, apenas informe que o atendimento foi encerrado\n\nREGRAS:\n1. Responda SEMPRE em portugues brasileiro, de forma natural e cordial\n2. Pergunte UMA COISA de cada vez - nao faca varias perguntas na mesma mensagem\n3. Confirme o que o usuario responder antes de passar para o proximo passo\n4. Nao invente precos ou estoque - um representante entrara em contato\n5. Se for pessoa fisica, trate com a mesma atencao que uma empresa\n6. Mantenha respostas concisas (max 3 linhas) como numa conversa de WhatsApp\n7. Nao responda com sotaque, seja natural brasileiro\n8. Nao use emojis\n9. Para PF colete: CPF, nome completo, email, telefone\n10. Para PJ colete: CNPJ, razao social, nome do contato, email, telefone"
+          "systemMessage": "Voce e um assistente de vendas virtual da Pro Moda Textil, industria textil B2B brasileira.\n\nFLUXO DA CONVERSA:\nEstado SAUDACAO: Se apresente e pergunte \"Qual o seu nome?\"\nEstado COLETANDO_NOME: O usuario disse o nome. Confirme.\nEstado COLETANDO_DOC: Pergunte \"Digite 1 para PF ou 2 para PJ, depois informe CPF ou CNPJ\"\nEstado CONFIRMACAO: Mostre resumo com todos os dados. Pergunte \"Esta correto? Digite SIM para confirmar.\"\nEstado ENCERRADO: Informe \"Contato direcionado para representante comercial, entrara em contato em ate 10 min.\" Mostre o resumo e agradeca.\n\nCONTEXTO:\n- Cliente: {{ $json.pushName }}\n- Estado: {{ $json.estado }}\n- Dados: {{ JSON.stringify($json.dados) }}\n\nREGRAS:\n- Portugues brasileiro natural e cordial\n- Max 3 linhas por mensagem\n- Nao invente precos ou estoque\n- Nao use emojis\n- Pergunte UMA COISA de cada vez\n- Para PF colete: nome, CPF, tipoPessoa=PF\n- Para PJ colete: nome, CNPJ, tipoPessoa=PJ"
         }
       }
     },
@@ -282,7 +222,7 @@
         300
       ],
       "parameters": {
-        "functionCode": "const item = $input.first().json;\nconst aiRes = item.output || \"\";\n\nconst remetente = item.remetente || \"\";\nconst numero = item.numero || remetente.split(\"@\")[0] || \"\";\nconst curEstado = item.estado || \"SAUDACAO\";\nconst curDados = item.dados || {};\nconst msgOriginal = item.msg || \"\";\nconst msg = msgOriginal.toLowerCase().trim();\n\nlet nextEstado = curEstado;\nconst dados = JSON.parse(JSON.stringify(curDados));\nconst palavrasNao = [\"nao\", \"não\", \"n\", \"nem\", \"ñ\", \"no\"];\nconst palavrasSim = [\"sim\", \"sou\", \"s\", \"ss\", \"claro\", \"ok\", \"pode ser\", \"confirmo\", \"gostaria\"];\n\nfunction contem(lista, texto) {\n  return lista.some(p => texto.includes(p));\n}\n\nfunction extrair(msgCmp, msgOrig) {\n  const cnpj = msgOrig.match(/\\d{2}\\.?\\d{3}\\.?\\d{3}\\/?\\d{4}-?\\d{2}/);\n  if (cnpj && !dados.documento) {\n    dados.documento = cnpj[0];\n    dados.tipoPessoa = \"PJ\";\n  }\n  const cpf = msgOrig.match(/\\d{3}\\.?\\d{3}\\.?\\d{3}-?\\d{2}/);\n  if (cpf && !dados.documento) {\n    dados.documento = cpf[0];\n    dados.tipoPessoa = \"PF\";\n  }\n  const email = msgCmp.match(/[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}/);\n  if (email && !dados.email) dados.email = email[0];\n  const fone = msgOrig.match(/(\\d{2})\\s?9?\\d{3,4}-?\\d{4}/);\n  if (fone && !dados.telefone) dados.telefone = fone[0];\n  if (!dados.nome && msgOrig.length > 3\n      && !contem(palavrasNao, msgCmp)\n      && !contem(palavrasSim, msgCmp)\n      && !email\n      && !cnpj && !cpf\n      && msgCmp.replace(/[^a-záàãéêíóôúç ]/g,\"\").length > 3\n      && msgCmp.replace(/[^a-záàãéêíóôúç ]/g,\"\").length > msgOrig.length * 0.3) {\n    dados.nome = msgOrig;\n  }\n}\n\nif (curEstado === \"SAUDACAO\") {\n  nextEstado = \"VALIDANDO_TIPO\";\n\n} else if (curEstado === \"VALIDANDO_TIPO\") {\n  if (contem(palavrasNao, msg) || msg.includes(\"fisica\") || msg.includes(\"física\")) {\n    dados.tipoPessoa = \"PF\";\n  }\n  if (msg.includes(\"cnpj\") || msg.includes(\"empresa\") || msg.includes(\"juridica\") || msg.includes(\"pj\")) {\n    dados.tipoPessoa = \"PJ\";\n  }\n  if (contem(palavrasSim, msg) || msg.includes(\"cnpj\") || msg.includes(\"cpf\") || msg.includes(\"pf\") || msg.includes(\"pj\") || dados.tipoPessoa) {\n    extrair(msg, msgOriginal);\n    nextEstado = \"COLETANDO_DADOS\";\n  }\n\n} else if (curEstado === \"COLETANDO_DADOS\") {\n  extrair(msg, msgOriginal);\n  const temNome = dados.nome && dados.nome.length > 0;\n  const temEmail = dados.email && dados.email.length > 0;\n  const temDoc = dados.documento && dados.documento.length > 0;\n  const temTel = dados.telefone && dados.telefone.length > 0;\n  if (temNome && temEmail && temDoc && temTel) {\n    nextEstado = \"CONSULTANDO_PRODUTO\";\n  }\n\n} else if (curEstado === \"CONSULTANDO_PRODUTO\") {\n  dados.produto = msgOriginal;\n  nextEstado = \"FINALIZANDO\";\n\n} else if (curEstado === \"FINALIZANDO\") {\n  dados.finalizado = true;\n  nextEstado = \"ENCERRADO\";\n\n} else if (curEstado === \"ENCERRADO\") {\n}\n\nreturn [{\n  json: {\n    remetente: remetente,\n    numero: numero,\n    pushName: item.pushName || \"\",\n    msg: msgOriginal,\n    resposta: aiRes || \"Desculpe, nao entendi. Pode repetir?\",\n    estado: nextEstado,\n    dados\n  }\n}];"
+        "functionCode": "const item = $input.first().json;\nconst aiRes = item.output || \"\";\n\nconst remetente = item.remetente || \"\";\nconst numero = item.numero || remetente.split(\"@\")[0] || \"\";\nconst curEstado = item.estado || \"SAUDACAO\";\nconst curDados = item.dados || {};\nconst msgOriginal = item.msg || \"\";\nconst msg = msgOriginal.toLowerCase().trim();\n\nlet nextEstado = curEstado;\nconst dados = JSON.parse(JSON.stringify(curDados));\n\nfunction extrairDoc(texto) {\n  const cnpj = texto.match(/\\d{2}\\.?\\d{3}\\.?\\d{3}\\/?\\d{4}-?\\d{2}/);\n  if (cnpj) return { doc: cnpj[0], tipo: \"PJ\" };\n  const cpf = texto.match(/\\d{3}\\.?\\d{3}\\.?\\d{3}-?\\d{2}/);\n  if (cpf) return { doc: cpf[0], tipo: \"PF\" };\n  return null;\n}\n\nfunction detectarTipo(texto) {\n  if (/\\b(1|pf|fisica|física)\\b/.test(texto)) return \"PF\";\n  if (/\\b(2|pj|juridica|jurídica|cnpj)\\b/.test(texto)) return \"PJ\";\n  return null;\n}\n\nfunction pareceNome(texto) {\n  const alpha = texto.replace(/[^a-zA-ZÀ-ÿ ]/g, \"\").trim();\n  return alpha.length > 2;\n}\n\nfunction confirmou(texto) {\n  return /\\b(sim|s|ss|claro|ok|confirmo|correto|certo)\\b/.test(texto);\n}\n\nif (curEstado === \"SAUDACAO\") {\n  nextEstado = \"COLETANDO_NOME\";\n\n} else if (curEstado === \"COLETANDO_NOME\") {\n  if (msgOriginal.length > 2 && pareceNome(msgOriginal)) {\n    dados.nome = msgOriginal;\n    nextEstado = \"COLETANDO_DOC\";\n  }\n\n} else if (curEstado === \"COLETANDO_DOC\") {\n  const tipo = detectarTipo(msg) || (extrairDoc(msgOriginal) ? extrairDoc(msgOriginal).tipo : null);\n  const doc = extrairDoc(msgOriginal);\n  if (tipo) dados.tipoPessoa = tipo;\n  if (doc) dados.documento = doc.doc;\n  if (!dados.tipoPessoa && doc) dados.tipoPessoa = doc.tipo;\n  if (!dados.nome && pareceNome(msgOriginal) && msgOriginal.length < 50) {\n    dados.nome = msgOriginal;\n  }\n  if (dados.documento || dados.tipoPessoa) {\n    nextEstado = \"CONFIRMACAO\";\n  }\n\n} else if (curEstado === \"CONFIRMACAO\") {\n  if (confirmou(msg)) {\n    dados.finalizado = true;\n    nextEstado = \"ENCERRADO\";\n  }\n\n} else if (curEstado === \"ENCERRADO\") {}\n\nreturn [{\n  json: {\n    remetente: remetente,\n    numero: numero,\n    pushName: item.pushName || \"\",\n    msg: msgOriginal,\n    resposta: aiRes,\n    estado: nextEstado,\n    dados\n  }\n}];"
       }
     },
     {
@@ -333,12 +273,24 @@
               "value": "={{ $('Maquina de estados').item.json.numero }}"
             },
             {
+              "name": "pushName",
+              "value": "={{ $('Maquina de estados').item.json.pushName }}"
+            },
+            {
               "name": "estado",
               "value": "={{ $('Maquina de estados').item.json.estado }}"
             },
             {
               "name": "dados",
               "value": "={{ $('Maquina de estados').item.json.dados }}"
+            },
+            {
+              "name": "msg",
+              "value": "={{ $('Maquina de estados').item.json.msg }}"
+            },
+            {
+              "name": "resposta",
+              "value": "={{ $('Maquina de estados').item.json.resposta }}"
             }
           ]
         },
@@ -404,25 +356,7 @@
         ],
         [
           {
-            "node": "É texto?",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "É texto?": {
-      "main": [
-        [
-          {
             "node": "Buscar conversa",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Responder apenas texto",
             "type": "main",
             "index": 0
           }

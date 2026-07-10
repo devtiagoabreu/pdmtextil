@@ -4,9 +4,12 @@ import { clientes } from "./clientes"
 
 export const crmEmpresas = pgTable("crm_empresas", {
   id: serial("id").primaryKey(),
-  razaoSocial: varchar("razao_social", { length: 250 }).notNull(),
+  tipoPessoa: varchar("tipo_pessoa", { length: 2 }).notNull().default("PJ"),
+  nome: varchar("nome", { length: 250 }),
+  razaoSocial: varchar("razao_social", { length: 250 }),
   nomeFantasia: varchar("nome_fantasia", { length: 200 }),
-  cnpj: varchar("cnpj", { length: 18 }).notNull().unique(),
+  cpf: varchar("cpf", { length: 14 }),
+  cnpj: varchar("cnpj", { length: 18 }),
   segmento: varchar("segmento", { length: 100 }),
   porte: varchar("porte", { length: 50 }),
   site: varchar("site", { length: 255 }),

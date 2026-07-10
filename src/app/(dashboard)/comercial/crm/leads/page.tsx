@@ -6,7 +6,7 @@ import { useState } from "react"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
-import { PlusCircle, UserPlus, Search } from "lucide-react"
+import { PlusCircle, UserPlus, Search, Phone, Star, Building2, XCircle } from "lucide-react"
 import { toast } from "sonner"
 
 async function fetchLeads() {
@@ -91,6 +91,13 @@ export default function CrmLeadsPage() {
     }
   }
 
+  function formatDateTime(dateStr: string) {
+    if (!dateStr) return "—"
+    return new Date(dateStr).toLocaleString("pt-BR", {
+      day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit",
+    })
+  }
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -136,12 +143,14 @@ export default function CrmLeadsPage() {
               <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Nome</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Tipo</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Contato</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Empresa</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Score IA</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Origem</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Responsável</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Status</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Criado em</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Ações</th>
                 </tr>
               </thead>
@@ -153,10 +162,21 @@ export default function CrmLeadsPage() {
                         {lead.nome}
                       </Link>
                     </td>
+                    <td className="px-4 py-3">
+                      {lead.tipoPessoa ? (
+                        <span className={`inline-flex text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
+                          lead.tipoPessoa === "PF"
+                            ? "text-purple-600 bg-purple-50 dark:bg-purple-950/50 dark:text-purple-400"
+                            : "text-cyan-600 bg-cyan-50 dark:bg-cyan-950/50 dark:text-cyan-400"
+                        }`}>
+                          {lead.tipoPessoa === "PF" ? "PF" : "PJ"}
+                        </span>
+                      ) : "—"}
+                    </td>
                     <td className="px-4 py-3 text-sm text-slate-500">
                       {lead.email && <div className="truncate max-w-[180px]">{lead.email}</div>}
-                      {lead.telefone && <div className="text-xs">{lead.telefone}</div>}
-                      {!lead.email && !lead.telefone && "—"}
+                      {lead.celular && <div className="text-xs">{lead.celular}</div>}
+                      {!lead.email && !lead.celular && "—"}
                     </td>
                     <td className="px-4 py-3 text-sm text-slate-500">
                       {lead.empresaNome || (lead.empresaRazaoSocial ? (
@@ -191,26 +211,43 @@ export default function CrmLeadsPage() {
                         {lead.status}
                       </span>
                     </td>
+                    <td className="px-4 py-3 text-sm text-slate-500">{formatDateTime(lead.createdAt)}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
                         {lead.status === "NOVO" && (
-                          <button onClick={() => mudarStatus(lead, "CONTATADO")} className="text-[10px] text-amber-600 hover:underline font-medium">
-                            Contatar
+                          <button
+                            onClick={() => mudarStatus(lead, "CONTATADO")}
+                            title="Contatar"
+                            className="p-1.5 rounded-lg text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/30"
+                          >
+                            <Phone size={15} />
                           </button>
                         )}
                         {lead.status === "CONTATADO" && (
-                          <button onClick={() => mudarStatus(lead, "QUALIFICADO")} className="text-[10px] text-emerald-600 hover:underline font-medium">
-                            Qualificar
+                          <button
+                            onClick={() => mudarStatus(lead, "QUALIFICADO")}
+                            title="Qualificar"
+                            className="p-1.5 rounded-lg text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
+                          >
+                            <Star size={15} />
                           </button>
                         )}
                         {(lead.status === "QUALIFICADO" || lead.status === "NOVO") && !lead.empresaId && (
-                          <button onClick={() => converterParaEmpresa(lead)} className="text-[10px] text-blue-600 hover:underline font-medium">
-                            Converter
+                          <button
+                            onClick={() => converterParaEmpresa(lead)}
+                            title="Converter para Pessoa"
+                            className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30"
+                          >
+                            <Building2 size={15} />
                           </button>
                         )}
                         {lead.status !== "PERDIDO" && lead.status !== "CONVERTIDO" && (
-                          <button onClick={() => mudarStatus(lead, "PERDIDO")} className="text-[10px] text-red-600 hover:underline font-medium">
-                            Perder
+                          <button
+                            onClick={() => mudarStatus(lead, "PERDIDO")}
+                            title="Perder"
+                            className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
+                          >
+                            <XCircle size={15} />
                           </button>
                         )}
                       </div>

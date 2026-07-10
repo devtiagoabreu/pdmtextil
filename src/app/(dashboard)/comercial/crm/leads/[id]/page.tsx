@@ -160,6 +160,15 @@ export default function LeadDetailPage() {
         <div className="flex-1">
           <div className="flex items-center gap-3">
             <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">{lead.nome}{info && <InfoButton content={info} />}</h1>
+            {lead.tipoPessoa && (
+              <span className={`inline-flex text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
+                lead.tipoPessoa === "PF"
+                  ? "text-purple-600 bg-purple-50 dark:bg-purple-950/50 dark:text-purple-400"
+                  : "text-cyan-600 bg-cyan-50 dark:bg-cyan-950/50 dark:text-cyan-400"
+              }`}>
+                {lead.tipoPessoa === "PF" ? "PF" : "PJ"}
+              </span>
+            )}
             <span className={`inline-flex text-[10px] px-2 py-0.5 rounded-full font-medium ${STATUS_CORES[lead.status] || ""}`}>
               {lead.status}
             </span>
@@ -201,6 +210,14 @@ export default function LeadDetailPage() {
                 <input type="text" value={form.nome || ""} onChange={e => setForm((p: any) => ({ ...p, nome: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
               </div>
               <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-slate-500 mb-1">Tipo</label>
+                  <select value={form.tipoPessoa || ""} onChange={e => setForm((p: any) => ({ ...p, tipoPessoa: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm">
+                    <option value="">—</option>
+                    <option value="PF">PF</option>
+                    <option value="PJ">PJ</option>
+                  </select>
+                </div>
                 <div>
                   <label className="block text-xs font-medium text-slate-500 mb-1">Email</label>
                   <input type="email" value={form.email || ""} onChange={e => setForm((p: any) => ({ ...p, email: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
@@ -244,6 +261,10 @@ export default function LeadDetailPage() {
               <div>
                 <p className="text-xs text-slate-500 mb-0.5">Nome</p>
                 <p className="text-slate-900 dark:text-slate-200">{lead.nome || "—"}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-500 mb-0.5">Tipo</p>
+                <p className="text-slate-900 dark:text-slate-200">{lead.tipoPessoa === "PF" ? "PF" : lead.tipoPessoa === "PJ" ? "PJ" : "—"}</p>
               </div>
               <div>
                 <p className="text-xs text-slate-500 mb-0.5">Email</p>

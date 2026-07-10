@@ -14,7 +14,11 @@ export default function NovaEmpresaPage() {
   const router = useRouter()
   const pathname = usePathname()
   const info = getInfoContent(pathname)
-  const [form, setForm] = useState({
+  const [tipoPessoa, setTipoPessoa] = useState<"PF" | "PJ">("PJ")
+  const [form, setForm] = useState<any>({
+    tipoPessoa: "PJ",
+    nome: "",
+    cpf: "",
     razaoSocial: "",
     nomeFantasia: "",
     cnpj: "",
@@ -53,13 +57,22 @@ export default function NovaEmpresaPage() {
   }, [form.uf, estados])
 
   function setField(field: string, value: string) {
-    setForm(prev => ({ ...prev, [field]: value }))
+    setForm((prev: any) => ({ ...prev, [field]: value }))
+  }
+
+  function handleTipoChange(tipo: "PF" | "PJ") {
+    setTipoPessoa(tipo)
+    setForm((prev: any) => ({ ...prev, tipoPessoa: tipo }))
+  }
+
+  function getNomeObrigatorio() {
+    return tipoPessoa === "PF" ? form.nome?.trim() : form.razaoSocial?.trim()
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!form.razaoSocial.trim()) {
-      toast.error("Razão Social é obrigatória")
+    if (!getNomeObrigatorio()) {
+      toast.error(tipoPessoa === "PF" ? "Nome é obrigatório" : "Razão Social é obrigatória")
       return
     }
     setSaving(true)
@@ -71,10 +84,10 @@ export default function NovaEmpresaPage() {
       })
       if (!res.ok) {
         const err = await res.json()
-        throw new Error(err.error || "Erro ao criar empresa")
+        throw new Error(err.error || "Erro ao salvar")
       }
       const data = await res.json()
-      toast.success("Empresa criada com sucesso")
+      toast.success("Pessoa cadastrada com sucesso")
       router.push(`/comercial/crm/empresas/${data.id}`)
     } catch (err: any) {
       toast.error(err.message)
@@ -90,42 +103,97 @@ export default function NovaEmpresaPage() {
           <ArrowLeft size={18} className="text-slate-500" />
         </Link>
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">Nova Empresa{info && <InfoButton content={info} />}</h1>
-          <p className="text-sm text-slate-500">Cadastrar nova empresa no CRM</p>
+          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">Nova Pessoa{info && <InfoButton content={info} />}</h1>
+          <p className="text-sm text-slate-500">Cadastrar pessoa física ou jurídica no CRM</p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-5">
+        <div>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Tipo de Pessoa</label>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => handleTipoChange("PF")}
+              className={`px-4 py-2 text-sm rounded-lg font-medium border transition-colors ${
+                tipoPessoa === "PF"
+                  ? "border-purple-500 bg-purple-50 dark:bg-purple-950/30 text-purple-700 dark:text-purple-300"
+                  : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+              }`}
+            >
+              Pessoa Física
+            </button>
+            <button
+              type="button"
+              onClick={() => handleTipoChange("PJ")}
+              className={`px-4 py-2 text-sm rounded-lg font-medium border transition-colors ${
+                tipoPessoa === "PJ"
+                  ? "border-cyan-500 bg-cyan-50 dark:bg-cyan-950/30 text-cyan-700 dark:text-cyan-300"
+                  : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+              }`}
+            >
+              Pessoa Jurídica
+            </button>
+          </div>
+        </div>
+
         <div className="grid gap-5 sm:grid-cols-2">
-          <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Razão Social *</label>
-            <input
-              type="text"
-              value={form.razaoSocial}
-              onChange={e => setField("razaoSocial", e.target.value)}
-              className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nome Fantasia</label>
-            <input
-              type="text"
-              value={form.nomeFantasia}
-              onChange={e => setField("nomeFantasia", e.target.value)}
-              className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">CNPJ</label>
-            <input
-              type="text"
-              value={form.cnpj}
-              onChange={e => setField("cnpj", e.target.value)}
-              placeholder="00.000.000/0000-00"
-              className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
+          {tipoPessoa === "PF" ? (
+            <>
+              <div className="sm:col-span-2">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nome *</label>
+                <input
+                  type="text"
+                  value={form.nome || ""}
+                  onChange={e => setField("nome", e.target.value)}
+                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">CPF</label>
+                <input
+                  type="text"
+                  value={form.cpf || ""}
+                  onChange={e => setField("cpf", e.target.value)}
+                  placeholder="000.000.000-00"
+                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="sm:col-span-2">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Razão Social *</label>
+                <input
+                  type="text"
+                  value={form.razaoSocial}
+                  onChange={e => setField("razaoSocial", e.target.value)}
+                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nome Fantasia</label>
+                <input
+                  type="text"
+                  value={form.nomeFantasia}
+                  onChange={e => setField("nomeFantasia", e.target.value)}
+                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">CNPJ</label>
+                <input
+                  type="text"
+                  value={form.cnpj}
+                  onChange={e => setField("cnpj", e.target.value)}
+                  placeholder="00.000.000/0000-00"
+                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </>
+          )}
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Segmento</label>
             <input
