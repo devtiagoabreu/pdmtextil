@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
         .where(eq(crmEmpresas.id, empresaId))
         .then(r => r[0])
       if (empresa) {
-        nomeEntidade = empresa.razaoSocial
+        nomeEntidade = empresa.razaoSocial || ""
         entidadeId = empresaId
       }
     }
