@@ -4,7 +4,7 @@ import { db } from "@/lib/db"
 import { crmLeads } from "@/lib/db/schema/crm-leads"
 import { crmWhatsappMensagens } from "@/lib/db/schema/crm-whatsapp"
 import { crmContatos } from "@/lib/db/schema/crm-contatos"
-import { eq, desc, and } from "drizzle-orm"
+import { eq, desc, and, or } from "drizzle-orm"
 import { enviarMensagem, evolutionConfigurado } from "@/lib/evolution-api"
 import { inserirTimelineEvento } from "@/lib/crm-timeline"
 
@@ -34,15 +34,44 @@ export async function GET(
       return NextResponse.json({ error: "Lead não encontrado" }, { status: 404 })
     }
 
-    const remoteJid = extractRemoteJid(lead.idIntegracao)
-    if (!remoteJid) {
+    let remoteJid = extractRemoteJid(lead.idIntegracao)
+
+    if (!remoteJid && lead.empresaId) {
+      const contato = await db
+        .select()
+        .from(crmContatos)
+        .where(
+          and(
+            eq(crmContatos.empresaId, lead.empresaId),
+            eq(crmContatos.principal, true)
+          )
+        )
+        .limit(1)
+        .then((r) => r[0] || null)
+
+      if (contato?.whatsapp) {
+        remoteJid = contato.whatsapp
+      }
+    }
+
+    const filters = []
+
+    if (remoteJid) {
+      filters.push(eq(crmWhatsappMensagens.remoteJid, remoteJid))
+    }
+
+    if (lead.empresaId) {
+      filters.push(eq(crmWhatsappMensagens.empresaId, lead.empresaId))
+    }
+
+    if (filters.length === 0) {
       return NextResponse.json([])
     }
 
     const mensagens = await db
       .select()
       .from(crmWhatsappMensagens)
-      .where(eq(crmWhatsappMensagens.remoteJid, remoteJid))
+      .where(or(...filters))
       .orderBy(desc(crmWhatsappMensagens.createdAt))
       .limit(100)
 
@@ -98,6 +127,10 @@ export async function POST(
         remoteJid = contato.whatsapp
         contatoId = contato.id
       }
+    }
+
+    if (!remoteJid && lead.celular) {
+      remoteJid = lead.celular
     }
 
     const [nova] = await db
