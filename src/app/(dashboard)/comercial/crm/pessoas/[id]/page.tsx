@@ -57,7 +57,7 @@ export default function PessoaDetailPage() {
   }, [form.uf, estados])
 
   useEffect(() => {
-    fetch(fetch(`/api/crm/pessoas/${params.id}`))
+    fetch(`/api/crm/pessoas/${params.id}`)
       .then(r => r.json())
       .then(data => {
         setPessoa(data)
@@ -70,7 +70,7 @@ export default function PessoaDetailPage() {
 
   async function handleSave() {
     try {
-      const res = await fetch(fetch(`/api/crm/pessoas/${params.id}`), {
+      const res = await fetch(`/api/crm/pessoas/${params.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -92,7 +92,7 @@ export default function PessoaDetailPage() {
   async function handleDelete() {
     setDeleteLoading(true)
     try {
-      const res = await fetch(fetch(`/api/crm/pessoas/${params.id}`), { method: "DELETE" })
+      const res = await fetch(`/api/crm/pessoas/${params.id}`, { method: "DELETE" })
       if (!res.ok) throw new Error("Erro ao excluir")
       toast.success("Pessoa excluída")
       router.push("/comercial/crm/pessoas")
