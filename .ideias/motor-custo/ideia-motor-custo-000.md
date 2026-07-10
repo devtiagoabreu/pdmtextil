@@ -3132,3 +3132,5 @@ Na próxima fase vamos construir a **Especificação Funcional Completa**, trans
 * Qual deve ser o fluxo operacional entre os módulos?
 
 Essa será a primeira parte da documentação voltada diretamente para a equipe de desenvolvimento, servindo como base para modelagem de banco de dados, APIs e interface do futuro sistema, preservando integralmente a lógica da planilha atual.
+
+https://chatgpt.com/share/6a50d4c2-bb50-83e9-b42f-ff9b84774f39 

@@ -34,6 +34,7 @@ async function criarLeadWhatsApp(remoteJid: string, mensagem: string) {
     origem: "WHATSAPP",
     descricao: `Lead criado automaticamente via WhatsApp. Mensagem: "${mensagem.substring(0, 200)}"`,
     empresaId: empresa.id,
+    idIntegracao: `whatsapp:${remoteJid}`,
   }).returning()
 
   return { empresa, contato, lead }
