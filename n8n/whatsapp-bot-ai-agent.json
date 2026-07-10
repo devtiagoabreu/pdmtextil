@@ -52,7 +52,7 @@
           },
           "conditions": [
             {
-              "leftValue": "={{ $node[\"Extrair dados\"].json.fromMe }}",
+              "leftValue": "={{ $json.fromMe }}",
               "rightValue": false,
               "operator": {
                 "type": "boolean",
@@ -60,7 +60,7 @@
               }
             },
             {
-              "leftValue": "={{ $node[\"Extrair dados\"].json.msg }}",
+              "leftValue": "={{ $json.msg }}",
               "rightValue": "",
               "operator": {
                 "type": "string",
