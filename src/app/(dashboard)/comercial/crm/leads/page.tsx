@@ -148,7 +148,11 @@ export default function CrmLeadsPage() {
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                 {filtered.map((lead: any) => (
                   <tr key={lead.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                    <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-slate-200">{lead.nome}</td>
+                    <td className="px-4 py-3 text-sm font-medium">
+                      <Link href={`/comercial/crm/leads/${lead.id}`} className="text-slate-900 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400">
+                        {lead.nome}
+                      </Link>
+                    </td>
                     <td className="px-4 py-3 text-sm text-slate-500">
                       {lead.email && <div className="truncate max-w-[180px]">{lead.email}</div>}
                       {lead.telefone && <div className="text-xs">{lead.telefone}</div>}
