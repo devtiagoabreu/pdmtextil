@@ -17,7 +17,7 @@ import {
 
 type CrmDashboardData = {
   leads: { total: number; esteMes: number }
-  empresas: { total: number }
+  pessoas: { total: number }
   oportunidades: {
     total: number; esteMes: number
     byStatus: { status: string; total: number }[]
