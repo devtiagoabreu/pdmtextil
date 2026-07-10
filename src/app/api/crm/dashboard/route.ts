@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { crmLeads } from "@/lib/db/schema/crm-leads"
-import { crmEmpresas } from "@/lib/db/schema/crm-empresas"
+import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
 import { crmOportunidades } from "@/lib/db/schema/crm-oportunidades"
 import { crmPropostas } from "@/lib/db/schema/crm-propostas"
 import { crmVisitas } from "@/lib/db/schema/crm-visitas"
@@ -43,7 +43,7 @@ export async function GET() {
     ] = await Promise.all([
       db.select({ total: count() }).from(crmLeads),
       db.select({ total: count() }).from(crmLeads).where(gte(crmLeads.createdAt, new Date(inicioMes))),
-      db.select({ total: count() }).from(crmEmpresas),
+      db.select({ total: count() }).from(crmPessoas),
       db.select({ total: count() }).from(crmOportunidades),
       db
         .select({ status: crmOportunidades.status, total: count() })
@@ -65,13 +65,13 @@ export async function GET() {
       db
         .select({
           empresaId: crmOportunidades.empresaId,
-          empresaNome: crmEmpresas.razaoSocial,
+          empresaNome: crmPessoas.razaoSocial,
           totalValor: sql<string>`SUM(COALESCE(${crmOportunidades.valorEstimado}, 0)::numeric)`,
         })
         .from(crmOportunidades)
-        .leftJoin(crmEmpresas, eq(crmOportunidades.empresaId, crmEmpresas.id))
+        .leftJoin(crmPessoas, eq(crmOportunidades.empresaId, crmPessoas.id))
         .where(sql`${crmOportunidades.status} NOT IN ('FECHADO_PERDIDO', 'FECHADO_GANHO')`)
-        .groupBy(crmOportunidades.empresaId, crmEmpresas.razaoSocial)
+        .groupBy(crmOportunidades.empresaId, crmPessoas.razaoSocial)
         .orderBy(desc(sql`SUM(COALESCE(${crmOportunidades.valorEstimado}, 0)::numeric)`))
         .limit(5),
       db
@@ -110,7 +110,7 @@ export async function GET() {
 
     return NextResponse.json({
       leads: { total: getCount(leadsTotal), esteMes: getCount(leadsMes) },
-      empresas: { total: getCount(empresasTotal) },
+      pessoas: { total: getCount(empresasTotal) },
       oportunidades: {
         total: getCount(oportunidadesTotal),
         esteMes: getCount(oportunidadesMes),

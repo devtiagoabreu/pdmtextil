@@ -730,7 +730,7 @@ async function migrate() {
 
     // ==================== CRM (Fase 1) ====================
     await sql`
-      CREATE TABLE IF NOT EXISTS crm_empresas (
+      CREATE TABLE IF NOT EXISTS crm_pessoas (
         id SERIAL PRIMARY KEY,
         razao_social VARCHAR(250) NOT NULL,
         nome_fantasia VARCHAR(200),
@@ -748,10 +748,10 @@ async function migrate() {
         updated_at TIMESTAMP DEFAULT NOW()
       )
     `
-    console.log("✓ Tabela crm_empresas criada")
+    console.log("✓ Tabela crm_pessoas criada")
     // Coluna cliente_id (para quem já tem a tabela)
-    await sql`ALTER TABLE crm_empresas ADD COLUMN IF NOT EXISTS cliente_id INTEGER REFERENCES clientes(id)`
-    console.log("✓ Coluna cliente_id em crm_empresas")
+    await sql`ALTER TABLE crm_pessoas ADD COLUMN IF NOT EXISTS cliente_id INTEGER REFERENCES clientes(id)`
+    console.log("✓ Coluna cliente_id em crm_pessoas")
 
     await sql`
       CREATE TABLE IF NOT EXISTS crm_leads (
@@ -766,7 +766,7 @@ async function migrate() {
         status VARCHAR(30) NOT NULL DEFAULT 'NOVO',
         descricao TEXT,
         responsavel_id INTEGER REFERENCES usuarios(id),
-        empresa_id INTEGER REFERENCES crm_empresas(id),
+        empresa_id INTEGER REFERENCES crm_pessoas(id),
         id_integracao VARCHAR(100),
         created_at TIMESTAMP DEFAULT NOW(),
         updated_at TIMESTAMP DEFAULT NOW()
@@ -785,7 +785,7 @@ async function migrate() {
         whatsapp VARCHAR(255),
         principal BOOLEAN DEFAULT false,
         observacoes TEXT,
-        empresa_id INTEGER NOT NULL REFERENCES crm_empresas(id),
+        empresa_id INTEGER NOT NULL REFERENCES crm_pessoas(id),
         created_at TIMESTAMP DEFAULT NOW(),
         updated_at TIMESTAMP DEFAULT NOW()
       )
@@ -800,7 +800,7 @@ async function migrate() {
         valor_estimado NUMERIC(12,2),
         status VARCHAR(30) NOT NULL DEFAULT 'NOVO',
         lead_id INTEGER REFERENCES crm_leads(id),
-        empresa_id INTEGER REFERENCES crm_empresas(id),
+        empresa_id INTEGER REFERENCES crm_pessoas(id),
         contato_id INTEGER REFERENCES crm_contatos(id),
         responsavel_id INTEGER REFERENCES usuarios(id),
         data_fechamento_prevista DATE,
@@ -815,7 +815,7 @@ async function migrate() {
     await sql`
       CREATE TABLE IF NOT EXISTS crm_visitas (
         id SERIAL PRIMARY KEY,
-        empresa_id INTEGER NOT NULL REFERENCES crm_empresas(id),
+        empresa_id INTEGER NOT NULL REFERENCES crm_pessoas(id),
         oportunidade_id INTEGER REFERENCES crm_oportunidades(id),
         contato_id INTEGER REFERENCES crm_contatos(id),
         data_visita DATE NOT NULL,
@@ -834,7 +834,7 @@ async function migrate() {
     await sql`
       CREATE TABLE IF NOT EXISTS crm_tarefas (
         id SERIAL PRIMARY KEY,
-        empresa_id INTEGER REFERENCES crm_empresas(id),
+        empresa_id INTEGER REFERENCES crm_pessoas(id),
         oportunidade_id INTEGER REFERENCES crm_oportunidades(id),
         titulo VARCHAR(300) NOT NULL,
         descricao TEXT,
@@ -854,7 +854,7 @@ async function migrate() {
       CREATE TABLE IF NOT EXISTS crm_propostas (
         id SERIAL PRIMARY KEY,
         oportunidade_id INTEGER REFERENCES crm_oportunidades(id),
-        empresa_id INTEGER NOT NULL REFERENCES crm_empresas(id),
+        empresa_id INTEGER NOT NULL REFERENCES crm_pessoas(id),
         titulo VARCHAR(300) NOT NULL,
         valor NUMERIC(12,2),
         descricao TEXT,
@@ -874,7 +874,7 @@ async function migrate() {
     await sql`
       CREATE TABLE IF NOT EXISTS crm_timeline_eventos (
         id SERIAL PRIMARY KEY,
-        empresa_id INTEGER NOT NULL REFERENCES crm_empresas(id),
+        empresa_id INTEGER NOT NULL REFERENCES crm_pessoas(id),
         tipo VARCHAR(30) NOT NULL,
         descricao TEXT NOT NULL,
         metadados JSONB DEFAULT '{}'::jsonb,
@@ -913,7 +913,7 @@ async function migrate() {
     await sql`
       CREATE TABLE IF NOT EXISTS crm_whatsapp_mensagens (
         id SERIAL PRIMARY KEY,
-        empresa_id INTEGER REFERENCES crm_empresas(id),
+        empresa_id INTEGER REFERENCES crm_pessoas(id),
         contato_id INTEGER REFERENCES crm_contatos(id),
         mensagem TEXT NOT NULL,
         tipo VARCHAR(10) NOT NULL DEFAULT 'RECEBIDA',
@@ -969,12 +969,12 @@ async function migrate() {
     console.log("✓ Colunas IA adicionadas em crm_leads")
 
     await sql`
-      ALTER TABLE crm_empresas
+      ALTER TABLE crm_pessoas
         ADD COLUMN IF NOT EXISTS resumo_ia TEXT,
         ADD COLUMN IF NOT EXISTS sugestao_ia TEXT,
         ADD COLUMN IF NOT EXISTS data_resumo_ia TIMESTAMP
     `
-    console.log("✓ Colunas IA adicionadas em crm_empresas")
+    console.log("✓ Colunas IA adicionadas em crm_pessoas")
 
     await sql`
       CREATE TABLE IF NOT EXISTS crm_previsao_vendas (

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { crmOportunidades } from "@/lib/db/schema/crm-oportunidades"
-import { crmEmpresas } from "@/lib/db/schema/crm-empresas"
+import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
 import { clientes } from "@/lib/db/schema/clientes"
 import { eq } from "drizzle-orm"
 import { registrarLog } from "@/lib/notificar"
@@ -11,8 +11,8 @@ import { inserirTimelineEvento } from "@/lib/crm-timeline"
 async function sincronizarEmpresaCliente(empresaId: number) {
   const [empresa] = await db
     .select()
-    .from(crmEmpresas)
-    .where(eq(crmEmpresas.id, empresaId))
+    .from(crmPessoas)
+    .where(eq(crmPessoas.id, empresaId))
     .limit(1)
 
   if (!empresa) return
@@ -26,9 +26,9 @@ async function sincronizarEmpresaCliente(empresaId: number) {
 
   if (existente) {
     await db
-      .update(crmEmpresas)
+      .update(crmPessoas)
       .set({ clienteId: existente.id, updatedAt: new Date() })
-      .where(eq(crmEmpresas.id, empresaId))
+      .where(eq(crmPessoas.id, empresaId))
     return
   }
 
@@ -42,9 +42,9 @@ async function sincronizarEmpresaCliente(empresaId: number) {
     .returning()
 
   await db
-    .update(crmEmpresas)
+    .update(crmPessoas)
     .set({ clienteId: novoCliente.id, updatedAt: new Date() })
-    .where(eq(crmEmpresas.id, empresaId))
+    .where(eq(crmPessoas.id, empresaId))
 }
 
 export async function PATCH(

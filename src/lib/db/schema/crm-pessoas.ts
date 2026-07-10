@@ -2,7 +2,7 @@ import { pgTable, serial, varchar, text, integer, timestamp, boolean } from "dri
 import { usuarios } from "./usuarios"
 import { clientes } from "./clientes"
 
-export const crmEmpresas = pgTable("crm_empresas", {
+export const crmPessoas = pgTable("crm_pessoas", {
   id: serial("id").primaryKey(),
   tipoPessoa: varchar("tipo_pessoa", { length: 2 }).notNull().default("PJ"),
   nome: varchar("nome", { length: 250 }),
@@ -33,5 +33,5 @@ export const crmEmpresas = pgTable("crm_empresas", {
   updatedAt: timestamp("updated_at").defaultNow(),
 })
 
-export type CrmEmpresa = typeof crmEmpresas.$inferSelect
-export type NewCrmEmpresa = typeof crmEmpresas.$inferInsert
+export type CrmPessoa = typeof crmPessoas.$inferSelect
+export type NewCrmPessoa = typeof crmPessoas.$inferInsert

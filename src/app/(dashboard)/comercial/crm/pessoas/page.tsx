@@ -9,7 +9,7 @@ import { getInfoContent } from "@/lib/info-content"
 import { PlusCircle, UserCircle, Search } from "lucide-react"
 
 async function fetchEmpresas() {
-  const res = await fetch("/api/crm/empresas")
+  const res = await fetch("/api/crm/pessoas")
   if (!res.ok) throw new Error("Falha ao carregar")
   return res.json()
 }
@@ -22,14 +22,14 @@ const STATUS_CORES: Record<string, string> = {
   INATIVO: "text-slate-400 bg-slate-100 dark:bg-slate-800 dark:text-slate-500",
 }
 
-export default function CrmEmpresasPage() {
+export default function CrmPessoasPage() {
   const router = useRouter()
   const pathname = usePathname()
   const info = getInfoContent(pathname)
   const [search, setSearch] = useState("")
 
   const { data: empresas, isLoading } = useQuery({
-    queryKey: ["crm-empresas"],
+    queryKey: ["crm-pessoas"],
     queryFn: fetchEmpresas,
     retry: 1,
   })
@@ -61,7 +61,7 @@ export default function CrmEmpresasPage() {
           </p>
         </div>
         <Link
-          href="/comercial/crm/empresas/novo"
+          href="/comercial/crm/pessoas/novo"
           className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors shadow-sm"
         >
           <PlusCircle size={16} />
@@ -109,7 +109,7 @@ export default function CrmEmpresasPage() {
                   <tr
                     key={emp.id}
                     className="hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"
-                    onClick={() => router.push(`/comercial/crm/empresas/${emp.id}`)}
+                    onClick={() => router.push(`/comercial/crm/pessoas/${emp.id}`)}
                   >
                     <td className="px-4 py-3">
                       {emp.tipoPessoa ? (

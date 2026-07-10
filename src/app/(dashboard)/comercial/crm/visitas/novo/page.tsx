@@ -7,7 +7,7 @@ import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft, Save, Plus, X } from "lucide-react"
 import { toast } from "sonner"
-import { QuickCreateEmpresa } from "@/components/crm/quick-create-empresa"
+import { QuickCreateEmpresa } from "@/components/crm/quick-create-pessoa"
 import { QuickCreateContato } from "@/components/crm/quick-create-contato"
 import { QuickCreateOportunidade } from "@/components/crm/quick-create-oportunidade"
 import { SelectUf } from "@/components/crm/select-uf"
@@ -55,7 +55,7 @@ export default function NovaVisitaPage() {
     async function load() {
       try {
         const [empresasRes, oportunidadesRes] = await Promise.allSettled([
-          fetch("/api/crm/empresas").then(r => r.json()),
+          fetch("/api/crm/pessoas").then(r => r.json()),
           fetch("/api/crm/oportunidades").then(r => r.json()),
         ])
         if (empresasRes.status === "fulfilled" && Array.isArray(empresasRes.value)) setEmpresas(empresasRes.value)
@@ -87,7 +87,7 @@ export default function NovaVisitaPage() {
 
   async function loadEmpresas() {
     try {
-      const res = await fetch("/api/crm/empresas")
+      const res = await fetch("/api/crm/pessoas")
       const data = await res.json()
       if (Array.isArray(data)) setEmpresas(data)
     } catch {}

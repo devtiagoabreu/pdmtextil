@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { crmLeads } from "@/lib/db/schema/crm-leads"
-import { crmEmpresas } from "@/lib/db/schema/crm-empresas"
+import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
 import { crmOportunidades } from "@/lib/db/schema/crm-oportunidades"
 import { crmVisitas } from "@/lib/db/schema/crm-visitas"
 import { crmTarefas } from "@/lib/db/schema/crm-tarefas"
@@ -29,7 +29,7 @@ export async function GET() {
       propostasPorStatus,
       campanhasTotal,
     ] = await Promise.all([
-      db.select({ total: count() }).from(crmEmpresas),
+      db.select({ total: count() }).from(crmPessoas),
       db.select({ total: count() }).from(crmLeads),
       db
         .select({ origem: crmLeads.origem, total: count() })

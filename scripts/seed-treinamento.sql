@@ -192,7 +192,7 @@ Após criar, você vai para a **página de detalhe da empresa**. Lá você encon
 
 > 💡 **Dica importante:** Capriche no cadastro! Um CNPJ correto, segmento bem classificado e dados completos fazem **toda a diferença** na hora de gerar relatórios e na IA sugerir ações.
 
-$$, 'Nenhum. Apenas seu login no sistema.', '/comercial/crm/empresas/nova', 1);
+$$, 'Nenhum. Apenas seu login no sistema.', '/comercial/crm/pessoas/nova', 1);
 
 WITH m AS (SELECT id FROM crm_treino_modulos WHERE ordem = 2)
 INSERT INTO crm_treino_licoes (modulo_id, titulo, conteudo_md, pre_requisitos, pathname_relacionado, ordem) VALUES
@@ -239,7 +239,7 @@ O sistema **não permite** dois CNPJs iguais. Mas se por acaso você encontrar e
 
 > **Mantenha os dados sempre atualizados!** Uma empresa com telefone errado, site quebrado ou segmento em branco vale muito menos. Reserve 5 minutos por dia para revisar suas empresas.
 
-$$, 'Empresas criadas', '/comercial/crm/empresas', 2);
+$$, 'Empresas criadas', '/comercial/crm/pessoas', 2);
 
 -- ============================================================
 -- MÓDULO 3: Contatos — As Pessoas por Trás das Empresas

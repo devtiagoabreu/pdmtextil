@@ -1,5 +1,5 @@
 import { pgTable, serial, varchar, text, integer, timestamp, boolean } from "drizzle-orm/pg-core"
-import { crmEmpresas } from "./crm-empresas"
+import { crmPessoas } from "./crm-pessoas"
 
 export const crmContatos = pgTable("crm_contatos", {
   id: serial("id").primaryKey(),
@@ -11,7 +11,7 @@ export const crmContatos = pgTable("crm_contatos", {
   whatsapp: varchar("whatsapp", { length: 255 }),
   principal: boolean("principal").default(false),
   observacoes: text("observacoes"),
-  empresaId: integer("empresa_id").references(() => crmEmpresas.id).notNull(),
+  empresaId: integer("empresa_id").references(() => crmPessoas.id).notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 })

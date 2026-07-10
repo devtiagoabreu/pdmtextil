@@ -7,7 +7,7 @@ import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft, Save } from "lucide-react"
 import { toast } from "sonner"
-import { QuickCreateEmpresa } from "@/components/crm/quick-create-empresa"
+import { QuickCreateEmpresa } from "@/components/crm/quick-create-pessoa"
 import { QuickCreateLead } from "@/components/crm/quick-create-lead"
 import { useStatuses } from "@/hooks/use-statuses"
 
@@ -38,7 +38,7 @@ export default function NovaOportunidadePage() {
 
   async function loadEmpresas() {
     try {
-      const res = await fetch("/api/crm/empresas")
+      const res = await fetch("/api/crm/pessoas")
       const data = await res.json()
       if (Array.isArray(data)) setEmpresas(data)
     } catch {}
@@ -65,7 +65,7 @@ export default function NovaOportunidadePage() {
   useEffect(() => {
     async function load() {
       const [empresasRes, leadsRes, usuariosRes] = await Promise.allSettled([
-        fetch("/api/crm/empresas").then(r => r.json()),
+        fetch("/api/crm/pessoas").then(r => r.json()),
         fetch("/api/crm/leads").then(r => r.json()),
         fetch("/api/usuarios").then(r => r.json()),
       ])

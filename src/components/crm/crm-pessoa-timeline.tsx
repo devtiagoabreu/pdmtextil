@@ -23,16 +23,16 @@ const TIPO_LABEL: Record<string, string> = {
   SOLICITACAO: "Solicitação",
 }
 
-async function fetchTimeline(empresaId: string) {
-  const res = await fetch(`/api/crm/timeline?empresaId=${empresaId}`)
+async function fetchTimeline(pessoaId: string) {
+  const res = await fetch(`/api/crm/timeline?pessoaId=${pessoaId}`)
   if (!res.ok) throw new Error("Falha ao carregar timeline")
   return res.json()
 }
 
-export default function CrmEmpresaTimeline({ empresaId }: { empresaId: string }) {
+export default function CrmPessoaTimeline({ pessoaId }: { pessoaId: string }) {
   const { data: eventos, isLoading } = useQuery({
-    queryKey: ["crm-timeline", empresaId],
-    queryFn: () => fetchTimeline(empresaId),
+    queryKey: ["crm-timeline", pessoaId],
+    queryFn: () => fetchTimeline(pessoaId),
     retry: 1,
   })
 

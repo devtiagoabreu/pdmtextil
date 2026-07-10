@@ -10,16 +10,16 @@ export async function GET(req: NextRequest) {
     if (auth instanceof NextResponse) return auth
 
     const { searchParams } = new URL(req.url)
-    const empresaId = searchParams.get("empresaId")
+    const pessoaId = searchParams.get("pessoaId")
 
-    if (!empresaId) {
-      return NextResponse.json({ error: "empresaId é obrigatório" }, { status: 400 })
+    if (!pessoaId) {
+      return NextResponse.json({ error: "pessoaId é obrigatório" }, { status: 400 })
     }
 
     const eventos = await db
       .select()
       .from(crmTimelineEventos)
-      .where(eq(crmTimelineEventos.empresaId, parseInt(empresaId)))
+      .where(eq(crmTimelineEventos.empresaId, parseInt(pessoaId)))
       .orderBy(desc(crmTimelineEventos.dataEvento))
       .limit(50)
 

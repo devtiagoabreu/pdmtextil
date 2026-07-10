@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
-import { crmEmpresas } from "@/lib/db/schema/crm-empresas"
+import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq, desc, like, or, sql } from "drizzle-orm"
 import { registrarLog } from "@/lib/notificar"
@@ -16,15 +16,15 @@ export async function GET(req: NextRequest) {
 
     let conditions = []
 
-    if (status) conditions.push(eq(crmEmpresas.status, status))
+    if (status) conditions.push(eq(crmPessoas.status, status))
     if (search) {
       conditions.push(
         or(
-          like(crmEmpresas.razaoSocial, `%${search}%`),
-          like(crmEmpresas.nome, `%${search}%`),
-          like(crmEmpresas.nomeFantasia, `%${search}%`),
-          like(crmEmpresas.cnpj, `%${search}%`),
-          like(crmEmpresas.cpf, `%${search}%`),
+          like(crmPessoas.razaoSocial, `%${search}%`),
+          like(crmPessoas.nome, `%${search}%`),
+          like(crmPessoas.nomeFantasia, `%${search}%`),
+          like(crmPessoas.cnpj, `%${search}%`),
+          like(crmPessoas.cpf, `%${search}%`),
         )
       )
     }
@@ -33,26 +33,26 @@ export async function GET(req: NextRequest) {
 
     const lista = await db
       .select({
-        id: crmEmpresas.id,
-        tipoPessoa: crmEmpresas.tipoPessoa,
-        nome: crmEmpresas.nome,
-        razaoSocial: crmEmpresas.razaoSocial,
-        nomeFantasia: crmEmpresas.nomeFantasia,
-        cpf: crmEmpresas.cpf,
-        cnpj: crmEmpresas.cnpj,
-        segmento: crmEmpresas.segmento,
-        porte: crmEmpresas.porte,
-        status: crmEmpresas.status,
-        responsavelId: crmEmpresas.responsavelId,
+        id: crmPessoas.id,
+        tipoPessoa: crmPessoas.tipoPessoa,
+        nome: crmPessoas.nome,
+        razaoSocial: crmPessoas.razaoSocial,
+        nomeFantasia: crmPessoas.nomeFantasia,
+        cpf: crmPessoas.cpf,
+        cnpj: crmPessoas.cnpj,
+        segmento: crmPessoas.segmento,
+        porte: crmPessoas.porte,
+        status: crmPessoas.status,
+        responsavelId: crmPessoas.responsavelId,
         responsavelNome: usuarios.name,
-        ativo: crmEmpresas.ativo,
-        createdAt: crmEmpresas.createdAt,
-        updatedAt: crmEmpresas.updatedAt,
+        ativo: crmPessoas.ativo,
+        createdAt: crmPessoas.createdAt,
+        updatedAt: crmPessoas.updatedAt,
       })
-      .from(crmEmpresas)
-      .leftJoin(usuarios, eq(crmEmpresas.responsavelId, usuarios.id))
+      .from(crmPessoas)
+      .leftJoin(usuarios, eq(crmPessoas.responsavelId, usuarios.id))
       .where(where)
-      .orderBy(desc(crmEmpresas.createdAt))
+      .orderBy(desc(crmPessoas.createdAt))
 
     return NextResponse.json(lista)
   } catch (error) {
@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
     const cpf = body.cpf?.replace(/[^0-9]/g, "") || null
 
     const [nova] = await db
-      .insert(crmEmpresas)
+      .insert(crmPessoas)
       .values({
         tipoPessoa,
         nome: tipoPessoa === "PF" ? body.nome : null,
@@ -102,7 +102,7 @@ export async function POST(req: NextRequest) {
       tipo: "CADASTRO",
       acao: "criar",
       descricao: `Pessoa ${tipoPessoa === "PF" ? "Física" : "Jurídica"} criada: ${nova.nome || nova.razaoSocial}`,
-      entidade: "CrmEmpresa",
+      entidade: "CrmPessoa",
       entidadeId: nova.id,
       usuarioNome: session.user.name,
     })

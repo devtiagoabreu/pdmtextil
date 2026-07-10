@@ -7,11 +7,11 @@ import { useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { Loader2, ArrowLeft } from "lucide-react"
 import Link from "next/link"
-import { QuickCreateEmpresa } from "@/components/crm/quick-create-empresa"
+import { QuickCreateEmpresa } from "@/components/crm/quick-create-pessoa"
 import { QuickCreateOportunidade } from "@/components/crm/quick-create-oportunidade"
 
 async function fetchEmpresas() {
-  const res = await fetch("/api/crm/empresas")
+  const res = await fetch("/api/crm/pessoas")
   if (!res.ok) throw new Error("Falha ao carregar")
   return res.json()
 }
@@ -36,11 +36,11 @@ export default function NovaPropostaPage() {
   const [prazoEntrega, setPrazoEntrega] = useState("")
   const [arquivoUrl, setArquivoUrl] = useState("")
 
-  const { data: empresas } = useQuery({ queryKey: ["crm-empresas"], queryFn: fetchEmpresas })
+  const { data: empresas } = useQuery({ queryKey: ["crm-pessoas"], queryFn: fetchEmpresas })
   const { data: oportunidades } = useQuery({ queryKey: ["crm-oportunidades"], queryFn: fetchOportunidades })
 
   function handleEmpresaCreated(id: number) {
-    queryClient.invalidateQueries({ queryKey: ["crm-empresas"] })
+    queryClient.invalidateQueries({ queryKey: ["crm-pessoas"] })
     setEmpresaId(String(id))
   }
 

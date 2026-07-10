@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { crmVisitas } from "@/lib/db/schema/crm-visitas"
-import { crmEmpresas } from "@/lib/db/schema/crm-empresas"
+import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
 import { crmOportunidades } from "@/lib/db/schema/crm-oportunidades"
 import { crmContatos } from "@/lib/db/schema/crm-contatos"
 import { usuarios } from "@/lib/db/schema/usuarios"
@@ -24,14 +24,14 @@ export async function GET(
       .select({
         id: crmVisitas.id,
         empresaId: crmVisitas.empresaId,
-        empresaNome: crmEmpresas.razaoSocial,
-        empresaEndereco: crmEmpresas.endereco,
-        empresaNumero: crmEmpresas.numero,
-        empresaComplemento: crmEmpresas.complemento,
-        empresaBairro: crmEmpresas.bairro,
-        empresaCidade: crmEmpresas.cidade,
-        empresaUf: crmEmpresas.uf,
-        empresaCep: crmEmpresas.cep,
+        empresaNome: crmPessoas.razaoSocial,
+        empresaEndereco: crmPessoas.endereco,
+        empresaNumero: crmPessoas.numero,
+        empresaComplemento: crmPessoas.complemento,
+        empresaBairro: crmPessoas.bairro,
+        empresaCidade: crmPessoas.cidade,
+        empresaUf: crmPessoas.uf,
+        empresaCep: crmPessoas.cep,
         oportunidadeId: crmVisitas.oportunidadeId,
         oportunidadeTitulo: crmOportunidades.titulo,
         contatoId: crmVisitas.contatoId,
@@ -55,7 +55,7 @@ export async function GET(
         updatedAt: crmVisitas.updatedAt,
       })
       .from(crmVisitas)
-      .leftJoin(crmEmpresas, eq(crmVisitas.empresaId, crmEmpresas.id))
+      .leftJoin(crmPessoas, eq(crmVisitas.empresaId, crmPessoas.id))
       .leftJoin(crmOportunidades, eq(crmVisitas.oportunidadeId, crmOportunidades.id))
       .leftJoin(crmContatos, eq(crmVisitas.contatoId, crmContatos.id))
       .leftJoin(usuarios, eq(crmVisitas.criadoPor, usuarios.id))

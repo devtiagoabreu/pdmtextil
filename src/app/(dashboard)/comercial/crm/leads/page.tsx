@@ -56,7 +56,7 @@ export default function CrmLeadsPage() {
     if (!nomeEmpresa) return
 
     try {
-      const res = await fetch("/api/crm/empresas", {
+      const res = await fetch("/api/crm/pessoas", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ razaoSocial: nomeEmpresa }),
@@ -180,7 +180,7 @@ export default function CrmLeadsPage() {
                     </td>
                     <td className="px-4 py-3 text-sm text-slate-500">
                       {lead.empresaNome || (lead.empresaRazaoSocial ? (
-                        <Link href={`/comercial/crm/empresas/${lead.empresaId}`} className="text-blue-600 hover:underline">
+                        <Link href={`/comercial/crm/pessoas/${lead.empresaId}`} className="text-blue-600 hover:underline">
                           {lead.empresaRazaoSocial}
                         </Link>
                       ) : "—")}

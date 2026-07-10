@@ -8,8 +8,8 @@ import Link from "next/link"
 import { SelectUf } from "@/components/crm/select-uf"
 import { SelectCidade } from "@/components/crm/select-cidade"
 import { ArrowLeft, Mail, Phone, Globe, Plus, Trash2, Pencil, Check, X, Clock, MessageSquare } from "lucide-react"
-import CrmEmpresaTimeline from "@/components/crm/crm-empresa-timeline"
-import CrmEmpresaWhatsapp from "@/components/crm/crm-empresa-whatsapp"
+import CrmPessoaTimeline from "@/components/crm/crm-pessoa-timeline"
+import CrmPessoaWhatsapp from "@/components/crm/crm-pessoa-whatsapp"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 
@@ -23,12 +23,12 @@ const STATUS_CORES: Record<string, string> = {
   INATIVO: "text-slate-400 bg-slate-100 dark:bg-slate-800 dark:text-slate-500",
 }
 
-export default function EmpresaDetailPage() {
+export default function PessoaDetailPage() {
   const router = useRouter()
   const pathname = usePathname()
   const info = getInfoContent(pathname)
   const params = useParams()
-  const [empresa, setEmpresa] = useState<any>(null)
+  const [pessoa, setPessoa] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(false)
   const [form, setForm] = useState<any>({})
@@ -57,10 +57,10 @@ export default function EmpresaDetailPage() {
   }, [form.uf, estados])
 
   useEffect(() => {
-    fetch(`/api/crm/empresas/${params.id}`)
+    fetch(fetch(`/api/crm/pessoas/${params.id}`))
       .then(r => r.json())
       .then(data => {
-        setEmpresa(data)
+        setPessoa(data)
         setForm(data)
         setTipoPessoa(data.tipoPessoa || "PJ")
       })
@@ -70,7 +70,7 @@ export default function EmpresaDetailPage() {
 
   async function handleSave() {
     try {
-      const res = await fetch(`/api/crm/empresas/${params.id}`, {
+      const res = await fetch(fetch(`/api/crm/pessoas/${params.id}`), {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -80,10 +80,10 @@ export default function EmpresaDetailPage() {
         throw new Error(err.error)
       }
       const updated = await res.json()
-      setEmpresa(updated)
+      setPessoa(updated)
       setForm(updated)
       setEditing(false)
-      toast.success("Empresa atualizada")
+      toast.success("Pessoa atualizada")
     } catch (err: any) {
       toast.error(err.message)
     }
@@ -92,12 +92,12 @@ export default function EmpresaDetailPage() {
   async function handleDelete() {
     setDeleteLoading(true)
     try {
-      const res = await fetch(`/api/crm/empresas/${params.id}`, { method: "DELETE" })
+      const res = await fetch(fetch(`/api/crm/pessoas/${params.id}`), { method: "DELETE" })
       if (!res.ok) throw new Error("Erro ao excluir")
-      toast.success("Empresa excluída")
-      router.push("/comercial/crm/empresas")
+      toast.success("Pessoa excluída")
+      router.push("/comercial/crm/pessoas")
     } catch {
-      toast.error("Erro ao excluir empresa")
+      toast.error("Erro ao excluir pessoa")
     } finally {
       setDeleteLoading(false)
       setShowDelete(false)
@@ -115,7 +115,7 @@ export default function EmpresaDetailPage() {
       })
       if (!res.ok) throw new Error("Erro ao criar contato")
       const novo = await res.json()
-      setEmpresa((prev: any) => ({ ...prev, contatos: [...(prev.contatos || []), novo] }))
+      setPessoa((prev: any) => ({ ...prev, contatos: [...(prev.contatos || []), novo] }))
       toast.success("Contato adicionado")
     } catch {
       toast.error("Erro ao adicionar contato")
@@ -126,7 +126,7 @@ export default function EmpresaDetailPage() {
     try {
       const res = await fetch(`/api/crm/contatos/${contatoId}`, { method: "DELETE" })
       if (!res.ok) throw new Error("Erro ao excluir")
-      setEmpresa((prev: any) => ({
+      setPessoa((prev: any) => ({
         ...prev,
         contatos: (prev.contatos || []).filter((c: any) => c.id !== contatoId),
       }))
@@ -144,11 +144,11 @@ export default function EmpresaDetailPage() {
     )
   }
 
-  if (!empresa) {
+  if (!pessoa) {
     return (
       <div className="text-center py-20">
-        <p className="text-slate-500">Empresa não encontrada</p>
-        <Link href="/comercial/crm/empresas" className="text-blue-600 hover:underline mt-2 inline-block">Voltar</Link>
+        <p className="text-slate-500">Pessoa não encontrada</p>
+        <Link href="/comercial/crm/pessoas" className="text-blue-600 hover:underline mt-2 inline-block">Voltar</Link>
       </div>
     )
   }
@@ -162,24 +162,24 @@ export default function EmpresaDetailPage() {
         <div className="flex-1">
           <div className="flex items-center gap-2">
             <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">
-              {empresa.tipoPessoa === "PF" ? (empresa.nome || empresa.razaoSocial) : empresa.razaoSocial}
+              {pessoa.tipoPessoa === "PF" ? (pessoa.nome || pessoa.razaoSocial) : pessoa.razaoSocial}
               {info && <InfoButton content={info} />}
             </h1>
-            {empresa.tipoPessoa && (
+            {pessoa.tipoPessoa && (
               <span className={`inline-flex text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
-                empresa.tipoPessoa === "PF"
+                pessoa.tipoPessoa === "PF"
                   ? "text-purple-600 bg-purple-50 dark:bg-purple-950/50 dark:text-purple-400"
                   : "text-cyan-600 bg-cyan-50 dark:bg-cyan-950/50 dark:text-cyan-400"
               }`}>
-                {empresa.tipoPessoa === "PF" ? "PF" : "PJ"}
+                {pessoa.tipoPessoa === "PF" ? "PF" : "PJ"}
               </span>
             )}
-            <span className={`inline-flex text-[10px] px-2 py-0.5 rounded-full font-medium ${STATUS_CORES[empresa.status] || ""}`}>
-              {empresa.status}
+            <span className={`inline-flex text-[10px] px-2 py-0.5 rounded-full font-medium ${STATUS_CORES[pessoa.status] || ""}`}>
+              {pessoa.status}
             </span>
           </div>
-          {empresa.tipoPessoa === "PJ" && empresa.nomeFantasia && (
-            <p className="text-sm text-slate-500">{empresa.nomeFantasia}</p>
+          {pessoa.tipoPessoa === "PJ" && pessoa.nomeFantasia && (
+            <p className="text-sm text-slate-500">{pessoa.nomeFantasia}</p>
           )}
         </div>
         <div className="flex gap-2">
@@ -188,7 +188,7 @@ export default function EmpresaDetailPage() {
               <button onClick={handleSave} className="flex items-center gap-1 text-xs font-medium text-emerald-600 hover:underline">
                 <Check size={14} /> Salvar
               </button>
-              <button onClick={() => { setEditing(false); setForm(empresa) }} className="flex items-center gap-1 text-xs font-medium text-slate-500 hover:underline">
+              <button onClick={() => { setEditing(false); setForm(pessoa) }} className="flex items-center gap-1 text-xs font-medium text-slate-500 hover:underline">
                 <X size={14} /> Cancelar
               </button>
             </>
@@ -315,83 +315,83 @@ export default function EmpresaDetailPage() {
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-3 text-sm">
-              {empresa.tipoPessoa === "PF" ? (
+              {pessoa.tipoPessoa === "PF" ? (
                 <>
                   <div className="col-span-2">
                     <p className="text-xs text-slate-500 mb-0.5">Nome</p>
-                    <p className="text-slate-900 dark:text-slate-200">{empresa.nome || "—"}</p>
+                    <p className="text-slate-900 dark:text-slate-200">{pessoa.nome || "—"}</p>
                   </div>
                   <div>
                     <p className="text-xs text-slate-500 mb-0.5">CPF</p>
-                    <p className="text-slate-900 dark:text-slate-200">{empresa.cpf || "—"}</p>
+                    <p className="text-slate-900 dark:text-slate-200">{pessoa.cpf || "—"}</p>
                   </div>
                 </>
               ) : (
                 <>
                   <div className="col-span-2">
                     <p className="text-xs text-slate-500 mb-0.5">Razão Social</p>
-                    <p className="text-slate-900 dark:text-slate-200">{empresa.razaoSocial || "—"}</p>
+                    <p className="text-slate-900 dark:text-slate-200">{pessoa.razaoSocial || "—"}</p>
                   </div>
                   <div>
                     <p className="text-xs text-slate-500 mb-0.5">Nome Fantasia</p>
-                    <p className="text-slate-900 dark:text-slate-200">{empresa.nomeFantasia || "—"}</p>
+                    <p className="text-slate-900 dark:text-slate-200">{pessoa.nomeFantasia || "—"}</p>
                   </div>
                   <div>
                     <p className="text-xs text-slate-500 mb-0.5">CNPJ</p>
-                    <p className="text-slate-900 dark:text-slate-200">{empresa.cnpj || "—"}</p>
+                    <p className="text-slate-900 dark:text-slate-200">{pessoa.cnpj || "—"}</p>
                   </div>
                 </>
               )}
               <div>
                 <p className="text-xs text-slate-500 mb-0.5">Segmento</p>
-                <p className="text-slate-900 dark:text-slate-200">{empresa.segmento || "—"}</p>
+                <p className="text-slate-900 dark:text-slate-200">{pessoa.segmento || "—"}</p>
               </div>
               <div>
                 <p className="text-xs text-slate-500 mb-0.5">Porte</p>
-                <p className="text-slate-900 dark:text-slate-200">{empresa.porte || "—"}</p>
+                <p className="text-slate-900 dark:text-slate-200">{pessoa.porte || "—"}</p>
               </div>
               <div className="col-span-2">
                 <p className="text-xs text-slate-500 mb-0.5">Site</p>
-                <p className="text-slate-900 dark:text-slate-200">{empresa.site || "—"}</p>
+                <p className="text-slate-900 dark:text-slate-200">{pessoa.site || "—"}</p>
               </div>
               <div className="col-span-2">
                 <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800 pb-1 mb-1">Endereço</p>
               </div>
               <div className="col-span-2">
                 <p className="text-xs text-slate-500 mb-0.5">Logradouro</p>
-                <p className="text-slate-900 dark:text-slate-200">{empresa.endereco || "—"}</p>
+                <p className="text-slate-900 dark:text-slate-200">{pessoa.endereco || "—"}</p>
               </div>
               <div>
                 <p className="text-xs text-slate-500 mb-0.5">Número</p>
-                <p className="text-slate-900 dark:text-slate-200">{empresa.numero || "—"}</p>
+                <p className="text-slate-900 dark:text-slate-200">{pessoa.numero || "—"}</p>
               </div>
               <div>
                 <p className="text-xs text-slate-500 mb-0.5">Complemento</p>
-                <p className="text-slate-900 dark:text-slate-200">{empresa.complemento || "—"}</p>
+                <p className="text-slate-900 dark:text-slate-200">{pessoa.complemento || "—"}</p>
               </div>
               <div>
                 <p className="text-xs text-slate-500 mb-0.5">Bairro</p>
-                <p className="text-slate-900 dark:text-slate-200">{empresa.bairro || "—"}</p>
+                <p className="text-slate-900 dark:text-slate-200">{pessoa.bairro || "—"}</p>
               </div>
               <div>
                 <p className="text-xs text-slate-500 mb-0.5">UF</p>
-                <p className="text-slate-900 dark:text-slate-200">{empresa.uf || "—"}</p>
+                <p className="text-slate-900 dark:text-slate-200">{pessoa.uf || "—"}</p>
               </div>
               <div>
                 <p className="text-xs text-slate-500 mb-0.5">Cidade</p>
-                <p className="text-slate-900 dark:text-slate-200">{empresa.cidade || "—"}</p>
+                <p className="text-slate-900 dark:text-slate-200">{pessoa.cidade || "—"}</p>
               </div>
               <div>
                 <p className="text-xs text-slate-500 mb-0.5">CEP</p>
-                <p className="text-slate-900 dark:text-slate-200">{empresa.cep || "—"}</p>
+                <p className="text-slate-900 dark:text-slate-200">{pessoa.cep || "—"}</p>
               </div>
               <div className="col-span-2">
                 <p className="text-xs text-slate-500 mb-0.5">Status</p>
-                <p className="text-slate-900 dark:text-slate-200">{empresa.status || "—"}</p>
+                <p className="text-slate-900 dark:text-slate-200">{pessoa.status || "—"}</p>
               </div>
               <div className="col-span-2">
                 <p className="text-xs text-slate-500 mb-0.5">Observações</p>
-                <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap">{empresa.observacoes || "—"}</p>
+                <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap">{pessoa.observacoes || "—"}</p>
               </div>
             </div>
           )}
@@ -404,18 +404,18 @@ export default function EmpresaDetailPage() {
             </svg>
             Resumo IA
           </h2>
-          {empresa.resumoIa ? (
+          {pessoa.resumoIa ? (
             <div className="space-y-3 text-sm">
-              <p className="text-slate-700 dark:text-slate-300 whitespace-pre-wrap leading-relaxed">{empresa.resumoIa}</p>
-              {empresa.sugestaoIa && (
+              <p className="text-slate-700 dark:text-slate-300 whitespace-pre-wrap leading-relaxed">{pessoa.resumoIa}</p>
+              {pessoa.sugestaoIa && (
                 <div className="rounded-lg bg-amber-50 dark:bg-amber-950/30 p-3 border border-amber-200 dark:border-amber-900">
                   <p className="text-xs font-medium text-amber-700 dark:text-amber-400 mb-1">Sugestão da IA</p>
-                  <p className="text-sm text-amber-800 dark:text-amber-300">{empresa.sugestaoIa}</p>
+                  <p className="text-sm text-amber-800 dark:text-amber-300">{pessoa.sugestaoIa}</p>
                 </div>
               )}
-              {empresa.dataResumoIa && (
+              {pessoa.dataResumoIa && (
                 <p className="text-[10px] text-slate-400">
-                  Gerado em {new Date(empresa.dataResumoIa).toLocaleString("pt-BR")}
+                  Gerado em {new Date(pessoa.dataResumoIa).toLocaleString("pt-BR")}
                 </p>
               )}
             </div>
@@ -431,11 +431,11 @@ export default function EmpresaDetailPage() {
               <Plus size={14} /> Adicionar
             </button>
           </div>
-          {(empresa.contatos || []).length === 0 ? (
+          {(pessoa.contatos || []).length === 0 ? (
             <p className="text-sm text-slate-400 text-center py-6">Nenhum contato cadastrado</p>
           ) : (
             <div className="space-y-2">
-              {(empresa.contatos || []).map((contato: any) => (
+              {(pessoa.contatos || []).map((contato: any) => (
                 <div key={contato.id} className="flex items-center justify-between p-2.5 rounded-lg border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
@@ -466,7 +466,7 @@ export default function EmpresaDetailPage() {
             <Clock size={16} className="text-slate-400" />
             <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50">Timeline</h2>
           </div>
-          <CrmEmpresaTimeline empresaId={params.id as string} />
+          <CrmPessoaTimeline pessoaId={params.id as string} />
         </div>
 
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
@@ -474,14 +474,14 @@ export default function EmpresaDetailPage() {
             <MessageSquare size={16} className="text-emerald-500" />
             <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50">WhatsApp</h2>
           </div>
-          <CrmEmpresaWhatsapp empresaId={params.id as string} />
+          <CrmPessoaWhatsapp pessoaId={params.id as string} />
         </div>
       </div>
 
       <ConfirmModal
         open={showDelete}
-        title="Excluir empresa?"
-        message={`Tem certeza que deseja excluir "${empresa.razaoSocial}"? Todos os contatos vinculados também serão removidos.`}
+        title="Excluir pessoa?"
+        message={`Tem certeza que deseja excluir "${pessoa.razaoSocial}"? Todos os contatos vinculados também serão removidos.`}
         confirmLabel="Excluir"
         variant="danger"
         loading={deleteLoading}

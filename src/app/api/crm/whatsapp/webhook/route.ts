@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
 import { crmWhatsappMensagens } from "@/lib/db/schema/crm-whatsapp"
-import { crmEmpresas } from "@/lib/db/schema/crm-empresas"
+import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
 import { crmContatos } from "@/lib/db/schema/crm-contatos"
 import { crmLeads } from "@/lib/db/schema/crm-leads"
 import { eq } from "drizzle-orm"
@@ -14,7 +14,7 @@ async function criarLeadWhatsApp(remoteJid: string, mensagem: string) {
   const nomeContato = `WhatsApp ${numero}`
 
   const cnpjTemp = `000.000.000-${Date.now().toString().slice(-4)}`
-  const [empresa] = await db.insert(crmEmpresas).values({
+  const [empresa] = await db.insert(crmPessoas).values({
     razaoSocial: nomeContato,
     nomeFantasia: nomeContato,
     cnpj: cnpjTemp,

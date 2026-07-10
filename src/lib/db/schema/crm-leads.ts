@@ -1,6 +1,6 @@
 import { pgTable, serial, varchar, text, integer, timestamp } from "drizzle-orm/pg-core"
 import { usuarios } from "./usuarios"
-import { crmEmpresas } from "./crm-empresas"
+import { crmPessoas } from "./crm-pessoas"
 
 export const crmLeads = pgTable("crm_leads", {
   id: serial("id").primaryKey(),
@@ -15,7 +15,7 @@ export const crmLeads = pgTable("crm_leads", {
   status: varchar("status", { length: 30 }).notNull().default("NOVO"),
   descricao: text("descricao"),
   responsavelId: integer("responsavel_id").references(() => usuarios.id),
-  empresaId: integer("empresa_id").references(() => crmEmpresas.id),
+  empresaId: integer("empresa_id").references(() => crmPessoas.id),
   score: integer("score"),
   segmentoIa: varchar("segmento_ia", { length: 100 }),
   porteIa: varchar("porte_ia", { length: 50 }),

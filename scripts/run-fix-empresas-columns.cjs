@@ -10,11 +10,11 @@ const client = postgres(match[1], { prepare: false })
 
 async function main() {
   const sql = `
-ALTER TABLE crm_empresas ADD COLUMN IF NOT EXISTS cliente_id INTEGER REFERENCES clientes(id);
-ALTER TABLE crm_empresas ADD COLUMN IF NOT EXISTS resumo_ia TEXT;
-ALTER TABLE crm_empresas ADD COLUMN IF NOT EXISTS sugestao_ia TEXT;
-ALTER TABLE crm_empresas ADD COLUMN IF NOT EXISTS data_resumo_ia TIMESTAMPTZ;
-ALTER TABLE crm_empresas ADD COLUMN IF NOT EXISTS id_integracao VARCHAR(100);
+ALTER TABLE crm_pessoas ADD COLUMN IF NOT EXISTS cliente_id INTEGER REFERENCES clientes(id);
+ALTER TABLE crm_pessoas ADD COLUMN IF NOT EXISTS resumo_ia TEXT;
+ALTER TABLE crm_pessoas ADD COLUMN IF NOT EXISTS sugestao_ia TEXT;
+ALTER TABLE crm_pessoas ADD COLUMN IF NOT EXISTS data_resumo_ia TIMESTAMPTZ;
+ALTER TABLE crm_pessoas ADD COLUMN IF NOT EXISTS id_integracao VARCHAR(100);
 ALTER TABLE crm_leads ADD COLUMN IF NOT EXISTS score INTEGER DEFAULT 0;
 ALTER TABLE crm_leads ADD COLUMN IF NOT EXISTS segmento_ia VARCHAR(100);
 ALTER TABLE crm_leads ADD COLUMN IF NOT EXISTS porte_ia VARCHAR(50);

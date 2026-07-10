@@ -16,7 +16,7 @@ type Mensagem = {
   createdAt: string
 }
 
-export default function CrmEmpresaWhatsapp({ empresaId }: { empresaId: string }) {
+export default function CrmPessoaWhatsapp({ pessoaId }: { pessoaId: string }) {
   const [mensagens, setMensagens] = useState<Mensagem[]>([])
   const [loading, setLoading] = useState(true)
   const [texto, setTexto] = useState("")
@@ -24,14 +24,14 @@ export default function CrmEmpresaWhatsapp({ empresaId }: { empresaId: string })
   const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    fetch(`/api/crm/whatsapp?empresaId=${empresaId}`)
+    fetch(`/api/crm/whatsapp?empresaId=${pessoaId}`)
       .then((r) => r.json())
       .then((data) => {
         setMensagens(Array.isArray(data) ? data.reverse() : [])
       })
       .catch(() => toast.error("Erro ao carregar mensagens"))
       .finally(() => setLoading(false))
-  }, [empresaId])
+  }, [pessoaId])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -44,7 +44,7 @@ export default function CrmEmpresaWhatsapp({ empresaId }: { empresaId: string })
       const res = await fetch("/api/crm/whatsapp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ empresaId: Number(empresaId), mensagem: texto, tipo: "ENVIADA" }),
+        body: JSON.stringify({ empresaId: Number(pessoaId), mensagem: texto, tipo: "ENVIADA" }),
       })
       if (!res.ok) throw new Error()
       const nova = await res.json()

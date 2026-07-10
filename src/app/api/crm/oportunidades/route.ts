@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { crmOportunidades } from "@/lib/db/schema/crm-oportunidades"
-import { crmEmpresas } from "@/lib/db/schema/crm-empresas"
+import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
 import { crmLeads } from "@/lib/db/schema/crm-leads"
 import { crmContatos } from "@/lib/db/schema/crm-contatos"
 import { usuarios } from "@/lib/db/schema/usuarios"
@@ -24,8 +24,8 @@ export async function GET(req: NextRequest) {
       conditions.push(
         or(
           like(crmOportunidades.titulo, `%${search}%`),
-          like(crmEmpresas.razaoSocial, `%${search}%`),
-          like(crmEmpresas.nomeFantasia, `%${search}%`),
+          like(crmPessoas.razaoSocial, `%${search}%`),
+          like(crmPessoas.nomeFantasia, `%${search}%`),
         )
       )
     }
@@ -41,7 +41,7 @@ export async function GET(req: NextRequest) {
         status: crmOportunidades.status,
         leadId: crmOportunidades.leadId,
         empresaId: crmOportunidades.empresaId,
-        empresaNome: crmEmpresas.razaoSocial,
+        empresaNome: crmPessoas.razaoSocial,
         contatoId: crmOportunidades.contatoId,
         responsavelId: crmOportunidades.responsavelId,
         responsavelNome: usuarios.name,
@@ -52,7 +52,7 @@ export async function GET(req: NextRequest) {
         updatedAt: crmOportunidades.updatedAt,
       })
       .from(crmOportunidades)
-      .leftJoin(crmEmpresas, eq(crmOportunidades.empresaId, crmEmpresas.id))
+      .leftJoin(crmPessoas, eq(crmOportunidades.empresaId, crmPessoas.id))
       .leftJoin(usuarios, eq(crmOportunidades.responsavelId, usuarios.id))
       .where(where)
       .orderBy(desc(crmOportunidades.createdAt))
