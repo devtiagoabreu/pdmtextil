@@ -32,7 +32,7 @@ export async function enviarMensagem(numero: string, texto: string): Promise<Env
       },
       body: JSON.stringify({
         number: numeroLimpo,
-        textMessage: { text: texto },
+        text: texto,
         delay: 1,
       }),
     })
