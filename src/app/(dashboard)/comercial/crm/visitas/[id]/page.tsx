@@ -115,11 +115,14 @@ export default function DetalheVisitaPage() {
     setDeleteLoading(true)
     try {
       const res = await fetch(`/api/crm/visitas/${params.id}`, { method: "DELETE" })
-      if (!res.ok) throw new Error("Erro ao excluir")
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw new Error(err.error || "Erro ao excluir")
+      }
       toast.success("Visita excluída")
       router.push("/comercial/crm/visitas")
-    } catch {
-      toast.error("Erro ao excluir visita")
+    } catch (err: any) {
+      toast.error(err.message)
     } finally {
       setDeleteLoading(false)
       setShowDelete(false)
