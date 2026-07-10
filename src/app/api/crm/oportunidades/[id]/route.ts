@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { crmOportunidades } from "@/lib/db/schema/crm-oportunidades"
-import { crmEmpresas } from "@/lib/db/schema/crm-empresas"
+import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
 import { crmContatos } from "@/lib/db/schema/crm-contatos"
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq } from "drizzle-orm"
@@ -27,7 +27,7 @@ export async function GET(
         status: crmOportunidades.status,
         leadId: crmOportunidades.leadId,
         empresaId: crmOportunidades.empresaId,
-        empresaNome: crmEmpresas.razaoSocial,
+        empresaNome: crmPessoas.razaoSocial,
         contatoId: crmOportunidades.contatoId,
         responsavelId: crmOportunidades.responsavelId,
         responsavelNome: usuarios.name,
@@ -38,7 +38,7 @@ export async function GET(
         updatedAt: crmOportunidades.updatedAt,
       })
       .from(crmOportunidades)
-      .leftJoin(crmEmpresas, eq(crmOportunidades.empresaId, crmEmpresas.id))
+      .leftJoin(crmPessoas, eq(crmOportunidades.empresaId, crmPessoas.id))
       .leftJoin(usuarios, eq(crmOportunidades.responsavelId, usuarios.id))
       .where(eq(crmOportunidades.id, parseInt(id)))
       .limit(1)

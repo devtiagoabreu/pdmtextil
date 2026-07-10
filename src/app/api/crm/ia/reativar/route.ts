@@ -3,7 +3,7 @@ import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { crmTarefas } from "@/lib/db/schema/crm-tarefas"
 import { crmLeads } from "@/lib/db/schema/crm-leads"
-import { crmEmpresas } from "@/lib/db/schema/crm-empresas"
+import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
 import { eq } from "drizzle-orm"
 import { inserirTimelineEvento } from "@/lib/crm-timeline"
 
@@ -36,9 +36,9 @@ export async function POST(req: NextRequest) {
       }
     } else if (empresaId) {
       const empresa = await db
-        .select({ razaoSocial: crmEmpresas.razaoSocial })
-        .from(crmEmpresas)
-        .where(eq(crmEmpresas.id, empresaId))
+        .select({ razaoSocial: crmPessoas.razaoSocial })
+        .from(crmPessoas)
+        .where(eq(crmPessoas.id, empresaId))
         .then(r => r[0])
       if (empresa) {
         nomeEntidade = empresa.razaoSocial || ""

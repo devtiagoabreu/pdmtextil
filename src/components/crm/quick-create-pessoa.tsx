@@ -57,7 +57,7 @@ export function QuickCreateEmpresa({ onCreated }: Props) {
     }
     setSaving(true)
     try {
-      const res = await fetch("/api/crm/empresas", {
+      const res = await fetch("/api/crm/pessoas", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -77,7 +77,7 @@ export function QuickCreateEmpresa({ onCreated }: Props) {
       })
       if (!res.ok) {
         const err = await res.json()
-        throw new Error(err.error || "Erro ao criar empresa")
+throw new Error(err.error || "Erro ao criar pessoa")
       }
       const data = await res.json()
       onCreated(data.id, data.razaoSocial)
@@ -88,13 +88,10 @@ export function QuickCreateEmpresa({ onCreated }: Props) {
       setSegmento("")
       setPorte("")
       setEndereco("")
-      setNumero("")
-      setComplemento("")
-      setBairro("")
       setCidade("")
       setUf("")
       setCep("")
-      toast.success("Empresa criada com sucesso")
+      toast.success("Pessoa criada com sucesso")
     } catch (err: any) {
       toast.error(err.message)
     } finally {
@@ -107,13 +104,13 @@ export function QuickCreateEmpresa({ onCreated }: Props) {
       <DialogTrigger
         type="button"
         className="p-1 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 rounded transition-colors"
-        title="Cadastrar nova empresa"
+        title="Cadastrar nova pessoa"
       >
         <Plus size={14} />
       </DialogTrigger>
       <DialogContent className="sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle>Nova Empresa</DialogTitle>
+          <DialogTitle>Nova Pessoa</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 max-h-[75vh] overflow-y-auto pr-1">
           <div>

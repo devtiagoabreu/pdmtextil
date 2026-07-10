@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { crmVisitas } from "@/lib/db/schema/crm-visitas"
-import { crmEmpresas } from "@/lib/db/schema/crm-empresas"
+import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
 import { crmOportunidades } from "@/lib/db/schema/crm-oportunidades"
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq, desc, sql } from "drizzle-orm"
@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
         cep: crmVisitas.cep,
         relato: crmVisitas.relato,
         empresaId: crmVisitas.empresaId,
-        empresaNome: crmEmpresas.razaoSocial,
+        empresaNome: crmPessoas.razaoSocial,
         oportunidadeId: crmVisitas.oportunidadeId,
         oportunidadeTitulo: crmOportunidades.titulo,
         contatoId: crmVisitas.contatoId,
@@ -48,7 +48,7 @@ export async function GET(req: NextRequest) {
         createdAt: crmVisitas.createdAt,
       })
       .from(crmVisitas)
-      .leftJoin(crmEmpresas, eq(crmVisitas.empresaId, crmEmpresas.id))
+      .leftJoin(crmPessoas, eq(crmVisitas.empresaId, crmPessoas.id))
       .leftJoin(crmOportunidades, eq(crmVisitas.oportunidadeId, crmOportunidades.id))
       .leftJoin(usuarios, eq(crmVisitas.criadoPor, usuarios.id))
       .where(where)

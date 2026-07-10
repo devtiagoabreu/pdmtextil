@@ -5,7 +5,7 @@ import { useState, useEffect } from "react"
 import { X, Loader2 } from "lucide-react"
 
 async function fetchEmpresas() {
-  const res = await fetch("/api/crm/empresas")
+  const res = await fetch("/api/crm/pessoas")
   if (!res.ok) throw new Error("Falha ao carregar empresas")
   return res.json()
 }
@@ -24,7 +24,7 @@ export default function CriarTarefaDialog({ open, onClose }: Props) {
   const [empresaId, setEmpresaId] = useState("")
 
   const { data: empresas } = useQuery({
-    queryKey: ["crm-empresas"],
+    queryKey: ["crm-pessoas"],
     queryFn: fetchEmpresas,
     enabled: open,
   })

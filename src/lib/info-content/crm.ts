@@ -4,7 +4,7 @@ export const crmContent: Record<string, InfoContent> = {
   // ==================== DASHBOARD ====================
   "/comercial/crm": {
     title: "Dashboard CRM",
-    description: "Visão geral do CRM com métricas de leads, empresas, pipeline comercial, atividades recentes e previsão de receita. Central de comando para o time comercial.",
+    description: "Visão geral do CRM com métricas de leads, pessoas, pipeline comercial, atividades recentes e previsão de receita. Central de comando para o time comercial.",
     rules: [
       "Os cards de resumo (Leads, Empresas, Oportunidades) são clicáveis — levam direto para a lista correspondente.",
       "O funil mostra a quantidade de oportunidades em cada etapa do pipeline.",
@@ -15,7 +15,7 @@ export const crmContent: Record<string, InfoContent> = {
     fields: [
       { name: "Pipeline (Funil)", desc: "Quantidade de oportunidades por estágio (Novo → Qualificação → Proposta → Negociação → Fechado)" },
       { name: "Previsão de Receita", desc: "Soma dos valores estimados das oportunidades abertas" },
-      { name: "Top Empresas", desc: "5 empresas com maior valor total em pipeline" },
+      { name: "Top Empresas", desc: "5 pessoas com maior valor total em pipeline" },
       { name: "Atividades Recentes", desc: "Últimas 10 movimentações registradas na timeline" },
     ],
   },
@@ -58,11 +58,11 @@ export const crmContent: Record<string, InfoContent> = {
   },
 
   // ==================== EMPRESAS ====================
-  "/comercial/crm/empresas": {
+  "/comercial/crm/pessoas": {
     title: "Empresas",
-    description: "Cadastro de empresas no CRM. Cada empresa pode ter múltiplos contatos, oportunidades, propostas, visitas e um histórico completo na timeline.",
+    description: "Cadastro de pessoas no CRM. Cada empresa pode ter múltiplos contatos, oportunidades, propostas, visitas e um histórico completo na timeline.",
     rules: [
-      "O CNPJ é único — não é possível cadastrar duas empresas com o mesmo CNPJ.",
+      "O CNPJ é único — não é possível cadastrar duas pessoas com o mesmo CNPJ.",
       "Empresas podem ser criadas manualmente ou convertidas de leads qualificados.",
       "Uma empresa CONVERTIDO_CLIENTE é automaticamente sincronizada com o cadastro de Clientes do PDM.",
       "Ao clicar no nome da empresa, você abre o detalhe completo com timeline, WhatsApp e resumo IA.",
@@ -74,7 +74,7 @@ export const crmContent: Record<string, InfoContent> = {
       { name: "Status", desc: "Novo, Qualificado, Convertido Cliente, Perdido, Inativo" },
     ],
   },
-  "/comercial/crm/empresas/novo": {
+  "/comercial/crm/pessoas/novo": {
     title: "Nova Empresa",
     description: "Cadastre uma nova empresa no CRM. O cadastro pode ser feito manualmente ou através da conversão de um lead qualificado.",
     rules: [
@@ -89,7 +89,7 @@ export const crmContent: Record<string, InfoContent> = {
       { name: "Responsável", desc: "Representante comercial responsável pela conta" },
     ],
   },
-  "/comercial/crm/empresas/[id]": {
+  "/comercial/crm/pessoas/[id]": {
     title: "Detalhe da Empresa",
     description: "Visão completa de uma empresa no CRM: dados cadastrais, contatos, timeline, WhatsApp e resumo gerado por IA. Tudo que você precisa saber sobre a conta.",
     rules: [
@@ -173,7 +173,7 @@ export const crmContent: Record<string, InfoContent> = {
   // ==================== VISITAS ====================
   "/comercial/crm/visitas": {
     title: "Visitas",
-    description: "Agenda de visitas comerciais. Registre e acompanhe visitas presenciais, videochamadas e contatos telefônicos com empresas.",
+    description: "Agenda de visitas comerciais. Registre e acompanhe visitas presenciais, videochamadas e contatos telefônicos com pessoas.",
     rules: [
       "Visitas podem ser presenciais, por vídeo ou telefone.",
       "Visitas FUTURAS aparecem destacadas — são compromissos agendados.",
@@ -194,7 +194,7 @@ export const crmContent: Record<string, InfoContent> = {
     title: "Nova Visita",
     description: "Agende uma visita a uma empresa. Informe o tipo, data, contato e observações sobre o objetivo da visita.",
     rules: [
-      "Selecione a empresa (autocomplete com empresas cadastradas).",
+      "Selecione a empresa (autocomplete com pessoas cadastradas).",
       "Escolha o tipo: Presencial (vai até o cliente), Vídeo (chamada online) ou Telefone.",
       "A data e horário definem quando a visita será realizada.",
       "O contato é opcional — você pode selecionar um contato cadastrado da empresa.",

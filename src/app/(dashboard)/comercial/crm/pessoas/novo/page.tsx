@@ -10,7 +10,7 @@ import { toast } from "sonner"
 import { SelectUf } from "@/components/crm/select-uf"
 import { SelectCidade } from "@/components/crm/select-cidade"
 
-export default function NovaEmpresaPage() {
+export default function NovaPessoaPage() {
   const router = useRouter()
   const pathname = usePathname()
   const info = getInfoContent(pathname)
@@ -77,7 +77,7 @@ export default function NovaEmpresaPage() {
     }
     setSaving(true)
     try {
-      const res = await fetch("/api/crm/empresas", {
+      const res = await fetch("/api/crm/pessoas", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -88,7 +88,7 @@ export default function NovaEmpresaPage() {
       }
       const data = await res.json()
       toast.success("Pessoa cadastrada com sucesso")
-      router.push(`/comercial/crm/empresas/${data.id}`)
+      router.push(`/comercial/crm/pessoas/${data.id}`)
     } catch (err: any) {
       toast.error(err.message)
     } finally {
@@ -99,7 +99,7 @@ export default function NovaEmpresaPage() {
   return (
     <div className="space-y-6 animate-fade-in max-w-2xl">
       <div className="flex items-center gap-3">
-        <Link href="/comercial/crm/empresas" className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+        <Link href="/comercial/crm/pessoas" className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
           <ArrowLeft size={18} className="text-slate-500" />
         </Link>
         <div>
@@ -300,7 +300,7 @@ export default function NovaEmpresaPage() {
 
         <div className="flex justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
           <Link
-            href="/comercial/crm/empresas"
+            href="/comercial/crm/pessoas"
             className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
           >
             Cancelar

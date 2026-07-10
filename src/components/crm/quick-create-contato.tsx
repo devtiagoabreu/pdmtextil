@@ -24,7 +24,7 @@ export function QuickCreateContato({ empresaId, onCreated }: Props) {
 
   useEffect(() => {
     if (!open) return
-    fetch("/api/crm/empresas")
+    fetch("/api/crm/pessoas")
       .then(r => r.json())
       .then(data => { if (Array.isArray(data)) setEmpresas(data) })
       .catch(() => {})
@@ -37,7 +37,7 @@ export function QuickCreateContato({ empresaId, onCreated }: Props) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!nome.trim() || !selectedEmpresaId) {
-      toast.error("Nome e Empresa são obrigatórios")
+      toast.error("Nome e Pessoa são obrigatórios")
       return
     }
     setSaving(true)
@@ -87,7 +87,7 @@ export function QuickCreateContato({ empresaId, onCreated }: Props) {
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Empresa *</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Pessoa *</label>
             <select
               value={selectedEmpresaId}
               onChange={e => setSelectedEmpresaId(e.target.value)}

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
-import { crmEmpresas } from "@/lib/db/schema/crm-empresas"
+import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
 import { crmContatos } from "@/lib/db/schema/crm-contatos"
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq } from "drizzle-orm"
@@ -19,8 +19,8 @@ export async function GET(
     const { id } = await params
     const [empresa] = await db
       .select()
-      .from(crmEmpresas)
-      .where(eq(crmEmpresas.id, parseInt(id)))
+      .from(crmPessoas)
+      .where(eq(crmPessoas.id, parseInt(id)))
       .limit(1)
 
     if (!empresa) {
@@ -34,7 +34,7 @@ export async function GET(
 
     return NextResponse.json({ ...empresa, contatos })
   } catch (error) {
-    return handleApiError(error, "GET /api/crm/empresas/[id]")
+    return handleApiError(error, "GET /api/crm/pessoas/[id]")
   }
 }
 
@@ -52,8 +52,8 @@ export async function PUT(
 
     const [existente] = await db
       .select()
-      .from(crmEmpresas)
-      .where(eq(crmEmpresas.id, parseInt(id)))
+      .from(crmPessoas)
+      .where(eq(crmPessoas.id, parseInt(id)))
       .limit(1)
 
     if (!existente) {
@@ -86,9 +86,9 @@ export async function PUT(
     if (body.ativo !== undefined) values.ativo = body.ativo
 
     const [atualizada] = await db
-      .update(crmEmpresas)
+      .update(crmPessoas)
       .set(values)
-      .where(eq(crmEmpresas.id, parseInt(id)))
+      .where(eq(crmPessoas.id, parseInt(id)))
       .returning()
 
     const nomePessoa = atualizada.nome || atualizada.razaoSocial || "Pessoa"
@@ -96,14 +96,14 @@ export async function PUT(
       tipo: "ATUALIZACAO",
       acao: "atualizar",
       descricao: `Pessoa atualizada: ${nomePessoa}`,
-      entidade: "CrmEmpresa",
+      entidade: "CrmPessoa",
       entidadeId: atualizada.id,
       usuarioNome: session.user.name,
     })
 
     return NextResponse.json(atualizada)
   } catch (error) {
-    return handleApiError(error, "PUT /api/crm/empresas/[id]")
+    return handleApiError(error, "PUT /api/crm/pessoas/[id]")
   }
 }
 
@@ -122,12 +122,12 @@ export async function DELETE(
     const empresaId = parseInt(id)
 
     await db.delete(crmContatos).where(eq(crmContatos.empresaId, empresaId))
-    await db.delete(crmEmpresas).where(eq(crmEmpresas.id, empresaId))
+    await db.delete(crmPessoas).where(eq(crmPessoas.id, empresaId))
 
     await notificarDelecao("Pessoa CRM", id, auth.session.user.name)
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    return handleApiError(error, "DELETE /api/crm/empresas/[id]")
+    return handleApiError(error, "DELETE /api/crm/pessoas/[id]")
   }
 }

@@ -1,11 +1,11 @@
 import { pgTable, serial, varchar, text, integer, timestamp, date } from "drizzle-orm/pg-core"
-import { crmEmpresas } from "./crm-empresas"
+import { crmPessoas } from "./crm-pessoas"
 import { crmOportunidades } from "./crm-oportunidades"
 import { usuarios } from "./usuarios"
 
 export const crmTarefas = pgTable("crm_tarefas", {
   id: serial("id").primaryKey(),
-  empresaId: integer("empresa_id").references(() => crmEmpresas.id),
+  empresaId: integer("empresa_id").references(() => crmPessoas.id),
   oportunidadeId: integer("oportunidade_id").references(() => crmOportunidades.id),
   titulo: varchar("titulo", { length: 300 }).notNull(),
   descricao: text("descricao"),

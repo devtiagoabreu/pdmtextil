@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { crmLeads } from "@/lib/db/schema/crm-leads"
-import { crmEmpresas } from "@/lib/db/schema/crm-empresas"
+import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq, desc, like, or, sql } from "drizzle-orm"
 import { registrarLog } from "@/lib/notificar"
@@ -50,14 +50,14 @@ export async function GET(req: NextRequest) {
         responsavelId: crmLeads.responsavelId,
         responsavelNome: usuarios.name,
         empresaId: crmLeads.empresaId,
-        empresaNomeFantasia: crmEmpresas.nomeFantasia,
-        empresaRazaoSocial: crmEmpresas.razaoSocial,
+        empresaNomeFantasia: crmPessoas.nomeFantasia,
+        empresaRazaoSocial: crmPessoas.razaoSocial,
         createdAt: crmLeads.createdAt,
         updatedAt: crmLeads.updatedAt,
       })
       .from(crmLeads)
       .leftJoin(usuarios, eq(crmLeads.responsavelId, usuarios.id))
-      .leftJoin(crmEmpresas, eq(crmLeads.empresaId, crmEmpresas.id))
+      .leftJoin(crmPessoas, eq(crmLeads.empresaId, crmPessoas.id))
       .where(where)
       .orderBy(desc(crmLeads.createdAt))
 

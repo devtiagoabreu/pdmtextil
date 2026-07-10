@@ -1,10 +1,10 @@
 import { pgTable, serial, integer, varchar, text, timestamp, boolean } from "drizzle-orm/pg-core"
-import { crmEmpresas } from "./crm-empresas"
+import { crmPessoas } from "./crm-pessoas"
 import { crmContatos } from "./crm-contatos"
 
 export const crmWhatsappMensagens = pgTable("crm_whatsapp_mensagens", {
   id: serial("id").primaryKey(),
-  empresaId: integer("empresa_id").references(() => crmEmpresas.id),
+  empresaId: integer("empresa_id").references(() => crmPessoas.id),
   contatoId: integer("contato_id").references(() => crmContatos.id),
   mensagem: text("mensagem").notNull(),
   tipo: varchar("tipo", { length: 10 }).notNull().default("RECEBIDA"),

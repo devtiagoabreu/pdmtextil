@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { crmTarefas } from "@/lib/db/schema/crm-tarefas"
-import { crmEmpresas } from "@/lib/db/schema/crm-empresas"
+import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
 import { crmOportunidades } from "@/lib/db/schema/crm-oportunidades"
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq, desc, sql } from "drizzle-orm"
@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
         dataConclusao: crmTarefas.dataConclusao,
         status: crmTarefas.status,
         empresaId: crmTarefas.empresaId,
-        empresaNome: crmEmpresas.razaoSocial,
+        empresaNome: crmPessoas.razaoSocial,
         oportunidadeId: crmTarefas.oportunidadeId,
         oportunidadeTitulo: crmOportunidades.titulo,
         responsavelId: crmTarefas.responsavelId,
@@ -46,7 +46,7 @@ export async function GET(req: NextRequest) {
         createdAt: crmTarefas.createdAt,
       })
       .from(crmTarefas)
-      .leftJoin(crmEmpresas, eq(crmTarefas.empresaId, crmEmpresas.id))
+      .leftJoin(crmPessoas, eq(crmTarefas.empresaId, crmPessoas.id))
       .leftJoin(crmOportunidades, eq(crmTarefas.oportunidadeId, crmOportunidades.id))
       .leftJoin(usuarios, eq(crmTarefas.responsavelId, usuarios.id))
       .where(where)
