@@ -248,8 +248,16 @@ export async function POST(req: NextRequest) {
   "CADASTROS": ["VIEW", "INSERT", "UPDATE", "DELETE"],
   "AMOSTRAS": ["VIEW", "INSERT", "UPDATE", "DELETE"],
   "USUARIOS": ["VIEW", "INSERT", "UPDATE", "DELETE"],
-  "CONFIGURACOES": ["VIEW", "INSERT", "UPDATE", "DELETE"]
+      "CONFIGURACOES": ["VIEW", "INSERT", "UPDATE", "DELETE"]
 }'::jsonb, updated_at = NOW() WHERE ativo = true`,
+      // rename crm_empresas -> crm_pessoas (table already exists in prod)
+      `DO $$
+      BEGIN
+        IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'crm_empresas') THEN
+          ALTER TABLE crm_empresas RENAME TO crm_pessoas;
+        END IF;
+      END $$`,
+      `ALTER INDEX IF EXISTS crm_empresas_cnpj_unique RENAME TO crm_pessoas_cnpj_unique`,
     ]
 
     const results = []
