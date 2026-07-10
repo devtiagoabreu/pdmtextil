@@ -33,6 +33,39 @@ export async function GET(req: NextRequest) {
       .then((r) => r[0] || null)
 
     if (!conversa) {
+      const numero = extrairNumero(remoteJid)
+
+      const leadExistente = await db
+        .select({
+          id: crmLeads.id,
+          nome: crmLeads.nome,
+          celular: crmLeads.celular,
+          empresaNome: crmLeads.empresaNome,
+          tipoPessoa: crmLeads.tipoPessoa,
+          status: crmLeads.status,
+        })
+        .from(crmLeads)
+        .where(
+          sql`(${eq(crmLeads.idIntegracao, `whatsapp:${remoteJid}`)} OR ${eq(crmLeads.celular, numero)}) AND ${crmLeads.status} != 'CONVERTIDO'`
+        )
+        .limit(1)
+        .then((r) => r[0] || null)
+
+      if (leadExistente) {
+        const dados: Record<string, any> = {}
+        if (leadExistente.empresaNome) dados.razaoSocial = leadExistente.empresaNome
+        if (leadExistente.nome) dados.nomeContato = leadExistente.nome
+        if (leadExistente.tipoPessoa) dados.tipoPessoa = leadExistente.tipoPessoa
+
+        const estado = leadExistente.empresaNome ? "AGUARDANDO_REPRESENTANTE" : "COLETANDO_DADOS"
+
+        const [nova] = await db
+          .insert(crmWhatsappConversas)
+          .values({ remoteJid, estado, dados })
+          .returning()
+        return NextResponse.json({ ...nova, isNew: false })
+      }
+
       const [nova] = await db
         .insert(crmWhatsappConversas)
         .values({ remoteJid, estado: "SAUDACAO", dados: {} })
