@@ -15,7 +15,7 @@ async function sincronizarEmpresaCliente(empresaId: number) {
     .where(eq(crmPessoas.id, empresaId))
     .limit(1)
 
-  if (!empresa) return
+  if (!empresa || !empresa.cnpj) return
   if (empresa.clienteId) return // já vinculada
 
   const [existente] = await db
@@ -35,9 +35,9 @@ async function sincronizarEmpresaCliente(empresaId: number) {
   const [novoCliente] = await db
     .insert(clientes)
     .values({
-      nome: empresa.nomeFantasia || empresa.razaoSocial,
-      cnpj: empresa.cnpj,
-      razaoSocial: empresa.razaoSocial,
+      nome: empresa.nomeFantasia || empresa.razaoSocial || "",
+      cnpj: empresa.cnpj!,
+      razaoSocial: empresa.razaoSocial || "",
     })
     .returning()
 
