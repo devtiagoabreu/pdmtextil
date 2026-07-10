@@ -258,6 +258,18 @@ export async function POST(req: NextRequest) {
         END IF;
       END $$`,
       `ALTER INDEX IF EXISTS crm_empresas_cnpj_unique RENAME TO crm_pessoas_cnpj_unique`,
+      // add missing columns to crm_leads and crm_pessoas (schema vs db drift)
+      `ALTER TABLE crm_leads ADD COLUMN IF NOT EXISTS tipo_pessoa VARCHAR(2)`,
+      `ALTER TABLE crm_pessoas ADD COLUMN IF NOT EXISTS tipo_pessoa VARCHAR(2) NOT NULL DEFAULT 'PJ'`,
+      `ALTER TABLE crm_pessoas ADD COLUMN IF NOT EXISTS nome VARCHAR(250)`,
+      `ALTER TABLE crm_pessoas ADD COLUMN IF NOT EXISTS cpf VARCHAR(14)`,
+      `ALTER TABLE crm_pessoas ADD COLUMN IF NOT EXISTS endereco VARCHAR(300)`,
+      `ALTER TABLE crm_pessoas ADD COLUMN IF NOT EXISTS numero VARCHAR(20)`,
+      `ALTER TABLE crm_pessoas ADD COLUMN IF NOT EXISTS complemento VARCHAR(200)`,
+      `ALTER TABLE crm_pessoas ADD COLUMN IF NOT EXISTS bairro VARCHAR(150)`,
+      `ALTER TABLE crm_pessoas ADD COLUMN IF NOT EXISTS cidade VARCHAR(150)`,
+      `ALTER TABLE crm_pessoas ADD COLUMN IF NOT EXISTS uf VARCHAR(2)`,
+      `ALTER TABLE crm_pessoas ADD COLUMN IF NOT EXISTS cep VARCHAR(10)`,
     ]
 
     const results = []
