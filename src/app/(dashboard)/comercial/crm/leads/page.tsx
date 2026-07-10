@@ -52,25 +52,31 @@ export default function CrmLeadsPage() {
   )
 
   async function converterParaEmpresa(lead: any) {
-    const nomeEmpresa = prompt("Nome da empresa (razão social):", lead.empresaNome || lead.nome)
-    if (!nomeEmpresa) return
+    const isPF = lead.tipoPessoa === "PF"
+    const label = isPF ? "Nome completo" : "Razão social"
+    const valor = prompt(`${label}:`, lead.empresaNome || lead.nome)
+    if (!valor) return
 
     try {
+      const body: Record<string, unknown> = isPF
+        ? { tipoPessoa: "PF", nome: valor }
+        : { tipoPessoa: "PJ", razaoSocial: valor }
+
       const res = await fetch("/api/crm/pessoas", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ razaoSocial: nomeEmpresa }),
+        body: JSON.stringify(body),
       })
-      if (!res.ok) throw new Error("Erro ao criar empresa")
-      const empresa = await res.json()
+      if (!res.ok) throw new Error("Erro ao criar pessoa")
+      const pessoa = await res.json()
 
       await fetch(`/api/crm/leads/${lead.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "CONVERTIDO", empresaId: empresa.id }),
+        body: JSON.stringify({ status: "CONVERTIDO", empresaId: pessoa.id }),
       })
 
-      toast.success(`Lead convertido para empresa "${nomeEmpresa}"`)
+      toast.success(`Lead convertido para ${isPF ? "pessoa" : "empresa"} "${valor}"`)
       refetch()
     } catch (err: any) {
       toast.error(err.message)
