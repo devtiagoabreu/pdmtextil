@@ -4,7 +4,6 @@ import { pgTable, serial, varchar, jsonb, timestamp } from "drizzle-orm/pg-core"
 import { eq, sql } from "drizzle-orm"
 import { crmLeads } from "@/lib/db/schema/crm-leads"
 import { crmWhatsappMensagens } from "@/lib/db/schema/crm-whatsapp"
-import { contatoExisteNaInstancia } from "@/lib/evolution-api"
 
 const crmWhatsappConversas = pgTable("crm_whatsapp_conversas", {
   id: serial("id").primaryKey(),
@@ -35,11 +34,6 @@ export async function GET(req: NextRequest) {
 
     if (!conversa) {
       const numero = extrairNumero(remoteJid)
-
-      const existeNaInstancia = await contatoExisteNaInstancia(remoteJid)
-      if (existeNaInstancia) {
-        return NextResponse.json({ error: "Contato conhecido, ignorado" }, { status: 403 })
-      }
 
       const leadExistente = await db
         .select({
