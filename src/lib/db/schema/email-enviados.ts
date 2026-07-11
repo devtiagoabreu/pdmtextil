@@ -4,6 +4,7 @@ import { emailListas } from "./email-listas"
 export const emailEnviados = pgTable("email_enviados", {
   id: serial("id").primaryKey(),
   listaId: integer("lista_id").references(() => emailListas.id),
+  remessaId: varchar("remessa_id", { length: 36 }),
   email: varchar("email", { length: 255 }).notNull(),
   nome: varchar("nome", { length: 255 }),
   assunto: varchar("assunto", { length: 500 }).notNull().default(""),
