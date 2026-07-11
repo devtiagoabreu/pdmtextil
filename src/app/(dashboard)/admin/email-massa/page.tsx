@@ -12,7 +12,9 @@ import {
 import { toast } from "sonner"
 import {
   Send, Loader2, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight,
-  Link, List, Eye, Plus, Pencil, Trash2, FileText, Users, Copy, X,
+  Link, List, Plus, Pencil, Trash2, FileText, Users, Copy, X, Eye,
+  ImageIcon, Type, Strikethrough, ListOrdered, Palette, GripVertical,
+  RefreshCw, CheckCircle2, XCircle, Clock, Search,
 } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
@@ -48,6 +50,68 @@ interface Contato {
   email: string
 }
 
+interface Envio {
+  id: number
+  email: string
+  nome: string | null
+  assunto: string
+  status: string
+  error: string | null
+  abertoEm: string | null
+  createdAt: string
+  totalCliques: number
+}
+
+interface HistoricoData {
+  envios: Envio[]
+  stats: {
+    total: number
+    enviados: number
+    lidos: number
+    falhas: number
+    totalCliques: number
+  }
+}
+
+const FONT_SIZES = [
+  { label: "Pequeno", value: "1" },
+  { label: "Normal", value: "3" },
+  { label: "Grande", value: "4" },
+  { label: "M. Grande", value: "5" },
+  { label: "Enorme", value: "6" },
+]
+
+const FONT_FAMILIES = ["Arial", "Times New Roman", "Courier New", "Georgia", "Verdana", "Tahoma", "Trebuchet MS"]
+
+const HEADING_OPTIONS = [
+  { label: "Parágrafo", cmd: "formatBlock", val: "<p>" },
+  { label: "Título 1", cmd: "formatBlock", val: "<h1>" },
+  { label: "Título 2", cmd: "formatBlock", val: "<h2>" },
+  { label: "Título 3", cmd: "formatBlock", val: "<h3>" },
+]
+
+function StatusBadge({ status, abertoEm }: { status: string; abertoEm: string | null }) {
+  if (abertoEm) {
+    return (
+      <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-0.5 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+        <CheckCircle2 size={12} /> Lido
+      </span>
+    )
+  }
+  if (status === "enviado") {
+    return (
+      <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+        <Clock size={12} /> Enviado
+      </span>
+    )
+  }
+  return (
+    <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-0.5 rounded-full bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
+      <XCircle size={12} /> Falhou
+    </span>
+  )
+}
+
 export default function EmailMassaPage() {
   const pathname = usePathname()
   const info = getInfoContent(pathname)
@@ -75,15 +139,71 @@ export default function EmailMassaPage() {
   const [viewLista, setViewLista] = useState<ListaComContatos | null>(null)
   const [loadingListas, setLoadingListas] = useState(false)
 
+  const [linkDialogOpen, setLinkDialogOpen] = useState(false)
+  const [linkUrl, setLinkUrl] = useState("https://")
+
+  const [imageDialogOpen, setImageDialogOpen] = useState(false)
+  const [imageUrl, setImageUrl] = useState("")
+
+  const [colorDialogOpen, setColorDialogOpen] = useState(false)
+  const [colorMode, setColorMode] = useState<"fore" | "back">("fore")
+  const [colorValue, setColorValue] = useState("#000000")
+
+  const [historico, setHistorico] = useState<HistoricoData | null>(null)
+  const [loadingHistorico, setLoadingHistorico] = useState(false)
+  const [historicoSearch, setHistoricoSearch] = useState("")
+
   const exec = useCallback((cmd: string, val?: string) => {
     document.execCommand(cmd, false, val)
     if (editorRef.current) editorRef.current.focus()
   }, [])
 
-  const insertLink = useCallback(() => {
-    const url = prompt("URL do link:", "https://")
-    if (url) exec("createLink", url)
-  }, [exec])
+  const insertHeading = useCallback((val: string) => {
+    document.execCommand("formatBlock", false, val)
+    if (editorRef.current) editorRef.current.focus()
+  }, [])
+
+  const insertLinkHandler = useCallback(() => {
+    const sel = window.getSelection()
+    const text = sel?.toString() || ""
+    if (text) {
+      setLinkUrl("https://")
+      setLinkDialogOpen(true)
+    } else {
+      setLinkUrl("https://")
+      setLinkDialogOpen(true)
+    }
+  }, [])
+
+  const confirmLink = useCallback(() => {
+    if (linkUrl) {
+      exec("createLink", linkUrl)
+      setLinkDialogOpen(false)
+    }
+  }, [linkUrl, exec])
+
+  const insertImageHandler = useCallback(() => {
+    setImageUrl("")
+    setImageDialogOpen(true)
+  }, [])
+
+  const confirmImage = useCallback(() => {
+    if (imageUrl) {
+      exec("insertImage", imageUrl)
+      setImageDialogOpen(false)
+      setImageUrl("")
+    }
+  }, [imageUrl, exec])
+
+  const openColorPicker = useCallback((mode: "fore" | "back") => {
+    setColorMode(mode)
+    setColorDialogOpen(true)
+  }, [])
+
+  const applyColor = useCallback(() => {
+    exec(colorMode === "fore" ? "foreColor" : "hiliteColor", colorValue)
+    setColorDialogOpen(false)
+  }, [colorMode, colorValue, exec])
 
   const getContentHtml = () => editorRef.current?.innerHTML || ""
 
@@ -149,7 +269,23 @@ export default function EmailMassaPage() {
     setLoadingListas(false)
   }, [])
 
-  useEffect(() => { carregarModelos(); carregarListas() }, [carregarModelos, carregarListas])
+  const carregarHistorico = useCallback(async () => {
+    setLoadingHistorico(true)
+    try {
+      const res = await fetch("/api/admin/email-massa/historico")
+      if (res.ok) setHistorico(await res.json())
+    } catch { /* ignore */ }
+    setLoadingHistorico(false)
+  }, [])
+
+  useEffect(() => {
+    carregarModelos()
+    carregarListas()
+  }, [carregarModelos, carregarListas])
+
+  useEffect(() => {
+    if (activeTab === "historico") carregarHistorico()
+  }, [activeTab, carregarHistorico])
 
   const usarModelo = (m: Modelo) => {
     setAssunto(m.assunto)
@@ -313,13 +449,28 @@ export default function EmailMassaPage() {
     )
   }
 
+  const formatDate = (dateStr: string | null) => {
+    if (!dateStr) return "—"
+    return new Date(dateStr).toLocaleString("pt-BR", {
+      day: "2-digit", month: "2-digit", year: "numeric",
+      hour: "2-digit", minute: "2-digit",
+    })
+  }
+
+  const filteredEnvios = historico?.envios.filter(e =>
+    !historicoSearch ||
+    e.email.toLowerCase().includes(historicoSearch.toLowerCase()) ||
+    (e.nome?.toLowerCase().includes(historicoSearch.toLowerCase())) ||
+    e.assunto.toLowerCase().includes(historicoSearch.toLowerCase())
+  ) || []
+
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-5xl mx-auto space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
           Email em Massa{info && <InfoButton content={info} />}
         </h1>
-        <p className="text-sm text-slate-500 mt-1">Envie emails, gerencie modelos e listas de destinatários</p>
+        <p className="text-sm text-slate-500 mt-1">Envie emails, gerencie modelos e listas, acompanhe o histórico</p>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -327,20 +478,28 @@ export default function EmailMassaPage() {
           <TabsTrigger value="enviar" className="gap-1.5"><Send size={14} />Enviar Email</TabsTrigger>
           <TabsTrigger value="modelos" className="gap-1.5"><FileText size={14} />Modelos</TabsTrigger>
           <TabsTrigger value="listas" className="gap-1.5"><Users size={14} />Listas</TabsTrigger>
+          <TabsTrigger value="historico" className="gap-1.5"><Clock size={14} />Histórico</TabsTrigger>
         </TabsList>
 
         {/* ────────── TAB ENVIAR ────────── */}
         <TabsContent value="enviar" className="space-y-4 mt-4">
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-6 space-y-4 bg-white dark:bg-slate-900">
-            <div className="space-y-2">
-              <Label>Enviar para</Label>
-              <select value={para} onChange={e => setPara(e.target.value)}
-                className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600">
-                <option value="todos">Clientes + Usuários do Sistema</option>
-                <option value="clientes">Apenas Clientes</option>
-                <option value="usuarios">Apenas Usuários do Sistema</option>
-                <option value="lista">Lista de Destinatários</option>
-              </select>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Enviar para</Label>
+                <select value={para} onChange={e => setPara(e.target.value)}
+                  className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600">
+                  <option value="todos">Clientes + Usuários do Sistema</option>
+                  <option value="clientes">Apenas Clientes</option>
+                  <option value="usuarios">Apenas Usuários do Sistema</option>
+                  <option value="lista">Lista de Destinatários</option>
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Assunto</Label>
+                <Input value={assunto} onChange={e => setAssunto(e.target.value)} placeholder="Assunto do email" />
+              </div>
             </div>
 
             {para === "lista" && (
@@ -368,98 +527,133 @@ export default function EmailMassaPage() {
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="modo_envio" value="bcc" checked={modoEnvio === "bcc"}
                     onChange={e => setModoEnvio(e.target.value)} className="text-blue-600" />
-                  <span className="text-sm">Todos em Cópia Oculta (BCC)</span>
+                  <span className="text-sm">Cópia Oculta (BCC)</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="modo_envio" value="to" checked={modoEnvio === "to"}
                     onChange={e => setModoEnvio(e.target.value)} className="text-blue-600" />
-                  <span className="text-sm">Todos no Para (TO)</span>
+                  <span className="text-sm">Para (TO)</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="modo_envio" value="individual" checked={modoEnvio === "individual"}
                     onChange={e => setModoEnvio(e.target.value)} className="text-blue-600" />
-                  <span className="text-sm">Individual (um email por contato, substitui <code className="bg-slate-100 dark:bg-slate-700 px-1 rounded text-xs">[NOME]</code>)</span>
+                  <span className="text-sm">Individual (<code className="bg-slate-100 dark:bg-slate-700 px-1 rounded text-xs">[NOME]</code> substituído)</span>
                 </label>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Assunto</Label>
-              <div className="flex gap-2">
-                <Input value={assunto} onChange={e => setAssunto(e.target.value)} placeholder="Assunto do email" className="flex-1" />
-                <Button variant="outline" size="sm" onClick={abrirNovoModelo} className="gap-1 whitespace-nowrap">
-                  <FileText size={14} /> Salvar como Modelo
-                </Button>
               </div>
             </div>
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label>Conteúdo</Label>
-                <div className="flex gap-1">
-                  <Button variant="ghost" size="sm" onClick={() => setPreview(!preview)} className="gap-1">
+                <Label>Conteúdo do Email</Label>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={abrirNovoModelo} className="gap-1">
+                    <FileText size={14} /> Salvar como Modelo
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => setPreview(!preview)} className="gap-1">
                     <Eye size={14} /> {preview ? "Editar" : "Preview"}
                   </Button>
                 </div>
               </div>
 
               {!preview ? (
-                <>
-                  <div className="flex flex-wrap gap-1 p-2 border rounded-t-lg border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800">
-                    <button type="button" onClick={() => exec("bold")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Negrito"><Bold size={16} /></button>
-                    <button type="button" onClick={() => exec("italic")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Itálico"><Italic size={16} /></button>
-                    <button type="button" onClick={() => exec("underline")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Sublinhado"><Underline size={16} /></button>
-                    <span className="w-px bg-slate-300 dark:bg-slate-600 mx-1" />
-                    <button type="button" onClick={() => exec("justifyLeft")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Alinhar Esquerda"><AlignLeft size={16} /></button>
-                    <button type="button" onClick={() => exec("justifyCenter")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Centralizar"><AlignCenter size={16} /></button>
-                    <button type="button" onClick={() => exec("justifyRight")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Alinhar Direita"><AlignRight size={16} /></button>
-                    <span className="w-px bg-slate-300 dark:bg-slate-600 mx-1" />
-                    <button type="button" onClick={insertLink} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Inserir Link"><Link size={16} /></button>
-                    <button type="button" onClick={() => exec("insertUnorderedList")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Lista"><List size={16} /></button>
-                    <span className="w-px bg-slate-300 dark:bg-slate-600 mx-1" />
-                    <select onChange={e => exec("fontName", e.target.value)} className="text-xs p-1 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600">
-                      <option value="Arial">Arial</option>
-                      <option value="Times New Roman">Times New Roman</option>
-                      <option value="Courier New">Courier New</option>
-                      <option value="Georgia">Georgia</option>
-                      <option value="Verdana">Verdana</option>
-                    </select>
-                    <select onChange={e => exec("fontSize", e.target.value)} className="text-xs p-1 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600">
-                      <option value="3">Normal</option>
-                      <option value="4">Grande</option>
-                      <option value="5">Muito Grande</option>
-                      <option value="6">Enorme</option>
-                    </select>
-                    <input type="color" onChange={e => exec("foreColor", e.target.value)} className="w-8 h-8 p-0.5 rounded border cursor-pointer" title="Cor da Fonte" />
+                <div className="border rounded-lg border-slate-300 dark:border-slate-600 overflow-hidden">
+                  <div className="flex flex-wrap items-center gap-0.5 p-1.5 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+                    {/* Headings */}
+                    <div className="flex items-center gap-0.5 px-1 border-r border-slate-200 dark:border-slate-700">
+                      {HEADING_OPTIONS.map(opt => (
+                        <button key={opt.val} type="button" onClick={() => insertHeading(opt.val)}
+                          className="px-2 py-1 text-xs rounded hover:bg-slate-200 dark:hover:bg-slate-700 font-medium"
+                          title={opt.label}>
+                          {opt.label === "Parágrafo" ? "P" : opt.label.split(" ")[1]}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Text formatting */}
+                    <div className="flex items-center gap-0.5 px-1 border-r border-slate-200 dark:border-slate-700">
+                      <button type="button" onClick={() => exec("bold")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Negrito"><Bold size={15} /></button>
+                      <button type="button" onClick={() => exec("italic")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Itálico"><Italic size={15} /></button>
+                      <button type="button" onClick={() => exec("underline")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Sublinhado"><Underline size={15} /></button>
+                      <button type="button" onClick={() => exec("strikeThrough")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Tachado"><Strikethrough size={15} /></button>
+                    </div>
+
+                    {/* Alignment */}
+                    <div className="flex items-center gap-0.5 px-1 border-r border-slate-200 dark:border-slate-700">
+                      <button type="button" onClick={() => exec("justifyLeft")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Alinhar Esquerda"><AlignLeft size={15} /></button>
+                      <button type="button" onClick={() => exec("justifyCenter")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Centralizar"><AlignCenter size={15} /></button>
+                      <button type="button" onClick={() => exec("justifyRight")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Alinhar Direita"><AlignRight size={15} /></button>
+                    </div>
+
+                    {/* Lists */}
+                    <div className="flex items-center gap-0.5 px-1 border-r border-slate-200 dark:border-slate-700">
+                      <button type="button" onClick={() => exec("insertUnorderedList")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Lista Marcadores"><List size={15} /></button>
+                      <button type="button" onClick={() => exec("insertOrderedList")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Lista Numerada"><ListOrdered size={15} /></button>
+                    </div>
+
+                    {/* Font */}
+                    <div className="flex items-center gap-0.5 px-1 border-r border-slate-200 dark:border-slate-700">
+                      <select onChange={e => exec("fontName", e.target.value)} className="text-xs p-1 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 w-28"
+                        title="Fonte">
+                        {FONT_FAMILIES.map(f => (
+                          <option key={f} value={f} style={{ fontFamily: f }}>{f}</option>
+                        ))}
+                      </select>
+                      <select onChange={e => exec("fontSize", e.target.value)} className="text-xs p-1 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 w-20"
+                        title="Tamanho">
+                        {FONT_SIZES.map(s => (
+                          <option key={s.value} value={s.value}>{s.label}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Color */}
+                    <div className="flex items-center gap-0.5 px-1 border-r border-slate-200 dark:border-slate-700">
+                      <button type="button" onClick={() => openColorPicker("fore")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Cor do Texto">
+                        <Palette size={15} />
+                      </button>
+                      <button type="button" onClick={() => openColorPicker("back")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700 relative" title="Cor de Fundo">
+                        <div className="relative">
+                          <Type size={15} />
+                          <span className="absolute -bottom-0.5 left-0 right-0 h-1 bg-yellow-400 rounded" />
+                        </div>
+                      </button>
+                    </div>
+
+                    {/* Insert */}
+                    <div className="flex items-center gap-0.5 px-1">
+                      <button type="button" onClick={insertLinkHandler} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Inserir Link"><Link size={15} /></button>
+                      <button type="button" onClick={insertImageHandler} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Inserir Imagem"><ImageIcon size={15} /></button>
+                    </div>
                   </div>
+
                   <div
                     ref={editorRef}
                     contentEditable
                     suppressContentEditableWarning
-                    className="w-full min-h-[250px] p-3 rounded-b-lg border border-t-0 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:outline-none overflow-y-auto"
-                    style={{ fontFamily: "Arial, sans-serif" }}
+                    className="w-full min-h-[280px] p-4 bg-white dark:bg-slate-700 focus:outline-none overflow-y-auto"
+                    style={{ fontFamily: "Arial, sans-serif", lineHeight: "1.6" }}
                     data-placeholder="Escreva o conteúdo do email aqui..."
                   />
-                </>
+                </div>
               ) : (
-                <div className="w-full min-h-[250px] p-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 overflow-y-auto">
-                  <div dangerouslySetInnerHTML={{ __html: getContentHtml() }} />
+                <div className="w-full min-h-[280px] p-4 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 overflow-y-auto">
+                  <div className="bg-white text-black" style={{ fontFamily: "Arial, sans-serif", lineHeight: "1.6" }}>
+                    <div dangerouslySetInnerHTML={{ __html: getContentHtml() }} />
+                  </div>
                 </div>
               )}
             </div>
 
-            <div className="flex items-center justify-between pt-2">
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
               {modelos.length > 0 && (
-                <div className="flex gap-1">
-                  <span className="text-xs text-slate-400 self-center mr-1">Modelos:</span>
-                  <div className="flex gap-1 flex-wrap max-w-md">
-                    {modelos.map(m => (
-                      <button key={m.id} type="button" onClick={() => usarModelo(m)}
-                        className="text-xs px-2 py-1 rounded bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/50 border border-blue-200 dark:border-blue-800 whitespace-nowrap">
-                        <Copy size={10} className="inline mr-0.5" />{m.nome}
-                      </button>
-                    ))}
-                  </div>
+                <div className="flex items-center gap-1 flex-wrap">
+                  <span className="text-xs text-slate-400 mr-1">Modelos:</span>
+                  {modelos.map(m => (
+                    <button key={m.id} type="button" onClick={() => usarModelo(m)}
+                      className="text-xs px-2 py-1 rounded bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/50 border border-blue-200 dark:border-blue-800 whitespace-nowrap">
+                      <Copy size={10} className="inline mr-0.5" />{m.nome}
+                    </button>
+                  ))}
                 </div>
               )}
               <Button onClick={handleSend} disabled={sending} className="gap-2 ml-auto">
@@ -487,7 +681,7 @@ export default function EmailMassaPage() {
                     <tr className="border-b border-slate-200 dark:border-slate-700">
                       <th className="text-left font-medium p-2">Nome</th>
                       <th className="text-left font-medium p-2">Assunto</th>
-                      <th className="text-right font-medium p-2 w-48">Ações</th>
+                      <th className="text-right font-medium p-2 w-52">Ações</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -501,7 +695,7 @@ export default function EmailMassaPage() {
                               <Copy size={12} /> Usar
                             </Button>
                             <Button variant="ghost" size="xs" onClick={() => abrirEditarModelo(m)} className="gap-1">
-                              <Pencil size={12} /> Editar
+                              <Pencil size={12} />
                             </Button>
                             <Button variant="ghost" size="xs" onClick={() => setViewModelo(m)} className="gap-1">
                               <Eye size={12} />
@@ -527,7 +721,6 @@ export default function EmailMassaPage() {
               <h2 className="text-lg font-semibold">Listas de Destinatários</h2>
               <Button onClick={abrirNovaLista} className="gap-1"><Plus size={14} /> Nova Lista</Button>
             </div>
-
             {loadingListas ? (
               <p className="text-sm text-slate-400 py-8 text-center">Carregando...</p>
             ) : listas.length === 0 ? (
@@ -551,15 +744,9 @@ export default function EmailMassaPage() {
                         <td className="p-2 text-center"><span className="text-xs bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded-full">{l.totalContatos}</span></td>
                         <td className="p-2 text-right whitespace-nowrap">
                           <div className="flex gap-1 justify-end">
-                            <Button variant="ghost" size="xs" onClick={() => abrirEditarLista(l)} className="gap-1">
-                              <Pencil size={12} /> Editar
-                            </Button>
-                            <Button variant="ghost" size="xs" onClick={() => abrirVerLista(l)} className="gap-1">
-                              <Eye size={12} />
-                            </Button>
-                            <Button variant="ghost" size="xs" onClick={() => deletarLista(l.id)} className="gap-1 text-red-500 hover:text-red-700">
-                              <Trash2 size={12} />
-                            </Button>
+                            <Button variant="ghost" size="xs" onClick={() => abrirEditarLista(l)} className="gap-1"><Pencil size={12} /></Button>
+                            <Button variant="ghost" size="xs" onClick={() => abrirVerLista(l)} className="gap-1"><Eye size={12} /></Button>
+                            <Button variant="ghost" size="xs" onClick={() => deletarLista(l.id)} className="gap-1 text-red-500 hover:text-red-700"><Trash2 size={12} /></Button>
                           </div>
                         </td>
                       </tr>
@@ -567,6 +754,102 @@ export default function EmailMassaPage() {
                   </tbody>
                 </table>
               </div>
+            )}
+          </div>
+        </TabsContent>
+
+        {/* ────────── TAB HISTÓRICO ────────── */}
+        <TabsContent value="historico" className="space-y-4 mt-4">
+          <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-6 bg-white dark:bg-slate-900">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">Histórico de Envios</h2>
+              <Button variant="outline" size="sm" onClick={carregarHistorico} className="gap-1">
+                <RefreshCw size={14} /> Atualizar
+              </Button>
+            </div>
+
+            {loadingHistorico ? (
+              <p className="text-sm text-slate-400 py-8 text-center">Carregando...</p>
+            ) : historico ? (
+              <>
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+                  <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
+                    <p className="text-xs text-slate-400 uppercase tracking-wide">Total</p>
+                    <p className="text-2xl font-bold mt-1">{historico.stats.total}</p>
+                  </div>
+                  <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
+                    <p className="text-xs text-blue-500 uppercase tracking-wide">Enviados</p>
+                    <p className="text-2xl font-bold mt-1 text-blue-700 dark:text-blue-300">{historico.stats.enviados}</p>
+                  </div>
+                  <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 border border-green-200 dark:border-green-800">
+                    <p className="text-xs text-green-500 uppercase tracking-wide">Lidos</p>
+                    <p className="text-2xl font-bold mt-1 text-green-700 dark:text-green-300">{historico.stats.lidos}</p>
+                  </div>
+                  <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4 border border-purple-200 dark:border-purple-800">
+                    <p className="text-xs text-purple-500 uppercase tracking-wide">Cliques</p>
+                    <p className="text-2xl font-bold mt-1 text-purple-700 dark:text-purple-300">{historico.stats.totalCliques}</p>
+                  </div>
+                  <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4 border border-red-200 dark:border-red-800">
+                    <p className="text-xs text-red-500 uppercase tracking-wide">Falhas</p>
+                    <p className="text-2xl font-bold mt-1 text-red-700 dark:text-red-300">{historico.stats.falhas}</p>
+                  </div>
+                </div>
+
+                <div className="relative mb-4">
+                  <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <Input
+                    value={historicoSearch}
+                    onChange={e => setHistoricoSearch(e.target.value)}
+                    placeholder="Buscar por email, nome ou assunto..."
+                    className="pl-9"
+                  />
+                </div>
+
+                {filteredEnvios.length === 0 ? (
+                  <p className="text-sm text-slate-400 py-8 text-center">
+                    {historicoSearch ? "Nenhum envio encontrado para esta busca." : "Nenhum envio registrado ainda."}
+                  </p>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-slate-200 dark:border-slate-700">
+                          <th className="text-left font-medium p-2">Status</th>
+                          <th className="text-left font-medium p-2">Email</th>
+                          <th className="text-left font-medium p-2">Nome</th>
+                          <th className="text-left font-medium p-2">Assunto</th>
+                          <th className="text-center font-medium p-2 w-20">Cliques</th>
+                          <th className="text-left font-medium p-2">Enviado em</th>
+                          <th className="text-left font-medium p-2">Aberto em</th>
+                          <th className="text-left font-medium p-2">Erro</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredEnvios.map(e => (
+                          <tr key={e.id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                            <td className="p-2">
+                              <StatusBadge status={e.status} abertoEm={e.abertoEm} />
+                            </td>
+                            <td className="p-2 text-slate-600 dark:text-slate-300">{e.email}</td>
+                            <td className="p-2">{e.nome || "—"}</td>
+                            <td className="p-2 text-slate-500 truncate max-w-[160px]">{e.assunto}</td>
+                            <td className="p-2 text-center">
+                              <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${e.totalCliques > 0 ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400" : "bg-slate-100 text-slate-400 dark:bg-slate-800"}`}>
+                                {e.totalCliques || 0}
+                              </span>
+                            </td>
+                            <td className="p-2 text-slate-500 text-xs">{formatDate(e.createdAt)}</td>
+                            <td className="p-2 text-slate-500 text-xs">{formatDate(e.abertoEm)}</td>
+                            <td className="p-2 text-red-500 text-xs max-w-[150px] truncate">{e.error || "—"}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </>
+            ) : (
+              <p className="text-sm text-slate-400 py-8 text-center">Nenhum envio registrado ainda.</p>
             )}
           </div>
         </TabsContent>
@@ -649,7 +932,7 @@ export default function EmailMassaPage() {
               <div className="flex gap-2 mt-1 mb-2">
                 <Input value={novoContato.nome} onChange={e => setNovoContato(p => ({ ...p, nome: e.target.value }))} placeholder="Nome" className="flex-1" />
                 <Input value={novoContato.email} onChange={e => setNovoContato(p => ({ ...p, email: e.target.value }))} placeholder="Email" className="flex-[2]" />
-                <Button variant="outline" size="sm" onClick={adicionarContato} className="gap-1"><Plus size={14} />Adicionar</Button>
+                <Button variant="outline" size="sm" onClick={adicionarContato} className="gap-1 shrink-0"><Plus size={14} />Adicionar</Button>
               </div>
 
               {listaContatos.length === 0 ? (
@@ -718,6 +1001,76 @@ export default function EmailMassaPage() {
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setViewLista(null)}>Fechar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ─────── DIALOG LINK ─────── */}
+      <Dialog open={linkDialogOpen} onOpenChange={setLinkDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Inserir Link</DialogTitle>
+            <DialogDescription>Digite a URL do link</DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Input value={linkUrl} onChange={e => setLinkUrl(e.target.value)} placeholder="https://..." />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setLinkDialogOpen(false)}>Cancelar</Button>
+            <Button onClick={confirmLink}>Inserir</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ─────── DIALOG IMAGEM ─────── */}
+      <Dialog open={imageDialogOpen} onOpenChange={setImageDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Inserir Imagem</DialogTitle>
+            <DialogDescription>Digite a URL da imagem</DialogDescription>
+          </DialogHeader>
+          <div className="py-4 space-y-3">
+            <Input value={imageUrl} onChange={e => setImageUrl(e.target.value)} placeholder="https://exemplo.com/imagem.jpg" />
+            {imageUrl && (
+              <div className="border rounded-lg overflow-hidden bg-slate-50 dark:bg-slate-800 p-2">
+                <img src={imageUrl} alt="Preview" className="max-h-40 mx-auto"
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = "none" }} />
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setImageDialogOpen(false)}>Cancelar</Button>
+            <Button onClick={confirmImage} disabled={!imageUrl}>Inserir</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ─────── DIALOG COR ─────── */}
+      <Dialog open={colorDialogOpen} onOpenChange={setColorDialogOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>{colorMode === "fore" ? "Cor do Texto" : "Cor de Fundo"}</DialogTitle>
+            <DialogDescription>Escolha a cor</DialogDescription>
+          </DialogHeader>
+          <div className="py-4 space-y-3">
+            <div className="flex items-center gap-3">
+              <input type="color" value={colorValue} onChange={e => setColorValue(e.target.value)} className="w-12 h-10 p-0.5 rounded border cursor-pointer" />
+              <Input value={colorValue} onChange={e => setColorValue(e.target.value)} placeholder="#000000" className="font-mono" />
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {["#000000","#333333","#666666","#999999","#cccccc","#ffffff",
+                "#ff0000","#ff6600","#ffcc00","#00cc00","#0066ff","#6633cc",
+                "#cc0066","#00cccc","#009966","#990000","#003366","#660066",
+              ].map(c => (
+                <button key={c} type="button" onClick={() => setColorValue(c)}
+                  className="w-8 h-8 rounded border border-slate-300 dark:border-slate-600 hover:scale-110 transition-transform"
+                  style={{ backgroundColor: c }} title={c} />
+              ))}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setColorDialogOpen(false)}>Cancelar</Button>
+            <Button onClick={applyColor}>Aplicar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

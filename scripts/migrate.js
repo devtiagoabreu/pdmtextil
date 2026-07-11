@@ -976,6 +976,37 @@ async function migrate() {
     `
     console.log("✓ Colunas IA adicionadas em crm_pessoas")
 
+    // ==================== Email em Massa - Tracking ====================
+    await sql`
+      CREATE TABLE IF NOT EXISTS email_enviados (
+        id serial PRIMARY KEY,
+        lista_id integer REFERENCES email_listas(id),
+        email varchar(255) NOT NULL,
+        nome varchar(255),
+        assunto varchar(500) NOT NULL DEFAULT '',
+        status varchar(20) NOT NULL DEFAULT 'enviado',
+        error text,
+        tracking_id varchar(36) UNIQUE,
+        aberto_em timestamp,
+        created_at timestamp DEFAULT now()
+      )
+    `
+    await sql`CREATE INDEX IF NOT EXISTS idx_email_enviados_tracking_id ON email_enviados(tracking_id)`
+    await sql`CREATE INDEX IF NOT EXISTS idx_email_enviados_created_at ON email_enviados(created_at)`
+    console.log("✓ Tabela email_enviados criada")
+
+    // ==================== Email em Massa - Link Tracking ====================
+    await sql`
+      CREATE TABLE IF NOT EXISTS email_cliques (
+        id serial PRIMARY KEY,
+        envio_id integer REFERENCES email_enviados(id) ON DELETE CASCADE,
+        url_original text NOT NULL,
+        clicked_at timestamp DEFAULT now()
+      )
+    `
+    await sql`CREATE INDEX IF NOT EXISTS idx_email_cliques_envio_id ON email_cliques(envio_id)`
+    console.log("✓ Tabela email_cliques criada")
+
     await sql`
       CREATE TABLE IF NOT EXISTS crm_previsao_vendas (
         id SERIAL PRIMARY KEY,

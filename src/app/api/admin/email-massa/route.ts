@@ -5,8 +5,11 @@ import { db } from "@/lib/db"
 import { clientes } from "@/lib/db/schema/clientes"
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { emailListaContatos } from "@/lib/db/schema/email-listas"
+import { emailEnviados } from "@/lib/db/schema/email-enviados"
 import { eq, inArray } from "drizzle-orm"
 import { sendEmail, parseEmails } from "@/lib/email"
+import crypto from "crypto"
+
 export const dynamic = "force-dynamic"
 
 interface Destinatario {
@@ -60,6 +63,63 @@ async function buscarDestinatarios(para: string, listas?: number[]): Promise<Des
   return []
 }
 
+function injectTrackingPixel(html: string, trackingId: string, baseUrl: string): string {
+  const pixelUrl = `${baseUrl}/api/admin/email-massa/tracking/${trackingId}`
+  const pixel = `<img src="${pixelUrl}" width="1" height="1" alt="" style="display:none;" />`
+  if (html.includes("</body>")) {
+    return html.replace("</body>", `${pixel}</body>`)
+  }
+  return html + pixel
+}
+
+function injectLinkTracking(html: string, trackingId: string, baseUrl: string): string {
+  const clickBase = `${baseUrl}/api/admin/email-massa/click/${trackingId}`
+  return html.replace(
+    /<a\s+([^>]*?)href\s*=\s*["']([^"']+)["']([^>]*?)>/gi,
+    (_match, before, url, after) => {
+      if (
+        url.startsWith("mailto:") ||
+        url.startsWith("javascript:") ||
+        url.startsWith("#") ||
+        url.startsWith(clickBase)
+      ) {
+        return _match
+      }
+      return `<a ${before}href="${clickBase}?url=${encodeURIComponent(url)}"${after}>`
+    }
+  )
+}
+
+function aplicarTracking(html: string, trackingId: string, baseUrl: string): string {
+  let resultado = injectTrackingPixel(html, trackingId, baseUrl)
+  resultado = injectLinkTracking(resultado, trackingId, baseUrl)
+  return resultado
+}
+
+async function registrarEnvio(params: {
+  listaId?: number
+  email: string
+  nome?: string
+  assunto: string
+  status: string
+  trackingId?: string
+  error?: string
+}) {
+  try {
+    await db.insert(emailEnviados).values({
+      listaId: params.listaId,
+      email: params.email,
+      nome: params.nome || null,
+      assunto: params.assunto,
+      status: params.status,
+      trackingId: params.trackingId || null,
+      error: params.error || null,
+    })
+  } catch (err) {
+    console.error("[EMAIL-MASSA] Erro ao registrar envio:", err)
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
@@ -83,6 +143,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Nenhum destinatário encontrado" }, { status: 400 })
     }
 
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || `${req.nextUrl.protocol}//${req.nextUrl.host}`
     let enviados = 0
     let total = 0
     const erros: string[] = []
@@ -90,29 +151,98 @@ export async function POST(req: NextRequest) {
     if (modo_envio === "individual") {
       for (const d of destinatarios) {
         total++
+        const trackingId = crypto.randomUUID()
         const personalizado = html.replace(/\[NOME\]/g, d.nome)
-        const result = await sendEmail({ to: d.email, subject: assunto, html: personalizado })
-        enviados += result.sent
-        if (result.error) erros.push(`${d.email}: ${result.error}`)
+        const comTracking = aplicarTracking(personalizado, trackingId, baseUrl)
+        const result = await sendEmail({ to: d.email, subject: assunto, html: comTracking })
+        if (result.sent > 0) {
+          enviados++
+          await registrarEnvio({
+            email: d.email,
+            nome: d.nome,
+            assunto,
+            status: "enviado",
+            trackingId,
+            listaId: para === "lista" ? listas?.[0] : undefined,
+          })
+        } else {
+          await registrarEnvio({
+            email: d.email,
+            nome: d.nome,
+            assunto,
+            status: "falhou",
+            error: result.error || undefined,
+            listaId: para === "lista" ? listas?.[0] : undefined,
+          })
+          erros.push(`${d.email}: ${result.error}`)
+        }
       }
     } else {
       const personalizado = html.replace(/\[NOME\]/g, "Cliente")
       total = destinatarios.length
 
       if (modo_envio === "bcc") {
+        const firstTrackingId = crypto.randomUUID()
+        const comTracking = aplicarTracking(personalizado, firstTrackingId, baseUrl)
         const result = await sendEmail({
           to: destinatarios[0].email,
           subject: assunto,
-          html: personalizado,
+          html: comTracking,
           bcc: destinatarios.slice(1).map(d => d.email),
         })
-        enviados = result.sent
-        if (result.error) erros.push(result.error)
+        if (result.sent > 0) {
+          enviados = destinatarios.length
+          await registrarEnvio({
+            email: destinatarios[0].email,
+            nome: destinatarios[0].nome,
+            assunto,
+            status: "enviado",
+            trackingId: firstTrackingId,
+          })
+          for (let i = 1; i < destinatarios.length; i++) {
+            await registrarEnvio({
+              email: destinatarios[i].email,
+              nome: destinatarios[i].nome,
+              assunto,
+              status: "enviado",
+            })
+          }
+        } else {
+          for (const d of destinatarios) {
+            await registrarEnvio({
+              email: d.email,
+              nome: d.nome,
+              assunto,
+              status: "falhou",
+              error: result.error || undefined,
+            })
+          }
+          erros.push(result.error || "Erro no envio BCC")
+        }
       } else {
         for (const d of destinatarios) {
-          const result = await sendEmail({ to: d.email, subject: assunto, html: personalizado })
-          enviados += result.sent
-          if (result.error) erros.push(`${d.email}: ${result.error}`)
+          const trackingId = crypto.randomUUID()
+          const comTracking = aplicarTracking(personalizado, trackingId, baseUrl)
+          const result = await sendEmail({ to: d.email, subject: assunto, html: comTracking })
+          if (result.sent > 0) {
+            enviados++
+            await registrarEnvio({
+              email: d.email,
+              nome: d.nome,
+              assunto,
+              status: "enviado",
+              trackingId,
+            })
+          } else {
+            await registrarEnvio({
+              email: d.email,
+              nome: d.nome,
+              assunto,
+              status: "falhou",
+              error: result.error || undefined,
+            })
+            erros.push(`${d.email}: ${result.error}`)
+          }
         }
       }
     }
