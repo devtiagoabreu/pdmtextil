@@ -173,8 +173,12 @@ export default function LeadDetailPage() {
               {lead.status}
             </span>
           </div>
-          {lead.empresaNome && (
-            <p className="text-sm text-slate-500">{lead.empresaNome}</p>
+          {(lead.empresaNome || lead.tipoPessoa) && (
+            <p className="text-sm text-slate-500">
+              {lead.empresaNome}
+              {lead.tipoPessoa && (lead.empresaNome ? " — " : "")}
+              {lead.tipoPessoa === "PF" ? "Pessoa Física" : lead.tipoPessoa === "PJ" ? "Pessoa Jurídica" : ""}
+            </p>
           )}
         </div>
         <div className="flex gap-2">
@@ -231,7 +235,7 @@ export default function LeadDetailPage() {
                   <input type="text" value={form.telefone || ""} onChange={e => setForm((p: any) => ({ ...p, telefone: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1">Empresa</label>
+                  <label className="block text-xs font-medium text-slate-500 mb-1">Pessoa</label>
                   <input type="text" value={form.empresaNome || ""} onChange={e => setForm((p: any) => ({ ...p, empresaNome: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
                 </div>
                 <div>
@@ -279,7 +283,7 @@ export default function LeadDetailPage() {
                 <p className="text-slate-900 dark:text-slate-200">{lead.telefone || "—"}</p>
               </div>
               <div>
-                <p className="text-xs text-slate-500 mb-0.5">Empresa</p>
+                <p className="text-xs text-slate-500 mb-0.5">Pessoa</p>
                 <p className="text-slate-900 dark:text-slate-200">{lead.empresaNome || "—"}</p>
               </div>
               <div>
