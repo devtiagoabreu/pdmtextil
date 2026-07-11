@@ -4,6 +4,8 @@ import { db } from "@/lib/db"
 import { chats, chatParticipantes, chatMensagens } from "@/lib/db/schema"
 import { eq, and, sql } from "drizzle-orm"
 
+export const dynamic = "force-dynamic"
+
 export async function GET(req: NextRequest) {
   try {
     const auth = await requireAuth()

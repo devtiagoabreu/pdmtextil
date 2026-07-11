@@ -3,6 +3,8 @@ import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
 import { clientes } from "@/lib/db/schema/clientes"
+
+export const dynamic = "force-dynamic"
 import { like, or } from "drizzle-orm"
 
 export async function GET(req: NextRequest) {
