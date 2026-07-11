@@ -100,6 +100,7 @@ function aplicarTracking(html: string, trackingId: string, baseUrl: string): str
 
 async function registrarEnvio(params: {
   listaId?: number
+  remessaId?: string
   email: string
   nome?: string
   assunto: string
@@ -110,6 +111,7 @@ async function registrarEnvio(params: {
   try {
     await db.insert(emailEnviados).values({
       listaId: params.listaId,
+      remessaId: params.remessaId || null,
       email: params.email,
       nome: params.nome || null,
       assunto: params.assunto,
@@ -146,6 +148,7 @@ export async function POST(req: NextRequest) {
     }
 
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || `${req.nextUrl.protocol}//${req.nextUrl.host}`
+    const remessaId = crypto.randomUUID()
     let enviados = 0
     let total = 0
     const erros: string[] = []
@@ -187,6 +190,7 @@ export async function POST(req: NextRequest) {
             assunto,
             status: "enviado",
             trackingId,
+            remessaId,
             listaId: para === "lista" ? listas?.[0] : undefined,
           })
         } else {
@@ -196,6 +200,7 @@ export async function POST(req: NextRequest) {
             assunto,
             status: "falhou",
             error: result.error || undefined,
+            remessaId,
             listaId: para === "lista" ? listas?.[0] : undefined,
           })
           erros.push(`${d.email}: ${result.error}`)
@@ -222,6 +227,7 @@ export async function POST(req: NextRequest) {
             assunto,
             status: "enviado",
             trackingId: firstTrackingId,
+            remessaId,
           })
           for (let i = 1; i < destinatarios.length; i++) {
             await registrarEnvio({
@@ -229,6 +235,7 @@ export async function POST(req: NextRequest) {
               nome: destinatarios[i].nome,
               assunto,
               status: "enviado",
+              remessaId,
             })
           }
         } else {
@@ -239,6 +246,7 @@ export async function POST(req: NextRequest) {
               assunto,
               status: "falhou",
               error: result.error || undefined,
+              remessaId,
             })
           }
           erros.push(result.error || "Erro no envio BCC")
@@ -256,6 +264,7 @@ export async function POST(req: NextRequest) {
               assunto,
               status: "enviado",
               trackingId,
+              remessaId,
             })
           } else {
             await registrarEnvio({
@@ -264,6 +273,7 @@ export async function POST(req: NextRequest) {
               assunto,
               status: "falhou",
               error: result.error || undefined,
+              remessaId,
             })
             erros.push(`${d.email}: ${result.error}`)
           }

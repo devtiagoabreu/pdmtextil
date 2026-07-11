@@ -993,6 +993,8 @@ async function migrate() {
     `
     await sql`CREATE INDEX IF NOT EXISTS idx_email_enviados_tracking_id ON email_enviados(tracking_id)`
     await sql`CREATE INDEX IF NOT EXISTS idx_email_enviados_created_at ON email_enviados(created_at)`
+    await sql`ALTER TABLE email_enviados ADD COLUMN IF NOT EXISTS remessa_id VARCHAR(36)`
+    await sql`CREATE INDEX IF NOT EXISTS idx_email_enviados_remessa_id ON email_enviados(remessa_id)`
     console.log("✓ Tabela email_enviados criada")
 
     // ==================== Email em Massa - Link Tracking ====================
