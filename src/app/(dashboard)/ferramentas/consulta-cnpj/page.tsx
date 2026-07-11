@@ -5,7 +5,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
-import { ArrowLeft, Search, Building2, RefreshCw, Check, X, AlertCircle, ExternalLink } from "lucide-react"
+import { ArrowLeft, Search, Building2, RefreshCw, Check, X, AlertCircle, ExternalLink, PlusCircle, UserPlus } from "lucide-react"
 import { toast } from "sonner"
 
 type FieldMap = { field: string; label: string; apiKey: string; localKey: string; format?: (v: any) => string }
@@ -64,6 +64,7 @@ export default function ConsultaCnpjPage() {
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<any>(null)
   const [syncing, setSyncing] = useState<string | null>(null)
+  const [creating, setCreating] = useState<string | null>(null)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -150,6 +151,73 @@ export default function ConsultaCnpjPage() {
       toast.error(err.message)
     } finally {
       setSyncing(null)
+    }
+  }
+
+  async function criarPessoa() {
+    if (!result?.apiData) return
+    setCreating("pessoa")
+    try {
+      const api = result.apiData
+      const body = {
+        tipoPessoa: "PJ",
+        razaoSocial: api.razao_social || "",
+        nomeFantasia: api.nome_fantasia || "",
+        cnpj: api.cnpj || "",
+        endereco: api.logradouro || "",
+        numero: api.numero || "",
+        complemento: api.complemento || "",
+        bairro: api.bairro || "",
+        cidade: api.municipio || "",
+        uf: api.uf || "",
+        cep: api.cep || "",
+        segmento: api.cnae_principal_descricao || "",
+        porte: api.porte_empresa || "",
+      }
+      const res = await fetch("/api/crm/pessoas", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      })
+      if (!res.ok) throw new Error("Erro ao criar pessoa")
+      const nova = await res.json()
+      toast.success(`Pessoa CRM "${body.razaoSocial}" criada com sucesso`)
+      const refresh = await fetch(`/api/crm/consulta-cnpj?cnpj=${api.cnpj}`)
+      if (refresh.ok) setResult(await refresh.json())
+    } catch (err: any) {
+      toast.error(err.message)
+    } finally {
+      setCreating(null)
+    }
+  }
+
+  async function criarCliente() {
+    if (!result?.apiData) return
+    setCreating("cliente")
+    try {
+      const api = result.apiData
+      const body = {
+        nome: api.nome_fantasia || api.razao_social || "",
+        cnpj: api.cnpj || "",
+        razaoSocial: api.razao_social || "",
+        endereco: [api.logradouro, api.numero, api.bairro, api.complemento].filter(Boolean).join(", "),
+        cidade: api.municipio || "",
+        uf: api.uf || "",
+      }
+      const res = await fetch("/api/clientes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      })
+      if (!res.ok) throw new Error("Erro ao criar cliente")
+      const novo = await res.json()
+      toast.success(`Cliente "${body.nome}" criado com sucesso`)
+      const refresh = await fetch(`/api/crm/consulta-cnpj?cnpj=${api.cnpj}`)
+      if (refresh.ok) setResult(await refresh.json())
+    } catch (err: any) {
+      toast.error(err.message)
+    } finally {
+      setCreating(null)
     }
   }
 
@@ -405,16 +473,33 @@ export default function ConsultaCnpjPage() {
                 <Building2 size={32} className="mx-auto text-slate-300 dark:text-slate-600 mb-3" />
                 <p className="font-medium text-slate-900 dark:text-slate-200">Nenhum registro local encontrado</p>
                 <p className="text-sm text-slate-500 mt-1">
-                  Este CNPJ não está cadastrado como Pessoa CRM nem como Cliente no sistema.
+                  Este CNPJ não está cadastrado. Deseja cadastrar?
                 </p>
                 <div className="flex items-center justify-center gap-3 mt-4">
-                  <Link
-                    href={`/comercial/crm/pessoas/novo`}
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
+                  <button
+                    onClick={criarPessoa}
+                    disabled={creating !== null}
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 transition-colors"
                   >
-                    <Building2 size={15} />
-                    Criar Pessoa CRM
-                  </Link>
+                    {creating === "pessoa" ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                    ) : (
+                      <Building2 size={15} />
+                    )}
+                    {creating === "pessoa" ? "Criando..." : "Cadastrar como Pessoa CRM"}
+                  </button>
+                  <button
+                    onClick={criarCliente}
+                    disabled={creating !== null}
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50 transition-colors"
+                  >
+                    {creating === "cliente" ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                    ) : (
+                      <UserPlus size={15} />
+                    )}
+                    {creating === "cliente" ? "Criando..." : "Cadastrar como Cliente"}
+                  </button>
                 </div>
               </div>
             )}
