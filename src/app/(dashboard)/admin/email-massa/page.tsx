@@ -18,6 +18,8 @@ import {
 } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
+import ImportarContatosEmail from "@/components/importar/ImportarContatosEmail"
+import { exportPDFRelatorio } from "@/lib/export-utils"
 import { getInfoContent } from "@/lib/info-content"
 import { Separator } from "@/components/ui/separator"
 
@@ -153,6 +155,9 @@ export default function EmailMassaPage() {
   const [loadingHistorico, setLoadingHistorico] = useState(false)
   const [historicoSearch, setHistoricoSearch] = useState("")
 
+  const [remetente, setRemetente] = useState("sistema")
+  const [userEmailConfig, setUserEmailConfig] = useState<{ email: string } | null>(null)
+
   const exec = useCallback((cmd: string, val?: string) => {
     document.execCommand(cmd, false, val)
     if (editorRef.current) editorRef.current.focus()
@@ -224,7 +229,7 @@ export default function EmailMassaPage() {
 
     setSending(true)
     try {
-      const body: any = { para, assunto, html, modo_envio: modoEnvio }
+      const body: any = { para, assunto, html, modo_envio: modoEnvio, remetente }
       if (para === "lista") body.listas = selectedListaIds
 
       const res = await fetch("/api/admin/email-massa", {
@@ -281,6 +286,15 @@ export default function EmailMassaPage() {
   useEffect(() => {
     carregarModelos()
     carregarListas()
+    fetch("/api/user/email-config")
+      .then(r => r.json())
+      .then(data => {
+        if (data.config) {
+          setUserEmailConfig(data.config)
+          setRemetente("usuario")
+        }
+      })
+      .catch(() => {})
   }, [carregarModelos, carregarListas])
 
   useEffect(() => {
@@ -543,6 +557,32 @@ export default function EmailMassaPage() {
             </div>
 
             <div className="space-y-2">
+              <Label>Remetente</Label>
+              <div className="flex flex-wrap gap-4">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" name="remetente" value="sistema" checked={remetente === "sistema"}
+                    onChange={e => setRemetente(e.target.value)} className="text-blue-600" />
+                  <span className="text-sm">Sistema (<code className="bg-slate-100 dark:bg-slate-700 px-1 rounded text-xs">SMTP padrão</code>)</span>
+                </label>
+                <label className={`flex items-center gap-2 cursor-pointer ${!userEmailConfig ? "opacity-50" : ""}`}>
+                  <input type="radio" name="remetente" value="usuario" checked={remetente === "usuario"}
+                    onChange={e => setRemetente(e.target.value)} className="text-blue-600"
+                    disabled={!userEmailConfig} />
+                  <span className="text-sm">
+                    {userEmailConfig
+                      ? `Meu Email (${userEmailConfig.email})`
+                      : "Meu Email (configure em Meu Perfil)"}
+                  </span>
+                </label>
+              </div>
+              {!userEmailConfig && (
+                <p className="text-xs text-amber-600 dark:text-amber-400">
+                  Nenhuma configuração pessoal encontrada. Vá em <strong>Meu Perfil</strong> para configurar seu SMTP.
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label>Conteúdo do Email</Label>
                 <div className="flex gap-2">
@@ -733,7 +773,7 @@ export default function EmailMassaPage() {
                       <th className="text-left font-medium p-2">Nome</th>
                       <th className="text-left font-medium p-2">Descrição</th>
                       <th className="text-center font-medium p-2 w-24">Contatos</th>
-                      <th className="text-right font-medium p-2 w-40">Ações</th>
+                      <th className="text-right font-medium p-2 w-64">Ações</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -743,7 +783,8 @@ export default function EmailMassaPage() {
                         <td className="p-2 text-slate-500 truncate max-w-xs">{l.descricao || "—"}</td>
                         <td className="p-2 text-center"><span className="text-xs bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded-full">{l.totalContatos}</span></td>
                         <td className="p-2 text-right whitespace-nowrap">
-                          <div className="flex gap-1 justify-end">
+                          <div className="flex gap-1 justify-end items-center">
+                            <ImportarContatosEmail listaId={l.id} listaNome={l.nome} onImportado={carregarListas} />
                             <Button variant="ghost" size="xs" onClick={() => abrirEditarLista(l)} className="gap-1"><Pencil size={12} /></Button>
                             <Button variant="ghost" size="xs" onClick={() => abrirVerLista(l)} className="gap-1"><Eye size={12} /></Button>
                             <Button variant="ghost" size="xs" onClick={() => deletarLista(l.id)} className="gap-1 text-red-500 hover:text-red-700"><Trash2 size={12} /></Button>
@@ -763,9 +804,42 @@ export default function EmailMassaPage() {
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-6 bg-white dark:bg-slate-900">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold">Histórico de Envios</h2>
-              <Button variant="outline" size="sm" onClick={carregarHistorico} className="gap-1">
-                <RefreshCw size={14} /> Atualizar
-              </Button>
+              <div className="flex gap-2">
+                {historico && (
+                  <Button variant="outline" size="sm" onClick={() => {
+                    exportPDFRelatorio({
+                      title: "Relatório de Email em Massa",
+                      period: `Exportado em ${new Date().toLocaleString("pt-BR")}`,
+                      stats: {
+                        Total: historico.stats.total,
+                        Enviados: historico.stats.enviados,
+                        Lidos: historico.stats.lidos,
+                        Cliques: historico.stats.totalCliques,
+                        Falhas: historico.stats.falhas,
+                      },
+                      tables: [{
+                        headers: ["Status", "Email", "Nome", "Assunto", "Cliques", "Enviado em", "Aberto em"],
+                        rows: filteredEnvios.map(e => [
+                          e.abertoEm ? "Lido" : e.status === "enviado" ? "Enviado" : "Falhou",
+                          e.email,
+                          e.nome || "-",
+                          e.assunto,
+                          e.totalCliques || 0,
+                          formatDate(e.createdAt),
+                          formatDate(e.abertoEm),
+                        ]),
+                      }],
+                      filename: `relatorio-email-massa-${new Date().toISOString().split("T")[0]}`,
+                      orientation: "landscape",
+                    })
+                  }} className="gap-1">
+                    <FileText size={14} /> Relatório PDF
+                  </Button>
+                )}
+                <Button variant="outline" size="sm" onClick={carregarHistorico} className="gap-1">
+                  <RefreshCw size={14} /> Atualizar
+                </Button>
+              </div>
             </div>
 
             {loadingHistorico ? (

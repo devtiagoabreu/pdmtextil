@@ -47,11 +47,56 @@ export async function sendEmail(params: {
   if (configs.length === 0) return { sent: 0, error: "Sem config de email" }
 
   const cfg = configs[0]
-  const t = nodemailer.createTransport({
+  return enviarComTransporte({
     host: cfg.host,
     port: cfg.port,
-    secure: cfg.port === 465,
-    auth: { user: cfg.user, pass: decrypt(cfg.pass) },
+    user: cfg.user,
+    pass: decrypt(cfg.pass),
+    fromName: cfg.fromName || "PDM Têxtil",
+  }, params)
+}
+
+export async function sendEmailAsUser(params: {
+  to: string | string[]
+  subject: string
+  html: string
+  bcc?: string | string[]
+  userConfig: {
+    email: string
+    senhaApp: string
+    host: string
+    port: number
+  }
+}) {
+  const { userConfig, ...emailParams } = params
+  return enviarComTransporte({
+    host: userConfig.host,
+    port: userConfig.port,
+    user: userConfig.email,
+    pass: userConfig.senhaApp,
+    fromName: userConfig.email.split("@")[0],
+  }, emailParams)
+}
+
+interface TransportConfig {
+  host: string
+  port: number
+  user: string
+  pass: string
+  fromName: string
+}
+
+async function enviarComTransporte(tc: TransportConfig, params: {
+  to: string | string[]
+  subject: string
+  html: string
+  bcc?: string | string[]
+}) {
+  const t = nodemailer.createTransport({
+    host: tc.host,
+    port: tc.port,
+    secure: tc.port === 465,
+    auth: { user: tc.user, pass: tc.pass },
   })
 
   const toList = Array.isArray(params.to) ? params.to : [params.to]
@@ -61,7 +106,7 @@ export async function sendEmail(params: {
 
   try {
     await t.sendMail({
-      from: `"${cfg.fromName || "PDM Têxtil"}" <${cfg.user}>`,
+      from: `"${tc.fromName}" <${tc.user}>`,
       to: toList.join(", "),
       bcc: bccList?.join(", "),
       subject: params.subject,

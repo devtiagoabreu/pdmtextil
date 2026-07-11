@@ -9,6 +9,7 @@ import { estampas } from "@/lib/db/schema/estampas"
 import { basesUrdume } from "@/lib/db/schema/bases-urdume"
 import { produtosQuimicos } from "@/lib/db/schema/produtos-quimicos"
 import { produtosCru } from "@/lib/db/schema/produto-cru"
+import { emailListaContatos } from "@/lib/db/schema/email-listas"
 import { integracoes } from "@/lib/db/schema/integracoes"
 import { eq, and, or, SQL, sql } from "drizzle-orm"
 export const dynamic = "force-dynamic"
@@ -23,6 +24,7 @@ const entityConfig: Record<string, { table: any; uniqueFields: string[]; idField
   basesUrdume: { table: basesUrdume, uniqueFields: ["codigoBase"] },
   produtosQuimicos: { table: produtosQuimicos, uniqueFields: ["codigo"] },
   produtosCru: { table: produtosCru, uniqueFields: ["codigoPdm"] },
+  "email-listas": { table: emailListaContatos, uniqueFields: ["email"] },
 }
 
 function translateFieldName(pdmField: string): string {
@@ -82,7 +84,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
-    const { entidade, integracaoId, fieldMapping, uniqueKey, items } = await req.json()
+    const { entidade, integracaoId, fieldMapping, uniqueKey, items, listaId } = await req.json()
 
     if (!entidade || !integracaoId || !fieldMapping || !items?.length) {
       return NextResponse.json({ error: "entidade, integracaoId, fieldMapping e items são obrigatórios" }, { status: 400 })
@@ -95,9 +97,16 @@ export async function POST(req: NextRequest) {
 
     const { table, uniqueFields } = config
 
+    if (entidade === "email-listas" && !listaId) {
+      return NextResponse.json({ error: "listaId é obrigatório para entidade email-listas" }, { status: 400 })
+    }
+
     // Apply field mapping and normalize
     const mapped: Record<string, any>[] = items.map((item: Record<string, any>) => {
       const row: Record<string, any> = { idIntegracao: String(integracaoId) }
+      if (entidade === "email-listas" && listaId) {
+        row.listaId = Number(listaId)
+      }
       for (const [apiField, pdmField] of Object.entries(fieldMapping)) {
         if (item[apiField] !== undefined && item[apiField] !== null) {
           row[pdmField as string] = item[apiField]
