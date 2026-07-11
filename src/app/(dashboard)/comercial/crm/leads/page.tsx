@@ -149,7 +149,6 @@ export default function CrmLeadsPage() {
               <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Nome</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Tipo</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Contato</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Pessoa</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Score IA</th>
@@ -167,17 +166,6 @@ export default function CrmLeadsPage() {
                       <Link href={`/comercial/crm/leads/${lead.id}`} className="text-slate-900 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400">
                         {lead.nome}
                       </Link>
-                    </td>
-                    <td className="px-4 py-3">
-                      {lead.tipoPessoa ? (
-                        <span className={`inline-flex text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
-                          lead.tipoPessoa === "PF"
-                            ? "text-purple-600 bg-purple-50 dark:bg-purple-950/50 dark:text-purple-400"
-                            : "text-cyan-600 bg-cyan-50 dark:bg-cyan-950/50 dark:text-cyan-400"
-                        }`}>
-                          {lead.tipoPessoa === "PF" ? "PF" : "PJ"}
-                        </span>
-                      ) : "—"}
                     </td>
                     <td className="px-4 py-3 text-sm text-slate-500">
                       {lead.email && <div className="truncate max-w-[180px]">{lead.email}</div>}
