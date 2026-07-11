@@ -75,7 +75,7 @@
         300
       ],
       "parameters": {
-        "functionCode": "const apiResponse = $input.first().json;\nconst extData = $node[\"Extrair dados\"].json;\nconst remetente = extData.remetente || \"\";\nconst numero = remetente.replace(\"@s.whatsapp.net\", \"\").replace(\"@lid\", \"\");\n\nconst contatos = (apiResponse.success && Array.isArray(apiResponse.data)) ? apiResponse.data : [];\nconst encontrado = contatos.some(c => {\n  const jid = c.remoteJid || \"\";\n  return jid.replace(\"@s.whatsapp.net\", \"\").replace(\"@lid\", \"\") === numero;\n});\n\nreturn [{\n  json: {\n    ...extData,\n    contatoConhecido: encontrado\n  }\n}];"
+        "functionCode": "const extData = $node[\"Extrair dados\"].json;\nconst remetente = extData.remetente || \"\";\nconst numero = remetente.replace(\"@s.whatsapp.net\", \"\").replace(\"@lid\", \"\");\n\nconst firstItem = $input.first().json;\nconst allItems = $input.all();\n\nlet encontrado = false;\n\nif (allItems.length > 1 || (allItems.length === 1 && firstItem.remoteJid && !firstItem.success)) {\n  encontrado = allItems.some(c => {\n    const jid = c.json.remoteJid || \"\";\n    return jid.replace(\"@s.whatsapp.net\", \"\").replace(\"@lid\", \"\") === numero;\n  });\n} else if (firstItem.data && Array.isArray(firstItem.data)) {\n  encontrado = firstItem.data.some(c => {\n    const jid = c.remoteJid || \"\";\n    return jid.replace(\"@s.whatsapp.net\", \"\").replace(\"@lid\", \"\") === numero;\n  });\n}\n\nreturn [{\n  json: {\n    ...extData,\n    contatoConhecido: encontrado\n  }\n}];"
       }
     },
     {
