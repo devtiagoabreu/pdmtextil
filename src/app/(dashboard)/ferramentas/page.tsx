@@ -1,12 +1,13 @@
 "use client"
 
 import Link from "next/link"
-import { Send, Calculator, Wrench, Repeat } from "lucide-react"
+import { Send, Calculator, Wrench, Repeat, Search } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 
 const ferramentas = [
+  { href: "/ferramentas/consulta-cnpj", label: "Consulta CNPJ", desc: "Consultar dados de CNPJ na Receita Federal, comparar com registros locais e sincronizar", icon: Search },
   { href: "/ferramentas/regra-de-tres", label: "Calculadora de Regra de Três", desc: "Resolve regra de três simples (direta/inversa) e composta", icon: Calculator },
   { href: "/ferramentas/conversores", label: "Numeração de Fio", desc: "Conversão entre Ne, Nm, Tex, Dtex e Denier", icon: Repeat },
   { href: "/admin/email-massa", label: "Email em Massa", desc: "Enviar email para múltiplos destinatários", icon: Send },
