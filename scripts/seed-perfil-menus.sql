@@ -66,6 +66,8 @@ BEGIN
     RETURNING id INTO menu_id;
   INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
     (menu_id, 'Ferramentas', '/ferramentas', 0);
+  INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
+    (menu_id, 'Consulta CNPJ', '/ferramentas/consulta-cnpj', 1);
 
   INSERT INTO user_menus (role, titulo, ordem) VALUES ('DEFAULT', 'Conta', 9)
     RETURNING id INTO menu_id;
@@ -140,6 +142,8 @@ BEGIN
     RETURNING id INTO menu_id;
   INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
     (menu_id, 'Ferramentas', '/ferramentas', 0);
+  INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
+    (menu_id, 'Consulta CNPJ', '/ferramentas/consulta-cnpj', 1);
 
   INSERT INTO user_menus (role, titulo, ordem) VALUES ('ADMIN', 'Conta', 10)
     RETURNING id INTO menu_id;
@@ -211,6 +215,8 @@ BEGIN
     RETURNING id INTO menu_id;
   INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
     (menu_id, 'Ferramentas', '/ferramentas', 0);
+  INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
+    (menu_id, 'Consulta CNPJ', '/ferramentas/consulta-cnpj', 1);
 
   INSERT INTO user_menus (role, titulo, ordem) VALUES ('SUDO', 'Conta', 10)
     RETURNING id INTO menu_id;
