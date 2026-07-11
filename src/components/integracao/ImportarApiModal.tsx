@@ -26,9 +26,10 @@ interface ImportarApiModalProps {
   existingKey?: string
   onImportado?: () => void
   onClose: () => void
+  extraImportParams?: Record<string, any>
 }
 
-export default function ImportarApiModal({ tela, existingRecords, existingKey = "idIntegracao", onImportado, onClose }: ImportarApiModalProps) {
+export default function ImportarApiModal({ tela, existingRecords, existingKey = "idIntegracao", onImportado, onClose, extraImportParams }: ImportarApiModalProps) {
   const [integracoes, setIntegracoes] = useState<Integracao[]>([])
   const [loadingInt, setLoadingInt] = useState(true)
   const [selectedId, setSelectedId] = useState<number | null>(null)
@@ -160,6 +161,7 @@ export default function ImportarApiModal({ tela, existingRecords, existingKey = 
           fieldMapping,
           uniqueKey,
           items: selectedItems,
+          ...extraImportParams,
         }),
       })
       if (!res.ok) {

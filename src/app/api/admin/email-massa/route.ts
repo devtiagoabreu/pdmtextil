@@ -6,8 +6,10 @@ import { clientes } from "@/lib/db/schema/clientes"
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { emailListaContatos } from "@/lib/db/schema/email-listas"
 import { emailEnviados } from "@/lib/db/schema/email-enviados"
+import { userEmailConfig } from "@/lib/db/schema/user-email-config"
 import { eq, inArray } from "drizzle-orm"
-import { sendEmail, parseEmails } from "@/lib/email"
+import { sendEmail, sendEmailAsUser, parseEmails } from "@/lib/email"
+import { decrypt } from "@/lib/crypto"
 import crypto from "crypto"
 
 export const dynamic = "force-dynamic"
@@ -128,7 +130,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json()
-    const { para, assunto, html, listas, modo_envio } = body
+    const { para, assunto, html, listas, modo_envio, remetente } = body
 
     if (!para || !assunto || !html) {
       return NextResponse.json({ error: "Para, assunto e conteúdo são obrigatórios" }, { status: 400 })
@@ -148,13 +150,35 @@ export async function POST(req: NextRequest) {
     let total = 0
     const erros: string[] = []
 
+    let userSmtpConfig: { email: string; senhaApp: string; host: string; port: number } | null = null
+    if (remetente === "usuario") {
+      const configs = await db.select()
+        .from(userEmailConfig)
+        .where(eq(userEmailConfig.usuarioId, session.user.id))
+        .limit(1)
+      if (configs.length > 0) {
+        const cfg = configs[0]
+        userSmtpConfig = {
+          email: cfg.email,
+          senhaApp: decrypt(cfg.senhaApp),
+          host: cfg.host,
+          port: cfg.port,
+        }
+      }
+    }
+
+    const enviarEmailFn = userSmtpConfig
+      ? (params: { to: string | string[]; subject: string; html: string; bcc?: string | string[] }) =>
+          sendEmailAsUser({ ...params, userConfig: userSmtpConfig! })
+      : sendEmail
+
     if (modo_envio === "individual") {
       for (const d of destinatarios) {
         total++
         const trackingId = crypto.randomUUID()
         const personalizado = html.replace(/\[NOME\]/g, d.nome)
         const comTracking = aplicarTracking(personalizado, trackingId, baseUrl)
-        const result = await sendEmail({ to: d.email, subject: assunto, html: comTracking })
+        const result = await enviarEmailFn({ to: d.email, subject: assunto, html: comTracking })
         if (result.sent > 0) {
           enviados++
           await registrarEnvio({
@@ -184,7 +208,7 @@ export async function POST(req: NextRequest) {
       if (modo_envio === "bcc") {
         const firstTrackingId = crypto.randomUUID()
         const comTracking = aplicarTracking(personalizado, firstTrackingId, baseUrl)
-        const result = await sendEmail({
+        const result = await enviarEmailFn({
           to: destinatarios[0].email,
           subject: assunto,
           html: comTracking,
@@ -223,7 +247,7 @@ export async function POST(req: NextRequest) {
         for (const d of destinatarios) {
           const trackingId = crypto.randomUUID()
           const comTracking = aplicarTracking(personalizado, trackingId, baseUrl)
-          const result = await sendEmail({ to: d.email, subject: assunto, html: comTracking })
+          const result = await enviarEmailFn({ to: d.email, subject: assunto, html: comTracking })
           if (result.sent > 0) {
             enviados++
             await registrarEnvio({
