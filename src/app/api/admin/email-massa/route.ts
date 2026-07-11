@@ -154,7 +154,7 @@ export async function POST(req: NextRequest) {
     if (remetente === "usuario") {
       const configs = await db.select()
         .from(userEmailConfig)
-        .where(eq(userEmailConfig.usuarioId, session.user.id))
+        .where(eq(userEmailConfig.usuarioId, Number(session.user.id)))
         .limit(1)
       if (configs.length > 0) {
         const cfg = configs[0]
