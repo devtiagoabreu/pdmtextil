@@ -1007,6 +1007,22 @@ async function migrate() {
     await sql`CREATE INDEX IF NOT EXISTS idx_email_cliques_envio_id ON email_cliques(envio_id)`
     console.log("✓ Tabela email_cliques criada")
 
+    // ==================== Configuração SMTP por Usuário ====================
+    await sql`
+      CREATE TABLE IF NOT EXISTS user_email_config (
+        id SERIAL PRIMARY KEY,
+        usuario_id INTEGER NOT NULL UNIQUE REFERENCES usuarios(id),
+        email VARCHAR(255) NOT NULL,
+        senha_app VARCHAR(255) NOT NULL,
+        host VARCHAR(255) NOT NULL DEFAULT 'smtp.gmail.com',
+        port INTEGER NOT NULL DEFAULT 587,
+        ativo BOOLEAN DEFAULT true,
+        created_at TIMESTAMP DEFAULT now(),
+        updated_at TIMESTAMP DEFAULT now()
+      )
+    `
+    console.log("✓ Tabela user_email_config criada")
+
     await sql`
       CREATE TABLE IF NOT EXISTS crm_previsao_vendas (
         id SERIAL PRIMARY KEY,
