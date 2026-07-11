@@ -12,6 +12,28 @@ type EnviarResult = {
   erro?: string
 }
 
+export async function contatoExisteNaInstancia(remoteJid: string): Promise<boolean> {
+  if (!evolutionConfigurado()) return false
+
+  try {
+    const url = `${EVOLUTION_API_URL.replace(/\/$/, "")}/chat/findContacts/${EVOLUTION_INSTANCE_NAME}`
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: EVOLUTION_API_KEY,
+      },
+      body: JSON.stringify({ where: { remoteJid } }),
+    })
+
+    if (!res.ok) return false
+    const data = await res.json()
+    return !!(data?.id || data?.remoteJid)
+  } catch {
+    return false
+  }
+}
+
 export async function enviarMensagem(numero: string, texto: string): Promise<EnviarResult> {
   if (!evolutionConfigurado()) {
     return { sucesso: false, erro: "Evolution API não configurada" }
