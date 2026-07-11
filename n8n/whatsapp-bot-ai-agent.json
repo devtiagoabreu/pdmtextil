@@ -349,14 +349,14 @@
       "main": [
         [
           {
-            "node": "Ignorar",
+            "node": "Buscar conversa",
             "type": "main",
             "index": 0
           }
         ],
         [
           {
-            "node": "Buscar conversa",
+            "node": "Ignorar",
             "type": "main",
             "index": 0
           }

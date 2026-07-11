@@ -126,7 +126,7 @@ export default function CrmLeadsPage() {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
         <input
           type="text"
-          placeholder="Buscar por nome, email ou empresa..."
+          placeholder="Buscar por nome, email ou pessoa..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -151,7 +151,7 @@ export default function CrmLeadsPage() {
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Nome</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Tipo</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Contato</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Empresa</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Pessoa</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Score IA</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Origem</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Responsável</th>
@@ -185,11 +185,22 @@ export default function CrmLeadsPage() {
                       {!lead.email && !lead.celular && "—"}
                     </td>
                     <td className="px-4 py-3 text-sm text-slate-500">
-                      {lead.empresaNome || (lead.empresaRazaoSocial ? (
-                        <Link href={`/comercial/crm/pessoas/${lead.empresaId}`} className="text-blue-600 hover:underline">
-                          {lead.empresaRazaoSocial}
-                        </Link>
-                      ) : "—")}
+                      <div className="flex items-center gap-2">
+                        {lead.empresaNome || (lead.empresaRazaoSocial ? (
+                          <Link href={`/comercial/crm/pessoas/${lead.empresaId}`} className="text-blue-600 hover:underline">
+                            {lead.empresaRazaoSocial}
+                          </Link>
+                        ) : "—")}
+                        {lead.tipoPessoa && (
+                          <span className={`inline-flex text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
+                            lead.tipoPessoa === "PF"
+                              ? "text-purple-600 bg-purple-50 dark:bg-purple-950/50 dark:text-purple-400"
+                              : "text-cyan-600 bg-cyan-50 dark:bg-cyan-950/50 dark:text-cyan-400"
+                          }`}>
+                            {lead.tipoPessoa === "PF" ? "PF" : "PJ"}
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-4 py-3">
                       {lead.score != null ? (

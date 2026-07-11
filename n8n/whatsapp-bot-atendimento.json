@@ -35,7 +35,8 @@
       "parameters": {
         "resource": "chat-api",
         "operation": "find-contacts",
-        "instanceName": "maketing_pdm_pro_moda"
+        "instanceName": "maketing_pdm_pro_moda",
+        "listarTodos": true
       },
       "credentials": {
         "evolutionApi": {

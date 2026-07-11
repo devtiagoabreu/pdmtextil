@@ -132,7 +132,7 @@ export default function NovoLeadPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Empresa</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Pessoa</label>
             <input
               type="text"
               value={form.empresaNome}
