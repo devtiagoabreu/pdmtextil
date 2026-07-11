@@ -622,15 +622,13 @@ export default function EmailMassaPage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-1.5 bg-white dark:bg-slate-900">
-          <TabsList className="w-full justify-start gap-1 bg-transparent">
-            <TabsTrigger value="enviar" className="gap-1.5 data-[state=active]:bg-blue-50 dark:data-[state=active]:bg-blue-900/20"><Send size={14} />Enviar Email</TabsTrigger>
-            <TabsTrigger value="modelos" className="gap-1.5 data-[state=active]:bg-blue-50 dark:data-[state=active]:bg-blue-900/20"><FileText size={14} />Modelos</TabsTrigger>
-            <TabsTrigger value="listas" className="gap-1.5 data-[state=active]:bg-blue-50 dark:data-[state=active]:bg-blue-900/20"><Users size={14} />Listas</TabsTrigger>
-            <TabsTrigger value="historico" className="gap-1.5 data-[state=active]:bg-blue-50 dark:data-[state=active]:bg-blue-900/20"><Clock size={14} />Histórico</TabsTrigger>
-            <TabsTrigger value="dashboard" className="gap-1.5 data-[state=active]:bg-blue-50 dark:data-[state=active]:bg-blue-900/20"><BarChart3 size={14} />Dashboard</TabsTrigger>
-          </TabsList>
-        </div>
+        <TabsList className="w-full justify-center gap-1 bg-transparent border-b border-slate-200 dark:border-slate-700">
+          <TabsTrigger value="enviar" className="gap-1.5 rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent"><Send size={14} />Enviar Email</TabsTrigger>
+          <TabsTrigger value="modelos" className="gap-1.5 rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent"><FileText size={14} />Modelos</TabsTrigger>
+          <TabsTrigger value="listas" className="gap-1.5 rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent"><Users size={14} />Listas</TabsTrigger>
+          <TabsTrigger value="historico" className="gap-1.5 rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent"><Clock size={14} />Histórico</TabsTrigger>
+          <TabsTrigger value="dashboard" className="gap-1.5 rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent"><BarChart3 size={14} />Dashboard</TabsTrigger>
+        </TabsList>
 
         {/* ────────── TAB ENVIAR ────────── */}
         <TabsContent value="enviar" className="space-y-4 mt-4">
