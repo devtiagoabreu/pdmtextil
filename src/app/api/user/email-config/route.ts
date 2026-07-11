@@ -12,7 +12,7 @@ export async function GET() {
 
   const config = await db.select()
     .from(userEmailConfig)
-    .where(eq(userEmailConfig.usuarioId, session.user.id))
+    .where(eq(userEmailConfig.usuarioId, Number(session.user.id)))
     .limit(1)
 
   if (config.length === 0) {
@@ -43,7 +43,7 @@ export async function PUT(req: NextRequest) {
 
   const existing = await db.select()
     .from(userEmailConfig)
-    .where(eq(userEmailConfig.usuarioId, session.user.id))
+    .where(eq(userEmailConfig.usuarioId, Number(session.user.id)))
     .limit(1)
 
   if (existing.length > 0) {
@@ -53,10 +53,10 @@ export async function PUT(req: NextRequest) {
         senhaApp: senhaCriptografada,
         updatedAt: new Date(),
       })
-      .where(eq(userEmailConfig.usuarioId, session.user.id))
+      .where(eq(userEmailConfig.usuarioId, Number(session.user.id)))
   } else {
     await db.insert(userEmailConfig).values({
-      usuarioId: session.user.id,
+      usuarioId: Number(session.user.id),
       email,
       senhaApp: senhaCriptografada,
     })
@@ -70,7 +70,7 @@ export async function DELETE() {
   if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
   await db.delete(userEmailConfig)
-    .where(eq(userEmailConfig.usuarioId, session.user.id))
+    .where(eq(userEmailConfig.usuarioId, Number(session.user.id)))
 
   return NextResponse.json({ success: true })
 }
