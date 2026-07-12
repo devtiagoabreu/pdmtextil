@@ -121,7 +121,7 @@ export default function ImportarContatosEmail({ listaId, listaNome, onImportado 
 
       {modalAberto && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="w-full max-w-lg rounded-xl bg-white dark:bg-slate-900 shadow-xl">
+          <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-xl bg-white dark:bg-slate-900 shadow-xl">
             <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 p-4">
               <h2 className="text-lg font-semibold">Importar Contatos — {listaNome}</h2>
               <button onClick={() => setModalAberto(false)} className="rounded-md p-1 hover:bg-slate-100 dark:hover:bg-slate-800">
