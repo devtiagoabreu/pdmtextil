@@ -15,11 +15,12 @@ import {
   Link, List, Plus, Pencil, Trash2, FileText, Users, Copy, X, Eye,
   ImageIcon, Type, Strikethrough, ListOrdered, Palette, GripVertical,
   RefreshCw, CheckCircle2, XCircle, Clock, Search,
-  BarChart3, TrendingUp, MousePointerClick, Upload,
+  BarChart3, TrendingUp, MousePointerClick, Upload, Database,
 } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import ImportarContatosEmail from "@/components/importar/ImportarContatosEmail"
+import ImportarApiModal from "@/components/integracao/ImportarApiModal"
 import { exportPDFRelatorio } from "@/lib/export-utils"
 import { getInfoContent } from "@/lib/info-content"
 import { Separator } from "@/components/ui/separator"
@@ -274,6 +275,9 @@ export default function EmailMassaPage() {
   const [novoContato, setNovoContato] = useState({ nome: "", email: "" })
   const [viewLista, setViewLista] = useState<ListaComContatos | null>(null)
   const [loadingListas, setLoadingListas] = useState(false)
+  const [selectedListaImportId, setSelectedListaImportId] = useState(0)
+  const [selectedListaImportNome, setSelectedListaImportNome] = useState("")
+  const [showApiImport, setShowApiImport] = useState(false)
 
   const [linkDialogOpen, setLinkDialogOpen] = useState(false)
   const [linkUrl, setLinkUrl] = useState("https://")
@@ -622,13 +626,15 @@ export default function EmailMassaPage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="w-full justify-center gap-1 bg-transparent border-b border-slate-200 dark:border-slate-700">
-          <TabsTrigger value="enviar" className="gap-1.5 rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent"><Send size={14} />Enviar Email</TabsTrigger>
-          <TabsTrigger value="modelos" className="gap-1.5 rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent"><FileText size={14} />Modelos</TabsTrigger>
-          <TabsTrigger value="listas" className="gap-1.5 rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent"><Users size={14} />Listas</TabsTrigger>
-          <TabsTrigger value="historico" className="gap-1.5 rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent"><Clock size={14} />Histórico</TabsTrigger>
-          <TabsTrigger value="dashboard" className="gap-1.5 rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent"><BarChart3 size={14} />Dashboard</TabsTrigger>
-        </TabsList>
+        <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-1 bg-white dark:bg-slate-900">
+          <TabsList className="w-full justify-center gap-1 bg-transparent">
+            <TabsTrigger value="enviar" className="gap-1.5"><Send size={14} />Enviar Email</TabsTrigger>
+            <TabsTrigger value="modelos" className="gap-1.5"><FileText size={14} />Modelos</TabsTrigger>
+            <TabsTrigger value="listas" className="gap-1.5"><Users size={14} />Listas</TabsTrigger>
+            <TabsTrigger value="historico" className="gap-1.5"><Clock size={14} />Histórico</TabsTrigger>
+            <TabsTrigger value="dashboard" className="gap-1.5"><BarChart3 size={14} />Dashboard</TabsTrigger>
+          </TabsList>
+        </div>
 
         {/* ────────── TAB ENVIAR ────────── */}
         <TabsContent value="enviar" className="space-y-4 mt-4">
@@ -894,48 +900,45 @@ export default function EmailMassaPage() {
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-6 bg-white dark:bg-slate-900">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold">Listas de Destinatários</h2>
-              <Button onClick={abrirNovaLista} className="gap-1"><Plus size={14} /> Nova Lista</Button>
-            </div>
-
-            {listas.length > 0 && (
-              <div className="flex flex-wrap items-center gap-2 mb-4 p-3 rounded-lg bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20 border border-blue-100 dark:border-blue-900/30">
-                <span className="text-sm font-medium text-slate-700 dark:text-slate-300 mr-1">
-                  <Upload size={14} className="inline mr-1" />Importar contatos:
-                </span>
-                <button
-                  onClick={async () => {
-                    try {
-                      const res = await fetch("/api/admin/email-massa/listas/modelo?formato=csv")
-                      const blob = await res.blob()
-                      const url = URL.createObjectURL(blob)
-                      const a = document.createElement("a")
-                      a.href = url; a.download = "contatos_email_modelo.csv"; a.click()
-                      URL.revokeObjectURL(url)
-                    } catch { /* empty */ }
-                  }}
-                  className="text-xs px-3 py-1.5 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-1"
-                >
-                  <FileText size={12} /> Modelo CSV
-                </button>
-                <button
-                  onClick={async () => {
-                    try {
-                      const res = await fetch("/api/admin/email-massa/listas/modelo?formato=json")
-                      const data = await res.json()
-                      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" })
-                      const url = URL.createObjectURL(blob)
-                      const a = document.createElement("a")
-                      a.href = url; a.download = "contatos_email_modelo.json"; a.click()
-                      URL.revokeObjectURL(url)
-                    } catch { /* empty */ }
-                  }}
-                  className="text-xs px-3 py-1.5 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-1"
-                >
-                  <FileText size={12} /> Modelo JSON
-                </button>
-                <span className="text-xs text-slate-400 ml-1">Clique em <strong>Importar</strong> na lista desejada para enviar o arquivo.</span>
+              <div className="flex gap-2">
+                {listas.length > 0 && (
+                  <>
+                    <div className="flex items-center gap-1">
+                      <select
+                        value={selectedListaImportId || ""}
+                        onChange={e => {
+                          const id = Number(e.target.value)
+                          const l = listas.find(x => x.id === id)
+                          setSelectedListaImportId(id)
+                          setSelectedListaImportNome(l?.nome || "")
+                        }}
+                        className="text-sm p-1.5 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
+                      >
+                        <option value="">Selecionar lista...</option>
+                        {listas.map(l => (
+                          <option key={l.id} value={l.id}>{l.nome}</option>
+                        ))}
+                      </select>
+                      {selectedListaImportId ? (
+                        <ImportarContatosEmail
+                          listaId={selectedListaImportId}
+                          listaNome={selectedListaImportNome}
+                          onImportado={() => { carregarListas(); setSelectedListaImportId(0) }}
+                        />
+                      ) : (
+                        <Button variant="outline" size="sm" disabled className="gap-1 opacity-50">
+                          <Upload size={14} /> Importar
+                        </Button>
+                      )}
+                    </div>
+                    <Button variant="outline" size="sm" onClick={() => setShowApiImport(true)} className="gap-1">
+                      <Database size={14} /> Importar via API
+                    </Button>
+                  </>
+                )}
+                <Button onClick={abrirNovaLista} className="gap-1"><Plus size={14} /> Nova Lista</Button>
               </div>
-            )}
+            </div>
 
             {loadingListas ? (
               <p className="text-sm text-slate-400 py-8 text-center">Carregando...</p>
@@ -973,6 +976,17 @@ export default function EmailMassaPage() {
               </div>
             )}
           </div>
+
+          {showApiImport && (
+            <ImportarApiModal
+              tela="email-listas"
+              existingRecords={[]}
+              existingKey="email"
+              onImportado={() => { setShowApiImport(false); carregarListas() }}
+              onClose={() => setShowApiImport(false)}
+              extraImportParams={{ listaId: selectedListaImportId || undefined }}
+            />
+          )}
         </TabsContent>
 
         {/* ────────── TAB DASHBOARD ────────── */}
