@@ -617,7 +617,7 @@ export default function EmailMassaPage() {
   ) || []
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
+    <div className="max-w-full mx-auto space-y-4 px-4 lg:px-8">
       <div>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
           Email em Massa{info && <InfoButton content={info} />}
@@ -626,20 +626,18 @@ export default function EmailMassaPage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-1 bg-white dark:bg-slate-900">
-          <TabsList className="w-full justify-center gap-1 bg-transparent">
-            <TabsTrigger value="enviar" className="gap-1.5"><Send size={14} />Enviar Email</TabsTrigger>
-            <TabsTrigger value="modelos" className="gap-1.5"><FileText size={14} />Modelos</TabsTrigger>
-            <TabsTrigger value="listas" className="gap-1.5"><Users size={14} />Listas</TabsTrigger>
-            <TabsTrigger value="historico" className="gap-1.5"><Clock size={14} />Histórico</TabsTrigger>
-            <TabsTrigger value="dashboard" className="gap-1.5"><BarChart3 size={14} />Dashboard</TabsTrigger>
-          </TabsList>
-        </div>
+        <TabsList className="w-full justify-start gap-1 bg-transparent border-b border-slate-200 dark:border-slate-700 pb-0">
+          <TabsTrigger value="enviar" className="gap-1.5 rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent pb-2"><Send size={14} />Enviar Email</TabsTrigger>
+          <TabsTrigger value="modelos" className="gap-1.5 rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent pb-2"><FileText size={14} />Modelos</TabsTrigger>
+          <TabsTrigger value="listas" className="gap-1.5 rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent pb-2"><Users size={14} />Listas</TabsTrigger>
+          <TabsTrigger value="historico" className="gap-1.5 rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent pb-2"><Clock size={14} />Histórico</TabsTrigger>
+          <TabsTrigger value="dashboard" className="gap-1.5 rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent pb-2"><BarChart3 size={14} />Dashboard</TabsTrigger>
+        </TabsList>
 
         {/* ────────── TAB ENVIAR ────────── */}
         <TabsContent value="enviar" className="space-y-4 mt-4">
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-6 space-y-4 bg-white dark:bg-slate-900">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-4">
               <div className="space-y-2">
                 <Label>Enviar para</Label>
                 <select value={para} onChange={e => setPara(e.target.value)}
