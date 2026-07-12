@@ -1244,7 +1244,7 @@ export default function EmailMassaPage() {
 
       {/* ─────── DIALOG LISTA ─────── */}
       <Dialog open={listaDialogOpen} onOpenChange={setListaDialogOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-4xl">
           <DialogHeader>
             <DialogTitle>{editLista ? "Editar Lista" : "Nova Lista"}</DialogTitle>
             <DialogDescription>{editLista ? "Edite os dados da lista e seus contatos" : "Crie uma nova lista de destinatários"}</DialogDescription>
@@ -1293,7 +1293,7 @@ export default function EmailMassaPage() {
                       {listaContatos.map(c => (
                         <tr key={c.id} className="border-b border-slate-100 dark:border-slate-800">
                           <td className="p-2">{c.nome}</td>
-                          <td className="p-2 text-slate-500">{c.email}</td>
+                          <td className="p-2 text-slate-500 break-all max-w-0">{c.email}</td>
                           <td className="p-2">
                             <div className="flex items-center gap-1">
                               <button onClick={() => editarContato(c)} className="text-blue-400 hover:text-blue-600"><Pencil size={14} /></button>
