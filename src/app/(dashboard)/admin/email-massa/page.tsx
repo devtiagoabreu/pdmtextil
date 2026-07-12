@@ -253,12 +253,13 @@ export default function EmailMassaPage() {
   const pathname = usePathname()
   const info = getInfoContent(pathname)
   const editorRef = useRef<HTMLDivElement>(null)
+  const savedRange = useRef<Range | null>(null)
   const [assunto, setAssunto] = useState("")
   const [para, setPara] = useState("todos")
   const [modoEnvio, setModoEnvio] = useState("bcc")
   const [selectedListaIds, setSelectedListaIds] = useState<number[]>([])
   const [sending, setSending] = useState(false)
-  const [preview, setPreview] = useState(false)
+  const [previewDialogOpen, setPreviewDialogOpen] = useState(false)
   const [activeTab, setActiveTab] = useState("enviar")
 
   const [modelos, setModelos] = useState<Modelo[]>([])
@@ -323,15 +324,25 @@ export default function EmailMassaPage() {
   }, [linkUrl, exec])
 
   const insertImageHandler = useCallback(() => {
+    const sel = window.getSelection()
+    if (sel && sel.rangeCount > 0) savedRange.current = sel.getRangeAt(0)
     setImageUrl("")
     setImageDialogOpen(true)
   }, [])
 
   const confirmImage = useCallback(() => {
     if (imageUrl) {
+      if (savedRange.current && editorRef.current) {
+        const sel = window.getSelection()
+        if (sel) {
+          sel.removeAllRanges()
+          sel.addRange(savedRange.current)
+        }
+      }
       exec("insertImage", imageUrl)
       setImageDialogOpen(false)
       setImageUrl("")
+      savedRange.current = null
     }
   }, [imageUrl, exec])
 
@@ -776,14 +787,13 @@ export default function EmailMassaPage() {
                     <Button variant="outline" size="sm" onClick={abrirNovoModelo} className="gap-1">
                       <FileText size={14} /> Salvar como Modelo
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => setPreview(!preview)} className="gap-1">
-                      <Eye size={14} /> {preview ? "Editar" : "Preview"}
+                    <Button variant="outline" size="sm" onClick={() => setPreviewDialogOpen(true)} className="gap-1">
+                      <Eye size={14} /> Preview
                     </Button>
                   </div>
                 </div>
 
-                {!preview ? (
-                  <div className="w-full border rounded-lg border-slate-300 dark:border-slate-600 overflow-hidden bg-white dark:bg-slate-700">
+                <div className="w-full border rounded-lg border-slate-300 dark:border-slate-600 overflow-hidden bg-white dark:bg-slate-700">
                     <div className="flex flex-wrap items-center gap-0.5 p-1.5 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
                       {/* Headings */}
                       <div className="flex items-center gap-0.5 px-1 border-r border-slate-200 dark:border-slate-700">
@@ -862,13 +872,6 @@ export default function EmailMassaPage() {
                       data-placeholder="Escreva o conteúdo do email aqui..."
                     />
                   </div>
-                ) : (
-                  <div className="w-full min-h-[600px] p-6 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 overflow-y-auto">
-                    <div className="bg-white text-black" style={{ fontFamily: "Arial, sans-serif", lineHeight: "1.8", fontSize: "15px" }}>
-                      <div dangerouslySetInnerHTML={{ __html: getContentHtml() }} />
-                    </div>
-                  </div>
-                )}
               </section>
 
               {/* ── Botão Enviar ── */}
@@ -1373,6 +1376,24 @@ export default function EmailMassaPage() {
               {importCriandoLista ? <Loader2 size={14} className="animate-spin mr-1" /> : null}
               {importCriandoLista ? "Criando..." : "Criar e Importar"}
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ─────── DIALOG PREVIEW ─────── */}
+      <Dialog open={previewDialogOpen} onOpenChange={setPreviewDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Preview do Email</DialogTitle>
+            <DialogDescription>{assunto || "Sem assunto"}</DialogDescription>
+          </DialogHeader>
+          <div className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6 overflow-y-auto">
+            <div className="bg-white text-black" style={{ fontFamily: "Arial, sans-serif", lineHeight: "1.8", fontSize: "15px" }}>
+              <div dangerouslySetInnerHTML={{ __html: getContentHtml() }} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPreviewDialogOpen(false)}>Fechar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
