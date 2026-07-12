@@ -273,6 +273,7 @@ export default function EmailMassaPage() {
   const [listaForm, setListaForm] = useState({ nome: "", descricao: "" })
   const [listaContatos, setListaContatos] = useState<Contato[]>([])
   const [novoContato, setNovoContato] = useState({ nome: "", email: "" })
+  const [editContatoId, setEditContatoId] = useState<number | null>(null)
   const [viewLista, setViewLista] = useState<ListaComContatos | null>(null)
   const [loadingListas, setLoadingListas] = useState(false)
   const [selectedListaImportId, setSelectedListaImportId] = useState(0)
@@ -583,7 +584,24 @@ export default function EmailMassaPage() {
       toast.error("Email inválido")
       return
     }
-    setListaContatos(prev => [...prev, { ...novoContato, id: Date.now(), listaId: editLista?.id || 0 }])
+    if (editContatoId) {
+      setListaContatos(prev => prev.map(c =>
+        c.id === editContatoId ? { ...c, nome: novoContato.nome, email: novoContato.email } : c
+      ))
+      setEditContatoId(null)
+    } else {
+      setListaContatos(prev => [...prev, { ...novoContato, id: Date.now(), listaId: editLista?.id || 0 }])
+    }
+    setNovoContato({ nome: "", email: "" })
+  }
+
+  const editarContato = (c: Contato) => {
+    setNovoContato({ nome: c.nome, email: c.email })
+    setEditContatoId(c.id)
+  }
+
+  const cancelarEdicaoContato = () => {
+    setEditContatoId(null)
     setNovoContato({ nome: "", email: "" })
   }
 
@@ -1248,7 +1266,15 @@ export default function EmailMassaPage() {
               <div className="flex gap-2 mt-1 mb-2">
                 <Input value={novoContato.nome} onChange={e => setNovoContato(p => ({ ...p, nome: e.target.value }))} placeholder="Nome" className="flex-1" />
                 <Input value={novoContato.email} onChange={e => setNovoContato(p => ({ ...p, email: e.target.value }))} placeholder="Email" className="flex-[2]" />
-                <Button variant="outline" size="sm" onClick={adicionarContato} className="gap-1 shrink-0"><Plus size={14} />Adicionar</Button>
+                <Button variant="outline" size="sm" onClick={adicionarContato} className="gap-1 shrink-0">
+                  {editContatoId ? <Pencil size={14} /> : <Plus size={14} />}
+                  {editContatoId ? "Salvar" : "Adicionar"}
+                </Button>
+                {editContatoId && (
+                  <Button variant="ghost" size="sm" onClick={cancelarEdicaoContato} className="shrink-0">
+                    <X size={14} /> Cancelar
+                  </Button>
+                )}
               </div>
 
               {listaContatos.length === 0 ? (
@@ -1269,7 +1295,10 @@ export default function EmailMassaPage() {
                           <td className="p-2">{c.nome}</td>
                           <td className="p-2 text-slate-500">{c.email}</td>
                           <td className="p-2">
-                            <button onClick={() => removerContato(c.id)} className="text-red-400 hover:text-red-600"><X size={14} /></button>
+                            <div className="flex items-center gap-1">
+                              <button onClick={() => editarContato(c)} className="text-blue-400 hover:text-blue-600"><Pencil size={14} /></button>
+                              <button onClick={() => removerContato(c.id)} className="text-red-400 hover:text-red-600"><X size={14} /></button>
+                            </div>
                           </td>
                         </tr>
                       ))}
