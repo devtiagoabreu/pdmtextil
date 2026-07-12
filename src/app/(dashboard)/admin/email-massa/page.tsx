@@ -93,12 +93,7 @@ const FONT_FAMILIES = [
   "Source Sans Pro", "PT Sans", "Quicksand", "Work Sans",
 ]
 
-const HEADING_OPTIONS = [
-  { label: "Parágrafo", cmd: "formatBlock", val: "<p>" },
-  { label: "Título 1", cmd: "formatBlock", val: "<h1>" },
-  { label: "Título 2", cmd: "formatBlock", val: "<h2>" },
-  { label: "Título 3", cmd: "formatBlock", val: "<h3>" },
-]
+const HEADING_OPTIONS: { label: string; cmd: string; val: string }[] = []
 
 function StatusBadge({ status, abertoEm }: { status: string; abertoEm: string | null }) {
   if (abertoEm) {
@@ -331,6 +326,11 @@ export default function EmailMassaPage() {
 
   const insertHeading = useCallback((val: string) => {
     exec("formatBlock", val)
+  }, [exec])
+
+  const insertList = useCallback((ordered: boolean) => {
+    const tag = ordered ? "ol" : "ul"
+    exec("insertHTML", `<${tag} style="padding-left:24px"><li>Item</li></${tag}>`)
   }, [exec])
 
   const insertLinkHandler = useCallback(() => {
@@ -947,17 +947,6 @@ export default function EmailMassaPage() {
 
                   <div className="w-full border rounded-lg border-slate-300 dark:border-slate-600 overflow-hidden bg-white dark:bg-slate-700 relative">
                     <div className="flex flex-wrap items-center gap-0.5 p-1.5 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700" onMouseDown={saveSelection}>
-                      {/* Headings */}
-                      <div className="flex items-center gap-0.5 px-1 border-r border-slate-200 dark:border-slate-700">
-                        {HEADING_OPTIONS.map(opt => (
-                          <button key={opt.val} type="button" onClick={() => exec("formatBlock", opt.val)}
-                            className="px-2 py-1 text-xs rounded hover:bg-slate-200 dark:hover:bg-slate-700 font-medium"
-                            title={opt.label}>
-                            {opt.label === "Parágrafo" ? "P" : opt.label.split(" ")[1]}
-                          </button>
-                        ))}
-                      </div>
-
                       {/* Text formatting */}
                       <div className="flex items-center gap-0.5 px-1 border-r border-slate-200 dark:border-slate-700">
                         <button type="button" onClick={() => exec("bold")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Negrito"><Bold size={15} /></button>
@@ -975,8 +964,8 @@ export default function EmailMassaPage() {
 
                       {/* Lists */}
                       <div className="flex items-center gap-0.5 px-1 border-r border-slate-200 dark:border-slate-700">
-                        <button type="button" onClick={() => exec("insertUnorderedList")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Lista Marcadores"><List size={15} /></button>
-                        <button type="button" onClick={() => exec("insertOrderedList")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Lista Numerada"><ListOrdered size={15} /></button>
+                        <button type="button" onClick={() => insertList(false)} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Lista Marcadores"><List size={15} /></button>
+                        <button type="button" onClick={() => insertList(true)} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Lista Numerada"><ListOrdered size={15} /></button>
                       </div>
 
                       {/* Font */}
