@@ -333,7 +333,13 @@ export default function EmailMassaPage() {
   const confirmImage = useCallback(() => {
     if (imageUrl && editorRef.current) {
       editorRef.current.focus()
-      document.execCommand("insertHTML", false, `<img src="${imageUrl}" style="max-width:100%;height:auto" alt="" />`)
+      document.execCommand("insertHTML", false,
+        `<div contenteditable="false" draggable="true" class="resizable-image" ` +
+        `style="display:inline-block;resize:both;overflow:hidden;max-width:100%;` +
+        `border:1px dashed #94a3b8;padding:3px;margin:4px 0;line-height:0">` +
+        `<img src="${imageUrl}" style="display:block;width:100%;height:auto;pointer-events:none" alt="" />` +
+        `</div>`
+      )
       setImageDialogOpen(false)
       setImageUrl("")
     }
