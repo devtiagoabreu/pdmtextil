@@ -16,6 +16,7 @@ import {
   ImageIcon, Type, Strikethrough, ListOrdered, Palette, GripVertical,
   RefreshCw, CheckCircle2, XCircle, Clock, Search,
   BarChart3, TrendingUp, MousePointerClick, Upload, Database,
+  ChevronUp, ChevronDown, Move3D,
 } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
@@ -289,6 +290,8 @@ export default function EmailMassaPage() {
 
   const [imageDialogOpen, setImageDialogOpen] = useState(false)
   const [imageUrl, setImageUrl] = useState("")
+  const [selectedImageEl, setSelectedImageEl] = useState<HTMLElement | null>(null)
+  const [imageToolbarPos, setImageToolbarPos] = useState({ top: 0, left: 0 })
 
   const [colorDialogOpen, setColorDialogOpen] = useState(false)
   const [colorMode, setColorMode] = useState<"fore" | "back">("fore")
@@ -334,7 +337,7 @@ export default function EmailMassaPage() {
     if (imageUrl && editorRef.current) {
       editorRef.current.focus()
       document.execCommand("insertHTML", false,
-        `<div contenteditable="false" draggable="true" class="resizable-image" ` +
+        `<div contenteditable="false" class="resizable-image" ` +
         `style="display:inline-block;resize:both;overflow:hidden;max-width:100%;` +
         `border:1px dashed #94a3b8;padding:3px;margin:4px 0;line-height:0">` +
         `<img src="${imageUrl}" style="display:block;width:100%;height:auto;pointer-events:none" alt="" />` +
@@ -344,6 +347,49 @@ export default function EmailMassaPage() {
       setImageUrl("")
     }
   }, [imageUrl])
+
+  const handleEditorMouseUp = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement
+    const container = target.closest(".resizable-image") as HTMLElement | null
+    if (container && editorRef.current) {
+      setSelectedImageEl(container)
+      const editorRect = editorRef.current.getBoundingClientRect()
+      const imgRect = container.getBoundingClientRect()
+      setImageToolbarPos({
+        top: imgRect.top - editorRect.top - 42,
+        left: imgRect.left - editorRect.left,
+      })
+    } else {
+      setSelectedImageEl(null)
+    }
+  }, [])
+
+  const applyWrapMode = useCallback((mode: "block" | "float-left" | "float-right") => {
+    if (!selectedImageEl) return
+    selectedImageEl.style.removeProperty("float")
+    selectedImageEl.style.removeProperty("position")
+    selectedImageEl.style.removeProperty("zIndex")
+    if (mode === "block") {
+      selectedImageEl.style.display = "inline-block"
+      selectedImageEl.style.margin = "4px 0"
+    } else if (mode === "float-left") {
+      selectedImageEl.style.float = "left"
+      selectedImageEl.style.margin = "4px 12px 8px 0"
+    } else if (mode === "float-right") {
+      selectedImageEl.style.float = "right"
+      selectedImageEl.style.margin = "4px 0 8px 12px"
+    }
+  }, [selectedImageEl])
+
+  const adjustImageZIndex = useCallback((dir: "front" | "back") => {
+    if (!selectedImageEl) return
+    const pos = selectedImageEl.style.position
+    if (pos !== "relative" && pos !== "absolute") {
+      selectedImageEl.style.position = "relative"
+    }
+    const current = parseInt(selectedImageEl.style.zIndex) || 0
+    selectedImageEl.style.zIndex = String(dir === "front" ? current + 1 : current - 1)
+  }, [selectedImageEl])
 
   const openColorPicker = useCallback((mode: "fore" | "back") => {
     setColorMode(mode)
@@ -792,7 +838,7 @@ export default function EmailMassaPage() {
                   </div>
                 </div>
 
-                <div className="w-full border rounded-lg border-slate-300 dark:border-slate-600 overflow-hidden bg-white dark:bg-slate-700">
+                  <div className="w-full border rounded-lg border-slate-300 dark:border-slate-600 overflow-hidden bg-white dark:bg-slate-700 relative">
                     <div className="flex flex-wrap items-center gap-0.5 p-1.5 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
                       {/* Headings */}
                       <div className="flex items-center gap-0.5 px-1 border-r border-slate-200 dark:border-slate-700">
@@ -866,10 +912,41 @@ export default function EmailMassaPage() {
                       ref={editorRef}
                       contentEditable
                       suppressContentEditableWarning
+                      onMouseUp={handleEditorMouseUp}
                       className="w-full min-h-[600px] p-6 bg-white dark:bg-slate-700 text-slate-950 dark:text-white focus:outline-none overflow-y-auto"
                       style={{ fontFamily: "Arial, sans-serif", lineHeight: "1.8", fontSize: "15px" }}
                       data-placeholder="Escreva o conteúdo do email aqui..."
                     />
+
+                    {selectedImageEl && (
+                      <div
+                        className="image-toolbar absolute z-[100] flex items-center gap-0.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-1 shadow-lg"
+                        style={{ top: imageToolbarPos.top, left: Math.max(0, imageToolbarPos.left) }}
+                        onMouseDown={e => e.preventDefault()}
+                      >
+                        <button type="button" onClick={() => applyWrapMode("block")}
+                          className="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700" title="Em linha (ocupa espaço)">
+                          <Type size={14} />
+                        </button>
+                        <button type="button" onClick={() => applyWrapMode("float-left")}
+                          className="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700" title="Flutuar à esquerda, texto à direita">
+                          <AlignLeft size={14} />
+                        </button>
+                        <button type="button" onClick={() => applyWrapMode("float-right")}
+                          className="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700" title="Flutuar à direita, texto à esquerda">
+                          <AlignRight size={14} />
+                        </button>
+                        <span className="w-px h-5 bg-slate-300 dark:bg-slate-600 mx-0.5" />
+                        <button type="button" onClick={() => adjustImageZIndex("back")}
+                          className="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700" title="Enviar para trás">
+                          <ChevronDown size={14} />
+                        </button>
+                        <button type="button" onClick={() => adjustImageZIndex("front")}
+                          className="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700" title="Trazer para frente">
+                          <ChevronUp size={14} />
+                        </button>
+                      </div>
+                    )}
                   </div>
               </section>
 
