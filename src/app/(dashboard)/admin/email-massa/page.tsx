@@ -86,7 +86,12 @@ const FONT_SIZES = [
   { label: "Enorme", value: "6" },
 ]
 
-const FONT_FAMILIES = ["Arial", "Times New Roman", "Courier New", "Georgia", "Verdana", "Tahoma", "Trebuchet MS"]
+const FONT_FAMILIES = [
+  "Arial", "Times New Roman", "Courier New", "Georgia", "Verdana", "Tahoma", "Trebuchet MS",
+  "Roboto", "Open Sans", "Lato", "Montserrat", "Poppins", "Inter", "Nunito",
+  "Raleway", "Ubuntu", "Playfair Display", "Merriweather", "Oswald", "Noto Sans",
+  "Source Sans Pro", "PT Sans", "Quicksand", "Work Sans",
+]
 
 const HEADING_OPTIONS = [
   { label: "Parágrafo", cmd: "formatBlock", val: "<p>" },
@@ -541,6 +546,32 @@ export default function EmailMassaPage() {
   }, [carregarModelos, carregarListas])
 
   useEffect(() => {
+    const link = document.createElement("link")
+    link.href = "https://fonts.googleapis.com/css2?" + [
+      "family=Roboto:wght@400;700",
+      "family=Open+Sans:wght@400;700",
+      "family=Lato:wght@400;700",
+      "family=Montserrat:wght@400;700",
+      "family=Poppins:wght@400;700",
+      "family=Inter:wght@400;700",
+      "family=Nunito:wght@400;700",
+      "family=Raleway:wght@400;700",
+      "family=Ubuntu:wght@400;700",
+      "family=Playfair+Display:wght@400;700",
+      "family=Merriweather:wght@400;700",
+      "family=Oswald:wght@400;700",
+      "family=Noto+Sans:wght@400;700",
+      "family=Source+Sans+Pro:wght@400;700",
+      "family=PT+Sans:wght@400;700",
+      "family=Quicksand:wght@400;700",
+      "family=Work+Sans:wght@400;700",
+    ].join("&") + "&display=swap"
+    link.rel = "stylesheet"
+    document.head.appendChild(link)
+    return () => { if (link.parentNode) link.parentNode.removeChild(link) }
+  }, [])
+
+  useEffect(() => {
     if (activeTab === "historico") carregarHistorico()
   }, [activeTab, carregarHistorico])
 
@@ -895,7 +926,7 @@ export default function EmailMassaPage() {
                       {/* Headings */}
                       <div className="flex items-center gap-0.5 px-1 border-r border-slate-200 dark:border-slate-700">
                         {HEADING_OPTIONS.map(opt => (
-                          <button key={opt.val} type="button" onClick={() => insertHeading(opt.val)}
+                          <button key={opt.val} type="button" onMouseDown={e => { e.preventDefault(); insertHeading(opt.val) }}
                             className="px-2 py-1 text-xs rounded hover:bg-slate-200 dark:hover:bg-slate-700 font-medium"
                             title={opt.label}>
                             {opt.label === "Parágrafo" ? "P" : opt.label.split(" ")[1]}
@@ -905,34 +936,34 @@ export default function EmailMassaPage() {
 
                       {/* Text formatting */}
                       <div className="flex items-center gap-0.5 px-1 border-r border-slate-200 dark:border-slate-700">
-                        <button type="button" onClick={() => exec("bold")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Negrito"><Bold size={15} /></button>
-                        <button type="button" onClick={() => exec("italic")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Itálico"><Italic size={15} /></button>
-                        <button type="button" onClick={() => exec("underline")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Sublinhado"><Underline size={15} /></button>
-                        <button type="button" onClick={() => exec("strikeThrough")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Tachado"><Strikethrough size={15} /></button>
+                        <button type="button" onMouseDown={e => { e.preventDefault(); exec("bold") }} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Negrito"><Bold size={15} /></button>
+                        <button type="button" onMouseDown={e => { e.preventDefault(); exec("italic") }} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Itálico"><Italic size={15} /></button>
+                        <button type="button" onMouseDown={e => { e.preventDefault(); exec("underline") }} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Sublinhado"><Underline size={15} /></button>
+                        <button type="button" onMouseDown={e => { e.preventDefault(); exec("strikeThrough") }} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Tachado"><Strikethrough size={15} /></button>
                       </div>
 
                       {/* Alignment */}
                       <div className="flex items-center gap-0.5 px-1 border-r border-slate-200 dark:border-slate-700">
-                        <button type="button" onClick={() => exec("justifyLeft")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Alinhar Esquerda"><AlignLeft size={15} /></button>
-                        <button type="button" onClick={() => exec("justifyCenter")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Centralizar"><AlignCenter size={15} /></button>
-                        <button type="button" onClick={() => exec("justifyRight")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Alinhar Direita"><AlignRight size={15} /></button>
+                        <button type="button" onMouseDown={e => { e.preventDefault(); exec("justifyLeft") }} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Alinhar Esquerda"><AlignLeft size={15} /></button>
+                        <button type="button" onMouseDown={e => { e.preventDefault(); exec("justifyCenter") }} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Centralizar"><AlignCenter size={15} /></button>
+                        <button type="button" onMouseDown={e => { e.preventDefault(); exec("justifyRight") }} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Alinhar Direita"><AlignRight size={15} /></button>
                       </div>
 
                       {/* Lists */}
                       <div className="flex items-center gap-0.5 px-1 border-r border-slate-200 dark:border-slate-700">
-                        <button type="button" onClick={() => exec("insertUnorderedList")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Lista Marcadores"><List size={15} /></button>
-                        <button type="button" onClick={() => exec("insertOrderedList")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Lista Numerada"><ListOrdered size={15} /></button>
+                        <button type="button" onMouseDown={e => { e.preventDefault(); exec("insertUnorderedList") }} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Lista Marcadores"><List size={15} /></button>
+                        <button type="button" onMouseDown={e => { e.preventDefault(); exec("insertOrderedList") }} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Lista Numerada"><ListOrdered size={15} /></button>
                       </div>
 
                       {/* Font */}
                       <div className="flex items-center gap-0.5 px-1 border-r border-slate-200 dark:border-slate-700">
-                        <select onChange={e => exec("fontName", e.target.value)} className="text-xs p-1 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 w-28"
+                        <select onMouseDown={e => e.preventDefault()} onChange={e => exec("fontName", e.target.value)} className="text-xs p-1 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 w-28"
                           title="Fonte">
                           {FONT_FAMILIES.map(f => (
                             <option key={f} value={f} style={{ fontFamily: f }}>{f}</option>
                           ))}
                         </select>
-                        <select onChange={e => exec("fontSize", e.target.value)} className="text-xs p-1 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 w-20"
+                        <select onMouseDown={e => e.preventDefault()} onChange={e => exec("fontSize", e.target.value)} className="text-xs p-1 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 w-20"
                           title="Tamanho">
                           {FONT_SIZES.map(s => (
                             <option key={s.value} value={s.value}>{s.label}</option>
@@ -942,10 +973,10 @@ export default function EmailMassaPage() {
 
                       {/* Color */}
                       <div className="flex items-center gap-0.5 px-1 border-r border-slate-200 dark:border-slate-700">
-                        <button type="button" onClick={() => openColorPicker("fore")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Cor do Texto">
+                        <button type="button" onMouseDown={e => { e.preventDefault(); openColorPicker("fore") }} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Cor do Texto">
                           <Palette size={15} />
                         </button>
-                        <button type="button" onClick={() => openColorPicker("back")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700 relative" title="Cor de Fundo">
+                        <button type="button" onMouseDown={e => { e.preventDefault(); openColorPicker("back") }} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700 relative" title="Cor de Fundo">
                           <div className="relative">
                             <Type size={15} />
                             <span className="absolute -bottom-0.5 left-0 right-0 h-1 bg-yellow-400 rounded" />
@@ -955,8 +986,8 @@ export default function EmailMassaPage() {
 
                       {/* Insert */}
                       <div className="flex items-center gap-0.5 px-1">
-                        <button type="button" onClick={insertLinkHandler} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Inserir Link"><Link size={15} /></button>
-                        <button type="button" onClick={insertImageHandler} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Inserir Imagem"><ImageIcon size={15} /></button>
+                        <button type="button" onMouseDown={e => { e.preventDefault(); insertLinkHandler() }} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Inserir Link"><Link size={15} /></button>
+                        <button type="button" onMouseDown={e => { e.preventDefault(); insertImageHandler() }} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Inserir Imagem"><ImageIcon size={15} /></button>
                       </div>
                     </div>
 
