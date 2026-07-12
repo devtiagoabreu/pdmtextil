@@ -22,7 +22,7 @@ import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import ImportarContatosEmail from "@/components/importar/ImportarContatosEmail"
 import ImportarApiModal from "@/components/integracao/ImportarApiModal"
-import { exportPDFRelatorio } from "@/lib/export-utils"
+import { exportPDF, exportPDFRelatorio } from "@/lib/export-utils"
 import { getInfoContent } from "@/lib/info-content"
 import { Separator } from "@/components/ui/separator"
 
@@ -1514,17 +1514,26 @@ export default function EmailMassaPage() {
 
       {/* ─────── DIALOG PREVIEW ─────── */}
       <Dialog open={previewDialogOpen} onOpenChange={setPreviewDialogOpen}>
-        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-[820px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Preview do Email</DialogTitle>
             <DialogDescription>{assunto || "Sem assunto"}</DialogDescription>
           </DialogHeader>
-          <div className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6 overflow-y-auto">
-            <div className="bg-white text-black" style={{ fontFamily: "Arial, sans-serif", lineHeight: "1.8", fontSize: "15px" }}>
+          <div className="bg-slate-100 dark:bg-slate-800 rounded-lg p-4 overflow-y-auto shadow-inner">
+            <div
+              className="mx-auto bg-white text-black shadow-sm"
+              style={{ width: "794px", minHeight: "1123px", fontFamily: "Arial, sans-serif", lineHeight: "1.8", fontSize: "15px", padding: "48px 56px" }}
+            >
               <div dangerouslySetInnerHTML={{ __html: getContentHtml() }} />
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => {
+              const html = getContentHtml()
+              if (html) exportPDF(`Email - ${assunto || "sem assunto"}`, html)
+            }} className="gap-1">
+              <FileText size={14} /> Exportar PDF
+            </Button>
             <Button variant="outline" onClick={() => setPreviewDialogOpen(false)}>Fechar</Button>
           </DialogFooter>
         </DialogContent>
