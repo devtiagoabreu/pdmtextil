@@ -356,7 +356,7 @@ export default function EmailMassaPage() {
       const editorRect = editorRef.current.getBoundingClientRect()
       const imgRect = container.getBoundingClientRect()
       setImageToolbarPos({
-        top: imgRect.top - editorRect.top - 42,
+        top: imgRect.bottom - editorRect.top + 4,
         left: imgRect.left - editorRect.left,
       })
     } else {
@@ -364,12 +364,15 @@ export default function EmailMassaPage() {
     }
   }, [])
 
-  const applyWrapMode = useCallback((mode: "block" | "float-left" | "float-right") => {
+  const applyWrapMode = useCallback((mode: "inline" | "float-left" | "float-right" | "free") => {
     if (!selectedImageEl) return
     selectedImageEl.style.removeProperty("float")
     selectedImageEl.style.removeProperty("position")
     selectedImageEl.style.removeProperty("zIndex")
-    if (mode === "block") {
+    selectedImageEl.style.removeProperty("left")
+    selectedImageEl.style.removeProperty("top")
+    selectedImageEl.style.removeProperty("cursor")
+    if (mode === "inline") {
       selectedImageEl.style.display = "inline-block"
       selectedImageEl.style.margin = "4px 0"
     } else if (mode === "float-left") {
@@ -378,17 +381,66 @@ export default function EmailMassaPage() {
     } else if (mode === "float-right") {
       selectedImageEl.style.float = "right"
       selectedImageEl.style.margin = "4px 0 8px 12px"
+    } else if (mode === "free") {
+      selectedImageEl.style.position = "absolute"
+      selectedImageEl.style.cursor = "grab"
+      selectedImageEl.style.margin = "0"
+      const rect = selectedImageEl.getBoundingClientRect()
+      const editorRect = editorRef.current?.getBoundingClientRect()
+      if (editorRect) {
+        selectedImageEl.style.left = `${rect.left - editorRect.left}px`
+        selectedImageEl.style.top = `${rect.top - editorRect.top}px`
+      }
     }
   }, [selectedImageEl])
 
   const adjustImageZIndex = useCallback((dir: "front" | "back") => {
     if (!selectedImageEl) return
-    const pos = selectedImageEl.style.position
-    if (pos !== "relative" && pos !== "absolute") {
-      selectedImageEl.style.position = "relative"
+    if (selectedImageEl.style.position !== "absolute") {
+      selectedImageEl.style.position = "absolute"
+      selectedImageEl.style.cursor = "grab"
+      selectedImageEl.style.margin = "0"
+      const rect = selectedImageEl.getBoundingClientRect()
+      const editorRect = editorRef.current?.getBoundingClientRect()
+      if (editorRect) {
+        selectedImageEl.style.left = `${rect.left - editorRect.left}px`
+        selectedImageEl.style.top = `${rect.top - editorRect.top}px`
+      }
     }
     const current = parseInt(selectedImageEl.style.zIndex) || 0
     selectedImageEl.style.zIndex = String(dir === "front" ? current + 1 : current - 1)
+  }, [selectedImageEl])
+
+  useEffect(() => {
+    const el = selectedImageEl
+    if (!el || el.style.position !== "absolute") return
+
+    const onMouseDown = (e: MouseEvent) => {
+      if (el.style.position !== "absolute") return
+      e.preventDefault()
+      const rect = el.getBoundingClientRect()
+      const offset = { x: e.clientX - rect.left, y: e.clientY - rect.top }
+      el.style.cursor = "grabbing"
+
+      const onMove = (ev: MouseEvent) => {
+        const editorRect = editorRef.current?.getBoundingClientRect()
+        if (!editorRect) return
+        el.style.left = `${ev.clientX - editorRect.left - offset.x}px`
+        el.style.top = `${ev.clientY - editorRect.top - offset.y}px`
+      }
+
+      const onUp = () => {
+        el.style.cursor = "grab"
+        document.removeEventListener("mousemove", onMove)
+        document.removeEventListener("mouseup", onUp)
+      }
+
+      document.addEventListener("mousemove", onMove)
+      document.addEventListener("mouseup", onUp)
+    }
+
+    el.addEventListener("mousedown", onMouseDown)
+    return () => el.removeEventListener("mousedown", onMouseDown)
   }, [selectedImageEl])
 
   const openColorPicker = useCallback((mode: "fore" | "back") => {
@@ -924,8 +976,8 @@ export default function EmailMassaPage() {
                         style={{ top: imageToolbarPos.top, left: Math.max(0, imageToolbarPos.left) }}
                         onMouseDown={e => e.preventDefault()}
                       >
-                        <button type="button" onClick={() => applyWrapMode("block")}
-                          className="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700" title="Em linha (ocupa espaço)">
+                        <button type="button" onClick={() => applyWrapMode("inline")}
+                          className="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700" title="Em linha (ocupa espaço, quebra texto)">
                           <Type size={14} />
                         </button>
                         <button type="button" onClick={() => applyWrapMode("float-left")}
@@ -936,13 +988,17 @@ export default function EmailMassaPage() {
                           className="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700" title="Flutuar à direita, texto à esquerda">
                           <AlignRight size={14} />
                         </button>
+                        <button type="button" onClick={() => applyWrapMode("free")}
+                          className="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700" title="Livre (arraste para mover)">
+                          <Move3D size={14} />
+                        </button>
                         <span className="w-px h-5 bg-slate-300 dark:bg-slate-600 mx-0.5" />
                         <button type="button" onClick={() => adjustImageZIndex("back")}
-                          className="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700" title="Enviar para trás">
+                          className="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700" title="Atrás do texto (z-index -1)">
                           <ChevronDown size={14} />
                         </button>
                         <button type="button" onClick={() => adjustImageZIndex("front")}
-                          className="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700" title="Trazer para frente">
+                          className="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700" title="Na frente do texto (z-index +1)">
                           <ChevronUp size={14} />
                         </button>
                       </div>
