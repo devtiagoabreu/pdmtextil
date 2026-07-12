@@ -723,7 +723,7 @@ export default function EmailMassaPage() {
               </div>
 
               {/* Coluna do Editor do Conteúdo do Email */}
-              <div className="space-y-4 lg:col-span-2 flex flex-col justify-between h-full">
+              <div className="space-y-4 lg:col-span-2 flex flex-col justify-between min-h-[500px]">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label>Conteúdo do Email</Label>
