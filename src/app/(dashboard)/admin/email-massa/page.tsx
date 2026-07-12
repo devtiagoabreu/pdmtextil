@@ -332,25 +332,10 @@ export default function EmailMassaPage() {
 
   const confirmImage = useCallback(() => {
     if (imageUrl && editorRef.current) {
-      const sel = window.getSelection()
-      if (savedRange.current) {
-        sel?.removeAllRanges()
-        sel?.addRange(savedRange.current)
-      }
-      const range = sel?.getRangeAt(0)
-      if (range) {
-        const img = document.createElement("img")
-        img.src = imageUrl
-        img.style.maxWidth = "100%"
-        img.alt = ""
-        range.deleteContents()
-        range.insertNode(img)
-        range.collapse(false)
-      }
+      editorRef.current.focus()
+      document.execCommand("insertHTML", false, `<img src="${imageUrl}" style="max-width:100%;height:auto" alt="" />`)
       setImageDialogOpen(false)
       setImageUrl("")
-      savedRange.current = null
-      editorRef.current.focus()
     }
   }, [imageUrl])
 
