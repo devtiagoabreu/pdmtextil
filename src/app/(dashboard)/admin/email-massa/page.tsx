@@ -331,20 +331,28 @@ export default function EmailMassaPage() {
   }, [])
 
   const confirmImage = useCallback(() => {
-    if (imageUrl) {
-      if (savedRange.current && editorRef.current) {
-        const sel = window.getSelection()
-        if (sel) {
-          sel.removeAllRanges()
-          sel.addRange(savedRange.current)
-        }
+    if (imageUrl && editorRef.current) {
+      const sel = window.getSelection()
+      if (savedRange.current) {
+        sel?.removeAllRanges()
+        sel?.addRange(savedRange.current)
       }
-      exec("insertImage", imageUrl)
+      const range = sel?.getRangeAt(0)
+      if (range) {
+        const img = document.createElement("img")
+        img.src = imageUrl
+        img.style.maxWidth = "100%"
+        img.alt = ""
+        range.deleteContents()
+        range.insertNode(img)
+        range.collapse(false)
+      }
       setImageDialogOpen(false)
       setImageUrl("")
       savedRange.current = null
+      editorRef.current.focus()
     }
-  }, [imageUrl, exec])
+  }, [imageUrl])
 
   const openColorPicker = useCallback((mode: "fore" | "back") => {
     setColorMode(mode)
@@ -1382,7 +1390,7 @@ export default function EmailMassaPage() {
 
       {/* ─────── DIALOG PREVIEW ─────── */}
       <Dialog open={previewDialogOpen} onOpenChange={setPreviewDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Preview do Email</DialogTitle>
             <DialogDescription>{assunto || "Sem assunto"}</DialogDescription>
