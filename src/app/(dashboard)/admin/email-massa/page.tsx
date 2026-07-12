@@ -637,208 +637,214 @@ export default function EmailMassaPage() {
         {/* ────────── TAB ENVIAR ────────── */}
         <TabsContent value="enviar" className="w-full m-0 border-0 p-0 shadow-none">
           <div className="w-full rounded-xl border bg-card p-6 text-card-foreground shadow">
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label>Enviar para</Label>
-                <select value={para} onChange={e => setPara(e.target.value)}
-                  className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600">
-                  <option value="todos">Clientes + Usuários do Sistema</option>
-                  <option value="clientes">Apenas Clientes</option>
-                  <option value="usuarios">Apenas Usuários do Sistema</option>
-                  <option value="lista">Lista de Destinatários</option>
-                </select>
-              </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-              <div className="space-y-2">
-                <Label>Assunto</Label>
-                <Input value={assunto} onChange={e => setAssunto(e.target.value)} placeholder="Assunto do email" />
-              </div>
+              {/* Coluna de Configurações do Envio */}
+              <div className="space-y-4 lg:col-span-1">
+                <div className="space-y-2">
+                  <Label>Enviar para</Label>
+                  <select value={para} onChange={e => setPara(e.target.value)}
+                    className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600">
+                    <option value="todos">Clientes + Usuários do Sistema</option>
+                    <option value="clientes">Apenas Clientes</option>
+                    <option value="usuarios">Apenas Usuários do Sistema</option>
+                    <option value="lista">Lista de Destinatários</option>
+                  </select>
+                </div>
 
-            {para === "lista" && (
-              <div className="space-y-2">
-                <Label>Selecionar Listas</Label>
-                <div className="border rounded-lg border-slate-200 dark:border-slate-700 max-h-48 overflow-y-auto p-2 space-y-1">
-                  {listas.length === 0 ? (
-                    <p className="text-sm text-slate-400 p-2">Nenhuma lista cadastrada. Vá na aba Listas para criar.</p>
-                  ) : listas.map(l => (
-                    <label key={l.id} className="flex items-center gap-2 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer">
-                      <input type="checkbox" checked={selectedListaIds.includes(l.id)}
-                        onChange={() => toggleListaSelecionada(l.id)}
-                        className="rounded border-slate-300" />
-                      <span className="text-sm font-medium">{l.nome}</span>
-                      <span className="text-xs text-slate-400">({l.totalContatos} contatos)</span>
+                <div className="space-y-2">
+                  <Label>Assunto</Label>
+                  <Input value={assunto} onChange={e => setAssunto(e.target.value)} placeholder="Assunto do email" />
+                </div>
+
+                {para === "lista" && (
+                  <div className="space-y-2">
+                    <Label>Selecionar Listas</Label>
+                    <div className="border rounded-lg border-slate-200 dark:border-slate-700 max-h-48 overflow-y-auto p-2 space-y-1">
+                      {listas.length === 0 ? (
+                        <p className="text-sm text-slate-400 p-2">Nenhuma lista cadastrada. Vá na aba Listas para criar.</p>
+                      ) : listas.map(l => (
+                        <label key={l.id} className="flex items-center gap-2 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer">
+                          <input type="checkbox" checked={selectedListaIds.includes(l.id)}
+                            onChange={() => toggleListaSelecionada(l.id)}
+                            className="rounded border-slate-300" />
+                          <span className="text-sm font-medium">{l.nome}</span>
+                          <span className="text-xs text-slate-400">({l.totalContatos} contatos)</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="space-y-2">
+                  <Label>Modo de Envio</Label>
+                  <div className="flex flex-col gap-2">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input type="radio" name="modo_envio" value="bcc" checked={modoEnvio === "bcc"}
+                        onChange={e => setModoEnvio(e.target.value)} className="text-blue-600" />
+                      <span className="text-sm">Cópia Oculta (BCC)</span>
                     </label>
-                  ))}
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input type="radio" name="modo_envio" value="to" checked={modoEnvio === "to"}
+                        onChange={e => setModoEnvio(e.target.value)} className="text-blue-600" />
+                      <span className="text-sm">Para (TO)</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input type="radio" name="modo_envio" value="individual" checked={modoEnvio === "individual"}
+                        onChange={e => setModoEnvio(e.target.value)} className="text-blue-600" />
+                      <span className="text-sm">Individual (<code className="bg-slate-100 dark:bg-slate-700 px-1 rounded text-xs">[NOME]</code>)</span>
+                    </label>
+                  </div>
                 </div>
-              </div>
-            )}
 
-            <div className="space-y-2">
-              <Label>Modo de Envio</Label>
-              <div className="flex flex-wrap gap-4">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" name="modo_envio" value="bcc" checked={modoEnvio === "bcc"}
-                    onChange={e => setModoEnvio(e.target.value)} className="text-blue-600" />
-                  <span className="text-sm">Cópia Oculta (BCC)</span>
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" name="modo_envio" value="to" checked={modoEnvio === "to"}
-                    onChange={e => setModoEnvio(e.target.value)} className="text-blue-600" />
-                  <span className="text-sm">Para (TO)</span>
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" name="modo_envio" value="individual" checked={modoEnvio === "individual"}
-                    onChange={e => setModoEnvio(e.target.value)} className="text-blue-600" />
-                  <span className="text-sm">Individual (<code className="bg-slate-100 dark:bg-slate-700 px-1 rounded text-xs">[NOME]</code> substituído)</span>
-                </label>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Remetente</Label>
-              <div className="flex flex-wrap gap-4">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" name="remetente" value="sistema" checked={remetente === "sistema"}
-                    onChange={e => setRemetente(e.target.value)} className="text-blue-600" />
-                  <span className="text-sm">Sistema (<code className="bg-slate-100 dark:bg-slate-700 px-1 rounded text-xs">SMTP padrão</code>)</span>
-                </label>
-                <label className={`flex items-center gap-2 cursor-pointer ${!userEmailConfig ? "opacity-50" : ""}`}>
-                  <input type="radio" name="remetente" value="usuario" checked={remetente === "usuario"}
-                    onChange={e => setRemetente(e.target.value)} className="text-blue-600"
-                    disabled={!userEmailConfig} />
-                  <span className="text-sm">
-                    {userEmailConfig
-                      ? `Meu Email (${userEmailConfig.email})`
-                      : "Meu Email (configure em Meu Perfil)"}
-                  </span>
-                </label>
-              </div>
-              {!userEmailConfig && (
-                <p className="text-xs text-amber-600 dark:text-amber-400">
-                  Nenhuma configuração pessoal encontrada. Vá em <strong>Meu Perfil</strong> para configurar seu SMTP.
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label>Conteúdo do Email</Label>
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm" onClick={abrirNovoModelo} className="gap-1">
-                    <FileText size={14} /> Salvar como Modelo
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={() => setPreview(!preview)} className="gap-1">
-                    <Eye size={14} /> {preview ? "Editar" : "Preview"}
-                  </Button>
+                <div className="space-y-2">
+                  <Label>Remetente</Label>
+                  <div className="flex flex-col gap-2">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input type="radio" name="remetente" value="sistema" checked={remetente === "sistema"}
+                        onChange={e => setRemetente(e.target.value)} className="text-blue-600" />
+                      <span className="text-sm">Sistema (<code className="bg-slate-100 dark:bg-slate-700 px-1 rounded text-xs">SMTP padrão</code>)</span>
+                    </label>
+                    <label className={`flex items-center gap-2 cursor-pointer ${!userEmailConfig ? "opacity-50" : ""}`}>
+                      <input type="radio" name="remetente" value="usuario" checked={remetente === "usuario"}
+                        onChange={e => setRemetente(e.target.value)} className="text-blue-600"
+                        disabled={!userEmailConfig} />
+                      <span className="text-sm">
+                        {userEmailConfig ? `Meu Email (${userEmailConfig.email})` : "Meu Email"}
+                      </span>
+                    </label>
+                  </div>
+                  {!userEmailConfig && (
+                    <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
+                      Nenhuma configuração encontrada. Vá em Meu Perfil.
+                    </p>
+                  )}
                 </div>
               </div>
 
-              {!preview ? (
-                <div className="border rounded-lg border-slate-300 dark:border-slate-600 overflow-hidden">
-                  <div className="flex flex-wrap items-center gap-0.5 p-1.5 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-                    {/* Headings */}
-                    <div className="flex items-center gap-0.5 px-1 border-r border-slate-200 dark:border-slate-700">
-                      {HEADING_OPTIONS.map(opt => (
-                        <button key={opt.val} type="button" onClick={() => insertHeading(opt.val)}
-                          className="px-2 py-1 text-xs rounded hover:bg-slate-200 dark:hover:bg-slate-700 font-medium"
-                          title={opt.label}>
-                          {opt.label === "Parágrafo" ? "P" : opt.label.split(" ")[1]}
+              {/* Coluna do Editor do Conteúdo do Email */}
+              <div className="space-y-4 lg:col-span-2 flex flex-col justify-between">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label>Conteúdo do Email</Label>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" onClick={abrirNovoModelo} className="gap-1">
+                        <FileText size={14} /> Salvar como Modelo
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => setPreview(!preview)} className="gap-1">
+                        <Eye size={14} /> {preview ? "Editar" : "Preview"}
+                      </Button>
+                    </div>
+                  </div>
+
+                  {!preview ? (
+                    <div className="border rounded-lg border-slate-300 dark:border-slate-600 overflow-hidden bg-white dark:bg-slate-700">
+                      <div className="flex flex-wrap items-center gap-0.5 p-1.5 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+                        {/* Headings */}
+                        <div className="flex items-center gap-0.5 px-1 border-r border-slate-200 dark:border-slate-700">
+                          {HEADING_OPTIONS.map(opt => (
+                            <button key={opt.val} type="button" onClick={() => insertHeading(opt.val)}
+                              className="px-2 py-1 text-xs rounded hover:bg-slate-200 dark:hover:bg-slate-700 font-medium"
+                              title={opt.label}>
+                              {opt.label === "Parágrafo" ? "P" : opt.label.split(" ")[1]}
+                            </button>
+                          ))}
+                        </div>
+
+                        {/* Text formatting */}
+                        <div className="flex items-center gap-0.5 px-1 border-r border-slate-200 dark:border-slate-700">
+                          <button type="button" onClick={() => exec("bold")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Negrito"><Bold size={15} /></button>
+                          <button type="button" onClick={() => exec("italic")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Itálico"><Italic size={15} /></button>
+                          <button type="button" onClick={() => exec("underline")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Sublinhado"><Underline size={15} /></button>
+                          <button type="button" onClick={() => exec("strikeThrough")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Tachado"><Strikethrough size={15} /></button>
+                        </div>
+
+                        {/* Alignment */}
+                        <div className="flex items-center gap-0.5 px-1 border-r border-slate-200 dark:border-slate-700">
+                          <button type="button" onClick={() => exec("justifyLeft")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Alinhar Esquerda"><AlignLeft size={15} /></button>
+                          <button type="button" onClick={() => exec("justifyCenter")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Centralizar"><AlignCenter size={15} /></button>
+                          <button type="button" onClick={() => exec("justifyRight")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Alinhar Direita"><AlignRight size={15} /></button>
+                        </div>
+
+                        {/* Lists */}
+                        <div className="flex items-center gap-0.5 px-1 border-r border-slate-200 dark:border-slate-700">
+                          <button type="button" onClick={() => exec("insertUnorderedList")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Lista Marcadores"><List size={15} /></button>
+                          <button type="button" onClick={() => exec("insertOrderedList")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Lista Numerada"><ListOrdered size={15} /></button>
+                        </div>
+
+                        {/* Font */}
+                        <div className="flex items-center gap-0.5 px-1 border-r border-slate-200 dark:border-slate-700">
+                          <select onChange={e => exec("fontName", e.target.value)} className="text-xs p-1 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 w-28"
+                            title="Fonte">
+                            {FONT_FAMILIES.map(f => (
+                              <option key={f} value={f} style={{ fontFamily: f }}>{f}</option>
+                            ))}
+                          </select>
+                          <select onChange={e => exec("fontSize", e.target.value)} className="text-xs p-1 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 w-20"
+                            title="Tamanho">
+                            {FONT_SIZES.map(s => (
+                              <option key={s.value} value={s.value}>{s.label}</option>
+                            ))}
+                          </select>
+                        </div>
+
+                        {/* Color */}
+                        <div className="flex items-center gap-0.5 px-1 border-r border-slate-200 dark:border-slate-700">
+                          <button type="button" onClick={() => openColorPicker("fore")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Cor do Texto">
+                            <Palette size={15} />
+                          </button>
+                          <button type="button" onClick={() => openColorPicker("back")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700 relative" title="Cor de Fundo">
+                            <div className="relative">
+                              <Type size={15} />
+                              <span className="absolute -bottom-0.5 left-0 right-0 h-1 bg-yellow-400 rounded" />
+                            </div>
+                          </button>
+                        </div>
+
+                        {/* Insert */}
+                        <div className="flex items-center gap-0.5 px-1">
+                          <button type="button" onClick={insertLinkHandler} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Inserir Link"><Link size={15} /></button>
+                          <button type="button" onClick={insertImageHandler} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Inserir Imagem"><ImageIcon size={15} /></button>
+                        </div>
+                      </div>
+
+                      <div
+                        ref={editorRef}
+                        contentEditable
+                        suppressContentEditableWarning
+                        className="w-full min-h-[350px] p-4 bg-white dark:bg-slate-700 text-slate-950 dark:text-white focus:outline-none overflow-y-auto"
+                        style={{ fontFamily: "Arial, sans-serif", lineHeight: "1.6" }}
+                        data-placeholder="Escreva o conteúdo do email aqui..."
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-full min-h-[350px] p-4 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 overflow-y-auto">
+                      <div className="bg-white text-black" style={{ fontFamily: "Arial, sans-serif", lineHeight: "1.6" }}>
+                        <div dangerouslySetInnerHTML={{ __html: getContentHtml() }} />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-4 border-t border-slate-100 dark:border-slate-800">
+                  {modelos.length > 0 && (
+                    <div className="flex items-center gap-1 flex-wrap max-w-md">
+                      <span className="text-xs text-slate-400 mr-1">Modelos:</span>
+                      {modelos.slice(0, 3).map(m => (
+                        <button key={m.id} type="button" onClick={() => usarModelo(m)}
+                          className="text-xs px-2 py-1 rounded bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 hover:bg-blue-100 border border-blue-200 dark:border-blue-800">
+                          {m.nome}
                         </button>
                       ))}
                     </div>
-
-                    {/* Text formatting */}
-                    <div className="flex items-center gap-0.5 px-1 border-r border-slate-200 dark:border-slate-700">
-                      <button type="button" onClick={() => exec("bold")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Negrito"><Bold size={15} /></button>
-                      <button type="button" onClick={() => exec("italic")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Itálico"><Italic size={15} /></button>
-                      <button type="button" onClick={() => exec("underline")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Sublinhado"><Underline size={15} /></button>
-                      <button type="button" onClick={() => exec("strikeThrough")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Tachado"><Strikethrough size={15} /></button>
-                    </div>
-
-                    {/* Alignment */}
-                    <div className="flex items-center gap-0.5 px-1 border-r border-slate-200 dark:border-slate-700">
-                      <button type="button" onClick={() => exec("justifyLeft")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Alinhar Esquerda"><AlignLeft size={15} /></button>
-                      <button type="button" onClick={() => exec("justifyCenter")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Centralizar"><AlignCenter size={15} /></button>
-                      <button type="button" onClick={() => exec("justifyRight")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Alinhar Direita"><AlignRight size={15} /></button>
-                    </div>
-
-                    {/* Lists */}
-                    <div className="flex items-center gap-0.5 px-1 border-r border-slate-200 dark:border-slate-700">
-                      <button type="button" onClick={() => exec("insertUnorderedList")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Lista Marcadores"><List size={15} /></button>
-                      <button type="button" onClick={() => exec("insertOrderedList")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Lista Numerada"><ListOrdered size={15} /></button>
-                    </div>
-
-                    {/* Font */}
-                    <div className="flex items-center gap-0.5 px-1 border-r border-slate-200 dark:border-slate-700">
-                      <select onChange={e => exec("fontName", e.target.value)} className="text-xs p-1 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 w-28"
-                        title="Fonte">
-                        {FONT_FAMILIES.map(f => (
-                          <option key={f} value={f} style={{ fontFamily: f }}>{f}</option>
-                        ))}
-                      </select>
-                      <select onChange={e => exec("fontSize", e.target.value)} className="text-xs p-1 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 w-20"
-                        title="Tamanho">
-                        {FONT_SIZES.map(s => (
-                          <option key={s.value} value={s.value}>{s.label}</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* Color */}
-                    <div className="flex items-center gap-0.5 px-1 border-r border-slate-200 dark:border-slate-700">
-                      <button type="button" onClick={() => openColorPicker("fore")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Cor do Texto">
-                        <Palette size={15} />
-                      </button>
-                      <button type="button" onClick={() => openColorPicker("back")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700 relative" title="Cor de Fundo">
-                        <div className="relative">
-                          <Type size={15} />
-                          <span className="absolute -bottom-0.5 left-0 right-0 h-1 bg-yellow-400 rounded" />
-                        </div>
-                      </button>
-                    </div>
-
-                    {/* Insert */}
-                    <div className="flex items-center gap-0.5 px-1">
-                      <button type="button" onClick={insertLinkHandler} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Inserir Link"><Link size={15} /></button>
-                      <button type="button" onClick={insertImageHandler} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Inserir Imagem"><ImageIcon size={15} /></button>
-                    </div>
-                  </div>
-
-                  <div
-                    ref={editorRef}
-                    contentEditable
-                    suppressContentEditableWarning
-                    className="w-full min-h-[280px] p-4 bg-white dark:bg-slate-700 focus:outline-none overflow-y-auto"
-                    style={{ fontFamily: "Arial, sans-serif", lineHeight: "1.6" }}
-                    data-placeholder="Escreva o conteúdo do email aqui..."
-                  />
+                  )}
+                  <Button onClick={handleSend} disabled={sending} className="gap-2 ml-auto">
+                    {sending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+                    {sending ? "Enviando..." : "Enviar Email em Massa"}
+                  </Button>
                 </div>
-              ) : (
-                <div className="w-full min-h-[280px] p-4 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 overflow-y-auto">
-                  <div className="bg-white text-black" style={{ fontFamily: "Arial, sans-serif", lineHeight: "1.6" }}>
-                    <div dangerouslySetInnerHTML={{ __html: getContentHtml() }} />
-                  </div>
-                </div>
-              )}
-            </div>
+              </div>
 
-            <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-              {modelos.length > 0 && (
-                <div className="flex items-center gap-1 flex-wrap">
-                  <span className="text-xs text-slate-400 mr-1">Modelos:</span>
-                  {modelos.map(m => (
-                    <button key={m.id} type="button" onClick={() => usarModelo(m)}
-                      className="text-xs px-2 py-1 rounded bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/50 border border-blue-200 dark:border-blue-800 whitespace-nowrap">
-                      <Copy size={10} className="inline mr-0.5" />{m.nome}
-                    </button>
-                  ))}
-                </div>
-              )}
-              <Button onClick={handleSend} disabled={sending} className="gap-2 ml-auto">
-                {sending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
-                {sending ? "Enviando..." : "Enviar Email em Massa"}
-              </Button>
-            </div>
             </div>
           </div>
         </TabsContent>
