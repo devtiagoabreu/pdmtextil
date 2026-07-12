@@ -307,15 +307,8 @@ export default function EmailMassaPage() {
   }, [])
 
   const insertLinkHandler = useCallback(() => {
-    const sel = window.getSelection()
-    const text = sel?.toString() || ""
-    if (text) {
-      setLinkUrl("https://")
-      setLinkDialogOpen(true)
-    } else {
-      setLinkUrl("https://")
-      setLinkDialogOpen(true)
-    }
+    setLinkUrl("https://")
+    setLinkDialogOpen(true)
   }, [])
 
   const confirmLink = useCallback(() => {
@@ -617,7 +610,7 @@ export default function EmailMassaPage() {
   ) || []
 
   return (
-    <div className="w-full space-y-6 p-6">
+    <div className="w-full flex flex-col space-y-6 p-6">
       <div>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
           Email em Massa{info && <InfoButton content={info} />}
@@ -625,7 +618,7 @@ export default function EmailMassaPage() {
         <p className="text-sm text-slate-500 mt-1">Envie emails, gerencie modelos e listas, acompanhe o histórico</p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full space-y-6">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full flex flex-col space-y-6">
         <TabsList className="w-full flex justify-start border-b rounded-none bg-transparent h-auto p-0 space-x-6">
           <TabsTrigger value="enviar" className="rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent pb-2">Enviar Email</TabsTrigger>
           <TabsTrigger value="modelos" className="rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent pb-2">Modelos</TabsTrigger>
@@ -636,12 +629,14 @@ export default function EmailMassaPage() {
 
         {/* ────────── TAB ENVIAR ────────── */}
         <TabsContent value="enviar" className="w-full m-0 border-0 p-0 shadow-none">
-          <div className="w-full rounded-xl border bg-card p-6 text-card-foreground shadow">
-            <div className="space-y-6">
+          <div className="w-full rounded-xl border bg-card text-card-foreground shadow flex flex-col">
+            <div className="p-6 flex flex-col space-y-8">
 
               {/* ── Configurações de Envio ── */}
-              <div className="space-y-4">
-                <div className="space-y-2">
+              <section className="flex flex-col space-y-4">
+                <h2 className="text-base font-semibold text-slate-800 dark:text-slate-200">Configurações de Envio</h2>
+
+                <div className="flex flex-col space-y-2">
                   <Label>Enviar para</Label>
                   <select value={para} onChange={e => setPara(e.target.value)}
                     className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600">
@@ -652,13 +647,13 @@ export default function EmailMassaPage() {
                   </select>
                 </div>
 
-                <div className="space-y-2">
+                <div className="flex flex-col space-y-2">
                   <Label>Assunto</Label>
                   <Input value={assunto} onChange={e => setAssunto(e.target.value)} placeholder="Assunto do email" />
                 </div>
 
                 {para === "lista" && (
-                  <div className="space-y-2">
+                  <div className="flex flex-col space-y-2">
                     <Label>Selecionar Listas</Label>
                     <div className="border rounded-lg border-slate-200 dark:border-slate-700 max-h-48 overflow-y-auto p-2 space-y-1">
                       {listas.length === 0 ? (
@@ -676,28 +671,7 @@ export default function EmailMassaPage() {
                   </div>
                 )}
 
-                <div className="space-y-2">
-                  <Label>Modo de Envio</Label>
-                  <div className="flex flex-col gap-2">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input type="radio" name="modo_envio" value="bcc" checked={modoEnvio === "bcc"}
-                        onChange={e => setModoEnvio(e.target.value)} className="text-blue-600" />
-                      <span className="text-sm">Cópia Oculta (BCC)</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input type="radio" name="modo_envio" value="to" checked={modoEnvio === "to"}
-                        onChange={e => setModoEnvio(e.target.value)} className="text-blue-600" />
-                      <span className="text-sm">Para (TO)</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input type="radio" name="modo_envio" value="individual" checked={modoEnvio === "individual"}
-                        onChange={e => setModoEnvio(e.target.value)} className="text-blue-600" />
-                      <span className="text-sm">Individual (<code className="bg-slate-100 dark:bg-slate-700 px-1 rounded text-xs">[NOME]</code>)</span>
-                    </label>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
+                <div className="flex flex-col space-y-2">
                   <Label>Remetente</Label>
                   <div className="flex flex-col gap-2">
                     <label className="flex items-center gap-2 cursor-pointer">
@@ -720,12 +694,35 @@ export default function EmailMassaPage() {
                     </p>
                   )}
                 </div>
-              </div>
+
+                <div className="flex flex-col space-y-2">
+                  <Label>Modo de Envio</Label>
+                  <div className="flex flex-col gap-2">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input type="radio" name="modo_envio" value="bcc" checked={modoEnvio === "bcc"}
+                        onChange={e => setModoEnvio(e.target.value)} className="text-blue-600" />
+                      <span className="text-sm">Cópia Oculta (BCC)</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input type="radio" name="modo_envio" value="to" checked={modoEnvio === "to"}
+                        onChange={e => setModoEnvio(e.target.value)} className="text-blue-600" />
+                      <span className="text-sm">Para (TO)</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input type="radio" name="modo_envio" value="individual" checked={modoEnvio === "individual"}
+                        onChange={e => setModoEnvio(e.target.value)} className="text-blue-600" />
+                      <span className="text-sm">Individual (<code className="bg-slate-100 dark:bg-slate-700 px-1 rounded text-xs">[NOME]</code>)</span>
+                    </label>
+                  </div>
+                </div>
+              </section>
+
+              <Separator />
 
               {/* ── Editor de Conteúdo ── */}
-              <div className="space-y-2">
+              <section className="flex flex-col space-y-3">
                 <div className="flex items-center justify-between">
-                  <Label>Conteúdo do Email</Label>
+                  <h2 className="text-base font-semibold text-slate-800 dark:text-slate-200">Conteúdo do Email</h2>
                   <div className="flex gap-2">
                     <Button variant="outline" size="sm" onClick={abrirNovoModelo} className="gap-1">
                       <FileText size={14} /> Salvar como Modelo
@@ -737,7 +734,7 @@ export default function EmailMassaPage() {
                 </div>
 
                 {!preview ? (
-                  <div className="border rounded-lg border-slate-300 dark:border-slate-600 overflow-hidden bg-white dark:bg-slate-700">
+                  <div className="w-full border rounded-lg border-slate-300 dark:border-slate-600 overflow-hidden bg-white dark:bg-slate-700">
                     <div className="flex flex-wrap items-center gap-0.5 p-1.5 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
                       {/* Headings */}
                       <div className="flex items-center gap-0.5 px-1 border-r border-slate-200 dark:border-slate-700">
@@ -811,19 +808,19 @@ export default function EmailMassaPage() {
                       ref={editorRef}
                       contentEditable
                       suppressContentEditableWarning
-                      className="w-full min-h-[450px] p-4 bg-white dark:bg-slate-700 text-slate-950 dark:text-white focus:outline-none overflow-y-auto"
-                      style={{ fontFamily: "Arial, sans-serif", lineHeight: "1.6" }}
+                      className="w-full min-h-[600px] p-6 bg-white dark:bg-slate-700 text-slate-950 dark:text-white focus:outline-none overflow-y-auto"
+                      style={{ fontFamily: "Arial, sans-serif", lineHeight: "1.8", fontSize: "15px" }}
                       data-placeholder="Escreva o conteúdo do email aqui..."
                     />
                   </div>
                 ) : (
-                  <div className="w-full min-h-[450px] p-4 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 overflow-y-auto">
-                    <div className="bg-white text-black" style={{ fontFamily: "Arial, sans-serif", lineHeight: "1.6" }}>
+                  <div className="w-full min-h-[600px] p-6 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 overflow-y-auto">
+                    <div className="bg-white text-black" style={{ fontFamily: "Arial, sans-serif", lineHeight: "1.8", fontSize: "15px" }}>
                       <div dangerouslySetInnerHTML={{ __html: getContentHtml() }} />
                     </div>
                   </div>
                 )}
-              </div>
+              </section>
 
               {/* ── Botão Enviar ── */}
               <div className="flex flex-wrap items-center justify-between gap-2 pt-4 border-t border-slate-100 dark:border-slate-800">
@@ -850,134 +847,138 @@ export default function EmailMassaPage() {
 
         {/* ────────── TAB MODELOS ────────── */}
         <TabsContent value="modelos" className="w-full m-0 border-0 p-0 shadow-none">
-          <div className="w-full rounded-xl border bg-card p-6 text-card-foreground shadow">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold">Modelos de Email</h2>
-              <Button onClick={abrirNovoModelo} className="gap-1"><Plus size={14} /> Novo Modelo</Button>
-            </div>
-
-            {modelos.length === 0 ? (
-              <p className="text-sm text-slate-400 py-8 text-center">Nenhum modelo cadastrado. Clique em &ldquo;Novo Modelo&rdquo; para criar.</p>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-slate-200 dark:border-slate-700">
-                      <th className="text-left font-medium p-2">Nome</th>
-                      <th className="text-left font-medium p-2">Assunto</th>
-                      <th className="text-right font-medium p-2 w-52">Ações</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {modelos.map(m => (
-                      <tr key={m.id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                        <td className="p-2 font-medium">{m.nome}</td>
-                        <td className="p-2 text-slate-500 truncate max-w-xs">{m.assunto}</td>
-                        <td className="p-2 text-right whitespace-nowrap">
-                          <div className="flex gap-1 justify-end">
-                            <Button variant="outline" size="xs" onClick={() => usarModelo(m)} className="gap-1">
-                              <Copy size={12} /> Usar
-                            </Button>
-                            <Button variant="ghost" size="xs" onClick={() => abrirEditarModelo(m)} className="gap-1">
-                              <Pencil size={12} />
-                            </Button>
-                            <Button variant="ghost" size="xs" onClick={() => setViewModelo(m)} className="gap-1">
-                              <Eye size={12} />
-                            </Button>
-                            <Button variant="ghost" size="xs" onClick={() => deletarModelo(m.id)} className="gap-1 text-red-500 hover:text-red-700">
-                              <Trash2 size={12} />
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+          <div className="w-full rounded-xl border bg-card text-card-foreground shadow">
+            <div className="p-6 flex flex-col space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold">Modelos de Email</h2>
+                <Button onClick={abrirNovoModelo} className="gap-1"><Plus size={14} /> Novo Modelo</Button>
               </div>
-            )}
+
+              {modelos.length === 0 ? (
+                <p className="text-sm text-slate-400 py-8 text-center">Nenhum modelo cadastrado. Clique em &ldquo;Novo Modelo&rdquo; para criar.</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-slate-200 dark:border-slate-700">
+                        <th className="text-left font-medium p-2">Nome</th>
+                        <th className="text-left font-medium p-2">Assunto</th>
+                        <th className="text-right font-medium p-2 w-52">Ações</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {modelos.map(m => (
+                        <tr key={m.id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                          <td className="p-2 font-medium">{m.nome}</td>
+                          <td className="p-2 text-slate-500 truncate max-w-xs">{m.assunto}</td>
+                          <td className="p-2 text-right whitespace-nowrap">
+                            <div className="flex gap-1 justify-end">
+                              <Button variant="outline" size="xs" onClick={() => usarModelo(m)} className="gap-1">
+                                <Copy size={12} /> Usar
+                              </Button>
+                              <Button variant="ghost" size="xs" onClick={() => abrirEditarModelo(m)} className="gap-1">
+                                <Pencil size={12} />
+                              </Button>
+                              <Button variant="ghost" size="xs" onClick={() => setViewModelo(m)} className="gap-1">
+                                <Eye size={12} />
+                              </Button>
+                              <Button variant="ghost" size="xs" onClick={() => deletarModelo(m.id)} className="gap-1 text-red-500 hover:text-red-700">
+                                <Trash2 size={12} />
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           </div>
         </TabsContent>
 
         {/* ────────── TAB LISTAS ────────── */}
         <TabsContent value="listas" className="w-full m-0 border-0 p-0 shadow-none">
-          <div className="w-full rounded-xl border bg-card p-6 text-card-foreground shadow">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold">Listas de Destinatários</h2>
-              <div className="flex gap-2">
-                {listas.length > 0 && (
-                  <>
-                    <div className="flex items-center gap-1">
-                      <select
-                        value={selectedListaImportId || ""}
-                        onChange={e => {
-                          const id = Number(e.target.value)
-                          const l = listas.find(x => x.id === id)
-                          setSelectedListaImportId(id)
-                          setSelectedListaImportNome(l?.nome || "")
-                        }}
-                        className="text-sm p-1.5 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
-                      >
-                        <option value="">Selecionar lista...</option>
-                        {listas.map(l => (
-                          <option key={l.id} value={l.id}>{l.nome}</option>
-                        ))}
-                      </select>
-                      {selectedListaImportId ? (
-                        <ImportarContatosEmail
-                          listaId={selectedListaImportId}
-                          listaNome={selectedListaImportNome}
-                          onImportado={() => { carregarListas(); setSelectedListaImportId(0) }}
-                        />
-                      ) : (
-                        <Button variant="outline" size="sm" disabled className="gap-1 opacity-50">
-                          <Upload size={14} /> Importar
-                        </Button>
-                      )}
-                    </div>
-                    <Button variant="outline" size="sm" onClick={() => setShowApiImport(true)} className="gap-1">
-                      <Database size={14} /> Importar via API
-                    </Button>
-                  </>
-                )}
-                <Button onClick={abrirNovaLista} className="gap-1"><Plus size={14} /> Nova Lista</Button>
+          <div className="w-full rounded-xl border bg-card text-card-foreground shadow">
+            <div className="p-6 flex flex-col space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold">Listas de Destinatários</h2>
+                <div className="flex gap-2">
+                  {listas.length > 0 && (
+                    <>
+                      <div className="flex items-center gap-1">
+                        <select
+                          value={selectedListaImportId || ""}
+                          onChange={e => {
+                            const id = Number(e.target.value)
+                            const l = listas.find(x => x.id === id)
+                            setSelectedListaImportId(id)
+                            setSelectedListaImportNome(l?.nome || "")
+                          }}
+                          className="text-sm p-1.5 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
+                        >
+                          <option value="">Selecionar lista...</option>
+                          {listas.map(l => (
+                            <option key={l.id} value={l.id}>{l.nome}</option>
+                          ))}
+                        </select>
+                        {selectedListaImportId ? (
+                          <ImportarContatosEmail
+                            listaId={selectedListaImportId}
+                            listaNome={selectedListaImportNome}
+                            onImportado={() => { carregarListas(); setSelectedListaImportId(0) }}
+                          />
+                        ) : (
+                          <Button variant="outline" size="sm" disabled className="gap-1 opacity-50">
+                            <Upload size={14} /> Importar
+                          </Button>
+                        )}
+                      </div>
+                      <Button variant="outline" size="sm" onClick={() => setShowApiImport(true)} className="gap-1">
+                        <Database size={14} /> Importar via API
+                      </Button>
+                    </>
+                  )}
+                  <Button onClick={abrirNovaLista} className="gap-1"><Plus size={14} /> Nova Lista</Button>
+                </div>
               </div>
-            </div>
 
-            {loadingListas ? (
-              <p className="text-sm text-slate-400 py-8 text-center">Carregando...</p>
-            ) : listas.length === 0 ? (
-              <p className="text-sm text-slate-400 py-8 text-center">Nenhuma lista cadastrada. Clique em &ldquo;Nova Lista&rdquo; para criar.</p>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-slate-200 dark:border-slate-700">
-                      <th className="text-left font-medium p-2">Nome</th>
-                      <th className="text-left font-medium p-2">Descrição</th>
-                      <th className="text-center font-medium p-2 w-24">Contatos</th>
-                      <th className="text-right font-medium p-2 w-64">Ações</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {listas.map(l => (
-                      <tr key={l.id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                        <td className="p-2 font-medium">{l.nome}</td>
-                        <td className="p-2 text-slate-500 truncate max-w-xs">{l.descricao || "—"}</td>
-                        <td className="p-2 text-center"><span className="text-xs bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded-full">{l.totalContatos}</span></td>
-                        <td className="p-2 text-right whitespace-nowrap">
-                          <div className="flex gap-1 justify-end items-center">
-                            <ImportarContatosEmail listaId={l.id} listaNome={l.nome} onImportado={carregarListas} />
-                            <Button variant="ghost" size="xs" onClick={() => abrirEditarLista(l)} className="gap-1"><Pencil size={12} /></Button>
-                            <Button variant="ghost" size="xs" onClick={() => abrirVerLista(l)} className="gap-1"><Eye size={12} /></Button>
-                            <Button variant="ghost" size="xs" onClick={() => deletarLista(l.id)} className="gap-1 text-red-500 hover:text-red-700"><Trash2 size={12} /></Button>
-                          </div>
-                        </td>
+              {loadingListas ? (
+                <p className="text-sm text-slate-400 py-8 text-center">Carregando...</p>
+              ) : listas.length === 0 ? (
+                <p className="text-sm text-slate-400 py-8 text-center">Nenhuma lista cadastrada. Clique em &ldquo;Nova Lista&rdquo; para criar.</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-slate-200 dark:border-slate-700">
+                        <th className="text-left font-medium p-2">Nome</th>
+                        <th className="text-left font-medium p-2">Descrição</th>
+                        <th className="text-center font-medium p-2 w-24">Contatos</th>
+                        <th className="text-right font-medium p-2 w-64">Ações</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                    </thead>
+                    <tbody>
+                      {listas.map(l => (
+                        <tr key={l.id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                          <td className="p-2 font-medium">{l.nome}</td>
+                          <td className="p-2 text-slate-500 truncate max-w-xs">{l.descricao || "—"}</td>
+                          <td className="p-2 text-center"><span className="text-xs bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded-full">{l.totalContatos}</span></td>
+                          <td className="p-2 text-right whitespace-nowrap">
+                            <div className="flex gap-1 justify-end items-center">
+                              <ImportarContatosEmail listaId={l.id} listaNome={l.nome} onImportado={carregarListas} />
+                              <Button variant="ghost" size="xs" onClick={() => abrirEditarLista(l)} className="gap-1"><Pencil size={12} /></Button>
+                              <Button variant="ghost" size="xs" onClick={() => abrirVerLista(l)} className="gap-1"><Eye size={12} /></Button>
+                              <Button variant="ghost" size="xs" onClick={() => deletarLista(l.id)} className="gap-1 text-red-500 hover:text-red-700"><Trash2 size={12} /></Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           </div>
 
           {showApiImport && (
@@ -994,137 +995,139 @@ export default function EmailMassaPage() {
 
         {/* ────────── TAB DASHBOARD ────────── */}
         <TabsContent value="dashboard" className="w-full m-0 border-0 p-0 shadow-none">
-          <div className="w-full rounded-xl border bg-card p-6 text-card-foreground shadow">
+          <div className="w-full rounded-xl border bg-card text-card-foreground shadow p-6">
             <DashboardRelatorio />
           </div>
         </TabsContent>
 
         {/* ────────── TAB HISTÓRICO ────────── */}
         <TabsContent value="historico" className="w-full m-0 border-0 p-0 shadow-none">
-          <div className="w-full rounded-xl border bg-card p-6 text-card-foreground shadow">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold">Histórico de Envios</h2>
-              <div className="flex gap-2">
-                {historico && (
-                  <Button variant="outline" size="sm" onClick={() => {
-                    exportPDFRelatorio({
-                      title: "Relatório de Email em Massa",
-                      period: `Exportado em ${new Date().toLocaleString("pt-BR")}`,
-                      stats: {
-                        Total: historico.stats.total,
-                        Enviados: historico.stats.enviados,
-                        Lidos: historico.stats.lidos,
-                        Cliques: historico.stats.totalCliques,
-                        Falhas: historico.stats.falhas,
-                      },
-                      tables: [{
-                        headers: ["Status", "Email", "Nome", "Assunto", "Cliques", "Enviado em", "Aberto em"],
-                        rows: filteredEnvios.map(e => [
-                          e.abertoEm ? "Lido" : e.status === "enviado" ? "Enviado" : "Falhou",
-                          e.email,
-                          e.nome || "-",
-                          e.assunto,
-                          e.totalCliques || 0,
-                          formatDate(e.createdAt),
-                          formatDate(e.abertoEm),
-                        ]),
-                      }],
-                      filename: `relatorio-email-massa-${new Date().toISOString().split("T")[0]}`,
-                      orientation: "landscape",
-                    })
-                  }} className="gap-1">
-                    <FileText size={14} /> Relatório PDF
+          <div className="w-full rounded-xl border bg-card text-card-foreground shadow">
+            <div className="p-6 flex flex-col space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold">Histórico de Envios</h2>
+                <div className="flex gap-2">
+                  {historico && (
+                    <Button variant="outline" size="sm" onClick={() => {
+                      exportPDFRelatorio({
+                        title: "Relatório de Email em Massa",
+                        period: `Exportado em ${new Date().toLocaleString("pt-BR")}`,
+                        stats: {
+                          Total: historico.stats.total,
+                          Enviados: historico.stats.enviados,
+                          Lidos: historico.stats.lidos,
+                          Cliques: historico.stats.totalCliques,
+                          Falhas: historico.stats.falhas,
+                        },
+                        tables: [{
+                          headers: ["Status", "Email", "Nome", "Assunto", "Cliques", "Enviado em", "Aberto em"],
+                          rows: filteredEnvios.map(e => [
+                            e.abertoEm ? "Lido" : e.status === "enviado" ? "Enviado" : "Falhou",
+                            e.email,
+                            e.nome || "-",
+                            e.assunto,
+                            e.totalCliques || 0,
+                            formatDate(e.createdAt),
+                            formatDate(e.abertoEm),
+                          ]),
+                        }],
+                        filename: `relatorio-email-massa-${new Date().toISOString().split("T")[0]}`,
+                        orientation: "landscape",
+                      })
+                    }} className="gap-1">
+                      <FileText size={14} /> Relatório PDF
+                    </Button>
+                  )}
+                  <Button variant="outline" size="sm" onClick={carregarHistorico} className="gap-1">
+                    <RefreshCw size={14} /> Atualizar
                   </Button>
-                )}
-                <Button variant="outline" size="sm" onClick={carregarHistorico} className="gap-1">
-                  <RefreshCw size={14} /> Atualizar
-                </Button>
+                </div>
               </div>
-            </div>
 
-            {loadingHistorico ? (
-              <p className="text-sm text-slate-400 py-8 text-center">Carregando...</p>
-            ) : historico ? (
-              <>
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
-                  <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
-                    <p className="text-xs text-slate-400 uppercase tracking-wide">Total</p>
-                    <p className="text-2xl font-bold mt-1">{historico.stats.total}</p>
+              {loadingHistorico ? (
+                <p className="text-sm text-slate-400 py-8 text-center">Carregando...</p>
+              ) : historico ? (
+                <div className="flex flex-col space-y-4">
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                    <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
+                      <p className="text-xs text-slate-400 uppercase tracking-wide">Total</p>
+                      <p className="text-2xl font-bold mt-1">{historico.stats.total}</p>
+                    </div>
+                    <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
+                      <p className="text-xs text-blue-500 uppercase tracking-wide">Enviados</p>
+                      <p className="text-2xl font-bold mt-1 text-blue-700 dark:text-blue-300">{historico.stats.enviados}</p>
+                    </div>
+                    <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 border border-green-200 dark:border-green-800">
+                      <p className="text-xs text-green-500 uppercase tracking-wide">Lidos</p>
+                      <p className="text-2xl font-bold mt-1 text-green-700 dark:text-green-300">{historico.stats.lidos}</p>
+                    </div>
+                    <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4 border border-purple-200 dark:border-purple-800">
+                      <p className="text-xs text-purple-500 uppercase tracking-wide">Cliques</p>
+                      <p className="text-2xl font-bold mt-1 text-purple-700 dark:text-purple-300">{historico.stats.totalCliques}</p>
+                    </div>
+                    <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4 border border-red-200 dark:border-red-800">
+                      <p className="text-xs text-red-500 uppercase tracking-wide">Falhas</p>
+                      <p className="text-2xl font-bold mt-1 text-red-700 dark:text-red-300">{historico.stats.falhas}</p>
+                    </div>
                   </div>
-                  <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
-                    <p className="text-xs text-blue-500 uppercase tracking-wide">Enviados</p>
-                    <p className="text-2xl font-bold mt-1 text-blue-700 dark:text-blue-300">{historico.stats.enviados}</p>
-                  </div>
-                  <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 border border-green-200 dark:border-green-800">
-                    <p className="text-xs text-green-500 uppercase tracking-wide">Lidos</p>
-                    <p className="text-2xl font-bold mt-1 text-green-700 dark:text-green-300">{historico.stats.lidos}</p>
-                  </div>
-                  <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4 border border-purple-200 dark:border-purple-800">
-                    <p className="text-xs text-purple-500 uppercase tracking-wide">Cliques</p>
-                    <p className="text-2xl font-bold mt-1 text-purple-700 dark:text-purple-300">{historico.stats.totalCliques}</p>
-                  </div>
-                  <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4 border border-red-200 dark:border-red-800">
-                    <p className="text-xs text-red-500 uppercase tracking-wide">Falhas</p>
-                    <p className="text-2xl font-bold mt-1 text-red-700 dark:text-red-300">{historico.stats.falhas}</p>
-                  </div>
-                </div>
 
-                <div className="relative mb-4">
-                  <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                  <Input
-                    value={historicoSearch}
-                    onChange={e => setHistoricoSearch(e.target.value)}
-                    placeholder="Buscar por email, nome ou assunto..."
-                    className="pl-9"
-                  />
-                </div>
+                  <div className="relative">
+                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <Input
+                      value={historicoSearch}
+                      onChange={e => setHistoricoSearch(e.target.value)}
+                      placeholder="Buscar por email, nome ou assunto..."
+                      className="pl-9"
+                    />
+                  </div>
 
-                {filteredEnvios.length === 0 ? (
-                  <p className="text-sm text-slate-400 py-8 text-center">
-                    {historicoSearch ? "Nenhum envio encontrado para esta busca." : "Nenhum envio registrado ainda."}
-                  </p>
-                ) : (
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                      <thead>
-                        <tr className="border-b border-slate-200 dark:border-slate-700">
-                          <th className="text-left font-medium p-2">Status</th>
-                          <th className="text-left font-medium p-2">Email</th>
-                          <th className="text-left font-medium p-2">Nome</th>
-                          <th className="text-left font-medium p-2">Assunto</th>
-                          <th className="text-center font-medium p-2 w-20">Cliques</th>
-                          <th className="text-left font-medium p-2">Enviado em</th>
-                          <th className="text-left font-medium p-2">Aberto em</th>
-                          <th className="text-left font-medium p-2">Erro</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {filteredEnvios.map(e => (
-                          <tr key={e.id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                            <td className="p-2">
-                              <StatusBadge status={e.status} abertoEm={e.abertoEm} />
-                            </td>
-                            <td className="p-2 text-slate-600 dark:text-slate-300">{e.email}</td>
-                            <td className="p-2">{e.nome || "—"}</td>
-                            <td className="p-2 text-slate-500 truncate max-w-[160px]">{e.assunto}</td>
-                            <td className="p-2 text-center">
-                              <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${e.totalCliques > 0 ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400" : "bg-slate-100 text-slate-400 dark:bg-slate-800"}`}>
-                                {e.totalCliques || 0}
-                              </span>
-                            </td>
-                            <td className="p-2 text-slate-500 text-xs">{formatDate(e.createdAt)}</td>
-                            <td className="p-2 text-slate-500 text-xs">{formatDate(e.abertoEm)}</td>
-                            <td className="p-2 text-red-500 text-xs max-w-[150px] truncate">{e.error || "—"}</td>
+                  {filteredEnvios.length === 0 ? (
+                    <p className="text-sm text-slate-400 py-8 text-center">
+                      {historicoSearch ? "Nenhum envio encontrado para esta busca." : "Nenhum envio registrado ainda."}
+                    </p>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b border-slate-200 dark:border-slate-700">
+                            <th className="text-left font-medium p-2">Status</th>
+                            <th className="text-left font-medium p-2">Email</th>
+                            <th className="text-left font-medium p-2">Nome</th>
+                            <th className="text-left font-medium p-2">Assunto</th>
+                            <th className="text-center font-medium p-2 w-20">Cliques</th>
+                            <th className="text-left font-medium p-2">Enviado em</th>
+                            <th className="text-left font-medium p-2">Aberto em</th>
+                            <th className="text-left font-medium p-2">Erro</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </>
-            ) : (
-              <p className="text-sm text-slate-400 py-8 text-center">Nenhum envio registrado ainda.</p>
-            )}
+                        </thead>
+                        <tbody>
+                          {filteredEnvios.map(e => (
+                            <tr key={e.id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                              <td className="p-2">
+                                <StatusBadge status={e.status} abertoEm={e.abertoEm} />
+                              </td>
+                              <td className="p-2 text-slate-600 dark:text-slate-300">{e.email}</td>
+                              <td className="p-2">{e.nome || "—"}</td>
+                              <td className="p-2 text-slate-500 truncate max-w-[160px]">{e.assunto}</td>
+                              <td className="p-2 text-center">
+                                <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${e.totalCliques > 0 ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400" : "bg-slate-100 text-slate-400 dark:bg-slate-800"}`}>
+                                  {e.totalCliques || 0}
+                                </span>
+                              </td>
+                              <td className="p-2 text-slate-500 text-xs">{formatDate(e.createdAt)}</td>
+                              <td className="p-2 text-slate-500 text-xs">{formatDate(e.abertoEm)}</td>
+                              <td className="p-2 text-red-500 text-xs max-w-[150px] truncate">{e.error || "—"}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <p className="text-sm text-slate-400 py-8 text-center">Nenhum envio registrado ainda.</p>
+              )}
+            </div>
           </div>
         </TabsContent>
       </Tabs>
