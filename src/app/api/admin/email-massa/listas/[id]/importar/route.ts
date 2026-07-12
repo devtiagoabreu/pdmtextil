@@ -67,7 +67,7 @@ function parseJSON(texto: string): ContatoImport[] {
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUDO")) {
+    if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUDO" && session.user.role !== "CRM")) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
