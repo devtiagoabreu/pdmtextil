@@ -449,13 +449,23 @@ export default function EmailMassaPage() {
   }, [selectedImageEl])
 
   const openColorPicker = useCallback((mode: "fore" | "back") => {
+    const sel = window.getSelection()
+    if (sel && sel.rangeCount > 0) savedRange.current = sel.getRangeAt(0)
     setColorMode(mode)
     setColorDialogOpen(true)
   }, [])
 
   const applyColor = useCallback(() => {
+    if (savedRange.current && editorRef.current) {
+      const sel = window.getSelection()
+      if (sel) {
+        sel.removeAllRanges()
+        sel.addRange(savedRange.current)
+      }
+    }
     exec(colorMode === "fore" ? "foreColor" : "hiliteColor", colorValue)
     setColorDialogOpen(false)
+    savedRange.current = null
   }, [colorMode, colorValue, exec])
 
   const getContentHtml = () => editorRef.current?.innerHTML || ""
@@ -1545,15 +1555,15 @@ export default function EmailMassaPage() {
 
       {/* ─────── DIALOG PREVIEW ─────── */}
       <Dialog open={previewDialogOpen} onOpenChange={setPreviewDialogOpen}>
-        <DialogContent className="max-w-[820px] max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
+        <DialogContent className="max-w-[95vw] w-[95vw] h-[90vh] max-h-[90vh] flex flex-col">
+          <DialogHeader className="shrink-0">
             <DialogTitle>Preview do Email</DialogTitle>
             <DialogDescription>{assunto || "Sem assunto"}</DialogDescription>
           </DialogHeader>
-          <div className="bg-slate-100 dark:bg-slate-800 rounded-lg p-4 overflow-y-auto shadow-inner">
+          <div className="flex-1 bg-slate-100 dark:bg-slate-800 rounded-lg p-4 overflow-y-auto shadow-inner min-h-0">
             <div
-              className="mx-auto bg-white text-black shadow-sm"
-              style={{ width: "794px", minHeight: "1123px", fontFamily: "Arial, sans-serif", lineHeight: "1.8", fontSize: "15px", padding: "48px 56px" }}
+              className="w-full bg-white text-black shadow-sm mx-auto"
+              style={{ fontFamily: "Arial, sans-serif", lineHeight: "1.8", fontSize: "15px", padding: "32px 40px", minHeight: "100%" }}
             >
               <div dangerouslySetInnerHTML={{ __html: getContentHtml() }} />
             </div>
