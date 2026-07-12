@@ -617,7 +617,7 @@ export default function EmailMassaPage() {
   ) || []
 
   return (
-    <div className="max-w-full mx-auto space-y-4 px-4 lg:px-8">
+    <div className="w-full space-y-6 p-6">
       <div>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
           Email em Massa{info && <InfoButton content={info} />}
@@ -625,18 +625,18 @@ export default function EmailMassaPage() {
         <p className="text-sm text-slate-500 mt-1">Envie emails, gerencie modelos e listas, acompanhe o histórico</p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="w-full justify-start gap-1 bg-transparent border-b border-slate-200 dark:border-slate-700 pb-0">
-          <TabsTrigger value="enviar" className="gap-1.5 rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent pb-2"><Send size={14} />Enviar Email</TabsTrigger>
-          <TabsTrigger value="modelos" className="gap-1.5 rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent pb-2"><FileText size={14} />Modelos</TabsTrigger>
-          <TabsTrigger value="listas" className="gap-1.5 rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent pb-2"><Users size={14} />Listas</TabsTrigger>
-          <TabsTrigger value="historico" className="gap-1.5 rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent pb-2"><Clock size={14} />Histórico</TabsTrigger>
-          <TabsTrigger value="dashboard" className="gap-1.5 rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent pb-2"><BarChart3 size={14} />Dashboard</TabsTrigger>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full space-y-6">
+        <TabsList className="w-full flex justify-start border-b rounded-none bg-transparent h-auto p-0 space-x-6">
+          <TabsTrigger value="enviar" className="rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent pb-2">Enviar Email</TabsTrigger>
+          <TabsTrigger value="modelos" className="rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent pb-2">Modelos</TabsTrigger>
+          <TabsTrigger value="listas" className="rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent pb-2">Listas</TabsTrigger>
+          <TabsTrigger value="historico" className="rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent pb-2">Histórico</TabsTrigger>
+          <TabsTrigger value="dashboard" className="rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent pb-2">Dashboard</TabsTrigger>
         </TabsList>
 
         {/* ────────── TAB ENVIAR ────────── */}
-        <TabsContent value="enviar" className="space-y-4 mt-4">
-          <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-6 space-y-4 bg-white dark:bg-slate-900">
+        <TabsContent value="enviar" className="w-full m-0 border-0 p-0 shadow-none">
+          <div className="w-full rounded-xl border bg-card p-6 text-card-foreground shadow">
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label>Enviar para</Label>
@@ -653,7 +653,6 @@ export default function EmailMassaPage() {
                 <Label>Assunto</Label>
                 <Input value={assunto} onChange={e => setAssunto(e.target.value)} placeholder="Assunto do email" />
               </div>
-            </div>
 
             {para === "lista" && (
               <div className="space-y-2">
@@ -840,12 +839,13 @@ export default function EmailMassaPage() {
                 {sending ? "Enviando..." : "Enviar Email em Massa"}
               </Button>
             </div>
+            </div>
           </div>
         </TabsContent>
 
         {/* ────────── TAB MODELOS ────────── */}
-        <TabsContent value="modelos" className="space-y-4 mt-4">
-          <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-6 bg-white dark:bg-slate-900">
+        <TabsContent value="modelos" className="w-full m-0 border-0 p-0 shadow-none">
+          <div className="w-full rounded-xl border bg-card p-6 text-card-foreground shadow">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold">Modelos de Email</h2>
               <Button onClick={abrirNovoModelo} className="gap-1"><Plus size={14} /> Novo Modelo</Button>
@@ -894,8 +894,8 @@ export default function EmailMassaPage() {
         </TabsContent>
 
         {/* ────────── TAB LISTAS ────────── */}
-        <TabsContent value="listas" className="space-y-4 mt-4">
-          <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-6 bg-white dark:bg-slate-900">
+        <TabsContent value="listas" className="w-full m-0 border-0 p-0 shadow-none">
+          <div className="w-full rounded-xl border bg-card p-6 text-card-foreground shadow">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold">Listas de Destinatários</h2>
               <div className="flex gap-2">
@@ -988,13 +988,15 @@ export default function EmailMassaPage() {
         </TabsContent>
 
         {/* ────────── TAB DASHBOARD ────────── */}
-        <TabsContent value="dashboard" className="space-y-4 mt-4">
-          <DashboardRelatorio />
+        <TabsContent value="dashboard" className="w-full m-0 border-0 p-0 shadow-none">
+          <div className="w-full rounded-xl border bg-card p-6 text-card-foreground shadow">
+            <DashboardRelatorio />
+          </div>
         </TabsContent>
 
         {/* ────────── TAB HISTÓRICO ────────── */}
-        <TabsContent value="historico" className="space-y-4 mt-4">
-          <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-6 bg-white dark:bg-slate-900">
+        <TabsContent value="historico" className="w-full m-0 border-0 p-0 shadow-none">
+          <div className="w-full rounded-xl border bg-card p-6 text-card-foreground shadow">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold">Histórico de Envios</h2>
               <div className="flex gap-2">
