@@ -640,7 +640,7 @@ export default function EmailMassaPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
               {/* Coluna de Configurações do Envio */}
-              <div className="space-y-4 lg:col-span-1 flex flex-col justify-start">
+              <div className="space-y-4 lg:col-span-1">
                 <div className="space-y-2">
                   <Label>Enviar para</Label>
                   <select value={para} onChange={e => setPara(e.target.value)}
@@ -723,7 +723,7 @@ export default function EmailMassaPage() {
               </div>
 
               {/* Coluna do Editor do Conteúdo do Email */}
-              <div className="space-y-4 lg:col-span-2 flex flex-col justify-between">
+              <div className="space-y-4 lg:col-span-2">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label>Conteúdo do Email</Label>
