@@ -55,7 +55,7 @@ export default function CrmPessoasPage() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Pessoas{info && <InfoButton content={info} />}</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Pessoas (Negócios){info && <InfoButton content={info} />}</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             {isLoading ? "Carregando..." : `${filtered.length} pessoa(s)`}
           </p>
@@ -65,7 +65,7 @@ export default function CrmPessoasPage() {
           className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors shadow-sm"
         >
           <PlusCircle size={16} />
-          Nova Pessoa
+          Nova Pessoa (Negócio)
         </Link>
       </div>
 

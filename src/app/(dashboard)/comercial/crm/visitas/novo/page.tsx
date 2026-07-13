@@ -232,7 +232,7 @@ export default function NovaVisitaPage() {
         <div className="grid gap-5 sm:grid-cols-2">
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Pessoa *
+              Pessoa (Negócio) *
               <QuickCreatePessoa onCreated={handleEmpresaCreated} />
             </label>
             <select
@@ -318,7 +318,7 @@ export default function NovaVisitaPage() {
                 onClick={copiarEnderecoEmpresa}
                 className="text-xs text-blue-600 hover:underline flex items-center gap-1"
               >
-                Copiar endereço da pessoa
+                Copiar endereço do negócio
               </button>
             )}
           </div>

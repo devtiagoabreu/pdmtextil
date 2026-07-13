@@ -150,7 +150,7 @@ export default function CrmLeadsPage() {
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Nome</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Contato</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Pessoa</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Pessoa (Negócio)</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Score IA</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Origem</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Responsável</th>
@@ -240,7 +240,7 @@ export default function CrmLeadsPage() {
                         {(lead.status === "QUALIFICADO" || lead.status === "NOVO") && !lead.empresaId && (
                           <button
                             onClick={() => converterParaEmpresa(lead)}
-                            title="Converter para Pessoa"
+                            title="Converter para Pessoa (Negócio)"
                             className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30"
                           >
                             <Building2 size={15} />

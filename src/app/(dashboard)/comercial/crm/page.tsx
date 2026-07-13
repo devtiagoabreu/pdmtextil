@@ -137,7 +137,7 @@ export default function CrmDashboardPage() {
               href="/comercial/crm/pessoas"
               icon={<Building2 size={20} />}
               value={data?.pessoas.total ?? 0}
-              label="Pessoas"
+              label="Pessoas (Negócios)"
               bgColor="bg-blue-100 dark:bg-blue-950/50"
               iconColor="text-blue-600 dark:text-blue-400"
             />
@@ -297,7 +297,7 @@ export default function CrmDashboardPage() {
               <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800">
                 <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 flex items-center gap-2">
                   <Building2 size={16} className="text-blue-500" />
-                  Top Pessoas (Pipeline)
+                  Top Pessoas (Negócios)
                 </h2>
                 <Link href="/comercial/crm/pessoas" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
                   Ver todas <ArrowRight size={12} />
@@ -368,7 +368,7 @@ export default function CrmDashboardPage() {
             <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">Ações Rápidas</h2>
             <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
               <QuickAction href="/comercial/crm/leads/novo" icon={<UserPlus size={18} />} label="Novo Lead" color="text-emerald-600" bg="bg-emerald-100 dark:bg-emerald-950/50" />
-              <QuickAction href="/comercial/crm/pessoas/novo" icon={<Building2 size={18} />} label="Nova Pessoa" color="text-blue-600" bg="bg-blue-100 dark:bg-blue-950/50" />
+              <QuickAction href="/comercial/crm/pessoas/novo" icon={<Building2 size={18} />} label="Nova Pessoa (Negócio)" color="text-blue-600" bg="bg-blue-100 dark:bg-blue-950/50" />
               <QuickAction href="/comercial/crm/oportunidades/novo" icon={<Target size={18} />} label="Nova Oportunidade" color="text-purple-600" bg="bg-purple-100 dark:bg-purple-950/50" />
               <QuickAction href="/comercial/crm/oportunidades/kanban" icon={<BarChart3 size={18} />} label="Kanban" color="text-indigo-600" bg="bg-indigo-100 dark:bg-indigo-950/50" />
               <QuickAction href="/comercial/crm/visitas/novo" icon={<Calendar size={18} />} label="Nova Visita" color="text-amber-600" bg="bg-amber-100 dark:bg-amber-950/50" />
