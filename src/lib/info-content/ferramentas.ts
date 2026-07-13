@@ -27,4 +27,17 @@ export const ferramentasContent: Record<string, InfoContent> = {
       "Regra composta: três ou mais grandezas relacionadas.",
     ],
   },
+  "/ferramentas/consulta-cnpj": {
+    title: "Consulta CNPJ",
+    description: "Consulta dados de empresas na base da Receita Federal através do CNPJ.",
+    rules: [
+      "A consulta é feita em tempo real via API pública da Receita Federal.",
+      "Os dados exibidos incluem razão social, endereço, CNAE, situação cadastral e sócios.",
+      "A ferramenta é apenas para consulta — não altera nenhum dado no sistema.",
+    ],
+    fields: [
+      { name: "CNPJ", desc: "Número do CNPJ a consultar (apenas dígitos)" },
+      { name: "Resultado", desc: "Dados completos da empresa retornados pela Receita Federal" },
+    ],
+  },
 }

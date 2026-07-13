@@ -112,6 +112,7 @@ export const searchRegistry: SearchItem[] = [
   { id: "ferramentas", label: "Ferramentas", keywords: ["ferramenta", "util", "calculadora", "conversor"], href: "/ferramentas", description: "Ferramentas utilitárias", module: "Ferramentas" },
   { id: "ferramentas-conversores", label: "Conversores", keywords: ["conversor", "unidade", "medida", "ferramenta"], href: "/ferramentas/conversores", description: "Conversores de unidades", module: "Ferramentas" },
   { id: "ferramentas-regra-tres", label: "Regra de Três", keywords: ["regra", "tres", "calculadora", "proporcao", "ferramenta"], href: "/ferramentas/regra-de-tres", description: "Calculadora de regra de três", module: "Ferramentas" },
+  { id: "ferramentas-consulta-cnpj", label: "Consulta CNPJ", keywords: ["cnpj", "consulta", "receita", "federal", "empresa", "ferramenta"], href: "/ferramentas/consulta-cnpj", description: "Consulta de CNPJ na Receita Federal", module: "Ferramentas" },
 
   // Documentos
   { id: "documentos", label: "Documentos", keywords: ["documento", "romaneio", "danfe", "pedido", "relatorio"], href: "/documentos", description: "Central de documentos", module: "Documentos" },
