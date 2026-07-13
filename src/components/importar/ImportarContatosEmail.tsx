@@ -176,16 +176,16 @@ export default function ImportarContatosEmail({ listaId, listaNome, onImportado 
                     <button onClick={() => fileInputRef.current?.click()}
                       className="w-full rounded-lg border-2 border-dashed border-slate-300 dark:border-slate-600 p-6 text-center hover:border-blue-500 hover:bg-slate-50 dark:hover:bg-slate-800">
                       {arquivoSelecionado ? (
-                        <div>
+                        <div className="flex flex-col items-center">
                           <FileSpreadsheet className="mx-auto mb-2 text-green-600" size={32} />
-                          <p className="text-sm font-medium">{arquivoSelecionado.name}</p>
-                          <p className="text-xs text-slate-500">{(arquivoSelecionado.size / 1024).toFixed(1)} KB</p>
+                          <span className="text-sm font-medium">{arquivoSelecionado.name}</span>
+                          <span className="text-xs text-slate-500">{(arquivoSelecionado.size / 1024).toFixed(1)} KB</span>
                         </div>
                       ) : (
-                        <div>
+                        <div className="flex flex-col items-center">
                           <Upload className="mx-auto mb-2 text-slate-400" size={32} />
-                          <p className="text-sm text-slate-500">Clique para selecionar arquivo</p>
-                          <p className="text-xs text-slate-400">CSV ou JSON</p>
+                          <span className="text-sm text-slate-500">Clique para selecionar arquivo</span>
+                          <span className="text-xs text-slate-400">CSV ou JSON</span>
                         </div>
                       )}
                     </button>
