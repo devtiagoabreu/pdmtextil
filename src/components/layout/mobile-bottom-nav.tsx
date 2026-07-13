@@ -3,19 +3,29 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useSession } from "next-auth/react"
-import { LayoutDashboard, FileText, ClipboardList, User } from "lucide-react"
-
-const mobileNavItems = [
-  { href: "/dashboard", icon: LayoutDashboard, label: "Solicitações Desenv." },
-  { href: "/dashboard/amostras", icon: ClipboardList, label: "Amostras Desenv." },
-  { href: "/comercial/solicitacoes", icon: FileText, label: "Lista" },
-  { href: "/perfil", icon: User, label: "Perfil" },
-] as const
+import { useState, useEffect } from "react"
+import { LayoutDashboard, FileText, ClipboardList, User, Loader2 } from "lucide-react"
 
 export function MobileBottomNav() {
   const pathname = usePathname()
   const { data: session } = useSession()
+  const [paginaInicial, setPaginaInicial] = useState("/dashboard")
+
+  useEffect(() => {
+    fetch("/api/user/pagina-inicial")
+      .then(r => r.json())
+      .then(data => { if (data?.paginaInicial) setPaginaInicial(data.paginaInicial) })
+      .catch(() => {})
+  }, [])
+
   if (!session) return null
+
+  const mobileNavItems = [
+    { href: paginaInicial, icon: LayoutDashboard, label: "Home" },
+    { href: "/dashboard/amostras", icon: ClipboardList, label: "Amostras Desenv." },
+    { href: "/comercial/solicitacoes", icon: FileText, label: "Lista" },
+    { href: "/perfil", icon: User, label: "Perfil" },
+  ] as const
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-40 border-t bg-white/95 backdrop-blur dark:border-slate-800 dark:bg-slate-950/95 lg:hidden">
