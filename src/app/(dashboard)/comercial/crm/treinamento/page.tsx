@@ -98,7 +98,7 @@ export default function TreinamentoPage() {
                   )}
                 </div>
                 <div className="flex items-center gap-2 text-sm text-slate-400">
-                  <span>{modulo.licoes.length} lição{modulo.licoes.length !== 1 ? "ões" : ""}</span>
+                  <span>{modulo.licoes.length} {modulo.licoes.length === 1 ? "lição" : "lições"}</span>
                   <ChevronRight
                     size={18}
                     className={`transition-transform ${moduloAberto === modulo.id ? "rotate-90" : ""}`}

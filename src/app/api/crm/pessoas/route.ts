@@ -73,6 +73,17 @@ export async function POST(req: NextRequest) {
     const cnpj = body.cnpj?.replace(/[^a-zA-Z0-9]/g, "") || null
     const cpf = body.cpf?.replace(/[^0-9]/g, "") || null
 
+    if (cnpj) {
+      const [existente] = await db
+        .select({ id: crmPessoas.id })
+        .from(crmPessoas)
+        .where(eq(crmPessoas.cnpj, cnpj))
+        .limit(1)
+      if (existente) {
+        return NextResponse.json({ error: "CNPJ já cadastrado" }, { status: 409 })
+      }
+    }
+
     const [nova] = await db
       .insert(crmPessoas)
       .values({
