@@ -4,7 +4,7 @@ import { db } from "@/lib/db"
 import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
 import { crmContatos } from "@/lib/db/schema/crm-contatos"
 import { usuarios } from "@/lib/db/schema/usuarios"
-import { eq } from "drizzle-orm"
+import { eq, and, ne } from "drizzle-orm"
 import { registrarLog, notificarDelecao } from "@/lib/notificar"
 import { handleApiError } from "@/lib/api-error"
 
@@ -62,6 +62,17 @@ export async function PUT(
 
     const cnpj = body.cnpj ? body.cnpj.replace(/[^a-zA-Z0-9]/g, "") : undefined
     const cpf = body.cpf ? body.cpf.replace(/[^0-9]/g, "") : undefined
+
+    if (cnpj) {
+      const [duplicado] = await db
+        .select({ id: crmPessoas.id })
+        .from(crmPessoas)
+        .where(and(eq(crmPessoas.cnpj, cnpj), ne(crmPessoas.id, parseInt(id))))
+        .limit(1)
+      if (duplicado) {
+        return NextResponse.json({ error: "CNPJ já cadastrado" }, { status: 409 })
+      }
+    }
 
     const values: Record<string, any> = { updatedAt: new Date() }
     if (body.tipoPessoa !== undefined) values.tipoPessoa = body.tipoPessoa

@@ -66,7 +66,7 @@ export default function CrmRelatoriosPage() {
       ) : (
         <>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
-            <CardEstatistica icon={<Building2 size={18} />} value={data.totalEmpresas} label="Empresas" color="text-blue-600" bg="bg-blue-100 dark:bg-blue-950/50" />
+            <CardEstatistica icon={<Building2 size={18} />} value={data.totalEmpresas} label="Negócios" color="text-blue-600" bg="bg-blue-100 dark:bg-blue-950/50" />
             <CardEstatistica icon={<UserPlus size={18} />} value={data.totalLeads} label="Leads" color="text-emerald-600" bg="bg-emerald-100 dark:bg-emerald-950/50" />
             <CardEstatistica icon={<Target size={18} />} value={data.totalOportunidades} label="Oportunidades" color="text-purple-600" bg="bg-purple-100 dark:bg-purple-950/50" />
             <CardEstatistica icon={<Calendar size={18} />} value={data.totalVisitas} label="Visitas" color="text-amber-600" bg="bg-amber-100 dark:bg-amber-950/50" />

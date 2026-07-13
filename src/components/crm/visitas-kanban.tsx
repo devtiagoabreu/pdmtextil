@@ -188,7 +188,7 @@ export default function VisitasKanban({ visitas }: { visitas: VisitaCard[] }) {
                   {formatarData(activeCard.dataVisita)}
                 </span>
               </div>
-              <p className="text-sm font-medium text-slate-900 mt-1">{activeCard.empresaNome || "Sem empresa"}</p>
+              <p className="text-sm font-medium text-slate-900 mt-1">{activeCard.empresaNome || "Sem negócio"}</p>
             </div>
           </DragOverlay>
         )}
