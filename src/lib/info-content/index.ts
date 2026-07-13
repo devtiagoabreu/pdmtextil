@@ -25,10 +25,13 @@ export function getInfoContent(pathname: string): InfoContent | null {
   const exact = infoContent[pathname]
   if (exact) return exact
 
-  const match = Object.keys(infoContent).find(
-    (key) => pathname.startsWith(key) || key.startsWith(pathname)
-  )
-  if (match) return infoContent[match]
+  let bestKey = ""
+  for (const key of Object.keys(infoContent)) {
+    if ((pathname.startsWith(key) || key.startsWith(pathname)) && key.length > bestKey.length) {
+      bestKey = key
+    }
+  }
+  if (bestKey) return infoContent[bestKey]
 
   return null
 }
