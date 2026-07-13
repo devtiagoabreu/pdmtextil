@@ -38,8 +38,13 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
   const [menus, setMenus] = useState<UserMenu[]>([])
   const [loading, setLoading] = useState(true)
   const [expandedMenus, setExpandedMenus] = useState<Set<number>>(new Set())
+  const [paginaInicial, setPaginaInicial] = useState("/dashboard")
 
   useEffect(() => {
+    fetch("/api/user/pagina-inicial")
+      .then(r => r.json())
+      .then(data => { if (data?.paginaInicial) setPaginaInicial(data.paginaInicial) })
+      .catch(() => {})
     fetch("/api/user/menus")
       .then(r => r.json())
       .then(data => {
@@ -73,7 +78,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
     <div className="flex h-full flex-col bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800">
       {/* Logo */}
       <div className="flex h-16 items-center justify-between border-b border-slate-200 dark:border-slate-800 px-6">
-        <Link href="/dashboard" className="flex items-center gap-2.5" onClick={onClose}>
+        <Link href={paginaInicial} className="flex items-center gap-2.5" onClick={onClose}>
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 shadow-sm">
             <span className="text-sm font-bold text-white">PM</span>
           </div>
