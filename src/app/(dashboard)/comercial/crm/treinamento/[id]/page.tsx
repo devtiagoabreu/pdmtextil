@@ -91,8 +91,10 @@ export default function LicaoDetailPage() {
   return (
     <>
       <style>{`
+        .print-header { display: none; }
         @media print {
           .no-print { display: none !important; }
+          .print-header { display: flex; }
           @page {
             size: A4;
             margin: 55px 25px 45px 25px;
@@ -163,27 +165,26 @@ export default function LicaoDetailPage() {
         }
       `}</style>
 
-      <div className="print-header no-print">
-        <span>PDM Têxtil — Treinamento CRM</span>
-        <span>{licao.moduloTitulo} → {licao.titulo}</span>
+      <div className="no-print flex items-center gap-4 mb-6">
+        <Link
+          href="/comercial/crm/treinamento"
+          className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+        >
+          <ArrowLeft size={20} />
+        </Link>
+        <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+          <BookOpen size={14} />
+          <span className="text-slate-400">PDM Têxtil</span>
+          <span className="text-slate-300">—</span>
+          <Link href="/comercial/crm/treinamento" className="hover:text-indigo-600">Treinamento CRM</Link>
+          <span className="text-slate-300">—</span>
+          <span className="text-slate-700 dark:text-slate-300">{licao.moduloTitulo}</span>
+          <span className="text-slate-300">→</span>
+          <span className="text-slate-700 dark:text-slate-300">{licao.titulo}</span>
+        </div>
       </div>
 
       <div className="p-6 max-w-4xl mx-auto">
-        <div className="no-print flex items-center gap-4 mb-6">
-          <Link
-            href="/comercial/crm/treinamento"
-            className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
-          >
-            <ArrowLeft size={20} />
-          </Link>
-          <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-            <BookOpen size={14} />
-            <Link href="/comercial/crm/treinamento" className="hover:text-indigo-600">Treinamento</Link>
-            <span>/</span>
-            <span className="text-slate-700 dark:text-slate-300">{licao.moduloTitulo}</span>
-          </div>
-        </div>
-
         <div className="flex items-start justify-between gap-4 mb-8">
           <div className="flex items-center gap-3">
             <div
