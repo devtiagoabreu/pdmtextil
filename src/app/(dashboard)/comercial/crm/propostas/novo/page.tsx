@@ -7,7 +7,7 @@ import { useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { Loader2, ArrowLeft } from "lucide-react"
 import Link from "next/link"
-import { QuickCreateEmpresa } from "@/components/crm/quick-create-pessoa"
+import { QuickCreatePessoa } from "@/components/crm/quick-create-pessoa"
 import { QuickCreateOportunidade } from "@/components/crm/quick-create-oportunidade"
 
 async function fetchEmpresas() {
@@ -91,8 +91,8 @@ export default function NovaPropostaPage() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Empresa *
-              <QuickCreateEmpresa onCreated={handleEmpresaCreated} />
+              Pessoa *
+              <QuickCreatePessoa onCreated={handleEmpresaCreated} />
             </label>
             <select
               value={empresaId}

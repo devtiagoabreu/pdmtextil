@@ -165,7 +165,7 @@ export default function VisitasCalendario({ visitas }: { visitas: Visita[] }) {
                         e.stopPropagation()
                         router.push(`/comercial/crm/visitas/${v.id}`)
                       }}
-                      title={`${v.empresaNome || "Sem empresa"} - ${TIPO_LABELS[v.tipo] || v.tipo}`}
+                      title={`${v.empresaNome || "Sem pessoa"} - ${TIPO_LABELS[v.tipo] || v.tipo}`}
                     >
                       <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${TIPO_CORES[v.tipo] || "bg-slate-400"}`} />
                       <span className="text-[10px] text-slate-600 dark:text-slate-400 truncate leading-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">

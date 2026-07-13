@@ -76,7 +76,7 @@ export default function CrmLeadsPage() {
         body: JSON.stringify({ status: "CONVERTIDO", empresaId: pessoa.id }),
       })
 
-      toast.success(`Lead convertido para ${isPF ? "pessoa" : "empresa"} "${valor}"`)
+      toast.success(`Lead convertido para pessoa "${valor}"`)
       refetch()
     } catch (err: any) {
       toast.error(err.message)

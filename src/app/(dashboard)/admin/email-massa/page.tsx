@@ -25,6 +25,7 @@ import ImportarApiModal from "@/components/integracao/ImportarApiModal"
 import { exportPDF, exportPDFRelatorio } from "@/lib/export-utils"
 import { getInfoContent } from "@/lib/info-content"
 import { Separator } from "@/components/ui/separator"
+import { htmlToModelo, modeloToHtml } from "@/lib/email-modelo"
 
 interface Modelo {
   id: number
@@ -604,7 +605,7 @@ export default function EmailMassaPage() {
     setActiveTab("enviar")
     setTimeout(() => {
       if (editorRef.current) {
-        editorRef.current.innerHTML = m.html
+        editorRef.current.innerHTML = modeloToHtml(m.html)
       }
     }, 100)
     toast.success(`Modelo "${m.nome}" carregado`)
@@ -654,7 +655,7 @@ export default function EmailMassaPage() {
 
   const abrirNovoModelo = () => {
     setEditModelo(null)
-    setModeloForm({ nome: "", assunto: "", html: getContentHtml() })
+    setModeloForm({ nome: "", assunto: "", html: htmlToModelo(getContentHtml()) })
     setModeloDialogOpen(true)
   }
 
@@ -1409,7 +1410,7 @@ export default function EmailMassaPage() {
           {viewModelo && (
             <div className="border rounded-lg p-4 bg-white dark:bg-slate-800 overflow-y-auto max-h-96">
               <div className="text-xs text-slate-400 mb-2">Prévia do HTML:</div>
-              <div dangerouslySetInnerHTML={{ __html: viewModelo.html }} />
+              <div dangerouslySetInnerHTML={{ __html: modeloToHtml(viewModelo.html) }} />
             </div>
           )}
           <DialogFooter>
@@ -1558,7 +1559,7 @@ export default function EmailMassaPage() {
 
       {/* ─────── DIALOG PREVIEW ─────── */}
       <Dialog open={previewDialogOpen} onOpenChange={setPreviewDialogOpen}>
-        <DialogContent className="max-w-[95vw] w-[95vw] h-[90vh] max-h-[90vh] flex flex-col">
+        <DialogContent className="max-w-[100vw] w-[100vw] h-[100vh] max-h-[100vh] !rounded-none flex flex-col">
           <DialogHeader className="shrink-0">
             <DialogTitle>Preview do Email</DialogTitle>
             <DialogDescription>{assunto || "Sem assunto"}</DialogDescription>

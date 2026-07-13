@@ -7,7 +7,7 @@ import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft, Save, Plus, X } from "lucide-react"
 import { toast } from "sonner"
-import { QuickCreateEmpresa } from "@/components/crm/quick-create-pessoa"
+import { QuickCreatePessoa } from "@/components/crm/quick-create-pessoa"
 import { QuickCreateContato } from "@/components/crm/quick-create-contato"
 import { QuickCreateOportunidade } from "@/components/crm/quick-create-oportunidade"
 import { SelectUf } from "@/components/crm/select-uf"
@@ -121,7 +121,7 @@ export default function NovaVisitaPage() {
   async function loadContatos(empresaId: string) {
     if (!empresaId) { setContatos([]); return }
     try {
-      const res = await fetch(`/api/crm/empresas/${empresaId}`)
+      const res = await fetch(`/api/crm/pessoas/${empresaId}`)
       const data = await res.json()
       if (Array.isArray(data.contatos)) setContatos(data.contatos)
       else setContatos([])
@@ -131,7 +131,7 @@ export default function NovaVisitaPage() {
   async function loadEmpresaEndereco(empresaId: string) {
     if (!empresaId) { setEmpresaEndereco({}); return }
     try {
-      const res = await fetch(`/api/crm/empresas/${empresaId}`)
+      const res = await fetch(`/api/crm/pessoas/${empresaId}`)
       const data = await res.json()
       setEmpresaEndereco({
         endereco: data.endereco || "",
@@ -177,7 +177,7 @@ export default function NovaVisitaPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!form.empresaId) {
-      toast.error("Empresa é obrigatória")
+      toast.error("Pessoa é obrigatória")
       return
     }
     setSaving(true)
@@ -232,8 +232,8 @@ export default function NovaVisitaPage() {
         <div className="grid gap-5 sm:grid-cols-2">
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Empresa *
-              <QuickCreateEmpresa onCreated={handleEmpresaCreated} />
+              Pessoa *
+              <QuickCreatePessoa onCreated={handleEmpresaCreated} />
             </label>
             <select
               value={form.empresaId}
@@ -318,7 +318,7 @@ export default function NovaVisitaPage() {
                 onClick={copiarEnderecoEmpresa}
                 className="text-xs text-blue-600 hover:underline flex items-center gap-1"
               >
-                Copiar endereço da empresa
+                Copiar endereço da pessoa
               </button>
             )}
           </div>

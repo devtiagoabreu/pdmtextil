@@ -13,7 +13,7 @@ type Props = {
   onCreated: (id: number, razaoSocial: string) => void
 }
 
-export function QuickCreateEmpresa({ onCreated }: Props) {
+export function QuickCreatePessoa({ onCreated }: Props) {
   const [open, setOpen] = useState(false)
   const [saving, setSaving] = useState(false)
   const [razaoSocial, setRazaoSocial] = useState("")

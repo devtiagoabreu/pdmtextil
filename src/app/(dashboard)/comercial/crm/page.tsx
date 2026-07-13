@@ -290,14 +290,14 @@ export default function CrmDashboardPage() {
             </div>
           </div>
 
-          {/* Linha 3: Top Empresas + Atividades Recentes */}
+          {/* Linha 3: Top Pessoas + Atividades Recentes */}
           <div className="grid gap-6 md:grid-cols-2">
-            {/* Top Empresas */}
+            {/* Top Pessoas */}
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
               <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800">
                 <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 flex items-center gap-2">
                   <Building2 size={16} className="text-blue-500" />
-                  Top Empresas (Pipeline)
+                  Top Pessoas (Pipeline)
                 </h2>
                 <Link href="/comercial/crm/pessoas" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
                   Ver todas <ArrowRight size={12} />
