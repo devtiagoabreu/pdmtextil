@@ -156,18 +156,18 @@ export default function ImportarContatosEmail({ listaId, listaNome, onImportado 
               {modo === "arquivo" ? (
                 <>
                   <div className="rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-4">
-                    <h3 className="font-medium mb-2">Baixar modelos de arquivo:</h3>
-                    <div className="flex gap-2">
+                    <h3 className="font-medium mb-3">Baixar modelo de arquivo:</h3>
+                    <div className="flex flex-col gap-2">
                       <button onClick={baixarModeloCSV}
-                        className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700">
-                        <FileSpreadsheet size={16} /> CSV
+                        className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 w-full">
+                        <FileSpreadsheet size={16} /> Baixar modelo CSV
                       </button>
                       <button onClick={baixarModeloJSON}
-                        className="flex items-center gap-2 rounded-lg bg-purple-600 px-4 py-2 text-sm text-white hover:bg-purple-700">
-                        <FileJson size={16} /> JSON
+                        className="flex items-center gap-2 rounded-lg bg-purple-600 px-4 py-2 text-sm text-white hover:bg-purple-700 w-full">
+                        <FileJson size={16} /> Baixar modelo JSON
                       </button>
                     </div>
-                    <p className="text-xs text-slate-500 mt-2">Campos: <strong>nome</strong> (obrigatório), <strong>email</strong> (obrigatório)</p>
+                    <p className="text-xs text-slate-500 mt-3">Campos: <strong>nome</strong> (obrigatório), <strong>email</strong> (obrigatório)</p>
                   </div>
 
                   <div className="space-y-2">
