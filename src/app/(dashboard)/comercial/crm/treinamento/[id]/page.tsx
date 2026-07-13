@@ -164,8 +164,8 @@ export default function LicaoDetailPage() {
       `}</style>
 
       <div className="print-header no-print">
-        <span>PDM Têxtil - Treinamento CRM</span>
-        <span>{licao.moduloTitulo} / {licao.titulo}</span>
+        <span>PDM Têxtil — Treinamento CRM</span>
+        <span>{licao.moduloTitulo} → {licao.titulo}</span>
       </div>
 
       <div className="p-6 max-w-4xl mx-auto">
@@ -212,8 +212,8 @@ export default function LicaoDetailPage() {
         </div>
 
         <div className="print-header">
-          <span>PDM Têxtil - Treinamento CRM</span>
-          <span>{licao.moduloTitulo} / {licao.titulo}</span>
+          <span>PDM Têxtil — Treinamento CRM</span>
+          <span>{licao.moduloTitulo} → {licao.titulo}</span>
         </div>
 
         <div>
