@@ -92,6 +92,17 @@ export default function LicaoDetailPage() {
     <>
       <style>{`
         .print-header { display: none; }
+
+        .prose p {
+          margin-bottom: 1.25em;
+        }
+        .prose li {
+          margin-bottom: 0.5em;
+        }
+        .prose li > p {
+          margin-bottom: 0.35em;
+        }
+
         @media print {
           .no-print { display: none !important; }
           .print-header { display: flex; }
