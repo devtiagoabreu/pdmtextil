@@ -35,7 +35,7 @@ export const adminContent: Record<string, InfoContent> = {
       "O dashboard exibe relatórios por remessa com taxa de abertura, cliques por link e percentagens.",
       "É possível exportar relatório PDF do histórico com estatísticas e tabela detalhada.",
       "O tracking de abertura e cliques é feito por pixel invisível e redirecionamento de links.",
-      "Apenas administradores e perfis com permissão CRM podem disparar emails em massa.",
+      "Os perfis Administrador e Gestão de Relacionamento com o Cliente têm acesso total a todas as funcionalidades.",
     ],
     fields: [
       { name: "Enviar para", desc: "Destinatários: Todos, Clientes, Utilizadores ou Lista personalizada" },
