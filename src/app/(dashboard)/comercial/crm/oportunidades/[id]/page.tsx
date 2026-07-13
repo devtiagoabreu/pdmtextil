@@ -142,7 +142,7 @@ export default function DetalheOportunidadePage() {
             <Field label="Probabilidade" value={oportunidade.probabilidade != null ? `${oportunidade.probabilidade}%` : "—"} />
             <Field label="Previsão" value={oportunidade.dataFechamentoPrevista ? new Date(oportunidade.dataFechamentoPrevista).toLocaleDateString("pt-BR") : "—"} />
             <Field label="Responsável" value={oportunidade.responsavelNome || "—"} />
-            <Field label="Pessoa" value={oportunidade.empresaNome || "—"} />
+            <Field label="Pessoa (Negócio)" value={oportunidade.empresaNome || "—"} />
             <Field label="Criado em" value={oportunidade.createdAt ? new Date(oportunidade.createdAt).toLocaleDateString("pt-BR") : "—"} />
           </div>
         </div>

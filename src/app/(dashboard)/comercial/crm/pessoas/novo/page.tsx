@@ -103,14 +103,14 @@ export default function NovaPessoaPage() {
           <ArrowLeft size={18} className="text-slate-500" />
         </Link>
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">Nova Pessoa{info && <InfoButton content={info} />}</h1>
-          <p className="text-sm text-slate-500">Cadastrar pessoa física ou jurídica no CRM</p>
+          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">Nova Pessoa (Negócio){info && <InfoButton content={info} />}</h1>
+          <p className="text-sm text-slate-500">Cadastrar um negócio (pessoa física ou jurídica) no CRM</p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-5">
         <div>
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Tipo de Pessoa</label>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Tipo</label>
           <div className="flex gap-2">
             <button
               type="button"

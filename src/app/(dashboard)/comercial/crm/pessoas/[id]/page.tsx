@@ -207,7 +207,7 @@ export default function PessoaDetailPage() {
 
       <div className="grid gap-6 md:grid-cols-2">
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
-          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4">Dados da Pessoa</h2>
+          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4">Dados da Pessoa (Negócio)</h2>
           {editing ? (
             <div className="space-y-4">
               <div>

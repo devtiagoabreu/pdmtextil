@@ -145,7 +145,7 @@ export default function NovaOportunidadePage() {
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Pessoa
+              Pessoa (Negócio)
               <QuickCreatePessoa onCreated={handleEmpresaCreated} />
             </label>
             <select

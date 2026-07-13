@@ -87,7 +87,7 @@ export function QuickCreateContato({ empresaId, onCreated }: Props) {
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Pessoa *</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Pessoa (Negócio) *</label>
             <select
               value={selectedEmpresaId}
               onChange={e => setSelectedEmpresaId(e.target.value)}

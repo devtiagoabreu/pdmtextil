@@ -104,13 +104,13 @@ throw new Error(err.error || "Erro ao criar pessoa")
       <DialogTrigger
         type="button"
         className="p-1 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 rounded transition-colors"
-        title="Cadastrar nova pessoa"
+        title="Cadastrar nova pessoa (negócio)"
       >
         <Plus size={14} />
       </DialogTrigger>
       <DialogContent className="sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle>Nova Pessoa</DialogTitle>
+          <DialogTitle>Nova Pessoa (Negócio)</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 max-h-[75vh] overflow-y-auto pr-1">
           <div>
