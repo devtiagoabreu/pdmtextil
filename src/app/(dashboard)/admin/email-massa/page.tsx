@@ -262,6 +262,7 @@ export default function EmailMassaPage() {
   const [selectedListaIds, setSelectedListaIds] = useState<number[]>([])
   const [sending, setSending] = useState(false)
   const [previewDialogOpen, setPreviewDialogOpen] = useState(false)
+  const [previewSize, setPreviewSize] = useState({ w: "80vw", h: "85vh" })
   const [activeTab, setActiveTab] = useState("enviar")
 
   const [modelos, setModelos] = useState<Modelo[]>([])
@@ -1559,7 +1560,10 @@ export default function EmailMassaPage() {
 
       {/* ─────── DIALOG PREVIEW ─────── */}
       <Dialog open={previewDialogOpen} onOpenChange={setPreviewDialogOpen}>
-        <DialogContent className="max-w-[100vw] w-[100vw] h-[100vh] max-h-[100vh] !rounded-none flex flex-col">
+        <DialogContent
+          className="!rounded-none flex flex-col overflow-hidden"
+          style={{ width: previewSize.w, height: previewSize.h, maxWidth: "100vw", maxHeight: "100vh" }}
+        >
           <DialogHeader className="shrink-0">
             <DialogTitle>Preview do Email</DialogTitle>
             <DialogDescription>{assunto || "Sem assunto"}</DialogDescription>
@@ -1581,6 +1585,27 @@ export default function EmailMassaPage() {
             </Button>
             <Button variant="outline" onClick={() => setPreviewDialogOpen(false)}>Fechar</Button>
           </DialogFooter>
+          <div
+            onMouseDown={e => {
+              e.preventDefault()
+              const startX = e.clientX
+              const startY = e.clientY
+              const startW = previewSize.w
+              const startH = previewSize.h
+              const parsePx = (v: string) => Number(v.replace("px", ""))
+              const onMove = (ev: MouseEvent) => {
+                const w = parsePx(startW) + (ev.clientX - startX)
+                const h = parsePx(startH) + (ev.clientY - startY)
+                setPreviewSize({ w: `${Math.max(400, w)}px`, h: `${Math.max(300, h)}px` })
+              }
+              const onUp = () => { document.removeEventListener("mousemove", onMove); document.removeEventListener("mouseup", onUp) }
+              document.addEventListener("mousemove", onMove)
+              document.addEventListener("mouseup", onUp)
+            }}
+            className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize hover:bg-blue-500/20 rounded-bl"
+          >
+            <div className="absolute bottom-1 right-1 w-2 h-2 border-r-2 border-b-2 border-slate-400" />
+          </div>
         </DialogContent>
       </Dialog>
 
