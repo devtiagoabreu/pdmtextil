@@ -42,7 +42,8 @@ function LoginForm() {
       if (res?.error) {
         setError("E-mail ou senha incorretos")
       } else {
-        router.push("/dashboard")
+        const data = await fetch("/api/user/pagina-inicial").then(r => r.json())
+        router.push(data?.paginaInicial || "/dashboard")
       }
     } catch (err) {
       setError("Ocorreu um erro ao fazer login")
@@ -53,7 +54,12 @@ function LoginForm() {
 
   const handleGoogleLogin = async () => {
     setGoogleLoading(true)
-    await signIn("google", { callbackUrl: "/dashboard" })
+    try {
+      const data = await fetch("/api/user/pagina-inicial").then(r => r.ok ? r.json() : null)
+      await signIn("google", { callbackUrl: data?.paginaInicial || "/dashboard" })
+    } catch {
+      await signIn("google", { callbackUrl: "/dashboard" })
+    }
   }
 
   return (
