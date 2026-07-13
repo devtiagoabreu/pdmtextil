@@ -129,7 +129,8 @@ export default function ImportarContatosEmail({ listaId, listaNome, onImportado 
               </button>
             </div>
 
-            <div className="p-4 space-y-4">
+            <div className="p-4">
+              {/* Mode tabs */}
               <div className="flex gap-2">
                 <button
                   onClick={() => setModo("arquivo")}
@@ -154,54 +155,56 @@ export default function ImportarContatosEmail({ listaId, listaNome, onImportado 
               </div>
 
               {modo === "arquivo" ? (
-                <>
-                  <div className="rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-4">
-                    <h3 className="font-medium mb-3">Baixar modelo de arquivo:</h3>
-                    <div className="flex flex-col gap-2">
+                <div className="mt-4 space-y-4">
+                  {/* Download models row */}
+                  <div className="flex items-center justify-between rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3">
+                    <div>
+                      <span className="text-sm text-slate-600 dark:text-slate-400">Baixar modelo</span>
+                      <p className="text-xs text-slate-400 mt-0.5">Campos: <strong>nome</strong>, <strong>email</strong></p>
+                    </div>
+                    <div className="flex gap-2">
                       <button onClick={baixarModeloCSV}
-                        className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 w-full">
-                        <FileSpreadsheet size={16} /> Baixar modelo CSV
+                        className="flex items-center gap-1 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 px-3 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-600">
+                        <FileSpreadsheet size={14} className="text-blue-600" /> CSV
                       </button>
                       <button onClick={baixarModeloJSON}
-                        className="flex items-center gap-2 rounded-lg bg-purple-600 px-4 py-2 text-sm text-white hover:bg-purple-700 w-full">
-                        <FileJson size={16} /> Baixar modelo JSON
+                        className="flex items-center gap-1 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 px-3 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-600">
+                        <FileJson size={14} className="text-purple-600" /> JSON
                       </button>
                     </div>
-                    <p className="text-xs text-slate-500 mt-3">Campos: <strong>nome</strong> (obrigatório), <strong>email</strong> (obrigatório)</p>
                   </div>
 
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Selecionar arquivo (CSV ou JSON)</label>
-                    <input ref={fileInputRef} type="file" accept=".csv,.json" onChange={handleFileChange} className="hidden" />
-                    <button onClick={() => fileInputRef.current?.click()}
-                      className="w-full rounded-lg border-2 border-dashed border-slate-300 dark:border-slate-600 p-6 text-center hover:border-blue-500 hover:bg-slate-50 dark:hover:bg-slate-800">
-                      {arquivoSelecionado ? (
-                        <div className="flex flex-col items-center">
-                          <FileSpreadsheet className="mx-auto mb-2 text-green-600" size={32} />
-                          <span className="text-sm font-medium">{arquivoSelecionado.name}</span>
-                          <span className="text-xs text-slate-500">{(arquivoSelecionado.size / 1024).toFixed(1)} KB</span>
-                        </div>
-                      ) : (
-                        <div className="flex flex-col items-center">
-                          <Upload className="mx-auto mb-2 text-slate-400" size={32} />
-                          <span className="text-sm text-slate-500">Clique para selecionar arquivo</span>
-                          <span className="text-xs text-slate-400">CSV ou JSON</span>
-                        </div>
-                      )}
-                    </button>
-                  </div>
+                  {/* Upload dashed zone */}
+                  <input ref={fileInputRef} type="file" accept=".csv,.json" onChange={handleFileChange} className="hidden" />
+                  <button onClick={() => fileInputRef.current?.click()}
+                    className="w-full rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-600 p-8 text-center hover:border-blue-500 hover:bg-blue-50/50 dark:hover:bg-blue-950/20 transition-colors">
+                    {arquivoSelecionado ? (
+                      <div className="flex flex-col items-center gap-1">
+                        <FileSpreadsheet className="text-green-600" size={36} />
+                        <span className="text-sm font-medium text-slate-800 dark:text-slate-200">{arquivoSelecionado.name}</span>
+                        <span className="text-xs text-slate-500">{(arquivoSelecionado.size / 1024).toFixed(1)} KB</span>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center gap-1">
+                        <Upload className="text-slate-400" size={36} />
+                        <span className="text-sm font-medium text-slate-600 dark:text-slate-300">Clique para selecionar</span>
+                        <span className="text-xs text-slate-400">CSV ou JSON</span>
+                      </div>
+                    )}
+                  </button>
 
+                  {/* Result */}
                   {resultado && (
-                    <div className="rounded-lg bg-slate-100 dark:bg-slate-800 p-4">
-                      <h3 className="font-medium mb-2">Resultado:</h3>
-                      <p className="text-sm">
-                        <span className="text-green-600 font-semibold">{resultado.importados}</span> importados
+                    <div className="rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-4">
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm font-medium">Resultado:</span>
+                        <span className="text-sm text-green-600 font-semibold">{resultado.importados} importados</span>
                         {resultado.total - resultado.importados > 0 && (
-                          <span className="text-red-500 ml-2">{resultado.total - resultado.importados} erros</span>
+                          <span className="text-sm text-red-500 font-semibold">{resultado.total - resultado.importados} erros</span>
                         )}
-                      </p>
+                      </div>
                       {resultado.erros.length > 0 && (
-                        <div className="mt-2 max-h-32 overflow-y-auto text-xs">
+                        <div className="mt-2 max-h-28 overflow-y-auto text-xs space-y-0.5">
                           {resultado.erros.slice(0, 10).map((erro, i) => (
                             <p key={i} className="text-red-500">Linha {erro.linha}: {erro.erro}</p>
                           ))}
@@ -212,11 +215,24 @@ export default function ImportarContatosEmail({ listaId, listaNome, onImportado 
                       )}
                     </div>
                   )}
-                </>
+
+                  {/* Footer */}
+                  <div className="flex justify-end gap-2 pt-2">
+                    <button onClick={() => setModalAberto(false)}
+                      className="rounded-lg px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800">
+                      Fechar
+                    </button>
+                    <button onClick={handleImportarArquivo} disabled={!arquivoSelecionado || importando}
+                      className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">
+                      {importando && <Loader2 size={16} className="animate-spin" />}
+                      {importando ? "Importando..." : "Importar"}
+                    </button>
+                  </div>
+                </div>
               ) : (
-                <div className="py-4 text-center">
+                <div className="mt-8 text-center">
                   <p className="text-sm text-slate-500 mb-4">
-                    Importar contatos para esta lista via integração com API externa.
+                    Importar contatos via integração com API externa.
                   </p>
                   <button
                     onClick={() => { setShowApiImport(true); setModalAberto(false) }}
@@ -227,20 +243,6 @@ export default function ImportarContatosEmail({ listaId, listaNome, onImportado 
                 </div>
               )}
             </div>
-
-            {modo === "arquivo" && (
-              <div className="flex justify-end gap-2 border-t border-slate-200 dark:border-slate-700 p-4">
-                <button onClick={() => setModalAberto(false)}
-                  className="rounded-lg px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800">
-                  Fechar
-                </button>
-                <button onClick={handleImportarArquivo} disabled={!arquivoSelecionado || importando}
-                  className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">
-                  {importando && <Loader2 size={16} className="animate-spin" />}
-                  {importando ? "Importando..." : "Importar"}
-                </button>
-              </div>
-            )}
           </div>
         </div>
       )}
