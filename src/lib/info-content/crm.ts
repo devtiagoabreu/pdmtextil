@@ -434,6 +434,28 @@ export const crmContent: Record<string, InfoContent> = {
       { name: "Links Vídeos", desc: "Links para vídeos tutoriais explicativos" },
     ],
   },
+  "/comercial/crm/treinamento/": {
+    title: "Detalhe da Lição",
+    description: "Leia o conteúdo completo da lição de treinamento. Aqui você encontra a documentação detalhada da tela, pré-requisitos, links para POPs e vídeos tutoriais.",
+    rules: [
+      "Use Exportar PDF para gerar um documento com cabeçalho e rodapé",
+      "Links de POPs e vídeos tutoriais abrem em nova aba",
+      "Navegue entre lições usando os botões Anterior e Próxima",
+      "O cabeçalho de impressão mostra o módulo e o título da lição",
+    ],
+    fields: [],
+  },
+  "/comercial/crm/treinamento/admin/": {
+    title: "Editar Lição",
+    description: "Edite os dados da lição de treinamento: módulo, título, conteúdo markdown, pré-requisitos e links multimídia.",
+    rules: [
+      "Altere o módulo para mover a lição entre módulos",
+      "O conteúdo markdown é renderizado com formatação rica (títulos, listas, tabelas)",
+      "Marque como inativo para ocultar a lição sem deletar",
+      "Salve as alterações para que o conteúdo seja atualizado imediatamente",
+    ],
+    fields: [],
+  },
 
   // ==================== ESTADOS (CONFIG) ====================
   "/comercial/crm/configuracoes/estados": {
