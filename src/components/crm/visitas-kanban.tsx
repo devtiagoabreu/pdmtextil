@@ -99,7 +99,7 @@ function DraggableCard({ visita }: { visita: VisitaCard }) {
         <span className="text-[10px] text-slate-400">{TIPO_LABELS[visita.tipo] || visita.tipo}</span>
       </div>
       <p className="text-sm font-medium text-slate-900 dark:text-slate-100 mt-1 leading-snug line-clamp-2">
-        {visita.empresaNome || "Sem empresa"}
+        {visita.empresaNome || "Sem pessoa"}
       </p>
       {visita.oportunidadeTitulo && (
         <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">{visita.oportunidadeTitulo}</p>

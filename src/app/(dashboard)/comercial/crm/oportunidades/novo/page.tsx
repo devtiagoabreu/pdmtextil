@@ -7,7 +7,7 @@ import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft, Save } from "lucide-react"
 import { toast } from "sonner"
-import { QuickCreateEmpresa } from "@/components/crm/quick-create-pessoa"
+import { QuickCreatePessoa } from "@/components/crm/quick-create-pessoa"
 import { QuickCreateLead } from "@/components/crm/quick-create-lead"
 import { useStatuses } from "@/hooks/use-statuses"
 
@@ -145,8 +145,8 @@ export default function NovaOportunidadePage() {
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Empresa
-              <QuickCreateEmpresa onCreated={handleEmpresaCreated} />
+              Pessoa
+              <QuickCreatePessoa onCreated={handleEmpresaCreated} />
             </label>
             <select
               value={form.empresaId}

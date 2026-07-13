@@ -302,9 +302,9 @@ export default function DetalheVisitaPage() {
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
               <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4">Informações</h2>
               <div className="space-y-3 text-sm">
-                <Field label="Empresa" value={visita.empresaNome} />
+                <Field label="Pessoa" value={visita.empresaNome} />
                 {visita.empresaEndereco && (
-                  <Field label="End. Empresa" value={[visita.empresaEndereco, visita.empresaNumero, visita.empresaBairro, visita.empresaCidade, visita.empresaUf].filter(Boolean).join(", ")} />
+                  <Field label="End. Pessoa" value={[visita.empresaEndereco, visita.empresaNumero, visita.empresaBairro, visita.empresaCidade, visita.empresaUf].filter(Boolean).join(", ")} />
                 )}
                 <Field label="Oportunidade" value={visita.oportunidadeTitulo} />
                 <Field label="Contato" value={visita.contatoNome} />

@@ -122,9 +122,9 @@ export const searchRegistry: SearchItem[] = [
 
   // CRM
   { id: "crm-dashboard", label: "CRM — Dashboard", keywords: ["crm", "dashboard", "comercial", "painel", "leads", "pessoas", "clientes"], href: "/comercial/crm", description: "Dashboard do CRM com métricas de leads e pessoas", module: "CRM" },
-  { id: "crm-pessoas", label: "CRM — Empresas", keywords: ["crm", "empresa", "pessoas", "lista", "prospecto", "comercial"], href: "/comercial/crm/pessoas", description: "Lista de pessoas do CRM", module: "CRM" },
-  { id: "crm-pessoas-nova", label: "CRM — Nova Empresa", keywords: ["crm", "empresa", "nova", "criar", "cadastro", "prospecto"], href: "/comercial/crm/pessoas/novo", description: "Cadastrar nova empresa no CRM", module: "CRM" },
-  { id: "crm-pessoas-detalhe", label: "CRM — Empresa (Detalhe)", keywords: ["crm", "empresa", "detalhe", "ficha", "contatos"], href: "/comercial/crm/pessoas/[id]", description: "Ficha completa da empresa com contatos", module: "CRM" },
+  { id: "crm-pessoas", label: "CRM — Pessoas", keywords: ["crm", "pessoa", "pessoas", "lista", "prospecto", "comercial"], href: "/comercial/crm/pessoas", description: "Lista de pessoas do CRM", module: "CRM" },
+  { id: "crm-pessoas-nova", label: "CRM — Nova Pessoa", keywords: ["crm", "pessoa", "nova", "criar", "cadastro", "prospecto"], href: "/comercial/crm/pessoas/novo", description: "Cadastrar nova pessoa no CRM", module: "CRM" },
+  { id: "crm-pessoas-detalhe", label: "CRM — Pessoa (Detalhe)", keywords: ["crm", "pessoa", "detalhe", "ficha", "contatos"], href: "/comercial/crm/pessoas/[id]", description: "Ficha completa da pessoa com contatos", module: "CRM" },
   { id: "crm-leads", label: "CRM — Leads", keywords: ["crm", "lead", "leads", "lista", "prospeccao", "comercial"], href: "/comercial/crm/leads", description: "Lista de leads do CRM", module: "CRM" },
   { id: "crm-leads-novo", label: "CRM — Novo Lead", keywords: ["crm", "lead", "novo", "criar", "cadastro", "prospeccao"], href: "/comercial/crm/leads/novo", description: "Cadastrar novo lead no CRM", module: "CRM" },
 

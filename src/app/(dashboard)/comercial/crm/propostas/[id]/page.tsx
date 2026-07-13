@@ -88,7 +88,7 @@ export default function DetalhePropostaPage() {
 
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <span className="text-slate-500 dark:text-slate-400 block text-xs">Empresa</span>
+                <span className="text-slate-500 dark:text-slate-400 block text-xs">Pessoa</span>
                 <span className="text-slate-900 dark:text-slate-200 font-medium">{proposta.empresaId || "—"}</span>
               </div>
               <div>

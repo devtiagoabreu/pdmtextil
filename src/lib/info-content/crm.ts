@@ -6,7 +6,7 @@ export const crmContent: Record<string, InfoContent> = {
     title: "Dashboard CRM",
     description: "Visão geral do CRM com métricas de leads, pessoas, pipeline comercial, atividades recentes e previsão de receita. Central de comando para o time comercial.",
     rules: [
-      "Os cards de resumo (Leads, Empresas, Oportunidades) são clicáveis — levam direto para a lista correspondente.",
+      "Os cards de resumo (Leads, Pessoas, Oportunidades) são clicáveis — levam direto para a lista correspondente.",
       "O funil mostra a quantidade de oportunidades em cada etapa do pipeline.",
       "A previsão de receita é calculada com base no valor estimado das oportunidades em aberto.",
       "O gráfico de previsão mensal é atualizado automaticamente com dados da IA Comercial.",
@@ -15,7 +15,7 @@ export const crmContent: Record<string, InfoContent> = {
     fields: [
       { name: "Pipeline (Funil)", desc: "Quantidade de oportunidades por estágio (Novo → Qualificação → Proposta → Negociação → Fechado)" },
       { name: "Previsão de Receita", desc: "Soma dos valores estimados das oportunidades abertas" },
-      { name: "Top Empresas", desc: "5 pessoas com maior valor total em pipeline" },
+      { name: "Top Pessoas", desc: "5 pessoas com maior valor total em pipeline" },
       { name: "Atividades Recentes", desc: "Últimas 10 movimentações registradas na timeline" },
     ],
   },
@@ -27,7 +27,7 @@ export const crmContent: Record<string, InfoContent> = {
     rules: [
       "Leads NOVOS devem ser contatados em até 24h para maior taxa de conversão.",
       "O score IA (0-100) é preenchido automaticamente pela inteligência artificial, indicando a probabilidade de conversão.",
-      "Lead QUALIFICADO pode ser convertido em Empresa — isso cria um registro de empresa no CRM.",
+      "Lead QUALIFICADO pode ser convertido em Pessoa — isso cria um registro de pessoa no CRM.",
       "Lead PERDIDO pode ser reativado automaticamente após 90 dias pela IA Comercial.",
       "A coluna Score IA mostra: verde (≥70), amarelo (40-69), vermelho (<40).",
     ],
@@ -45,7 +45,7 @@ export const crmContent: Record<string, InfoContent> = {
     description: "Cadastre manualmente um lead captado por qualquer canal. Quanto mais informações preencher, melhor a IA poderá classificar o lead automaticamente.",
     rules: [
       "Apenas o nome é obrigatório — os demais campos podem ser preenchidos depois.",
-      "Se o lead já tiver um CNPJ, é melhor cadastrá-lo direto como Empresa.",
+      "Se o lead já tiver um CNPJ, é melhor cadastrá-lo direto como Pessoa.",
       "Todo lead inicia com status NOVO.",
       "O responsável padrão é o usuário logado, mas pode ser alterado.",
     ],
@@ -57,84 +57,84 @@ export const crmContent: Record<string, InfoContent> = {
     ],
   },
 
-  // ==================== EMPRESAS ====================
+  // ==================== PESSOAS ====================
   "/comercial/crm/pessoas": {
-    title: "Empresas",
-    description: "Cadastro de pessoas no CRM. Cada empresa pode ter múltiplos contatos, oportunidades, propostas, visitas e um histórico completo na timeline.",
+    title: "Pessoas",
+    description: "Cadastro de pessoas no CRM. Cada pessoa pode ter múltiplos contatos, oportunidades, propostas, visitas e um histórico completo na timeline.",
     rules: [
       "O CNPJ é único — não é possível cadastrar duas pessoas com o mesmo CNPJ.",
-      "Empresas podem ser criadas manualmente ou convertidas de leads qualificados.",
-      "Uma empresa CONVERTIDO_CLIENTE é automaticamente sincronizada com o cadastro de Clientes do PDM.",
-      "Ao clicar no nome da empresa, você abre o detalhe completo com timeline, WhatsApp e resumo IA.",
+      "Pessoas podem ser criadas manualmente ou convertidas de leads qualificados.",
+      "Uma pessoa CONVERTIDO_CLIENTE é automaticamente sincronizada com o cadastro de Clientes do PDM.",
+      "Ao clicar no nome da pessoa, você abre o detalhe completo com timeline, WhatsApp e resumo IA.",
     ],
     fields: [
-      { name: "Razão Social", desc: "Nome jurídico da empresa (obrigatório)" },
+      { name: "Razão Social", desc: "Nome jurídico da pessoa (obrigatório)" },
       { name: "CNPJ", desc: "Formato XX.XXX.XXX/XXXX-XX — valida duplicidade" },
-      { name: "Segmento", desc: "Ramo de atuação da empresa" },
+      { name: "Segmento", desc: "Ramo de atuação da pessoa" },
       { name: "Status", desc: "Novo, Qualificado, Convertido Cliente, Perdido, Inativo" },
     ],
   },
   "/comercial/crm/pessoas/novo": {
-    title: "Nova Empresa",
-    description: "Cadastre uma nova empresa no CRM. O cadastro pode ser feito manualmente ou através da conversão de um lead qualificado.",
+    title: "Nova Pessoa",
+    description: "Cadastre uma nova pessoa no CRM. O cadastro pode ser feito manualmente ou através da conversão de um lead qualificado.",
     rules: [
       "A razão social é obrigatória; o CNPJ é recomendado para evitar duplicidade.",
-      "Empresas sem CNPJ podem ser cadastradas, mas a validação de unicidade não será aplicada.",
+      "Pessoas sem CNPJ podem ser cadastradas, mas a validação de unicidade não será aplicada.",
       "Após criar, você pode adicionar contatos, oportunidades e visitas.",
     ],
     fields: [
-      { name: "Razão Social", desc: "Nome jurídico da empresa (obrigatório)" },
+      { name: "Razão Social", desc: "Nome jurídico da pessoa (obrigatório)" },
       { name: "CNPJ", desc: "Cadastro Nacional de Pessoa Jurídica" },
       { name: "Segmento", desc: "Ramo de atuação (ex: Confecção, Estamparia, Têxtil)" },
       { name: "Responsável", desc: "Representante comercial responsável pela conta" },
     ],
   },
   "/comercial/crm/pessoas/[id]": {
-    title: "Detalhe da Empresa",
-    description: "Visão completa de uma empresa no CRM: dados cadastrais, contatos, timeline, WhatsApp e resumo gerado por IA. Tudo que você precisa saber sobre a conta.",
+    title: "Detalhe da Pessoa",
+    description: "Visão completa de uma pessoa no CRM: dados cadastrais, contatos, timeline, WhatsApp e resumo gerado por IA. Tudo que você precisa saber sobre a conta.",
     rules: [
       "A Timeline mostra todo o histórico de interações: leads, oportunidades, visitas, tarefas, propostas e mensagens WhatsApp.",
       "O WhatsApp permite enviar e receber mensagens diretamente pelo sistema (integrado com Evolution API + n8n).",
-      "O Resumo IA é gerado automaticamente, consolidando as informações mais relevantes da empresa.",
+      "O Resumo IA é gerado automaticamente, consolidando as informações mais relevantes da pessoa.",
       "Para editar os dados, clique em Editar no topo da página.",
     ],
     fields: [
-      { name: "Timeline", desc: "Histórico completo de eventos da empresa em ordem cronológica" },
-      { name: "WhatsApp", desc: "Painel de conversas WhatsApp vinculadas à empresa" },
+      { name: "Timeline", desc: "Histórico completo de eventos da pessoa em ordem cronológica" },
+      { name: "WhatsApp", desc: "Painel de conversas WhatsApp vinculadas à pessoa" },
       { name: "Resumo IA", desc: "Resumo inteligente com sugestões geradas pela IA Comercial" },
-      { name: "Contatos", desc: "Pessoas de contato da empresa com cargo, e-mail e telefone" },
+      { name: "Contatos", desc: "Pessoas de contato da pessoa com cargo, e-mail e telefone" },
     ],
   },
 
   // ==================== OPORTUNIDADES ====================
   "/comercial/crm/oportunidades": {
     title: "Oportunidades",
-    description: "Lista de oportunidades comerciais em andamento. Cada oportunidade representa uma negociação em potencial com uma empresa, com valor estimado e estágio no pipeline.",
+    description: "Lista de oportunidades comerciais em andamento. Cada oportunidade representa uma negociação em potencial com uma pessoa, com valor estimado e estágio no pipeline.",
     rules: [
       "O pipeline segue o fluxo: Novo → Qualificação → Proposta → Negociação → Fechado Ganho/Perdido.",
       "Use o Kanban para arrastar oportunidades entre estágios do pipeline.",
       "Oportunidades FECHADO_PERDIDO podem ser reativadas pela IA após 90 dias.",
-      "Ao fechar como GANHO, a empresa é automaticamente sincronizada como Cliente no PDM.",
+      "Ao fechar como GANHO, a pessoa é automaticamente sincronizada como Cliente no PDM.",
     ],
     fields: [
       { name: "Título", desc: "Nome da oportunidade (ex: Venda de 500m de malha)" },
-      { name: "Empresa", desc: "Empresa vinculada à oportunidade" },
+      { name: "Pessoa", desc: "Pessoa vinculada à oportunidade" },
       { name: "Valor Estimado", desc: "Valor potencial da negociação" },
       { name: "Status", desc: "Estágio no pipeline: Novo → Qualificação → Proposta → Negociação → Fechado" },
     ],
   },
   "/comercial/crm/oportunidades/novo": {
     title: "Nova Oportunidade",
-    description: "Registre uma nova oportunidade de negócio. Toda oportunidade deve estar vinculada a uma empresa existente no CRM.",
+    description: "Registre uma nova oportunidade de negócio. Toda oportunidade deve estar vinculada a uma pessoa existente no CRM.",
     rules: [
-      "A empresa deve estar cadastrada no CRM antes de criar a oportunidade.",
+      "A pessoa deve estar cadastrada no CRM antes de criar a oportunidade.",
       "O valor estimado é opcional, mas recomendado para cálculo de forecast.",
       "A oportunidade inicia como NOVO e segue o pipeline até o fechamento.",
       "É possível vincular a oportunidade a um lead de origem.",
     ],
     fields: [
       { name: "Título", desc: "Descrição resumida da oportunidade (obrigatório)" },
-      { name: "Empresa", desc: "Empresa vinculada (autocomplete)" },
+      { name: "Pessoa", desc: "Pessoa vinculada (autocomplete)" },
       { name: "Valor Estimado", desc: "Valor potencial da negociação" },
       { name: "Probabilidade", desc: "Chance estimada de fechamento (0-100%)" },
     ],
@@ -160,7 +160,7 @@ export const crmContent: Record<string, InfoContent> = {
       "Arraste um card para outra coluna para mudar o estágio da oportunidade.",
       "Ao arrastar para FECHADO_PERDIDO, um modal solicitará o motivo da perda.",
       "Apenas usuários com permissão podem mover cards entre estágios.",
-      "Cada card mostra o título, empresa, valor e probabilidade da oportunidade.",
+      "Cada card mostra o título, pessoa, valor e probabilidade da oportunidade.",
       "Clique no card para ver detalhes completos.",
     ],
     fields: [
@@ -184,7 +184,7 @@ export const crmContent: Record<string, InfoContent> = {
       "No Kanban, arraste os cards entre colunas para alterar o status da visita.",
     ],
     fields: [
-      { name: "Empresa", desc: "Empresa visitada" },
+      { name: "Pessoa", desc: "Pessoa visitada" },
       { name: "Data", desc: "Data e horário da visita" },
       { name: "Tipo", desc: "Presencial, Vídeo ou Telefone" },
       { name: "Status", desc: "Agendada, Realizada, Cancelada" },
@@ -192,15 +192,15 @@ export const crmContent: Record<string, InfoContent> = {
   },
   "/comercial/crm/visitas/novo": {
     title: "Nova Visita",
-    description: "Agende uma visita a uma empresa. Informe o tipo, data, contato e observações sobre o objetivo da visita.",
+    description: "Agende uma visita a uma pessoa. Informe o tipo, data, contato e observações sobre o objetivo da visita.",
     rules: [
-      "Selecione a empresa (autocomplete com pessoas cadastradas).",
+      "Selecione a pessoa (autocomplete com pessoas cadastradas).",
       "Escolha o tipo: Presencial (vai até o cliente), Vídeo (chamada online) ou Telefone.",
       "A data e horário definem quando a visita será realizada.",
-      "O contato é opcional — você pode selecionar um contato cadastrado da empresa.",
+      "O contato é opcional — você pode selecionar um contato cadastrado da pessoa.",
     ],
     fields: [
-      { name: "Empresa", desc: "Empresa a ser visitada (obrigatório)" },
+      { name: "Pessoa", desc: "Pessoa a ser visitada (obrigatório)" },
       { name: "Tipo", desc: "Presencial, Vídeo ou Telefone" },
       { name: "Data/Hora", desc: "Quando a visita será realizada" },
       { name: "Observações", desc: "Objetivo e pauta da visita" },
@@ -211,7 +211,7 @@ export const crmContent: Record<string, InfoContent> = {
     description: "Acompanhe os detalhes de uma visita: dados do encontro, fotos, relato do representante e próximo passo.",
     rules: [
       "Visitas realizadas podem ter fotos anexadas.",
-      "O relato da visita ajuda a IA a gerar resumo da empresa.",
+      "O relato da visita ajuda a IA a gerar resumo da pessoa.",
       "É possível alterar o status da visita (Realizada, Cancelada).",
     ],
     fields: [
@@ -245,13 +245,13 @@ export const crmContent: Record<string, InfoContent> = {
     title: "Propostas",
     description: "Lista de propostas comerciais enviadas. Acompanhe o status de cada proposta: enviada, aceita, recusada ou em revisão.",
     rules: [
-      "Cada proposta está vinculada a uma empresa e opcionalmente a uma oportunidade.",
+      "Cada proposta está vinculada a uma pessoa e opcionalmente a uma oportunidade.",
       "Ao ACEITAR uma proposta, a oportunidade vinculada avança no pipeline.",
       "Propostas podem ser impressas em PDF diretamente do sistema.",
       "O valor total e as condições são registrados para controle histórico.",
     ],
     fields: [
-      { name: "Empresa", desc: "Empresa destinatária da proposta" },
+      { name: "Pessoa", desc: "Pessoa destinatária da proposta" },
       { name: "Valor Total", desc: "Valor total da proposta" },
       { name: "Status", desc: "Enviada, Aceita, Recusada ou Em Revisão" },
       { name: "Validade", desc: "Prazo de validade da proposta" },
@@ -259,15 +259,15 @@ export const crmContent: Record<string, InfoContent> = {
   },
   "/comercial/crm/propostas/novo": {
     title: "Nova Proposta",
-    description: "Crie uma proposta comercial para uma empresa. Preencha os dados, valores, condições e itens da proposta.",
+    description: "Crie uma proposta comercial para uma pessoa. Preencha os dados, valores, condições e itens da proposta.",
     rules: [
-      "A empresa é obrigatória — a oportunidade é opcional.",
+      "A pessoa é obrigatória — a oportunidade é opcional.",
       "O prazo de validade define até quando a proposta pode ser aceita.",
       "Após criar, você pode imprimir em PDF.",
       "Propostas podem ser revisadas e reenviadas.",
     ],
     fields: [
-      { name: "Empresa", desc: "Empresa destinatária (obrigatório)" },
+      { name: "Pessoa", desc: "Pessoa destinatária (obrigatório)" },
       { name: "Oportunidade", desc: "Oportunidade vinculada (opcional)" },
       { name: "Valor Total", desc: "Valor comercial da proposta" },
       { name: "Validade", desc: "Prazo para aceitação da proposta" },
