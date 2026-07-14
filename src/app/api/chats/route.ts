@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { chats, chatMensagens, chatParticipantes, chatLeituras, usuarios } from "@/lib/db/schema"
-import { eq, desc, and, inArray, sql } from "drizzle-orm"
+import { eq, desc, and, or, inArray, sql } from "drizzle-orm"
 
 export async function GET(req: NextRequest) {
   try {
@@ -59,8 +59,12 @@ export async function GET(req: NextRequest) {
         `,
       })
       .from(chats)
-      .innerJoin(chatParticipantes, eq(chats.id, chatParticipantes.chatId))
-      .where(eq(chatParticipantes.usuarioId, userId))
+      .where(
+        or(
+          sql`EXISTS (SELECT 1 FROM chat_participantes WHERE chat_id = chats.id AND usuario_id = ${userId})`,
+          sql`EXISTS (SELECT 1 FROM chat_mensagens WHERE chat_id = chats.id AND remetente_id = ${userId})`
+        )
+      )
       .orderBy(desc(chats.updatedAt))
 
     return NextResponse.json(lista)
