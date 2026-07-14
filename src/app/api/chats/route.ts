@@ -2,11 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { chats, chatMensagens, chatParticipantes, chatLeituras, usuarios } from "@/lib/db/schema"
-import { crmWhatsappMensagens } from "@/lib/db/schema/crm-whatsapp"
-import { crmLeads } from "@/lib/db/schema/crm-leads"
-import { crmContatos } from "@/lib/db/schema/crm-contatos"
-import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
-import { eq, desc, and, or, sql, isNotNull } from "drizzle-orm"
+import { eq, desc, and, or, sql } from "drizzle-orm"
 
 export async function GET(req: NextRequest) {
   try {
@@ -30,6 +26,21 @@ export async function GET(req: NextRequest) {
         )
         .limit(1)
       return NextResponse.json(result[0] || null)
+    }
+
+    const userData = await db
+      .select({ role: usuarios.role })
+      .from(usuarios)
+      .where(eq(usuarios.id, userId))
+      .limit(1)
+    const isCrm = userData[0]?.role === "CRM"
+
+    const conditions = [
+      sql`EXISTS (SELECT 1 FROM chat_participantes WHERE chat_id = chats.id AND usuario_id = ${userId})`,
+      sql`EXISTS (SELECT 1 FROM chat_mensagens WHERE chat_id = chats.id AND remetente_id = ${userId})`,
+    ]
+    if (isCrm) {
+      conditions.push(sql`EXISTS (SELECT 1 FROM chat_participantes WHERE chat_id = chats.id)`)
     }
 
     const lista = await db
@@ -63,76 +74,10 @@ export async function GET(req: NextRequest) {
         `,
       })
       .from(chats)
-      .where(
-        or(
-          sql`EXISTS (SELECT 1 FROM chat_participantes WHERE chat_id = chats.id AND usuario_id = ${userId})`,
-          sql`EXISTS (SELECT 1 FROM chat_mensagens WHERE chat_id = chats.id AND remetente_id = ${userId})`
-        )
-      )
+      .where(or(...conditions))
       .orderBy(desc(chats.updatedAt))
 
-    const whatsappGrouped = await db
-      .select({
-        remoteJid: crmWhatsappMensagens.remoteJid,
-        ultimaMensagem: sql<string>`(
-          SELECT mensagem FROM crm_whatsapp_mensagens
-          WHERE remote_jid = ${crmWhatsappMensagens.remoteJid}
-          ORDER BY created_at DESC LIMIT 1
-        )`,
-        utlimaData: sql<string>`MAX(${crmWhatsappMensagens.createdAt})`,
-        naoLidas: sql<number>`COUNT(*) FILTER (WHERE NOT ${crmWhatsappMensagens.lida} AND ${crmWhatsappMensagens.tipo} = 'RECEBIDA')`,
-      })
-      .from(crmWhatsappMensagens)
-      .where(isNotNull(crmWhatsappMensagens.remoteJid))
-      .groupBy(crmWhatsappMensagens.remoteJid)
-      .orderBy(desc(sql`MAX(${crmWhatsappMensagens.createdAt})`))
-      .limit(100)
-
-    const remoteJids = whatsappGrouped.map((w) => w.remoteJid)
-
-    const leads = remoteJids.length > 0
-      ? await db
-          .select({ id: crmLeads.id, nome: crmLeads.nome, idIntegracao: crmLeads.idIntegracao })
-          .from(crmLeads)
-          .where(sql`${crmLeads.idIntegracao} IN (${sql.join(remoteJids.map((j) => sql`${`whatsapp:${j}`}`), sql`, `)})`)
-      : []
-
-    const contatos = remoteJids.length > 0
-      ? await db
-          .select({ id: crmContatos.id, nome: crmContatos.nome, whatsapp: crmContatos.whatsapp, empresaId: crmContatos.empresaId, empresaNome: crmPessoas.razaoSocial })
-          .from(crmContatos)
-          .leftJoin(crmPessoas, eq(crmContatos.empresaId, crmPessoas.id))
-          .where(sql`${crmContatos.whatsapp} IN (${sql.join(remoteJids.map((j) => sql`${j}`), sql`, `)})`)
-      : []
-
-    const whatsappChats = whatsappGrouped.map((w) => {
-      const lead = leads.find((l) => l.idIntegracao === `whatsapp:${w.remoteJid}`)
-      const contato = contatos.find((c) => c.whatsapp === w.remoteJid)
-      const nome = lead?.nome || contato?.nome || contato?.empresaNome || w.remoteJid?.split("@")[0] || "WhatsApp"
-      const id = parseInt(w.remoteJid.replace(/\D/g, "").slice(0, 15), 10) || 0
-      return {
-        id,
-        fonte: "whatsapp",
-        remoteJid: w.remoteJid,
-        titulo: nome,
-        tipo: "WHATSAPP",
-        ultimaMensagem: w.ultimaMensagem,
-        ultimaMensagemData: w.utlimaData,
-        naoLidas: Number(w.naoLidas),
-        participantes: 0,
-        entidadeTipo: null,
-        entidadeId: null,
-        criadoPor: 0,
-        updatedAt: w.utlimaData || new Date().toISOString(),
-        createdAt: w.utlimaData || new Date().toISOString(),
-      }
-    })
-
-    const merged = [...lista, ...whatsappChats].sort((a, b) =>
-      new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-    )
-
-    return NextResponse.json(merged)
+    return NextResponse.json(lista)
   } catch (error) {
     console.error("[GET /api/chats]", error)
     return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
