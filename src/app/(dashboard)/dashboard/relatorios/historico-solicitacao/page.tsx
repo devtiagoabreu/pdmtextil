@@ -235,7 +235,8 @@ export default function HistoricoSolicitacaoPage() {
             <label className="block text-xs text-slate-400 mb-1">Ou ID direto</label>
             <div className="flex gap-2">
               <input
-                type="number"
+                type="text"
+                inputMode="numeric"
                 placeholder="#"
                 className="w-20 h-10 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 text-sm"
                 onKeyDown={(e) => {
@@ -247,7 +248,7 @@ export default function HistoricoSolicitacaoPage() {
               />
               <button
                 onClick={() => {
-                  const input = document.querySelector<HTMLInputElement>('input[type="number"]')
+                  const input = document.querySelector<HTMLInputElement>('input[type="text"]')
                   if (input) { const val = parseInt(input.value); if (!isNaN(val)) selectSolicitacao(val) }
                 }}
                 className="h-10 px-4 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700"
