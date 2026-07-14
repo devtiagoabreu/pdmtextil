@@ -5,8 +5,9 @@ import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { useState } from "react"
-import { PlusCircle, ListChecks, CheckCircle2, Circle, Loader2 } from "lucide-react"
+import { PlusCircle, ListChecks, CheckCircle2, Circle, Loader2, Table, Columns } from "lucide-react"
 import CriarTarefaDialog from "./criar-dialog"
+import TarefasKanban from "@/components/crm/tarefas-kanban"
 
 async function fetchTarefas(filtro: string) {
   const params = new URLSearchParams()
@@ -45,6 +46,7 @@ export default function TarefasPage() {
   const info = getInfoContent(pathname)
   const [filtro, setFiltro] = useState("pendentes")
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [modo, setModo] = useState<"tabela" | "kanban">("tabela")
 
   const { data: tarefas, isLoading } = useQuery({
     queryKey: ["crm-tarefas", filtro],
@@ -91,15 +93,43 @@ export default function TarefasPage() {
             {isLoading ? "Carregando..." : `${tarefas?.length || 0} tarefa(s)`}
           </p>
         </div>
-        <button
-          onClick={() => setDialogOpen(true)}
-          className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors shadow-sm"
-        >
-          <PlusCircle size={16} />
-          Nova Tarefa
-        </button>
+        <div className="flex items-center gap-3">
+          <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-0.5 shadow-sm">
+            <button
+              onClick={() => setModo("tabela")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                modo === "tabela"
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+              }`}
+            >
+              <Table size={14} />
+              Tabela
+            </button>
+            <button
+              onClick={() => setModo("kanban")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                modo === "kanban"
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+              }`}
+            >
+              <Columns size={14} />
+              Kanban
+            </button>
+          </div>
+          <button
+            onClick={() => setDialogOpen(true)}
+            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors shadow-sm"
+          >
+            <PlusCircle size={16} />
+            Nova Tarefa
+          </button>
+        </div>
       </div>
 
+      {modo === "tabela" && (
+      <>
       <div className="flex gap-2 flex-wrap">
         {FILTROS.map((f) => (
           <button
@@ -174,6 +204,18 @@ export default function TarefasPage() {
           </div>
         )}
       </div>
+      </>
+      )}
+
+      {modo === "kanban" && (
+        isLoading ? (
+          <div className="flex justify-center py-20">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+          </div>
+        ) : (
+          <TarefasKanban tarefas={tarefas || []} />
+        )
+      )}
 
       <CriarTarefaDialog open={dialogOpen} onClose={() => setDialogOpen(false)} />
     </div>

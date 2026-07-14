@@ -34,6 +34,8 @@ export default function HistoricoSolicitacaoPage() {
   const [showDropdown, setShowDropdown] = useState(false)
   const [orientacao, setOrientacao] = useState<"portrait" | "landscape">("portrait")
   const searchRef = useRef<HTMLDivElement>(null)
+  const idInputRef = useRef<HTMLInputElement>(null)
+  const idTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const fetchHistory = useCallback(async (id: number) => {
     setLoading(true)
@@ -235,21 +237,37 @@ export default function HistoricoSolicitacaoPage() {
             <label className="block text-xs text-slate-400 mb-1">Ou ID direto</label>
             <div className="flex gap-2">
               <input
+                ref={idInputRef}
                 type="text"
                 inputMode="numeric"
                 placeholder="#"
                 className="w-20 h-10 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 text-sm"
+                onChange={(e) => {
+                  const raw = e.currentTarget.value.replace(/\D/g, "")
+                  e.currentTarget.value = raw
+                  if (idTimeoutRef.current) clearTimeout(idTimeoutRef.current)
+                  if (raw) {
+                    idTimeoutRef.current = setTimeout(() => {
+                      const val = parseInt(raw)
+                      if (!isNaN(val)) selectSolicitacao(val)
+                    }, 500)
+                  }
+                }}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
-                    const val = parseInt((e.target as HTMLInputElement).value)
+                    if (idTimeoutRef.current) clearTimeout(idTimeoutRef.current)
+                    const val = parseInt(e.currentTarget.value)
                     if (!isNaN(val)) selectSolicitacao(val)
                   }
                 }}
               />
               <button
                 onClick={() => {
-                  const input = document.querySelector<HTMLInputElement>('input[type="text"]')
-                  if (input) { const val = parseInt(input.value); if (!isNaN(val)) selectSolicitacao(val) }
+                  if (idTimeoutRef.current) clearTimeout(idTimeoutRef.current)
+                  if (idInputRef.current) {
+                    const val = parseInt(idInputRef.current.value)
+                    if (!isNaN(val)) selectSolicitacao(val)
+                  }
                 }}
                 className="h-10 px-4 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700"
               >
