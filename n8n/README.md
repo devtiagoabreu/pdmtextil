@@ -4,8 +4,12 @@
 
 | Arquivo | Descrição |
 |---|---|
-| `whatsapp-evolution-para-crm.json` | 🔄 Encaminha mensagens direto para o CRM (simples) |
-| `whatsapp-bot-atendimento.json` | 🤖 Bot de atendimento com conversa guiada |
+| `../n8n-workflow-atualizado.json` | 🟢 **Produção** — Bot com IA (Groq + Redis), evolui estado, salva no CRM, notifica representantes |
+| `whatsapp-bot-ai-agent.json` | 🔴 Antigo — Bot com IA (Groq + Redis), mesmo fluxo sem notificações |
+| `whatsapp-bot-atendimento.json` | 🔴 Antigo — Bot de atendimento com conversa guiada (sem IA) |
+| `whatsapp-evolution-para-crm.json` | 🔴 Antigo — Encaminhamento simples para o CRM |
+
+> **Arquivo principal de produção:** `n8n-workflow-atualizado.json` — documentação completa em `n8n-workflow.md`. Os demais estão inativos.
 
 ---
 
@@ -25,11 +29,13 @@ Evolution → n8n Webhook → Extrair dados → Filtrar → Enviar para CRM
 3. **Ativar e copiar URL**: Abra o workflow, clique no nó **Receber do Evolution** e copie a Webhook URL
 4. **Registrar na Evolution**: Execute o comando abaixo com a URL copiada
 
+> ⚠️ O `byEvents` deve ser **`true`** para evitar que a Evolution envie todos os tipos de evento (conexão, QR code, etc.). Com `byEvents: true`, apenas `MESSAGES_UPSERT` é disparado.
+
 ```bash
 curl -X POST https://evolutionapi.tiagoabreu.dev/webhook/set/maketing_pdm_pro_moda \
-  -H "apikey: E7CFC0D4875D-46F3-BF90-3946AAD1917A" \
+  -H "apikey: evolution_apikey_dqgh3ffrdg" \
   -H "Content-Type: application/json" \
-  -d '{"webhook":{"enabled":true,"url":"WEBHOOK_URL_AQUI","byEvents":false,"events":["MESSAGES_UPSERT"]}}'
+  -d '{"webhook":{"enabled":true,"url":"WEBHOOK_URL_AQUI","byEvents":true,"events":["MESSAGES_UPSERT"]}}'
 ```
 
 ---
