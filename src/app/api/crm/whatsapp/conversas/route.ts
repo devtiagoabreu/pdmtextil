@@ -98,7 +98,7 @@ export async function GET(req: NextRequest) {
       ? resultado.filter(
           (r) =>
             r.nome.toLowerCase().includes(search.toLowerCase()) ||
-            r.remoteJid.includes(search)
+            (r.remoteJid && r.remoteJid.includes(search))
         )
       : resultado
 
