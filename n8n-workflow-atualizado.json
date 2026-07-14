@@ -36,6 +36,19 @@
     },
     {
       "parameters": {
+        "functionCode": "const data = $input.first().json;\n\n// Ignora mensagens enviadas pelo proprio bot\nif (data.fromMe === true) {\n  return [null];\n}\n\n// Ignora mensagens vazias (status update, lida, entregue, etc)\nif (!data.msg || data.msg.trim() === \"\") {\n  return [null];\n}\n\n// Ignora eventos sem remetente (conexao, qr, etc)\nif (!data.remetente) {\n  return [null];\n}\n\nreturn [{ json: data }];"
+      },
+      "id": "a0b1c2d3-e4f5-6789-abcd-ef0123456789",
+      "name": "Filtrar evento",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -1768,
+        128
+      ]
+    },
+    {
+      "parameters": {
         "resource": "chat-api",
         "operation": "find-contacts",
         "instanceName": "maketing_pdm_pro_moda"
@@ -43,7 +56,7 @@
       "type": "n8n-nodes-evolution-api.evolutionApi",
       "typeVersion": 1,
       "position": [
-        -1664,
+        -1584,
         128
       ],
       "id": "9578d1e0-80c7-4810-87fe-de7f5312c08e",
@@ -348,6 +361,17 @@
       ]
     },
     "Extrair dados": {
+      "main": [
+        [
+          {
+            "node": "Filtrar evento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtrar evento": {
       "main": [
         [
           {
