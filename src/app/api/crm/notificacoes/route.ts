@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { crmNotificacoes } from "@/lib/db/schema/crm-notificacoes"
-import { desc, eq } from "drizzle-orm"
+import { desc, eq, sql } from "drizzle-orm"
 
 export async function GET(req: NextRequest) {
   try {
@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
 
     const lista = await query
     const naoLidas = await db
-      .select({ count: db.fn.count(crmNotificacoes.id) })
+      .select({ count: sql<number>`COUNT(${crmNotificacoes.id})` })
       .from(crmNotificacoes)
       .where(eq(crmNotificacoes.lida, false))
       .then((r) => Number(r[0]?.count || 0))
