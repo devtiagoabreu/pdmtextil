@@ -6,7 +6,8 @@ import { useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
-import { PlusCircle, UserCircle, Search } from "lucide-react"
+import { PlusCircle, UserCircle, Search, Table, Columns } from "lucide-react"
+import PessoasKanban from "@/components/crm/pessoas-kanban"
 
 async function fetchEmpresas() {
   const res = await fetch("/api/crm/pessoas")
@@ -27,6 +28,7 @@ export default function CrmPessoasPage() {
   const pathname = usePathname()
   const info = getInfoContent(pathname)
   const [search, setSearch] = useState("")
+  const [modo, setModo] = useState<"tabela" | "kanban">("tabela")
 
   const { data: empresas, isLoading } = useQuery({
     queryKey: ["crm-pessoas"],
@@ -60,15 +62,43 @@ export default function CrmPessoasPage() {
             {isLoading ? "Carregando..." : `${filtered.length} pessoa(s)`}
           </p>
         </div>
-        <Link
-          href="/comercial/crm/pessoas/novo"
-          className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors shadow-sm"
-        >
-          <PlusCircle size={16} />
-          Nova Pessoa (Negócio)
-        </Link>
+        <div className="flex items-center gap-3">
+          <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-0.5 shadow-sm">
+            <button
+              onClick={() => setModo("tabela")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                modo === "tabela"
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+              }`}
+            >
+              <Table size={14} />
+              Tabela
+            </button>
+            <button
+              onClick={() => setModo("kanban")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                modo === "kanban"
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+              }`}
+            >
+              <Columns size={14} />
+              Kanban
+            </button>
+          </div>
+          <Link
+            href="/comercial/crm/pessoas/novo"
+            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors shadow-sm"
+          >
+            <PlusCircle size={16} />
+            Nova Pessoa (Negócio)
+          </Link>
+        </div>
       </div>
 
+      {modo === "tabela" && (
+      <>
       <div className="relative max-w-md">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
         <input
@@ -141,6 +171,18 @@ export default function CrmPessoasPage() {
           </div>
         )}
       </div>
+      </>
+      )}
+
+      {modo === "kanban" && (
+        isLoading ? (
+          <div className="flex justify-center py-20">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+          </div>
+        ) : (
+          <PessoasKanban pessoas={filtered} />
+        )
+      )}
     </div>
   )
 }

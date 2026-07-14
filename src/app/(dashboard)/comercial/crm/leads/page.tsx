@@ -6,8 +6,9 @@ import { useState } from "react"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
-import { PlusCircle, UserPlus, Search, Phone, Star, Building2, XCircle } from "lucide-react"
+import { PlusCircle, UserPlus, Search, Phone, Star, Building2, XCircle, Table, Columns } from "lucide-react"
 import { toast } from "sonner"
+import LeadsKanban from "@/components/crm/leads-kanban"
 
 async function fetchLeads() {
   const res = await fetch("/api/crm/leads")
@@ -38,6 +39,7 @@ export default function CrmLeadsPage() {
   const pathname = usePathname()
   const info = getInfoContent(pathname)
   const [search, setSearch] = useState("")
+  const [modo, setModo] = useState<"tabela" | "kanban">("tabela")
 
   const { data: leads, isLoading, refetch } = useQuery({
     queryKey: ["crm-leads"],
@@ -113,15 +115,43 @@ export default function CrmLeadsPage() {
             {isLoading ? "Carregando..." : `${filtered.length} lead(s)`}
           </p>
         </div>
-        <Link
-          href="/comercial/crm/leads/novo"
-          className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors shadow-sm"
-        >
-          <PlusCircle size={16} />
-          Novo Lead
-        </Link>
+        <div className="flex items-center gap-3">
+          <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-0.5 shadow-sm">
+            <button
+              onClick={() => setModo("tabela")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                modo === "tabela"
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+              }`}
+            >
+              <Table size={14} />
+              Tabela
+            </button>
+            <button
+              onClick={() => setModo("kanban")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                modo === "kanban"
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+              }`}
+            >
+              <Columns size={14} />
+              Kanban
+            </button>
+          </div>
+          <Link
+            href="/comercial/crm/leads/novo"
+            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors shadow-sm"
+          >
+            <PlusCircle size={16} />
+            Novo Lead
+          </Link>
+        </div>
       </div>
 
+      {modo === "tabela" && (
+      <>
       <div className="relative max-w-md">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
         <input
@@ -264,6 +294,18 @@ export default function CrmLeadsPage() {
           </div>
         )}
       </div>
+      </>
+      )}
+
+      {modo === "kanban" && (
+        isLoading ? (
+          <div className="flex justify-center py-20">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+          </div>
+        ) : (
+          <LeadsKanban leads={filtered} />
+        )
+      )}
     </div>
   )
 }

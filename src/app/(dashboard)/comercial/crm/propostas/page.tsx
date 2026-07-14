@@ -6,7 +6,8 @@ import { getInfoContent } from "@/lib/info-content"
 import Link from "next/link"
 import { useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
-import { PlusCircle, FileText, Search } from "lucide-react"
+import { PlusCircle, FileText, Search, Table, Columns } from "lucide-react"
+import PropostasKanban from "@/components/crm/propostas-kanban"
 
 async function fetchPropostas() {
   const res = await fetch("/api/crm/propostas")
@@ -33,6 +34,7 @@ export default function PropostasPage() {
   const pathname = usePathname()
   const info = getInfoContent(pathname)
   const [search, setSearch] = useState("")
+  const [modo, setModo] = useState<"tabela" | "kanban">("tabela")
 
   const { data: propostas, isLoading } = useQuery({
     queryKey: ["crm-propostas"],
@@ -54,15 +56,43 @@ export default function PropostasPage() {
             {isLoading ? "Carregando..." : `${filtered.length} proposta(s)`}
           </p>
         </div>
-        <Link
-          href="/comercial/crm/propostas/novo"
-          className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors shadow-sm"
-        >
-          <PlusCircle size={16} />
-          Nova Proposta
-        </Link>
+        <div className="flex items-center gap-3">
+          <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-0.5 shadow-sm">
+            <button
+              onClick={() => setModo("tabela")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                modo === "tabela"
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+              }`}
+            >
+              <Table size={14} />
+              Tabela
+            </button>
+            <button
+              onClick={() => setModo("kanban")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                modo === "kanban"
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+              }`}
+            >
+              <Columns size={14} />
+              Kanban
+            </button>
+          </div>
+          <Link
+            href="/comercial/crm/propostas/novo"
+            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors shadow-sm"
+          >
+            <PlusCircle size={16} />
+            Nova Proposta
+          </Link>
+        </div>
       </div>
 
+      {modo === "tabela" && (
+      <>
       <div className="relative max-w-md">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
         <input
@@ -123,6 +153,18 @@ export default function PropostasPage() {
           </div>
         )}
       </div>
+      </>
+      )}
+
+      {modo === "kanban" && (
+        isLoading ? (
+          <div className="flex justify-center py-20">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+          </div>
+        ) : (
+          <PropostasKanban propostas={filtered} />
+        )
+      )}
     </div>
   )
 }
