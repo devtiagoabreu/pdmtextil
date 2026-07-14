@@ -8,7 +8,15 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Loader2, Plus, Trash2, Edit3, ChevronDown, ChevronRight, Save, GripVertical } from "lucide-react"
+import { Loader2, Plus, Trash2, Edit3, ChevronDown, ChevronRight, Save, GripVertical, Copy } from "lucide-react"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog"
 import {
   Select,
   SelectContent,
@@ -252,6 +260,10 @@ export default function ConfigurarMenusPage() {
   const [editForm, setEditForm] = useState<Record<string, any>>({})
   const [saving, setSaving] = useState(false)
   const [reordering, setReordering] = useState(false)
+  const [showCopyDialog, setShowCopyDialog] = useState(false)
+  const [usuarios, setUsuarios] = useState<{ id: number; name: string }[]>([])
+  const [selectedUsuarioId, setSelectedUsuarioId] = useState<number | null>(null)
+  const [copying, setCopying] = useState(false)
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
@@ -284,6 +296,41 @@ export default function ConfigurarMenusPage() {
       toast.error("Erro ao salvar página inicial")
     }
     setSaving(false)
+  }
+
+  async function abrirCopyDialog() {
+    setCopying(false)
+    setSelectedUsuarioId(null)
+    const res = await fetch("/api/user/menus/usuarios")
+    if (res.ok) {
+      const data = await res.json()
+      setUsuarios(Array.isArray(data) ? data : [])
+    }
+    setShowCopyDialog(true)
+  }
+
+  async function copiarMenus() {
+    if (!selectedUsuarioId) return
+    setCopying(true)
+    try {
+      const res = await fetch("/api/user/menus/copiar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ origemUsuarioId: selectedUsuarioId }),
+      })
+      if (!res.ok) {
+        const err = await res.json()
+        toast.error(err.error || "Erro ao copiar menus")
+        return
+      }
+      const data = await res.json()
+      if (Array.isArray(data)) setMenus(data)
+      setShowCopyDialog(false)
+      toast.success("Menus copiados com sucesso")
+    } catch {
+      toast.error("Erro ao copiar menus")
+    }
+    setCopying(false)
   }
 
   async function criarMenu() {
@@ -496,10 +543,16 @@ export default function ConfigurarMenusPage() {
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">Menus</h2>
-          <Button onClick={criarMenu} size="sm" className="gap-1" disabled={reordering}>
-            <Plus size={14} />
-            Novo Menu
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button onClick={abrirCopyDialog} size="sm" variant="outline" className="gap-1" disabled={reordering}>
+              <Copy size={14} />
+              Copiar menus
+            </Button>
+            <Button onClick={criarMenu} size="sm" className="gap-1" disabled={reordering}>
+              <Plus size={14} />
+              Novo Menu
+            </Button>
+          </div>
         </div>
 
         {menus.length === 0 ? (
@@ -595,6 +648,45 @@ export default function ConfigurarMenusPage() {
           </DndContext>
         )}
       </div>
+
+      {/* Dialog Copiar Menus */}
+      <Dialog open={showCopyDialog} onOpenChange={setShowCopyDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Copiar menus de outro usuário</DialogTitle>
+            <DialogDescription>
+              Selecione um usuário para copiar todos os menus e itens. Os menus atuais serão substituídos.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-2">
+            <Label>Usuário de origem</Label>
+            <Select
+              value={selectedUsuarioId?.toString() || ""}
+              onValueChange={(v) => setSelectedUsuarioId(v ? parseInt(v) : null)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione um usuário..." />
+              </SelectTrigger>
+              <SelectContent>
+                {usuarios.map(u => (
+                  <SelectItem key={u.id} value={u.id.toString()}>{u.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" type="button" disabled={copying} onClick={() => setShowCopyDialog(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={copiarMenus} disabled={!selectedUsuarioId || copying} className="gap-2">
+              {copying ? <Loader2 size={14} className="animate-spin" /> : <Copy size={14} />}
+              Copiar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
