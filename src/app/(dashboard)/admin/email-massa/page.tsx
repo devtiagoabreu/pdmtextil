@@ -15,13 +15,12 @@ import {
   Link, List, Plus, Pencil, Trash2, FileText, Users, Copy, X, Eye,
   ImageIcon, Type, Strikethrough, ListOrdered, Palette, GripVertical,
   RefreshCw, CheckCircle2, XCircle, Clock, Search,
-  BarChart3, TrendingUp, MousePointerClick, Upload, Database,
+  BarChart3, TrendingUp, MousePointerClick,
   ChevronUp, ChevronDown, Move3D,
 } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import ImportarContatosEmail from "@/components/importar/ImportarContatosEmail"
-import ImportarApiModal from "@/components/integracao/ImportarApiModal"
 import { exportPDF, exportPDFRelatorio } from "@/lib/export-utils"
 import { getInfoContent } from "@/lib/info-content"
 import { Separator } from "@/components/ui/separator"
@@ -280,12 +279,7 @@ export default function EmailMassaPage() {
   const [editContatoId, setEditContatoId] = useState<number | null>(null)
   const [viewLista, setViewLista] = useState<ListaComContatos | null>(null)
   const [loadingListas, setLoadingListas] = useState(false)
-  const [selectedListaImportId, setSelectedListaImportId] = useState(0)
-  const [selectedListaImportNome, setSelectedListaImportNome] = useState("")
-  const [showApiImport, setShowApiImport] = useState(false)
-  const [importCriarListaOpen, setImportCriarListaOpen] = useState(false)
-  const [importNovaListaNome, setImportNovaListaNome] = useState("")
-  const [importCriandoLista, setImportCriandoLista] = useState(false)
+
 
   const [linkDialogOpen, setLinkDialogOpen] = useState(false)
   const [linkUrl, setLinkUrl] = useState("https://")
@@ -780,34 +774,6 @@ export default function EmailMassaPage() {
     )
   }
 
-  const criarListaEImportar = async () => {
-    if (!importNovaListaNome.trim()) {
-      toast.error("Informe o nome da lista")
-      return
-    }
-    setImportCriandoLista(true)
-    try {
-      const res = await fetch("/api/admin/email-massa/listas", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nome: importNovaListaNome.trim(), descricao: "" }),
-      })
-      if (!res.ok) throw new Error("Erro ao criar lista")
-      const data = await res.json()
-      const novaListaId = data.id
-      setSelectedListaImportId(novaListaId)
-      setSelectedListaImportNome(importNovaListaNome.trim())
-      setImportCriarListaOpen(false)
-      setImportNovaListaNome("")
-      await carregarListas()
-      toast.success(`Lista "${importNovaListaNome.trim()}" criada`)
-    } catch {
-      toast.error("Erro ao criar lista")
-    } finally {
-      setImportCriandoLista(false)
-    }
-  }
-
   const formatDate = (dateStr: string | null) => {
     if (!dateStr) return "—"
     return new Date(dateStr).toLocaleString("pt-BR", {
@@ -1133,52 +1099,7 @@ export default function EmailMassaPage() {
             <div className="p-6 flex flex-col space-y-4">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-semibold">Listas de Destinatários</h2>
-                <div className="flex gap-2">
-                  <div className="flex items-center gap-1">
-                    {selectedListaImportId ? (
-                      <ImportarContatosEmail
-                        listaId={selectedListaImportId}
-                        listaNome={selectedListaImportNome}
-                        onImportado={() => { carregarListas(); setSelectedListaImportId(0) }}
-                      />
-                    ) : (
-                      <>
-                        {listas.length > 0 && (
-                          <select
-                            value={selectedListaImportId || ""}
-                            onChange={e => {
-                              const val = e.target.value
-                              if (val === "__nova__") {
-                                setImportCriarListaOpen(true)
-                                return
-                              }
-                              const id = Number(val)
-                              const l = listas.find(x => x.id === id)
-                              setSelectedListaImportId(id)
-                              setSelectedListaImportNome(l?.nome || "")
-                            }}
-                            className="text-sm p-1.5 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
-                          >
-                            <option value="">Importar CSV/JSON...</option>
-                            {listas.map(l => (
-                              <option key={l.id} value={l.id}>{l.nome}</option>
-                            ))}
-                            <option value="__nova__">+ Criar nova lista...</option>
-                          </select>
-                        )}
-                        {listas.length === 0 && (
-                          <Button variant="outline" size="sm" onClick={() => setImportCriarListaOpen(true)} className="gap-1">
-                            <Upload size={14} /> Importar CSV/JSON
-                          </Button>
-                        )}
-                      </>
-                    )}
-                  </div>
-                  <Button variant="outline" size="sm" onClick={() => setShowApiImport(true)} className="gap-1">
-                    <Database size={14} /> Importar via API
-                  </Button>
-                  <Button onClick={abrirNovaLista} className="gap-1"><Plus size={14} /> Nova Lista</Button>
-                </div>
+                <Button onClick={abrirNovaLista} className="gap-1"><Plus size={14} /> Nova Lista</Button>
               </div>
 
               {loadingListas ? (
@@ -1219,16 +1140,6 @@ export default function EmailMassaPage() {
             </div>
           </div>
 
-          {showApiImport && (
-            <ImportarApiModal
-              tela="email-listas"
-              existingRecords={[]}
-              existingKey="email"
-              onImportado={() => { setShowApiImport(false); carregarListas() }}
-              onClose={() => setShowApiImport(false)}
-              extraImportParams={{ listaId: selectedListaImportId || undefined }}
-            />
-          )}
         </TabsContent>
 
         {/* ────────── TAB DASHBOARD ────────── */}
@@ -1527,33 +1438,6 @@ export default function EmailMassaPage() {
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setViewLista(null)}>Fechar</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* ─────── DIALOG CRIAR LISTA ANTES DE IMPORTAR ─────── */}
-      <Dialog open={importCriarListaOpen} onOpenChange={setImportCriarListaOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Criar nova lista</DialogTitle>
-            <DialogDescription>Informe o nome da lista para criar e importar contatos.</DialogDescription>
-          </DialogHeader>
-          <div className="py-4 space-y-3">
-            <Label>Nome da lista</Label>
-            <Input
-              value={importNovaListaNome}
-              onChange={e => setImportNovaListaNome(e.target.value)}
-              placeholder="Ex: Newsletter Julho 2026"
-              autoFocus
-              onKeyDown={e => { if (e.key === "Enter") criarListaEImportar() }}
-            />
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setImportCriarListaOpen(false)}>Cancelar</Button>
-            <Button onClick={criarListaEImportar} disabled={importCriandoLista || !importNovaListaNome.trim()}>
-              {importCriandoLista ? <Loader2 size={14} className="animate-spin mr-1" /> : null}
-              {importCriandoLista ? "Criando..." : "Criar e Importar"}
-            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
