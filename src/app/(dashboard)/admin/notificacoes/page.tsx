@@ -13,7 +13,7 @@ interface Regra {
   roles: string[]
 }
 
-const ALL_ROLES = ["COMERCIAL", "DESENVOLVIMENTO", "ADMIN", "SUDO", "QUALIDADE", "TECELAGEM", "BENEFICIAMENTO", "PCP"]
+const ALL_ROLES = ["COMERCIAL", "CRM", "DESENVOLVIMENTO", "ADMIN", "SUDO", "QUALIDADE", "TECELAGEM", "BENEFICIAMENTO", "PCP"]
 
 const TIPO_LABEL: Record<string, string> = {
   SOLICITACAO_CRIADA: "Solicitação Criada",
