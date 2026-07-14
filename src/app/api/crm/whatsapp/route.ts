@@ -13,9 +13,11 @@ export async function GET(req: NextRequest) {
     if (auth instanceof NextResponse) return auth
     const { searchParams } = new URL(req.url)
     const empresaId = searchParams.get("empresaId")
+    const remoteJid = searchParams.get("remoteJid")
 
     const conditions = []
     if (empresaId) conditions.push(eq(crmWhatsappMensagens.empresaId, Number(empresaId)))
+    if (remoteJid) conditions.push(eq(crmWhatsappMensagens.remoteJid, remoteJid))
 
     const where = conditions.length > 0 ? sql`${conditions.reduce((a, b) => sql`${a} AND ${b}`)}` : undefined
 

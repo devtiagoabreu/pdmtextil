@@ -36,7 +36,9 @@ async function seed() {
     { userMenuId: menuCrm.id, titulo: "Regiões", url: "/comercial/crm/regioes", ordem: 8 },
     { userMenuId: menuCrm.id, titulo: "Equipes", url: "/comercial/crm/equipes", ordem: 9 },
     { userMenuId: menuCrm.id, titulo: "Campanhas", url: "/comercial/crm/campanhas", ordem: 10 },
-    { userMenuId: menuCrm.id, titulo: "Relatórios", url: "/comercial/crm/relatorios", ordem: 11 },
+    { userMenuId: menuCrm.id, titulo: "Conversas WhatsApp", url: "/comercial/crm/conversas", ordem: 11 },
+    { userMenuId: menuCrm.id, titulo: "Notificações", url: "/comercial/crm/notificacoes", ordem: 12 },
+    { userMenuId: menuCrm.id, titulo: "Relatórios", url: "/comercial/crm/relatorios", ordem: 13 },
   ])
 
   // Menu CRM para role CRM
@@ -59,7 +61,9 @@ async function seed() {
     { userMenuId: menuCrmRole.id, titulo: "Regiões", url: "/comercial/crm/regioes", ordem: 9 },
     { userMenuId: menuCrmRole.id, titulo: "Equipes", url: "/comercial/crm/equipes", ordem: 10 },
     { userMenuId: menuCrmRole.id, titulo: "Campanhas", url: "/comercial/crm/campanhas", ordem: 11 },
-    { userMenuId: menuCrmRole.id, titulo: "Relatórios", url: "/comercial/crm/relatorios", ordem: 12 },
+    { userMenuId: menuCrmRole.id, titulo: "Conversas WhatsApp", url: "/comercial/crm/conversas", ordem: 12 },
+    { userMenuId: menuCrmRole.id, titulo: "Notificações", url: "/comercial/crm/notificacoes", ordem: 13 },
+    { userMenuId: menuCrmRole.id, titulo: "Relatórios", url: "/comercial/crm/relatorios", ordem: 14 },
   ])
 
   // Menu CRM também visível para ADMIN
@@ -81,7 +85,9 @@ async function seed() {
     { userMenuId: menuCrmAdmin.id, titulo: "Regiões", url: "/comercial/crm/regioes", ordem: 8 },
     { userMenuId: menuCrmAdmin.id, titulo: "Equipes", url: "/comercial/crm/equipes", ordem: 9 },
     { userMenuId: menuCrmAdmin.id, titulo: "Campanhas", url: "/comercial/crm/campanhas", ordem: 10 },
-    { userMenuId: menuCrmAdmin.id, titulo: "Relatórios", url: "/comercial/crm/relatorios", ordem: 11 },
+    { userMenuId: menuCrmAdmin.id, titulo: "Conversas WhatsApp", url: "/comercial/crm/conversas", ordem: 11 },
+    { userMenuId: menuCrmAdmin.id, titulo: "Notificações", url: "/comercial/crm/notificacoes", ordem: 12 },
+    { userMenuId: menuCrmAdmin.id, titulo: "Relatórios", url: "/comercial/crm/relatorios", ordem: 13 },
   ])
 
   console.log("✅ Seed concluído!")

@@ -1,0 +1,520 @@
+{
+  "name": "My workflow 34",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "whatsapp-evolution",
+        "responseMode": "lastNode",
+        "responseData": "allEntries",
+        "options": {
+          "rawBody": true
+        }
+      },
+      "id": "c75f0868-b43a-4e48-8735-2195de0cc3fc",
+      "name": "Receber do Evolution",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -2096,
+        128
+      ],
+      "webhookId": "whatsapp-evolution"
+    },
+    {
+      "parameters": {
+        "functionCode": "const item = $input.first().json;\nconst body = item.body || item;\nconst data = body.data || {};\nconst key = data.key || {};\nconst msg = data.message || {};\n\nconst pushName = data.pushName || body.pushName || \"\";\nconst remetente = key.remoteJid || body.remoteJid || body.sender || \"\";\nconst fromMe = key.fromMe === true;\nconst mensagem = msg.conversation\n  || msg.extendedTextMessage?.text\n  || msg.imageMessage?.caption\n  || msg.documentMessage?.caption\n  || msg.videoMessage?.caption\n  || \"\";\nconst msgType = data.messageType || \"\";\nconst destinatario = body.sender || \"\";\n\nreturn [{\n  json: {\n    pushName,\n    remetente,\n    fromMe,\n    msg: mensagem,\n    msgType,\n    destinatario\n  }\n}];"
+      },
+      "id": "319a19c2-6d31-476d-b77e-eeef251dc639",
+      "name": "Extrair dados",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -1872,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "chat-api",
+        "operation": "find-contacts",
+        "instanceName": "maketing_pdm_pro_moda"
+      },
+      "type": "n8n-nodes-evolution-api.evolutionApi",
+      "typeVersion": 1,
+      "position": [
+        -1664,
+        128
+      ],
+      "id": "9578d1e0-80c7-4810-87fe-de7f5312c08e",
+      "name": "Listar contatos",
+      "credentials": {
+        "evolutionApi": {
+          "id": "zlFrmzQfy0KbWcqo",
+          "name": "Evolution account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "const extData = $node[\"Extrair dados\"].json;\nconst remetente = extData.remetente || \"\";\nconst numero = remetente.replace(\"@s.whatsapp.net\", \"\").replace(\"@lid\", \"\");\n\nconst firstItem = $input.first().json;\nconst allItems = $input.all();\n\nlet encontrado = false;\n\nif (allItems.length > 1 || (allItems.length === 1 && firstItem.remoteJid && !firstItem.success)) {\n  encontrado = allItems.some(c => {\n    const jid = c.json.remoteJid || \"\";\n    return jid.replace(\"@s.whatsapp.net\", \"\").replace(\"@lid\", \"\") === numero;\n  });\n} else if (firstItem.data && Array.isArray(firstItem.data)) {\n  encontrado = firstItem.data.some(c => {\n    const jid = c.remoteJid || \"\";\n    return jid.replace(\"@s.whatsapp.net\", \"\").replace(\"@lid\", \"\") === numero;\n  });\n}\n\nreturn [{\n  json: {\n    ...extData,\n    contatoConhecido: encontrado\n  }\n}];"
+      },
+      "id": "a7670d91-9242-4fb4-be8b-7a59e0cfd388",
+      "name": "Combinar dados",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -1232,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://pdmprotextil.vercel.app/api/crm/whatsapp/conversa?remoteJid={{ $json.remetente }}",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "011d82e2-c24c-4d64-af95-d5443cec6de3",
+      "name": "Buscar conversa",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -880,
+        128
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "functionCode": "const extItems = $items(\"Extrair dados\");\nconst extData = (extItems && extItems.length > 0) ? extItems[0].json : {};\n\n// Filtra mensagens enviadas por nos (fromMe = true)\nif (extData.fromMe === true) {\n  return [null];\n}\n\nconst msg = extData.msg || \"\";\n// Filtra mensagens vazias\nif (!msg || msg.trim() === \"\") {\n  return [null];\n}\n\nconst apiData = $input.first().json;\nconst remetente = extData.remetente || \"\";\n\n// Extrai o numero limpo (sem @s.whatsapp.net, @lid, etc)\nconst numero = remetente.split(\"@\")[0] || remetente;\n\nreturn [{\n  json: {\n    remetente: remetente,\n    numero: numero,\n    pushName: extData.pushName || \"\",\n    msg: msg,\n    msgType: extData.msgType || \"\",\n    estado: apiData.estado || \"SAUDACAO\",\n    dados: apiData.dados || {},\n    conversaId: apiData.id || null\n  }\n}];"
+      },
+      "id": "a57e9769-3317-4ed7-8412-efa6e12a8a27",
+      "name": "Filtrar e estado inicial",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -560,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.msg }}",
+        "options": {
+          "systemMessage": "=Você é o assistente de vendas virtual da Pro Moda Têxtil, uma indústria têxtil brasileira especializada em tecidos planos, hospitalares e industriais.\n\nFLUXO DA CONVERSA:\nEstado SAUDACAO: Apresente-se e pergunte \"Qual o seu nome?\".\nEstado COLETANDO_NOME: Extraia apenas o nome próprio do usuário (ex: se ele disser \"Meu nome é Tiago\", registre apenas \"Tiago\"). Confirme: \"Prazer em te conhecer, [NOME]!\".\nEstado COLETANDO_INTERESSE: Informe que todas as linhas são de tecidos planos e pergunte em qual linha ele tem interesse. Use lista numerada:\n\"Todas as nossas linhas são de tecidos planos. Qual dessas mais te interessa hoje?\n1 - Linha Lençol\n2 - Linha Hospitalar (lençóis e campos)\n3 - Tecidos para Lateral de Colchão\n4 - Tecidos Rústicos e Decoração\n5 - Movelaria e Forros\"\nEstado COLETANDO_DOC: Pergunte \"Você é pessoa física ou jurídica? Digite:\n1 - Pessoa Física (PF)\n2 - Pessoa Jurídica (PJ)\nDepois, informe o seu CPF ou CNPJ.\"\nEstado CONFIRMACAO: Mostre o resumo dos dados e da linha de interesse. Pergunte \"Está correto? Digite SIM para confirmar.\"\nEstado ENCERRADO: Informe \"Seu contato foi direcionado para um representante comercial, que entrará em contato em até 10 min.\" Agradeça.\n\nCONTEXTO:\n- Cliente: {{ $json.pushName }}\n- Estado: {{ $json.estado }}\n- Dados: {{ JSON.stringify($json.dados) }}\n\nREGRAS OBRIGATÓRIAS - O QUE VOCÊ DEVE FAZER:\n- Use português brasileiro natural, cordial e profissional.\n- Mantenha no máximo 3 linhas por mensagem.\n- Faça apenas UMA pergunta de cada vez.\n- Extraia o nome próprio ignorando preâmbulos como \"Meu nome é\", \"Pode me chamar de\" ou \"Eu sou\".\n- Use listas numeradas e quebras de linha para opções múltiplas.\n- Deixe claro que todas as linhas são de tecidos planos.\n- Para PF colete: nome, CPF, tipoPessoa=PF.\n- Para PJ colete: nome, CNPJ, tipoPessoa=PJ.\n\nREGRAS OBRIGATÓRIAS - O QUE VOCÊ NÃO PODE FAZER:\n- NÃO use emojis em hipótese alguma.\n- NÃO invente preços, prazos de entrega ou níveis de estoque.\n- NÃO pule etapas do fluxo da conversa.\n- NÃO pergunte mais de uma coisa por vez.\n- NÃO encerre o atendimento antes do estado ENCERRADO.\n- NÃO desvie do assunto ou ofereça produtos fora das linhas listadas.\n- NÃO compartilhe informações técnicas profundas sem ser solicitado.\n- NÃO insista se o cliente não quiser informar CPF/CNPJ, apenas reforce a necessidade.\n- NÃO use gírias, abreviações informais ou linguagem muito técnica.\n- NÃO confirme os dados sem antes exibir o resumo completo.\n- NÃO pule a etapa de confirmação (CONFIRMACAO) mesmo que o cliente pareça certo.\n- NÃO ofereça atendimento humano antes do estado ENCERRADO."
+        }
+      },
+      "id": "44317262-3cef-42ad-9b5f-65eeec53f5ba",
+      "name": "IA Atendente",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -304,
+        288
+      ]
+    },
+    {
+      "parameters": {
+        "model": "groq/compound-mini",
+        "options": {}
+      },
+      "id": "5273f171-8833-4cb4-9012-cbd43ea6233d",
+      "name": "Groq Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -336,
+        592
+      ],
+      "credentials": {
+        "groqApi": {
+          "id": "oG9hErdp3lvAJFwg",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "=session: {{ $json.remetente }}",
+        "sessionTTL": 3600,
+        "contextWindowLength": 15
+      },
+      "id": "839feab9-ca5f-4483-b846-a28b3bf1b08e",
+      "name": "Redis Chat Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
+      "typeVersion": 1.5,
+      "position": [
+        -192,
+        576
+      ],
+      "credentials": {
+        "redis": {
+          "id": "Uvac3m8TX1g7bg09",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "mergeByPosition",
+        "options": {}
+      },
+      "id": "495d272d-5150-4fd7-8f06-18940823c9c2",
+      "name": "Merge dados",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2,
+      "position": [
+        -16,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "const item = $input.first().json;\nconst aiRes = item.output || \"\";\n\nconst remetente = item.remetente || \"\";\nconst numero = item.numero || remetente.split(\"@\")[0] || \"\";\nconst curEstado = item.estado || \"SAUDACAO\";\nconst curDados = item.dados || {};\nconst msgOriginal = item.msg || \"\";\nconst msg = msgOriginal.toLowerCase().trim();\n\nlet nextEstado = curEstado;\nconst dados = JSON.parse(JSON.stringify(curDados));\n\nfunction extrairDoc(texto) {\n  const cnpj = texto.match(/\\d{2}\\.?\\d{3}\\.?\\d{3}\\/?\\d{4}-?\\d{2}/);\n  if (cnpj) return { doc: cnpj[0], tipo: \"PJ\" };\n  const cpf = texto.match(/\\d{3}\\.?\\d{3}\\.?\\d{3}-?\\d{2}/);\n  if (cpf) return { doc: cpf[0], tipo: \"PF\" };\n  return null;\n}\n\nfunction detectarTipo(texto) {\n  if (/\\b(1|pf|fisica|física)\\b/.test(texto)) return \"PF\";\n  if (/\\b(2|pj|juridica|jurídica|cnpj)\\b/.test(texto)) return \"PJ\";\n  return null;\n}\n\nfunction pareceNome(texto) {\n  const alpha = texto.replace(/[^a-zA-ZÀ-ÿ ]/g, \"\").trim();\n  return alpha.length > 2;\n}\n\nfunction confirmou(texto) {\n  return /\\b(sim|s|ss|claro|ok|confirmo|correto|certo)\\b/.test(texto);\n}\n\nif (curEstado === \"SAUDACAO\") {\n  nextEstado = \"COLETANDO_NOME\";\n\n} else if (curEstado === \"COLETANDO_NOME\") {\n  if (msgOriginal.length > 2 && pareceNome(msgOriginal)) {\n    dados.nome = msgOriginal;\n    nextEstado = \"COLETANDO_DOC\";\n  }\n\n} else if (curEstado === \"COLETANDO_DOC\") {\n  const tipo = detectarTipo(msg) || (extrairDoc(msgOriginal) ? extrairDoc(msgOriginal).tipo : null);\n  const doc = extrairDoc(msgOriginal);\n  if (tipo) dados.tipoPessoa = tipo;\n  if (doc) dados.documento = doc.doc;\n  if (!dados.tipoPessoa && doc) dados.tipoPessoa = doc.tipo;\n  if (!dados.nome && pareceNome(msgOriginal) && msgOriginal.length < 50) {\n    dados.nome = msgOriginal;\n  }\n  if (dados.documento || dados.tipoPessoa) {\n    nextEstado = \"CONFIRMACAO\";\n  }\n\n} else if (curEstado === \"CONFIRMACAO\") {\n  if (confirmou(msg)) {\n    dados.finalizado = true;\n    nextEstado = \"ENCERRADO\";\n  }\n\n} else if (curEstado === \"ENCERRADO\") {}\n\nreturn [{\n  json: {\n    remetente: remetente,\n    numero: numero,\n    pushName: item.pushName || \"\",\n    msg: msgOriginal,\n    resposta: aiRes,\n    estado: nextEstado,\n    dados\n  }\n}];"
+      },
+      "id": "b0ebc808-7357-4e6d-968a-aa2a3ccc5c3e",
+      "name": "Maquina de estados",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        176,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "messages-api",
+        "instanceName": "maketing_pdm_pro_moda",
+        "remoteJid": "={{ $json.remetente }}",
+        "messageText": "={{ $json.resposta }}",
+        "options_message": {}
+      },
+      "id": "5931c8d7-a2dd-436c-a4e0-eddcc5fd8fd8",
+      "name": "Enviar WhatsApp",
+      "type": "n8n-nodes-evolution-api.evolutionApi",
+      "typeVersion": 1,
+      "position": [
+        448,
+        160
+      ],
+      "credentials": {
+        "evolutionApi": {
+          "id": "zlFrmzQfy0KbWcqo",
+          "name": "Evolution account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://pdmprotextil.vercel.app/api/crm/whatsapp/conversa",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "remoteJid",
+              "value": "={{ $('Maquina de estados').item.json.remetente }}"
+            },
+            {
+              "name": "numero",
+              "value": "={{ $('Maquina de estados').item.json.numero }}"
+            },
+            {
+              "name": "pushName",
+              "value": "={{ $('Maquina de estados').item.json.pushName }}"
+            },
+            {
+              "name": "estado",
+              "value": "={{ $('Maquina de estados').item.json.estado }}"
+            },
+            {
+              "name": "dados",
+              "value": "={{ $('Maquina de estados').item.json.dados }}"
+            },
+            {
+              "name": "msg",
+              "value": "={{ $('Maquina de estados').item.json.msg }}"
+            },
+            {
+              "name": "resposta",
+              "value": "={{ $('Maquina de estados').item.json.resposta }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "31d4b497-4bbf-4c4a-845d-ba66ae3df007",
+      "name": "Salvar estado",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        784,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "const maqItem = $node[\"Maquina de estados\"].json;\nconst dados = maqItem.dados || {};\n\nif (dados.finalizado !== true) {\n  return [null];\n}\n\nconst nome = dados.nome || \"Não informado\";\nconst tipoPessoa = dados.tipoPessoa || \"N/I\";\nconst documento = dados.documento || \"Não informado\";\nconst telefone = maqItem.numero || maqItem.remetente?.split(\"@\")[0] || \"N/I\";\n\nconst targetJid = tipoPessoa === \"PJ\"\n  ? \"5519983530400@s.whatsapp.net\"\n  : \"5519981815930@s.whatsapp.net\";\n\nconst messageText = `*Novo lead cadastrado no CRM*\n\nNome: ${nome}\nTelefone: ${telefone}\nTipo: ${tipoPessoa === \"PJ\" ? \"Pessoa Jurídica\" : \"Pessoa Física\"}\nDocumento: ${documento}\n\nDados capturados pelo atendente automático.`;\n\nreturn [{\n  json: {\n    targetJid,\n    messageText,\n    remetente: maqItem.remetente,\n    numero: telefone,\n    nome,\n    tipoPessoa,\n    documento\n  }\n}];"
+      },
+      "id": "d4e5f6a7-b8c9-0123-def0-123456789abc",
+      "name": "Preparar notificacao",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1024,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "messages-api",
+        "instanceName": "maketing_pdm_pro_moda",
+        "remoteJid": "={{ $json.targetJid }}",
+        "messageText": "={{ $json.messageText }}",
+        "options_message": {}
+      },
+      "id": "e5f6a7b8-c9d0-1234-ef01-23456789abcd",
+      "name": "Enviar notificacao",
+      "type": "n8n-nodes-evolution-api.evolutionApi",
+      "typeVersion": 1,
+      "position": [
+        1376,
+        288
+      ],
+      "credentials": {
+        "evolutionApi": {
+          "id": "zlFrmzQfy0KbWcqo",
+          "name": "Evolution account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://pdmprotextil.vercel.app/api/crm/notificacoes",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "titulo",
+              "value": "=Novo lead cadastrado via WhatsApp"
+            },
+            {
+              "name": "mensagem",
+              "value": "={{ $json.messageText }}"
+            },
+            {
+              "name": "tipo",
+              "value": "=lead_novo"
+            },
+            {
+              "name": "link",
+              "value": "=/comercial/crm/leads"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "f6a7b8c9-d0e1-2345-f012-3456789abcde",
+      "name": "Salvar notificacao no CRM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        1296,
+        160
+      ],
+      "continueOnFail": true
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Receber do Evolution": {
+      "main": [
+        [
+          {
+            "node": "Extrair dados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extrair dados": {
+      "main": [
+        [
+          {
+            "node": "Listar contatos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Listar contatos": {
+      "main": [
+        [
+          {
+            "node": "Combinar dados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combinar dados": {
+      "main": [
+        [
+          {
+            "node": "Buscar conversa",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar conversa": {
+      "main": [
+        [
+          {
+            "node": "Filtrar e estado inicial",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtrar e estado inicial": {
+      "main": [
+        [
+          {
+            "node": "IA Atendente",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge dados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IA Atendente": {
+      "main": [
+        [
+          {
+            "node": "Merge dados",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge dados": {
+      "main": [
+        [
+          {
+            "node": "Maquina de estados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Maquina de estados": {
+      "main": [
+        [
+          {
+            "node": "Enviar WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar WhatsApp": {
+      "main": [
+        [
+          {
+            "node": "Salvar estado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Salvar estado": {
+      "main": [
+        [
+          {
+            "node": "Preparar notificacao",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar notificacao": {
+      "main": [
+        [
+          {
+            "node": "Salvar notificacao no CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Salvar notificacao no CRM": {
+      "main": [
+        [
+          {
+            "node": "Enviar notificacao",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "IA Atendente",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "IA Atendente",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f098dc47-c49a-4ac8-b0bb-08238f91c5d2",
+  "meta": {
+    "instanceId": "95c368c44ccbc6248aa393ed5f82936a3f9bb63a8032a7b3f264b488b209db7e"
+  },
+  "id": "CZ7VewSgjFlLf3gE",
+  "tags": []
+}

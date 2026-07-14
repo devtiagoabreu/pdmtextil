@@ -169,6 +169,10 @@ export const searchRegistry: SearchItem[] = [
   { id: "crm-representantes", label: "CRM — Representantes", keywords: ["crm", "representante", "representantes", "comercial", "gerente", "vendedor"], href: "/comercial/representantes", description: "Cadastro de representantes comerciais", module: "CRM" },
   { id: "crm-representantes-novo", label: "CRM — Novo Representante", keywords: ["crm", "representante", "novo", "criar", "cadastrar"], href: "/comercial/representantes/novo", description: "Cadastrar novo representante comercial", module: "CRM" },
 
+  // CRM — WhatsApp
+  { id: "crm-conversas", label: "CRM — Conversas WhatsApp", keywords: ["crm", "whatsapp", "conversas", "chat", "mensagens", "comercial", "lead", "contato"], href: "/comercial/crm/conversas", description: "Conversas do WhatsApp integradas ao CRM", module: "CRM" },
+  { id: "crm-notificacoes", label: "CRM — Notificações", keywords: ["crm", "notificacao", "notificacoes", "alerta", "aviso", "sistema", "lead"], href: "/comercial/crm/notificacoes", description: "Central de notificações do sistema CRM", module: "CRM" },
+
   // CRM — Relatórios
   { id: "crm-relatorios", label: "CRM — Relatórios", keywords: ["crm", "relatorio", "relatorios", "grafico", "dashboard", "analise", "metricas", "conversao", "pipeline"], href: "/comercial/crm/relatorios", description: "Relatórios e análises do CRM", module: "CRM" },
 
