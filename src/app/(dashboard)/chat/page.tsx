@@ -6,12 +6,15 @@ import { useSession } from "next-auth/react"
 import { MessageSquare, Plus, Send, CheckCheck, Users, ArrowLeft, MessageCircle, AtSign, Pencil, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { EmojiPicker } from "@/components/chat/emoji-picker"
+import WhatsAppChat from "@/components/crm/whatsapp-chat"
 import { toast } from "sonner"
 
 type Chat = {
   id: number
   tipo: string
   titulo: string
+  fonte?: "whatsapp"
+  remoteJid?: string
   entidadeTipo: string | null
   entidadeId: number | null
   criadoPor: number
@@ -94,12 +97,17 @@ function ChatList({
                   {chat.ultimaMensagem}
                 </p>
               )}
-              {chat.entidadeTipo && (
+              {chat.fonte === "whatsapp" ? (
+                <span className="inline-flex items-center gap-0.5 mt-1 text-[10px] text-green-600 dark:text-green-400">
+                  <MessageCircle size={10} />
+                  WhatsApp
+                </span>
+              ) : chat.entidadeTipo ? (
                 <span className="inline-flex items-center gap-0.5 mt-1 text-[10px] text-slate-400 dark:text-slate-500">
                   <MessageCircle size={10} />
                   {chat.entidadeTipo} #{chat.entidadeId}
                 </span>
-              )}
+              ) : null}
             </div>
             <div className="flex flex-col items-end gap-1 flex-shrink-0">
               {chat.ultimaMensagemData && (
@@ -620,6 +628,8 @@ export default function ChatPage() {
   })
 
   const selectedChat = selectedChatId
+  const selectedChatData = chats.find((c: Chat) => c.id === selectedChatId)
+  const isWhatsapp = selectedChatData?.fonte === "whatsapp"
 
   return (
     <div className="h-[calc(100vh-8rem)] flex flex-col">
@@ -652,7 +662,20 @@ export default function ChatPage() {
 
         {/* Main - Conversation */}
         <div className={`flex-1 flex flex-col min-w-0 ${!selectedChat ? "hidden md:flex" : "flex"}`}>
-          {selectedChat ? (
+          {selectedChat && isWhatsapp ? (
+            <div className="flex flex-col h-full">
+              <div className="flex items-center gap-3 p-4 border-b border-slate-200 dark:border-slate-700">
+                <button onClick={() => setSelectedChatId(null)} className="md:hidden p-1 text-slate-500 hover:text-slate-700">
+                  <ArrowLeft size={18} />
+                </button>
+                <div>
+                  <p className="font-medium text-sm text-slate-900 dark:text-slate-200">{selectedChatData?.titulo || "WhatsApp"}</p>
+                  <p className="text-xs text-slate-500">Conversa WhatsApp</p>
+                </div>
+              </div>
+              <WhatsAppChat key={selectedChatData?.id || "whatsapp"} remoteJid={selectedChatData?.remoteJid} />
+            </div>
+          ) : selectedChat ? (
             <ConversationView chatId={selectedChat} onBack={() => setSelectedChatId(null)} />
           ) : (
             <div className="flex-1 flex items-center justify-center text-slate-400">
