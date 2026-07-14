@@ -530,6 +530,41 @@ export const crmContent: Record<string, InfoContent> = {
     ],
   },
 
+  // ==================== CONVERSAS WHATSAPP ====================
+  "/comercial/crm/conversas": {
+    title: "Conversas WhatsApp",
+    description: "Visualize todas as conversas do WhatsApp integradas ao CRM. As mensagens de leads que entram via WhatsApp são agrupadas por contato.",
+    rules: [
+      "Conversas são agrupadas automaticamente pelo número de telefone do contato.",
+      "As mensagens são importadas automaticamente via n8n.",
+      "Novos leads cadastrados via WhatsApp disparam uma notificação no sistema.",
+    ],
+    fields: [
+      { name: "Painel lateral", desc: "Lista de conversas ativas, ordenadas pela mais recente" },
+      { name: "Painel principal", desc: "Exibe o histórico de mensagens da conversa selecionada" },
+      { name: "Link para lead", desc: "Clica no nome do contato para abrir a ficha do lead no CRM" },
+    ],
+  },
+
+  // ==================== NOTIFICAÇÕES ====================
+  "/comercial/crm/notificacoes": {
+    title: "Notificações",
+    description: "Central de notificações do CRM. Aqui você encontra alertas automáticos do sistema, como novos leads cadastrados via WhatsApp.",
+    rules: [
+      "Notificações são geradas automaticamente pelo sistema.",
+      "Use o filtro 'Não lidas' para ver apenas as pendentes.",
+      "Clique em 'Marcar como lida' para remover a notificação da lista de pendentes.",
+      "Notificações com link podem ser clicadas para navegar diretamente para o registro relacionado.",
+    ],
+    fields: [
+      { name: "Título", desc: "Título da notificação" },
+      { name: "Mensagem", desc: "Descrição detalhada da notificação" },
+      { name: "Tipo", desc: "Categoria da notificação (ex: lead_novo)" },
+      { name: "Data", desc: "Data e hora em que a notificação foi gerada" },
+      { name: "Status", desc: "Lida ou Não lida" },
+    ],
+  },
+
   // ==================== CIDADES (CONFIG) ====================
   "/comercial/crm/configuracoes/cidades": {
     title: "Cidades",
