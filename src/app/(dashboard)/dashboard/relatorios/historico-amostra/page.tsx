@@ -227,7 +227,8 @@ export default function HistoricoAmostraPage() {
             <label className="block text-xs text-slate-400 mb-1">Ou ID direto</label>
             <div className="flex gap-2">
               <input
-                type="number"
+                type="text"
+                inputMode="numeric"
                 placeholder="#"
                 className="w-20 h-10 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 text-sm"
                 onKeyDown={(e) => {
@@ -247,7 +248,7 @@ export default function HistoricoAmostraPage() {
               </select>
               <button
                 onClick={() => {
-                  const input = document.querySelector<HTMLInputElement>('input[type="number"]')
+                  const input = document.querySelector<HTMLInputElement>('input[type="text"]')
                   const tipoSel = document.querySelector<HTMLSelectElement>("#tipo-select")
                   if (input && tipoSel) {
                     const val = parseInt(input.value)
