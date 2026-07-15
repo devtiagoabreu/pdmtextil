@@ -10,6 +10,7 @@ import { PlusCircle, CalendarDays, Table, Columns, Search } from "lucide-react"
 import { useStatuses } from "@/hooks/use-statuses"
 import VisitasCalendario from "@/components/crm/visitas-calendario"
 import VisitasKanban from "@/components/crm/visitas-kanban"
+import { FloatableKanban } from "@/components/crm/floatable-kanban"
 
 async function fetchVisitas() {
   const res = await fetch("/api/crm/visitas")
@@ -133,7 +134,7 @@ export default function VisitasPage() {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
             </div>
           ) : (
-            <VisitasKanban visitas={visitas || []} />
+            <FloatableKanban tipo="VISITA"><VisitasKanban visitas={visitas || []} /></FloatableKanban>
           )
         ) : isLoading ? (
           <div className="flex justify-center py-20">

@@ -8,6 +8,7 @@ import { useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { PlusCircle, Target, Search, Table, Columns } from "lucide-react"
 import { toast } from "sonner"
+import { FloatableKanban } from "@/components/crm/floatable-kanban"
 import OportunidadesKanban from "@/components/crm/oportunidades-kanban"
 
 async function fetchOportunidades() {
@@ -174,7 +175,7 @@ export default function OportunidadesPage() {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
           </div>
         ) : (
-          <OportunidadesKanban oportunidades={oportunidades || []} />
+          <FloatableKanban tipo="OPORTUNIDADE"><OportunidadesKanban oportunidades={oportunidades || []} /></FloatableKanban>
         )
       )}
     </div>

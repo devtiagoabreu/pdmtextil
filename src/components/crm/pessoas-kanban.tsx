@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { DndContext, DragOverlay, useDraggable, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
@@ -90,6 +90,9 @@ function DraggableCard({ pessoa }: { pessoa: PessoaCard }) {
 export default function PessoasKanban({ pessoas }: { pessoas: PessoaCard[] }) {
   const { statuses, loading: statusLoading } = useStatuses("PESSOA")
   const [activeCard, setActiveCard] = useState<PessoaCard | null>(null)
+  const [cards, setCards] = useState<PessoaCard[]>(pessoas || [])
+
+  useEffect(() => { setCards(pessoas || []) }, [pessoas])
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
@@ -111,7 +114,7 @@ export default function PessoasKanban({ pessoas }: { pessoas: PessoaCard[] }) {
     .filter(s => s.ativo !== false)
     .map(col => ({
       ...col,
-      cards: pessoas.filter(p => p.status === col.nome),
+      cards: cards.filter(p => p.status === col.nome),
     }))
 
   const handleDragStart = (event: any) => {
@@ -131,6 +134,12 @@ export default function PessoasKanban({ pessoas }: { pessoas: PessoaCard[] }) {
     const novoStatus = over.id as string
     if (pessoa.status === novoStatus) return
 
+    const statusAntigo = pessoa.status
+
+    setCards(prev =>
+      prev.map(p => p.id === pessoa.id ? { ...p, status: novoStatus } : p)
+    )
+
     try {
       const res = await fetch(`/api/crm/pessoas/${pessoa.id}`, {
         method: "PUT",
@@ -143,6 +152,9 @@ export default function PessoasKanban({ pessoas }: { pessoas: PessoaCard[] }) {
       }
       toast.success(`Pessoa movida para ${getLabel(novoStatus)}`)
     } catch (err: any) {
+      setCards(prev =>
+        prev.map(p => p.id === pessoa.id ? { ...p, status: statusAntigo } : p)
+      )
       toast.error(err.message)
     }
   }

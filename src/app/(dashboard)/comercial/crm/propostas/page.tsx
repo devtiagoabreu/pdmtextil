@@ -8,6 +8,7 @@ import { useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { PlusCircle, FileText, Search, Table, Columns } from "lucide-react"
 import PropostasKanban from "@/components/crm/propostas-kanban"
+import { FloatableKanban } from "@/components/crm/floatable-kanban"
 
 async function fetchPropostas() {
   const res = await fetch("/api/crm/propostas")
@@ -162,7 +163,7 @@ export default function PropostasPage() {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
           </div>
         ) : (
-          <PropostasKanban propostas={filtered} />
+          <FloatableKanban tipo="PROPOSTA"><PropostasKanban propostas={filtered} /></FloatableKanban>
         )
       )}
     </div>

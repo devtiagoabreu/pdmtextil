@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { DndContext, DragOverlay, useDraggable, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
@@ -97,6 +97,9 @@ function DraggableCard({ lead }: { lead: LeadCard }) {
 export default function LeadsKanban({ leads }: { leads: LeadCard[] }) {
   const { statuses, loading: statusLoading } = useStatuses("LEAD")
   const [activeCard, setActiveCard] = useState<LeadCard | null>(null)
+  const [cards, setCards] = useState<LeadCard[]>(leads || [])
+
+  useEffect(() => { setCards(leads || []) }, [leads])
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
@@ -126,7 +129,7 @@ export default function LeadsKanban({ leads }: { leads: LeadCard[] }) {
     .filter(s => s.ativo !== false)
     .map(col => ({
       ...col,
-      cards: leads.filter(l => l.status === col.nome),
+      cards: cards.filter(l => l.status === col.nome),
     }))
 
   const handleDragStart = (event: any) => {
@@ -146,6 +149,12 @@ export default function LeadsKanban({ leads }: { leads: LeadCard[] }) {
     const novoStatus = over.id as string
     if (lead.status === novoStatus) return
 
+    const statusAntigo = lead.status
+
+    setCards(prev =>
+      prev.map(l => l.id === lead.id ? { ...l, status: novoStatus } : l)
+    )
+
     try {
       const res = await fetch(`/api/crm/leads/${lead.id}`, {
         method: "PUT",
@@ -158,6 +167,9 @@ export default function LeadsKanban({ leads }: { leads: LeadCard[] }) {
       }
       toast.success(`Lead movido para ${getLabel(novoStatus)}`)
     } catch (err: any) {
+      setCards(prev =>
+        prev.map(l => l.id === lead.id ? { ...l, status: statusAntigo } : l)
+      )
       toast.error(err.message)
     }
   }

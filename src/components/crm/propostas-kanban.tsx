@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { DndContext, DragOverlay, useDraggable, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
@@ -74,6 +74,9 @@ function DraggableCard({ proposta }: { proposta: PropostaCard }) {
 export default function PropostasKanban({ propostas }: { propostas: PropostaCard[] }) {
   const { statuses, loading: statusLoading } = useStatuses("PROPOSTA")
   const [activeCard, setActiveCard] = useState<PropostaCard | null>(null)
+  const [cards, setCards] = useState<PropostaCard[]>(propostas || [])
+
+  useEffect(() => { setCards(propostas || []) }, [propostas])
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
@@ -103,7 +106,7 @@ export default function PropostasKanban({ propostas }: { propostas: PropostaCard
     .filter(s => s.ativo !== false)
     .map(col => ({
       ...col,
-      cards: propostas.filter(p => p.status === col.nome),
+      cards: cards.filter(p => p.status === col.nome),
     }))
 
   const handleDragStart = (event: any) => {
@@ -123,6 +126,12 @@ export default function PropostasKanban({ propostas }: { propostas: PropostaCard
     const novoStatus = over.id as string
     if (proposta.status === novoStatus) return
 
+    const statusAntigo = proposta.status
+
+    setCards(prev =>
+      prev.map(p => p.id === proposta.id ? { ...p, status: novoStatus } : p)
+    )
+
     try {
       const res = await fetch(`/api/crm/propostas/${proposta.id}`, {
         method: "PUT",
@@ -135,6 +144,9 @@ export default function PropostasKanban({ propostas }: { propostas: PropostaCard
       }
       toast.success(`Proposta movida para ${getLabel(novoStatus)}`)
     } catch (err: any) {
+      setCards(prev =>
+        prev.map(p => p.id === proposta.id ? { ...p, status: statusAntigo } : p)
+      )
       toast.error(err.message)
     }
   }

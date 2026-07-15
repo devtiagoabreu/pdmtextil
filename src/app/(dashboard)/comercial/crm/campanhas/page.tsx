@@ -8,6 +8,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { Plus, Megaphone, Calendar, TrendingUp, Users, DollarSign, ArrowRight, Loader2, Table, Columns } from "lucide-react"
 import CampanhasKanban from "@/components/crm/campanhas-kanban"
+import { FloatableKanban } from "@/components/crm/floatable-kanban"
 
 const TIPO_LABELS: Record<string, string> = {
   EMAIL: "E-mail",
@@ -171,7 +172,7 @@ export default function CampanhasPage() {
             <Loader2 className="animate-spin h-8 w-8 text-slate-400" />
           </div>
         ) : (
-          <CampanhasKanban campanhas={campanhas} />
+          <FloatableKanban tipo="CAMPANHA"><CampanhasKanban campanhas={campanhas} /></FloatableKanban>
         )
       )}
     </div>
