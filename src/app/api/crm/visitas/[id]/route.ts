@@ -7,7 +7,7 @@ import { crmOportunidades } from "@/lib/db/schema/crm-oportunidades"
 import { crmContatos } from "@/lib/db/schema/crm-contatos"
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq } from "drizzle-orm"
-import { registrarLog, notificarDelecao } from "@/lib/notificar"
+import { registrarLog, notificar, notificarDelecao } from "@/lib/notificar"
 import { inserirTimelineEvento } from "@/lib/crm-timeline"
 import { handleApiError } from "@/lib/api-error"
 
@@ -135,6 +135,8 @@ export async function PUT(
         metadados: { visitaId: atualizada.id, statusAnterior: existente.status, statusNovo: body.status },
       })
     }
+
+    await notificar("VISITA_ATUALIZADA", `Visita #${id} ${body.status ? `alterada para ${body.status}` : "atualizada"}`, `/comercial/crm/visitas/${atualizada.id}`, session.user.name)
 
     return NextResponse.json(atualizada)
   } catch (error) {

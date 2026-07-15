@@ -3,7 +3,7 @@ import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { crmLeads } from "@/lib/db/schema/crm-leads"
 import { eq } from "drizzle-orm"
-import { registrarLog, notificarDelecao } from "@/lib/notificar"
+import { registrarLog, notificar, notificarDelecao } from "@/lib/notificar"
 import { inserirTimelineEvento } from "@/lib/crm-timeline"
 import { handleApiError } from "@/lib/api-error"
 
@@ -90,6 +90,8 @@ export async function PUT(
         metadados: { leadId: atualizado.id, statusAnterior: existente.status, statusNovo: body.status },
       })
     }
+
+    await notificar("LEAD_ATUALIZADO", `Lead atualizado: ${atualizado.nome}`, `/comercial/crm/leads/${atualizado.id}`, session.user.name)
 
     return NextResponse.json(atualizado)
   } catch (error) {

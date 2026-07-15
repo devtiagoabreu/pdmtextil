@@ -5,7 +5,7 @@ import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
 import { crmContatos } from "@/lib/db/schema/crm-contatos"
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq, and, ne } from "drizzle-orm"
-import { registrarLog, notificarDelecao } from "@/lib/notificar"
+import { registrarLog, notificar, notificarDelecao } from "@/lib/notificar"
 import { handleApiError } from "@/lib/api-error"
 
 export async function GET(
@@ -111,6 +111,8 @@ export async function PUT(
       entidadeId: atualizada.id,
       usuarioNome: session.user.name,
     })
+
+    await notificar("PESSOA_ATUALIZADA", `Pessoa atualizada: ${nomePessoa}`, `/comercial/crm/pessoas/${atualizada.id}`, session.user.name)
 
     return NextResponse.json(atualizada)
   } catch (error) {

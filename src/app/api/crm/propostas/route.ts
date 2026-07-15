@@ -6,7 +6,7 @@ import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
 import { crmOportunidades } from "@/lib/db/schema/crm-oportunidades"
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq, desc, sql } from "drizzle-orm"
-import { registrarLog } from "@/lib/notificar"
+import { registrarLog, notificar } from "@/lib/notificar"
 import { inserirTimelineEvento } from "@/lib/crm-timeline"
 
 export async function GET(req: NextRequest) {
@@ -99,6 +99,8 @@ export async function POST(req: NextRequest) {
       descricao: `Proposta "${nova.titulo}" enviada${nova.valor ? ` — valor: R$ ${Number(nova.valor).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : ""}`,
       metadados: { propostaId: nova.id },
     })
+
+    await notificar("PROPOSTA_CRIADA", `Proposta criada: ${nova.titulo}`, `/comercial/crm/propostas/${nova.id}`, session.user.name)
 
     return NextResponse.json(nova, { status: 201 })
   } catch (error) {

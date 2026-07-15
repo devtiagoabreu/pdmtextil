@@ -6,7 +6,7 @@ import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
 import { crmOportunidades } from "@/lib/db/schema/crm-oportunidades"
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq, desc, sql } from "drizzle-orm"
-import { registrarLog } from "@/lib/notificar"
+import { registrarLog, notificar } from "@/lib/notificar"
 import { inserirTimelineEvento } from "@/lib/crm-timeline"
 
 export async function GET(req: NextRequest) {
@@ -107,6 +107,8 @@ export async function POST(req: NextRequest) {
       descricao: `Visita ${nova.tipo} agendada para ${new Date(nova.dataVisita + "T12:00:00").toLocaleDateString("pt-BR")}`,
       metadados: { visitaId: nova.id, tipo: nova.tipo, dataVisita: nova.dataVisita },
     })
+
+    await notificar("VISITA_CRIADA", `Visita ${nova.tipo} agendada para ${new Date(nova.dataVisita + "T12:00:00").toLocaleDateString("pt-BR")}`, `/comercial/crm/visitas/${nova.id}`, session.user.name)
 
     return NextResponse.json(nova, { status: 201 })
   } catch (error) {

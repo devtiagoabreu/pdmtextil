@@ -4,6 +4,7 @@ import { db } from "@/lib/db"
 import { crmCampanhas } from "@/lib/db/schema/crm-campanhas"
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq, desc, like, or, sql } from "drizzle-orm"
+import { registrarLog, notificar } from "@/lib/notificar"
 
 export async function GET(req: NextRequest) {
   try {
@@ -52,6 +53,7 @@ export async function POST(req: NextRequest) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
+    const session = auth.session
     const userId = auth.userId
 
     const body = await req.json()
@@ -71,6 +73,17 @@ export async function POST(req: NextRequest) {
         criadoPor: userId,
       })
       .returning()
+
+    await registrarLog({
+      tipo: "CADASTRO",
+      acao: "criar",
+      descricao: `Campanha criada: ${nova.nome}`,
+      entidade: "CrmCampanha",
+      entidadeId: nova.id,
+      usuarioNome: session.user.name,
+    })
+
+    await notificar("CAMPANHA_CRIADA", `Campanha criada: ${nova.nome}`, `/comercial/crm/campanhas/${nova.id}`, session.user.name)
 
     return NextResponse.json(nova, { status: 201 })
   } catch (error) {

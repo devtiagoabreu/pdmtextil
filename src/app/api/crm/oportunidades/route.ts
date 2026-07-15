@@ -7,7 +7,7 @@ import { crmLeads } from "@/lib/db/schema/crm-leads"
 import { crmContatos } from "@/lib/db/schema/crm-contatos"
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq, desc, like, or, sql } from "drizzle-orm"
-import { registrarLog } from "@/lib/notificar"
+import { registrarLog, notificar } from "@/lib/notificar"
 import { inserirTimelineEvento } from "@/lib/crm-timeline"
 
 export async function GET(req: NextRequest) {
@@ -106,6 +106,8 @@ export async function POST(req: NextRequest) {
         metadados: { oportunidadeId: nova.id },
       })
     }
+
+    await notificar("OPORTUNIDADE_CRIADA", `Oportunidade criada: ${nova.titulo}`, `/comercial/crm/oportunidades/${nova.id}`, session.user.name)
 
     return NextResponse.json(nova, { status: 201 })
   } catch (error) {

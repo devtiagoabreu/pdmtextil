@@ -3,7 +3,7 @@ import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { crmTarefas } from "@/lib/db/schema/crm-tarefas"
 import { eq } from "drizzle-orm"
-import { registrarLog, notificarDelecao } from "@/lib/notificar"
+import { registrarLog, notificar, notificarDelecao } from "@/lib/notificar"
 import { inserirTimelineEvento } from "@/lib/crm-timeline"
 import { handleApiError } from "@/lib/api-error"
 
@@ -92,6 +92,8 @@ export async function PUT(
         metadados: { tarefaId: atualizada.id, statusAnterior: existente.status, statusNovo: body.status },
       })
     }
+
+    await notificar("TAREFA_ATUALIZADA", `Tarefa #${id} ${body.status === "CONCLUIDO" ? "concluída" : "atualizada"}`, `/comercial/crm/tarefas/${atualizada.id}`, session.user.name)
 
     return NextResponse.json(atualizada)
   } catch (error) {
