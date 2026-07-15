@@ -26,7 +26,7 @@ const STATUS_LABEL: Record<string, string> = {
   ATENDIDO: "Atendido",
 }
 
-export async function gerarRequisicaoCortePdf(data: RequisicaoCorteData) {
+export async function gerarRequisicaoCortePdf(data: RequisicaoCorteData, orientation: "portrait" | "landscape" = "portrait") {
   let empresa: Record<string, any> | null = null
   try {
     const res = await fetch("/api/admin/config/empresa")
@@ -54,7 +54,7 @@ export async function gerarRequisicaoCortePdf(data: RequisicaoCorteData) {
   const { default: jsPDF } = await import("jspdf")
   await import("jspdf-autotable")
 
-  const doc = new jsPDF("landscape")
+  const doc = new jsPDF(orientation === "landscape" ? "landscape" : "portrait")
   const pageWidth = doc.internal.pageSize.getWidth()
   const pageHeight = doc.internal.pageSize.getHeight()
   const margin = 14
@@ -272,7 +272,7 @@ export async function gerarRequisicaoCortePdf(data: RequisicaoCorteData) {
   toast.success("PDF gerado com sucesso!")
 }
 
-export async function gerarRequisicaoCortePdfConsolidado(lista: RequisicaoCorteData[]) {
+export async function gerarRequisicaoCortePdfConsolidado(lista: RequisicaoCorteData[], orientation: "portrait" | "landscape" = "portrait") {
   if (lista.length === 0) return
 
   let empresa: Record<string, any> | null = null
@@ -302,7 +302,7 @@ export async function gerarRequisicaoCortePdfConsolidado(lista: RequisicaoCorteD
   const { default: jsPDF } = await import("jspdf")
   await import("jspdf-autotable")
 
-  const doc = new jsPDF("landscape")
+  const doc = new jsPDF(orientation === "landscape" ? "landscape" : "portrait")
   const pageWidth = doc.internal.pageSize.getWidth()
   const pageHeight = doc.internal.pageSize.getHeight()
   const margin = 14
