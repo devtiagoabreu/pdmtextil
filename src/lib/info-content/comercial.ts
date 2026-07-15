@@ -88,4 +88,15 @@ export const comercialContent: Record<string, InfoContent> = {
       "Para excluir, é necessário ser o requisitante ou ter permissão COMERCIAL.",
     ],
   },
+  "/comercial/requisicoes-corte/por-romaneio": {
+    title: "Requisição de Corte por Romaneio",
+    description: "Crie requisições de corte a partir de romaneios de expedição. Selecione um romaneio, informe a metragem desejada para cada produto e crie a requisição automaticamente.",
+    rules: [
+      "Os romaneios são carregados da integração configurada para a tela 'romaneios'.",
+      "Cada romaneio exibe os produtos disponíveis com suas respectivas metragens.",
+      "Informe a metragem desejada para cada produto e clique em 'Criar Requisição de Corte'.",
+      "A requisição será criada com status SOLICITADO e redirecionada automaticamente.",
+      "Campos do romaneio são mapeados: produto → código do produto, ordem → pedido, cor → cor, narrativa → artigo.",
+    ],
+  },
 }

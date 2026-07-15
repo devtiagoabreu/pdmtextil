@@ -36,7 +36,7 @@
     },
     {
       "parameters": {
-        "functionCode": "const data = $input.first().json;\n\n// Ignora mensagens enviadas pelo proprio bot\nif (data.fromMe === true) {\n  return [null];\n}\n\n// Ignora mensagens vazias (status update, lida, entregue, etc)\nif (!data.msg || data.msg.trim() === \"\") {\n  return [null];\n}\n\n// Ignora eventos sem remetente (conexao, qr, etc)\nif (!data.remetente) {\n  return [null];\n}\n\nreturn [{ json: data }];"
+        "functionCode": "for (const item of $input.all()) {\n  const data = item.json;\n\n  // Ignora mensagens enviadas pelo proprio bot\n  if (data.fromMe === true) {\n    continue;\n  }\n\n  // Ignora mensagens vazias (status update, lida, entregue, etc)\n  if (!data.msg || data.msg.trim() === \"\") {\n    continue;\n  }\n\n  // Ignora eventos sem remetente (conexao, qr, etc)\n  if (!data.remetente) {\n    continue;\n  }\n\n  return [{ json: data }];\n}\n\nreturn [];"
       },
       "id": "a0b1c2d3-e4f5-6789-abcd-ef0123456789",
       "name": "Filtrar evento",
@@ -100,7 +100,7 @@
     },
     {
       "parameters": {
-        "functionCode": "const extItems = $items(\"Extrair dados\");\nconst extData = (extItems && extItems.length > 0) ? extItems[0].json : {};\n\n// Filtra mensagens enviadas por nos (fromMe = true)\nif (extData.fromMe === true) {\n  return [null];\n}\n\nconst msg = extData.msg || \"\";\n// Filtra mensagens vazias\nif (!msg || msg.trim() === \"\") {\n  return [null];\n}\n\nconst apiData = $input.first().json;\nconst remetente = extData.remetente || \"\";\n\n// Extrai o numero limpo (sem @s.whatsapp.net, @lid, etc)\nconst numero = remetente.split(\"@\")[0] || remetente;\n\nreturn [{\n  json: {\n    remetente: remetente,\n    numero: numero,\n    pushName: extData.pushName || \"\",\n    msg: msg,\n    msgType: extData.msgType || \"\",\n    estado: apiData.estado || \"SAUDACAO\",\n    dados: apiData.dados || {},\n    conversaId: apiData.id || null\n  }\n}];"
+        "functionCode": "for (const item of $input.all()) {\n  const extItems = $items(\"Extrair dados\");\n  const extData = (extItems && extItems.length > 0) ? extItems[0].json : {};\n\n  // Filtra mensagens enviadas por nos (fromMe = true)\n  if (extData.fromMe === true) {\n    continue;\n  }\n\n  const msg = extData.msg || \"\";\n  // Filtra mensagens vazias\n  if (!msg || msg.trim() === \"\") {\n    continue;\n  }\n\n  const apiData = item.json;\n  const remetente = extData.remetente || \"\";\n\n  // Extrai o numero limpo (sem @s.whatsapp.net, @lid, etc)\n  const numero = remetente.split(\"@\")[0] || remetente;\n\n  return [{\n    json: {\n      remetente: remetente,\n      numero: numero,\n      pushName: extData.pushName || \"\",\n      msg: msg,\n      msgType: extData.msgType || \"\",\n      estado: apiData.estado || \"SAUDACAO\",\n      dados: apiData.dados || {},\n      conversaId: apiData.id || null\n    }\n  }];\n}\n\nreturn [];"
       },
       "id": "a57e9769-3317-4ed7-8412-efa6e12a8a27",
       "name": "Filtrar e estado inicial",
@@ -273,7 +273,7 @@
     },
     {
       "parameters": {
-        "functionCode": "const maqItem = $node[\"Maquina de estados\"].json;\nconst dados = maqItem.dados || {};\n\nif (dados.finalizado !== true) {\n  return [null];\n}\n\nconst nome = dados.nome || \"Não informado\";\nconst tipoPessoa = dados.tipoPessoa || \"N/I\";\nconst documento = dados.documento || \"Não informado\";\nconst telefone = maqItem.numero || maqItem.remetente?.split(\"@\")[0] || \"N/I\";\n\nconst targetJid = tipoPessoa === \"PJ\"\n  ? \"5519983530400@s.whatsapp.net\"\n  : \"5519981815930@s.whatsapp.net\";\n\nconst messageText = `*Novo lead cadastrado no CRM*\n\nNome: ${nome}\nTelefone: ${telefone}\nTipo: ${tipoPessoa === \"PJ\" ? \"Pessoa Jurídica\" : \"Pessoa Física\"}\nDocumento: ${documento}\n\nDados capturados pelo atendente automático.`;\n\nreturn [{\n  json: {\n    targetJid,\n    messageText,\n    remetente: maqItem.remetente,\n    numero: telefone,\n    nome,\n    tipoPessoa,\n    documento\n  }\n}];"
+        "functionCode": "const maqItem = $node[\"Maquina de estados\"].json;\nconst dados = maqItem.dados || {};\n\nif (dados.finalizado !== true) {\n  return [];\n}\n\nconst nome = dados.nome || \"Não informado\";\nconst tipoPessoa = dados.tipoPessoa || \"N/I\";\nconst documento = dados.documento || \"Não informado\";\nconst telefone = maqItem.numero || maqItem.remetente?.split(\"@\")[0] || \"N/I\";\n\nconst targetJid = tipoPessoa === \"PJ\"\n  ? \"5519983530400@s.whatsapp.net\"\n  : \"5519981815930@s.whatsapp.net\";\n\nconst messageText = `*Novo lead cadastrado no CRM*\n\nNome: ${nome}\nTelefone: ${telefone}\nTipo: ${tipoPessoa === \"PJ\" ? \"Pessoa Jurídica\" : \"Pessoa Física\"}\nDocumento: ${documento}\n\nDados capturados pelo atendente automático.`;\n\nreturn [{\n  json: {\n    targetJid,\n    messageText,\n    remetente: maqItem.remetente,\n    numero: telefone,\n    nome,\n    tipoPessoa,\n    documento\n  }\n}];"
       },
       "id": "d4e5f6a7-b8c9-0123-def0-123456789abc",
       "name": "Preparar notificacao",

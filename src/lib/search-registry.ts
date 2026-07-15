@@ -26,6 +26,7 @@ export const searchRegistry: SearchItem[] = [
   { id: "requisicoes-corte", label: "Requisições de Corte", keywords: ["requisicao", "corte", "comercial", "lista", "requisicoes"], href: "/comercial/requisicoes-corte", description: "Lista de requisições de corte", module: "Comercial" },
   { id: "requisicoes-corte-nova", label: "Nova Requisição de Corte", keywords: ["requisicao", "corte", "nova", "criar", "cadastro"], href: "/comercial/requisicoes-corte/nova", description: "Criar nova requisição de corte", module: "Comercial" },
   { id: "requisicoes-corte-detalhe", label: "Requisição de Corte (Detalhe)", keywords: ["requisicao", "corte", "detalhe", "editar"], href: "/comercial/requisicoes-corte/[id]", description: "Ficha da requisição de corte", module: "Comercial" },
+  { id: "requisicoes-corte-por-romaneio", label: "Requisição de Corte por Romaneio", keywords: ["requisicao", "corte", "romaneio", "expedicao", "criar"], href: "/comercial/requisicoes-corte/por-romaneio", description: "Criar requisição de corte a partir de romaneios", module: "Comercial" },
 
   // Comercial - Requisições de Amostra Comercial
   { id: "requisicoes-amostra-comercial", label: "Requisições de Amostra Comercial", keywords: ["amostra", "comercial", "requisição", "lista", "amostras"], href: "/comercial/requisicoes-amostra-comercial", description: "Lista de requisições de amostra comercial", module: "Comercial" },
