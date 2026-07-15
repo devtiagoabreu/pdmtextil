@@ -4,7 +4,7 @@
 
 | Arquivo | Descrição |
 |---|---|
-| `../n8n-workflow-atualizado.json` | 🟢 **Produção** — Bot com IA (Groq + Redis), evolui estado, salva no CRM, notifica representantes |
+| `n8n-workflow-atualizado.json` | 🟢 **Produção** — Bot com IA (Groq + Redis), evolui estado, salva no CRM, notifica representantes |
 | `whatsapp-bot-ai-agent.json` | 🔴 Antigo — Bot com IA (Groq + Redis), mesmo fluxo sem notificações |
 | `whatsapp-bot-atendimento.json` | 🔴 Antigo — Bot de atendimento com conversa guiada (sem IA) |
 | `whatsapp-evolution-para-crm.json` | 🔴 Antigo — Encaminhamento simples para o CRM |
