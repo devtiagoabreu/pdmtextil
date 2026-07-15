@@ -8,6 +8,7 @@ import { useState } from "react"
 import { PlusCircle, ListChecks, CheckCircle2, Circle, Loader2, Table, Columns } from "lucide-react"
 import CriarTarefaDialog from "./criar-dialog"
 import TarefasKanban from "@/components/crm/tarefas-kanban"
+import { FloatableKanban } from "@/components/crm/floatable-kanban"
 
 async function fetchTarefas(filtro: string) {
   const params = new URLSearchParams()
@@ -213,7 +214,7 @@ export default function TarefasPage() {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
           </div>
         ) : (
-          <TarefasKanban tarefas={tarefas || []} />
+          <FloatableKanban tipo="TAREFA"><TarefasKanban tarefas={tarefas || []} /></FloatableKanban>
         )
       )}
 

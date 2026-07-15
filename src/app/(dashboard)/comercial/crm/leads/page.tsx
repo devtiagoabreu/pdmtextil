@@ -8,6 +8,7 @@ import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { PlusCircle, UserPlus, Search, Phone, Star, Building2, XCircle, Table, Columns } from "lucide-react"
 import { toast } from "sonner"
+import { FloatableKanban } from "@/components/crm/floatable-kanban"
 import LeadsKanban from "@/components/crm/leads-kanban"
 
 async function fetchLeads() {
@@ -303,7 +304,7 @@ export default function CrmLeadsPage() {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
           </div>
         ) : (
-          <LeadsKanban leads={filtered} />
+          <FloatableKanban tipo="LEAD"><LeadsKanban leads={filtered} /></FloatableKanban>
         )
       )}
     </div>

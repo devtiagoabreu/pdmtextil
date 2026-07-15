@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { DndContext, DragOverlay, useDraggable, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
@@ -91,6 +91,9 @@ function DraggableCard({ campanha }: { campanha: CampanhaCard }) {
 export default function CampanhasKanban({ campanhas }: { campanhas: CampanhaCard[] }) {
   const { statuses, loading: statusLoading } = useStatuses("CAMPANHA")
   const [activeCard, setActiveCard] = useState<CampanhaCard | null>(null)
+  const [cards, setCards] = useState<CampanhaCard[]>(campanhas || [])
+
+  useEffect(() => { setCards(campanhas || []) }, [campanhas])
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
@@ -112,7 +115,7 @@ export default function CampanhasKanban({ campanhas }: { campanhas: CampanhaCard
     .filter(s => s.ativo !== false)
     .map(col => ({
       ...col,
-      cards: campanhas.filter(c => c.status === col.nome),
+      cards: cards.filter(c => c.status === col.nome),
     }))
 
   const handleDragStart = (event: any) => {
@@ -132,6 +135,12 @@ export default function CampanhasKanban({ campanhas }: { campanhas: CampanhaCard
     const novoStatus = over.id as string
     if (campanha.status === novoStatus) return
 
+    const statusAntigo = campanha.status
+
+    setCards(prev =>
+      prev.map(c => c.id === campanha.id ? { ...c, status: novoStatus } : c)
+    )
+
     try {
       const res = await fetch(`/api/crm/campanhas/${campanha.id}`, {
         method: "PUT",
@@ -144,6 +153,9 @@ export default function CampanhasKanban({ campanhas }: { campanhas: CampanhaCard
       }
       toast.success(`Campanha movida para ${getLabel(novoStatus)}`)
     } catch (err: any) {
+      setCards(prev =>
+        prev.map(c => c.id === campanha.id ? { ...c, status: statusAntigo } : c)
+      )
       toast.error(err.message)
     }
   }

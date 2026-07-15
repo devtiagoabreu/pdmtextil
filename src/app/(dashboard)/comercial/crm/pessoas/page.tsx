@@ -8,6 +8,7 @@ import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { PlusCircle, UserCircle, Search, Table, Columns } from "lucide-react"
 import PessoasKanban from "@/components/crm/pessoas-kanban"
+import { FloatableKanban } from "@/components/crm/floatable-kanban"
 
 async function fetchEmpresas() {
   const res = await fetch("/api/crm/pessoas")
@@ -180,7 +181,7 @@ export default function CrmPessoasPage() {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
           </div>
         ) : (
-          <PessoasKanban pessoas={filtered} />
+          <FloatableKanban tipo="PESSOA"><PessoasKanban pessoas={filtered} /></FloatableKanban>
         )
       )}
     </div>

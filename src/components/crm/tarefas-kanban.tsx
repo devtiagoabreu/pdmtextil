@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { DndContext, DragOverlay, useDraggable, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
@@ -93,6 +93,9 @@ function DraggableCard({ tarefa }: { tarefa: TarefaCard }) {
 export default function TarefasKanban({ tarefas }: { tarefas: TarefaCard[] }) {
   const { statuses, loading: statusLoading } = useStatuses("TAREFA")
   const [activeCard, setActiveCard] = useState<TarefaCard | null>(null)
+  const [cards, setCards] = useState<TarefaCard[]>(tarefas || [])
+
+  useEffect(() => { setCards(tarefas || []) }, [tarefas])
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
@@ -122,7 +125,7 @@ export default function TarefasKanban({ tarefas }: { tarefas: TarefaCard[] }) {
     .filter(s => s.ativo !== false)
     .map(col => ({
       ...col,
-      cards: tarefas.filter(t => t.status === col.nome),
+      cards: cards.filter(t => t.status === col.nome),
     }))
 
   const handleDragStart = (event: any) => {
@@ -144,6 +147,10 @@ export default function TarefasKanban({ tarefas }: { tarefas: TarefaCard[] }) {
 
     const statusAntigo = tarefa.status
 
+    setCards(prev =>
+      prev.map(t => t.id === tarefa.id ? { ...t, status: novoStatus } : t)
+    )
+
     try {
       const res = await fetch(`/api/crm/tarefas/${tarefa.id}`, {
         method: "PUT",
@@ -156,6 +163,9 @@ export default function TarefasKanban({ tarefas }: { tarefas: TarefaCard[] }) {
       }
       toast.success(`Tarefa movida para ${getLabel(novoStatus)}`)
     } catch (err: any) {
+      setCards(prev =>
+        prev.map(t => t.id === tarefa.id ? { ...t, status: statusAntigo } : t)
+      )
       toast.error(err.message)
     }
   }

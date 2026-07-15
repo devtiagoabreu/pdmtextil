@@ -112,6 +112,9 @@ function DraggableCard({ visita }: { visita: VisitaCard }) {
 export default function VisitasKanban({ visitas }: { visitas: VisitaCard[] }) {
   const { statuses, loading: statusLoading, getLabel } = useStatuses("VISITA")
   const [activeCard, setActiveCard] = useState<VisitaCard | null>(null)
+  const [cards, setCards] = useState<VisitaCard[]>(visitas || [])
+
+  useEffect(() => { setCards(visitas || []) }, [visitas])
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
@@ -121,7 +124,7 @@ export default function VisitasKanban({ visitas }: { visitas: VisitaCard[] }) {
     .filter(s => s.ativo !== false)
     .map(col => ({
       ...col,
-      cards: visitas.filter(v => v.status === col.nome),
+      cards: cards.filter(v => v.status === col.nome),
     }))
 
   const handleDragStart = (event: any) => {
@@ -143,6 +146,10 @@ export default function VisitasKanban({ visitas }: { visitas: VisitaCard[] }) {
 
     const statusAntigo = visita.status
 
+    setCards(prev =>
+      prev.map(v => v.id === visita.id ? { ...v, status: novoStatus } : v)
+    )
+
     try {
       const res = await fetch(`/api/crm/visitas/${visita.id}`, {
         method: "PUT",
@@ -155,6 +162,9 @@ export default function VisitasKanban({ visitas }: { visitas: VisitaCard[] }) {
       }
       toast.success(`Visita movida para ${getLabel(novoStatus)}`)
     } catch (err: any) {
+      setCards(prev =>
+        prev.map(v => v.id === visita.id ? { ...v, status: statusAntigo } : v)
+      )
       toast.error(err.message)
     }
   }
