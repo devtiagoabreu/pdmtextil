@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
-import { Scissors, Plus, FileText, Loader2 } from "lucide-react"
+import { Scissors, Plus, FileText, Loader2, Truck } from "lucide-react"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { Button } from "@/components/ui/button"
@@ -182,6 +182,13 @@ export default function ListaRequisicoesCortePage() {
               </Button>
             </>
           )}
+          <Link
+            href="/comercial/requisicoes-corte/por-romaneio"
+            className="inline-flex items-center gap-2 rounded-lg border border-slate-300 dark:border-slate-600 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+          >
+            <Truck size={16} />
+            Requisição por Romaneio
+          </Link>
           <Link
             href="/comercial/requisicoes-corte/nova"
             className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors shadow-sm"
