@@ -3,7 +3,7 @@ import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { crmRegioes } from "@/lib/db/schema/crm-regioes"
 import { eq } from "drizzle-orm"
-import { registrarLog, notificarDelecao } from "@/lib/notificar"
+import { registrarLog, notificar, notificarDelecao } from "@/lib/notificar"
 import { handleApiError } from "@/lib/api-error"
 
 export async function PUT(
@@ -48,6 +48,8 @@ export async function PUT(
       entidadeId: atualizada.id,
       usuarioNome: session.user.name,
     })
+
+    await notificar("REGIAO_ATUALIZADA", `Região #${id} atualizada`, `/comercial/crm/regioes/${atualizada.id}`, session.user.name)
 
     return NextResponse.json(atualizada)
   } catch (error) {

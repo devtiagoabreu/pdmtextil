@@ -3,7 +3,7 @@ import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { crmPropostas } from "@/lib/db/schema/crm-propostas"
 import { eq } from "drizzle-orm"
-import { registrarLog, notificarDelecao } from "@/lib/notificar"
+import { registrarLog, notificar, notificarDelecao } from "@/lib/notificar"
 import { inserirTimelineEvento } from "@/lib/crm-timeline"
 import { handleApiError } from "@/lib/api-error"
 
@@ -94,6 +94,8 @@ export async function PUT(
         metadados: { propostaId: atualizada.id, statusAnterior: existente.status, statusNovo: body.status },
       })
     }
+
+    await notificar("PROPOSTA_ATUALIZADA", `Proposta #${id} ${body.status ? `alterada para ${body.status}` : "atualizada"}`, `/comercial/crm/propostas/${atualizada.id}`, session.user.name)
 
     return NextResponse.json(atualizada)
   } catch (error) {

@@ -3,6 +3,7 @@ import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { crmContatos } from "@/lib/db/schema/crm-contatos"
 import { eq, desc } from "drizzle-orm"
+import { notificar } from "@/lib/notificar"
 
 export async function GET(req: NextRequest) {
   try {
@@ -32,6 +33,7 @@ export async function POST(req: NextRequest) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
+    const session = auth.session
 
     const body = await req.json()
 
@@ -49,6 +51,8 @@ export async function POST(req: NextRequest) {
         empresaId: body.empresaId,
       })
       .returning()
+
+    await notificar("CONTATO_CRIADO", `Contato criado: ${novo.nome}`, `/comercial/crm/pessoas/${novo.empresaId}`, session.user.name)
 
     return NextResponse.json(novo, { status: 201 })
   } catch (error) {

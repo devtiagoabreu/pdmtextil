@@ -4,7 +4,7 @@ import { db } from "@/lib/db"
 import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq, desc, like, or, sql } from "drizzle-orm"
-import { registrarLog } from "@/lib/notificar"
+import { registrarLog, notificar } from "@/lib/notificar"
 
 export async function GET(req: NextRequest) {
   try {
@@ -117,6 +117,9 @@ export async function POST(req: NextRequest) {
       entidadeId: nova.id,
       usuarioNome: session.user.name,
     })
+
+    const nomePessoa = nova.nome || nova.razaoSocial || "Pessoa"
+    await notificar("PESSOA_CRIADA", `Pessoa ${nova.tipoPessoa === "PF" ? "Física" : "Jurídica"} criada: ${nomePessoa}`, `/comercial/crm/pessoas/${nova.id}`, session.user.name)
 
     return NextResponse.json(nova, { status: 201 })
   } catch (error: any) {

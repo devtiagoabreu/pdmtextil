@@ -5,7 +5,7 @@ import { crmLeads } from "@/lib/db/schema/crm-leads"
 import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq, desc, like, or, sql } from "drizzle-orm"
-import { registrarLog } from "@/lib/notificar"
+import { registrarLog, notificar } from "@/lib/notificar"
 import { inserirTimelineEvento } from "@/lib/crm-timeline"
 
 export async function GET(req: NextRequest) {
@@ -111,6 +111,8 @@ export async function POST(req: NextRequest) {
         metadados: { leadId: novo.id },
       })
     }
+
+    await notificar("LEAD_CRIADO", `Lead criado: ${novo.nome}`, `/comercial/crm/leads/${novo.id}`, session.user.name)
 
     return NextResponse.json(novo, { status: 201 })
   } catch (error) {

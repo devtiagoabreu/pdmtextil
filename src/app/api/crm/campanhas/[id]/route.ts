@@ -3,6 +3,7 @@ import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { crmCampanhas } from "@/lib/db/schema/crm-campanhas"
 import { eq } from "drizzle-orm"
+import { notificar } from "@/lib/notificar"
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {
@@ -28,6 +29,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
+    const session = auth.session
 
     const body = await req.json()
 
@@ -46,6 +48,8 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       })
       .where(eq(crmCampanhas.id, Number(params.id)))
       .returning()
+
+    await notificar("CAMPANHA_ATUALIZADA", `Campanha #${params.id} atualizada`, `/comercial/crm/campanhas/${params.id}`, session.user.name)
 
     return NextResponse.json(atualizado)
   } catch (error) {

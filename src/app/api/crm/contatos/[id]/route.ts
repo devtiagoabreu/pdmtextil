@@ -3,6 +3,7 @@ import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { crmContatos } from "@/lib/db/schema/crm-contatos"
 import { eq } from "drizzle-orm"
+import { notificar } from "@/lib/notificar"
 import { handleApiError } from "@/lib/api-error"
 
 export async function PUT(
@@ -12,6 +13,7 @@ export async function PUT(
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
+    const session = auth.session
 
     const { id } = await params
     const body = await req.json()
@@ -41,6 +43,8 @@ export async function PUT(
       .set(values)
       .where(eq(crmContatos.id, parseInt(id)))
       .returning()
+
+    await notificar("CONTATO_ATUALIZADO", `Contato #${id} atualizado`, `/comercial/crm/pessoas/${existente.empresaId}`, session.user.name)
 
     return NextResponse.json(atualizado)
   } catch (error) {

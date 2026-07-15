@@ -5,7 +5,7 @@ import { crmOportunidades } from "@/lib/db/schema/crm-oportunidades"
 import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
 import { clientes } from "@/lib/db/schema/clientes"
 import { eq } from "drizzle-orm"
-import { registrarLog } from "@/lib/notificar"
+import { registrarLog, notificar } from "@/lib/notificar"
 import { inserirTimelineEvento } from "@/lib/crm-timeline"
 
 async function sincronizarEmpresaCliente(empresaId: number) {
@@ -110,6 +110,8 @@ export async function PATCH(
         })
       }
     }
+
+    await notificar("OPORTUNIDADE_STATUS", `Oportunidade "${existente.titulo}" movida para ${status}`, `/comercial/crm/oportunidades/${atualizada.id}`, session.user.name)
 
     return NextResponse.json(atualizada)
   } catch (error) {

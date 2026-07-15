@@ -4,7 +4,7 @@ import { db } from "@/lib/db"
 import { crmRegioes } from "@/lib/db/schema/crm-regioes"
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq, desc } from "drizzle-orm"
-import { registrarLog } from "@/lib/notificar"
+import { registrarLog, notificar } from "@/lib/notificar"
 
 export async function GET(req: NextRequest) {
   try {
@@ -58,6 +58,8 @@ export async function POST(req: NextRequest) {
       entidadeId: nova.id,
       usuarioNome: session.user.name,
     })
+
+    await notificar("REGIAO_CRIADA", `Região criada: ${nova.nome}`, `/comercial/crm/regioes/${nova.id}`, session.user.name)
 
     return NextResponse.json(nova, { status: 201 })
   } catch (error) {
