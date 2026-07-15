@@ -121,7 +121,8 @@ export default function RequisicaoPorRomaneioPage() {
 
   useEffect(() => {
     setLoadingInt(true)
-    fetch("/api/integracao/listar?tela=romaneios")
+    const tela = pathname.replace(/^\//, "")
+    fetch(`/api/integracao/listar?tela=${encodeURIComponent(tela)}`)
       .then((res) => res.json())
       .then((data) => {
         setIntegracoes(data)
@@ -129,7 +130,7 @@ export default function RequisicaoPorRomaneioPage() {
       })
       .catch(() => toast.error("Erro ao carregar integrações"))
       .finally(() => setLoadingInt(false))
-  }, [])
+  }, [pathname])
 
   const itensFiltrados = useMemo(() => {
     if (!searchTerm) return itens
