@@ -5,11 +5,13 @@ import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
-import { Scissors, Plus, FileText, Loader2, Truck } from "lucide-react"
+import { Scissors, Plus, FileText, Loader2, Truck, Columns, Table, RotateCw } from "lucide-react"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { Button } from "@/components/ui/button"
 import { gerarRequisicaoCortePdf, gerarRequisicaoCortePdfConsolidado, RequisicaoCorteData } from "@/lib/gerar-requisicao-corte-pdf"
+import RequisicoesCorteKanban from "@/components/crm/requisicoes-corte-kanban"
+import { FloatableKanban } from "@/components/crm/floatable-kanban"
 
 const STATUS_CONFIG: Record<string, { label: string; classes: string }> = {
   SOLICITADO: { label: "Solicitado", classes: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400" },
@@ -29,6 +31,8 @@ export default function ListaRequisicoesCortePage() {
 
   const [selected, setSelected] = useState<Set<number>>(new Set())
   const [gerandoPdf, setGerandoPdf] = useState(false)
+  const [modo, setModo] = useState<"tabela" | "kanban">("tabela")
+  const [pdfOrientacao, setPdfOrientacao] = useState<"portrait" | "landscape">("portrait")
 
   useEffect(() => {
     setMounted(true)
@@ -86,7 +90,7 @@ export default function ListaRequisicoesCortePage() {
       setGerandoPdf(false)
       return
     }
-    await gerarRequisicaoCortePdf(detalhe)
+    await gerarRequisicaoCortePdf(detalhe, pdfOrientacao)
     setGerandoPdf(false)
   }
 
@@ -98,7 +102,7 @@ export default function ListaRequisicoesCortePage() {
     setGerandoPdf(true)
     for (const id of selected) {
       const detalhe = await fetchDetalhe(id)
-      if (detalhe) await gerarRequisicaoCortePdf(detalhe)
+      if (detalhe) await gerarRequisicaoCortePdf(detalhe, pdfOrientacao)
     }
     setGerandoPdf(false)
   }
@@ -114,7 +118,7 @@ export default function ListaRequisicoesCortePage() {
       const d = await fetchDetalhe(id)
       if (d) detalhes.push(d)
     }
-    if (detalhes.length > 0) await gerarRequisicaoCortePdfConsolidado(detalhes)
+    if (detalhes.length > 0) await gerarRequisicaoCortePdfConsolidado(detalhes, pdfOrientacao)
     setGerandoPdf(false)
   }
 
@@ -161,7 +165,57 @@ export default function ListaRequisicoesCortePage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          {data.length > 0 && (
+          <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-0.5 shadow-sm">
+            <button
+              onClick={() => setModo("tabela")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+                modo === "tabela"
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700"
+              }`}
+            >
+              <Table size={14} />
+              Lista
+            </button>
+            <button
+              onClick={() => setModo("kanban")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+                modo === "kanban"
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700"
+              }`}
+            >
+              <Columns size={14} />
+              Kanban
+            </button>
+          </div>
+          <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-0.5 shadow-sm">
+            <button
+              onClick={() => setPdfOrientacao("portrait")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+                pdfOrientacao === "portrait"
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700"
+              }`}
+              title="Retrato"
+            >
+              <RotateCw size={14} className="-rotate-90" />
+              Retrato
+            </button>
+            <button
+              onClick={() => setPdfOrientacao("landscape")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+                pdfOrientacao === "landscape"
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700"
+              }`}
+              title="Paisagem"
+            >
+              <RotateCw size={14} />
+              Paisagem
+            </button>
+          </div>
+          {data.length > 0 && modo === "tabela" && (
             <>
               <Button
                 onClick={gerarPdfsSelecionados}
@@ -199,7 +253,14 @@ export default function ListaRequisicoesCortePage() {
         </div>
       </div>
 
-      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
+      {modo === "kanban" && data.length > 0 ? (
+        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden p-4">
+          <FloatableKanban tipo="REQUISICAO_CORTE">
+            <RequisicoesCorteKanban data={data} />
+          </FloatableKanban>
+        </div>
+      ) : (
+        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
         {data.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <Scissors className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
@@ -297,6 +358,7 @@ export default function ListaRequisicoesCortePage() {
           </div>
         )}
       </div>
+    )}
 
       <ConfirmModal
         open={deleteTarget !== null}
