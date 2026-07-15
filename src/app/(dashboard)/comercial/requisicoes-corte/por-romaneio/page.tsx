@@ -279,14 +279,19 @@ export default function RequisicaoPorRomaneioPage() {
 
     setCriando(true)
     try {
-      const itensPayload = itensValidos.map((item) => ({
-        codigoProduto: item.produto,
-        ordem: String(dialogRomaneio!.capa.pedido || ""),
-        artigo: item.narrativa || "",
-        cor: item.cor || "",
-        desenho: "",
-        quantidade: item.metragem,
-      }))
+      const itensPayload = itensValidos.map((item) => {
+        const partes = item.produto.split(".")
+        const bbbbb = partes[1] || ""
+        const dddddd = partes[3] || ""
+        return {
+          codigoProduto: item.produto,
+          ordem: bbbbb,
+          artigo: item.narrativa || "",
+          cor: dddddd.slice(-2),
+          desenho: dddddd.slice(0, 4),
+          quantidade: item.metragem,
+        }
+      })
 
       const res = await fetch("/api/comercial/requisicoes-corte", {
         method: "POST",
