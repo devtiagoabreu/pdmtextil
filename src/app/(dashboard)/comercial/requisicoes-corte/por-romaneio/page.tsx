@@ -121,7 +121,7 @@ export default function RequisicaoPorRomaneioPage() {
 
   useEffect(() => {
     setLoadingInt(true)
-    const tela = pathname.replace(/^\//, "")
+    const tela = pathname.replace(/^\//, "").split("/").pop() || ""
     fetch(`/api/integracao/listar?tela=${encodeURIComponent(tela)}`)
       .then((res) => res.json())
       .then((data) => {
