@@ -31,6 +31,7 @@ async function criarLeadWhatsApp(remoteJid: string, mensagem: string) {
   const [lead] = await db.insert(crmLeads).values({
     nome: nomeContato,
     celular: numero,
+    tipoPessoa: "PF",
     origem: "WHATSAPP",
     descricao: `Lead criado automaticamente via WhatsApp. Mensagem: "${mensagem.substring(0, 200)}"`,
     empresaId: empresa.id,

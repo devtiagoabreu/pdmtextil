@@ -138,6 +138,7 @@ export async function POST(req: NextRequest) {
           .values({
             nome: dados.nome,
             celular: numero,
+            documento: dados.documento || null,
             tipoPessoa: dados.tipoPessoa || null,
             origem: "WHATSAPP",
             descricao: descricaoParts.length > 0 ? descricaoParts.join(" | ") : null,
