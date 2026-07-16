@@ -94,6 +94,10 @@ export async function DELETE(
     const { searchParams } = new URL(req.url)
     const vinculoId = searchParams.get("id")
 
+    if (!vinculoId) {
+      return NextResponse.json({ error: "id é obrigatório" }, { status: 400 })
+    }
+
     await db
       .delete(pessoasRepresentantes)
       .where(and(eq(pessoasRepresentantes.id, parseInt(vinculoId)), eq(pessoasRepresentantes.pessoaId, parseInt(id))))
