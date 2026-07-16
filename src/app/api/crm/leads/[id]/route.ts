@@ -62,6 +62,7 @@ export async function PUT(
     if (body.empresaNome !== undefined) values.empresaNome = body.empresaNome || null
     if (body.cargo !== undefined) values.cargo = body.cargo || null
     if (body.origem !== undefined) values.origem = body.origem
+    if (body.documento !== undefined) values.documento = body.documento || null
     if (body.status !== undefined) values.status = body.status
     if (body.descricao !== undefined) values.descricao = body.descricao || null
     if (body.responsavelId !== undefined) values.responsavelId = body.responsavelId

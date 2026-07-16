@@ -1060,6 +1060,10 @@ async function migrate() {
     `
     console.log("✓ Tabela pessoas_representantes criada")
 
+    // ==================== Documento em crm_leads ====================
+    await sql`ALTER TABLE crm_leads ADD COLUMN IF NOT EXISTS documento VARCHAR(18)`
+    console.log("✓ Coluna documento adicionada em crm_leads")
+
     console.log("\n✅ Migration concluída com sucesso!")
     
   } catch (error) {

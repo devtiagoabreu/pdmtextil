@@ -160,6 +160,8 @@ function POST(req) {
                             nome: dados.nome,
                             email: dados.email || null,
                             celular: numero,
+                            documento: dados.documento || null,
+                            tipoPessoa: dados.tipoPessoa || null,
                             empresaNome: dados.tipoPessoa === "PJ" ? (dados.empresaNome || dados.nome) : null,
                             origem: "WHATSAPP",
                             descricao: descricaoParts.length > 0 ? descricaoParts.join(" | ") : null,

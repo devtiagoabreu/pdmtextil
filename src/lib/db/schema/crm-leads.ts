@@ -11,6 +11,7 @@ export const crmLeads = pgTable("crm_leads", {
   empresaNome: varchar("empresa_nome", { length: 200 }),
   cargo: varchar("cargo", { length: 100 }),
   tipoPessoa: varchar("tipo_pessoa", { length: 2 }),
+  documento: varchar("documento", { length: 18 }),
   origem: varchar("origem", { length: 30 }).notNull().default("OUTRO"),
   status: varchar("status", { length: 30 }).notNull().default("NOVO"),
   descricao: text("descricao"),

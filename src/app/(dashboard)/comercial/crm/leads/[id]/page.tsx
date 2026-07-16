@@ -216,11 +216,15 @@ export default function LeadDetailPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-medium text-slate-500 mb-1">Tipo</label>
-                  <select value={form.tipoPessoa || ""} onChange={e => setForm((p: any) => ({ ...p, tipoPessoa: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm">
+                  <select value={form.tipoPessoa || ""} onChange={e => { setForm((p: any) => ({ ...p, tipoPessoa: e.target.value, documento: "" })) }} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm">
                     <option value="">—</option>
                     <option value="PF">PF</option>
                     <option value="PJ">PJ</option>
                   </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-500 mb-1">{form.tipoPessoa === "PF" ? "CPF" : form.tipoPessoa === "PJ" ? "CNPJ" : "Documento"}</label>
+                  <input type="text" value={form.documento || ""} onChange={e => setForm((p: any) => ({ ...p, documento: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-slate-500 mb-1">Email</label>
@@ -269,6 +273,10 @@ export default function LeadDetailPage() {
               <div>
                 <p className="text-xs text-slate-500 mb-0.5">Tipo</p>
                 <p className="text-slate-900 dark:text-slate-200">{lead.tipoPessoa === "PF" ? "PF" : lead.tipoPessoa === "PJ" ? "PJ" : "—"}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-500 mb-0.5">{lead.tipoPessoa === "PF" ? "CPF" : lead.tipoPessoa === "PJ" ? "CNPJ" : "Documento"}</p>
+                <p className="text-slate-900 dark:text-slate-200">{lead.documento || "—"}</p>
               </div>
               <div>
                 <p className="text-xs text-slate-500 mb-0.5">Email</p>
