@@ -6,10 +6,11 @@ import { useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
-import { PlusCircle, UserCircle, Search, Table, Columns, Database } from "lucide-react"
+import { PlusCircle, UserCircle, Search, Table, Columns, Database, Building2 } from "lucide-react"
 import PessoasKanban from "@/components/crm/pessoas-kanban"
 import { FloatableKanban } from "@/components/crm/floatable-kanban"
 import ImportarApiModal from "@/components/integracao/ImportarApiModal"
+import BuscarCnpjModal from "@/components/crm/buscar-cnpj-modal"
 import { Button } from "@/components/ui/button"
 
 async function fetchEmpresas() {
@@ -33,6 +34,7 @@ export default function CrmPessoasPage() {
   const [search, setSearch] = useState("")
   const [modo, setModo] = useState<"tabela" | "kanban">("tabela")
   const [showApiImport, setShowApiImport] = useState(false)
+  const [showCnpjSearch, setShowCnpjSearch] = useState(false)
 
   const { data: empresas, isLoading } = useQuery({
     queryKey: ["crm-pessoas"],
@@ -91,6 +93,10 @@ export default function CrmPessoasPage() {
               Kanban
             </button>
           </div>
+          <Button variant="outline" onClick={() => setShowCnpjSearch(true)} className="gap-2">
+            <Building2 size={16} />
+            Buscar CNPJ
+          </Button>
           <Button variant="outline" onClick={() => setShowApiImport(true)} className="gap-2">
             <Database size={16} />
             Importar via API
@@ -199,6 +205,14 @@ export default function CrmPessoasPage() {
           existingKey="idIntegracao"
           onImportado={() => window.location.reload()}
           onClose={() => setShowApiImport(false)}
+        />
+      )}
+
+      {showCnpjSearch && (
+        <BuscarCnpjModal
+          tipo="pessoa"
+          onCreated={() => window.location.reload()}
+          onClose={() => setShowCnpjSearch(false)}
         />
       )}
     </div>

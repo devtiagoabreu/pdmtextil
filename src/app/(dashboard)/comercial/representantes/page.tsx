@@ -9,6 +9,7 @@ import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { Button } from "@/components/ui/button"
 import ImportarApiModal from "@/components/integracao/ImportarApiModal"
+import BuscarCnpjModal from "@/components/crm/buscar-cnpj-modal"
 import { ExportarDados } from "@/components/exportar/ExportarDados"
 
 type Representante = {
@@ -33,6 +34,7 @@ export default function RepresentantesPage() {
   const [representantes, setRepresentantes] = useState<Representante[]>([])
   const [loading, setLoading] = useState(true)
   const [showApiImport, setShowApiImport] = useState(false)
+  const [showCnpjSearch, setShowCnpjSearch] = useState(false)
 
   useEffect(() => {
     async function fetchRepresentantes() {
@@ -72,6 +74,10 @@ export default function RepresentantesPage() {
             { key: "nome", label: "Nome" }, { key: "cnpj", label: "CNPJ" }, { key: "email", label: "Email" },
             { key: "telefone", label: "Telefone" }, { key: "cidade", label: "Cidade" }, { key: "uf", label: "UF" },
           ]} filename="representantes" title="Representantes" />
+          <Button variant="outline" onClick={() => setShowCnpjSearch(true)} className="gap-2">
+            <Building2 size={16} />
+            Buscar CNPJ
+          </Button>
           <Button variant="outline" onClick={() => setShowApiImport(true)} className="gap-2">
             <Database size={16} />
             Importar via API
@@ -174,6 +180,14 @@ export default function RepresentantesPage() {
           existingKey="idIntegracao"
           onImportado={() => window.location.reload()}
           onClose={() => setShowApiImport(false)}
+        />
+      )}
+
+      {showCnpjSearch && (
+        <BuscarCnpjModal
+          tipo="representante"
+          onCreated={() => window.location.reload()}
+          onClose={() => setShowCnpjSearch(false)}
         />
       )}
     </div>
