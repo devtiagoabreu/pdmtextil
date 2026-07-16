@@ -7,7 +7,7 @@ import { useRouter, useParams, usePathname } from "next/navigation"
 import Link from "next/link"
 import { SelectUf } from "@/components/crm/select-uf"
 import { SelectCidade } from "@/components/crm/select-cidade"
-import { ArrowLeft, Mail, Phone, Globe, Plus, Trash2, Pencil, Check, X, Clock, MessageSquare } from "lucide-react"
+import { ArrowLeft, Mail, Phone, Globe, Plus, Trash2, Pencil, Check, X, Clock, MessageSquare, Users, Search, UserPlus, Loader2, MapPin } from "lucide-react"
 import CrmPessoaTimeline from "@/components/crm/crm-pessoa-timeline"
 import CrmPessoaWhatsapp from "@/components/crm/crm-pessoa-whatsapp"
 import { toast } from "sonner"
@@ -38,6 +38,12 @@ export default function PessoaDetailPage() {
   const [estadoId, setEstadoId] = useState<number | null>(null)
   const [estados, setEstados] = useState<{ id: number; uf: string }[]>([])
 
+  const [vinculos, setVinculos] = useState<any[]>([])
+  const [loadingVinculos, setLoadingVinculos] = useState(false)
+  const [searchRep, setSearchRep] = useState("")
+  const [repResults, setRepResults] = useState<any[]>([])
+  const [searchingRep, setSearchingRep] = useState(false)
+
   const fetchEstados = useCallback(async () => {
     try {
       const res = await fetch("/api/crm/estados")
@@ -55,6 +61,58 @@ export default function PessoaDetailPage() {
       setEstadoId(null)
     }
   }, [form.uf, estados])
+
+  const loadVinculos = useCallback(async () => {
+    setLoadingVinculos(true)
+    try {
+      const res = await fetch(`/api/crm/pessoas/${params.id}/representantes`)
+      if (res.ok) setVinculos(await res.json())
+    } catch {} finally {
+      setLoadingVinculos(false)
+    }
+  }, [params.id])
+
+  useEffect(() => { loadVinculos() }, [loadVinculos])
+
+  async function searchRepresentantes(query: string) {
+    setSearchRep(query)
+    if (query.length < 2) { setRepResults([]); return }
+    setSearchingRep(true)
+    try {
+      const res = await fetch(`/api/representantes?q=${encodeURIComponent(query)}`)
+      if (!res.ok) throw new Error()
+      const data = await res.json()
+      const existentes = new Set(vinculos.map(v => v.representanteId))
+      setRepResults(data.filter((r: any) => !existentes.has(r.id)))
+    } catch {} finally {
+      setSearchingRep(false)
+    }
+  }
+
+  async function addRepresentante(representanteId: number) {
+    try {
+      const res = await fetch(`/api/crm/pessoas/${params.id}/representantes`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ representanteId }),
+      })
+      if (!res.ok) throw new Error()
+      const novo = await res.json()
+      setVinculos(prev => [...prev, novo])
+      setRepResults([])
+      setSearchRep("")
+      toast.success("Representante vinculado")
+    } catch { toast.error("Erro ao vincular representante") }
+  }
+
+  async function removeRepresentante(vinculo: any) {
+    try {
+      const res = await fetch(`/api/crm/pessoas/${params.id}/representantes?id=${vinculo.id}`, { method: "DELETE" })
+      if (!res.ok) throw new Error()
+      setVinculos(prev => prev.filter(v => v.id !== vinculo.id))
+      toast.success("Representante removido")
+    } catch { toast.error("Erro ao remover representante") }
+  }
 
   useEffect(() => {
     fetch(`/api/crm/pessoas/${params.id}`)
@@ -270,6 +328,22 @@ export default function PessoaDetailPage() {
                   <label className="block text-xs font-medium text-slate-500 mb-1">Site</label>
                   <input type="url" value={form.site || ""} onChange={e => setForm((p: any) => ({ ...p, site: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
                 </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-500 mb-1">Telefone</label>
+                  <input type="text" value={form.telefone || ""} onChange={e => setForm((p: any) => ({ ...p, telefone: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-500 mb-1">Celular</label>
+                  <input type="text" value={form.celular || ""} onChange={e => setForm((p: any) => ({ ...p, celular: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                </div>
+                <div className="col-span-2">
+                  <label className="block text-xs font-medium text-slate-500 mb-1">E-mail</label>
+                  <input type="email" value={form.email || ""} onChange={e => setForm((p: any) => ({ ...p, email: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                </div>
+                <div className="col-span-2">
+                  <label className="block text-xs font-medium text-slate-500 mb-1">E-mail p/ Nota Fiscal</label>
+                  <input type="email" value={form.emailNf || ""} onChange={e => setForm((p: any) => ({ ...p, emailNf: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                </div>
                 <div className="col-span-2">
                   <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800 pb-1 mb-1">Endereço</p>
                 </div>
@@ -290,16 +364,16 @@ export default function PessoaDetailPage() {
                   <input type="text" value={form.bairro || ""} onChange={e => setForm((p: any) => ({ ...p, bairro: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
                 </div>
                 <div>
+                  <label className="block text-xs font-medium text-slate-500 mb-1">CEP</label>
+                  <input type="text" value={form.cep || ""} onChange={e => setForm((p: any) => ({ ...p, cep: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                </div>
+                <div className="col-span-2">
                   <label className="block text-xs font-medium text-slate-500 mb-1">UF</label>
                   <SelectUf value={form.uf || ""} onChange={v => setForm((p: any) => ({ ...p, uf: v }))} />
                 </div>
                 <div className="col-span-2">
                   <label className="block text-xs font-medium text-slate-500 mb-1">Cidade</label>
                   <SelectCidade value={form.cidade || ""} onChange={v => setForm((p: any) => ({ ...p, cidade: v }))} estadoId={estadoId} />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1">CEP</label>
-                  <input type="text" value={form.cep || ""} onChange={e => setForm((p: any) => ({ ...p, cep: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
                 </div>
                 <div className="col-span-2">
                   <label className="block text-xs font-medium text-slate-500 mb-1">Status</label>
@@ -354,6 +428,22 @@ export default function PessoaDetailPage() {
                 <p className="text-xs text-slate-500 mb-0.5">Site</p>
                 <p className="text-slate-900 dark:text-slate-200">{pessoa.site || "—"}</p>
               </div>
+              <div>
+                <p className="text-xs text-slate-500 mb-0.5">Telefone</p>
+                <p className="text-slate-900 dark:text-slate-200">{pessoa.telefone || "—"}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-500 mb-0.5">Celular</p>
+                <p className="text-slate-900 dark:text-slate-200">{pessoa.celular || "—"}</p>
+              </div>
+              <div className="col-span-2">
+                <p className="text-xs text-slate-500 mb-0.5">E-mail</p>
+                <p className="text-slate-900 dark:text-slate-200">{pessoa.email || "—"}</p>
+              </div>
+              <div className="col-span-2">
+                <p className="text-xs text-slate-500 mb-0.5">E-mail p/ Nota Fiscal</p>
+                <p className="text-slate-900 dark:text-slate-200">{pessoa.emailNf || "—"}</p>
+              </div>
               <div className="col-span-2">
                 <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800 pb-1 mb-1">Endereço</p>
               </div>
@@ -374,16 +464,16 @@ export default function PessoaDetailPage() {
                 <p className="text-slate-900 dark:text-slate-200">{pessoa.bairro || "—"}</p>
               </div>
               <div>
+                <p className="text-xs text-slate-500 mb-0.5">CEP</p>
+                <p className="text-slate-900 dark:text-slate-200">{pessoa.cep || "—"}</p>
+              </div>
+              <div className="col-span-2">
                 <p className="text-xs text-slate-500 mb-0.5">UF</p>
                 <p className="text-slate-900 dark:text-slate-200">{pessoa.uf || "—"}</p>
               </div>
               <div className="col-span-2">
                 <p className="text-xs text-slate-500 mb-0.5">Cidade</p>
                 <p className="text-slate-900 dark:text-slate-200">{pessoa.cidade || "—"}</p>
-              </div>
-              <div>
-                <p className="text-xs text-slate-500 mb-0.5">CEP</p>
-                <p className="text-slate-900 dark:text-slate-200">{pessoa.cep || "—"}</p>
               </div>
               <div className="col-span-2">
                 <p className="text-xs text-slate-500 mb-0.5">Status</p>
@@ -458,6 +548,103 @@ export default function PessoaDetailPage() {
             </div>
           )}
         </div>
+      </div>
+
+      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <Users size={16} className="text-blue-500" />
+          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50">Representantes Vinculados</h2>
+          {vinculos.length > 0 && (
+            <span className="text-xs text-slate-400">({vinculos.length})</span>
+          )}
+        </div>
+
+        <div className="flex gap-2 mb-4">
+          <div className="relative flex-1 max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Buscar representante por nome ou CNPJ..."
+              value={searchRep}
+              onChange={e => searchRepresentantes(e.target.value)}
+              className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400"
+            />
+          </div>
+        </div>
+
+        {searchingRep && (
+          <div className="flex items-center gap-2 text-sm text-slate-500 mb-2">
+            <Loader2 className="w-4 h-4 animate-spin" />
+            Buscando...
+          </div>
+        )}
+
+        {repResults.length > 0 && (
+          <div className="rounded-lg border border-slate-200 dark:border-slate-700 divide-y divide-slate-100 dark:divide-slate-800 max-h-48 overflow-y-auto mb-4">
+            {repResults.map((r: any) => (
+              <button
+                key={r.id}
+                onClick={() => addRepresentante(r.id)}
+                className="flex items-center justify-between w-full px-4 py-2.5 text-sm hover:bg-slate-50 dark:hover:bg-slate-800/50 text-left"
+              >
+                <div>
+                  <span className="font-medium text-slate-900 dark:text-slate-100">{r.nome}</span>
+                  <span className="text-slate-400 ml-2">{r.cnpj}</span>
+                  {r.cidade && <span className="text-slate-400 ml-2">{r.cidade}/{r.uf}</span>}
+                </div>
+                <UserPlus size={14} className="text-blue-500 shrink-0" />
+              </button>
+            ))}
+          </div>
+        )}
+
+        {loadingVinculos ? (
+          <div className="flex justify-center py-4">
+            <Loader2 className="w-6 h-6 animate-spin text-slate-400" />
+          </div>
+        ) : vinculos.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-6 text-center">
+            <Users className="w-8 h-8 text-slate-300 dark:text-slate-700 mb-2" />
+            <p className="text-sm text-slate-500">Nenhum representante vinculado</p>
+            <p className="text-xs text-slate-400 mt-1">Busque acima para vincular representantes</p>
+          </div>
+        ) : (
+          <div className="rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
+            <table className="w-full">
+              <thead className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
+                <tr>
+                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-3">Nome</th>
+                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-3">CNPJ</th>
+                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-3">Contato</th>
+                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-3">Cidade/UF</th>
+                  <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-3">Ações</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                {vinculos.map((v: any) => (
+                  <tr key={v.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                    <td className="p-3 text-sm font-medium text-slate-900 dark:text-slate-200">{v.nome}</td>
+                    <td className="p-3 text-sm text-slate-500 font-mono">{v.cnpj || "—"}</td>
+                    <td className="p-3 text-sm text-slate-500">
+                      <div className="flex flex-col gap-0.5">
+                        {v.email && <span className="flex items-center gap-1"><Mail size={12} />{v.email}</span>}
+                        {v.telefone && <span className="flex items-center gap-1"><Phone size={12} />{v.telefone}</span>}
+                      </div>
+                    </td>
+                    <td className="p-3 text-sm text-slate-500">
+                      {v.cidade ? <span className="flex items-center gap-1"><MapPin size={12} />{v.cidade}/{v.uf}</span> : "—"}
+                    </td>
+                    <td className="p-3 text-right">
+                      <button onClick={() => removeRepresentante(v)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/50 text-slate-400 hover:text-red-600 transition-colors">
+                        <X size={14} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">

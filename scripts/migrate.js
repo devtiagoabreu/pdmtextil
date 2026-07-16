@@ -1037,6 +1037,29 @@ async function migrate() {
     `
     console.log("✓ Tabela crm_previsao_vendas criada")
 
+    // ==================== Novos campos de contato: crm_pessoas ====================
+    await sql`ALTER TABLE crm_pessoas ADD COLUMN IF NOT EXISTS telefone VARCHAR(20)`
+    await sql`ALTER TABLE crm_pessoas ADD COLUMN IF NOT EXISTS celular VARCHAR(20)`
+    await sql`ALTER TABLE crm_pessoas ADD COLUMN IF NOT EXISTS email VARCHAR(150)`
+    await sql`ALTER TABLE crm_pessoas ADD COLUMN IF NOT EXISTS email_nf VARCHAR(150)`
+    console.log("✓ Colunas telefone, celular, email, email_nf adicionadas em crm_pessoas")
+
+    // ==================== Novos campos de contato: clientes ====================
+    await sql`ALTER TABLE clientes ADD COLUMN IF NOT EXISTS celular VARCHAR(20)`
+    await sql`ALTER TABLE clientes ADD COLUMN IF NOT EXISTS email_nf VARCHAR(150)`
+    console.log("✓ Colunas celular, email_nf adicionadas em clientes")
+
+    // ==================== Tabela pessoas_representantes ====================
+    await sql`
+      CREATE TABLE IF NOT EXISTS pessoas_representantes (
+        id SERIAL PRIMARY KEY,
+        pessoa_id INTEGER NOT NULL REFERENCES crm_pessoas(id) ON DELETE CASCADE,
+        representante_id INTEGER NOT NULL REFERENCES representantes(id) ON DELETE CASCADE,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `
+    console.log("✓ Tabela pessoas_representantes criada")
+
     console.log("\n✅ Migration concluída com sucesso!")
     
   } catch (error) {
