@@ -13,15 +13,16 @@ BEGIN
   INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
     (menu_id, 'Dashboard CRM', '/comercial/crm', 0),
     (menu_id, 'Leads', '/comercial/crm/leads', 1),
-    (menu_id, 'Pessoas', '/comercial/crm/pessoas', 2),
-    (menu_id, 'Oportunidades', '/comercial/crm/oportunidades', 3),
-    (menu_id, 'Kanban Oportunidades', '/comercial/crm/oportunidades/kanban', 4),
-    (menu_id, 'Visitas', '/comercial/crm/visitas', 5),
-    (menu_id, 'Tarefas', '/comercial/crm/tarefas', 6),
-    (menu_id, 'Propostas', '/comercial/crm/propostas', 7),
-    (menu_id, 'Campanhas', '/comercial/crm/campanhas', 8),
-    (menu_id, 'Relatórios CRM', '/comercial/crm/relatorios', 9),
-    (menu_id, 'Treinamento CRM', '/comercial/crm/treinamento', 10);
+    (menu_id, 'Contatos', '/comercial/crm/contatos', 2),
+    (menu_id, 'Pessoas', '/comercial/crm/pessoas', 3),
+    (menu_id, 'Oportunidades', '/comercial/crm/oportunidades', 4),
+    (menu_id, 'Kanban Oportunidades', '/comercial/crm/oportunidades/kanban', 5),
+    (menu_id, 'Visitas', '/comercial/crm/visitas', 6),
+    (menu_id, 'Tarefas', '/comercial/crm/tarefas', 7),
+    (menu_id, 'Propostas', '/comercial/crm/propostas', 8),
+    (menu_id, 'Campanhas', '/comercial/crm/campanhas', 9),
+    (menu_id, 'Relatórios CRM', '/comercial/crm/relatorios', 10),
+    (menu_id, 'Treinamento CRM', '/comercial/crm/treinamento', 11);
 
   INSERT INTO user_menus (role, titulo, ordem) VALUES ('CRM', 'Configurações CRM', 1)
     RETURNING id INTO menu_id;
@@ -80,14 +81,15 @@ BEGIN
     INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
       ((SELECT id FROM user_menus WHERE role = 'COMERCIAL' AND titulo = 'CRM'), 'Dashboard CRM', '/comercial/crm', 0),
       ((SELECT id FROM user_menus WHERE role = 'COMERCIAL' AND titulo = 'CRM'), 'Leads', '/comercial/crm/leads', 1),
-      ((SELECT id FROM user_menus WHERE role = 'COMERCIAL' AND titulo = 'CRM'), 'Pessoas', '/comercial/crm/pessoas', 2),
-      ((SELECT id FROM user_menus WHERE role = 'COMERCIAL' AND titulo = 'CRM'), 'Oportunidades', '/comercial/crm/oportunidades', 3),
-      ((SELECT id FROM user_menus WHERE role = 'COMERCIAL' AND titulo = 'CRM'), 'Visitas', '/comercial/crm/visitas', 4),
-      ((SELECT id FROM user_menus WHERE role = 'COMERCIAL' AND titulo = 'CRM'), 'Tarefas', '/comercial/crm/tarefas', 5),
-      ((SELECT id FROM user_menus WHERE role = 'COMERCIAL' AND titulo = 'CRM'), 'Propostas', '/comercial/crm/propostas', 6),
-      ((SELECT id FROM user_menus WHERE role = 'COMERCIAL' AND titulo = 'CRM'), 'Campanhas', '/comercial/crm/campanhas', 7),
-      ((SELECT id FROM user_menus WHERE role = 'COMERCIAL' AND titulo = 'CRM'), 'Relatórios CRM', '/comercial/crm/relatorios', 8),
-      ((SELECT id FROM user_menus WHERE role = 'COMERCIAL' AND titulo = 'CRM'), 'Treinamento CRM', '/comercial/crm/treinamento', 9);
+      ((SELECT id FROM user_menus WHERE role = 'COMERCIAL' AND titulo = 'CRM'), 'Contatos', '/comercial/crm/contatos', 2),
+      ((SELECT id FROM user_menus WHERE role = 'COMERCIAL' AND titulo = 'CRM'), 'Pessoas', '/comercial/crm/pessoas', 3),
+      ((SELECT id FROM user_menus WHERE role = 'COMERCIAL' AND titulo = 'CRM'), 'Oportunidades', '/comercial/crm/oportunidades', 4),
+      ((SELECT id FROM user_menus WHERE role = 'COMERCIAL' AND titulo = 'CRM'), 'Visitas', '/comercial/crm/visitas', 5),
+      ((SELECT id FROM user_menus WHERE role = 'COMERCIAL' AND titulo = 'CRM'), 'Tarefas', '/comercial/crm/tarefas', 6),
+      ((SELECT id FROM user_menus WHERE role = 'COMERCIAL' AND titulo = 'CRM'), 'Propostas', '/comercial/crm/propostas', 7),
+      ((SELECT id FROM user_menus WHERE role = 'COMERCIAL' AND titulo = 'CRM'), 'Campanhas', '/comercial/crm/campanhas', 8),
+      ((SELECT id FROM user_menus WHERE role = 'COMERCIAL' AND titulo = 'CRM'), 'Relatórios CRM', '/comercial/crm/relatorios', 9),
+      ((SELECT id FROM user_menus WHERE role = 'COMERCIAL' AND titulo = 'CRM'), 'Treinamento CRM', '/comercial/crm/treinamento', 10);
   END IF;
 
   -- ──────────── ADMIN (adicionar CRM) ────────────
@@ -96,14 +98,15 @@ BEGIN
     INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
       ((SELECT id FROM user_menus WHERE role = 'ADMIN' AND titulo = 'CRM'), 'Dashboard CRM', '/comercial/crm', 0),
       ((SELECT id FROM user_menus WHERE role = 'ADMIN' AND titulo = 'CRM'), 'Leads', '/comercial/crm/leads', 1),
-      ((SELECT id FROM user_menus WHERE role = 'ADMIN' AND titulo = 'CRM'), 'Pessoas', '/comercial/crm/pessoas', 2),
-      ((SELECT id FROM user_menus WHERE role = 'ADMIN' AND titulo = 'CRM'), 'Oportunidades', '/comercial/crm/oportunidades', 3),
-      ((SELECT id FROM user_menus WHERE role = 'ADMIN' AND titulo = 'CRM'), 'Visitas', '/comercial/crm/visitas', 4),
-      ((SELECT id FROM user_menus WHERE role = 'ADMIN' AND titulo = 'CRM'), 'Tarefas', '/comercial/crm/tarefas', 5),
-      ((SELECT id FROM user_menus WHERE role = 'ADMIN' AND titulo = 'CRM'), 'Propostas', '/comercial/crm/propostas', 6),
-      ((SELECT id FROM user_menus WHERE role = 'ADMIN' AND titulo = 'CRM'), 'Campanhas', '/comercial/crm/campanhas', 7),
-      ((SELECT id FROM user_menus WHERE role = 'ADMIN' AND titulo = 'CRM'), 'Relatórios CRM', '/comercial/crm/relatorios', 8),
-      ((SELECT id FROM user_menus WHERE role = 'ADMIN' AND titulo = 'CRM'), 'Treinamento CRM', '/comercial/crm/treinamento', 9);
+      ((SELECT id FROM user_menus WHERE role = 'ADMIN' AND titulo = 'CRM'), 'Contatos', '/comercial/crm/contatos', 2),
+      ((SELECT id FROM user_menus WHERE role = 'ADMIN' AND titulo = 'CRM'), 'Pessoas', '/comercial/crm/pessoas', 3),
+      ((SELECT id FROM user_menus WHERE role = 'ADMIN' AND titulo = 'CRM'), 'Oportunidades', '/comercial/crm/oportunidades', 4),
+      ((SELECT id FROM user_menus WHERE role = 'ADMIN' AND titulo = 'CRM'), 'Visitas', '/comercial/crm/visitas', 5),
+      ((SELECT id FROM user_menus WHERE role = 'ADMIN' AND titulo = 'CRM'), 'Tarefas', '/comercial/crm/tarefas', 6),
+      ((SELECT id FROM user_menus WHERE role = 'ADMIN' AND titulo = 'CRM'), 'Propostas', '/comercial/crm/propostas', 7),
+      ((SELECT id FROM user_menus WHERE role = 'ADMIN' AND titulo = 'CRM'), 'Campanhas', '/comercial/crm/campanhas', 8),
+      ((SELECT id FROM user_menus WHERE role = 'ADMIN' AND titulo = 'CRM'), 'Relatórios CRM', '/comercial/crm/relatorios', 9),
+      ((SELECT id FROM user_menus WHERE role = 'ADMIN' AND titulo = 'CRM'), 'Treinamento CRM', '/comercial/crm/treinamento', 10);
   END IF;
 
   -- ──────────── SUDO (adicionar CRM) ────────────
@@ -112,14 +115,15 @@ BEGIN
     INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem) VALUES
       ((SELECT id FROM user_menus WHERE role = 'SUDO' AND titulo = 'CRM'), 'Dashboard CRM', '/comercial/crm', 0),
       ((SELECT id FROM user_menus WHERE role = 'SUDO' AND titulo = 'CRM'), 'Leads', '/comercial/crm/leads', 1),
-      ((SELECT id FROM user_menus WHERE role = 'SUDO' AND titulo = 'CRM'), 'Pessoas', '/comercial/crm/pessoas', 2),
-      ((SELECT id FROM user_menus WHERE role = 'SUDO' AND titulo = 'CRM'), 'Oportunidades', '/comercial/crm/oportunidades', 3),
-      ((SELECT id FROM user_menus WHERE role = 'SUDO' AND titulo = 'CRM'), 'Visitas', '/comercial/crm/visitas', 4),
-      ((SELECT id FROM user_menus WHERE role = 'SUDO' AND titulo = 'CRM'), 'Tarefas', '/comercial/crm/tarefas', 5),
-      ((SELECT id FROM user_menus WHERE role = 'SUDO' AND titulo = 'CRM'), 'Propostas', '/comercial/crm/propostas', 6),
-      ((SELECT id FROM user_menus WHERE role = 'SUDO' AND titulo = 'CRM'), 'Campanhas', '/comercial/crm/campanhas', 7),
-      ((SELECT id FROM user_menus WHERE role = 'SUDO' AND titulo = 'CRM'), 'Relatórios CRM', '/comercial/crm/relatorios', 8),
-      ((SELECT id FROM user_menus WHERE role = 'SUDO' AND titulo = 'CRM'), 'Treinamento CRM', '/comercial/crm/treinamento', 9);
+      ((SELECT id FROM user_menus WHERE role = 'SUDO' AND titulo = 'CRM'), 'Contatos', '/comercial/crm/contatos', 2),
+      ((SELECT id FROM user_menus WHERE role = 'SUDO' AND titulo = 'CRM'), 'Pessoas', '/comercial/crm/pessoas', 3),
+      ((SELECT id FROM user_menus WHERE role = 'SUDO' AND titulo = 'CRM'), 'Oportunidades', '/comercial/crm/oportunidades', 4),
+      ((SELECT id FROM user_menus WHERE role = 'SUDO' AND titulo = 'CRM'), 'Visitas', '/comercial/crm/visitas', 5),
+      ((SELECT id FROM user_menus WHERE role = 'SUDO' AND titulo = 'CRM'), 'Tarefas', '/comercial/crm/tarefas', 6),
+      ((SELECT id FROM user_menus WHERE role = 'SUDO' AND titulo = 'CRM'), 'Propostas', '/comercial/crm/propostas', 7),
+      ((SELECT id FROM user_menus WHERE role = 'SUDO' AND titulo = 'CRM'), 'Campanhas', '/comercial/crm/campanhas', 8),
+      ((SELECT id FROM user_menus WHERE role = 'SUDO' AND titulo = 'CRM'), 'Relatórios CRM', '/comercial/crm/relatorios', 9),
+      ((SELECT id FROM user_menus WHERE role = 'SUDO' AND titulo = 'CRM'), 'Treinamento CRM', '/comercial/crm/treinamento', 10);
   END IF;
 
 END $$;
