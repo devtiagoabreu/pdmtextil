@@ -6,9 +6,11 @@ import { useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
-import { PlusCircle, UserCircle, Search, Table, Columns } from "lucide-react"
+import { PlusCircle, UserCircle, Search, Table, Columns, Database } from "lucide-react"
 import PessoasKanban from "@/components/crm/pessoas-kanban"
 import { FloatableKanban } from "@/components/crm/floatable-kanban"
+import ImportarApiModal from "@/components/integracao/ImportarApiModal"
+import { Button } from "@/components/ui/button"
 
 async function fetchEmpresas() {
   const res = await fetch("/api/crm/pessoas")
@@ -30,6 +32,7 @@ export default function CrmPessoasPage() {
   const info = getInfoContent(pathname)
   const [search, setSearch] = useState("")
   const [modo, setModo] = useState<"tabela" | "kanban">("tabela")
+  const [showApiImport, setShowApiImport] = useState(false)
 
   const { data: empresas, isLoading } = useQuery({
     queryKey: ["crm-pessoas"],
@@ -88,6 +91,10 @@ export default function CrmPessoasPage() {
               Kanban
             </button>
           </div>
+          <Button variant="outline" onClick={() => setShowApiImport(true)} className="gap-2">
+            <Database size={16} />
+            Importar via API
+          </Button>
           <Link
             href="/comercial/crm/pessoas/novo"
             className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors shadow-sm"
@@ -183,6 +190,16 @@ export default function CrmPessoasPage() {
         ) : (
           <FloatableKanban tipo="PESSOA"><PessoasKanban pessoas={filtered} /></FloatableKanban>
         )
+      )}
+
+      {showApiImport && (
+        <ImportarApiModal
+          tela="pessoas"
+          existingRecords={empresas || []}
+          existingKey="idIntegracao"
+          onImportado={() => window.location.reload()}
+          onClose={() => setShowApiImport(false)}
+        />
       )}
     </div>
   )
