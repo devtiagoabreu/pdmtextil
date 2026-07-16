@@ -115,7 +115,7 @@ export default function ContatoDetailPage() {
           <div className="flex items-center gap-3">
             <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">{contato.nome}{info && <InfoButton content={info} />}</h1>
             {contato.principal && (
-              <Star size={16} className="text-amber-400 fill-amber-400" title="Contato principal" />
+              <span title="Contato principal"><Star size={16} className="text-amber-400 fill-amber-400" /></span>
             )}
           </div>
           <p className="text-sm text-slate-500">{contato.cargo || "—"}</p>
