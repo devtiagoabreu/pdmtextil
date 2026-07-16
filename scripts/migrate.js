@@ -1060,9 +1060,30 @@ async function migrate() {
     `
     console.log("✓ Tabela pessoas_representantes criada")
 
-    // ==================== Documento em crm_leads ====================
+    // ==================== Colunas crm_leads (tipoPessoa, documento, pessoaId) ====================
+    await sql`ALTER TABLE crm_leads ADD COLUMN IF NOT EXISTS tipo_pessoa VARCHAR(2)`
+    console.log("✓ Coluna tipo_pessoa adicionada em crm_leads")
+
+    // Drop FK incorreta (empresa_id apontava para crm_pessoas — não faz sentido)
+    await sql`
+      DO $$
+      BEGIN
+        IF EXISTS (
+          SELECT 1 FROM information_schema.table_constraints
+          WHERE constraint_name = 'crm_leads_empresa_id_fkey'
+          AND table_name = 'crm_leads'
+        ) THEN
+          ALTER TABLE crm_leads DROP CONSTRAINT crm_leads_empresa_id_fkey;
+        END IF;
+      END $$;
+    `
+    console.log("✓ FK empresa_id removida de crm_leads (apontava incorretamente para crm_pessoas)")
+
     await sql`ALTER TABLE crm_leads ADD COLUMN IF NOT EXISTS documento VARCHAR(18)`
     console.log("✓ Coluna documento adicionada em crm_leads")
+
+    await sql`ALTER TABLE crm_leads ADD COLUMN IF NOT EXISTS pessoa_id INTEGER REFERENCES crm_pessoas(id)`
+    console.log("✓ Coluna pessoa_id adicionada em crm_leads")
 
     console.log("\n✅ Migration concluída com sucesso!")
     

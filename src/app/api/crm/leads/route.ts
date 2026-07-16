@@ -51,6 +51,7 @@ export async function GET(req: NextRequest) {
         responsavelId: crmLeads.responsavelId,
         responsavelNome: usuarios.name,
         empresaId: crmLeads.empresaId,
+        pessoaId: crmLeads.pessoaId,
         empresaNomeFantasia: crmPessoas.nomeFantasia,
         empresaRazaoSocial: crmPessoas.razaoSocial,
         createdAt: crmLeads.createdAt,
@@ -58,7 +59,7 @@ export async function GET(req: NextRequest) {
       })
       .from(crmLeads)
       .leftJoin(usuarios, eq(crmLeads.responsavelId, usuarios.id))
-      .leftJoin(crmPessoas, eq(crmLeads.empresaId, crmPessoas.id))
+      .leftJoin(crmPessoas, sql`${crmPessoas.id} = COALESCE(${crmLeads.pessoaId}, ${crmLeads.empresaId})`)
       .where(where)
       .orderBy(desc(crmLeads.createdAt))
 

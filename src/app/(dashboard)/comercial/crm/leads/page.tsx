@@ -76,7 +76,7 @@ export default function CrmLeadsPage() {
       await fetch(`/api/crm/leads/${lead.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "CONVERTIDO", empresaId: pessoa.id }),
+        body: JSON.stringify({ status: "CONVERTIDO", pessoaId: pessoa.id }),
       })
 
       toast.success(`Lead convertido para pessoa "${valor}"`)

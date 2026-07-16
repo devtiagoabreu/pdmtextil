@@ -7,6 +7,7 @@ API para consulta de dados cadastrais de empresas brasileiras (CNPJ), informa√ß√
 - **Docs**: https://docs.kipflow.io
 - **Dashboard**: https://platform.kipflow.io
 - **Suporte**: contato@kipflow.io
+- **PlayBook LAB**: https://playbooklab.notion.site/kipflow
 
 ---
 
