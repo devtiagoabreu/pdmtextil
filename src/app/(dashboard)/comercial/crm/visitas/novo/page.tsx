@@ -313,15 +313,19 @@ export default function NovaVisitaPage() {
         <div className="border-t border-slate-100 dark:border-slate-800 pt-4">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Endereço da Visita</h3>
-            {form.empresaId && (
-              <button
-                type="button"
-                onClick={copiarEnderecoEmpresa}
-                className="text-xs text-blue-600 hover:underline flex items-center gap-1"
-              >
-                Copiar endereço do negócio
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={() => {
+                if (!form.empresaId) {
+                  toast.error("Selecione uma pessoa primeiro")
+                  return
+                }
+                copiarEnderecoEmpresa()
+              }}
+              className="text-xs text-blue-600 hover:underline flex items-center gap-1"
+            >
+              Copiar endereço do negócio
+            </button>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
