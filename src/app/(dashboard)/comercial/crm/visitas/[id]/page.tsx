@@ -11,6 +11,7 @@ import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { useStatuses } from "@/hooks/use-statuses"
 import { SelectUf } from "@/components/crm/select-uf"
 import { SelectCidade } from "@/components/crm/select-cidade"
+import { RichTextEditor } from "@/components/crm/rich-text-editor"
 
 const TIPO_OPTIONS = [
   { value: "PRESENCIAL", label: "Presencial" },
@@ -35,6 +36,7 @@ export default function DetalheVisitaPage() {
   const [fotoInputs, setFotoInputs] = useState<string[]>([""])
   const [estadoId, setEstadoId] = useState<number | null>(null)
   const [estados, setEstados] = useState<{ id: number; uf: string }[]>([])
+  const [empresaEndereco, setEmpresaEndereco] = useState<Record<string, string>>({})
 
   const fetchEstados = useCallback(async () => {
     try {
@@ -79,6 +81,7 @@ export default function DetalheVisitaPage() {
   function startEditing() {
     setForm({ ...visita })
     setFotoInputs(visita.fotos?.length > 0 ? [...visita.fotos, ""] : [""])
+    if (visita.empresaId) loadEmpresaEndereco(visita.empresaId)
     setEditing(true)
   }
 
@@ -143,6 +146,35 @@ export default function DetalheVisitaPage() {
 
   function removeFotoInput(index: number) {
     setFotoInputs(prev => prev.filter((_, i) => i !== index))
+  }
+
+  async function loadEmpresaEndereco(empresaId: number) {
+    try {
+      const res = await fetch(`/api/crm/pessoas/${empresaId}`)
+      const data = await res.json()
+      setEmpresaEndereco({
+        endereco: data.endereco || "",
+        numero: data.numero || "",
+        complemento: data.complemento || "",
+        bairro: data.bairro || "",
+        cidade: data.cidade || "",
+        uf: data.uf || "",
+        cep: data.cep || "",
+      })
+    } catch { setEmpresaEndereco({}) }
+  }
+
+  function copiarEnderecoEmpresa() {
+    setForm((prev: any) => ({
+      ...prev,
+      endereco: empresaEndereco.endereco || "",
+      numero: empresaEndereco.numero || "",
+      complemento: empresaEndereco.complemento || "",
+      bairro: empresaEndereco.bairro || "",
+      cidade: empresaEndereco.cidade || "",
+      uf: empresaEndereco.uf || "",
+      cep: empresaEndereco.cep || "",
+    }))
   }
 
   if (loading) {
@@ -262,7 +294,22 @@ export default function DetalheVisitaPage() {
               </div>
             </div>
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
-              <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4">Endereço</h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50">Endereço</h2>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!visita.empresaId) {
+                      toast.error("Visita sem pessoa vinculada")
+                      return
+                    }
+                    copiarEnderecoEmpresa()
+                  }}
+                  className="text-xs text-blue-600 hover:underline flex items-center gap-1"
+                >
+                  Copiar endereço do negócio
+                </button>
+              </div>
               <div className="space-y-3">
                 <div>
                   <label className="block text-xs font-medium text-slate-500 mb-1">Logradouro</label>
@@ -341,11 +388,11 @@ export default function DetalheVisitaPage() {
         <>
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
             <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-2">Relato / Ata</h2>
-            <textarea
+            <RichTextEditor
               value={form.relato || ""}
-              onChange={e => setField("relato", e.target.value)}
-              rows={5}
-              className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+              onChange={v => setField("relato", v)}
+              placeholder="Descreva o relato da visita..."
+              minHeight="250px"
             />
           </div>
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
@@ -380,7 +427,7 @@ export default function DetalheVisitaPage() {
           {visita.relato && (
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
               <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-2">Relato / Ata</h2>
-              <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap">{visita.relato}</p>
+              <div className="text-sm text-slate-700 dark:text-slate-300 prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: visita.relato }} />
             </div>
           )}
 
