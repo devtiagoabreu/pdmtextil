@@ -10,6 +10,7 @@ import { basesUrdume } from "@/lib/db/schema/bases-urdume"
 import { produtosQuimicos } from "@/lib/db/schema/produtos-quimicos"
 import { produtosCru } from "@/lib/db/schema/produto-cru"
 import { emailListaContatos } from "@/lib/db/schema/email-listas"
+import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
 import { integracoes } from "@/lib/db/schema/integracoes"
 import { eq, and, or, SQL, sql } from "drizzle-orm"
 export const dynamic = "force-dynamic"
@@ -25,6 +26,7 @@ const entityConfig: Record<string, { table: any; uniqueFields: string[]; idField
   produtosQuimicos: { table: produtosQuimicos, uniqueFields: ["codigo"] },
   produtosCru: { table: produtosCru, uniqueFields: ["codigoPdm"] },
   "email-listas": { table: emailListaContatos, uniqueFields: ["email"] },
+  pessoas: { table: crmPessoas, uniqueFields: ["cnpj", "cpf"] },
 }
 
 function translateFieldName(pdmField: string): string {
