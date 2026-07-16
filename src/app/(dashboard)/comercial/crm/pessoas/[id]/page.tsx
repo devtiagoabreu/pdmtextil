@@ -293,7 +293,7 @@ export default function PessoaDetailPage() {
                   <label className="block text-xs font-medium text-slate-500 mb-1">UF</label>
                   <SelectUf value={form.uf || ""} onChange={v => setForm((p: any) => ({ ...p, uf: v }))} />
                 </div>
-                <div>
+                <div className="col-span-2">
                   <label className="block text-xs font-medium text-slate-500 mb-1">Cidade</label>
                   <SelectCidade value={form.cidade || ""} onChange={v => setForm((p: any) => ({ ...p, cidade: v }))} estadoId={estadoId} />
                 </div>
@@ -377,7 +377,7 @@ export default function PessoaDetailPage() {
                 <p className="text-xs text-slate-500 mb-0.5">UF</p>
                 <p className="text-slate-900 dark:text-slate-200">{pessoa.uf || "—"}</p>
               </div>
-              <div>
+              <div className="col-span-2">
                 <p className="text-xs text-slate-500 mb-0.5">Cidade</p>
                 <p className="text-slate-900 dark:text-slate-200">{pessoa.cidade || "—"}</p>
               </div>
