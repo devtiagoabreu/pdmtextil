@@ -349,33 +349,91 @@ export default function DetalheVisitaPage() {
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
               <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4">Informações</h2>
               <div className="space-y-3 text-sm">
-                <Field label="Pessoa (Negócio)" value={visita.empresaNome} />
-                {visita.empresaEndereco && (
-                  <Field label="Endereço" value={[visita.empresaEndereco, visita.empresaNumero, visita.empresaBairro, visita.empresaCidade, visita.empresaUf].filter(Boolean).join(", ")} />
+                <div>
+                  <span className="text-xs text-slate-500 block mb-0.5">Status</span>
+                  <span className="inline-flex text-[10px] px-2 py-0.5 rounded-full font-medium"
+                    style={{ backgroundColor: getColor(visita.status) + "20", color: getColor(visita.status) }}>
+                    {getLabel(visita.status)}
+                  </span>
+                </div>
+                {visita.status === "CANCELADA" && visita.motivoCancelamento && (
+                  <div>
+                    <span className="text-xs text-slate-500 block mb-0.5">Motivo do Cancelamento</span>
+                    <p className="text-slate-900 dark:text-slate-200">{visita.motivoCancelamento}</p>
+                  </div>
                 )}
-                <Field label="Oportunidade" value={visita.oportunidadeTitulo} />
-                <Field label="Contato" value={visita.contatoNome} />
-                <Field label="Data" value={visita.dataVisita ? new Date(visita.dataVisita + "T12:00:00").toLocaleDateString("pt-BR") : "—"} />
-                <Field label="Tipo" value={TIPO_LABELS[visita.tipo] || visita.tipo} />
-                <Field label="Status" value={getLabel(visita.status)} />
-                {visita.motivoCancelamento && (
-                  <Field label="Motivo Cancelamento" value={visita.motivoCancelamento} />
+                <div>
+                  <span className="text-xs text-slate-500 block mb-0.5">Tipo</span>
+                  <p className="text-slate-900 dark:text-slate-200">{TIPO_LABELS[visita.tipo] || visita.tipo}</p>
+                </div>
+                <div>
+                  <span className="text-xs text-slate-500 block mb-0.5">Data da Visita</span>
+                  <p className="text-slate-900 dark:text-slate-200">{visita.dataVisita ? new Date(visita.dataVisita + "T12:00:00").toLocaleDateString("pt-BR") : "—"}</p>
+                </div>
+                <div>
+                  <span className="text-xs text-slate-500 block mb-0.5">Pessoa (Negócio)</span>
+                  <Link href={`/comercial/crm/pessoas/${visita.empresaId}`} className="text-blue-600 hover:underline inline-flex items-center gap-1">
+                    {visita.empresaNome} <ExternalLink size={12} />
+                  </Link>
+                </div>
+                {visita.oportunidadeTitulo && (
+                  <div>
+                    <span className="text-xs text-slate-500 block mb-0.5">Oportunidade</span>
+                    <p className="text-slate-900 dark:text-slate-200">{visita.oportunidadeTitulo}</p>
+                  </div>
+                )}
+                {visita.contatoNome && (
+                  <div>
+                    <span className="text-xs text-slate-500 block mb-0.5">Contato</span>
+                    <p className="text-slate-900 dark:text-slate-200">{visita.contatoNome}</p>
+                  </div>
                 )}
                 {visita.criadoPorNome && (
-                  <Field label="Criado por" value={visita.criadoPorNome} />
+                  <div>
+                    <span className="text-xs text-slate-500 block mb-0.5">Criado por</span>
+                    <p className="text-slate-900 dark:text-slate-200">{visita.criadoPorNome}</p>
+                  </div>
                 )}
               </div>
             </div>
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
-              <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-3 flex items-center gap-2">
+              <div className="flex items-center gap-2 mb-4">
                 <MapPin size={16} className="text-slate-400" />
-                Endereço
-              </h2>
-              {visita.endereco ? (
-                <p className="text-sm text-slate-700 dark:text-slate-300">
-                  {[visita.endereco, visita.numero, visita.complemento, visita.bairro, visita.cidade, visita.uf].filter(Boolean).join(", ")}
-                  {visita.cep ? ` — CEP: ${visita.cep}` : ""}
-                </p>
+                <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50">Endereço</h2>
+              </div>
+              {visita.endereco || visita.numero || visita.bairro || visita.cidade ? (
+                <div className="space-y-3">
+                  <div>
+                    <span className="text-xs text-slate-500 block mb-0.5">Logradouro</span>
+                    <p className="text-sm text-slate-900 dark:text-slate-200">{visita.endereco || "—"}</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <span className="text-xs text-slate-500 block mb-0.5">Número</span>
+                      <p className="text-sm text-slate-900 dark:text-slate-200">{visita.numero || "—"}</p>
+                    </div>
+                    <div>
+                      <span className="text-xs text-slate-500 block mb-0.5">Complemento</span>
+                      <p className="text-sm text-slate-900 dark:text-slate-200">{visita.complemento || "—"}</p>
+                    </div>
+                    <div>
+                      <span className="text-xs text-slate-500 block mb-0.5">Bairro</span>
+                      <p className="text-sm text-slate-900 dark:text-slate-200">{visita.bairro || "—"}</p>
+                    </div>
+                    <div>
+                      <span className="text-xs text-slate-500 block mb-0.5">CEP</span>
+                      <p className="text-sm text-slate-900 dark:text-slate-200">{visita.cep || "—"}</p>
+                    </div>
+                    <div>
+                      <span className="text-xs text-slate-500 block mb-0.5">UF</span>
+                      <p className="text-sm text-slate-900 dark:text-slate-200">{visita.uf || "—"}</p>
+                    </div>
+                    <div className="col-span-2">
+                      <span className="text-xs text-slate-500 block mb-0.5">Cidade</span>
+                      <p className="text-sm text-slate-900 dark:text-slate-200">{visita.cidade || "—"}</p>
+                    </div>
+                  </div>
+                </div>
               ) : (
                 <p className="text-sm text-slate-400">Nenhum endereço informado</p>
               )}
@@ -480,11 +538,4 @@ export default function DetalheVisitaPage() {
   )
 }
 
-function Field({ label, value }: { label: string; value?: string | null }) {
-  return (
-    <div className="flex items-center gap-2">
-      <span className="text-slate-500 min-w-[100px]">{label}:</span>
-      <span className="text-slate-900 dark:text-slate-200">{value || "—"}</span>
-    </div>
-  )
-}
+
