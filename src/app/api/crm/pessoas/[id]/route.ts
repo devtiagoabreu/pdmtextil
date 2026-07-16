@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
+import { clientes } from "@/lib/db/schema/clientes"
 import { crmContatos } from "@/lib/db/schema/crm-contatos"
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq, and, ne } from "drizzle-orm"
@@ -103,6 +104,41 @@ export async function PUT(
       .returning()
 
     const nomePessoa = atualizada.nome || atualizada.razaoSocial || "Pessoa"
+
+    if (body.status === "CONVERTIDO_CLIENTE" && existente.status !== "CONVERTIDO_CLIENTE" && atualizada.cnpj) {
+      try {
+        if (!atualizada.clienteId) {
+          const [existenteCliente] = await db
+            .select()
+            .from(clientes)
+            .where(eq(clientes.cnpj, atualizada.cnpj))
+            .limit(1)
+
+          if (existenteCliente) {
+            await db.update(crmPessoas)
+              .set({ clienteId: existenteCliente.id })
+              .where(eq(crmPessoas.id, atualizada.id))
+            atualizada.clienteId = existenteCliente.id
+          } else {
+            const [novoCliente] = await db.insert(clientes).values({
+              nome: atualizada.nomeFantasia || atualizada.razaoSocial || "",
+              cnpj: atualizada.cnpj,
+              razaoSocial: atualizada.razaoSocial || "",
+              endereco: atualizada.endereco || null,
+              cidade: atualizada.cidade || null,
+              uf: atualizada.uf || null,
+            }).returning()
+            await db.update(crmPessoas)
+              .set({ clienteId: novoCliente.id })
+              .where(eq(crmPessoas.id, atualizada.id))
+            atualizada.clienteId = novoCliente.id
+          }
+        }
+      } catch (err) {
+        console.error("[sync-cliente]", err)
+      }
+    }
+
     await registrarLog({
       tipo: "ATUALIZACAO",
       acao: "atualizar",
