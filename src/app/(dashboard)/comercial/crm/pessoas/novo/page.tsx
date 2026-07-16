@@ -5,7 +5,7 @@ import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Save } from "lucide-react"
+import { ArrowLeft, Save, Search, Trash2, Users, UserPlus, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import { SelectUf } from "@/components/crm/select-uf"
 import { SelectCidade } from "@/components/crm/select-cidade"
@@ -25,6 +25,10 @@ export default function NovaPessoaPage() {
     segmento: "",
     porte: "",
     site: "",
+    telefone: "",
+    celular: "",
+    email: "",
+    emailNf: "",
     endereco: "",
     numero: "",
     complemento: "",
@@ -37,6 +41,11 @@ export default function NovaPessoaPage() {
   const [saving, setSaving] = useState(false)
   const [estadoId, setEstadoId] = useState<number | null>(null)
   const [estados, setEstados] = useState<{ id: number; uf: string }[]>([])
+
+  const [vinculos, setVinculos] = useState<any[]>([])
+  const [searchRep, setSearchRep] = useState("")
+  const [repResults, setRepResults] = useState<any[]>([])
+  const [searchingRep, setSearchingRep] = useState(false)
 
   const fetchEstados = useCallback(async () => {
     try {
@@ -55,6 +64,37 @@ export default function NovaPessoaPage() {
       setEstadoId(null)
     }
   }, [form.uf, estados])
+
+  async function searchRepresentantes(query: string) {
+    setSearchRep(query)
+    if (query.length < 2) { setRepResults([]); return }
+    setSearchingRep(true)
+    try {
+      const res = await fetch(`/api/representantes?q=${encodeURIComponent(query)}`)
+      if (!res.ok) throw new Error()
+      const data = await res.json()
+      const existentes = new Set(vinculos.map(v => v.representanteId))
+      setRepResults(data.filter((r: any) => !existentes.has(r.id)))
+    } catch {} finally {
+      setSearchingRep(false)
+    }
+  }
+
+  function addRepresentante(representante: any) {
+    if (vinculos.find(v => v.representanteId === representante.id)) return
+    setVinculos(prev => [...prev, {
+      id: Date.now(),
+      representanteId: representante.id,
+      representanteNome: representante.nome,
+      representante: { nome: representante.nome },
+    }])
+    setRepResults([])
+    setSearchRep("")
+  }
+
+  function removeRepresentante(id: number) {
+    setVinculos(prev => prev.filter(v => v.representanteId !== id))
+  }
 
   function setField(field: string, value: string) {
     setForm((prev: any) => ({ ...prev, [field]: value }))
@@ -87,6 +127,16 @@ export default function NovaPessoaPage() {
         throw new Error(err.error || "Erro ao salvar")
       }
       const data = await res.json()
+
+      // Vincular representantes selecionados
+      for (const v of vinculos) {
+        await fetch(`/api/crm/pessoas/${data.id}/representantes`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ representanteId: v.representanteId }),
+        })
+      }
+
       toast.success("Pessoa cadastrada com sucesso")
       router.push(`/comercial/crm/pessoas/${data.id}`)
     } catch (err: any) {
@@ -230,6 +280,50 @@ export default function NovaPessoaPage() {
           </div>
 
           <div className="sm:col-span-2">
+            <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200 border-b border-slate-100 dark:border-slate-800 pb-2">Contato</h3>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Telefone</label>
+            <input
+              type="text"
+              value={form.telefone}
+              onChange={e => setField("telefone", e.target.value)}
+              placeholder="(00) 0000-0000"
+              className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Celular</label>
+            <input
+              type="text"
+              value={form.celular}
+              onChange={e => setField("celular", e.target.value)}
+              placeholder="(00) 00000-0000"
+              className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">E-mail</label>
+            <input
+              type="email"
+              value={form.email}
+              onChange={e => setField("email", e.target.value)}
+              placeholder="contato@exemplo.com"
+              className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">E-mail para NF-e</label>
+            <input
+              type="email"
+              value={form.emailNf}
+              onChange={e => setField("emailNf", e.target.value)}
+              placeholder="nf@exemplo.com"
+              className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div className="sm:col-span-2">
             <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200 border-b border-slate-100 dark:border-slate-800 pb-2">Endereço</h3>
           </div>
           <div>
@@ -269,14 +363,6 @@ export default function NovaPessoaPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">UF</label>
-            <SelectUf value={form.uf} onChange={v => setField("uf", v)} />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Cidade</label>
-            <SelectCidade value={form.cidade} onChange={v => setField("cidade", v)} estadoId={estadoId} />
-          </div>
-          <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">CEP</label>
             <input
               type="text"
@@ -285,6 +371,14 @@ export default function NovaPessoaPage() {
               placeholder="00.000-000"
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+          </div>
+          <div className="sm:col-span-2">
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">UF</label>
+            <SelectUf value={form.uf} onChange={v => setField("uf", v)} />
+          </div>
+          <div className="sm:col-span-2">
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Cidade</label>
+            <SelectCidade value={form.cidade} onChange={v => setField("cidade", v)} estadoId={estadoId} />
           </div>
 
           <div className="sm:col-span-2">
@@ -295,6 +389,57 @@ export default function NovaPessoaPage() {
               rows={3}
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-slate-200 dark:border-slate-800 p-4">
+          <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2 mb-3">
+            <Users size={16} />
+            Representantes Vinculados
+          </h3>
+
+          {vinculos.length > 0 && (
+            <div className="mb-3 space-y-2">
+              {vinculos.map(v => (
+                <div key={v.id || v.representanteId} className="flex items-center justify-between bg-slate-50 dark:bg-slate-800/50 rounded-lg px-3 py-2">
+                  <span className="text-sm text-slate-700 dark:text-slate-300">{v.representanteNome}</span>
+                  <button type="button" onClick={() => removeRepresentante(v.representanteId)} className="p-1 rounded hover:bg-red-100 dark:hover:bg-red-900/30 text-slate-400 hover:text-red-600">
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="relative">
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1">
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  value={searchRep}
+                  onChange={e => searchRepresentantes(e.target.value)}
+                  placeholder="Buscar representante pelo nome..."
+                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                {searchingRep && <Loader2 size={14} className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-slate-400" />}
+              </div>
+            </div>
+            {repResults.length > 0 && (
+              <div className="absolute z-10 mt-1 w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-lg max-h-48 overflow-y-auto">
+                {repResults.map(r => (
+                  <button
+                    key={r.id}
+                    type="button"
+                    onClick={() => addRepresentante(r)}
+                    className="flex items-center gap-2 w-full px-3 py-2 text-sm text-left hover:bg-slate-50 dark:hover:bg-slate-700/50 text-slate-700 dark:text-slate-300"
+                  >
+                    <UserPlus size={14} className="text-slate-400" />
+                    {r.nome}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 

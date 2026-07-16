@@ -85,6 +85,10 @@ export async function PUT(
     if (body.segmento !== undefined) values.segmento = body.segmento || null
     if (body.porte !== undefined) values.porte = body.porte || null
     if (body.site !== undefined) values.site = body.site || null
+    if (body.telefone !== undefined) values.telefone = body.telefone || null
+    if (body.celular !== undefined) values.celular = body.celular || null
+    if (body.email !== undefined) values.email = body.email || null
+    if (body.emailNf !== undefined) values.emailNf = body.emailNf || null
     if (body.endereco !== undefined) values.endereco = body.endereco || null
     if (body.numero !== undefined) values.numero = body.numero || null
     if (body.complemento !== undefined) values.complemento = body.complemento || null
