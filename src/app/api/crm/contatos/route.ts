@@ -14,7 +14,17 @@ export async function GET(req: NextRequest) {
     const empresaId = searchParams.get("empresaId")
     const search = searchParams.get("search")
 
-    let query = db
+    const conditions: any[] = []
+    if (empresaId) {
+      conditions.push(eq(crmContatos.empresaId, parseInt(empresaId)))
+    }
+    if (search) {
+      conditions.push(
+        sql`${crmContatos.nome} ILIKE ${`%${search}%`} OR ${crmContatos.email} ILIKE ${`%${search}%`} OR ${crmPessoas.razaoSocial} ILIKE ${`%${search}%`}`
+      )
+    }
+
+    const query = db
       .select({
         id: crmContatos.id,
         nome: crmContatos.nome,
@@ -36,17 +46,9 @@ export async function GET(req: NextRequest) {
       .leftJoin(crmPessoas, eq(crmContatos.empresaId, crmPessoas.id))
       .orderBy(desc(crmContatos.createdAt))
 
-    if (empresaId) {
-      query = query.where(eq(crmContatos.empresaId, parseInt(empresaId)))
-    }
-
-    if (search) {
-      query = query.where(
-        sql`${crmContatos.nome} ILIKE ${`%${search}%`} OR ${crmContatos.email} ILIKE ${`%${search}%`} OR ${crmPessoas.razaoSocial} ILIKE ${`%${search}%`}`
-      )
-    }
-
-    const lista = await query
+    const lista = conditions.length > 0
+      ? await query.where(conditions.reduce((a, b) => sql`${a} AND ${b}`))
+      : await query
     return NextResponse.json(lista)
   } catch (error) {
     console.error("[GET /api/crm/contatos]", error)
