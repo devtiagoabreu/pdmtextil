@@ -38,7 +38,7 @@ export async function PUT(
     const { id } = await params
     const body = await req.json()
 
-    const { nome, cnpj, razaoSocial, email, telefone, contato, endereco, cidade, uf, idIntegracao } = body
+    const { nome, cnpj, razaoSocial, email, emailNf, telefone, celular, contato, endereco, cidade, uf, idIntegracao } = body
 
     if (!nome?.trim()) {
       return NextResponse.json({ error: "Nome é obrigatório" }, { status: 400 })
@@ -77,7 +77,9 @@ export async function PUT(
         cnpj: cnpjLimpo,
         razaoSocial: razaoSocial?.trim() || null,
         email: email?.trim() || null,
+        emailNf: emailNf?.trim() || null,
         telefone: telefone?.trim() || null,
+        celular: celular?.trim() || null,
         contato: contato?.trim() || null,
         endereco: endereco?.trim() || null,
         cidade: cidade?.trim() || null,
