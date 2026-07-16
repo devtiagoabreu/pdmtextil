@@ -68,7 +68,7 @@ export default function ConversasPage() {
 
       <div className="flex h-[calc(100vh-280px)] min-h-[500px] rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
         {/* Sidebar - lista de conversas */}
-        <div className="w-80 border-r border-slate-200 dark:border-slate-800 flex flex-col">
+        <div className="w-80 border-r border-slate-200 dark:border-slate-800 flex flex-col min-h-0">
           <div className="p-3 border-b border-slate-100 dark:border-slate-800">
             <div className="relative">
               <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -82,7 +82,7 @@ export default function ConversasPage() {
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto min-h-0">
             {loading ? (
               <div className="flex justify-center py-8">
                 <Loader2 className="animate-spin text-slate-400" size={20} />
@@ -137,7 +137,7 @@ export default function ConversasPage() {
         </div>
 
         {/* Painel principal - chat */}
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col min-h-0">
           {selectedRemoteJid ? (
             <>
               <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
