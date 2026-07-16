@@ -1086,30 +1086,45 @@ async function migrate() {
     console.log("✓ Coluna pessoa_id adicionada em crm_leads")
 
     // ==================== Atualizar menus existentes com link para Contatos ====================
-    // Corrige URL do menu Contatos para role CRM (apontava erroneamente para /comercial/crm/pessoas)
+    // 1. Corrige URL do menu Contatos que apontava erroneamente para /comercial/crm/pessoas
     await sql`
       UPDATE user_menu_itens
       SET url = '/comercial/crm/contatos'
       WHERE titulo = 'Contatos' AND url = '/comercial/crm/pessoas'
     `
-    console.log("✓ URL do menu Contatos corrigida (role CRM)")
+    console.log("✓ URL do menu Contatos corrigida")
 
-    // Adiciona Contatos para COMERCIAL e ADMIN se ainda não existir
-    for (const role of ['COMERCIAL', 'ADMIN']) {
+    // 2. Adiciona Contatos em menus CRM de todos os papéis (role-based) se ainda não existir
+    const roles = ['CRM', 'COMERCIAL', 'ADMIN', 'SUDO']
+    for (const role of roles) {
       await sql`
         INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem)
         SELECT um.id, 'Contatos', '/comercial/crm/contatos', 2
         FROM user_menus um
         WHERE um.role = ${role}
+          AND um.titulo = 'CRM'
+          AND um.usuario_id IS NULL
           AND NOT EXISTS (
             SELECT 1 FROM user_menu_itens umi
             WHERE umi.user_menu_id = um.id AND umi.titulo = 'Contatos'
           )
       `
     }
-    console.log("✓ Menus Contatos adicionados para COMERCIAL e ADMIN")
+    console.log("✓ Contatos adicionado em menus role-based (CRM, COMERCIAL, ADMIN, SUDO)")
 
-    console.log("\n✅ Migration concluída com sucesso!")
+    // 3. Adiciona Contatos em menus de usuários específicos (user-specific, forked)
+    await sql`
+      INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem)
+      SELECT um.id, 'Contatos', '/comercial/crm/contatos', 2
+      FROM user_menus um
+      WHERE um.usuario_id IS NOT NULL
+        AND um.titulo = 'CRM'
+        AND NOT EXISTS (
+          SELECT 1 FROM user_menu_itens umi
+          WHERE umi.user_menu_id = um.id AND umi.titulo = 'Contatos'
+        )
+    `
+    console.log("✓ Contatos adicionado em menus de usuários específicos")
 
     console.log("\n✅ Migration concluída com sucesso!")
     
