@@ -37,6 +37,7 @@ export async function PUT(
     if (body.whatsapp !== undefined) values.whatsapp = body.whatsapp || null
     if (body.principal !== undefined) values.principal = body.principal
     if (body.observacoes !== undefined) values.observacoes = body.observacoes || null
+    if (body.empresaId !== undefined) values.empresaId = body.empresaId
 
     const [atualizado] = await db
       .update(crmContatos)
@@ -44,7 +45,7 @@ export async function PUT(
       .where(eq(crmContatos.id, parseInt(id)))
       .returning()
 
-    await notificar("CONTATO_ATUALIZADO", `Contato #${id} atualizado`, `/comercial/crm/pessoas/${existente.empresaId}`, session.user.name)
+    await notificar("CONTATO_ATUALIZADO", `Contato #${id} atualizado`, `/comercial/crm/contatos/${id}`, session.user.name)
 
     return NextResponse.json(atualizado)
   } catch (error) {
