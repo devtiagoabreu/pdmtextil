@@ -14,7 +14,9 @@ type Cliente = {
   cnpj: string
   razaoSocial?: string | null
   email?: string | null
+  emailNf?: string | null
   telefone?: string | null
+  celular?: string | null
   contato?: string | null
   endereco?: string | null
   cidade?: string | null
