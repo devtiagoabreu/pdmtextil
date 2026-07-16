@@ -336,7 +336,7 @@ export default function DetalheVisitaPage() {
                     <label className="block text-xs font-medium text-slate-500 mb-1">UF</label>
                     <SelectUf value={form.uf || ""} onChange={v => setField("uf", v)} />
                   </div>
-                  <div>
+                  <div className="col-span-2">
                     <label className="block text-xs font-medium text-slate-500 mb-1">Cidade</label>
                     <SelectCidade value={form.cidade || ""} onChange={v => setField("cidade", v)} estadoId={estadoId} />
                   </div>
