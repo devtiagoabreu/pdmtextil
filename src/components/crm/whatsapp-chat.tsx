@@ -98,8 +98,8 @@ export default function WhatsAppChat({ remoteJid, empresaId }: Props) {
   }
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto space-y-2 p-3">
+    <div className="flex flex-col h-full min-h-0">
+      <div className="flex-1 overflow-y-auto space-y-2 p-3 min-h-0">
         {mensagens.length === 0 ? (
           <p className="text-sm text-slate-400 text-center py-8">Nenhuma mensagem</p>
         ) : (
