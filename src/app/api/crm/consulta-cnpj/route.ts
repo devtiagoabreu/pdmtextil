@@ -3,6 +3,7 @@ import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
 import { clientes } from "@/lib/db/schema/clientes"
+import { representantes } from "@/lib/db/schema/representantes"
 
 export const dynamic = "force-dynamic"
 import { like, or } from "drizzle-orm"
@@ -41,7 +42,13 @@ export async function GET(req: NextRequest) {
       .where(like(clientes.cnpj, `%${cnpj}%`))
       .limit(5)
 
-    return NextResponse.json({ apiData, crmPessoas: crmResult, clientes: clientesResult })
+    const representantesResult = await db
+      .select()
+      .from(representantes)
+      .where(like(representantes.cnpj, `%${cnpj}%`))
+      .limit(5)
+
+    return NextResponse.json({ apiData, crmPessoas: crmResult, clientes: clientesResult, representantes: representantesResult })
   } catch (error) {
     console.error("[GET /api/crm/consulta-cnpj]", error)
     return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
