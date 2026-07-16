@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { crmLeads } from "@/lib/db/schema/crm-leads"
+import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
 import { eq } from "drizzle-orm"
 import { registrarLog, notificar, notificarDelecao } from "@/lib/notificar"
 import { inserirTimelineEvento } from "@/lib/crm-timeline"
@@ -67,6 +68,7 @@ export async function PUT(
     if (body.descricao !== undefined) values.descricao = body.descricao || null
     if (body.responsavelId !== undefined) values.responsavelId = body.responsavelId
     if (body.empresaId !== undefined) values.empresaId = body.empresaId
+    if (body.pessoaId !== undefined) values.pessoaId = body.pessoaId
 
     const [atualizado] = await db
       .update(crmLeads)
@@ -89,6 +91,40 @@ export async function PUT(
         tipo: "LEAD",
         descricao: `Lead "${atualizado.nome}" mudou para "${body.status}"`,
         metadados: { leadId: atualizado.id, statusAnterior: existente.status, statusNovo: body.status },
+      })
+    }
+
+    // Se mudou para CONVERTIDO, criar pessoa automaticamente (só se não veio pessoaId no body)
+    if (body.status === "CONVERTIDO" && body.status !== existente.status && !body.pessoaId) {
+      const pessoaData: Record<string, any> = {
+        nome: atualizado.nome || existente.nome,
+        email: atualizado.email || existente.email,
+        telefone: atualizado.telefone || existente.telefone,
+        celular: atualizado.celular || existente.celular,
+        responsavelId: atualizado.responsavelId || existente.responsavelId,
+        tipoPessoa: atualizado.tipoPessoa || existente.tipoPessoa || "PF",
+      }
+
+      const doc = atualizado.documento || existente.documento
+      if (doc) {
+        if (pessoaData.tipoPessoa === "PF") pessoaData.cpf = doc
+        else pessoaData.cnpj = doc
+      }
+
+      if (atualizado.empresaNome || existente.empresaNome) {
+        pessoaData.razaoSocial = atualizado.empresaNome || existente.empresaNome
+      }
+
+      const [pessoa] = await db.insert(crmPessoas).values(pessoaData).returning()
+
+      // Vincular a pessoa criada ao lead
+      await db.update(crmLeads).set({ pessoaId: pessoa.id, updatedAt: new Date() }).where(eq(crmLeads.id, atualizado.id))
+
+      await inserirTimelineEvento({
+        empresaId: atualizado.empresaId!,
+        tipo: "LEAD",
+        descricao: `Lead "${atualizado.nome}" convertido em pessoa (ID ${pessoa.id})`,
+        metadados: { leadId: atualizado.id, pessoaId: pessoa.id },
       })
     }
 

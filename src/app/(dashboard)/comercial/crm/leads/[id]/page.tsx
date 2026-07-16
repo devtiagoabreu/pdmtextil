@@ -324,6 +324,14 @@ export default function LeadDetailPage() {
                   <p className="text-slate-900 dark:text-slate-200">{lead.porteIa}</p>
                 </div>
               )}
+              {lead.pessoaId && (
+                <div className="col-span-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+                  <p className="text-xs text-slate-500 mb-0.5">Pessoa vinculada</p>
+                  <Link href={`/comercial/crm/pessoas/${lead.pessoaId}`} className="text-sm text-blue-600 hover:underline font-medium">
+                    Ver pessoa #{lead.pessoaId} →
+                  </Link>
+                </div>
+              )}
             </div>
           )}
         </div>
