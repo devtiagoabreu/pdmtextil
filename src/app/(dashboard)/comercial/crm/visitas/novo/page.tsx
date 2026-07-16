@@ -12,6 +12,7 @@ import { QuickCreateContato } from "@/components/crm/quick-create-contato"
 import { QuickCreateOportunidade } from "@/components/crm/quick-create-oportunidade"
 import { SelectUf } from "@/components/crm/select-uf"
 import { SelectCidade } from "@/components/crm/select-cidade"
+import { RichTextEditor } from "@/components/crm/rich-text-editor"
 
 const TIPO_OPTIONS = [
   { value: "PRESENCIAL", label: "Presencial" },
@@ -382,12 +383,11 @@ export default function NovaVisitaPage() {
 
         <div>
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Relato / Ata da Visita</label>
-          <textarea
+          <RichTextEditor
             value={form.relato}
-            onChange={e => setField("relato", e.target.value)}
-            rows={5}
-            className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            onChange={v => setField("relato", v)}
             placeholder="Descreva o relato da visita..."
+            minHeight="250px"
           />
         </div>
 
