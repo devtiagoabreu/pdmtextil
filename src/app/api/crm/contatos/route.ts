@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { crmContatos } from "@/lib/db/schema/crm-contatos"
-import { eq, desc } from "drizzle-orm"
+import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
+import { eq, desc, like, sql } from "drizzle-orm"
 import { notificar } from "@/lib/notificar"
 
 export async function GET(req: NextRequest) {
@@ -11,14 +12,38 @@ export async function GET(req: NextRequest) {
     if (auth instanceof NextResponse) return auth
     const { searchParams } = new URL(req.url)
     const empresaId = searchParams.get("empresaId")
+    const search = searchParams.get("search")
 
     let query = db
-      .select()
+      .select({
+        id: crmContatos.id,
+        nome: crmContatos.nome,
+        cargo: crmContatos.cargo,
+        email: crmContatos.email,
+        telefone: crmContatos.telefone,
+        celular: crmContatos.celular,
+        whatsapp: crmContatos.whatsapp,
+        principal: crmContatos.principal,
+        observacoes: crmContatos.observacoes,
+        empresaId: crmContatos.empresaId,
+        empresaNome: crmPessoas.nome,
+        empresaRazaoSocial: crmPessoas.razaoSocial,
+        empresaNomeFantasia: crmPessoas.nomeFantasia,
+        createdAt: crmContatos.createdAt,
+        updatedAt: crmContatos.updatedAt,
+      })
       .from(crmContatos)
+      .leftJoin(crmPessoas, eq(crmContatos.empresaId, crmPessoas.id))
       .orderBy(desc(crmContatos.createdAt))
 
     if (empresaId) {
-      query.where(eq(crmContatos.empresaId, parseInt(empresaId)))
+      query = query.where(eq(crmContatos.empresaId, parseInt(empresaId)))
+    }
+
+    if (search) {
+      query = query.where(
+        sql`${crmContatos.nome} ILIKE ${`%${search}%`} OR ${crmContatos.email} ILIKE ${`%${search}%`} OR ${crmPessoas.razaoSocial} ILIKE ${`%${search}%`}`
+      )
     }
 
     const lista = await query

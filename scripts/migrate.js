@@ -1085,6 +1085,32 @@ async function migrate() {
     await sql`ALTER TABLE crm_leads ADD COLUMN IF NOT EXISTS pessoa_id INTEGER REFERENCES crm_pessoas(id)`
     console.log("✓ Coluna pessoa_id adicionada em crm_leads")
 
+    // ==================== Atualizar menus existentes com link para Contatos ====================
+    // Corrige URL do menu Contatos para role CRM (apontava erroneamente para /comercial/crm/pessoas)
+    await sql`
+      UPDATE user_menu_itens
+      SET url = '/comercial/crm/contatos'
+      WHERE titulo = 'Contatos' AND url = '/comercial/crm/pessoas'
+    `
+    console.log("✓ URL do menu Contatos corrigida (role CRM)")
+
+    // Adiciona Contatos para COMERCIAL e ADMIN se ainda não existir
+    for (const role of ['COMERCIAL', 'ADMIN']) {
+      await sql`
+        INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem)
+        SELECT um.id, 'Contatos', '/comercial/crm/contatos', 2
+        FROM user_menus um
+        WHERE um.role = ${role}
+          AND NOT EXISTS (
+            SELECT 1 FROM user_menu_itens umi
+            WHERE umi.user_menu_id = um.id AND umi.titulo = 'Contatos'
+          )
+      `
+    }
+    console.log("✓ Menus Contatos adicionados para COMERCIAL e ADMIN")
+
+    console.log("\n✅ Migration concluída com sucesso!")
+
     console.log("\n✅ Migration concluída com sucesso!")
     
   } catch (error) {
