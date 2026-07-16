@@ -66,10 +66,10 @@ export default function ConversasPage() {
         </p>
       </div>
 
-      <div className="flex h-[calc(100vh-280px)] min-h-[500px] rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
+      <div className="flex h-[calc(100vh-220px)] min-h-[500px] rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
         {/* Sidebar - lista de conversas */}
-        <div className="w-80 border-r border-slate-200 dark:border-slate-800 flex flex-col min-h-0">
-          <div className="p-3 border-b border-slate-100 dark:border-slate-800">
+        <div className="w-80 shrink-0 border-r border-slate-200 dark:border-slate-800 flex flex-col min-h-0">
+          <div className="p-3 border-b border-slate-100 dark:border-slate-800 shrink-0">
             <div className="relative">
               <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
@@ -82,7 +82,7 @@ export default function ConversasPage() {
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto min-h-0">
+          <div className="flex-1 overflow-y-auto min-h-0" style={{ minHeight: 0, height: 0 }}>
             {loading ? (
               <div className="flex justify-center py-8">
                 <Loader2 className="animate-spin text-slate-400" size={20} />
@@ -140,11 +140,11 @@ export default function ConversasPage() {
         <div className="flex-1 flex flex-col min-h-0">
           {selectedRemoteJid ? (
             <>
-              <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
+              <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 shrink-0">
                 <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">{selectedNome}</h3>
                 <p className="text-[10px] text-slate-400">{selectedRemoteJid}</p>
               </div>
-              <div className="flex-1">
+              <div className="flex-1 min-h-0">
                 <WhatsAppChat remoteJid={selectedRemoteJid} />
               </div>
             </>
