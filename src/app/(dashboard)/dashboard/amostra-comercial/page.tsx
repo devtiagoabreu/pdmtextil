@@ -144,8 +144,11 @@ export default function DashboardAmostraComercial() {
                     }))}
                     cx="50%" cy="50%" innerRadius={50} outerRadius={85}
                     dataKey="value" label={({ name, value }: any) => value > 0 ? `${name}: ${value}` : ""}
-                    animationDuration={1000}
-                    animationEasing="ease-out"
+                    startAngle={90}
+                    endAngle={-270}
+                    animationDuration={2500}
+                    animationEasing="ease-in-out"
+                    animationBegin={0}
                   >
                     {(stats?.statusDistribution || []).map((s: any) => (
                       <Cell key={s.status} fill={getColor(s.status) || "#94a3b8"} />
@@ -163,7 +166,7 @@ export default function DashboardAmostraComercial() {
                   <XAxis dataKey="mes" tick={{ fontSize: 11 }} stroke="#94a3b8" />
                   <YAxis allowDecimals={false} tick={{ fontSize: 11 }} stroke="#94a3b8" />
                   <Tooltip content={<ChartTooltip formatter={(v) => `${v || 0} requisições`} />} />
-                  <Bar dataKey="total" radius={[4, 4, 0, 0]} fill={TREND_COLOR} animationDuration={1000} animationEasing="ease-out" />
+                  <Bar dataKey="total" radius={[4, 4, 0, 0]} fill={TREND_COLOR} animationDuration={1800} animationEasing="ease-in-out" animationBegin={300} />
                 </BarChart>
               </ResponsiveContainer>
             </ChartCard>
@@ -175,7 +178,7 @@ export default function DashboardAmostraComercial() {
                   <XAxis dataKey="mes" tick={{ fontSize: 11 }} stroke="#94a3b8" />
                   <YAxis allowDecimals={false} tick={{ fontSize: 11 }} stroke="#94a3b8" />
                   <Tooltip content={<ChartTooltip formatter={(v) => `${v || 0} requisições`} />} />
-                  <Line type="monotone" dataKey="total" stroke={TREND_COLOR} strokeWidth={2} dot={{ fill: TREND_COLOR, r: 4 }} activeDot={{ r: 7, stroke: TREND_COLOR, strokeWidth: 2, fill: "#fff" }} animationDuration={1200} animationEasing="ease-out" />
+                  <Line type="monotone" dataKey="total" stroke={TREND_COLOR} strokeWidth={2} dot={{ fill: TREND_COLOR, r: 4 }} activeDot={{ r: 7, stroke: TREND_COLOR, strokeWidth: 2, fill: "#fff" }} animationDuration={2000} animationEasing="ease-in-out" animationBegin={600} />
                 </LineChart>
               </ResponsiveContainer>
             </ChartCard>

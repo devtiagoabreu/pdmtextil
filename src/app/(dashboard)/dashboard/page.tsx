@@ -155,7 +155,7 @@ export default function DashboardPage() {
                   <XAxis dataKey="mes" tick={{ fontSize: 11 }} stroke="#94a3b8" />
                   <YAxis allowDecimals={false} tick={{ fontSize: 11 }} stroke="#94a3b8" />
                   <Tooltip content={<ChartTooltip formatter={(v) => `${v || 0} solicitações`} />} />
-                  <Line type="monotone" dataKey="total" stroke="#6366f1" strokeWidth={2} dot={{ fill: "#6366f1", r: 4 }} activeDot={{ r: 7, stroke: "#6366f1", strokeWidth: 2, fill: "#fff" }} animationDuration={1200} animationEasing="ease-out" />
+                  <Line type="monotone" dataKey="total" stroke="#6366f1" strokeWidth={2} dot={{ fill: "#6366f1", r: 4 }} activeDot={{ r: 7, stroke: "#6366f1", strokeWidth: 2, fill: "#fff" }} animationDuration={2000} animationEasing="ease-in-out" animationBegin={200} />
                 </LineChart>
               </ResponsiveContainer>
             </ChartCard>
@@ -172,9 +172,12 @@ export default function DashboardPage() {
                     }))}
                     cx="50%" cy="50%" innerRadius={50} outerRadius={90}
                     dataKey="value"
+                    startAngle={90}
+                    endAngle={-270}
                     label={({ name, value }) => `${name}: ${value}`}
-                    animationDuration={1000}
-                    animationEasing="ease-out"
+                    animationDuration={2500}
+                    animationEasing="ease-in-out"
+                    animationBegin={300}
                   />
                   <Tooltip content={<ChartTooltip />} />
                 </PieChart>
@@ -215,7 +218,7 @@ export default function DashboardPage() {
                   <XAxis dataKey="name" tick={{ fontSize: 11 }} stroke="#94a3b8" />
                   <YAxis allowDecimals={false} tick={{ fontSize: 11 }} stroke="#94a3b8" />
                   <Tooltip content={<ChartTooltip formatter={(v) => `${v || 0} solicitações`} />} />
-                  <Bar dataKey="total" radius={[4, 4, 0, 0]} animationDuration={1000} animationEasing="ease-out">
+                  <Bar dataKey="total" radius={[4, 4, 0, 0]} animationDuration={1800} animationEasing="ease-in-out" animationBegin={600}>
                     {(stats?.tipoDistribution || []).map((s: any) => (
                       <Cell key={s.tipo} fill={TIPO_COLORS[s.tipo] || "#6366f1"} />
                     ))}

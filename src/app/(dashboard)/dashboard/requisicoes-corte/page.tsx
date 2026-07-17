@@ -137,8 +137,11 @@ export default function DashboardReqCorte() {
                     }))}
                     cx="50%" cy="50%" innerRadius={50} outerRadius={85}
                     dataKey="value" label={({ name, value }) => value > 0 ? `${name}: ${value}` : ""}
-                    animationDuration={1000}
-                    animationEasing="ease-out"
+                    startAngle={90}
+                    endAngle={-270}
+                    animationDuration={2500}
+                    animationEasing="ease-in-out"
+                    animationBegin={0}
                   >
                     {(stats?.statusDistribution || []).map((s: any) => (
                       <Cell key={s.status} fill={STATUS_COLORS[s.status] || "#94a3b8"} />
@@ -156,7 +159,7 @@ export default function DashboardReqCorte() {
                   <XAxis dataKey="mes" tick={{ fontSize: 11 }} stroke="#94a3b8" />
                   <YAxis allowDecimals={false} tick={{ fontSize: 11 }} stroke="#94a3b8" />
                   <Tooltip content={<ChartTooltip formatter={(v) => `${v || 0} requisições`} />} />
-                  <Line type="monotone" dataKey="total" stroke="#6366f1" strokeWidth={2} dot={{ fill: "#6366f1", r: 4 }} activeDot={{ r: 7, stroke: "#6366f1", strokeWidth: 2, fill: "#fff" }} animationDuration={1200} animationEasing="ease-out" />
+                  <Line type="monotone" dataKey="total" stroke="#6366f1" strokeWidth={2} dot={{ fill: "#6366f1", r: 4 }} activeDot={{ r: 7, stroke: "#6366f1", strokeWidth: 2, fill: "#fff" }} animationDuration={2000} animationEasing="ease-in-out" animationBegin={300} />
                 </LineChart>
               </ResponsiveContainer>
             </ChartCard>
