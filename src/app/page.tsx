@@ -2,9 +2,17 @@
 
 import { useEffect, useRef, useState, useCallback } from "react"
 import Link from "next/link"
-import { ArrowRight, Factory, ShoppingCart, Settings, PenTool } from "lucide-react"
+import { ArrowRight, Factory, ShoppingCart, Settings, PenTool, Users } from "lucide-react"
 
-const PDM_TOOLTIP = "PDM - Sistema de gestão de desenvolvimento de produtos têxteis que conecta os departamentos Comercial, Desenvolvimento (Tecelagem e Beneficiamento) e PCP, centralizando solicitações, fichas técnicas, receitas e roteiros de produção."
+const PDM_TOOLTIP = "PDM·PRO·TÊXTIL — Plataforma completa de gestão para a indústria têxtil. Integra Comercial, CRM, Desenvolvimento (Tecelagem e Beneficiamento), PCP e Admin em um único sistema. Gestão de clientes, leads, propostas, amostras, fichas técnicas, receitas, roteiros de produção, e-mail marketing, notificações inteligentes e exportação para ERP."
+
+const DEPARTMENTS = [
+  { icon: Factory, abbr: "PCP", label: "Planejamento", phrase: "Controle total da produção — do fio ao tecido acabado" },
+  { icon: ShoppingCart, abbr: "COM", label: "Comercial", phrase: "Gestão de pedidos, clientes e representantes em tempo real" },
+  { icon: Users, abbr: "CRM", label: "CRM", phrase: "Pipeline de vendas, leads, propostas e visitas integradas" },
+  { icon: PenTool, abbr: "DES", label: "Desenvolvimento", phrase: "Fichas técnicas, receitas e controle de amostras do conceito à aprovação" },
+  { icon: Settings, abbr: "ADM", label: "Admin", phrase: "Usuários, permissões, menus e configurações centralizadas" },
+]
 
 export default function LandingPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -203,27 +211,20 @@ export default function LandingPage() {
               <ArrowRight size={18} />
             </Link>
 
-            <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-              <div className="p-4 rounded-lg bg-slate-900/50 border border-slate-800">
-                <Factory className="w-8 h-8 mx-auto mb-2 text-slate-400" />
-                <div className="text-lg font-bold text-slate-200">PCP</div>
-                <div className="text-xs text-slate-500 mt-1">Planejamento</div>
-              </div>
-              <div className="p-4 rounded-lg bg-slate-900/50 border border-slate-800">
-                <ShoppingCart className="w-8 h-8 mx-auto mb-2 text-slate-400" />
-                <div className="text-lg font-bold text-slate-200">COM</div>
-                <div className="text-xs text-slate-500 mt-1">Comercial</div>
-              </div>
-              <div className="p-4 rounded-lg bg-slate-900/50 border border-slate-800">
-                <PenTool className="w-8 h-8 mx-auto mb-2 text-slate-400" />
-                <div className="text-lg font-bold text-slate-200">DES</div>
-                <div className="text-xs text-slate-500 mt-1">Desenvolvimento</div>
-              </div>
-              <div className="p-4 rounded-lg bg-slate-900/50 border border-slate-800">
-                <Settings className="w-8 h-8 mx-auto mb-2 text-slate-400" />
-                <div className="text-lg font-bold text-slate-200">ADM</div>
-                <div className="text-xs text-slate-500 mt-1">Admin</div>
-              </div>
+            <div className="mt-16 grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
+              {DEPARTMENTS.map((dept) => (
+                <div
+                  key={dept.abbr}
+                  className="group relative p-4 rounded-lg bg-slate-900/50 border border-slate-800 hover:border-slate-600 transition-all duration-300 cursor-default"
+                >
+                  <dept.icon className="w-8 h-8 mx-auto mb-2 text-slate-400 group-hover:text-white transition-colors" />
+                  <div className="text-lg font-bold text-slate-200">{dept.abbr}</div>
+                  <div className="text-xs text-slate-500 mt-1">{dept.label}</div>
+                  <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-2 bg-slate-800 border border-slate-700 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-20 shadow-lg">
+                    {dept.phrase}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </main>
