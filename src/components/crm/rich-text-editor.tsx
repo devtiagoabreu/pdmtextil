@@ -1,6 +1,7 @@
 "use client"
 
 import { useRef, useCallback, useState } from "react"
+import { sanitizeHtml } from "@/lib/sanitize"
 import {
   Bold, Italic, Underline, Strikethrough,
   AlignLeft, AlignCenter, AlignRight,
@@ -160,7 +161,7 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = "300p
         className="w-full p-4 bg-white dark:bg-slate-700 text-slate-950 dark:text-white focus:outline-none overflow-y-auto"
         style={{ fontFamily: "Arial, sans-serif", lineHeight: "1.8", fontSize: "15px", minHeight }}
         data-placeholder={placeholder}
-        dangerouslySetInnerHTML={{ __html: value }}
+        dangerouslySetInnerHTML={{ __html: sanitizeHtml(value) }}
       />
 
       <Dialog open={linkDialogOpen} onOpenChange={setLinkDialogOpen}>
