@@ -22,21 +22,21 @@
 | 9  | Dashboard 11+ queries individuais | ✅ Corrigido — 10→5 queries |
 | 10 | Inserções em loop — sem batch insert | ✅ Corrigido — 10 arquivos |
 | 11 | Ausência de transações — sem rollback | ✅ Corrigido — solicitacoes + produto-cru |
-| 12 | Sistema de notificações ineficiente | Pendente |
+| 12 | Sistema de notificações ineficiente | ✅ Corrigido — role-based user filtering |
 | 13 | Ausência de índices explícitos | ✅ Corrigido — 14 indexes |
-| 14 | Migration drift — 12 SQL, 2 rastreados | Pendente |
+| 14 | Migration drift — 12 SQL, 2 rastreados | ✅ Corrigido — _journal.json synced |
 
 ## 🟡 Código / Manutenibilidade
 
 | #  | Problema | Status |
 |----|----------|--------|
-| 15 | Arquivos excessivamente grandes | ✅ Parcialmente — email-massa |
-| 16 | info-content.ts gigante (383 linhas) | Pendente |
+| 15 | Arquivos excessivamente grandes | ✅ Parcialmente — email-massa 1567→1369 |
+| 16 | info-content.ts gigante (383 linhas) | ✅ Corrigido — split em 10 arquivos |
 | 17 | Validação manual — sem Zod/Joi | ✅ Já existe para CRUDs principais |
 | 18 | Error handling inconsistente | ✅ Corrigido — 11 rotas |
-| 19 | Ausência total de testes | Pendente |
+| 19 | Ausência total de testes | ✅ Corrigido — 67 testes em 4 arquivos |
 | 20 | params inconsistente — sync vs Promise | ✅ Corrigido — 10 rotas |
-| 21 | Sem paginação — todas as listagens | Pendente |
+| 21 | Sem paginação — todas as listagens | ✅ Corrigido — cursor-based pagination |
 | 22 | Sem Prettier/eslint-config-prettier | Pendente |
 
 ## 🔵 UI / UX
@@ -65,23 +65,21 @@
 | Categoria | Total | Resolvidos |
 |-----------|-------|------------|
 | 🔴 Segurança | 6 | 6 |
-| 🟠 Arquitetura/Perf | 8 | 7 |
-| 🟡 Código | 8 | 5 |
+| 🟠 Arquitetura/Perf | 8 | 8 |
+| 🟡 Código | 8 | 7 |
 | 🔵 UI/UX | 5 | 2 |
 | ⚪ Infra/DevOps | 4 | 0 |
-| **Total** | **31** | **20** |
+| **Total** | **31** | **23** |
 
-## Itens restantes (11)
+## Itens restantes (8)
 
 | Prioridade | # | Problema |
 |------------|---|----------|
-| Média | 12 | Sistema de notificações ineficiente |
-| Média | 14 | Migration drift |
-| Média | 21 | Sem paginação |
-| Baixa | 16 | info-content.ts gigante |
-| Baixa | 19 | Ausência de testes |
 | Baixa | 22 | Prettier |
 | Baixa | 24 | Loading states |
 | Baixa | 25 | Empty states |
 | Baixa | 27 | Confirmação de ações |
-| Baixa | 28-31 | CI/CD, Docker, hooks, monitoramento |
+| Baixa | 28 | CI/CD |
+| Baixa | 29 | Docker |
+| Baixa | 30 | Pre-commit hooks |
+| Baixa | 31 | Monitoramento |
