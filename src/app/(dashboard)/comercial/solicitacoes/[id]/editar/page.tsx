@@ -176,8 +176,6 @@ const onStep2Submit = (data: BriefingTecelagem) => {
         throw new Error("Cliente é obrigatório")
       }
 
-      console.log("=== SENDING PUT PAYLOAD ===", JSON.stringify(payload, null, 2))
-
       const res = await fetch(`/api/solicitacoes/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },

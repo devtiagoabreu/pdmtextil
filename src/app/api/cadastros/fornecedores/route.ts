@@ -12,14 +12,10 @@ export async function GET() {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
-    console.log("[GET /api/cadastros/fornecedores] Buscando fornecedores...")
-
     const lista = await db
       .select()
       .from(fornecedores)
       .orderBy(fornecedores.nome)
-
-    console.log("[GET /api/cadastros/fornecedores] Encontrados:", lista.length)
 
     return NextResponse.json(lista)
   } catch (error) {

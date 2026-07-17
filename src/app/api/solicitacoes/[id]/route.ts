@@ -50,16 +50,6 @@ export async function PUT(
 
     const { id } = await params
     const body = await req.json()
-    console.log("=== PUT /api/solicitacoes/[id] BODY ===", JSON.stringify({
-      tipo: body.tipo,
-      cliente: body.cliente,
-      cnpj: body.cnpj,
-      projeto: body.projeto,
-      prazoDesejado: body.prazoDesejado,
-      hasBriefing: !!body.briefing,
-      anexosCount: body.anexos?.length ?? 0,
-    }, null, 2))
-
     // Sanitiza CNPJ: remove tudo que não for letra ou número
     const cnpj = body.cnpj ? body.cnpj.replace(/[^a-zA-Z0-9]/g, "") : null
 
@@ -132,8 +122,6 @@ export async function PUT(
     if (body.prazoDesejado !== undefined) {
       setValues.prazoDesejado = body.prazoDesejado ? new Date(body.prazoDesejado) : null
     }
-
-    console.log("=== PUT setValues.prazoDesejado ===", setValues.prazoDesejado?.toISOString?.() ?? null)
 
     const [solicitacaoAtualizada] = await db
       .update(solicitacoes)

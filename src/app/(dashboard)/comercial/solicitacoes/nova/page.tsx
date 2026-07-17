@@ -136,8 +136,6 @@ export default function NovaSolicitacaoPage() {
         throw new Error("Cliente é obrigatório")
       }
 
-      console.log("=== SENDING POST PAYLOAD ===", JSON.stringify(payload, null, 2))
-
       const res = await fetch("/api/solicitacoes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
