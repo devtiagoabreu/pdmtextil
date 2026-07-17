@@ -10,6 +10,7 @@ import { PlusCircle, UserPlus, Search, Phone, Star, Building2, XCircle, Table, C
 import { toast } from "sonner"
 import { FloatableKanban } from "@/components/crm/floatable-kanban"
 import LeadsKanban from "@/components/crm/leads-kanban"
+import { ConfirmModal } from "@/components/ui/confirm-modal"
 
 async function fetchLeads() {
   const res = await fetch("/api/crm/leads")
@@ -41,6 +42,7 @@ export default function CrmLeadsPage() {
   const info = getInfoContent(pathname)
   const [search, setSearch] = useState("")
   const [modo, setModo] = useState<"tabela" | "kanban">("tabela")
+  const [leadToPerder, setLeadToPerder] = useState<any>(null)
 
   const { data: leads, isLoading, refetch } = useQuery({
     queryKey: ["crm-leads"],
@@ -279,7 +281,7 @@ export default function CrmLeadsPage() {
                         )}
                         {lead.status !== "PERDIDO" && lead.status !== "CONVERTIDO" && (
                           <button
-                            onClick={() => mudarStatus(lead, "PERDIDO")}
+                            onClick={() => setLeadToPerder(lead)}
                             title="Perder"
                             className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
                           >
@@ -307,6 +309,17 @@ export default function CrmLeadsPage() {
           <FloatableKanban tipo="LEAD"><LeadsKanban leads={filtered} /></FloatableKanban>
         )
       )}
+
+      <ConfirmModal
+        open={!!leadToPerder}
+        title="Marcar lead como perdido?"
+        message={`O lead "${leadToPerder?.nome}" será marcado como PERDIDO.`}
+        subMessage="Esta ação não pode ser desfeita facilmente."
+        variant="danger"
+        confirmLabel="Marcar como Perdido"
+        onConfirm={() => { if (leadToPerder) { mudarStatus(leadToPerder, "PERDIDO"); setLeadToPerder(null) } }}
+        onCancel={() => setLeadToPerder(null)}
+      />
     </div>
   )
 }

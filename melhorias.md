@@ -47,7 +47,7 @@
 | 24 | Loading state genérico | ✅ Corrigido — PageSkeleton + loading.tsx |
 | 25 | Ausência de empty states | ✅ Corrigido — EmptyState component + roles page |
 | 26 | `<img>` em vez de `next/image` | ✅ Corrigido |
-| 27 | Ações destrutivas sem confirmação | Pendente |
+| 27 | Ações destrutivas sem confirmação | ✅ Corrigido — ConfirmModal em 6 páginas (clientes, pessoas, leads, propostas, produto-cru, equipes) |
 
 ## ⚪ Infraestrutura / DevOps
 

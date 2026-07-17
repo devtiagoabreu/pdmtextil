@@ -14,6 +14,7 @@ import { ReceitaDialog } from "@/components/receita/acabamento-receita-dialog"
 import { LinksEditor } from "@/components/links/LinksEditor"
 import { EntityChatButton } from "@/components/chat/entity-chat-button"
 import { gerarSolicitacaoAmostraPdf } from "@/lib/gerar-solicitacao-amostra-pdf"
+import { ConfirmModal } from "@/components/ui/confirm-modal"
 
 type FichaTecnica = {
   gramatura?: string
@@ -180,6 +181,7 @@ export default function ProdutoCruFormPage() {
   }>({ open: false, target: null as any, novoStatus: "" })
   const [motivoText, setMotivoText] = useState("")
   const [receitaDialog, setReceitaDialog] = useState<{ amostraId: number; acabamentoId: number } | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<{ type: string; label: string; fn: () => void } | null>(null)
 
   const [editAmostra, setEditAmostra] = useState<Amostra | null>(null)
   const [editAmostraDescricao, setEditAmostraDescricao] = useState("")
@@ -882,7 +884,7 @@ export default function ProdutoCruFormPage() {
                       {composicao.map(c => (
                         <div key={c.id} className="flex items-center justify-between p-3 bg-slate-100 dark:bg-slate-800 rounded-lg">
                           <span>{c.material} — {c.percentual}%</span>
-                          <Button variant="ghost" size="icon" onClick={() => removeComposicao(c.id)}>
+                           <Button variant="ghost" size="icon" onClick={() => setDeleteTarget({ type: "composicao", label: `material "${c.material}"`, fn: () => removeComposicao(c.id) })}>
                             <Trash2 size={16} />
                           </Button>
                         </div>
@@ -920,7 +922,7 @@ export default function ProdutoCruFormPage() {
                           }
                             {e.ordem ? ` (Ordem: ${e.ordem})` : ""}
                           </span>
-                          <Button variant="ghost" size="icon" onClick={() => removeEstrutura(e.id)}>
+                          <Button variant="ghost" size="icon" onClick={() => setDeleteTarget({ type: "estrutura", label: "esta estrutura", fn: () => removeEstrutura(e.id) })}>
                             <Trash2 size={16} />
                           </Button>
                         </div>
@@ -1033,7 +1035,7 @@ export default function ProdutoCruFormPage() {
                                 <Button variant="ghost" size="sm" className="text-xs" onClick={() => setAmostraLinksAberta(amostraLinksAberta === a.id ? null : a.id)}>
                                   Links {a.links?.length ? `(${a.links.length})` : ""}
                                 </Button>
-                                <Button variant="ghost" size="icon" onClick={() => removeAmostra(a.id)}>
+                                <Button variant="ghost" size="icon" onClick={() => setDeleteTarget({ type: "amostra", label: "esta amostra", fn: () => removeAmostra(a.id) })}>
                                   <Trash2 size={16} />
                                 </Button>
                               </div>
@@ -1093,7 +1095,7 @@ export default function ProdutoCruFormPage() {
                                 <span className="text-xs text-slate-400">ERP: {acab.idIntegracaoErpAcabado}</span>
                               )}
                             </div>
-                            <Button variant="ghost" size="icon" onClick={(e: MouseEvent<HTMLButtonElement>) => { e.stopPropagation(); removeAcabamento(acab.id) }}>
+                            <Button variant="ghost" size="icon" onClick={(e: MouseEvent<HTMLButtonElement>) => { e.stopPropagation(); setDeleteTarget({ type: "acabamento", label: "este acabamento", fn: () => removeAcabamento(acab.id) }) }}>
                               <Trash2 size={16} />
                             </Button>
                           </div>
@@ -1144,7 +1146,7 @@ export default function ProdutoCruFormPage() {
                                             <option key={s.value} value={s.value} className="bg-white text-slate-900">{s.label}</option>
                                           ))}
                                         </select>
-                                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeAmostraAcabamento(acab.id, as.id)}>
+                                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setDeleteTarget({ type: "amostra-acabamento", label: "esta amostra", fn: () => removeAmostraAcabamento(acab.id, as.id) })}>
                                           <Trash2 size={12} />
                                         </Button>
                                       </div>
@@ -1333,6 +1335,16 @@ export default function ProdutoCruFormPage() {
           onClose={() => setReceitaDialog(null)}
         />
       )}
+
+      <ConfirmModal
+        open={!!deleteTarget}
+        title="Confirmar exclusão"
+        message={`Deseja remover ${deleteTarget?.label}?`}
+        variant="danger"
+        confirmLabel="Remover"
+        onConfirm={() => { if (deleteTarget) { deleteTarget.fn(); setDeleteTarget(null) } }}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   )
 }

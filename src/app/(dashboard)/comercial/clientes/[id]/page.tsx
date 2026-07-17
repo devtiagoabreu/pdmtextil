@@ -7,6 +7,7 @@ import { getInfoContent } from "@/lib/info-content"
 import Link from "next/link"
 import { ArrowLeft, Save, Trash2, Building2, Search, UserPlus, Users, Loader2, X, Mail, Phone, MapPin } from "lucide-react"
 import { toast } from "sonner"
+import { ConfirmModal } from "@/components/ui/confirm-modal"
 
 type Cliente = {
   id: number
@@ -63,6 +64,7 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
   const [searchRep, setSearchRep] = useState("")
   const [repResults, setRepResults] = useState<any[]>([])
   const [searchingRep, setSearchingRep] = useState(false)
+  const [repToRemove, setRepToRemove] = useState<Vinculo | null>(null)
 
   useEffect(() => {
     async function loadCliente() {
@@ -149,6 +151,7 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
     } catch {
       toast.error("Erro ao remover")
     }
+    setRepToRemove(null)
   }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -452,7 +455,7 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
                         </td>
                         <td className="p-3 text-right">
                           <button
-                            onClick={() => removeRepresentante(v)}
+                            onClick={() => setRepToRemove(v)}
                             className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/50 text-slate-400 hover:text-red-600 transition-colors"
                           >
                             <X size={14} />
@@ -492,6 +495,16 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
           </div>
         </form>
       </div>
+
+      <ConfirmModal
+        open={!!repToRemove}
+        title="Remover representante"
+        message={`Deseja remover ${repToRemove?.nome} deste cliente?`}
+        variant="danger"
+        confirmLabel="Remover"
+        onConfirm={() => repToRemove && removeRepresentante(repToRemove)}
+        onCancel={() => setRepToRemove(null)}
+      />
     </div>
   )
 }
