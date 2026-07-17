@@ -174,7 +174,7 @@ export async function PUT(
 
     await registrarLog({ tipo: "ATUALIZACAO", acao: "atualizar", descricao: `Produto cru #${id} atualizado - status: ${body.status}`, entidade: "ProdutoCru", entidadeId: id, usuarioNome: session.user.name })
 
-    return NextResponse.json(atualizado[0])
+    return NextResponse.json(atualizado)
   } catch (error) {
     console.error("[PUT /api/cadastros/produto-cru/[id]]", error)
     return NextResponse.json({ error: "Erro ao atualizar produto" }, { status: 500 })
