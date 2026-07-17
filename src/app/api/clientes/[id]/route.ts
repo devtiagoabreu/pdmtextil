@@ -9,6 +9,9 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await requireAuth()
+    if (auth instanceof NextResponse) return auth
+
     const { id } = await params
     
     const resultado = await db
