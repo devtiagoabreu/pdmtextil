@@ -45,7 +45,7 @@
 |----|----------|--------|
 | 23 | Middleware matcher com rotas inexistentes | ✅ Corrigido |
 | 24 | Loading state genérico | ✅ Corrigido — PageSkeleton + loading.tsx |
-| 25 | Ausência de empty states | Pendente |
+| 25 | Ausência de empty states | ✅ Corrigido — EmptyState component + roles page |
 | 26 | `<img>` em vez de `next/image` | ✅ Corrigido |
 | 27 | Ações destrutivas sem confirmação | Pendente |
 
@@ -67,15 +67,14 @@
 | 🔴 Segurança | 6 | 6 |
 | 🟠 Arquitetura/Perf | 8 | 8 |
 | 🟡 Código | 8 | 8 |
-| 🔵 UI/UX | 5 | 3 |
+| 🔵 UI/UX | 5 | 4 |
 | ⚪ Infra/DevOps | 4 | 0 |
-| **Total** | **31** | **25** |
+| **Total** | **31** | **26** |
 
-## Itens restantes (6)
+## Itens restantes (5)
 
 | Prioridade | # | Problema |
 |------------|---|----------|
-| Baixa | 25 | Empty states |
 | Baixa | 27 | Confirmação de ações |
 | Baixa | 28 | CI/CD |
 | Baixa | 29 | Docker |
