@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react"
 import { PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 import { ChartCard } from "@/components/ui/chart-card"
 import { ChartTooltip } from "@/components/ui/chart-tooltip"
+import { AnimatedLine } from "@/components/ui/animated-line"
 import { Scissors, Clock, CheckCircle, Loader2, X, ArrowRight } from "lucide-react"
 import { usePathname, useRouter } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
@@ -159,7 +160,7 @@ export default function DashboardReqCorte() {
                   <XAxis dataKey="mes" tick={{ fontSize: 11 }} stroke="#94a3b8" />
                   <YAxis allowDecimals={false} tick={{ fontSize: 11 }} stroke="#94a3b8" />
                   <Tooltip content={<ChartTooltip formatter={(v) => `${v || 0} requisições`} />} />
-                  <Line type="monotone" dataKey="total" stroke="#6366f1" strokeWidth={2} dot={{ fill: "#6366f1", r: 4 }} activeDot={{ r: 7, stroke: "#6366f1", strokeWidth: 2, fill: "#fff" }} animationDuration={2000} animationEasing="ease-in-out" animationBegin={1100} />
+                  <AnimatedLine type="monotone" dataKey="total" stroke="#6366f1" strokeWidth={2} dot={{ fill: "#6366f1", r: 4 }} activeDot={{ r: 7, stroke: "#6366f1", strokeWidth: 2, fill: "#fff" }} drawDuration={2000} drawDelay={1100} />
                 </LineChart>
               </ResponsiveContainer>
             </ChartCard>

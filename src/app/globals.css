@@ -123,6 +123,30 @@
     }
   }
 
+  .chart-hover-effect {
+    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+  }
+
+  .chart-hover-effect:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.1), 0 4px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+
+  .recharts-bar-rectangle:hover {
+    filter: brightness(1.1);
+    transition: filter 0.15s ease-out;
+  }
+
+  .recharts-sector:hover {
+    filter: brightness(1.05);
+    transition: filter 0.15s ease-out;
+  }
+
+  .recharts-line-curve:hover {
+    stroke-width: 3;
+    transition: stroke-width 0.15s ease-out;
+  }
+
   .animate-piscar {
     animation: piscar 0.4s ease-in-out infinite;
   }
