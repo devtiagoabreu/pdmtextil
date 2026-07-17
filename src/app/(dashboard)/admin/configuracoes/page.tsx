@@ -1,10 +1,6 @@
-"use client"
-
 import Link from "next/link"
 import { Mail, Database, Shield, Bell, Lock, Users, Settings, Zap, Building2, CheckCircle2, Layout } from "lucide-react"
-import { usePathname } from "next/navigation"
-import { InfoButton } from "@/components/ui/info-button"
-import { getInfoContent } from "@/lib/info-content"
+import { PageInfoButton } from "@/components/ui/page-info-button"
 
 const modulos = [
   { href: "/admin/configuracoes/smtp", label: "SMTP", desc: "Configuração do servidor de email e teste de envio", icon: Mail, color: "text-blue-600 bg-blue-50 dark:bg-blue-950/50" },
@@ -20,14 +16,12 @@ const modulos = [
 ]
 
 export default function ConfiguracoesHubPage() {
-  const pathname = usePathname()
-  const info = getInfoContent(pathname)
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
         <div className="flex items-center gap-2">
           <Settings className="text-blue-600" size={24} />
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Configurações{info && <InfoButton content={info} />}</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Configurações<PageInfoButton /></h1>
         </div>
         <p className="text-sm text-slate-500 mt-1">Gerencie todas as configurações do sistema</p>
       </div>
