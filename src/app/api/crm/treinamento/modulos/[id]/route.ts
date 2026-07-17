@@ -7,14 +7,15 @@ import { registrarLog } from "@/lib/notificar"
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
 
     const body = await req.json()
-    const id = parseInt(params.id)
+    const { id } = await params
+    const idNum = parseInt(id)
 
     const [atualizado] = await db
       .update(crmTreinoModulos)
@@ -26,7 +27,7 @@ export async function PUT(
         ordem: body.ordem,
         ativo: body.ativo,
       })
-      .where(eq(crmTreinoModulos.id, id))
+      .where(eq(crmTreinoModulos.id, idNum))
       .returning()
 
     if (!atualizado) {
@@ -38,7 +39,7 @@ export async function PUT(
       acao: "atualizar",
       descricao: `Módulo de treinamento atualizado: ${body.titulo}`,
       entidade: "CrmTreinoModulo",
-      entidadeId: id,
+      entidadeId: idNum,
       usuarioNome: auth.session.user.name,
     })
 
@@ -51,17 +52,18 @@ export async function PUT(
 
 export async function DELETE(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
 
-    const id = parseInt(params.id)
+    const { id } = await params
+    const idNum = parseInt(id)
 
     const [deletado] = await db
       .delete(crmTreinoModulos)
-      .where(eq(crmTreinoModulos.id, id))
+      .where(eq(crmTreinoModulos.id, idNum))
       .returning()
 
     if (!deletado) {
@@ -73,7 +75,7 @@ export async function DELETE(
       acao: "deletar",
       descricao: `Módulo de treinamento deletado: ${deletado.titulo}`,
       entidade: "CrmTreinoModulo",
-      entidadeId: id,
+      entidadeId: idNum,
       usuarioNome: auth.session.user.name,
     })
 

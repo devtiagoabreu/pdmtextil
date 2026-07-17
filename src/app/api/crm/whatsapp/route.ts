@@ -6,6 +6,7 @@ import { crmContatos } from "@/lib/db/schema/crm-contatos"
 import { eq, desc, and, sql } from "drizzle-orm"
 import { inserirTimelineEvento } from "@/lib/crm-timeline"
 import { enviarMensagem, evolutionConfigurado } from "@/lib/evolution-api"
+import { handleApiError } from "@/lib/api-error"
 
 export async function GET(req: NextRequest) {
   try {
@@ -30,8 +31,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(lista)
   } catch (error) {
-    console.error("[GET /api/crm/whatsapp]", error)
-    return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
+    return handleApiError(error, "GET /api/crm/whatsapp")
   }
 }
 
@@ -108,7 +108,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ...nova, status: statusEnvio }, { status: 201 })
   } catch (error) {
-    console.error("[POST /api/crm/whatsapp]", error)
-    return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
+    return handleApiError(error, "POST /api/crm/whatsapp")
   }
 }

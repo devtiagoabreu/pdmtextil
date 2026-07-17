@@ -5,6 +5,7 @@ import { db } from "@/lib/db"
 import { clientes } from "@/lib/db/schema/clientes"
 import { ilike, or, desc, eq } from "drizzle-orm"
 import { validateRequest, clienteSchema } from "@/lib/validation"
+import { handleApiError } from "@/lib/api-error"
 export const dynamic = "force-dynamic"
 
 export async function GET(req: NextRequest) {
@@ -40,14 +41,13 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(resultados)
   } catch (error) {
-    console.error("[GET /api/cadastros/clientes]", error)
-    return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
+    return handleApiError(error, "GET /api/cadastros/clientes")
   }
 }
 
 export async function POST(req: NextRequest) {
+  const session = await getServerSession(authOptions)
   try {
-    const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
     const body = await req.json()
@@ -83,11 +83,7 @@ export async function POST(req: NextRequest) {
       .returning()
 
     return NextResponse.json(novoCliente, { status: 201 })
-  } catch (error: any) {
-    console.error("[POST /api/cadastros/clientes]", error)
-    if (error.code === "23505") {
-      return NextResponse.json({ error: "CNPJ já cadastrado" }, { status: 409 })
-    }
-    return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
+  } catch (error) {
+    return handleApiError(error, "POST /api/cadastros/clientes", session?.user?.name)
   }
 }

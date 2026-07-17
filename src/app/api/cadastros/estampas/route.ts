@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { estampas } from "@/lib/db/schema/estampas"
 import { eq } from "drizzle-orm"
+import { handleApiError } from "@/lib/api-error"
 export const dynamic = "force-dynamic"
 
 export async function GET() {
@@ -18,8 +19,7 @@ export async function GET() {
 
     return NextResponse.json(lista)
   } catch (error) {
-    console.error("[GET /api/cadastros/estampas]", error)
-    return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
+    return handleApiError(error, "GET /api/cadastros/estampas")
   }
 }
 
@@ -45,7 +45,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(novaEstampa[0])
   } catch (error) {
-    console.error("[POST /api/cadastros/estampas]", error)
-    return NextResponse.json({ error: "Erro ao criar estampa" }, { status: 500 })
+    return handleApiError(error, "POST /api/cadastros/estampas")
   }
 }

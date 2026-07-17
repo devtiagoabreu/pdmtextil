@@ -8,11 +8,13 @@ import { registrarLog } from "@/lib/notificar"
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
+
+    const { id } = await params
 
     const [licao] = await db
       .select({
@@ -34,7 +36,7 @@ export async function GET(
       })
       .from(crmTreinoLicoes)
       .leftJoin(crmTreinoModulos, eq(crmTreinoLicoes.moduloId, crmTreinoModulos.id))
-      .where(eq(crmTreinoLicoes.id, parseInt(params.id)))
+      .where(eq(crmTreinoLicoes.id, parseInt(id)))
 
     if (!licao) {
       return NextResponse.json({ error: "Lição não encontrada" }, { status: 404 })
@@ -49,14 +51,15 @@ export async function GET(
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
 
     const body = await req.json()
-    const id = parseInt(params.id)
+    const { id } = await params
+    const idNum = parseInt(id)
 
     const [atualizada] = await db
       .update(crmTreinoLicoes)
@@ -71,7 +74,7 @@ export async function PUT(
         ordem: body.ordem,
         ativo: body.ativo,
       })
-      .where(eq(crmTreinoLicoes.id, id))
+      .where(eq(crmTreinoLicoes.id, idNum))
       .returning()
 
     if (!atualizada) {
@@ -83,7 +86,7 @@ export async function PUT(
       acao: "atualizar",
       descricao: `Lição de treinamento atualizada: ${body.titulo}`,
       entidade: "CrmTreinoLicao",
-      entidadeId: id,
+      entidadeId: idNum,
       usuarioNome: auth.session.user.name,
     })
 
@@ -96,17 +99,18 @@ export async function PUT(
 
 export async function DELETE(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
 
-    const id = parseInt(params.id)
+    const { id } = await params
+    const idNum = parseInt(id)
 
     const [deletada] = await db
       .delete(crmTreinoLicoes)
-      .where(eq(crmTreinoLicoes.id, id))
+      .where(eq(crmTreinoLicoes.id, idNum))
       .returning()
 
     if (!deletada) {
@@ -118,7 +122,7 @@ export async function DELETE(
       acao: "deletar",
       descricao: `Lição de treinamento deletada: ${deletada.titulo}`,
       entidade: "CrmTreinoLicao",
-      entidadeId: id,
+      entidadeId: idNum,
       usuarioNome: auth.session.user.name,
     })
 

@@ -4,17 +4,18 @@ import { db } from "@/lib/db"
 import { crmWhatsappMensagens } from "@/lib/db/schema/crm-whatsapp"
 import { eq } from "drizzle-orm"
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
 
     const body = await req.json()
+    const { id } = await params
 
     const [atualizado] = await db
       .update(crmWhatsappMensagens)
       .set(body)
-      .where(eq(crmWhatsappMensagens.id, Number(params.id)))
+      .where(eq(crmWhatsappMensagens.id, Number(id)))
       .returning()
 
     return NextResponse.json(atualizado)

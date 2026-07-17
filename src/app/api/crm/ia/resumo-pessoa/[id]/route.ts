@@ -4,8 +4,10 @@ import { db } from "@/lib/db"
 import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
 import { eq } from "drizzle-orm"
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params
+
     const empresa = await db
       .select({
         resumoIa: crmPessoas.resumoIa,
@@ -13,7 +15,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
         dataResumoIa: crmPessoas.dataResumoIa,
       })
       .from(crmPessoas)
-      .where(eq(crmPessoas.id, parseInt(params.id)))
+      .where(eq(crmPessoas.id, parseInt(id)))
       .then(rows => rows[0])
 
     if (!empresa) {
@@ -27,13 +29,14 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
 
     const body = await req.json()
     const { resumoIa, sugestaoIa } = body
+    const { id } = await params
 
     const [updated] = await db
       .update(crmPessoas)
@@ -42,7 +45,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
         sugestaoIa: sugestaoIa || null,
         dataResumoIa: new Date(),
       })
-      .where(eq(crmPessoas.id, parseInt(params.id)))
+      .where(eq(crmPessoas.id, parseInt(id)))
       .returning()
 
     if (!updated) {

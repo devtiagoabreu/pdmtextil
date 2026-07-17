@@ -9,7 +9,8 @@ console.log("DB URL:", process.env.DATABASE_URL?.replace(/:([^:@]+)@/, ":***@"))
 
 async function seed() {
   console.log("🌱 Iniciando seed...")
-  const passwordHash = await bcrypt.hash("123456", 10)
+  const seedPassword = process.env.SEED_PASSWORD || "123456"
+  const passwordHash = await bcrypt.hash(seedPassword, 10)
   await db.insert(usuarios).values([
     { email: "comercial@promoda.com", password: passwordHash, name: "Ana Comercial", role: "COMERCIAL", ativo: true },
     { email: "tecelagem@promoda.com", password: passwordHash, name: "Carlos Tecelagem", role: "TECELAGEM", ativo: true },

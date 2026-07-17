@@ -6,15 +6,16 @@ import { emailModelos } from "@/lib/db/schema/email-modelos"
 import { eq } from "drizzle-orm"
 export const dynamic = "force-dynamic"
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
     if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUDO" && session.user.role !== "CRM")) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
-    const id = Number(params.id)
-    const [modelo] = await db.select().from(emailModelos).where(eq(emailModelos.id, id))
+    const { id } = await params
+    const idNum = Number(id)
+    const [modelo] = await db.select().from(emailModelos).where(eq(emailModelos.id, idNum))
     if (!modelo) {
       return NextResponse.json({ error: "Modelo não encontrado" }, { status: 404 })
     }
@@ -26,14 +27,15 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
     if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUDO" && session.user.role !== "CRM")) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
-    const id = Number(params.id)
+    const { id } = await params
+    const idNum = Number(id)
     const body = await req.json()
     if (!body.nome) {
       return NextResponse.json({ error: "Nome é obrigatório" }, { status: 400 })
@@ -41,7 +43,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
     const [atualizado] = await db.update(emailModelos)
       .set({ nome: body.nome, assunto: body.assunto || "", html: body.html || "", updatedAt: new Date() })
-      .where(eq(emailModelos.id, id))
+      .where(eq(emailModelos.id, idNum))
       .returning()
 
     if (!atualizado) {
@@ -55,15 +57,16 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
     if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUDO" && session.user.role !== "CRM")) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
-    const id = Number(params.id)
-    await db.delete(emailModelos).where(eq(emailModelos.id, id))
+    const { id } = await params
+    const idNum = Number(id)
+    await db.delete(emailModelos).where(eq(emailModelos.id, idNum))
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error("[DELETE /api/admin/email-massa/modelos]", error)

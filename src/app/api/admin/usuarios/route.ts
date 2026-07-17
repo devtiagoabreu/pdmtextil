@@ -6,6 +6,7 @@ import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq } from "drizzle-orm"
 import bcrypt from "bcryptjs"
 import { validateRequest, usuarioSchema } from "@/lib/validation"
+import { handleApiError } from "@/lib/api-error"
 export const dynamic = "force-dynamic"
 
 export async function GET() {
@@ -30,14 +31,13 @@ export async function GET() {
 
     return NextResponse.json(lista)
   } catch (error) {
-    console.error("[GET /api/admin/usuarios]", error)
-    return NextResponse.json({ error: "Erro interno" }, { status: 500 })
+    return handleApiError(error, "GET /api/admin/usuarios")
   }
 }
 
 export async function POST(req: NextRequest) {
+  const session = await getServerSession(authOptions)
   try {
-    const session = await getServerSession(authOptions)
     if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUDO")) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
@@ -66,7 +66,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ id: novo.id, email: novo.email, name: novo.name, role: novo.role })
   } catch (error) {
-    console.error("[POST /api/admin/usuarios]", error)
-    return NextResponse.json({ error: "Erro ao criar usuário" }, { status: 500 })
+    return handleApiError(error, "POST /api/admin/usuarios", session?.user?.name)
   }
 }

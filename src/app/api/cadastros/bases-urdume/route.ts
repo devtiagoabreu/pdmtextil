@@ -3,6 +3,7 @@ import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { basesUrdume, baseUrdumeFios } from "@/lib/db/schema/bases-urdume"
 import { eq } from "drizzle-orm"
+import { handleApiError } from "@/lib/api-error"
 
 export async function GET() {
   try {
@@ -16,17 +17,16 @@ export async function GET() {
 
     return NextResponse.json(lista)
   } catch (error) {
-    console.error("[GET /api/cadastros/bases-urdume]", error)
-    return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
+    return handleApiError(error, "GET /api/cadastros/bases-urdume")
   }
 }
 
 export async function POST(req: NextRequest) {
+  const auth = await requireAuth()
+  const session = (auth instanceof NextResponse) ? null : auth.session
+  const userIdResult = (auth instanceof NextResponse) ? null : auth.userId
   try {
-    const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
-    const session = auth.session
-    const userIdResult = auth.userId
 
     const body = await req.json()
 
@@ -60,8 +60,7 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json(novaBase[0])
-  } catch (error: any) {
-    console.error("[POST /api/cadastros/bases-urdume]", error?.message || error)
-    return NextResponse.json({ error: `Erro ao criar base de urdume: ${error?.message || error}` }, { status: 500 })
+  } catch (error) {
+    return handleApiError(error, "POST /api/cadastros/bases-urdume", session?.user?.name)
   }
 }
