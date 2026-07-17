@@ -102,6 +102,21 @@
     to { transform: translateX(0); }
   }
 
+  .animate-chart-in {
+    animation: chartIn 0.7s ease-out both;
+  }
+
+  @keyframes chartIn {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
   .animate-piscar {
     animation: piscar 0.4s ease-in-out infinite;
   }
