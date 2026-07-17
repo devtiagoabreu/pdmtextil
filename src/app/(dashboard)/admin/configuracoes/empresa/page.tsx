@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { usePathname } from "next/navigation"
+import Image from "next/image"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { SelectUf } from "@/components/crm/select-uf"
@@ -189,7 +190,7 @@ export default function EmpresaPage() {
           {logoUrl && (
             <div className="border border-slate-200 dark:border-slate-800 rounded-lg p-3 flex items-center gap-3">
               <Globe size={16} className="text-slate-400" />
-              <img src={logoUrl} alt="Preview" className="h-10 object-contain" onError={e => { (e.target as HTMLImageElement).style.display = "none" }} />
+              <Image src={logoUrl} alt="Preview" width={40} height={40} unoptimized className="h-10 w-auto object-contain" onError={e => { (e.target as HTMLImageElement).style.display = "none" }} />
               <span className="text-xs text-slate-400">Preview do logo</span>
             </div>
           )}

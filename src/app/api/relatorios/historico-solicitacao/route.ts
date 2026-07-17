@@ -122,7 +122,7 @@ export async function GET(req: NextRequest) {
     console.error("[GET /api/relatorios/historico-solicitacao]", error)
     return NextResponse.json({
       error: "Erro interno do servidor",
-      detail: error instanceof Error ? error.message : String(error),
+      detail: "Erro interno",
     }, { status: 500 })
   }
 }

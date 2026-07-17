@@ -53,6 +53,6 @@ export async function GET() {
     return NextResponse.json({ remessas: remessasLinks })
   } catch (error: any) {
     console.error("[RELATORIO]", error)
-    return NextResponse.json({ error: error.message || "Erro ao carregar relatório" }, { status: 500 })
+    return NextResponse.json({ error: "Erro ao carregar relatório" }, { status: 500 })
   }
 }

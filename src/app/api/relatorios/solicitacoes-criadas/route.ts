@@ -106,7 +106,7 @@ export async function GET(req: NextRequest) {
     console.error("[GET /api/relatorios/solicitacoes-criadas]", error)
     return NextResponse.json({
       error: "Erro interno",
-      detail: error instanceof Error ? error.message : String(error),
+      detail: "Erro interno",
     }, { status: 500 })
   }
 }

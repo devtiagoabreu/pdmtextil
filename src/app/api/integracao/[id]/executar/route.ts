@@ -164,7 +164,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   } catch (error) {
     return NextResponse.json({
       success: false,
-      error: error instanceof Error ? error.message : "Erro desconhecido",
+      error: "Erro interno",
       status: 0,
       time: Date.now() - startTime,
     })
