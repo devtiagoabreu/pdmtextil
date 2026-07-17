@@ -109,7 +109,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       erros: [] as { linha: number; erro: string }[],
     }
 
-    const paraInserir: Record<string, any>[] = []
+    const paraInserir: { listaId: number; nome: string; email: string }[] = []
 
     for (let i = 0; i < registros.length; i++) {
       const reg = registros[i]
