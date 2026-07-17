@@ -1,12 +1,15 @@
-// API pública para adicionar campo idIntegracao
-// AVISO: Apenas para desenvolvimento - remover em produção
-
 import { NextResponse } from "next/server"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { sql } from "drizzle-orm"
 
 export async function POST() {
   try {
+    const session = await getServerSession(authOptions)
+    if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUDO")) {
+      return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
+    }
     // Verificar se coluna já existe antes de adicionar
     const tables = [
       { name: "fornecedores", column: "id_integracao" },
