@@ -9,6 +9,7 @@ import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { exportCSV, exportPDFRelatorio } from "@/lib/export-utils"
 import { useStatuses, hexToRgba } from "@/hooks/use-statuses"
+import { ChartTooltip } from "@/components/ui/chart-tooltip"
 
 type Stats = {
   total: number
@@ -186,9 +187,9 @@ export default function RelatorioAmostraComercialPorStatus() {
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis dataKey="mes" tick={{ fontSize: 12 }} />
                 <YAxis tick={{ fontSize: 12 }} />
-                <Tooltip />
+                <Tooltip content={<ChartTooltip />} />
                 <Legend />
-                <Bar dataKey="total" name={getStatusLabel(selectedStatus)} fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="total" name={getStatusLabel(selectedStatus)} fill="#3b82f6" radius={[4, 4, 0, 0]} animationDuration={1000} animationEasing="ease-out" />
               </BarChart>
             </ResponsiveContainer>
           </div>

@@ -9,7 +9,9 @@ import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { Button } from "@/components/ui/button"
 import { useStatuses, hexToRgba } from "@/hooks/use-statuses"
-import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
+import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Brush } from "recharts"
+import { ChartCard } from "@/components/ui/chart-card"
+import { ChartTooltip } from "@/components/ui/chart-tooltip"
 
 const TIPO_LABELS: Record<string, string> = {
   DESENVOLVIMENTO_TECELAGEM: "Tecelagem",
@@ -146,22 +148,20 @@ export default function DashboardPage() {
           {/* Charts row */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* Monthly trend */}
-            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
-              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">Solicitações por Mês</h3>
+            <ChartCard title="Solicitações por Mês" delay={0}>
               <ResponsiveContainer width="100%" height={240}>
                 <LineChart data={stats?.monthlyTrend || []}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                   <XAxis dataKey="mes" tick={{ fontSize: 11 }} stroke="#94a3b8" />
                   <YAxis allowDecimals={false} tick={{ fontSize: 11 }} stroke="#94a3b8" />
-                  <Tooltip formatter={(value: any) => `${value || 0} solicitações`} />
-                  <Line type="monotone" dataKey="total" stroke="#6366f1" strokeWidth={2} dot={{ fill: "#6366f1", r: 4 }} />
+                  <Tooltip content={<ChartTooltip formatter={(v) => `${v || 0} solicitações`} />} />
+                  <Line type="monotone" dataKey="total" stroke="#6366f1" strokeWidth={2} dot={{ fill: "#6366f1", r: 4 }} activeDot={{ r: 7, stroke: "#6366f1", strokeWidth: 2, fill: "#fff" }} animationDuration={1200} animationEasing="ease-out" />
                 </LineChart>
               </ResponsiveContainer>
-            </div>
+            </ChartCard>
 
             {/* Status distribution */}
-            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
-              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">Distribuição por Status</h3>
+            <ChartCard title="Distribuição por Status" delay={100}>
               <ResponsiveContainer width="100%" height={240}>
                 <PieChart>
                   <Pie
@@ -173,8 +173,10 @@ export default function DashboardPage() {
                     cx="50%" cy="50%" innerRadius={50} outerRadius={90}
                     dataKey="value"
                     label={({ name, value }) => `${name}: ${value}`}
-                    isAnimationActive={false}
+                    animationDuration={1000}
+                    animationEasing="ease-out"
                   />
+                  <Tooltip content={<ChartTooltip />} />
                 </PieChart>
               </ResponsiveContainer>
               <div className="flex flex-wrap gap-2 mt-3 justify-center">
@@ -200,11 +202,10 @@ export default function DashboardPage() {
                   )
                 })}
               </div>
-            </div>
+            </ChartCard>
 
             {/* Tipo distribution */}
-            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
-              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">Solicitações por Tipo</h3>
+            <ChartCard title="Solicitações por Tipo" delay={200}>
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={(stats?.tipoDistribution || []).map((s: any) => ({
                   name: TIPO_LABELS[s.tipo] || s.tipo,
@@ -213,18 +214,18 @@ export default function DashboardPage() {
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                   <XAxis dataKey="name" tick={{ fontSize: 11 }} stroke="#94a3b8" />
                   <YAxis allowDecimals={false} tick={{ fontSize: 11 }} stroke="#94a3b8" />
-                  <Tooltip formatter={(value: any) => `${value || 0} solicitações`} />
-                  <Bar dataKey="total" radius={[4, 4, 0, 0]}>
+                  <Tooltip content={<ChartTooltip formatter={(v) => `${v || 0} solicitações`} />} />
+                  <Bar dataKey="total" radius={[4, 4, 0, 0]} animationDuration={1000} animationEasing="ease-out">
                     {(stats?.tipoDistribution || []).map((s: any) => (
                       <Cell key={s.tipo} fill={TIPO_COLORS[s.tipo] || "#6366f1"} />
                     ))}
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
-            </div>
+            </ChartCard>
 
             {/* Quick actions */}
-            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
+            <ChartCard delay={300}>
                 <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">Ações Rápidas</h3>
                 <div className="grid grid-cols-1 gap-3">
                   <Link href="/comercial/solicitacoes/nova"
@@ -258,7 +259,7 @@ export default function DashboardPage() {
                     </div>
                   </Link>
               </div>
-            </div>
+            </ChartCard>
           </div>
 
           {/* Recent activity */}

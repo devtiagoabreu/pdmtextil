@@ -8,6 +8,7 @@ import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { exportCSV, exportPDFRelatorio } from "@/lib/export-utils"
 import { useStatuses, hexToRgba } from "@/hooks/use-statuses"
+import { ChartTooltip } from "@/components/ui/chart-tooltip"
 
 type Stats = {
   totalCriadas: number
@@ -196,11 +197,11 @@ export default function RelatorioSolicitacoesCriadas() {
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis dataKey="mes" tick={{ fontSize: 12 }} />
                 <YAxis tick={{ fontSize: 12 }} />
-                <Tooltip />
+                <Tooltip content={<ChartTooltip />} />
                 <Legend />
-                <Bar dataKey="criadas" name="Criadas" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="deletadas" name="Deletadas" fill="#ef4444" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="concluidas" name="Concluídas" fill="#22c55e" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="criadas" name="Criadas" fill="#3b82f6" radius={[4, 4, 0, 0]} animationDuration={1000} animationEasing="ease-out" />
+                <Bar dataKey="deletadas" name="Deletadas" fill="#ef4444" radius={[4, 4, 0, 0]} animationDuration={1000} animationEasing="ease-out" />
+                <Bar dataKey="concluidas" name="Concluídas" fill="#22c55e" radius={[4, 4, 0, 0]} animationDuration={1000} animationEasing="ease-out" />
               </BarChart>
             </ResponsiveContainer>
           </div>
