@@ -197,7 +197,7 @@ export default function DashboardAmostras() {
                     endAngle={-270}
                     animationDuration={2500}
                     animationEasing="ease-in-out"
-                    animationBegin={0}
+                    animationBegin={800}
                   >
                     {(stats?.statusDistribution || []).map((s: any) => (
                       <Cell key={s.status} fill={getColor(s.status) || "#94a3b8"} />
@@ -218,7 +218,7 @@ export default function DashboardAmostras() {
                   <XAxis dataKey="name" tick={{ fontSize: 11 }} stroke="#94a3b8" />
                   <YAxis allowDecimals={false} tick={{ fontSize: 11 }} stroke="#94a3b8" />
                   <Tooltip content={<ChartTooltip formatter={(v) => `${v || 0} amostras`} />} />
-                  <Bar dataKey="total" radius={[4, 4, 0, 0]} animationDuration={1800} animationEasing="ease-in-out" animationBegin={300}>
+                  <Bar dataKey="total" radius={[4, 4, 0, 0]} animationDuration={1800} animationEasing="ease-in-out" animationBegin={1100}>
                     {(stats?.tipoDistribution || []).map((s: any) => (
                       <Cell key={s.tipo} fill={TIPO_CHART_COLORS[s.tipo] || "#6366f1"} />
                     ))}
@@ -234,7 +234,7 @@ export default function DashboardAmostras() {
                   <XAxis dataKey="mes" tick={{ fontSize: 11 }} stroke="#94a3b8" />
                   <YAxis allowDecimals={false} tick={{ fontSize: 11 }} stroke="#94a3b8" />
                   <Tooltip content={<ChartTooltip formatter={(v) => `${v || 0} amostras`} />} />
-                  <Line type="monotone" dataKey="total" stroke={TREND_COLOR} strokeWidth={2} dot={{ fill: TREND_COLOR, r: 4 }} activeDot={{ r: 7, stroke: TREND_COLOR, strokeWidth: 2, fill: "#fff" }} animationDuration={2000} animationEasing="ease-in-out" animationBegin={600} />
+                  <Line type="monotone" dataKey="total" stroke={TREND_COLOR} strokeWidth={2} dot={{ fill: TREND_COLOR, r: 4 }} activeDot={{ r: 7, stroke: TREND_COLOR, strokeWidth: 2, fill: "#fff" }} animationDuration={2000} animationEasing="ease-in-out" animationBegin={1400} />
                 </LineChart>
               </ResponsiveContainer>
             </ChartCard>

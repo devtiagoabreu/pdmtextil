@@ -155,7 +155,7 @@ export default function DashboardPage() {
                   <XAxis dataKey="mes" tick={{ fontSize: 11 }} stroke="#94a3b8" />
                   <YAxis allowDecimals={false} tick={{ fontSize: 11 }} stroke="#94a3b8" />
                   <Tooltip content={<ChartTooltip formatter={(v) => `${v || 0} solicitações`} />} />
-                  <Line type="monotone" dataKey="total" stroke="#6366f1" strokeWidth={2} dot={{ fill: "#6366f1", r: 4 }} activeDot={{ r: 7, stroke: "#6366f1", strokeWidth: 2, fill: "#fff" }} animationDuration={2000} animationEasing="ease-in-out" animationBegin={200} />
+                  <Line type="monotone" dataKey="total" stroke="#6366f1" strokeWidth={2} dot={{ fill: "#6366f1", r: 4 }} activeDot={{ r: 7, stroke: "#6366f1", strokeWidth: 2, fill: "#fff" }} animationDuration={2000} animationEasing="ease-in-out" animationBegin={800} />
                 </LineChart>
               </ResponsiveContainer>
             </ChartCard>
@@ -177,7 +177,7 @@ export default function DashboardPage() {
                     label={({ name, value }) => `${name}: ${value}`}
                     animationDuration={2500}
                     animationEasing="ease-in-out"
-                    animationBegin={300}
+                    animationBegin={1100}
                   />
                   <Tooltip content={<ChartTooltip />} />
                 </PieChart>
@@ -218,7 +218,7 @@ export default function DashboardPage() {
                   <XAxis dataKey="name" tick={{ fontSize: 11 }} stroke="#94a3b8" />
                   <YAxis allowDecimals={false} tick={{ fontSize: 11 }} stroke="#94a3b8" />
                   <Tooltip content={<ChartTooltip formatter={(v) => `${v || 0} solicitações`} />} />
-                  <Bar dataKey="total" radius={[4, 4, 0, 0]} animationDuration={1800} animationEasing="ease-in-out" animationBegin={600}>
+                  <Bar dataKey="total" radius={[4, 4, 0, 0]} animationDuration={1800} animationEasing="ease-in-out" animationBegin={1400}>
                     {(stats?.tipoDistribution || []).map((s: any) => (
                       <Cell key={s.tipo} fill={TIPO_COLORS[s.tipo] || "#6366f1"} />
                     ))}
