@@ -190,7 +190,8 @@ export function KanbanBoard() {
         fetch("/api/solicitacoes").then(r => r.json()),
       ])
       if (Array.isArray(statusRes)) setStatusList(statusRes)
-      if (Array.isArray(solRes)) setSolicitacoes(solRes)
+      const solArray = Array.isArray(solRes) ? solRes : solRes?.data ?? []
+      setSolicitacoes(solArray)
     } catch {
       toast.error("Erro ao carregar dados")
     } finally {
