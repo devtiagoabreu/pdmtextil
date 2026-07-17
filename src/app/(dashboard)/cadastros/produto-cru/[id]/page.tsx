@@ -201,9 +201,8 @@ export default function ProdutoCruFormPage() {
 
     fetch("/api/solicitacoes")
       .then(res => res.json())
-      .then(json => {
-        const data = Array.isArray(json) ? json : json.data ?? []
-        setSolicitacoes(data)
+      .then(data => {
+        if (Array.isArray(data)) setSolicitacoes(data)
       })
       .catch(() => {})
 

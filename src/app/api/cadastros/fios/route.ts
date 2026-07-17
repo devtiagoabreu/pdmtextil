@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
       .orderBy(fios.nome)
       .limit(limit + 1)
 
-    return NextResponse.json(buildPaginatedResponse(rows, limit))
+    return NextResponse.json(rows)
   } catch (error) {
     return handleApiError(error, "GET /api/cadastros/fios")
   }

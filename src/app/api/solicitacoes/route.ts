@@ -67,7 +67,7 @@ export async function GET(req: NextRequest) {
       .orderBy(desc(solicitacoes.createdAt))
       .limit(limit + 1)
 
-    return NextResponse.json(buildPaginatedResponse(rows, limit))
+    return NextResponse.json(rows)
   } catch (error) {
     return handleApiError(error, "GET /api/solicitacoes")
   }
