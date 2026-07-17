@@ -2,7 +2,8 @@ import { db } from "./db"
 import { notificacoes, NewNotificacao } from "./db/schema/notificacoes"
 import { notificacaoRegras } from "./db/schema/notificacao-regras"
 import { usuarios } from "./db/schema/usuarios"
-import { eq } from "drizzle-orm"
+import { eq, inArray } from "drizzle-orm"
+import { and } from "drizzle-orm"
 import { sendEmail } from "./email"
 import { registrarLog } from "./log"
 
@@ -16,14 +17,8 @@ export async function notificar(
   usuarioNome?: string | null,
   roles?: string[]
 ) {
-  const todosUsuarios = await db
-    .select({ id: usuarios.id, name: usuarios.name, email: usuarios.email, role: usuarios.role })
-    .from(usuarios)
-    .where(eq(usuarios.ativo, true))
-
-  // Se roles foi explicitamente passado (ex: notificarErro com ["SUDO"]), usa diretamente
-  // Senão, consulta a regra dinâmica da tabela notificacao_regras
   let rolesFiltro: string[]
+
   if (roles !== undefined) {
     rolesFiltro = roles
   } else {
@@ -35,13 +30,22 @@ export async function notificar(
     if (regra.length > 0) {
       rolesFiltro = Array.isArray(regra[0].roles) ? regra[0].roles.map(String) : []
     } else {
-      rolesFiltro = [] // sem regra = ninguém recebe
+      return { usuariosNotificados: 0 }
     }
   }
 
-  const usuariosFiltrados = rolesFiltro.length
-    ? todosUsuarios.filter(u => rolesFiltro.includes(u.role))
-    : []
+  if (rolesFiltro.length === 0) {
+    return { usuariosNotificados: 0 }
+  }
+
+  const usuariosFiltrados = await db
+    .select({ id: usuarios.id, name: usuarios.name, email: usuarios.email })
+    .from(usuarios)
+    .where(and(eq(usuarios.ativo, true), inArray(usuarios.role, rolesFiltro)))
+
+  if (usuariosFiltrados.length === 0) {
+    return { usuariosNotificados: 0 }
+  }
 
   const notificacoesData: NewNotificacao[] = usuariosFiltrados.map(u => ({
     tipo,
@@ -51,9 +55,7 @@ export async function notificar(
     link: link || null,
   }))
 
-  if (notificacoesData.length > 0) {
-    await db.insert(notificacoes).values(notificacoesData)
-  }
+  await db.insert(notificacoes).values(notificacoesData)
 
   const emailsValidos = usuariosFiltrados.map(u => u.email).filter((e): e is string => !!e && e.includes("@"))
   if (emailsValidos.length > 0) {
