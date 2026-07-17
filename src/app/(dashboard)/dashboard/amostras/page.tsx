@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useCallback } from "react"
 import { PieChart, Pie, BarChart, Bar, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
+import { ChartCard } from "@/components/ui/chart-card"
+import { ChartTooltip } from "@/components/ui/chart-tooltip"
 import { ClipboardList, FlaskConical, ExternalLink, X, Loader2, FileText, LayoutGrid } from "lucide-react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
@@ -181,8 +183,7 @@ export default function DashboardAmostras() {
           )}
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
-              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">Distribuição por Status</h3>
+            <ChartCard title="Distribuição por Status" delay={0}>
               <ResponsiveContainer width="100%" height={220}>
                 <PieChart>
                   <Pie
@@ -192,18 +193,19 @@ export default function DashboardAmostras() {
                     }))}
                     cx="50%" cy="50%" innerRadius={50} outerRadius={85}
                     dataKey="value" label={({ name, value }: any) => value > 0 ? `${name}: ${value}` : ""}
+                    animationDuration={1000}
+                    animationEasing="ease-out"
                   >
                     {(stats?.statusDistribution || []).map((s: any) => (
                       <Cell key={s.status} fill={getColor(s.status) || "#94a3b8"} />
                     ))}
                   </Pie>
-                  <Tooltip />
+                  <Tooltip content={<ChartTooltip />} />
                 </PieChart>
               </ResponsiveContainer>
-            </div>
+            </ChartCard>
 
-            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
-              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">Amostras por Tipo</h3>
+            <ChartCard title="Amostras por Tipo" delay={100}>
               <ResponsiveContainer width="100%" height={220}>
                 <BarChart data={(stats?.tipoDistribution || []).map((s: any) => ({
                   name: TIPO_LABELS[s.tipo] || s.tipo,
@@ -212,28 +214,27 @@ export default function DashboardAmostras() {
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                   <XAxis dataKey="name" tick={{ fontSize: 11 }} stroke="#94a3b8" />
                   <YAxis allowDecimals={false} tick={{ fontSize: 11 }} stroke="#94a3b8" />
-                  <Tooltip formatter={(value: any) => `${value || 0} amostras`} />
-                  <Bar dataKey="total" radius={[4, 4, 0, 0]}>
+                  <Tooltip content={<ChartTooltip formatter={(v) => `${v || 0} amostras`} />} />
+                  <Bar dataKey="total" radius={[4, 4, 0, 0]} animationDuration={1000} animationEasing="ease-out">
                     {(stats?.tipoDistribution || []).map((s: any) => (
                       <Cell key={s.tipo} fill={TIPO_CHART_COLORS[s.tipo] || "#6366f1"} />
                     ))}
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
-            </div>
+            </ChartCard>
 
-            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
-              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">Amostras por Mês</h3>
+            <ChartCard title="Amostras por Mês" delay={200}>
               <ResponsiveContainer width="100%" height={220}>
                 <LineChart data={stats?.monthlyTrend || []}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                   <XAxis dataKey="mes" tick={{ fontSize: 11 }} stroke="#94a3b8" />
                   <YAxis allowDecimals={false} tick={{ fontSize: 11 }} stroke="#94a3b8" />
-                  <Tooltip formatter={(value: any) => `${value || 0} amostras`} />
-                  <Line type="monotone" dataKey="total" stroke={TREND_COLOR} strokeWidth={2} dot={{ fill: TREND_COLOR, r: 4 }} />
+                  <Tooltip content={<ChartTooltip formatter={(v) => `${v || 0} amostras`} />} />
+                  <Line type="monotone" dataKey="total" stroke={TREND_COLOR} strokeWidth={2} dot={{ fill: TREND_COLOR, r: 4 }} activeDot={{ r: 7, stroke: TREND_COLOR, strokeWidth: 2, fill: "#fff" }} animationDuration={1200} animationEasing="ease-out" />
                 </LineChart>
               </ResponsiveContainer>
-            </div>
+            </ChartCard>
           </div>
 
           <div>

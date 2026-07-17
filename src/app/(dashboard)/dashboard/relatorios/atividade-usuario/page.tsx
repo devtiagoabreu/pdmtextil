@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { exportCSV, exportPDFRelatorio } from "@/lib/export-utils"
+import { ChartTooltip } from "@/components/ui/chart-tooltip"
 
 type Stats = {
   total: number
@@ -241,8 +242,8 @@ export default function RelatorioAtividadeUsuario() {
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                   <XAxis type="number" tick={{ fontSize: 12 }} />
                   <YAxis dataKey="usuario" type="category" width={120} tick={{ fontSize: 12 }} />
-                  <Tooltip />
-                  <Bar dataKey="total" name="Ações" fill="#6366f1" radius={[0, 4, 4, 0]} />
+                  <Tooltip content={<ChartTooltip />} />
+                  <Bar dataKey="total" name="Ações" fill="#6366f1" radius={[0, 4, 4, 0]} animationDuration={1000} animationEasing="ease-out" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -266,12 +267,14 @@ export default function RelatorioAtividadeUsuario() {
                     cy="50%"
                     outerRadius={80}
                     label={(props: any) => `${TIPO_LABELS[props.tipo] || props.tipo} ${(props.percent * 100).toFixed(0)}%`}
+                    animationDuration={1000}
+                    animationEasing="ease-out"
                   >
                     {porTipo.map((entry, i) => (
                       <Cell key={i} fill={TIPO_CORES[entry.tipo] || "#94a3b8"} />
                     ))}
                   </Pie>
-                  <Tooltip />
+                  <Tooltip content={<ChartTooltip />} />
                   <Legend formatter={(value) => TIPO_LABELS[value] || value} />
                 </PieChart>
               </ResponsiveContainer>

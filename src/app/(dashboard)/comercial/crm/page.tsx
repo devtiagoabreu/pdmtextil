@@ -14,6 +14,7 @@ import {
   LineChart, Line, BarChart, Bar, PieChart as RPieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts"
+import { ChartTooltip } from "@/components/ui/chart-tooltip"
 
 type CrmDashboardData = {
   leads: { total: number; esteMes: number }
@@ -191,8 +192,8 @@ export default function CrmDashboardPage() {
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" horizontal={false} />
                   <XAxis type="number" tick={{ fontSize: 11 }} stroke="#94a3b8" />
                   <YAxis type="category" dataKey="name" tick={{ fontSize: 12 }} stroke="#94a3b8" width={90} />
-                  <Tooltip formatter={(value: any) => [value, "Registros"]} />
-                  <Bar dataKey="value" radius={[0, 4, 4, 0]}>
+                  <Tooltip content={<ChartTooltip formatter={(v) => `${v} registros`} />} />
+                  <Bar dataKey="value" radius={[0, 4, 4, 0]} animationDuration={1000} animationEasing="ease-out">
                     {pipelineData.map((_, i) => (
                       <Cell key={i} fill={PIPELINE_COLORS[i % PIPELINE_COLORS.length]} />
                     ))}
@@ -237,9 +238,9 @@ export default function CrmDashboardPage() {
                       <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                       <XAxis dataKey="periodo" tick={{ fontSize: 10 }} stroke="#94a3b8" />
                       <YAxis tick={{ fontSize: 10 }} stroke="#94a3b8" tickFormatter={(v) => `R$${(v/1000).toFixed(0)}k`} />
-                      <Tooltip formatter={(value: any) => [formatCurrency(value), ""]} />
-                      <Line type="monotone" dataKey="valorPrevisto" stroke="#6366f1" strokeWidth={2} dot={false} name="Previsto" />
-                      <Line type="monotone" dataKey="valorReal" stroke="#22c55e" strokeWidth={2} dot={false} name="Real" />
+                      <Tooltip content={<ChartTooltip formatter={(v) => formatCurrency(v)} />} />
+                      <Line type="monotone" dataKey="valorPrevisto" stroke="#6366f1" strokeWidth={2} dot={false} name="Previsto" animationDuration={1200} animationEasing="ease-out" />
+                      <Line type="monotone" dataKey="valorReal" stroke="#22c55e" strokeWidth={2} dot={false} name="Real" animationDuration={1200} animationEasing="ease-out" />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
@@ -264,9 +265,10 @@ export default function CrmDashboardPage() {
                         }))}
                         cx="50%" cy="50%" innerRadius={40} outerRadius={70}
                         dataKey="value"
-                        isAnimationActive={false}
+                        animationDuration={1000}
+                        animationEasing="ease-out"
                       />
-                      <Tooltip />
+                      <Tooltip content={<ChartTooltip />} />
                     </RPieChart>
                   </ResponsiveContainer>
                   <div className="flex flex-wrap gap-1.5 justify-center mt-1">

@@ -9,6 +9,7 @@ import { Building2, UserPlus, Target, Calendar, TrendingUp, PieChart, FileText }
 import { getInfoContent } from "@/lib/info-content"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
+import { ChartTooltip } from "@/components/ui/chart-tooltip"
 
 const CHART_COLORS = ["#6366f1", "#06b6d4", "#f97316", "#22c55e", "#ef4444", "#8b5cf6", "#14b8a6", "#eab308"]
 
@@ -89,9 +90,10 @@ export default function CrmRelatoriosPage() {
                         dataKey="value"
                         label={({ name, value }) => `${name}: ${value}`}
                         labelLine={false}
-                        isAnimationActive={false}
+                        animationDuration={1000}
+                        animationEasing="ease-out"
                       />
-                      <Tooltip />
+                      <Tooltip content={<ChartTooltip />} />
                     </RPieChart>
                   </ResponsiveContainer>
                 </>
@@ -112,8 +114,8 @@ export default function CrmRelatoriosPage() {
                       <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                       <XAxis dataKey="name" tick={{ fontSize: 11 }} stroke="#94a3b8" />
                       <YAxis tick={{ fontSize: 11 }} stroke="#94a3b8" />
-                      <Tooltip formatter={(value: any, name: any) => [name === "valor" ? formatCurrency(value) : value, name === "valor" ? "Valor" : "Registros"]} />
-                      <Bar dataKey="total" fill="#6366f1" radius={[4, 4, 0, 0]} name="Registros" />
+                      <Tooltip content={<ChartTooltip formatter={(v, name) => name === "valor" ? formatCurrency(v) : v} />} />
+                      <Bar dataKey="total" fill="#6366f1" radius={[4, 4, 0, 0]} name="Registros" animationDuration={1000} animationEasing="ease-out" />
                     </BarChart>
                   </ResponsiveContainer>
                 </>
@@ -129,8 +131,8 @@ export default function CrmRelatoriosPage() {
                     <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" horizontal={false} />
                     <XAxis type="number" tick={{ fontSize: 11 }} stroke="#94a3b8" />
                     <YAxis type="category" dataKey="nome" tick={{ fontSize: 11 }} stroke="#94a3b8" width={90} />
-                    <Tooltip formatter={(value: any) => [value, "Registros"]} />
-                    <Bar dataKey="total" fill="#06b6d4" radius={[0, 4, 4, 0]} name="Oportunidades" />
+                    <Tooltip content={<ChartTooltip formatter={(v) => `${v} registros`} />} />
+                    <Bar dataKey="total" fill="#06b6d4" radius={[0, 4, 4, 0]} name="Oportunidades" animationDuration={1000} animationEasing="ease-out" />
                   </BarChart>
                 </ResponsiveContainer>
               ) : (
@@ -151,13 +153,14 @@ export default function CrmRelatoriosPage() {
                         }))}
                         cx="50%" cy="50%" innerRadius={40} outerRadius={80}
                         dataKey="value"
-                        isAnimationActive={false}
+                        animationDuration={1000}
+                        animationEasing="ease-out"
                       >
                         {data.propostasPorStatus.map((_: any, i: number) => (
                           <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
                         ))}
                       </Pie>
-                      <Tooltip />
+                      <Tooltip content={<ChartTooltip />} />
                     </RPieChart>
                   </ResponsiveContainer>
                   <div className="flex flex-wrap gap-2 justify-center mt-1">
@@ -183,8 +186,8 @@ export default function CrmRelatoriosPage() {
                     <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                     <XAxis dataKey="status" tick={{ fontSize: 11 }} stroke="#94a3b8" />
                     <YAxis tick={{ fontSize: 11 }} stroke="#94a3b8" />
-                    <Tooltip />
-                    <Bar dataKey="total" fill="#f97316" radius={[4, 4, 0, 0]} name="Tarefas" />
+                    <Tooltip content={<ChartTooltip />} />
+                    <Bar dataKey="total" fill="#f97316" radius={[4, 4, 0, 0]} name="Tarefas" animationDuration={1000} animationEasing="ease-out" />
                   </BarChart>
                 </ResponsiveContainer>
               ) : (
@@ -206,13 +209,14 @@ export default function CrmRelatoriosPage() {
                           ]}
                           cx="50%" cy="50%" innerRadius={40} outerRadius={65}
                           dataKey="value"
-                          isAnimationActive={false}
+                          animationDuration={1000}
+                          animationEasing="ease-out"
                         >
                           <Cell fill="#22c55e" />
                           <Cell fill="#ef4444" />
                           <Cell fill="#94a3b8" />
                         </Pie>
-                        <Tooltip />
+                        <Tooltip content={<ChartTooltip />} />
                       </RPieChart>
                     </ResponsiveContainer>
                   </div>
