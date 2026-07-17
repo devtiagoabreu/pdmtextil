@@ -12,7 +12,11 @@ export interface PaginatedResponse<T> {
   hasMore: boolean
 }
 
-export function getPaginationParams(req: NextRequest, defaultLimit = 20, maxLimit = 100): PaginationParams {
+export function getPaginationParams(
+  req: NextRequest,
+  defaultLimit = 20,
+  maxLimit = 100
+): PaginationParams {
   const { searchParams } = new URL(req.url)
   const cursor = searchParams.get("cursor")
   const limit = Math.min(
