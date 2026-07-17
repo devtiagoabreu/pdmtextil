@@ -114,7 +114,7 @@ export default function CrmRelatoriosPage() {
                       <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                       <XAxis dataKey="name" tick={{ fontSize: 11 }} stroke="#94a3b8" />
                       <YAxis tick={{ fontSize: 11 }} stroke="#94a3b8" />
-                      <Tooltip content={<ChartTooltip formatter={(v, name) => name === "valor" ? formatCurrency(v) : v} />} />
+                      <Tooltip content={<ChartTooltip formatter={(v, name) => name === "valor" ? formatCurrency(v) : String(v)} />} />
                       <Bar dataKey="total" fill="#6366f1" radius={[4, 4, 0, 0]} name="Registros" animationDuration={1000} animationEasing="ease-out" />
                     </BarChart>
                   </ResponsiveContainer>
