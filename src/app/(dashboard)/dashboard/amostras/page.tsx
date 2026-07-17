@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react"
 import { PieChart, Pie, BarChart, Bar, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 import { ChartCard } from "@/components/ui/chart-card"
 import { ChartTooltip } from "@/components/ui/chart-tooltip"
+import { AnimatedLine } from "@/components/ui/animated-line"
 import { ClipboardList, FlaskConical, ExternalLink, X, Loader2, FileText, LayoutGrid } from "lucide-react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
@@ -234,7 +235,7 @@ export default function DashboardAmostras() {
                   <XAxis dataKey="mes" tick={{ fontSize: 11 }} stroke="#94a3b8" />
                   <YAxis allowDecimals={false} tick={{ fontSize: 11 }} stroke="#94a3b8" />
                   <Tooltip content={<ChartTooltip formatter={(v) => `${v || 0} amostras`} />} />
-                  <Line type="monotone" dataKey="total" stroke={TREND_COLOR} strokeWidth={2} dot={{ fill: TREND_COLOR, r: 4 }} activeDot={{ r: 7, stroke: TREND_COLOR, strokeWidth: 2, fill: "#fff" }} animationDuration={2000} animationEasing="ease-in-out" animationBegin={1400} />
+                  <AnimatedLine type="monotone" dataKey="total" stroke={TREND_COLOR} strokeWidth={2} dot={{ fill: TREND_COLOR, r: 4 }} activeDot={{ r: 7, stroke: TREND_COLOR, strokeWidth: 2, fill: "#fff" }} drawDuration={2000} drawDelay={1400} />
                 </LineChart>
               </ResponsiveContainer>
             </ChartCard>

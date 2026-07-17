@@ -12,6 +12,8 @@ import { useStatuses, hexToRgba } from "@/hooks/use-statuses"
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Brush } from "recharts"
 import { ChartCard } from "@/components/ui/chart-card"
 import { ChartTooltip } from "@/components/ui/chart-tooltip"
+import { AnimatedNumber } from "@/components/ui/animated-number"
+import { AnimatedLine } from "@/components/ui/animated-line"
 
 const TIPO_LABELS: Record<string, string> = {
   DESENVOLVIMENTO_TECELAGEM: "Tecelagem",
@@ -125,13 +127,13 @@ export default function DashboardPage() {
           {/* Stats cards */}
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-7">
             {[
-              { key: "total-mes", label: "Total este mês", value: stats?.totalEsteMes ?? 0, color: "text-slate-700 dark:text-slate-200", bg: "bg-slate-100 dark:bg-slate-800" },
-              { key: "pendentes", label: "Pendentes", value: stats?.pendentes ?? 0, color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-50 dark:bg-amber-950/50" },
-              { key: "em-desenvolvimento", label: "Em Desenvolvimento", value: stats?.emDesenvolvimento ?? 0, color: "text-indigo-600 dark:text-indigo-400", bg: "bg-indigo-50 dark:bg-indigo-950/50" },
-              { key: "pilotagem", label: "Pilotagem", value: stats?.pilotagem ?? 0, color: "text-cyan-600 dark:text-cyan-400", bg: "bg-cyan-50 dark:bg-cyan-950/50" },
-              { key: "concluido-dev", label: "Concluído Desenvolvimento", value: stats?.concluidoDev ?? 0, color: "text-purple-600 dark:text-purple-400", bg: "bg-purple-50 dark:bg-purple-950/50" },
-              { key: "aprovado-cliente", label: "Aprovado pelo Cliente", value: stats?.aprovadoCliente ?? 0, color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-50 dark:bg-emerald-950/50" },
-              { key: "produtos-cru", label: "Produtos CAD", value: stats?.totalProdutosCru ?? 0, color: "text-cyan-600 dark:text-cyan-400", bg: "bg-cyan-50 dark:bg-cyan-950/50" },
+              { key: "total-mes", label: "Total este mês", value: stats?.totalEsteMes ?? 0, color: "text-slate-700 dark:text-slate-200", bg: "bg-slate-100 dark:bg-slate-800", delay: 0 },
+              { key: "pendentes", label: "Pendentes", value: stats?.pendentes ?? 0, color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-50 dark:bg-amber-950/50", delay: 50 },
+              { key: "em-desenvolvimento", label: "Em Desenvolvimento", value: stats?.emDesenvolvimento ?? 0, color: "text-indigo-600 dark:text-indigo-400", bg: "bg-indigo-50 dark:bg-indigo-950/50", delay: 100 },
+              { key: "pilotagem", label: "Pilotagem", value: stats?.pilotagem ?? 0, color: "text-cyan-600 dark:text-cyan-400", bg: "bg-cyan-50 dark:bg-cyan-950/50", delay: 150 },
+              { key: "concluido-dev", label: "Concluído Desenvolvimento", value: stats?.concluidoDev ?? 0, color: "text-purple-600 dark:text-purple-400", bg: "bg-purple-50 dark:bg-purple-950/50", delay: 200 },
+              { key: "aprovado-cliente", label: "Aprovado pelo Cliente", value: stats?.aprovadoCliente ?? 0, color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-50 dark:bg-emerald-950/50", delay: 250 },
+              { key: "produtos-cru", label: "Produtos CAD", value: stats?.totalProdutosCru ?? 0, color: "text-cyan-600 dark:text-cyan-400", bg: "bg-cyan-50 dark:bg-cyan-950/50", delay: 300 },
             ].map((stat) => (
               <button
                 key={stat.key}
@@ -140,7 +142,9 @@ export default function DashboardPage() {
                 className={`rounded-xl border border-slate-200 dark:border-slate-800 ${stat.bg} p-4 card-hover text-left w-full cursor-pointer transition-shadow hover:shadow-md`}
               >
                 <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{stat.label}</p>
-                <p className={`text-3xl font-bold mt-1 ${stat.color}`}>{stat.value}</p>
+                <p className={`text-3xl font-bold mt-1 ${stat.color}`}>
+                  <AnimatedNumber value={stat.value} delay={stat.delay} duration={1500} />
+                </p>
               </button>
             ))}
           </div>
@@ -155,7 +159,7 @@ export default function DashboardPage() {
                   <XAxis dataKey="mes" tick={{ fontSize: 11 }} stroke="#94a3b8" />
                   <YAxis allowDecimals={false} tick={{ fontSize: 11 }} stroke="#94a3b8" />
                   <Tooltip content={<ChartTooltip formatter={(v) => `${v || 0} solicitações`} />} />
-                  <Line type="monotone" dataKey="total" stroke="#6366f1" strokeWidth={2} dot={{ fill: "#6366f1", r: 4 }} activeDot={{ r: 7, stroke: "#6366f1", strokeWidth: 2, fill: "#fff" }} animationDuration={2000} animationEasing="ease-in-out" animationBegin={800} />
+                  <AnimatedLine type="monotone" dataKey="total" stroke="#6366f1" strokeWidth={2} dot={{ fill: "#6366f1", r: 4 }} activeDot={{ r: 7, stroke: "#6366f1", strokeWidth: 2, fill: "#fff" }} drawDuration={2000} drawDelay={800} />
                 </LineChart>
               </ResponsiveContainer>
             </ChartCard>

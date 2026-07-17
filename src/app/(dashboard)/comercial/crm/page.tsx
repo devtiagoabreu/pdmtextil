@@ -15,6 +15,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts"
 import { ChartTooltip } from "@/components/ui/chart-tooltip"
+import { AnimatedLine } from "@/components/ui/animated-line"
 
 type CrmDashboardData = {
   leads: { total: number; esteMes: number }
@@ -239,8 +240,8 @@ export default function CrmDashboardPage() {
                       <XAxis dataKey="periodo" tick={{ fontSize: 10 }} stroke="#94a3b8" />
                       <YAxis tick={{ fontSize: 10 }} stroke="#94a3b8" tickFormatter={(v) => `R$${(v/1000).toFixed(0)}k`} />
                       <Tooltip content={<ChartTooltip formatter={(v) => formatCurrency(v)} />} />
-                      <Line type="monotone" dataKey="valorPrevisto" stroke="#6366f1" strokeWidth={2} dot={false} name="Previsto" animationDuration={2000} animationEasing="ease-in-out" animationBegin={1000} />
-                      <Line type="monotone" dataKey="valorReal" stroke="#22c55e" strokeWidth={2} dot={false} name="Real" animationDuration={2000} animationEasing="ease-in-out" animationBegin={1200} />
+                      <AnimatedLine type="monotone" dataKey="valorPrevisto" stroke="#6366f1" strokeWidth={2} dot={false} name="Previsto" drawDuration={2000} drawDelay={1000} />
+                      <AnimatedLine type="monotone" dataKey="valorReal" stroke="#22c55e" strokeWidth={2} dot={false} name="Real" drawDuration={2000} drawDelay={1200} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
