@@ -7,6 +7,7 @@ import { getInfoContent } from "@/lib/info-content"
 import { useState } from "react"
 import { PlusCircle, Users, Pencil, Trash2, Loader2, Search, X, UserPlus, MapPin, Phone, Mail, ChevronLeft } from "lucide-react"
 import { toast } from "sonner"
+import { ConfirmModal } from "@/components/ui/confirm-modal"
 
 async function fetchEquipes() {
   const res = await fetch("/api/crm/equipes")
@@ -55,6 +56,8 @@ export default function EquipesPage() {
   const [searchRep, setSearchRep] = useState("")
   const [repResults, setRepResults] = useState<any[]>([])
   const [searchingRep, setSearchingRep] = useState(false)
+  const [membroToRemove, setMembroToRemove] = useState<any>(null)
+  const [equipeToDelete, setEquipeToDelete] = useState<number | null>(null)
 
   const { data: equipes, isLoading } = useQuery({
     queryKey: ["crm-equipes"],
@@ -309,7 +312,7 @@ export default function EquipesPage() {
                       </td>
                       <td className="p-3 text-right">
                         <button
-                          onClick={() => removeMembro(m)}
+                          onClick={() => setMembroToRemove(m)}
                           className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/50 text-slate-400 hover:text-red-600 transition-colors"
                         >
                           <X size={14} />
@@ -459,7 +462,7 @@ export default function EquipesPage() {
                     <Pencil size={14} />
                   </button>
                   <button
-                    onClick={(ev) => { ev.stopPropagation(); if (confirm("Excluir equipe?")) deleteMutation.mutate(e.id) }}
+                    onClick={(ev) => { ev.stopPropagation(); setEquipeToDelete(e.id) }}
                     className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/50 text-slate-400 hover:text-red-600 transition-colors"
                   >
                     <Trash2 size={14} />
@@ -470,6 +473,25 @@ export default function EquipesPage() {
           </div>
         )}
       </div>
+
+      <ConfirmModal
+        open={!!membroToRemove}
+        title="Remover membro da equipe"
+        message={`Deseja remover ${membroToRemove?.nome} desta equipe?`}
+        variant="danger"
+        confirmLabel="Remover"
+        onConfirm={() => { if (membroToRemove) { removeMembro(membroToRemove); setMembroToRemove(null) } }}
+        onCancel={() => setMembroToRemove(null)}
+      />
+      <ConfirmModal
+        open={!!equipeToDelete}
+        title="Excluir equipe?"
+        message="Todos os vínculos com representantes serão removidos."
+        variant="danger"
+        confirmLabel="Excluir"
+        onConfirm={() => { if (equipeToDelete) { deleteMutation.mutate(equipeToDelete); setEquipeToDelete(null) } }}
+        onCancel={() => setEquipeToDelete(null)}
+      />
     </div>
   )
 }

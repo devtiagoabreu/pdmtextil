@@ -6,6 +6,8 @@ import { getInfoContent } from "@/lib/info-content"
 import { useParams, useRouter, usePathname } from "next/navigation"
 import { ArrowLeft, ExternalLink, CheckCircle2, XCircle, RefreshCw, Clock } from "lucide-react"
 import Link from "next/link"
+import { useState } from "react"
+import { ConfirmModal } from "@/components/ui/confirm-modal"
 
 async function fetchProposta(id: string) {
   const res = await fetch(`/api/crm/propostas/${id}`)
@@ -27,6 +29,7 @@ export default function DetalhePropostaPage() {
   const router = useRouter()
   const queryClient = useQueryClient()
   const id = params.id as string
+  const [statusToConfirm, setStatusToConfirm] = useState<string | null>(null)
 
   const { data: proposta, isLoading } = useQuery({
     queryKey: ["crm-proposta", id],
@@ -177,7 +180,13 @@ export default function DetalhePropostaPage() {
               {STATUS_OPCOES.map((opcao) => (
                 <button
                   key={opcao.value}
-                  onClick={() => statusMutation.mutate(opcao.value)}
+                  onClick={() => {
+                    if (opcao.value === "RECUSADA") {
+                      setStatusToConfirm(opcao.value)
+                    } else {
+                      statusMutation.mutate(opcao.value)
+                    }
+                  }}
                   disabled={opcao.value === proposta.status || statusMutation.isPending}
                   className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                     opcao.value === proposta.status
@@ -193,6 +202,17 @@ export default function DetalhePropostaPage() {
           </div>
         </div>
       </div>
+
+      <ConfirmModal
+        open={!!statusToConfirm}
+        title="Alterar status para Recusada?"
+        message="A proposta será marcada como RECUSADA. Esta ação pode ser revertida alterando o status novamente."
+        variant="danger"
+        confirmLabel="Confirmar"
+        loading={statusMutation.isPending}
+        onConfirm={() => { if (statusToConfirm) { statusMutation.mutate(statusToConfirm); setStatusToConfirm(null) } }}
+        onCancel={() => setStatusToConfirm(null)}
+      />
     </div>
   )
 }

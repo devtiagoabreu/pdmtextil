@@ -43,6 +43,7 @@ export default function PessoaDetailPage() {
   const [searchRep, setSearchRep] = useState("")
   const [repResults, setRepResults] = useState<any[]>([])
   const [searchingRep, setSearchingRep] = useState(false)
+  const [repToRemove, setRepToRemove] = useState<any>(null)
 
   const fetchEstados = useCallback(async () => {
     try {
@@ -112,6 +113,7 @@ export default function PessoaDetailPage() {
       setVinculos(prev => prev.filter(v => v.id !== vinculo.id))
       toast.success("Representante removido")
     } catch { toast.error("Erro ao remover representante") }
+    setRepToRemove(null)
   }
 
   useEffect(() => {
@@ -635,7 +637,7 @@ export default function PessoaDetailPage() {
                       {v.cidade ? <span className="flex items-center gap-1"><MapPin size={12} />{v.cidade}/{v.uf}</span> : "—"}
                     </td>
                     <td className="p-3 text-right">
-                      <button onClick={() => removeRepresentante(v)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/50 text-slate-400 hover:text-red-600 transition-colors">
+                      <button onClick={() => setRepToRemove(v)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/50 text-slate-400 hover:text-red-600 transition-colors">
                         <X size={14} />
                       </button>
                     </td>
@@ -665,6 +667,15 @@ export default function PessoaDetailPage() {
         </div>
       </div>
 
+      <ConfirmModal
+        open={!!repToRemove}
+        title="Remover representante"
+        message={`Deseja remover ${repToRemove?.nome} desta pessoa?`}
+        variant="danger"
+        confirmLabel="Remover"
+        onConfirm={() => repToRemove && removeRepresentante(repToRemove)}
+        onCancel={() => setRepToRemove(null)}
+      />
       <ConfirmModal
         open={showDelete}
         title="Excluir pessoa?"
