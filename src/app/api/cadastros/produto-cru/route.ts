@@ -7,13 +7,17 @@ import { chats } from "@/lib/db/schema/chats"
 import { eq, sql } from "drizzle-orm"
 import { notificar, registrarLog } from "@/lib/notificar"
 import { validateRequest, produtoCruSchema } from "@/lib/validation"
+import { getPaginationParams, cursorCondition, buildPaginatedResponse } from "@/lib/pagination"
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
     const { session } = auth
-    const lista = await db
+
+    const { cursor, limit } = getPaginationParams(req)
+
+    const rows = await db
       .select({
         id: produtosCru.id,
         codigoPdm: produtosCru.codigoPdm,
@@ -25,9 +29,11 @@ export async function GET() {
         chatExists: sql<boolean>`coalesce((SELECT true FROM ${chats} WHERE ${chats.entidadeTipo} = 'PRODUTO_CRU' AND ${chats.entidadeId} = ${produtosCru.id} LIMIT 1), false)`,
       })
       .from(produtosCru)
+      .where(cursorCondition(produtosCru, cursor))
       .orderBy(produtosCru.codigoPdm)
+      .limit(limit + 1)
 
-    return NextResponse.json(lista)
+    return NextResponse.json(buildPaginatedResponse(rows, limit))
   } catch (error) {
     console.error("[GET /api/cadastros/produto-cru]", error)
     return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })

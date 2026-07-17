@@ -6,19 +6,24 @@ import { fornecedores } from "@/lib/db/schema/fios"
 import { eq } from "drizzle-orm"
 import { validateRequest, fornecedorSchema } from "@/lib/validation"
 import { handleApiError } from "@/lib/api-error"
+import { getPaginationParams, cursorCondition, buildPaginatedResponse } from "@/lib/pagination"
 export const dynamic = "force-dynamic"
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
-    const lista = await db
+    const { cursor, limit } = getPaginationParams(req)
+
+    const rows = await db
       .select()
       .from(fornecedores)
+      .where(cursorCondition(fornecedores, cursor))
       .orderBy(fornecedores.nome)
+      .limit(limit + 1)
 
-    return NextResponse.json(lista)
+    return NextResponse.json(buildPaginatedResponse(rows, limit))
   } catch (error) {
     return handleApiError(error, "GET /api/cadastros/fornecedores")
   }

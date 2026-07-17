@@ -10,6 +10,7 @@ import { eq, desc, and, sql } from "drizzle-orm"
 import { notificar, registrarLog } from "@/lib/notificar"
 import { validateRequest, solicitacaoSchema } from "@/lib/validation"
 import { handleApiError } from "@/lib/api-error"
+import { getPaginationParams, cursorCondition, buildPaginatedResponse } from "@/lib/pagination"
 
 // GET - Listar solicitações (filtradas por perfil)
 export async function GET(req: NextRequest) {
@@ -17,6 +18,7 @@ export async function GET(req: NextRequest) {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
     const { session } = auth
+    const { cursor, limit } = getPaginationParams(req)
     const { searchParams } = new URL(req.url)
     const status = searchParams.get("status")
     const tipo = searchParams.get("tipo")
@@ -25,10 +27,12 @@ export async function GET(req: NextRequest) {
 
     if (status) conditions.push(eq(solicitacoes.status, status))
     if (tipo) conditions.push(eq(solicitacoes.tipo, tipo))
+    const cursorCond = cursorCondition(solicitacoes, cursor)
+    if (cursorCond) conditions.push(cursorCond)
 
     const where = conditions.length > 0 ? and(...conditions) : undefined
 
-    const lista = await db
+    const rows = await db
       .select({
         id: solicitacoes.id,
         tipo: solicitacoes.tipo,
@@ -61,8 +65,9 @@ export async function GET(req: NextRequest) {
       .leftJoin(usuarios, eq(solicitacoes.solicitanteId, usuarios.id))
       .where(where)
       .orderBy(desc(solicitacoes.createdAt))
+      .limit(limit + 1)
 
-    return NextResponse.json(lista)
+    return NextResponse.json(buildPaginatedResponse(rows, limit))
   } catch (error) {
     return handleApiError(error, "GET /api/solicitacoes")
   }
