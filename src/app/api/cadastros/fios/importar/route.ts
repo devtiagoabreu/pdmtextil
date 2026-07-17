@@ -120,7 +120,7 @@ export async function POST(req: NextRequest) {
       erros: [] as { linha: number; erro: string }[],
     }
 
-    const paraInserir: Record<string, any>[] = []
+    const paraInserir: typeof fios.$inferInsert[] = []
 
     for (let i = 0; i < registros.length; i++) {
       const reg = registros[i]
