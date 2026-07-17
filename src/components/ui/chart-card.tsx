@@ -16,21 +16,27 @@ export function ChartCard({ children, title, className = "", delay = 0 }: ChartC
   useEffect(() => {
     const el = ref.current
     if (!el) return
+
     const obs = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setVisible(true); obs.disconnect() } },
-      { threshold: 0.1 },
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => setVisible(true), delay)
+          obs.disconnect()
+        }
+      },
+      { threshold: 0.01, rootMargin: "50px" },
     )
     obs.observe(el)
+
     return () => obs.disconnect()
-  }, [])
+  }, [delay])
 
   return (
     <div
       ref={ref}
-      className={`rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 transition-all duration-700 ease-out ${
-        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"
+      className={`rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 ${
+        visible ? "animate-chart-in" : "opacity-0" }
       } ${className}`}
-      style={{ transitionDelay: `${delay}ms` }}
     >
       {title && (
         <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">{title}</h3>
