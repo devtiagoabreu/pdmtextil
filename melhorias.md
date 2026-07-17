@@ -37,7 +37,7 @@
 | 19 | Ausência total de testes | ✅ Corrigido — 67 testes em 4 arquivos |
 | 20 | params inconsistente — sync vs Promise | ✅ Corrigido — 10 rotas |
 | 21 | Sem paginação — todas as listagens | ✅ Corrigido — cursor-based pagination |
-| 22 | Sem Prettier/eslint-config-prettier | Pendente |
+| 22 | Sem Prettier/eslint-config-prettier | ✅ Corrigido — .prettierrc + eslint extend |
 
 ## 🔵 UI / UX
 
@@ -66,16 +66,15 @@
 |-----------|-------|------------|
 | 🔴 Segurança | 6 | 6 |
 | 🟠 Arquitetura/Perf | 8 | 8 |
-| 🟡 Código | 8 | 7 |
+| 🟡 Código | 8 | 8 |
 | 🔵 UI/UX | 5 | 2 |
 | ⚪ Infra/DevOps | 4 | 0 |
-| **Total** | **31** | **23** |
+| **Total** | **31** | **24** |
 
-## Itens restantes (8)
+## Itens restantes (7)
 
 | Prioridade | # | Problema |
 |------------|---|----------|
-| Baixa | 22 | Prettier |
 | Baixa | 24 | Loading states |
 | Baixa | 25 | Empty states |
 | Baixa | 27 | Confirmação de ações |
