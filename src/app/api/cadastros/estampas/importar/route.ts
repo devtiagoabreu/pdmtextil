@@ -30,10 +30,7 @@ function parseCSV(texto: string): EstampaImport[] {
   const textoNormalizado = texto.replace(/\r\n/g, "\n").replace(/\r/g, "\n")
   const linhas = textoNormalizado.split("\n").filter(l => l.trim())
   
-  console.log("[parseCSV] Total de linhas:", linhas.length)
-  
   if (linhas.length < 2) {
-    console.log("[parseCSV] Linhas insuficientes:", linhas.length)
     return []
   }
 
@@ -61,14 +58,11 @@ function parseCSV(texto: string): EstampaImport[] {
       }
     }
     
-    console.log(`[parseCSV] Item ${i + 1}:`, item)
-    
     if (item.codigoDesenho || item.nome) {
       dados.push(item)
     }
   }
 
-  console.log("[parseCSV] Total de registros:", dados.length)
   return dados
 }
 
@@ -98,9 +92,6 @@ export async function POST(req: NextRequest) {
 
     const texto = await arquivo.text()
     const nomeArquivo = arquivo.name.toLowerCase()
-
-    console.log("[POST /api/cadastros/estampas/importar] Arquivo:", nomeArquivo)
-    console.log("[POST /api/cadastros/estampas/importar] Texto (primeiros 500 chars):", texto.substring(0, 500))
 
     let registros: EstampaImport[] = []
 
@@ -173,8 +164,6 @@ export async function POST(req: NextRequest) {
         resultados.erros.push({ linha: i + 2, erro: err.message || "Erro desconhecido" })
       }
     }
-
-    console.log("[POST /api/cadastros/estampas/importar] Resultados:", resultados)
 
     return NextResponse.json({
       success: true,

@@ -11,14 +11,10 @@ export async function GET() {
     if (auth instanceof NextResponse) return auth
     const { session } = auth
 
-    console.log("[GET /api/cadastros/fios] Buscando fios...")
-
     const lista = await db
       .select()
       .from(fios)
       .orderBy(fios.nome)
-
-    console.log("[GET /api/cadastros/fios] Encontrados:", lista.length)
 
     return NextResponse.json(lista)
   } catch (error) {

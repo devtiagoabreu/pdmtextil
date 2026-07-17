@@ -53,8 +53,6 @@ export async function POST(req: NextRequest) {
     } catch {
       body = {}
     }
-    console.log("[POST /api/clientes] body:", body)
-
     const { nome, cnpj, razaoSocial, email, emailNf, telefone, celular, contato, endereco, cidade, uf, idIntegracao } = body
 
     if (!nome?.trim()) {
@@ -73,8 +71,6 @@ export async function POST(req: NextRequest) {
     if (existente[0]) {
       return NextResponse.json({ error: "CNPJ já cadastrado" }, { status: 409 })
     }
-
-    console.log("[POST /api/clientes] inserting:", { nome, cnpj })
 
     const [novoCliente] = await db
       .insert(clientes)
