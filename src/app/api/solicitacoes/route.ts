@@ -71,11 +71,9 @@ export async function GET(req: NextRequest) {
 // POST - Criar nova solicitação
 export async function POST(req: NextRequest) {
   const auth = await requireAuth()
-  const session = (auth instanceof NextResponse) ? null : auth.session
-  const userId = (auth instanceof NextResponse) ? null : auth.userId
+  if (auth instanceof NextResponse) return auth
+  const { session, userId } = auth
   try {
-    if (auth instanceof NextResponse) return auth
-
     const body = await req.json()
     const { anexos: anexosList, ...solicitacaoData } = body
     const parsed = validateRequest(solicitacaoSchema, solicitacaoData)
@@ -140,6 +138,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(novaSolicitacao, { status: 201 })
   } catch (error) {
-    return handleApiError(error, "POST /api/solicitacoes", session?.user?.name)
+    return handleApiError(error, "POST /api/solicitacoes", session.user.name)
   }
 }
