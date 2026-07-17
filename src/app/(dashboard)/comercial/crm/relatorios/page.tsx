@@ -90,8 +90,11 @@ export default function CrmRelatoriosPage() {
                         dataKey="value"
                         label={({ name, value }) => `${name}: ${value}`}
                         labelLine={false}
-                        animationDuration={1000}
-                        animationEasing="ease-out"
+                        startAngle={90}
+                        endAngle={-270}
+                        animationDuration={2500}
+                        animationEasing="ease-in-out"
+                        animationBegin={0}
                       />
                       <Tooltip content={<ChartTooltip />} />
                     </RPieChart>
@@ -115,7 +118,7 @@ export default function CrmRelatoriosPage() {
                       <XAxis dataKey="name" tick={{ fontSize: 11 }} stroke="#94a3b8" />
                       <YAxis tick={{ fontSize: 11 }} stroke="#94a3b8" />
                       <Tooltip content={<ChartTooltip formatter={(v, name) => name === "valor" ? formatCurrency(v) : String(v)} />} />
-                      <Bar dataKey="total" fill="#6366f1" radius={[4, 4, 0, 0]} name="Registros" animationDuration={1000} animationEasing="ease-out" />
+                      <Bar dataKey="total" fill="#6366f1" radius={[4, 4, 0, 0]} name="Registros" animationDuration={1800} animationEasing="ease-in-out" animationBegin={200} />
                     </BarChart>
                   </ResponsiveContainer>
                 </>
@@ -132,7 +135,7 @@ export default function CrmRelatoriosPage() {
                     <XAxis type="number" tick={{ fontSize: 11 }} stroke="#94a3b8" />
                     <YAxis type="category" dataKey="nome" tick={{ fontSize: 11 }} stroke="#94a3b8" width={90} />
                     <Tooltip content={<ChartTooltip formatter={(v) => `${v} registros`} />} />
-                    <Bar dataKey="total" fill="#06b6d4" radius={[0, 4, 4, 0]} name="Oportunidades" animationDuration={1000} animationEasing="ease-out" />
+                    <Bar dataKey="total" fill="#06b6d4" radius={[0, 4, 4, 0]} name="Oportunidades" animationDuration={1800} animationEasing="ease-in-out" animationBegin={400} />
                   </BarChart>
                 </ResponsiveContainer>
               ) : (
@@ -153,8 +156,11 @@ export default function CrmRelatoriosPage() {
                         }))}
                         cx="50%" cy="50%" innerRadius={40} outerRadius={80}
                         dataKey="value"
-                        animationDuration={1000}
-                        animationEasing="ease-out"
+                        startAngle={90}
+                        endAngle={-270}
+                        animationDuration={2500}
+                        animationEasing="ease-in-out"
+                        animationBegin={200}
                       >
                         {data.propostasPorStatus.map((_: any, i: number) => (
                           <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
@@ -187,7 +193,7 @@ export default function CrmRelatoriosPage() {
                     <XAxis dataKey="status" tick={{ fontSize: 11 }} stroke="#94a3b8" />
                     <YAxis tick={{ fontSize: 11 }} stroke="#94a3b8" />
                     <Tooltip content={<ChartTooltip />} />
-                    <Bar dataKey="total" fill="#f97316" radius={[4, 4, 0, 0]} name="Tarefas" animationDuration={1000} animationEasing="ease-out" />
+                    <Bar dataKey="total" fill="#f97316" radius={[4, 4, 0, 0]} name="Tarefas" animationDuration={1800} animationEasing="ease-in-out" animationBegin={300} />
                   </BarChart>
                 </ResponsiveContainer>
               ) : (
