@@ -193,7 +193,7 @@ export default function CrmDashboardPage() {
                   <XAxis type="number" tick={{ fontSize: 11 }} stroke="#94a3b8" />
                   <YAxis type="category" dataKey="name" tick={{ fontSize: 12 }} stroke="#94a3b8" width={90} />
                   <Tooltip content={<ChartTooltip formatter={(v) => `${v} registros`} />} />
-                  <Bar dataKey="value" radius={[0, 4, 4, 0]} animationDuration={1800} animationEasing="ease-in-out" animationBegin={200}>
+                  <Bar dataKey="value" radius={[0, 4, 4, 0]} animationDuration={1800} animationEasing="ease-in-out" animationBegin={800}>
                     {pipelineData.map((_, i) => (
                       <Cell key={i} fill={PIPELINE_COLORS[i % PIPELINE_COLORS.length]} />
                     ))}
@@ -239,8 +239,8 @@ export default function CrmDashboardPage() {
                       <XAxis dataKey="periodo" tick={{ fontSize: 10 }} stroke="#94a3b8" />
                       <YAxis tick={{ fontSize: 10 }} stroke="#94a3b8" tickFormatter={(v) => `R$${(v/1000).toFixed(0)}k`} />
                       <Tooltip content={<ChartTooltip formatter={(v) => formatCurrency(v)} />} />
-                      <Line type="monotone" dataKey="valorPrevisto" stroke="#6366f1" strokeWidth={2} dot={false} name="Previsto" animationDuration={2000} animationEasing="ease-in-out" animationBegin={400} />
-                      <Line type="monotone" dataKey="valorReal" stroke="#22c55e" strokeWidth={2} dot={false} name="Real" animationDuration={2000} animationEasing="ease-in-out" animationBegin={600} />
+                      <Line type="monotone" dataKey="valorPrevisto" stroke="#6366f1" strokeWidth={2} dot={false} name="Previsto" animationDuration={2000} animationEasing="ease-in-out" animationBegin={1000} />
+                      <Line type="monotone" dataKey="valorReal" stroke="#22c55e" strokeWidth={2} dot={false} name="Real" animationDuration={2000} animationEasing="ease-in-out" animationBegin={1200} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
@@ -269,7 +269,7 @@ export default function CrmDashboardPage() {
                         endAngle={-270}
                         animationDuration={2500}
                         animationEasing="ease-in-out"
-                        animationBegin={200}
+                        animationBegin={800}
                       />
                       <Tooltip content={<ChartTooltip />} />
                     </RPieChart>

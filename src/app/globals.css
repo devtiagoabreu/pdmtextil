@@ -103,20 +103,23 @@
   }
 
   .animate-chart-in {
-    animation: chartIn 1.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: chartIn 1.8s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
   @keyframes chartIn {
-    from {
+    0% {
       opacity: 0;
-      transform: translateY(24px) scale(0.97);
+      transform: translateY(32px) scale(0.95);
+      filter: blur(4px);
     }
-    60% {
-      opacity: 1;
+    50% {
+      opacity: 0.6;
+      filter: blur(1px);
     }
-    to {
+    100% {
       opacity: 1;
       transform: translateY(0) scale(1);
+      filter: blur(0);
     }
   }
 
