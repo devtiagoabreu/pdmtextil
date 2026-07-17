@@ -25,6 +25,7 @@ import { exportPDF, exportPDFRelatorio } from "@/lib/export-utils"
 import { getInfoContent } from "@/lib/info-content"
 import { Separator } from "@/components/ui/separator"
 import { htmlToModelo, modeloToHtml } from "@/lib/email-modelo"
+import { sanitizeHtml } from "@/lib/sanitize"
 
 interface Modelo {
   id: number
@@ -1322,7 +1323,7 @@ export default function EmailMassaPage() {
           {viewModelo && (
             <div className="border rounded-lg p-4 bg-white dark:bg-slate-800 overflow-y-auto max-h-96">
               <div className="text-xs text-slate-400 mb-2">Prévia do HTML:</div>
-              <div dangerouslySetInnerHTML={{ __html: modeloToHtml(viewModelo.html) }} />
+              <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(modeloToHtml(viewModelo.html)) }} />
             </div>
           )}
           <DialogFooter>
@@ -1457,7 +1458,7 @@ export default function EmailMassaPage() {
               className="w-full bg-white text-black shadow-sm mx-auto"
               style={{ fontFamily: "Arial, sans-serif", lineHeight: "1.8", fontSize: "15px", padding: "32px 40px", minHeight: "100%" }}
             >
-              <div dangerouslySetInnerHTML={{ __html: getContentHtml() }} />
+              <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(getContentHtml()) }} />
             </div>
           </div>
           <DialogFooter className="gap-2">

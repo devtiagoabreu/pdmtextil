@@ -8,6 +8,7 @@ import Link from "next/link"
 import { ArrowLeft, Trash2, Pencil, Check, X, MapPin, Plus, ExternalLink } from "lucide-react"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
+import { sanitizeHtml } from "@/lib/sanitize"
 import { useStatuses } from "@/hooks/use-statuses"
 import { SelectUf } from "@/components/crm/select-uf"
 import { SelectCidade } from "@/components/crm/select-cidade"
@@ -485,7 +486,7 @@ export default function DetalheVisitaPage() {
           {visita.relato && (
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
               <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-2">Relato / Ata</h2>
-              <div className="text-sm text-slate-700 dark:text-slate-300 prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: visita.relato }} />
+              <div className="text-sm text-slate-700 dark:text-slate-300 prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: sanitizeHtml(visita.relato) }} />
             </div>
           )}
 
