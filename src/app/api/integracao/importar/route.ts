@@ -163,7 +163,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error("[POST /api/integracao/importar]", error)
     return NextResponse.json(
-      { error: "Erro interno: " + (error instanceof Error ? error.message : String(error)) },
+      { error: "Erro interno ao importar dados" },
       { status: 500 }
     )
   }

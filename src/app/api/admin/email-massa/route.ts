@@ -284,6 +284,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: enviados > 0, total, enviados, erros: erros.slice(0, 10) })
   } catch (error: any) {
     console.error("[POST /api/admin/email-massa]", error)
-    return NextResponse.json({ error: error.message || "Erro ao enviar emails" }, { status: 500 })
+    return NextResponse.json({ error: "Erro ao enviar emails" }, { status: 500 })
   }
 }

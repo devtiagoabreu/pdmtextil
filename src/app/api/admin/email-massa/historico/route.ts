@@ -46,6 +46,6 @@ export async function GET() {
     return NextResponse.json({ envios, stats: statsArr[0] })
   } catch (error: any) {
     console.error("[HISTORICO]", error)
-    return NextResponse.json({ error: error.message || "Erro ao carregar histórico" }, { status: 500 })
+    return NextResponse.json({ error: "Erro ao carregar histórico" }, { status: 500 })
   }
 }
