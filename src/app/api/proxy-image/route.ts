@@ -10,10 +10,16 @@ const BLOCKED_HOSTS = [
   "0.0.0.0",
   "::1",
   "[::1]",
+  "169.254.169.254",
+  "metadata.google.internal",
+  "instance-data",
+  "169.254.169.254.nip.io",
 ]
 
 function isPrivateIP(hostname: string): boolean {
-  const parts = hostname.split(".")
+  const clean = hostname.replace(/^\[|\]$/g, "")
+  if (clean.includes(":")) return true
+  const parts = clean.split(".")
   if (parts.length !== 4) return false
   const nums = parts.map(Number)
   if (nums.some(isNaN)) return false
@@ -21,6 +27,8 @@ function isPrivateIP(hostname: string): boolean {
   if (nums[0] === 127) return true
   if (nums[0] === 192 && nums[1] === 168) return true
   if (nums[0] === 172 && nums[1] >= 16 && nums[1] <= 31) return true
+  if (nums[0] === 169 && nums[1] === 254) return true
+  if (nums[0] === 0) return true
   return false
 }
 
