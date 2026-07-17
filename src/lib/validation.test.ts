@@ -1,4 +1,15 @@
-import { describe, it, expect } from "vitest"
+import { describe, it, expect, vi } from "vitest"
+
+vi.mock("next/server", () => ({
+  NextResponse: {
+    json: (data: unknown, init?: ResponseInit) =>
+      new Response(JSON.stringify(data), {
+        status: init?.status ?? 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+  },
+}))
+
 import {
   clienteSchema,
   produtoCruSchema,

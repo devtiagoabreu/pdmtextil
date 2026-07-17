@@ -3,9 +3,11 @@ import path from "path"
 
 export default defineConfig({
   test: {
-    environment: "jsdom",
     globals: true,
     setupFiles: ["./vitest.setup.ts"],
+    environment: "node",
+    include: ["src/**/*.test.ts"],
+    testTimeout: 10000,
   },
   oxc: {
     jsx: { runtime: "automatic", importSource: "react" },
