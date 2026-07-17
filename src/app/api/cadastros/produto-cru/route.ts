@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
       .orderBy(produtosCru.codigoPdm)
       .limit(limit + 1)
 
-    return NextResponse.json(buildPaginatedResponse(rows, limit))
+    return NextResponse.json(rows)
   } catch (error) {
     console.error("[GET /api/cadastros/produto-cru]", error)
     return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })

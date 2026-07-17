@@ -64,7 +64,7 @@ export default function HistoricoSolicitacaoPage() {
   }, [selectedId, fetchHistory])
 
   useEffect(() => {
-    fetch("/api/solicitacoes").then(r => r.json()).then(json => setSolicitacoesList(Array.isArray(json) ? json : json.data ?? [])).catch(() => {})
+    fetch("/api/solicitacoes").then(r => r.json()).then(setSolicitacoesList).catch(() => {})
   }, [])
 
   useEffect(() => {
