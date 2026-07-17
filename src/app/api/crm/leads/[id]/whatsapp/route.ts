@@ -7,6 +7,7 @@ import { crmContatos } from "@/lib/db/schema/crm-contatos"
 import { eq, desc, and, or } from "drizzle-orm"
 import { enviarMensagem, evolutionConfigurado } from "@/lib/evolution-api"
 import { inserirTimelineEvento } from "@/lib/crm-timeline"
+import { handleApiError } from "@/lib/api-error"
 
 function extractRemoteJid(idIntegracao: string | null): string | null {
   if (!idIntegracao) return null
@@ -77,8 +78,7 @@ export async function GET(
 
     return NextResponse.json(mensagens)
   } catch (error) {
-    console.error("[GET /api/crm/leads/[id]/whatsapp]", error)
-    return NextResponse.json({ error: "Erro interno" }, { status: 500 })
+    return handleApiError(error, "GET /api/crm/leads/[id]/whatsapp")
   }
 }
 
@@ -177,7 +177,6 @@ export async function POST(
 
     return NextResponse.json({ ...nova, status: statusEnvio }, { status: 201 })
   } catch (error) {
-    console.error("[POST /api/crm/leads/[id]/whatsapp]", error)
-    return NextResponse.json({ error: "Erro interno" }, { status: 500 })
+    return handleApiError(error, "POST /api/crm/leads/[id]/whatsapp")
   }
 }

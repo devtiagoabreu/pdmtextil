@@ -5,6 +5,7 @@ import { db } from "@/lib/db"
 import { fornecedores } from "@/lib/db/schema/fios"
 import { eq } from "drizzle-orm"
 import { validateRequest, fornecedorSchema } from "@/lib/validation"
+import { handleApiError } from "@/lib/api-error"
 export const dynamic = "force-dynamic"
 
 export async function GET() {
@@ -19,8 +20,7 @@ export async function GET() {
 
     return NextResponse.json(lista)
   } catch (error) {
-    console.error("[GET /api/cadastros/fornecedores]", error)
-    return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
+    return handleApiError(error, "GET /api/cadastros/fornecedores")
   }
 }
 
@@ -53,7 +53,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(novoFornecedor[0])
   } catch (error) {
-    console.error("[POST /api/cadastros/fornecedores]", error)
-    return NextResponse.json({ error: "Erro ao criar fornecedor" }, { status: 500 })
+    return handleApiError(error, "POST /api/cadastros/fornecedores")
   }
 }

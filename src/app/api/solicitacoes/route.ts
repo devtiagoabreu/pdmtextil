@@ -9,6 +9,7 @@ import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq, desc, and, sql } from "drizzle-orm"
 import { notificar, registrarLog } from "@/lib/notificar"
 import { validateRequest, solicitacaoSchema } from "@/lib/validation"
+import { handleApiError } from "@/lib/api-error"
 
 // GET - Listar solicitações (filtradas por perfil)
 export async function GET(req: NextRequest) {
@@ -63,18 +64,17 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(lista)
   } catch (error) {
-    console.error("[GET /api/solicitacoes]", error)
-    return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
+    return handleApiError(error, "GET /api/solicitacoes")
   }
 }
 
 // POST - Criar nova solicitação
 export async function POST(req: NextRequest) {
+  const auth = await requireAuth()
+  const session = (auth instanceof NextResponse) ? null : auth.session
+  const userId = (auth instanceof NextResponse) ? null : auth.userId
   try {
-    const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
-    const session = auth.session
-    const userId = auth.userId
 
     const body = await req.json()
     const { anexos: anexosList, ...solicitacaoData } = body
@@ -137,7 +137,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(novaSolicitacao, { status: 201 })
   } catch (error) {
-    console.error("[POST /api/solicitacoes]", error)
-    return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
+    return handleApiError(error, "POST /api/solicitacoes", session?.user?.name)
   }
 }

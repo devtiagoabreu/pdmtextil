@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { coresSolidas } from "@/lib/db/schema/cores"
 import { eq } from "drizzle-orm"
+import { handleApiError } from "@/lib/api-error"
 export const dynamic = "force-dynamic"
 
 export async function GET() {
@@ -18,8 +19,7 @@ export async function GET() {
 
     return NextResponse.json(lista)
   } catch (error) {
-    console.error("[GET /api/cadastros/cores]", error)
-    return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
+    return handleApiError(error, "GET /api/cadastros/cores")
   }
 }
 
@@ -44,7 +44,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(novaCor[0])
   } catch (error) {
-    console.error("[POST /api/cadastros/cores]", error)
-    return NextResponse.json({ error: "Erro ao criar cor" }, { status: 500 })
+    return handleApiError(error, "POST /api/cadastros/cores")
   }
 }

@@ -4,6 +4,7 @@ import { db } from "@/lib/db"
 import { fios } from "@/lib/db/schema/fios"
 import { eq } from "drizzle-orm"
 import { validateRequest, fioSchema } from "@/lib/validation"
+import { handleApiError } from "@/lib/api-error"
 
 export async function GET() {
   try {
@@ -18,17 +19,16 @@ export async function GET() {
 
     return NextResponse.json(lista)
   } catch (error) {
-    console.error("[GET /api/cadastros/fios]", error)
-    return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
+    return handleApiError(error, "GET /api/cadastros/fios")
   }
 }
 
 export async function POST(req: NextRequest) {
+  const auth = await requireAuth()
+  const session = (auth instanceof NextResponse) ? null : auth.session
+  const userIdResult = (auth instanceof NextResponse) ? null : auth.userId
   try {
-    const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
-    const session = auth.session
-    const userIdResult = auth.userId
 
     const body = await req.json()
     const parsed = validateRequest(fioSchema, body)
@@ -58,8 +58,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(novoFio[0])
   } catch (error) {
-    console.error("[POST /api/cadastros/fios]", error)
-    const message = error instanceof Error ? error.message : "Erro interno"
-    return NextResponse.json({ error: "Erro ao criar fio: " + message }, { status: 500 })
+    return handleApiError(error, "POST /api/cadastros/fios", session?.user?.name)
   }
 }

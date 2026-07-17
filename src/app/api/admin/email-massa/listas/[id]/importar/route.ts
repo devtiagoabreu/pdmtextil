@@ -64,14 +64,15 @@ function parseJSON(texto: string): ContatoImport[] {
   }
 }
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
     if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUDO" && session.user.role !== "CRM")) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
-    const listaId = Number(params.id)
+    const { id } = await params
+    const listaId = Number(id)
 
     const [lista] = await db.select().from(emailListas).where(eq(emailListas.id, listaId))
     if (!lista) {

@@ -6,14 +6,15 @@ import { emailListaContatos } from "@/lib/db/schema/email-listas"
 import { eq } from "drizzle-orm"
 export const dynamic = "force-dynamic"
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
     if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUDO" && session.user.role !== "CRM")) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
-    const listaId = Number(params.id)
+    const { id } = await params
+    const listaId = Number(id)
     const contatos = await db.select().from(emailListaContatos).where(eq(emailListaContatos.listaId, listaId)).orderBy(emailListaContatos.nome)
     return NextResponse.json(contatos)
   } catch (error) {
@@ -22,14 +23,15 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
     if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUDO" && session.user.role !== "CRM")) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
-    const listaId = Number(params.id)
+    const { id } = await params
+    const listaId = Number(id)
     const body = await req.json()
 
     if (body.contatos && Array.isArray(body.contatos)) {
@@ -65,14 +67,15 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
     if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUDO" && session.user.role !== "CRM")) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
-    const listaId = Number(params.id)
+    const { id } = await params
+    const listaId = Number(id)
     const { searchParams } = new URL(req.url)
     const contatoId = searchParams.get("contatoId")
 

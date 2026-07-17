@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { clientes } from "@/lib/db/schema/clientes"
 import { eq } from "drizzle-orm"
+import { handleApiError } from "@/lib/api-error"
 export const dynamic = "force-dynamic"
 
 interface ClienteImport {
@@ -186,7 +187,6 @@ export async function POST(req: NextRequest) {
       ...resultados,
     })
   } catch (error) {
-    console.error("[POST /api/cadastros/clientes/importar]", error)
-    return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
+    return handleApiError(error, "POST /api/cadastros/clientes/importar")
   }
 }
