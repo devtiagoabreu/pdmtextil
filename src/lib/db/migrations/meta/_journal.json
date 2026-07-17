@@ -15,6 +15,202 @@
       "when": 1778192280740,
       "tag": "0001_past_iron_lad",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1778192280741,
+      "tag": "0001_new_tables",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1778192280742,
+      "tag": "0002_add_id_integracao",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1778192280743,
+      "tag": "0002_cadastros",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1778192280744,
+      "tag": "0003_add_id_integracao_colunas",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1778192280745,
+      "tag": "0004_produto_cru",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1778192280746,
+      "tag": "0005_motivo_aprovacao",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1778192280747,
+      "tag": "0005_notificacoes_email",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1778192280748,
+      "tag": "0006_bases_urdume_refactor",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1778192280749,
+      "tag": "0007_fios_campos",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1778192280750,
+      "tag": "0008_permissoes",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1778192280751,
+      "tag": "0009_sistema",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1778192280752,
+      "tag": "0010_amostras_historico",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1778192280753,
+      "tag": "0011_email_modelos_listas",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1778192280754,
+      "tag": "0012_requisicoes_corte",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1778192280755,
+      "tag": "0013_romaneios",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1778192280756,
+      "tag": "0014_status",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1778192280757,
+      "tag": "0015_treinamento",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1778192280758,
+      "tag": "0016_crm_tabelas",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1778192280759,
+      "tag": "0017_crm_estados_gerente",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1778192280760,
+      "tag": "0018_representantes",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1778192280761,
+      "tag": "0019_crm_equipe_membros",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1778192280762,
+      "tag": "0020_clientes_representantes",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1778192280763,
+      "tag": "0021_crm_paises",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1778192280764,
+      "tag": "0022_crm_pessoas_pf_pj",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1778192280765,
+      "tag": "0023_crm_empresas_to_pessoas",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1778192280766,
+      "tag": "0024_email_enviados",
+      "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1778192280767,
+      "tag": "0025_email_cliques",
+      "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1778192280768,
+      "tag": "0026_user_email_config",
+      "breakpoints": true
     }
   ]
 }
