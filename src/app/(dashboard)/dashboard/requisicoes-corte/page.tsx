@@ -149,7 +149,7 @@ export default function DashboardReqCorte() {
               </ResponsiveContainer>
             </ChartCard>
 
-            <ChartCard title="Requisições por Mês" delay={100}>
+            <ChartCard title="Requisições por Mês" delay={300}>
               <ResponsiveContainer width="100%" height={220}>
                 <LineChart data={stats?.monthlyTrend || []}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
