@@ -121,22 +121,21 @@ export async function PUT(
     }
     if (body.status !== undefined) updateData.status = body.status
 
-    const atualizado = await db
-      .update(produtosCru)
-      .set(updateData)
-      .where(eq(produtosCru.id, id))
-      .returning()
+    const [atualizado] = await db.transaction(async (tx) => {
+      const [updated] = await tx
+        .update(produtosCru)
+        .set(updateData)
+        .where(eq(produtosCru.id, id))
+        .returning()
 
-    if (!atualizado[0]) {
-      return NextResponse.json({ error: "Produto não encontrado" }, { status: 404 })
-    }
+      if (!updated) {
+        throw new Error("Produto não encontrado")
+      }
 
-    // Auto-altera solicitação vinculada para EM_DESENVOLVIMENTO
-    if (body.solicitacaoDesenvolvimentoId) {
-      const solId = Number(body.solicitacaoDesenvolvimentoId)
-      if (!isNaN(solId)) {
-        try {
-          const [sol] = await db
+      if (body.solicitacaoDesenvolvimentoId) {
+        const solId = Number(body.solicitacaoDesenvolvimentoId)
+        if (!isNaN(solId)) {
+          const [sol] = await tx
             .select({ status: solicitacoes.status, historicoComunicacao: solicitacoes.historicoComunicacao })
             .from(solicitacoes)
             .where(eq(solicitacoes.id, solId))
@@ -151,15 +150,19 @@ export async function PUT(
               para: "EM_DESENVOLVIMENTO",
               mensagem: "Produto cru vinculado à solicitação",
             })
-            await db
+            await tx
               .update(solicitacoes)
               .set({ status: "EM_DESENVOLVIMENTO", historicoComunicacao: historico, updatedAt: new Date() })
               .where(eq(solicitacoes.id, solId))
           }
-        } catch (err) {
-          console.error("[PUT /api/cadastros/produto-cru/[id]] erro ao atualizar solicitação", err)
         }
       }
+
+      return [updated]
+    })
+
+    if (!atualizado) {
+      return NextResponse.json({ error: "Produto não encontrado" }, { status: 404 })
     }
 
     await notificar(

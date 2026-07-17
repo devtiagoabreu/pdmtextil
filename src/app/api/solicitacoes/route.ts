@@ -95,36 +95,39 @@ export async function POST(req: NextRequest) {
       },
     ]
 
-    const [novaSolicitacao] = await db
-      .insert(solicitacoes)
-      .values({
-        tipo: data.tipo,
-        cliente: data.cliente,
-        cnpj: cnpj,
-        projeto: data.projeto || null,
-        prazoDesejado: data.prazoDesejado ? new Date(data.prazoDesejado) : null,
-        briefing: data.briefing,
-        solicitanteId: userId,
-        status: "PENDENTE",
-        historicoComunicacao: historico,
-      })
-      .returning()
+    const novaSolicitacao = await db.transaction(async (tx) => {
+      const [solicitacao] = await tx
+        .insert(solicitacoes)
+        .values({
+          tipo: data.tipo,
+          cliente: data.cliente,
+          cnpj: cnpj,
+          projeto: data.projeto || null,
+          prazoDesejado: data.prazoDesejado ? new Date(data.prazoDesejado) : null,
+          briefing: data.briefing,
+          solicitanteId: userId,
+          status: "PENDENTE",
+          historicoComunicacao: historico,
+        })
+        .returning()
 
-    // Inserir anexos (links por enquanto, arquivos serão adicionados no Bloco 1.6)
-    if (anexosList && anexosList.length > 0) {
-      const links = (anexosList as any[]).filter((a) => a.tipo === "LINK")
-      if (links.length > 0) {
-        await db.insert(anexos).values(
-          links.map((a: any) => ({
-            solicitacaoId: novaSolicitacao.id,
-            tipo: "LINK",
-            titulo: a.nome || "Link externo",
-            url: a.link,
-            criadoPor: userId,
-          }))
-        )
+      if (anexosList && anexosList.length > 0) {
+        const links = (anexosList as any[]).filter((a) => a.tipo === "LINK")
+        if (links.length > 0) {
+          await tx.insert(anexos).values(
+            links.map((a: any) => ({
+              solicitacaoId: solicitacao.id,
+              tipo: "LINK",
+              titulo: a.nome || "Link externo",
+              url: a.link,
+              criadoPor: userId,
+            }))
+          )
+        }
       }
-    }
+
+      return solicitacao
+    })
 
     await notificar(
       "SOLICITACAO_CRIADA",
