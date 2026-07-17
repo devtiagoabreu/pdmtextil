@@ -22,7 +22,8 @@ async function fetchSolicitacoes() {
     const err = await res.json().catch(() => ({}))
     throw new Error(err.error || "Falha ao carregar")
   }
-  return res.json()
+  const json = await res.json()
+  return Array.isArray(json) ? json : json.data ?? []
 }
 
 export default function ListaSolicitacoesPage() {
