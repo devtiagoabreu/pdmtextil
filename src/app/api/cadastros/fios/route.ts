@@ -5,19 +5,24 @@ import { fios } from "@/lib/db/schema/fios"
 import { eq } from "drizzle-orm"
 import { validateRequest, fioSchema } from "@/lib/validation"
 import { handleApiError } from "@/lib/api-error"
+import { getPaginationParams, cursorCondition, buildPaginatedResponse } from "@/lib/pagination"
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
     const { session } = auth
 
-    const lista = await db
+    const { cursor, limit } = getPaginationParams(req)
+
+    const rows = await db
       .select()
       .from(fios)
+      .where(cursorCondition(fios, cursor))
       .orderBy(fios.nome)
+      .limit(limit + 1)
 
-    return NextResponse.json(lista)
+    return NextResponse.json(buildPaginatedResponse(rows, limit))
   } catch (error) {
     return handleApiError(error, "GET /api/cadastros/fios")
   }

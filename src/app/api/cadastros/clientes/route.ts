@@ -3,9 +3,10 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { clientes } from "@/lib/db/schema/clientes"
-import { ilike, or, desc, eq } from "drizzle-orm"
+import { ilike, or, and, desc, eq } from "drizzle-orm"
 import { validateRequest, clienteSchema } from "@/lib/validation"
 import { handleApiError } from "@/lib/api-error"
+import { getPaginationParams, cursorCondition, buildPaginatedResponse } from "@/lib/pagination"
 export const dynamic = "force-dynamic"
 
 export async function GET(req: NextRequest) {
@@ -13,33 +14,36 @@ export async function GET(req: NextRequest) {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
+    const { cursor, limit } = getPaginationParams(req)
     const { searchParams } = new URL(req.url)
     const q = searchParams.get("q")?.trim() || ""
 
-    let resultados
+    const cursorCond = cursorCondition(clientes, cursor)
+
+    let rows
 
     if (q.length >= 2) {
-      resultados = await db
+      const searchCond = or(
+        ilike(clientes.nome, `%${q}%`),
+        ilike(clientes.cnpj, `%${q}%`),
+        ilike(clientes.razaoSocial, `%${q}%`)
+      )
+      rows = await db
         .select()
         .from(clientes)
-        .where(
-          or(
-            ilike(clientes.nome, `%${q}%`),
-            ilike(clientes.cnpj, `%${q}%`),
-            ilike(clientes.razaoSocial, `%${q}%`)
-          )
-        )
+        .where(cursorCond ? and(searchCond, cursorCond) : searchCond)
         .orderBy(desc(clientes.createdAt))
-        .limit(20)
+        .limit(limit + 1)
     } else {
-      resultados = await db
+      rows = await db
         .select()
         .from(clientes)
+        .where(cursorCond)
         .orderBy(desc(clientes.createdAt))
-        .limit(20)
+        .limit(limit + 1)
     }
 
-    return NextResponse.json(resultados)
+    return NextResponse.json(buildPaginatedResponse(rows, limit))
   } catch (error) {
     return handleApiError(error, "GET /api/cadastros/clientes")
   }
