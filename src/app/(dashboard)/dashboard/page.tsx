@@ -161,7 +161,7 @@ export default function DashboardPage() {
             </ChartCard>
 
             {/* Status distribution */}
-            <ChartCard title="Distribuição por Status" delay={100}>
+            <ChartCard title="Distribuição por Status" delay={300}>
               <ResponsiveContainer width="100%" height={240}>
                 <PieChart>
                   <Pie
@@ -205,7 +205,7 @@ export default function DashboardPage() {
             </ChartCard>
 
             {/* Tipo distribution */}
-            <ChartCard title="Solicitações por Tipo" delay={200}>
+            <ChartCard title="Solicitações por Tipo" delay={600}>
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={(stats?.tipoDistribution || []).map((s: any) => ({
                   name: TIPO_LABELS[s.tipo] || s.tipo,
@@ -225,7 +225,7 @@ export default function DashboardPage() {
             </ChartCard>
 
             {/* Quick actions */}
-            <ChartCard delay={300}>
+            <ChartCard delay={900}>
                 <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">Ações Rápidas</h3>
                 <div className="grid grid-cols-1 gap-3">
                   <Link href="/comercial/solicitacoes/nova"

@@ -205,7 +205,7 @@ export default function DashboardAmostras() {
               </ResponsiveContainer>
             </ChartCard>
 
-            <ChartCard title="Amostras por Tipo" delay={100}>
+            <ChartCard title="Amostras por Tipo" delay={300}>
               <ResponsiveContainer width="100%" height={220}>
                 <BarChart data={(stats?.tipoDistribution || []).map((s: any) => ({
                   name: TIPO_LABELS[s.tipo] || s.tipo,
@@ -224,7 +224,7 @@ export default function DashboardAmostras() {
               </ResponsiveContainer>
             </ChartCard>
 
-            <ChartCard title="Amostras por Mês" delay={200}>
+            <ChartCard title="Amostras por Mês" delay={600}>
               <ResponsiveContainer width="100%" height={220}>
                 <LineChart data={stats?.monthlyTrend || []}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />

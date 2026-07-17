@@ -156,7 +156,7 @@ export default function DashboardAmostraComercial() {
               </ResponsiveContainer>
             </ChartCard>
 
-            <ChartCard title="Por Mês" delay={100}>
+            <ChartCard title="Por Mês" delay={300}>
               <ResponsiveContainer width="100%" height={220}>
                 <BarChart data={stats?.monthlyTrend || []}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
@@ -168,7 +168,7 @@ export default function DashboardAmostraComercial() {
               </ResponsiveContainer>
             </ChartCard>
 
-            <ChartCard title="Tendência" delay={200}>
+            <ChartCard title="Tendência" delay={600}>
               <ResponsiveContainer width="100%" height={220}>
                 <LineChart data={stats?.monthlyTrend || []}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
