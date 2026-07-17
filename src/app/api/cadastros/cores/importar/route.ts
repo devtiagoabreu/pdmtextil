@@ -108,6 +108,8 @@ export async function POST(req: NextRequest) {
       erros: [] as { linha: number; erro: string }[],
     }
 
+    const paraInserir: Record<string, any>[] = []
+
     for (let i = 0; i < registros.length; i++) {
       const reg = registros[i]
 
@@ -116,46 +118,49 @@ export async function POST(req: NextRequest) {
         continue
       }
 
-      try {
-        const existente = await db
+      const existente = await db
+        .select()
+        .from(coresSolidas)
+        .where(eq(coresSolidas.codigo, reg.codigo))
+        .limit(1)
+
+      if (existente[0]) {
+        resultados.erros.push({ linha: i + 2, erro: `Cor com código ${reg.codigo} já existe` })
+        continue
+      }
+
+      if (reg.idIntegracao) {
+        const existenteIdInt = await db
           .select()
           .from(coresSolidas)
-          .where(eq(coresSolidas.codigo, reg.codigo))
+          .where(eq(coresSolidas.idIntegracao, reg.idIntegracao))
           .limit(1)
 
-        if (existente[0]) {
-          resultados.erros.push({ linha: i + 2, erro: `Cor com código ${reg.codigo} já existe` })
+        if (existenteIdInt[0]) {
+          resultados.erros.push({ linha: i + 2, erro: `ID Integração ${reg.idIntegracao} já existe` })
           continue
         }
+      }
 
-        if (reg.idIntegracao) {
-          const existenteIdInt = await db
-            .select()
-            .from(coresSolidas)
-            .where(eq(coresSolidas.idIntegracao, reg.idIntegracao))
-            .limit(1)
+      const ativo = reg.ativo === "true" || reg.ativo === "1" || reg.ativo === "SIM"
 
-          if (existenteIdInt[0]) {
-            resultados.erros.push({ linha: i + 2, erro: `ID Integração ${reg.idIntegracao} já existe` })
-            continue
-          }
-        }
+      paraInserir.push({
+        codigo: reg.codigo,
+        nome: reg.nome,
+        pantone: reg.pantone || null,
+        familia: reg.familia || null,
+        idIntegracao: reg.idIntegracao || null,
+        ativo: ativo,
+      })
+    }
 
-        const ativo = reg.ativo === "true" || reg.ativo === "1" || reg.ativo === "SIM"
-
-        await db.insert(coresSolidas).values({
-          codigo: reg.codigo,
-          nome: reg.nome,
-          pantone: reg.pantone || null,
-          familia: reg.familia || null,
-          idIntegracao: reg.idIntegracao || null,
-          ativo: ativo,
-        })
-
-        resultados.importados++
+    if (paraInserir.length > 0) {
+      try {
+        await db.insert(coresSolidas).values(paraInserir)
+        resultados.importados = paraInserir.length
       } catch (err: any) {
-        console.error(`Erro na linha ${i + 2}:`, err)
-        resultados.erros.push({ linha: i + 2, erro: err.message || "Erro desconhecido" })
+        console.error("Erro na inserção em lote:", err)
+        resultados.erros.push({ linha: 0, erro: err.message || "Erro ao inserir registros" })
       }
     }
 

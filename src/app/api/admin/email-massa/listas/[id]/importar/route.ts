@@ -109,6 +109,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       erros: [] as { linha: number; erro: string }[],
     }
 
+    const paraInserir: Record<string, any>[] = []
+
     for (let i = 0; i < registros.length; i++) {
       const reg = registros[i]
 
@@ -122,17 +124,20 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         continue
       }
 
-      try {
-        await db.insert(emailListaContatos).values({
-          listaId,
-          nome: reg.nome,
-          email: reg.email,
-        })
+      paraInserir.push({
+        listaId,
+        nome: reg.nome,
+        email: reg.email,
+      })
+    }
 
-        resultados.importados++
+    if (paraInserir.length > 0) {
+      try {
+        await db.insert(emailListaContatos).values(paraInserir)
+        resultados.importados = paraInserir.length
       } catch (err: any) {
-        console.error(`Erro na linha ${i + 2}:`, err)
-        resultados.erros.push({ linha: i + 2, erro: err.message || "Erro ao inserir contato" })
+        console.error("Erro na inserção em lote:", err)
+        resultados.erros.push({ linha: 0, erro: err.message || "Erro ao inserir contatos" })
       }
     }
 

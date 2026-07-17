@@ -121,6 +121,8 @@ export async function POST(req: NextRequest) {
       erros: [] as { linha: number; erro: string }[],
     }
 
+    const paraInserir: Record<string, any>[] = []
+
     for (let i = 0; i < registros.length; i++) {
       const reg = registros[i]
 
@@ -129,55 +131,58 @@ export async function POST(req: NextRequest) {
         continue
       }
 
-      try {
-        const cnpjLimpo = reg.cnpj.replace(/\D/g, "")
-        const existente = await db
+      const cnpjLimpo = reg.cnpj.replace(/\D/g, "")
+      const existente = await db
+        .select()
+        .from(clientes)
+        .where(eq(clientes.cnpj, cnpjLimpo))
+        .limit(1)
+
+      if (existente[0]) {
+        resultados.erros.push({ linha: i + 2, erro: `Cliente com CNPJ ${reg.cnpj} já existe` })
+        continue
+      }
+
+      if (reg.idIntegracao) {
+        const existenteIdInt = await db
           .select()
           .from(clientes)
-          .where(eq(clientes.cnpj, cnpjLimpo))
+          .where(eq(clientes.idIntegracao, reg.idIntegracao))
           .limit(1)
 
-        if (existente[0]) {
-          resultados.erros.push({ linha: i + 2, erro: `Cliente com CNPJ ${reg.cnpj} já existe` })
+        if (existenteIdInt[0]) {
+          resultados.erros.push({ linha: i + 2, erro: `ID Integração ${reg.idIntegracao} já existe` })
           continue
         }
+      }
 
-        if (reg.idIntegracao) {
-          const existenteIdInt = await db
-            .select()
-            .from(clientes)
-            .where(eq(clientes.idIntegracao, reg.idIntegracao))
-            .limit(1)
+      const ativo = reg.ativo === "true" || reg.ativo === "1" || reg.ativo === "SIM"
 
-          if (existenteIdInt[0]) {
-            resultados.erros.push({ linha: i + 2, erro: `ID Integração ${reg.idIntegracao} já existe` })
-            continue
-          }
-        }
+      paraInserir.push({
+        nome: reg.nome!,
+        cnpj: cnpjLimpo,
+        razaoSocial: reg.razaoSocial || null,
+        email: reg.email || null,
+        telefone: reg.telefone || null,
+        contato: reg.contato || null,
+        endereco: reg.endereco || null,
+        cidade: reg.cidade || null,
+        uf: reg.uf || null,
+        idIntegracao: reg.idIntegracao || null,
+        ativo: ativo,
+      })
+    }
 
-        const ativo = reg.ativo === "true" || reg.ativo === "1" || reg.ativo === "SIM"
-
-        await db.insert(clientes).values({
-          nome: reg.nome!,
-          cnpj: cnpjLimpo,
-          razaoSocial: reg.razaoSocial || null,
-          email: reg.email || null,
-          telefone: reg.telefone || null,
-          contato: reg.contato || null,
-          endereco: reg.endereco || null,
-          cidade: reg.cidade || null,
-          uf: reg.uf || null,
-          idIntegracao: reg.idIntegracao || null,
-          ativo: ativo,
-        })
-
-        resultados.importados++
+    if (paraInserir.length > 0) {
+      try {
+        await db.insert(clientes).values(paraInserir)
+        resultados.importados = paraInserir.length
       } catch (err: any) {
-        console.error(`Erro na linha ${i + 2}:`, err)
+        console.error("Erro na inserção em lote:", err)
         const mensagemErro = err.code === '23505'
-          ? `CNPJ ${reg.cnpj || 'desconhecido'} já cadastrado`
-          : (err.message || "Erro ao inserir registro")
-        resultados.erros.push({ linha: i + 2, erro: mensagemErro })
+          ? "CNPJ duplicado na importação"
+          : (err.message || "Erro ao inserir registros")
+        resultados.erros.push({ linha: 0, erro: mensagemErro })
       }
     }
 

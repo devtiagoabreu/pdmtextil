@@ -6,6 +6,11 @@ import { status } from "@/lib/db/schema/status"
 import { eq, asc, sql } from "drizzle-orm"
 export const dynamic = "force-dynamic"
 
+function parseJson(value: any, fallback: any = []) {
+  if (value == null) return fallback
+  return typeof value === "string" ? JSON.parse(value) : value
+}
+
 async function q(sqlFragment: ReturnType<typeof sql>, fallback: any = null) {
   try {
     return await db.execute(sqlFragment)
@@ -20,46 +25,44 @@ export async function GET() {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
-    // Load dynamic status config for AMOSTRA
     const statusConfigs = await db
       .select({ nome: status.nome, rotulo: status.rotulo, cor: status.cor, ordem: status.ordem })
       .from(status)
       .where(eq(status.tipo, "AMOSTRA"))
       .orderBy(asc(status.ordem), asc(status.nome))
 
-    const statusNomes = statusConfigs.map(s => s.nome)
-
-    const [
-      cruStatusRaw,
-      acabStatusRaw,
-      trendRaw,
-      recentRaw,
-      totalMesRaw,
-    ] = await Promise.all([
+    const [aggRaw, recentRaw] = await Promise.all([
       q(sql`
-        SELECT status, COUNT(*)::int AS total
-        FROM produto_cru_amostra GROUP BY status
-      `, []),
-      q(sql`
-        SELECT status, COUNT(*)::int AS total
-        FROM produto_cru_acabamento_amostra GROUP BY status
-      `, []),
-      q(sql`
-        SELECT mes, SUM(total)::int AS total
-        FROM (
-          SELECT date_trunc('month', created_at)::date AS mes, COUNT(*) AS total
-          FROM produto_cru_amostra
-          WHERE created_at >= date_trunc('month', now()) - INTERVAL '5 months'
-          GROUP BY mes
-          UNION ALL
-          SELECT date_trunc('month', created_at)::date AS mes, COUNT(*) AS total
-          FROM produto_cru_acabamento_amostra
-          WHERE created_at >= date_trunc('month', now()) - INTERVAL '5 months'
-          GROUP BY mes
-        ) sub
-        GROUP BY mes
-        ORDER BY mes
-      `, []),
+        SELECT
+          (SELECT json_agg(json_build_object('source', source, 'status', status, 'total', cnt))
+           FROM (
+             SELECT 'CRU' AS source, status, COUNT(*)::int AS cnt
+             FROM produto_cru_amostra GROUP BY status
+             UNION ALL
+             SELECT 'ACAB' AS source, status, COUNT(*)::int AS cnt
+             FROM produto_cru_acabamento_amostra GROUP BY status
+           ) sc) AS status_counts,
+          (SELECT json_agg(json_build_object('mes', mes::text, 'total', total) ORDER BY mes)
+           FROM (
+             SELECT mes, SUM(total)::int AS total FROM (
+               SELECT date_trunc('month', created_at)::date AS mes, COUNT(*) AS total
+               FROM produto_cru_amostra
+               WHERE created_at >= date_trunc('month', now()) - INTERVAL '5 months'
+               GROUP BY 1
+               UNION ALL
+               SELECT date_trunc('month', created_at)::date AS mes, COUNT(*) AS total
+               FROM produto_cru_acabamento_amostra
+               WHERE created_at >= date_trunc('month', now()) - INTERVAL '5 months'
+               GROUP BY 1
+             ) sub GROUP BY mes
+           ) t) AS trend,
+          (SELECT COUNT(*)::int
+           FROM (
+             SELECT id FROM produto_cru_amostra WHERE created_at >= date_trunc('month', now())
+             UNION ALL
+             SELECT id FROM produto_cru_acabamento_amostra WHERE created_at >= date_trunc('month', now())
+           ) sub) AS total_mes
+      `),
       q(sql`
         (SELECT
           am.id, am.descricao, am.status, am.motivo_aprovacao as "motivoAprovacao",
@@ -92,30 +95,22 @@ export async function GET() {
         ORDER BY "createdAt" DESC
         LIMIT 10
       `, []),
-      q(sql`
-        SELECT COUNT(*)::int AS total
-        FROM (
-          SELECT id FROM produto_cru_amostra
-          WHERE created_at >= date_trunc('month', now())
-          UNION ALL
-          SELECT id FROM produto_cru_acabamento_amostra
-          WHERE created_at >= date_trunc('month', now())
-        ) sub
-      `, { total: 0 }),
     ])
 
-    const cruStatus = Array.isArray(cruStatusRaw) ? cruStatusRaw : []
-    const acabStatus = Array.isArray(acabStatusRaw) ? acabStatusRaw : []
-    const trendRows = Array.isArray(trendRaw) ? trendRaw : []
+    const agg = Array.isArray(aggRaw) ? aggRaw[0] : aggRaw ?? {}
+    const cruStatusRaw = parseJson(agg?.status_counts)
+    const trendRows = parseJson(agg?.trend)
+    const totalMes = agg?.total_mes ?? 0
     const recent = Array.isArray(recentRaw) ? recentRaw : []
-    const totalMes = Array.isArray(totalMesRaw) ? (totalMesRaw[0]?.total ?? 0) : (totalMesRaw?.total ?? 0)
+
+    const cruStatus = cruStatusRaw.filter((r: any) => r.source === "CRU")
+    const acabStatus = cruStatusRaw.filter((r: any) => r.source === "ACAB")
 
     const getCount = (rows: any[], s: string) => {
       const r = rows.find((x: any) => x.status === s)
       return r ? Number(r.total) : 0
     }
 
-    // Dynamically build counts per status
     const statusDistribution = statusConfigs.map(c => ({
       status: c.nome,
       rotulo: c.rotulo,
@@ -123,12 +118,10 @@ export async function GET() {
       total: getCount(cruStatus, c.nome) + getCount(acabStatus, c.nome),
     }))
 
-    // Totals
     const totalGeral = statusDistribution.reduce((acc, s) => acc + s.total, 0)
     const totalCru = cruStatus.reduce((acc: number, r: any) => acc + Number(r.total), 0)
     const totalAcab = acabStatus.reduce((acc: number, r: any) => acc + Number(r.total), 0)
 
-    // Sub-totals by type per status
     const statusDistribCru = statusConfigs.map(c => ({
       status: c.nome,
       total: getCount(cruStatus, c.nome),

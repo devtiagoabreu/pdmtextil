@@ -5,6 +5,11 @@ import { db } from "@/lib/db"
 import { sql } from "drizzle-orm"
 export const dynamic = "force-dynamic"
 
+function parseJson(value: any, fallback: any = []) {
+  if (value == null) return fallback
+  return typeof value === "string" ? JSON.parse(value) : value
+}
+
 async function query(sqlFragment: ReturnType<typeof sql>, fallback: any = null) {
   try {
     return await db.execute(sqlFragment)
@@ -19,12 +24,7 @@ export async function GET() {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
-    const [
-      monthlyRaw,
-      statusRaw,
-      tipoRaw,
-      pcRaw,
-    ] = await Promise.all([
+    const [monthlyRaw, aggRaw] = await Promise.all([
       query(sql`
         SELECT
           to_char(created_at, 'YYYY-MM') AS mes,
@@ -36,20 +36,20 @@ export async function GET() {
         ORDER BY mes
       `, []),
       query(sql`
-        SELECT status, COUNT(*)::int AS total
-        FROM solicitacoes GROUP BY status
-      `, []),
-      query(sql`
-        SELECT tipo, COUNT(*)::int AS total
-        FROM solicitacoes GROUP BY tipo
-      `, []),
-      query(sql`SELECT COUNT(*)::int AS total FROM produtos_cru`, []),
+        SELECT
+          (SELECT json_agg(json_build_object('status', status, 'total', cnt))
+           FROM (SELECT status, COUNT(*)::int AS cnt FROM solicitacoes GROUP BY status) s) AS status_rows,
+          (SELECT json_agg(json_build_object('tipo', tipo, 'total', cnt))
+           FROM (SELECT tipo, COUNT(*)::int AS cnt FROM solicitacoes GROUP BY tipo) t) AS tipo_rows,
+          (SELECT COUNT(*)::int AS total FROM produtos_cru) AS pc_total
+      `),
     ])
 
     const monthlyRows = Array.isArray(monthlyRaw) ? monthlyRaw : []
-    const statusRows = Array.isArray(statusRaw) ? statusRaw : []
-    const tipoRows = Array.isArray(tipoRaw) ? tipoRaw : []
-    const pcRows = Array.isArray(pcRaw) ? pcRaw : []
+    const agg = Array.isArray(aggRaw) ? aggRaw[0] : aggRaw ?? {}
+    const statusRows = parseJson(agg?.status_rows)
+    const tipoRows = parseJson(agg?.tipo_rows)
+    const totalProdutosCru = Number(agg?.pc_total ?? 0)
 
     const monthMap = new Map<string, { pendentes: number; emDesenvolvimento: number; pilotagem: number; concluidoDev: number; aprovadoCliente: number; concluidas: number; total: number }>()
     let geralPendentes = 0, geralEmDesenvolvimento = 0, geralPilotagem = 0, geralConcluidoDev = 0, geralAprovadoCliente = 0, geralConcluidas = 0, geralTotal = 0
@@ -81,8 +81,6 @@ export async function GET() {
       const label = d.toLocaleDateString("pt-BR", { month: "short", year: "2-digit" })
       trendData.push({ mes: label, total: entry.total })
     }
-
-    const totalProdutosCru = pcRows.length > 0 ? Number(pcRows[0].total) : 0
 
     return NextResponse.json({
       totalEsteMes: geralTotal,

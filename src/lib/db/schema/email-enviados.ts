@@ -1,4 +1,4 @@
-import { pgTable, serial, varchar, text, integer, timestamp } from "drizzle-orm/pg-core"
+import { pgTable, serial, varchar, text, integer, timestamp, index } from "drizzle-orm/pg-core"
 import { emailListas } from "./email-listas"
 
 export const emailEnviados = pgTable("email_enviados", {
@@ -13,7 +13,11 @@ export const emailEnviados = pgTable("email_enviados", {
   trackingId: varchar("tracking_id", { length: 36 }).unique(),
   abertoEm: timestamp("aberto_em"),
   createdAt: timestamp("created_at").defaultNow(),
-})
+}, (t) => [
+  index("idx_email_enviados_lista").on(t.listaId),
+  index("idx_email_enviados_status").on(t.status),
+  index("idx_email_enviados_created_at").on(t.createdAt),
+])
 
 export type EmailEnviado = typeof emailEnviados.$inferSelect
 export type NewEmailEnviado = typeof emailEnviados.$inferInsert

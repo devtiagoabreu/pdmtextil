@@ -92,11 +92,13 @@ export async function PUT(
 
     if (body.fiosLista && Array.isArray(body.fiosLista)) {
       await db.delete(baseUrdumeFios).where(eq(baseUrdumeFios.baseUrdumeId, id))
-      for (const fio of body.fiosLista) {
-        await db.insert(baseUrdumeFios).values({
-          baseUrdumeId: id,
-          fioId: fio.fioId,
-        })
+      if (body.fiosLista.length > 0) {
+        await db.insert(baseUrdumeFios).values(
+          body.fiosLista.map((fio: { fioId: number }) => ({
+            baseUrdumeId: id,
+            fioId: fio.fioId,
+          }))
+        )
       }
     }
 

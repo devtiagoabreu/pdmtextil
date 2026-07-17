@@ -113,6 +113,8 @@ export async function POST(req: NextRequest) {
       erros: [] as { linha: number; erro: string }[],
     }
 
+    const paraInserir: Record<string, any>[] = []
+
     for (let i = 0; i < registros.length; i++) {
       const reg = registros[i]
 
@@ -121,47 +123,50 @@ export async function POST(req: NextRequest) {
         continue
       }
 
-      try {
-        const existente = await db
+      const existente = await db
+        .select()
+        .from(estampas)
+        .where(eq(estampas.codigoDesenho, reg.codigoDesenho))
+        .limit(1)
+
+      if (existente[0]) {
+        resultados.erros.push({ linha: i + 2, erro: `Estampa com código ${reg.codigoDesenho} já existe` })
+        continue
+      }
+
+      if (reg.idIntegracao) {
+        const existenteIdInt = await db
           .select()
           .from(estampas)
-          .where(eq(estampas.codigoDesenho, reg.codigoDesenho))
+          .where(eq(estampas.idIntegracao, reg.idIntegracao))
           .limit(1)
 
-        if (existente[0]) {
-          resultados.erros.push({ linha: i + 2, erro: `Estampa com código ${reg.codigoDesenho} já existe` })
+        if (existenteIdInt[0]) {
+          resultados.erros.push({ linha: i + 2, erro: `ID Integração ${reg.idIntegracao} já existe` })
           continue
         }
+      }
 
-        if (reg.idIntegracao) {
-          const existenteIdInt = await db
-            .select()
-            .from(estampas)
-            .where(eq(estampas.idIntegracao, reg.idIntegracao))
-            .limit(1)
+      const ativo = reg.ativo === "true" || reg.ativo === "1" || reg.ativo === "SIM"
 
-          if (existenteIdInt[0]) {
-            resultados.erros.push({ linha: i + 2, erro: `ID Integração ${reg.idIntegracao} já existe` })
-            continue
-          }
-        }
+      paraInserir.push({
+        codigoDesenho: reg.codigoDesenho,
+        variante: reg.variante || "01",
+        nome: reg.nome,
+        tipo: reg.tipo || null,
+        imagemUrl: reg.imagemUrl || null,
+        idIntegracao: reg.idIntegracao || null,
+        ativo: ativo,
+      })
+    }
 
-        const ativo = reg.ativo === "true" || reg.ativo === "1" || reg.ativo === "SIM"
-
-        await db.insert(estampas).values({
-          codigoDesenho: reg.codigoDesenho,
-          variante: reg.variante || "01",
-          nome: reg.nome,
-          tipo: reg.tipo || null,
-          imagemUrl: reg.imagemUrl || null,
-          idIntegracao: reg.idIntegracao || null,
-          ativo: ativo,
-        })
-
-        resultados.importados++
+    if (paraInserir.length > 0) {
+      try {
+        await db.insert(estampas).values(paraInserir)
+        resultados.importados = paraInserir.length
       } catch (err: any) {
-        console.error(`Erro na linha ${i + 2}:`, err)
-        resultados.erros.push({ linha: i + 2, erro: err.message || "Erro desconhecido" })
+        console.error("Erro na inserção em lote:", err)
+        resultados.erros.push({ linha: 0, erro: err.message || "Erro ao inserir registros" })
       }
     }
 
