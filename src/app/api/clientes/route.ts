@@ -6,6 +6,9 @@ import { ilike, or, desc, eq } from "drizzle-orm"
 
 export async function GET(req: NextRequest) {
   try {
+    const auth = await requireAuth()
+    if (auth instanceof NextResponse) return auth
+
     const { searchParams } = new URL(req.url)
     const q = searchParams.get("q")?.trim() || ""
 
