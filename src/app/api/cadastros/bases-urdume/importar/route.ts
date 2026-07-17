@@ -122,6 +122,8 @@ export async function POST(req: NextRequest) {
       erros: [] as { linha: number; erro: string }[],
     }
 
+    const paraInserir: NewBaseUrdume[] = []
+
     for (let i = 0; i < registros.length; i++) {
       const reg = registros[i]
 
@@ -130,70 +132,71 @@ export async function POST(req: NextRequest) {
         continue
       }
 
+      const codigoCompletoGerado = reg.codigoCompleto || `${reg.codigoBase}.XXX.000001`
+
+      const existenteCodigoBase = await db
+        .select()
+        .from(basesUrdume)
+        .where(eq(basesUrdume.codigoBase, reg.codigoBase))
+        .limit(1)
+
+      if (existenteCodigoBase[0]) {
+        resultados.erros.push({ linha: i + 2, erro: `Código base ${reg.codigoBase} já existe` })
+        continue
+      }
+
+      const existenteCodigoCompleto = await db
+        .select()
+        .from(basesUrdume)
+        .where(eq(basesUrdume.codigoCompleto, codigoCompletoGerado))
+        .limit(1)
+
+      if (existenteCodigoCompleto[0]) {
+        resultados.erros.push({ linha: i + 2, erro: `Código completo ${codigoCompletoGerado} já existe` })
+        continue
+      }
+
+      if (reg.idIntegracao) {
+        const existenteIdInt = await db
+          .select()
+          .from(basesUrdume)
+          .where(eq(basesUrdume.idIntegracao, reg.idIntegracao))
+          .limit(1)
+
+        if (existenteIdInt[0]) {
+          resultados.erros.push({ linha: i + 2, erro: `ID Integração ${reg.idIntegracao} já existe` })
+          continue
+        }
+      }
+
+      const ativo = reg.ativo === "true" || reg.ativo === "1" || reg.ativo === "SIM"
+
+      paraInserir.push({
+        codigoBase: reg.codigoBase,
+        codigoCompleto: codigoCompletoGerado,
+        nome: reg.nome,
+        descricao: reg.descricao || null,
+        densidade: reg.densidade || null,
+        tratamento: reg.tratamento || null,
+        tensaoUrdume: reg.tensaoUrdume || null,
+        largura: reg.largura || null,
+        observacoes: reg.observacoes || null,
+        idIntegracao: reg.idIntegracao || null,
+        ativo: ativo,
+        criadoPor: userIdResult,
+      })
+    }
+
+    if (paraInserir.length > 0) {
       try {
-        const codigoCompletoGerado = reg.codigoCompleto || `${reg.codigoBase}.XXX.000001`
-
-        const existenteCodigoBase = await db
-          .select()
-          .from(basesUrdume)
-          .where(eq(basesUrdume.codigoBase, reg.codigoBase))
-          .limit(1)
-
-        if (existenteCodigoBase[0]) {
-          resultados.erros.push({ linha: i + 2, erro: `Código base ${reg.codigoBase} já existe` })
-          continue
-        }
-
-        const existenteCodigoCompleto = await db
-          .select()
-          .from(basesUrdume)
-          .where(eq(basesUrdume.codigoCompleto, codigoCompletoGerado))
-          .limit(1)
-
-        if (existenteCodigoCompleto[0]) {
-          resultados.erros.push({ linha: i + 2, erro: `Código completo ${codigoCompletoGerado} já existe` })
-          continue
-        }
-
-        if (reg.idIntegracao) {
-          const existenteIdInt = await db
-            .select()
-            .from(basesUrdume)
-            .where(eq(basesUrdume.idIntegracao, reg.idIntegracao))
-            .limit(1)
-
-          if (existenteIdInt[0]) {
-            resultados.erros.push({ linha: i + 2, erro: `ID Integração ${reg.idIntegracao} já existe` })
-            continue
-          }
-        }
-
-        const ativo = reg.ativo === "true" || reg.ativo === "1" || reg.ativo === "SIM"
-
-        const valores: NewBaseUrdume = {
-          codigoBase: reg.codigoBase,
-          codigoCompleto: codigoCompletoGerado,
-          nome: reg.nome,
-          descricao: reg.descricao || null,
-          densidade: reg.densidade || null,
-          tratamento: reg.tratamento || null,
-          tensaoUrdume: reg.tensaoUrdume || null,
-          largura: reg.largura || null,
-          observacoes: reg.observacoes || null,
-          idIntegracao: reg.idIntegracao || null,
-          ativo: ativo,
-          criadoPor: userIdResult,
-        }
-
-        await db.insert(basesUrdume).values(valores)
-
-        resultados.importados++
+        await db.insert(basesUrdume).values(paraInserir)
+        resultados.importados = paraInserir.length
       } catch (err: any) {
-        console.error(`Erro na linha ${i + 2}:`, err)
+        console.error("Erro na inserção em lote:", err)
         const mensagemErro = err.code === '23505'
-          ? `Registro duplicado: ${reg.codigoBase || reg.nome}`
-          : (err.message || "Erro ao inserir registro")
-        resultados.erros.push({ linha: i + 2, erro: mensagemErro })
+          ? "Registro duplicado na importação"
+          : (err.message || "Erro ao inserir registros")
+        resultados.erros.push({ linha: 0, erro: mensagemErro })
       }
     }
 

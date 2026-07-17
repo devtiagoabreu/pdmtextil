@@ -120,6 +120,8 @@ export async function POST(req: NextRequest) {
       erros: [] as { linha: number; erro: string }[],
     }
 
+    const paraInserir: Record<string, any>[] = []
+
     for (let i = 0; i < registros.length; i++) {
       const reg = registros[i]
 
@@ -128,52 +130,55 @@ export async function POST(req: NextRequest) {
         continue
       }
 
-      try {
-        if (reg.idIntegracao) {
-          const existenteIdInt = await db
-            .select()
-            .from(fios)
-            .where(eq(fios.idIntegracao, reg.idIntegracao))
-            .limit(1)
-
-          if (existenteIdInt[0]) {
-            resultados.erros.push({ linha: i + 2, erro: `ID Integração ${reg.idIntegracao} já existe` })
-            continue
-          }
-        }
-
-        const existente = await db
+      if (reg.idIntegracao) {
+        const existenteIdInt = await db
           .select()
           .from(fios)
-          .where(eq(fios.codigoFio, reg.codigoFio!))
+          .where(eq(fios.idIntegracao, reg.idIntegracao))
           .limit(1)
 
-        if (existente[0]) {
-          resultados.erros.push({ linha: i + 2, erro: `Fio com código ${reg.codigoFio} já existe` })
+        if (existenteIdInt[0]) {
+          resultados.erros.push({ linha: i + 2, erro: `ID Integração ${reg.idIntegracao} já existe` })
           continue
         }
+      }
 
-        const ativo = reg.ativo === "true" || reg.ativo === "1" || reg.ativo === "SIM"
+      const existente = await db
+        .select()
+        .from(fios)
+        .where(eq(fios.codigoFio, reg.codigoFio!))
+        .limit(1)
 
-        await db.insert(fios).values({
-          codigoCompleto: `7.${reg.codigoFio}.XXX.000001`,
-          codigoFio: reg.codigoFio!,
-          nome: reg.nome!,
-          nomeComercial: reg.nomeComercial || null,
-          composicao: reg.composicao || null,
-          titulo: reg.titulo || null,
-          torcao: reg.torcao || null,
-          resistencia: reg.resistencia || null,
-          alongamento: reg.alongamento || null,
-          idIntegracao: reg.idIntegracao || null,
-          ativo: ativo,
-          criadoPor: userIdResult,
-        })
+      if (existente[0]) {
+        resultados.erros.push({ linha: i + 2, erro: `Fio com código ${reg.codigoFio} já existe` })
+        continue
+      }
 
-        resultados.importados++
+      const ativo = reg.ativo === "true" || reg.ativo === "1" || reg.ativo === "SIM"
+
+      paraInserir.push({
+        codigoCompleto: `7.${reg.codigoFio}.XXX.000001`,
+        codigoFio: reg.codigoFio!,
+        nome: reg.nome!,
+        nomeComercial: reg.nomeComercial || null,
+        composicao: reg.composicao || null,
+        titulo: reg.titulo || null,
+        torcao: reg.torcao || null,
+        resistencia: reg.resistencia || null,
+        alongamento: reg.alongamento || null,
+        idIntegracao: reg.idIntegracao || null,
+        ativo: ativo,
+        criadoPor: userIdResult,
+      })
+    }
+
+    if (paraInserir.length > 0) {
+      try {
+        await db.insert(fios).values(paraInserir)
+        resultados.importados = paraInserir.length
       } catch (err: any) {
-        console.error(`Erro na linha ${i + 2}:`, err)
-        resultados.erros.push({ linha: i + 2, erro: err.message || "Erro desconhecido" })
+        console.error("Erro na inserção em lote:", err)
+        resultados.erros.push({ linha: 0, erro: err.message || "Erro ao inserir registros" })
       }
     }
 

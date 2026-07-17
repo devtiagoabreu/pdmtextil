@@ -1,4 +1,4 @@
-import { pgTable, serial, integer, varchar, text, timestamp, foreignKey } from "drizzle-orm/pg-core"
+import { pgTable, serial, integer, varchar, text, timestamp, foreignKey, index } from "drizzle-orm/pg-core"
 import { usuarios } from "./usuarios"
 
 export const chats = pgTable("chats", {
@@ -10,7 +10,9 @@ export const chats = pgTable("chats", {
   criadoPor: integer("criado_por").references(() => usuarios.id).notNull(),
   updatedAt: timestamp("updated_at").defaultNow(),
   createdAt: timestamp("created_at").defaultNow(),
-})
+}, (t) => [
+  index("idx_chats_entidade").on(t.entidadeTipo, t.entidadeId),
+])
 
 export const chatMensagens = pgTable("chat_mensagens", {
   id: serial("id").primaryKey(),
@@ -18,7 +20,9 @@ export const chatMensagens = pgTable("chat_mensagens", {
   remetenteId: integer("remetente_id").references(() => usuarios.id).notNull(),
   mensagem: text("mensagem").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
-})
+}, (t) => [
+  index("idx_chat_mensagens_chat").on(t.chatId),
+])
 
 export const chatParticipantes = pgTable("chat_participantes", {
   id: serial("id").primaryKey(),
@@ -26,7 +30,9 @@ export const chatParticipantes = pgTable("chat_participantes", {
   usuarioId: integer("usuario_id").references(() => usuarios.id, { onDelete: "cascade" }).notNull(),
   adicionadoEm: timestamp("adicionado_em").defaultNow(),
   ultimaMensagemLidaId: integer("ultima_mensagem_lida_id"),
-})
+}, (t) => [
+  index("idx_chat_participantes_usuario").on(t.usuarioId),
+])
 
 export const chatLeituras = pgTable("chat_leituras", {
   id: serial("id").primaryKey(),

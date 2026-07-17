@@ -1,4 +1,4 @@
-import { pgTable, serial, varchar, text, jsonb, integer, timestamp } from "drizzle-orm/pg-core"
+import { pgTable, serial, varchar, text, jsonb, integer, timestamp, index } from "drizzle-orm/pg-core"
 import { usuarios } from "./usuarios"
 
 export const logs = pgTable("logs", {
@@ -13,7 +13,11 @@ export const logs = pgTable("logs", {
   usuarioId: integer("usuario_id").references(() => usuarios.id),
   usuarioNome: varchar("usuario_nome", { length: 255 }),
   createdAt: timestamp("created_at").defaultNow(),
-})
+}, (t) => [
+  index("idx_logs_tipo").on(t.tipo),
+  index("idx_logs_created_at").on(t.createdAt),
+  index("idx_logs_entidade").on(t.entidade, t.entidadeId),
+])
 
 export type Log = typeof logs.$inferSelect
 export type NewLog = typeof logs.$inferInsert

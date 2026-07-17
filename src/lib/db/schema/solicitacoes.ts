@@ -1,4 +1,4 @@
-import { pgTable, serial, varchar, text, integer, timestamp, jsonb } from "drizzle-orm/pg-core"
+import { pgTable, serial, varchar, text, integer, timestamp, jsonb, index } from "drizzle-orm/pg-core"
 import { usuarios } from "./usuarios"
 
 export const solicitacoes = pgTable("solicitacoes", {
@@ -18,4 +18,8 @@ export const solicitacoes = pgTable("solicitacoes", {
   idIntegracao: varchar("id_integracao", { length: 100 }),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-})
+}, (t) => [
+  index("idx_solicitacoes_status").on(t.status),
+  index("idx_solicitacoes_created_at").on(t.createdAt),
+  index("idx_solicitacoes_solicitante").on(t.solicitanteId),
+])

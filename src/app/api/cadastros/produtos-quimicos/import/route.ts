@@ -23,25 +23,30 @@ export async function POST(req: NextRequest) {
 
     if (isJson) {
       const data = JSON.parse(text)
-      for (const item of Array.isArray(data) ? data : [data]) {
+      const items = Array.isArray(data) ? data : [data]
+      const paraInserir: Record<string, any>[] = []
+      for (const item of items) {
+        paraInserir.push({
+          codigo: item.codigo,
+          nome: item.nome,
+          descricao: item.descricao || null,
+          categoria: item.categoria || null,
+          unidadePadrao: item.unidadePadrao || "kg",
+          tipo: item.tipo || null,
+          concentracao: item.concentracao || null,
+          densidade: item.densidade || null,
+          ph: item.ph || null,
+          idIntegracao: item.idIntegracao || null,
+          ativo: true,
+          criadoPor: userIdResult,
+        })
+      }
+      if (paraInserir.length > 0) {
         try {
-          await db.insert(produtosQuimicos).values({
-            codigo: item.codigo,
-            nome: item.nome,
-            descricao: item.descricao || null,
-            categoria: item.categoria || null,
-            unidadePadrao: item.unidadePadrao || "kg",
-            tipo: item.tipo || null,
-            concentracao: item.concentracao || null,
-            densidade: item.densidade || null,
-            ph: item.ph || null,
-            idIntegracao: item.idIntegracao || null,
-            ativo: true,
-            criadoPor: userIdResult,
-          })
-          imported++
+          await db.insert(produtosQuimicos).values(paraInserir)
+          imported = paraInserir.length
         } catch (e: any) {
-          errors.push(`Erro ao importar ${item.codigo || item.nome}: ${e.message}`)
+          errors.push(`Erro na inserção em lote: ${e.message}`)
         }
       }
     } else {
@@ -49,25 +54,29 @@ export async function POST(req: NextRequest) {
       const delimiter = headerLine.includes(";") ? ";" : ","
       const startIndex = headerLine.includes("codigo") || headerLine.includes("código") || headerLine.includes("nome") ? 1 : 0
 
+      const paraInserir: Record<string, any>[] = []
       for (let i = startIndex; i < lines.length; i++) {
         const parts = lines[i].split(delimiter)
         if (parts.length < 2) continue
+        paraInserir.push({
+          codigo: parts[0].trim(),
+          nome: parts[1].trim(),
+          descricao: parts[2]?.trim() || null,
+          categoria: parts[3]?.trim() || null,
+          unidadePadrao: parts[4]?.trim() || "kg",
+          tipo: parts[5]?.trim() || null,
+          concentracao: parts[6]?.trim() || null,
+          idIntegracao: parts[7]?.trim() || null,
+          ativo: true,
+          criadoPor: userIdResult,
+        })
+      }
+      if (paraInserir.length > 0) {
         try {
-          await db.insert(produtosQuimicos).values({
-            codigo: parts[0].trim(),
-            nome: parts[1].trim(),
-            descricao: parts[2]?.trim() || null,
-            categoria: parts[3]?.trim() || null,
-            unidadePadrao: parts[4]?.trim() || "kg",
-            tipo: parts[5]?.trim() || null,
-            concentracao: parts[6]?.trim() || null,
-            idIntegracao: parts[7]?.trim() || null,
-            ativo: true,
-            criadoPor: userIdResult,
-          })
-          imported++
+          await db.insert(produtosQuimicos).values(paraInserir)
+          imported = paraInserir.length
         } catch (e: any) {
-          errors.push(`Erro ao importar ${parts[0]}: ${e.message}`)
+          errors.push(`Erro na inserção em lote: ${e.message}`)
         }
       }
     }

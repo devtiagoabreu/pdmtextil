@@ -50,13 +50,13 @@ export async function POST(req: NextRequest) {
 
     const baseId = novaBase[0].id
 
-    if (body.fiosLista && Array.isArray(body.fiosLista)) {
-      for (const fio of body.fiosLista) {
-        await db.insert(baseUrdumeFios).values({
+    if (body.fiosLista && Array.isArray(body.fiosLista) && body.fiosLista.length > 0) {
+      await db.insert(baseUrdumeFios).values(
+        body.fiosLista.map((fio: { fioId: number }) => ({
           baseUrdumeId: baseId,
           fioId: fio.fioId,
-        })
-      }
+        }))
+      )
     }
 
     return NextResponse.json(novaBase[0])
