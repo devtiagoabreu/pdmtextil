@@ -49,7 +49,7 @@ export async function POST(
         token,
         enviadoEm: new Date(),
         status: "ENVIADO",
-        criadoPor: auth.user?.id ? Number(auth.user.id) : undefined,
+        criadoPor: auth.userId,
       })
       .returning()
 
