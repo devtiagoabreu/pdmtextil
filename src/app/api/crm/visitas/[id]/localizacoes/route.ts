@@ -60,7 +60,7 @@ export async function POST(
         observacao,
         fotoUrl,
         tipo: tipo || "LOCAL",
-        criadoPor: auth.user?.id ? Number(auth.user.id) : undefined,
+        criadoPor: auth.userId,
       })
       .returning()
 
