@@ -1,4 +1,4 @@
-import { pgTable, serial, integer, varchar, text, timestamp, date, jsonb } from "drizzle-orm/pg-core"
+import { pgTable, serial, integer, varchar, text, timestamp, date, jsonb, doublePrecision } from "drizzle-orm/pg-core"
 import { crmPessoas } from "./crm-pessoas"
 import { crmOportunidades } from "./crm-oportunidades"
 import { crmContatos } from "./crm-contatos"
@@ -22,6 +22,12 @@ export const crmVisitas = pgTable("crm_visitas", {
   motivoCancelamento: text("motivo_cancelamento"),
   relato: text("relato"),
   fotos: jsonb("fotos").$type<string[]>().default([]),
+  checkInTime: timestamp("check_in_time"),
+  checkOutTime: timestamp("check_out_time"),
+  checkInLat: doublePrecision("check_in_lat"),
+  checkInLng: doublePrecision("check_in_lng"),
+  checkOutLat: doublePrecision("check_out_lat"),
+  checkOutLng: doublePrecision("check_out_lng"),
   criadoPor: integer("criado_por").references(() => usuarios.id),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),

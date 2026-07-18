@@ -6,11 +6,12 @@ import { getInfoContent } from "@/lib/info-content"
 import Link from "next/link"
 import { useState } from "react"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
-import { PlusCircle, CalendarDays, Table, Columns, Search } from "lucide-react"
+import { PlusCircle, CalendarDays, Table, Columns, Search, MapPin } from "lucide-react"
 import { useStatuses } from "@/hooks/use-statuses"
 import VisitasCalendario from "@/components/crm/visitas-calendario"
 import VisitasKanban from "@/components/crm/visitas-kanban"
 import { FloatableKanban } from "@/components/crm/floatable-kanban"
+import VisitLocationModal from "@/components/crm/visit-location-modal"
 
 async function fetchVisitas() {
   const res = await fetch("/api/crm/visitas")
@@ -40,6 +41,7 @@ export default function VisitasPage() {
   const { getLabel, getColor } = useStatuses("VISITA")
   const [search, setSearch] = useState("")
   const [modo, setModo] = useState<ModoVisao>(searchParams.get("view") === "kanban" ? "kanban" : "tabela")
+  const [selectedVisita, setSelectedVisita] = useState<{ id: number; nome: string } | null>(null)
 
   const { data: visitas, isLoading } = useQuery({
     queryKey: ["crm-visitas"],
@@ -157,6 +159,7 @@ export default function VisitasPage() {
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Tipo</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Status</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Criado por</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Ações</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -185,6 +188,18 @@ export default function VisitasPage() {
                       </span>
                     </td>
                     <td className="px-4 py-3 text-sm text-slate-500">{v.criadoPorNome || "—"}</td>
+                    <td className="px-4 py-3">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setSelectedVisita({ id: v.id, nome: v.empresaNome || "Visita" })
+                        }}
+                        className="p-1.5 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-950/50 transition-colors"
+                        title="Gerenciar localizações"
+                      >
+                        <MapPin size={16} className="text-blue-500" />
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -192,6 +207,15 @@ export default function VisitasPage() {
           </div>
         )}
       </div>
+
+      {selectedVisita && (
+        <VisitLocationModal
+          visitaId={selectedVisita.id}
+          empresaNome={selectedVisita.nome}
+          open={!!selectedVisita}
+          onClose={() => setSelectedVisita(null)}
+        />
+      )}
     </div>
   )
 }

@@ -26,6 +26,7 @@ export async function GET() {
       byTipo,
       byStatus,
       porRepresentante,
+      ultimasVisitas,
     ] = await Promise.all([
       db.select({ total: count() }).from(crmVisitas),
       db.select({ total: count() }).from(crmVisitas).where(eq(crmVisitas.status, "REALIZADA")),
@@ -52,6 +53,17 @@ export async function GET() {
         .groupBy(crmVisitas.criadoPor, usuarios.name)
         .orderBy(desc(count()))
         .limit(10),
+      db
+        .select({
+          id: crmVisitas.id,
+          empresaId: crmVisitas.empresaId,
+          dataVisita: crmVisitas.dataVisita,
+          tipo: crmVisitas.tipo,
+          status: crmVisitas.status,
+        })
+        .from(crmVisitas)
+        .orderBy(desc(crmVisitas.createdAt))
+        .limit(5),
     ])
 
     const getCount = (rows: { total: number }[]) => Number(rows[0]?.total ?? 0)
@@ -69,6 +81,13 @@ export async function GET() {
         representanteId: r.representanteId,
         representanteNome: r.representanteNome || "Sem nome",
         total: Number(r.total),
+      })),
+      ultimasVisitas: ultimasVisitas.map((r) => ({
+        id: r.id,
+        empresaId: r.empresaId,
+        dataVisita: r.dataVisita,
+        tipo: r.tipo,
+        status: r.status,
       })),
     })
   } catch (error) {
