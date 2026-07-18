@@ -27,6 +27,7 @@ export const searchRegistry: SearchItem[] = [
   { id: "requisicoes-corte-nova", label: "Nova Requisição de Corte", keywords: ["requisicao", "corte", "nova", "criar", "cadastro"], href: "/comercial/requisicoes-corte/nova", description: "Criar nova requisição de corte", module: "Comercial" },
   { id: "requisicoes-corte-detalhe", label: "Requisição de Corte (Detalhe)", keywords: ["requisicao", "corte", "detalhe", "editar"], href: "/comercial/requisicoes-corte/[id]", description: "Ficha da requisição de corte", module: "Comercial" },
   { id: "requisicoes-corte-por-romaneio", label: "Requisição de Corte por Romaneio", keywords: ["requisicao", "corte", "romaneio", "expedicao", "criar"], href: "/comercial/requisicoes-corte/por-romaneio", description: "Criar requisição de corte a partir de romaneios", module: "Comercial" },
+  { id: "requisicoes-corte-kanban", label: "Kanban — Requisições de Corte", keywords: ["requisicao", "corte", "kanban", "quadro", "status", "arrastar"], href: "/comercial/requisicoes-corte?view=kanban", description: "Kanban de requisições de corte com drag-and-drop", module: "Comercial" },
 
   // Comercial - Requisições de Amostra Comercial
   { id: "requisicoes-amostra-comercial", label: "Requisições de Amostra Comercial", keywords: ["amostra", "comercial", "requisição", "lista", "amostras"], href: "/comercial/requisicoes-amostra-comercial", description: "Lista de requisições de amostra comercial", module: "Comercial" },
@@ -127,10 +128,12 @@ export const searchRegistry: SearchItem[] = [
   { id: "crm-pessoas", label: "CRM — Pessoas", keywords: ["crm", "pessoa", "pessoas", "lista", "prospecto", "comercial"], href: "/comercial/crm/pessoas", description: "Lista de pessoas do CRM", module: "CRM" },
   { id: "crm-pessoas-nova", label: "CRM — Nova Pessoa", keywords: ["crm", "pessoa", "nova", "criar", "cadastro", "prospecto"], href: "/comercial/crm/pessoas/novo", description: "Cadastrar nova pessoa no CRM", module: "CRM" },
   { id: "crm-pessoas-detalhe", label: "CRM — Pessoa (Detalhe)", keywords: ["crm", "pessoa", "detalhe", "ficha", "contatos"], href: "/comercial/crm/pessoas/[id]", description: "Ficha completa da pessoa com contatos", module: "CRM" },
+  { id: "crm-pessoas-kanban", label: "Kanban — Pessoas CRM", keywords: ["crm", "pessoa", "pessoas", "kanban", "quadro", "status", "arrastar"], href: "/comercial/crm/pessoas?view=kanban", description: "Kanban de pessoas do CRM com drag-and-drop", module: "CRM" },
   { id: "crm-contatos", label: "CRM — Contatos", keywords: ["crm", "contato", "contatos", "lista", "comercial"], href: "/comercial/crm/contatos", description: "Lista de contatos do CRM", module: "CRM" },
   { id: "crm-contatos-novo", label: "CRM — Novo Contato", keywords: ["crm", "contato", "novo", "criar", "cadastro"], href: "/comercial/crm/contatos/novo", description: "Cadastrar novo contato no CRM", module: "CRM" },
   { id: "crm-leads", label: "CRM — Leads", keywords: ["crm", "lead", "leads", "lista", "prospeccao", "comercial"], href: "/comercial/crm/leads", description: "Lista de leads do CRM", module: "CRM" },
   { id: "crm-leads-novo", label: "CRM — Novo Lead", keywords: ["crm", "lead", "novo", "criar", "cadastro", "prospeccao"], href: "/comercial/crm/leads/novo", description: "Cadastrar novo lead no CRM", module: "CRM" },
+  { id: "crm-leads-kanban", label: "Kanban — Leads CRM", keywords: ["crm", "lead", "leads", "kanban", "quadro", "status", "arrastar", "prospeccao"], href: "/comercial/crm/leads?view=kanban", description: "Kanban de leads do CRM com drag-and-drop", module: "CRM" },
 
   // CRM — Oportunidades
   { id: "crm-oportunidades", label: "CRM — Oportunidades", keywords: ["crm", "oportunidade", "oportunidades", "lista", "pipeline", "funil", "venda", "comercial"], href: "/comercial/crm/oportunidades", description: "Lista de oportunidades de venda do CRM", module: "CRM" },
@@ -142,14 +145,17 @@ export const searchRegistry: SearchItem[] = [
   { id: "crm-visitas", label: "CRM — Visitas", keywords: ["crm", "visita", "visitas", "agenda", "ata", "comercial"], href: "/comercial/crm/visitas", description: "Agenda de visitas comerciais", module: "CRM" },
   { id: "crm-visitas-nova", label: "CRM — Nova Visita", keywords: ["crm", "visita", "nova", "agendar", "ata"], href: "/comercial/crm/visitas/novo", description: "Agendar nova visita comercial", module: "CRM" },
   { id: "crm-visitas-detalhe", label: "CRM — Visita (Detalhe)", keywords: ["crm", "visita", "detalhe", "ata", "fotos"], href: "/comercial/crm/visitas/[id]", description: "Detalhe da visita com ata e fotos", module: "CRM" },
+  { id: "crm-visitas-kanban", label: "Kanban — Visitas CRM", keywords: ["crm", "visita", "visitas", "kanban", "quadro", "status", "arrastar", "agenda"], href: "/comercial/crm/visitas?view=kanban", description: "Kanban de visitas comerciais com drag-and-drop", module: "CRM" },
 
   // CRM — Tarefas
   { id: "crm-tarefas", label: "CRM — Minhas Tarefas", keywords: ["crm", "tarefa", "tarefas", "agenda", "produtividade", "comercial"], href: "/comercial/crm/tarefas", description: "Minhas tarefas e agenda CRM", module: "CRM" },
+  { id: "crm-tarefas-kanban", label: "Kanban — Tarefas CRM", keywords: ["crm", "tarefa", "tarefas", "kanban", "quadro", "status", "arrastar", "agenda"], href: "/comercial/crm/tarefas?view=kanban", description: "Kanban de tarefas CRM com drag-and-drop", module: "CRM" },
 
   // CRM — Propostas
   { id: "crm-propostas", label: "CRM — Propostas", keywords: ["crm", "proposta", "propostas", "lista", "comercial", "pdf", "venda"], href: "/comercial/crm/propostas", description: "Lista de propostas comerciais", module: "CRM" },
   { id: "crm-propostas-nova", label: "CRM — Nova Proposta", keywords: ["crm", "proposta", "nova", "criar", "comercial", "pdf"], href: "/comercial/crm/propostas/novo", description: "Criar nova proposta comercial", module: "CRM" },
   { id: "crm-propostas-detalhe", label: "CRM — Proposta (Detalhe)", keywords: ["crm", "proposta", "detalhe", "ficha", "pdf"], href: "/comercial/crm/propostas/[id]", description: "Detalhe da proposta comercial com status e PDF", module: "CRM" },
+  { id: "crm-propostas-kanban", label: "Kanban — Propostas CRM", keywords: ["crm", "proposta", "propostas", "kanban", "quadro", "status", "arrastar", "venda"], href: "/comercial/crm/propostas?view=kanban", description: "Kanban de propostas comerciais com drag-and-drop", module: "CRM" },
 
   // CRM — Regiões
   { id: "crm-regioes", label: "CRM — Regiões", keywords: ["crm", "regiao", "regioes", "gerente", "hierarquia", "comercial"], href: "/comercial/crm/regioes", description: "Cadastro de regiões comerciais", module: "CRM" },
@@ -167,6 +173,7 @@ export const searchRegistry: SearchItem[] = [
   { id: "crm-campanhas", label: "CRM — Campanhas", keywords: ["crm", "campanha", "campanhas", "marketing", "whatsapp", "email", "comercial"], href: "/comercial/crm/campanhas", description: "Campanhas de marketing e comunicação", module: "CRM" },
   { id: "crm-campanhas-nova", label: "CRM — Nova Campanha", keywords: ["crm", "campanha", "nova", "criar", "marketing"], href: "/comercial/crm/campanhas/nova", description: "Criar nova campanha de marketing", module: "CRM" },
   { id: "crm-campanhas-detalhe", label: "CRM — Campanha (Detalhe)", keywords: ["crm", "campanha", "detalhe", "ficha", "marketing"], href: "/comercial/crm/campanhas/[id]", description: "Detalhe da campanha de marketing", module: "CRM" },
+  { id: "crm-campanhas-kanban", label: "Kanban — Campanhas CRM", keywords: ["crm", "campanha", "campanhas", "kanban", "quadro", "status", "arrastar", "marketing"], href: "/comercial/crm/campanhas?view=kanban", description: "Kanban de campanhas de marketing com drag-and-drop", module: "CRM" },
 
   // CRM — Representantes
   { id: "crm-representantes", label: "CRM — Representantes", keywords: ["crm", "representante", "representantes", "comercial", "gerente", "vendedor"], href: "/comercial/representantes", description: "Cadastro de representantes comerciais", module: "CRM" },
