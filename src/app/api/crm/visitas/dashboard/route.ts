@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { crmVisitas } from "@/lib/db/schema/crm-visitas"
+import { crmPesquisasSatisfacao } from "@/lib/db/schema/crm-pesquisas-satisfacao"
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq, desc, sql, and, gte, count } from "drizzle-orm"
 
@@ -27,6 +28,9 @@ export async function GET() {
       byStatus,
       porRepresentante,
       ultimasVisitas,
+      pesquisasEnviadas,
+      pesquisasAbertas,
+      pesquisasRespondidas,
     ] = await Promise.all([
       db.select({ total: count() }).from(crmVisitas),
       db.select({ total: count() }).from(crmVisitas).where(eq(crmVisitas.status, "REALIZADA")),
@@ -64,6 +68,9 @@ export async function GET() {
         .from(crmVisitas)
         .orderBy(desc(crmVisitas.createdAt))
         .limit(5),
+      db.select({ total: count() }).from(crmPesquisasSatisfacao),
+      db.select({ total: count() }).from(crmPesquisasSatisfacao).where(eq(crmPesquisasSatisfacao.status, "ABERTO")),
+      db.select({ total: count() }).from(crmPesquisasSatisfacao).where(eq(crmPesquisasSatisfacao.status, "RESPONDIDO")),
     ])
 
     const getCount = (rows: { total: number }[]) => Number(rows[0]?.total ?? 0)
@@ -89,6 +96,11 @@ export async function GET() {
         tipo: r.tipo,
         status: r.status,
       })),
+      pesquisas: {
+        enviadas: getCount(pesquisasEnviadas),
+        abertas: getCount(pesquisasAbertas),
+        respondidas: getCount(pesquisasRespondidas),
+      },
     })
   } catch (error) {
     console.error("[GET /api/crm/visitas/dashboard]", error)
