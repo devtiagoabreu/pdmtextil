@@ -364,9 +364,9 @@ export default function VisitasDashboardPage() {
 }
 
 function SummaryCard({
-  href, icon, value, label, bgColor, iconColor,
+  href, icon, value, label, sub, bgColor, iconColor,
 }: {
-  href: string; icon: React.ReactNode; value: number; label: string; bgColor: string; iconColor: string
+  href: string; icon: React.ReactNode; value: number; label: string; sub?: string; bgColor: string; iconColor: string
 }) {
   return (
     <Link
@@ -382,6 +382,7 @@ function SummaryCard({
           <p className="text-xs text-slate-500 dark:text-slate-400">{label}</p>
         </div>
       </div>
+      {sub && <p className="text-[10px] text-slate-400 mt-1.5">{sub}</p>}
     </Link>
   )
 }
