@@ -1,6 +1,7 @@
 import nodemailer from "nodemailer"
 import { db } from "./db"
 import { emailConfig } from "./db/schema/email-config"
+import { crmEmailConfig } from "./db/schema/crm-email-config"
 import { eq } from "drizzle-orm"
 import { decrypt } from "./crypto"
 
@@ -76,6 +77,27 @@ export async function sendEmailAsUser(params: {
     pass: userConfig.senhaApp,
     fromName: userConfig.email.split("@")[0],
   }, emailParams)
+}
+
+export async function sendCrmEmail(params: {
+  to: string | string[]
+  subject: string
+  html: string
+  bcc?: string | string[]
+}) {
+  const configs = await db.select().from(crmEmailConfig).where(eq(crmEmailConfig.ativo, true)).limit(1)
+  if (configs.length === 0) {
+    return await sendEmail(params)
+  }
+
+  const cfg = configs[0]
+  return enviarComTransporte({
+    host: cfg.host,
+    port: cfg.port,
+    user: cfg.user,
+    pass: decrypt(cfg.pass),
+    fromName: cfg.fromName || "PDM PRO TEXTIL - CRM",
+  }, params)
 }
 
 interface TransportConfig {

@@ -4,6 +4,7 @@ import { PageInfoButton } from "@/components/ui/page-info-button"
 
 const modulos = [
   { href: "/admin/configuracoes/smtp", label: "SMTP", desc: "Configuração do servidor de email e teste de envio", icon: Mail, color: "text-blue-600 bg-blue-50 dark:bg-blue-950/50" },
+  { href: "/comercial/crm/configuracoes/email", label: "Email CRM", desc: "Configuração de email para pesquisas e notificações do CRM", icon: Mail, color: "text-cyan-600 bg-cyan-50 dark:bg-cyan-950/50" },
   { href: "/admin/configuracoes/banco-dados", label: "Banco de Dados", desc: "Gerenciar conexões com banco de dados", icon: Database, color: "text-emerald-600 bg-emerald-50 dark:bg-emerald-950/50" },
   { href: "/admin/roles", label: "Perfis (Roles)", desc: "Gerenciar perfis de acesso do sistema", icon: Shield, color: "text-purple-600 bg-purple-50 dark:bg-purple-950/50" },
   { href: "/admin/notificacoes", label: "Notificações", desc: "Configurar quem recebe cada tipo de notificação", icon: Bell, color: "text-amber-600 bg-amber-50 dark:bg-amber-950/50" },

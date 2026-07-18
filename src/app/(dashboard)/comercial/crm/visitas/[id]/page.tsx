@@ -208,7 +208,7 @@ export default function DetalheVisitaPage() {
         <div className="flex-1">
           <div className="flex items-center gap-3">
             <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">
-              Visita — {visita.empresaNome || `#${visita.id}`}{info && <InfoButton content={info} />}
+              Visita — {visita.empresaNome || visita.clienteNome || `#${visita.id}`}{info && <InfoButton content={info} />}
             </h1>
             <span
               className="inline-flex text-[10px] px-2 py-0.5 rounded-full font-medium"
@@ -234,7 +234,7 @@ export default function DetalheVisitaPage() {
           ) : (
             <>
               <VisitReportButton visita={visita} />
-              <SendSurveyButton visitaId={visita.id} empresaNome={visita.empresaNome || undefined} />
+              <SendSurveyButton visitaId={visita.id} empresaNome={visita.empresaNome || visita.clienteNome || undefined} />
               <button onClick={startEditing} className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:underline">
                 <Pencil size={14} /> Editar
               </button>
@@ -376,10 +376,14 @@ export default function DetalheVisitaPage() {
                   <p className="text-slate-900 dark:text-slate-200">{visita.dataVisita ? new Date(visita.dataVisita + "T12:00:00").toLocaleDateString("pt-BR") : "—"}</p>
                 </div>
                 <div>
-                  <span className="text-xs text-slate-500 block mb-0.5">Pessoa (Negócio)</span>
-                  <Link href={`/comercial/crm/pessoas/${visita.empresaId}`} className="text-blue-600 hover:underline inline-flex items-center gap-1">
-                    {visita.empresaNome} <ExternalLink size={12} />
-                  </Link>
+                  <span className="text-xs text-slate-500 block mb-0.5">{visita.empresaId ? "Pessoa (Negócio)" : "Cliente"}</span>
+                  {visita.empresaId ? (
+                    <Link href={`/comercial/crm/pessoas/${visita.empresaId}`} className="text-blue-600 hover:underline inline-flex items-center gap-1">
+                      {visita.empresaNome} <ExternalLink size={12} />
+                    </Link>
+                  ) : (
+                    <p className="text-slate-900 dark:text-slate-200">{visita.clienteNome || "—"}</p>
+                  )}
                 </div>
                 {visita.oportunidadeTitulo && (
                   <div>

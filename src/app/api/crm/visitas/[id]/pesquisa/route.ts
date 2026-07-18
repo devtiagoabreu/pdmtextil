@@ -4,19 +4,22 @@ import { db } from "@/lib/db"
 import { crmPesquisasSatisfacao } from "@/lib/db/schema/crm-pesquisas-satisfacao"
 import { crmVisitas } from "@/lib/db/schema/crm-visitas"
 import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
+import { clientes } from "@/lib/db/schema/clientes"
+import { crmContatos } from "@/lib/db/schema/crm-contatos"
 import { eq } from "drizzle-orm"
-import { sendEmail } from "@/lib/email"
+import { sendCrmEmail } from "@/lib/email"
 import crypto from "crypto"
 
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
 
-    const visitaId = Number(params.id)
+    const { id } = await params
+    const visitaId = Number(id)
     if (isNaN(visitaId)) {
       return NextResponse.json({ error: "ID invalido" }, { status: 400 })
     }
@@ -82,7 +85,7 @@ export async function POST(
       </div>
     `
 
-    const result = await sendEmail({
+    const result = await sendCrmEmail({
       to: email,
       subject: "Pesquisa de Satisfacao - PDM PRO TEXTIL",
       html,

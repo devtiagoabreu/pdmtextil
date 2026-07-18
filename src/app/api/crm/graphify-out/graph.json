@@ -1,0 +1,2392 @@
+{
+  "directed": false,
+  "multigraph": false,
+  "graph": {},
+  "nodes": [
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "campanhas/route.ts",
+      "source_location": "L1",
+      "id": "campanhas_route_ts",
+      "community": 0,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "GET()",
+      "file_type": "code",
+      "source_file": "campanhas/route.ts",
+      "source_location": "L9",
+      "id": "campanhas_route_get",
+      "community": 0,
+      "norm_label": "get()"
+    },
+    {
+      "label": "POST()",
+      "file_type": "code",
+      "source_file": "campanhas/route.ts",
+      "source_location": "L52",
+      "id": "campanhas_route_post",
+      "community": 0,
+      "norm_label": "post()"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "campanhas/[id]/route.ts",
+      "source_location": "L1",
+      "id": "campanhas_id_route_ts",
+      "community": 11,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "GET()",
+      "file_type": "code",
+      "source_file": "visitas/[id]/route.ts",
+      "source_location": "L14",
+      "id": "id_route_get",
+      "community": 11,
+      "norm_label": "get()"
+    },
+    {
+      "label": "PUT()",
+      "file_type": "code",
+      "source_file": "visitas/[id]/route.ts",
+      "source_location": "L75",
+      "id": "id_route_put",
+      "community": 11,
+      "norm_label": "put()"
+    },
+    {
+      "label": "DELETE()",
+      "file_type": "code",
+      "source_file": "visitas/[id]/route.ts",
+      "source_location": "L147",
+      "id": "id_route_delete",
+      "community": 11,
+      "norm_label": "delete()"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "cidades/route.ts",
+      "source_location": "L1",
+      "id": "cidades_route_ts",
+      "community": 1,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "GET()",
+      "file_type": "code",
+      "source_file": "cidades/route.ts",
+      "source_location": "L8",
+      "id": "cidades_route_get",
+      "community": 1,
+      "norm_label": "get()"
+    },
+    {
+      "label": "POST()",
+      "file_type": "code",
+      "source_file": "cidades/route.ts",
+      "source_location": "L59",
+      "id": "cidades_route_post",
+      "community": 1,
+      "norm_label": "post()"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "consulta-cnpj/route.ts",
+      "source_location": "L1",
+      "id": "consulta_cnpj_route_ts",
+      "community": 2,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "GET()",
+      "file_type": "code",
+      "source_file": "consulta-cnpj/route.ts",
+      "source_location": "L11",
+      "id": "consulta_cnpj_route_get",
+      "community": 2,
+      "norm_label": "get()"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "contatos/route.ts",
+      "source_location": "L1",
+      "id": "contatos_route_ts",
+      "community": 3,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "GET()",
+      "file_type": "code",
+      "source_file": "contatos/route.ts",
+      "source_location": "L9",
+      "id": "contatos_route_get",
+      "community": 3,
+      "norm_label": "get()"
+    },
+    {
+      "label": "POST()",
+      "file_type": "code",
+      "source_file": "contatos/route.ts",
+      "source_location": "L59",
+      "id": "contatos_route_post",
+      "community": 3,
+      "norm_label": "post()"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "contatos/[id]/route.ts",
+      "source_location": "L1",
+      "id": "contatos_id_route_ts",
+      "community": 11,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "dashboard/route.ts",
+      "source_location": "L1",
+      "id": "dashboard_route_ts",
+      "community": 4,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "GET()",
+      "file_type": "code",
+      "source_file": "dashboard/route.ts",
+      "source_location": "L17",
+      "id": "dashboard_route_get",
+      "community": 4,
+      "norm_label": "get()"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "equipes/route.ts",
+      "source_location": "L1",
+      "id": "equipes_route_ts",
+      "community": 5,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "GET()",
+      "file_type": "code",
+      "source_file": "equipes/route.ts",
+      "source_location": "L11",
+      "id": "equipes_route_get",
+      "community": 5,
+      "norm_label": "get()"
+    },
+    {
+      "label": "POST()",
+      "file_type": "code",
+      "source_file": "equipes/route.ts",
+      "source_location": "L48",
+      "id": "equipes_route_post",
+      "community": 5,
+      "norm_label": "post()"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "equipes/[id]/route.ts",
+      "source_location": "L1",
+      "id": "equipes_id_route_ts",
+      "community": 11,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "equipes/[id]/membros/route.ts",
+      "source_location": "L1",
+      "id": "equipes_id_membros_route_ts",
+      "community": 6,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "GET()",
+      "file_type": "code",
+      "source_file": "equipes/[id]/membros/route.ts",
+      "source_location": "L8",
+      "id": "membros_route_get",
+      "community": 6,
+      "norm_label": "get()"
+    },
+    {
+      "label": "POST()",
+      "file_type": "code",
+      "source_file": "equipes/[id]/membros/route.ts",
+      "source_location": "L43",
+      "id": "membros_route_post",
+      "community": 6,
+      "norm_label": "post()"
+    },
+    {
+      "label": "DELETE()",
+      "file_type": "code",
+      "source_file": "equipes/[id]/membros/route.ts",
+      "source_location": "L84",
+      "id": "membros_route_delete",
+      "community": 6,
+      "norm_label": "delete()"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "estados/route.ts",
+      "source_location": "L1",
+      "id": "estados_route_ts",
+      "community": 7,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "GET()",
+      "file_type": "code",
+      "source_file": "estados/route.ts",
+      "source_location": "L9",
+      "id": "estados_route_get",
+      "community": 7,
+      "norm_label": "get()"
+    },
+    {
+      "label": "POST()",
+      "file_type": "code",
+      "source_file": "estados/route.ts",
+      "source_location": "L62",
+      "id": "estados_route_post",
+      "community": 7,
+      "norm_label": "post()"
+    },
+    {
+      "label": "DELETE()",
+      "file_type": "code",
+      "source_file": "estados/route.ts",
+      "source_location": "L96",
+      "id": "estados_route_delete",
+      "community": 7,
+      "norm_label": "delete()"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "estados/[id]/route.ts",
+      "source_location": "L1",
+      "id": "estados_id_route_ts",
+      "community": 11,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "ia/classificar-lead/route.ts",
+      "source_location": "L1",
+      "id": "ia_classificar_lead_route_ts",
+      "community": 8,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "POST()",
+      "file_type": "code",
+      "source_file": "ia/classificar-lead/route.ts",
+      "source_location": "L7",
+      "id": "classificar_lead_route_post",
+      "community": 8,
+      "norm_label": "post()"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "ia/previsao/route.ts",
+      "source_location": "L1",
+      "id": "ia_previsao_route_ts",
+      "community": 9,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "GET()",
+      "file_type": "code",
+      "source_file": "ia/previsao/route.ts",
+      "source_location": "L7",
+      "id": "previsao_route_get",
+      "community": 9,
+      "norm_label": "get()"
+    },
+    {
+      "label": "POST()",
+      "file_type": "code",
+      "source_file": "ia/previsao/route.ts",
+      "source_location": "L22",
+      "id": "previsao_route_post",
+      "community": 9,
+      "norm_label": "post()"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "ia/reativar/route.ts",
+      "source_location": "L1",
+      "id": "ia_reativar_route_ts",
+      "community": 10,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "POST()",
+      "file_type": "code",
+      "source_file": "ia/reativar/route.ts",
+      "source_location": "L10",
+      "id": "reativar_route_post",
+      "community": 10,
+      "norm_label": "post()"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "ia/resumo-pessoa/[id]/route.ts",
+      "source_location": "L1",
+      "id": "ia_resumo_pessoa_id_route_ts",
+      "community": 11,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "POST()",
+      "file_type": "code",
+      "source_file": "ia/resumo-pessoa/[id]/route.ts",
+      "source_location": "L30",
+      "id": "id_route_post",
+      "community": 11,
+      "norm_label": "post()"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "leads/route.ts",
+      "source_location": "L1",
+      "id": "leads_route_ts",
+      "community": 12,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "GET()",
+      "file_type": "code",
+      "source_file": "leads/route.ts",
+      "source_location": "L11",
+      "id": "leads_route_get",
+      "community": 12,
+      "norm_label": "get()"
+    },
+    {
+      "label": "POST()",
+      "file_type": "code",
+      "source_file": "leads/route.ts",
+      "source_location": "L73",
+      "id": "leads_route_post",
+      "community": 12,
+      "norm_label": "post()"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "leads/[id]/route.ts",
+      "source_location": "L1",
+      "id": "leads_id_route_ts",
+      "community": 11,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "leads/[id]/whatsapp/route.ts",
+      "source_location": "L1",
+      "id": "leads_id_whatsapp_route_ts",
+      "community": 13,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "extractRemoteJid()",
+      "file_type": "code",
+      "source_file": "leads/[id]/whatsapp/route.ts",
+      "source_location": "L11",
+      "id": "whatsapp_route_extractremotejid",
+      "community": 13,
+      "norm_label": "extractremotejid()"
+    },
+    {
+      "label": "GET()",
+      "file_type": "code",
+      "source_file": "whatsapp/route.ts",
+      "source_location": "L10",
+      "id": "whatsapp_route_get",
+      "community": 13,
+      "norm_label": "get()"
+    },
+    {
+      "label": "POST()",
+      "file_type": "code",
+      "source_file": "whatsapp/route.ts",
+      "source_location": "L38",
+      "id": "whatsapp_route_post",
+      "community": 13,
+      "norm_label": "post()"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "notificacoes/route.ts",
+      "source_location": "L1",
+      "id": "notificacoes_route_ts",
+      "community": 14,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "GET()",
+      "file_type": "code",
+      "source_file": "notificacoes/route.ts",
+      "source_location": "L7",
+      "id": "notificacoes_route_get",
+      "community": 14,
+      "norm_label": "get()"
+    },
+    {
+      "label": "POST()",
+      "file_type": "code",
+      "source_file": "notificacoes/route.ts",
+      "source_location": "L40",
+      "id": "notificacoes_route_post",
+      "community": 14,
+      "norm_label": "post()"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "notificacoes/[id]/ler/route.ts",
+      "source_location": "L1",
+      "id": "notificacoes_id_ler_route_ts",
+      "community": 15,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "PATCH()",
+      "file_type": "code",
+      "source_file": "notificacoes/[id]/ler/route.ts",
+      "source_location": "L7",
+      "id": "ler_route_patch",
+      "community": 15,
+      "norm_label": "patch()"
+    },
+    {
+      "label": "POST()",
+      "file_type": "code",
+      "source_file": "notificacoes/[id]/ler/route.ts",
+      "source_location": "L29",
+      "id": "ler_route_post",
+      "community": 15,
+      "norm_label": "post()"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "oportunidades/route.ts",
+      "source_location": "L1",
+      "id": "oportunidades_route_ts",
+      "community": 16,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "GET()",
+      "file_type": "code",
+      "source_file": "oportunidades/route.ts",
+      "source_location": "L13",
+      "id": "oportunidades_route_get",
+      "community": 16,
+      "norm_label": "get()"
+    },
+    {
+      "label": "POST()",
+      "file_type": "code",
+      "source_file": "oportunidades/route.ts",
+      "source_location": "L67",
+      "id": "oportunidades_route_post",
+      "community": 16,
+      "norm_label": "post()"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "oportunidades/[id]/route.ts",
+      "source_location": "L1",
+      "id": "oportunidades_id_route_ts",
+      "community": 11,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "oportunidades/[id]/status/route.ts",
+      "source_location": "L1",
+      "id": "oportunidades_id_status_route_ts",
+      "community": 17,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "sincronizarEmpresaCliente()",
+      "file_type": "code",
+      "source_file": "oportunidades/[id]/status/route.ts",
+      "source_location": "L11",
+      "id": "status_route_sincronizarempresacliente",
+      "community": 17,
+      "norm_label": "sincronizarempresacliente()"
+    },
+    {
+      "label": "PATCH()",
+      "file_type": "code",
+      "source_file": "oportunidades/[id]/status/route.ts",
+      "source_location": "L50",
+      "id": "status_route_patch",
+      "community": 17,
+      "norm_label": "patch()"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "paises/route.ts",
+      "source_location": "L1",
+      "id": "paises_route_ts",
+      "community": 18,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "GET()",
+      "file_type": "code",
+      "source_file": "paises/route.ts",
+      "source_location": "L7",
+      "id": "paises_route_get",
+      "community": 18,
+      "norm_label": "get()"
+    },
+    {
+      "label": "POST()",
+      "file_type": "code",
+      "source_file": "paises/route.ts",
+      "source_location": "L24",
+      "id": "paises_route_post",
+      "community": 18,
+      "norm_label": "post()"
+    },
+    {
+      "label": "DELETE()",
+      "file_type": "code",
+      "source_file": "paises/route.ts",
+      "source_location": "L52",
+      "id": "paises_route_delete",
+      "community": 18,
+      "norm_label": "delete()"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "paises/[id]/route.ts",
+      "source_location": "L1",
+      "id": "paises_id_route_ts",
+      "community": 11,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "pessoas/route.ts",
+      "source_location": "L1",
+      "id": "pessoas_route_ts",
+      "community": 19,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "GET()",
+      "file_type": "code",
+      "source_file": "pessoas/route.ts",
+      "source_location": "L9",
+      "id": "pessoas_route_get",
+      "community": 19,
+      "norm_label": "get()"
+    },
+    {
+      "label": "POST()",
+      "file_type": "code",
+      "source_file": "pessoas/route.ts",
+      "source_location": "L64",
+      "id": "pessoas_route_post",
+      "community": 19,
+      "norm_label": "post()"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "pessoas/[id]/route.ts",
+      "source_location": "L1",
+      "id": "pessoas_id_route_ts",
+      "community": 11,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "pessoas/[id]/representantes/route.ts",
+      "source_location": "L1",
+      "id": "pessoas_id_representantes_route_ts",
+      "community": 20,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "GET()",
+      "file_type": "code",
+      "source_file": "pessoas/[id]/representantes/route.ts",
+      "source_location": "L8",
+      "id": "representantes_route_get",
+      "community": 20,
+      "norm_label": "get()"
+    },
+    {
+      "label": "POST()",
+      "file_type": "code",
+      "source_file": "pessoas/[id]/representantes/route.ts",
+      "source_location": "L44",
+      "id": "representantes_route_post",
+      "community": 20,
+      "norm_label": "post()"
+    },
+    {
+      "label": "DELETE()",
+      "file_type": "code",
+      "source_file": "pessoas/[id]/representantes/route.ts",
+      "source_location": "L85",
+      "id": "representantes_route_delete",
+      "community": 20,
+      "norm_label": "delete()"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "propostas/route.ts",
+      "source_location": "L1",
+      "id": "propostas_route_ts",
+      "community": 21,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "GET()",
+      "file_type": "code",
+      "source_file": "propostas/route.ts",
+      "source_location": "L12",
+      "id": "propostas_route_get",
+      "community": 21,
+      "norm_label": "get()"
+    },
+    {
+      "label": "POST()",
+      "file_type": "code",
+      "source_file": "propostas/route.ts",
+      "source_location": "L61",
+      "id": "propostas_route_post",
+      "community": 21,
+      "norm_label": "post()"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "propostas/[id]/route.ts",
+      "source_location": "L1",
+      "id": "propostas_id_route_ts",
+      "community": 11,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "regioes/route.ts",
+      "source_location": "L1",
+      "id": "regioes_route_ts",
+      "community": 22,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "GET()",
+      "file_type": "code",
+      "source_file": "regioes/route.ts",
+      "source_location": "L9",
+      "id": "regioes_route_get",
+      "community": 22,
+      "norm_label": "get()"
+    },
+    {
+      "label": "POST()",
+      "file_type": "code",
+      "source_file": "regioes/route.ts",
+      "source_location": "L35",
+      "id": "regioes_route_post",
+      "community": 22,
+      "norm_label": "post()"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "regioes/[id]/route.ts",
+      "source_location": "L1",
+      "id": "regioes_id_route_ts",
+      "community": 11,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "relatorios/route.ts",
+      "source_location": "L1",
+      "id": "relatorios_route_ts",
+      "community": 23,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "GET()",
+      "file_type": "code",
+      "source_file": "relatorios/route.ts",
+      "source_location": "L16",
+      "id": "relatorios_route_get",
+      "community": 23,
+      "norm_label": "get()"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "tarefas/route.ts",
+      "source_location": "L1",
+      "id": "tarefas_route_ts",
+      "community": 24,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "GET()",
+      "file_type": "code",
+      "source_file": "tarefas/route.ts",
+      "source_location": "L12",
+      "id": "tarefas_route_get",
+      "community": 24,
+      "norm_label": "get()"
+    },
+    {
+      "label": "POST()",
+      "file_type": "code",
+      "source_file": "tarefas/route.ts",
+      "source_location": "L62",
+      "id": "tarefas_route_post",
+      "community": 24,
+      "norm_label": "post()"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "tarefas/[id]/route.ts",
+      "source_location": "L1",
+      "id": "tarefas_id_route_ts",
+      "community": 11,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "timeline/route.ts",
+      "source_location": "L1",
+      "id": "timeline_route_ts",
+      "community": 25,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "GET()",
+      "file_type": "code",
+      "source_file": "timeline/route.ts",
+      "source_location": "L7",
+      "id": "timeline_route_get",
+      "community": 25,
+      "norm_label": "get()"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "treinamento/route.ts",
+      "source_location": "L1",
+      "id": "treinamento_route_ts",
+      "community": 26,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "GET()",
+      "file_type": "code",
+      "source_file": "treinamento/route.ts",
+      "source_location": "L9",
+      "id": "treinamento_route_get",
+      "community": 26,
+      "norm_label": "get()"
+    },
+    {
+      "label": "POST()",
+      "file_type": "code",
+      "source_file": "treinamento/route.ts",
+      "source_location": "L52",
+      "id": "treinamento_route_post",
+      "community": 26,
+      "norm_label": "post()"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "treinamento/exportar-pdf/route.ts",
+      "source_location": "L1",
+      "id": "treinamento_exportar_pdf_route_ts",
+      "community": 27,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "GET()",
+      "file_type": "code",
+      "source_file": "treinamento/exportar-pdf/route.ts",
+      "source_location": "L8",
+      "id": "exportar_pdf_route_get",
+      "community": 27,
+      "norm_label": "get()"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "treinamento/modulos/route.ts",
+      "source_location": "L1",
+      "id": "treinamento_modulos_route_ts",
+      "community": 28,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "GET()",
+      "file_type": "code",
+      "source_file": "treinamento/modulos/route.ts",
+      "source_location": "L8",
+      "id": "modulos_route_get",
+      "community": 28,
+      "norm_label": "get()"
+    },
+    {
+      "label": "POST()",
+      "file_type": "code",
+      "source_file": "treinamento/modulos/route.ts",
+      "source_location": "L25",
+      "id": "modulos_route_post",
+      "community": 28,
+      "norm_label": "post()"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "treinamento/modulos/[id]/route.ts",
+      "source_location": "L1",
+      "id": "treinamento_modulos_id_route_ts",
+      "community": 11,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "treinamento/[id]/route.ts",
+      "source_location": "L1",
+      "id": "treinamento_id_route_ts",
+      "community": 11,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "visitas/route.ts",
+      "source_location": "L1",
+      "id": "visitas_route_ts",
+      "community": 29,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "GET()",
+      "file_type": "code",
+      "source_file": "visitas/route.ts",
+      "source_location": "L12",
+      "id": "visitas_route_get",
+      "community": 29,
+      "norm_label": "get()"
+    },
+    {
+      "label": "POST()",
+      "file_type": "code",
+      "source_file": "visitas/route.ts",
+      "source_location": "L64",
+      "id": "visitas_route_post",
+      "community": 29,
+      "norm_label": "post()"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "visitas/[id]/route.ts",
+      "source_location": "L1",
+      "id": "visitas_id_route_ts",
+      "community": 11,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "whatsapp/route.ts",
+      "source_location": "L1",
+      "id": "whatsapp_route_ts",
+      "community": 13,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "route.js",
+      "file_type": "code",
+      "source_file": "whatsapp/conversa/route.js",
+      "source_location": "L1",
+      "id": "whatsapp_conversa_route_js",
+      "community": 30,
+      "norm_label": "route.js"
+    },
+    {
+      "label": "adopt()",
+      "file_type": "code",
+      "source_file": "whatsapp/conversa/route.js",
+      "source_location": "L18",
+      "id": "conversa_route_adopt",
+      "community": 30,
+      "norm_label": "adopt()"
+    },
+    {
+      "label": "fulfilled()",
+      "file_type": "code",
+      "source_file": "whatsapp/conversa/route.js",
+      "source_location": "L20",
+      "id": "conversa_route_fulfilled",
+      "community": 30,
+      "norm_label": "fulfilled()"
+    },
+    {
+      "label": "rejected()",
+      "file_type": "code",
+      "source_file": "whatsapp/conversa/route.js",
+      "source_location": "L21",
+      "id": "conversa_route_rejected",
+      "community": 30,
+      "norm_label": "rejected()"
+    },
+    {
+      "label": "step()",
+      "file_type": "code",
+      "source_file": "whatsapp/conversa/route.js",
+      "source_location": "L22",
+      "id": "conversa_route_step",
+      "community": 30,
+      "norm_label": "step()"
+    },
+    {
+      "label": "verb()",
+      "file_type": "code",
+      "source_file": "whatsapp/conversa/route.js",
+      "source_location": "L29",
+      "id": "conversa_route_verb",
+      "community": 30,
+      "norm_label": "verb()"
+    },
+    {
+      "label": "extrairNumero()",
+      "file_type": "code",
+      "source_file": "whatsapp/conversa/route.ts",
+      "source_location": "L17",
+      "id": "conversa_route_extrairnumero",
+      "community": 30,
+      "norm_label": "extrairnumero()"
+    },
+    {
+      "label": "GET()",
+      "file_type": "code",
+      "source_file": "whatsapp/conversa/route.ts",
+      "source_location": "L21",
+      "id": "conversa_route_get",
+      "community": 30,
+      "norm_label": "get()"
+    },
+    {
+      "label": "POST()",
+      "file_type": "code",
+      "source_file": "whatsapp/conversa/route.ts",
+      "source_location": "L83",
+      "id": "conversa_route_post",
+      "community": 30,
+      "norm_label": "post()"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "whatsapp/conversa/route.ts",
+      "source_location": "L1",
+      "id": "whatsapp_conversa_route_ts",
+      "community": 30,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "crmWhatsappConversas",
+      "file_type": "code",
+      "source_file": "whatsapp/conversa/route.ts",
+      "source_location": "L8",
+      "id": "conversa_route_crmwhatsappconversas",
+      "community": 30,
+      "norm_label": "crmwhatsappconversas"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "whatsapp/conversas/route.ts",
+      "source_location": "L1",
+      "id": "whatsapp_conversas_route_ts",
+      "community": 31,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "GET()",
+      "file_type": "code",
+      "source_file": "whatsapp/conversas/route.ts",
+      "source_location": "L10",
+      "id": "conversas_route_get",
+      "community": 31,
+      "norm_label": "get()"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "whatsapp/webhook/route.ts",
+      "source_location": "L1",
+      "id": "whatsapp_webhook_route_ts",
+      "community": 32,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "criarLeadWhatsApp()",
+      "file_type": "code",
+      "source_file": "whatsapp/webhook/route.ts",
+      "source_location": "L12",
+      "id": "webhook_route_criarleadwhatsapp",
+      "community": 32,
+      "norm_label": "criarleadwhatsapp()"
+    },
+    {
+      "label": "POST()",
+      "file_type": "code",
+      "source_file": "whatsapp/webhook/route.ts",
+      "source_location": "L44",
+      "id": "webhook_route_post",
+      "community": 32,
+      "norm_label": "post()"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "whatsapp/[id]/route.ts",
+      "source_location": "L1",
+      "id": "whatsapp_id_route_ts",
+      "community": 33,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "PATCH()",
+      "file_type": "code",
+      "source_file": "whatsapp/[id]/route.ts",
+      "source_location": "L7",
+      "id": "id_route_patch",
+      "community": 33,
+      "norm_label": "patch()"
+    }
+  ],
+  "links": [
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "campanhas/route.ts",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "campanhas_route_ts",
+      "target": "campanhas_route_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "campanhas/route.ts",
+      "source_location": "L52",
+      "weight": 1.0,
+      "source": "campanhas_route_ts",
+      "target": "campanhas_route_post",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "campanhas/[id]/route.ts",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "campanhas_id_route_ts",
+      "target": "id_route_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "campanhas/[id]/route.ts",
+      "source_location": "L28",
+      "weight": 1.0,
+      "source": "campanhas_id_route_ts",
+      "target": "id_route_put",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "campanhas/[id]/route.ts",
+      "source_location": "L61",
+      "weight": 1.0,
+      "source": "campanhas_id_route_ts",
+      "target": "id_route_delete",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "ia/resumo-pessoa/[id]/route.ts",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "ia_resumo_pessoa_id_route_ts",
+      "target": "id_route_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "leads/[id]/route.ts",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "leads_id_route_ts",
+      "target": "id_route_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "oportunidades/[id]/route.ts",
+      "source_location": "L12",
+      "weight": 1.0,
+      "source": "oportunidades_id_route_ts",
+      "target": "id_route_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "pessoas/[id]/route.ts",
+      "source_location": "L12",
+      "weight": 1.0,
+      "source": "pessoas_id_route_ts",
+      "target": "id_route_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "propostas/[id]/route.ts",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "propostas_id_route_ts",
+      "target": "id_route_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tarefas/[id]/route.ts",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "tarefas_id_route_ts",
+      "target": "id_route_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "treinamento/[id]/route.ts",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "treinamento_id_route_ts",
+      "target": "id_route_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "visitas/[id]/route.ts",
+      "source_location": "L14",
+      "weight": 1.0,
+      "source": "visitas_id_route_ts",
+      "target": "id_route_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "contatos/[id]/route.ts",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "contatos_id_route_ts",
+      "target": "id_route_put",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "equipes/[id]/route.ts",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "equipes_id_route_ts",
+      "target": "id_route_put",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "estados/[id]/route.ts",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "estados_id_route_ts",
+      "target": "id_route_put",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "leads/[id]/route.ts",
+      "source_location": "L36",
+      "weight": 1.0,
+      "source": "leads_id_route_ts",
+      "target": "id_route_put",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "oportunidades/[id]/route.ts",
+      "source_location": "L62",
+      "weight": 1.0,
+      "source": "oportunidades_id_route_ts",
+      "target": "id_route_put",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "paises/[id]/route.ts",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "paises_id_route_ts",
+      "target": "id_route_put",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "pessoas/[id]/route.ts",
+      "source_location": "L42",
+      "weight": 1.0,
+      "source": "pessoas_id_route_ts",
+      "target": "id_route_put",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "propostas/[id]/route.ts",
+      "source_location": "L35",
+      "weight": 1.0,
+      "source": "propostas_id_route_ts",
+      "target": "id_route_put",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "regioes/[id]/route.ts",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "regioes_id_route_ts",
+      "target": "id_route_put",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tarefas/[id]/route.ts",
+      "source_location": "L35",
+      "weight": 1.0,
+      "source": "tarefas_id_route_ts",
+      "target": "id_route_put",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "treinamento/modulos/[id]/route.ts",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "treinamento_modulos_id_route_ts",
+      "target": "id_route_put",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "treinamento/[id]/route.ts",
+      "source_location": "L50",
+      "weight": 1.0,
+      "source": "treinamento_id_route_ts",
+      "target": "id_route_put",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "visitas/[id]/route.ts",
+      "source_location": "L75",
+      "weight": 1.0,
+      "source": "visitas_id_route_ts",
+      "target": "id_route_put",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "contatos/[id]/route.ts",
+      "source_location": "L56",
+      "weight": 1.0,
+      "source": "contatos_id_route_ts",
+      "target": "id_route_delete",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "equipes/[id]/route.ts",
+      "source_location": "L60",
+      "weight": 1.0,
+      "source": "equipes_id_route_ts",
+      "target": "id_route_delete",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "estados/[id]/route.ts",
+      "source_location": "L48",
+      "weight": 1.0,
+      "source": "estados_id_route_ts",
+      "target": "id_route_delete",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "leads/[id]/route.ts",
+      "source_location": "L139",
+      "weight": 1.0,
+      "source": "leads_id_route_ts",
+      "target": "id_route_delete",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "oportunidades/[id]/route.ts",
+      "source_location": "L120",
+      "weight": 1.0,
+      "source": "oportunidades_id_route_ts",
+      "target": "id_route_delete",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "paises/[id]/route.ts",
+      "source_location": "L45",
+      "weight": 1.0,
+      "source": "paises_id_route_ts",
+      "target": "id_route_delete",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "pessoas/[id]/route.ts",
+      "source_location": "L163",
+      "weight": 1.0,
+      "source": "pessoas_id_route_ts",
+      "target": "id_route_delete",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "propostas/[id]/route.ts",
+      "source_location": "L106",
+      "weight": 1.0,
+      "source": "propostas_id_route_ts",
+      "target": "id_route_delete",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "regioes/[id]/route.ts",
+      "source_location": "L60",
+      "weight": 1.0,
+      "source": "regioes_id_route_ts",
+      "target": "id_route_delete",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tarefas/[id]/route.ts",
+      "source_location": "L104",
+      "weight": 1.0,
+      "source": "tarefas_id_route_ts",
+      "target": "id_route_delete",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "treinamento/modulos/[id]/route.ts",
+      "source_location": "L52",
+      "weight": 1.0,
+      "source": "treinamento_modulos_id_route_ts",
+      "target": "id_route_delete",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "treinamento/[id]/route.ts",
+      "source_location": "L97",
+      "weight": 1.0,
+      "source": "treinamento_id_route_ts",
+      "target": "id_route_delete",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "visitas/[id]/route.ts",
+      "source_location": "L147",
+      "weight": 1.0,
+      "source": "visitas_id_route_ts",
+      "target": "id_route_delete",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "cidades/route.ts",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "cidades_route_ts",
+      "target": "cidades_route_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "cidades/route.ts",
+      "source_location": "L59",
+      "weight": 1.0,
+      "source": "cidades_route_ts",
+      "target": "cidades_route_post",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "consulta-cnpj/route.ts",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "consulta_cnpj_route_ts",
+      "target": "consulta_cnpj_route_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "contatos/route.ts",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "contatos_route_ts",
+      "target": "contatos_route_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "contatos/route.ts",
+      "source_location": "L59",
+      "weight": 1.0,
+      "source": "contatos_route_ts",
+      "target": "contatos_route_post",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "dashboard/route.ts",
+      "source_location": "L17",
+      "weight": 1.0,
+      "source": "dashboard_route_ts",
+      "target": "dashboard_route_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "equipes/route.ts",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "equipes_route_ts",
+      "target": "equipes_route_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "equipes/route.ts",
+      "source_location": "L48",
+      "weight": 1.0,
+      "source": "equipes_route_ts",
+      "target": "equipes_route_post",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "equipes/[id]/membros/route.ts",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "equipes_id_membros_route_ts",
+      "target": "membros_route_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "equipes/[id]/membros/route.ts",
+      "source_location": "L43",
+      "weight": 1.0,
+      "source": "equipes_id_membros_route_ts",
+      "target": "membros_route_post",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "equipes/[id]/membros/route.ts",
+      "source_location": "L84",
+      "weight": 1.0,
+      "source": "equipes_id_membros_route_ts",
+      "target": "membros_route_delete",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "equipes/[id]/membros/route.ts",
+      "source_location": "L94",
+      "weight": 1.0,
+      "source": "membros_route_delete",
+      "target": "membros_route_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "estados/route.ts",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "estados_route_ts",
+      "target": "estados_route_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "estados/route.ts",
+      "source_location": "L62",
+      "weight": 1.0,
+      "source": "estados_route_ts",
+      "target": "estados_route_post",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "estados/route.ts",
+      "source_location": "L96",
+      "weight": 1.0,
+      "source": "estados_route_ts",
+      "target": "estados_route_delete",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "estados/route.ts",
+      "source_location": "L102",
+      "weight": 1.0,
+      "source": "estados_route_delete",
+      "target": "estados_route_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "ia/classificar-lead/route.ts",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "ia_classificar_lead_route_ts",
+      "target": "classificar_lead_route_post",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "ia/previsao/route.ts",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "ia_previsao_route_ts",
+      "target": "previsao_route_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "ia/previsao/route.ts",
+      "source_location": "L22",
+      "weight": 1.0,
+      "source": "ia_previsao_route_ts",
+      "target": "previsao_route_post",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "ia/reativar/route.ts",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "ia_reativar_route_ts",
+      "target": "reativar_route_post",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "ia/resumo-pessoa/[id]/route.ts",
+      "source_location": "L30",
+      "weight": 1.0,
+      "source": "ia_resumo_pessoa_id_route_ts",
+      "target": "id_route_post",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "leads/route.ts",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "leads_route_ts",
+      "target": "leads_route_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "leads/route.ts",
+      "source_location": "L73",
+      "weight": 1.0,
+      "source": "leads_route_ts",
+      "target": "leads_route_post",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "leads/[id]/whatsapp/route.ts",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "leads_id_whatsapp_route_ts",
+      "target": "whatsapp_route_extractremotejid",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "leads/[id]/whatsapp/route.ts",
+      "source_location": "L18",
+      "weight": 1.0,
+      "source": "leads_id_whatsapp_route_ts",
+      "target": "whatsapp_route_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "leads/[id]/whatsapp/route.ts",
+      "source_location": "L85",
+      "weight": 1.0,
+      "source": "leads_id_whatsapp_route_ts",
+      "target": "whatsapp_route_post",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "leads/[id]/whatsapp/route.ts",
+      "source_location": "L37",
+      "weight": 1.0,
+      "source": "whatsapp_route_get",
+      "target": "whatsapp_route_extractremotejid",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "leads/[id]/whatsapp/route.ts",
+      "source_location": "L110",
+      "weight": 1.0,
+      "source": "whatsapp_route_post",
+      "target": "whatsapp_route_extractremotejid",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "whatsapp/route.ts",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "whatsapp_route_ts",
+      "target": "whatsapp_route_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "whatsapp/route.ts",
+      "source_location": "L38",
+      "weight": 1.0,
+      "source": "whatsapp_route_ts",
+      "target": "whatsapp_route_post",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "notificacoes/route.ts",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "notificacoes_route_ts",
+      "target": "notificacoes_route_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "notificacoes/route.ts",
+      "source_location": "L40",
+      "weight": 1.0,
+      "source": "notificacoes_route_ts",
+      "target": "notificacoes_route_post",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "notificacoes/[id]/ler/route.ts",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "notificacoes_id_ler_route_ts",
+      "target": "ler_route_patch",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "notificacoes/[id]/ler/route.ts",
+      "source_location": "L29",
+      "weight": 1.0,
+      "source": "notificacoes_id_ler_route_ts",
+      "target": "ler_route_post",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "oportunidades/route.ts",
+      "source_location": "L13",
+      "weight": 1.0,
+      "source": "oportunidades_route_ts",
+      "target": "oportunidades_route_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "oportunidades/route.ts",
+      "source_location": "L67",
+      "weight": 1.0,
+      "source": "oportunidades_route_ts",
+      "target": "oportunidades_route_post",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "oportunidades/[id]/status/route.ts",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "oportunidades_id_status_route_ts",
+      "target": "status_route_sincronizarempresacliente",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "oportunidades/[id]/status/route.ts",
+      "source_location": "L50",
+      "weight": 1.0,
+      "source": "oportunidades_id_status_route_ts",
+      "target": "status_route_patch",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "oportunidades/[id]/status/route.ts",
+      "source_location": "L103",
+      "weight": 1.0,
+      "source": "status_route_patch",
+      "target": "status_route_sincronizarempresacliente",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "paises/route.ts",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "paises_route_ts",
+      "target": "paises_route_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "paises/route.ts",
+      "source_location": "L24",
+      "weight": 1.0,
+      "source": "paises_route_ts",
+      "target": "paises_route_post",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "paises/route.ts",
+      "source_location": "L52",
+      "weight": 1.0,
+      "source": "paises_route_ts",
+      "target": "paises_route_delete",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "paises/route.ts",
+      "source_location": "L58",
+      "weight": 1.0,
+      "source": "paises_route_delete",
+      "target": "paises_route_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "pessoas/route.ts",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "pessoas_route_ts",
+      "target": "pessoas_route_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "pessoas/route.ts",
+      "source_location": "L64",
+      "weight": 1.0,
+      "source": "pessoas_route_ts",
+      "target": "pessoas_route_post",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "pessoas/[id]/representantes/route.ts",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "pessoas_id_representantes_route_ts",
+      "target": "representantes_route_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "pessoas/[id]/representantes/route.ts",
+      "source_location": "L44",
+      "weight": 1.0,
+      "source": "pessoas_id_representantes_route_ts",
+      "target": "representantes_route_post",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "pessoas/[id]/representantes/route.ts",
+      "source_location": "L85",
+      "weight": 1.0,
+      "source": "pessoas_id_representantes_route_ts",
+      "target": "representantes_route_delete",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "pessoas/[id]/representantes/route.ts",
+      "source_location": "L95",
+      "weight": 1.0,
+      "source": "representantes_route_delete",
+      "target": "representantes_route_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "propostas/route.ts",
+      "source_location": "L12",
+      "weight": 1.0,
+      "source": "propostas_route_ts",
+      "target": "propostas_route_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "propostas/route.ts",
+      "source_location": "L61",
+      "weight": 1.0,
+      "source": "propostas_route_ts",
+      "target": "propostas_route_post",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "regioes/route.ts",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "regioes_route_ts",
+      "target": "regioes_route_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "regioes/route.ts",
+      "source_location": "L35",
+      "weight": 1.0,
+      "source": "regioes_route_ts",
+      "target": "regioes_route_post",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "relatorios/route.ts",
+      "source_location": "L16",
+      "weight": 1.0,
+      "source": "relatorios_route_ts",
+      "target": "relatorios_route_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tarefas/route.ts",
+      "source_location": "L12",
+      "weight": 1.0,
+      "source": "tarefas_route_ts",
+      "target": "tarefas_route_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tarefas/route.ts",
+      "source_location": "L62",
+      "weight": 1.0,
+      "source": "tarefas_route_ts",
+      "target": "tarefas_route_post",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "timeline/route.ts",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "timeline_route_ts",
+      "target": "timeline_route_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "treinamento/route.ts",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "treinamento_route_ts",
+      "target": "treinamento_route_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "treinamento/route.ts",
+      "source_location": "L52",
+      "weight": 1.0,
+      "source": "treinamento_route_ts",
+      "target": "treinamento_route_post",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "treinamento/exportar-pdf/route.ts",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "treinamento_exportar_pdf_route_ts",
+      "target": "exportar_pdf_route_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "treinamento/modulos/route.ts",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "treinamento_modulos_route_ts",
+      "target": "modulos_route_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "treinamento/modulos/route.ts",
+      "source_location": "L25",
+      "weight": 1.0,
+      "source": "treinamento_modulos_route_ts",
+      "target": "modulos_route_post",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "visitas/route.ts",
+      "source_location": "L12",
+      "weight": 1.0,
+      "source": "visitas_route_ts",
+      "target": "visitas_route_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "visitas/route.ts",
+      "source_location": "L64",
+      "weight": 1.0,
+      "source": "visitas_route_ts",
+      "target": "visitas_route_post",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "whatsapp/conversa/route.js",
+      "source_location": "L18",
+      "weight": 1.0,
+      "source": "whatsapp_conversa_route_js",
+      "target": "conversa_route_adopt",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "whatsapp/conversa/route.js",
+      "source_location": "L20",
+      "weight": 1.0,
+      "source": "whatsapp_conversa_route_js",
+      "target": "conversa_route_fulfilled",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "whatsapp/conversa/route.js",
+      "source_location": "L21",
+      "weight": 1.0,
+      "source": "whatsapp_conversa_route_js",
+      "target": "conversa_route_rejected",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "whatsapp/conversa/route.js",
+      "source_location": "L30",
+      "weight": 1.0,
+      "source": "whatsapp_conversa_route_js",
+      "target": "conversa_route_step",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "whatsapp/conversa/route.js",
+      "source_location": "L29",
+      "weight": 1.0,
+      "source": "whatsapp_conversa_route_js",
+      "target": "conversa_route_verb",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "whatsapp/conversa/route.js",
+      "source_location": "L69",
+      "weight": 1.0,
+      "source": "whatsapp_conversa_route_js",
+      "target": "conversa_route_extrairnumero",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "whatsapp/conversa/route.js",
+      "source_location": "L72",
+      "weight": 1.0,
+      "source": "whatsapp_conversa_route_js",
+      "target": "conversa_route_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "whatsapp/conversa/route.js",
+      "source_location": "L113",
+      "weight": 1.0,
+      "source": "whatsapp_conversa_route_js",
+      "target": "conversa_route_post",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "whatsapp/conversa/route.js",
+      "source_location": "L22",
+      "weight": 1.0,
+      "source": "conversa_route_step",
+      "target": "conversa_route_adopt",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "whatsapp/conversa/route.js",
+      "source_location": "L20",
+      "weight": 1.0,
+      "source": "conversa_route_fulfilled",
+      "target": "conversa_route_step",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "whatsapp/conversa/route.js",
+      "source_location": "L21",
+      "weight": 1.0,
+      "source": "conversa_route_rejected",
+      "target": "conversa_route_step",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "whatsapp/conversa/route.js",
+      "source_location": "L29",
+      "weight": 1.0,
+      "source": "conversa_route_verb",
+      "target": "conversa_route_step",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "whatsapp/conversa/route.ts",
+      "source_location": "L130",
+      "weight": 1.0,
+      "source": "conversa_route_post",
+      "target": "conversa_route_extrairnumero",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "whatsapp/conversa/route.ts",
+      "source_location": "L17",
+      "weight": 1.0,
+      "source": "whatsapp_conversa_route_ts",
+      "target": "conversa_route_extrairnumero",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "whatsapp/conversa/route.ts",
+      "source_location": "L36",
+      "weight": 1.0,
+      "source": "conversa_route_get",
+      "target": "conversa_route_extrairnumero",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "whatsapp/conversa/route.ts",
+      "source_location": "L21",
+      "weight": 1.0,
+      "source": "whatsapp_conversa_route_ts",
+      "target": "conversa_route_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "whatsapp/conversa/route.ts",
+      "source_location": "L83",
+      "weight": 1.0,
+      "source": "whatsapp_conversa_route_ts",
+      "target": "conversa_route_post",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "whatsapp/conversa/route.ts",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "whatsapp_conversa_route_ts",
+      "target": "conversa_route_crmwhatsappconversas",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "whatsapp/conversas/route.ts",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "whatsapp_conversas_route_ts",
+      "target": "conversas_route_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "whatsapp/webhook/route.ts",
+      "source_location": "L12",
+      "weight": 1.0,
+      "source": "whatsapp_webhook_route_ts",
+      "target": "webhook_route_criarleadwhatsapp",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "whatsapp/webhook/route.ts",
+      "source_location": "L44",
+      "weight": 1.0,
+      "source": "whatsapp_webhook_route_ts",
+      "target": "webhook_route_post",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "whatsapp/webhook/route.ts",
+      "source_location": "L80",
+      "weight": 1.0,
+      "source": "webhook_route_post",
+      "target": "webhook_route_criarleadwhatsapp",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "whatsapp/[id]/route.ts",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "whatsapp_id_route_ts",
+      "target": "id_route_patch",
+      "confidence_score": 1.0
+    }
+  ],
+  "hyperedges": [],
+  "built_at_commit": "f219d1ccdbbdeb03e4f8b7a40fdca251e6a9e8c8"
+}

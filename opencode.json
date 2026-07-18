@@ -1,0 +1,10 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": ["AGENTS.md"],
+  "references": {
+    "grafo": {
+      "path": "graphify-out",
+      "description": "Knowledge graph do codebase (2599 nodes, 6179 edges). Use for arquitetura, fluxos e dependências entre arquivos."
+    }
+  }
+}

@@ -1,0 +1,2470 @@
+{
+  "directed": false,
+  "multigraph": false,
+  "graph": {},
+  "nodes": [
+    {
+      "label": "buscar-cnpj-modal.tsx",
+      "file_type": "code",
+      "source_file": "buscar-cnpj-modal.tsx",
+      "source_location": "L1",
+      "id": "buscar_cnpj_modal_tsx",
+      "community": 0,
+      "norm_label": "buscar-cnpj-modal.tsx"
+    },
+    {
+      "label": "BuscarCnpjModalProps",
+      "file_type": "code",
+      "source_file": "buscar-cnpj-modal.tsx",
+      "source_location": "L9",
+      "id": "crm_buscar_cnpj_modal_buscarcnpjmodalprops",
+      "community": 0,
+      "norm_label": "buscarcnpjmodalprops"
+    },
+    {
+      "label": "ApiData",
+      "file_type": "code",
+      "source_file": "buscar-cnpj-modal.tsx",
+      "source_location": "L15",
+      "id": "crm_buscar_cnpj_modal_apidata",
+      "community": 0,
+      "norm_label": "apidata"
+    },
+    {
+      "label": "formatCnpj()",
+      "file_type": "code",
+      "source_file": "buscar-cnpj-modal.tsx",
+      "source_location": "L17",
+      "id": "crm_buscar_cnpj_modal_formatcnpj",
+      "community": 0,
+      "norm_label": "formatcnpj()"
+    },
+    {
+      "label": "BuscarCnpjModal()",
+      "file_type": "code",
+      "source_file": "buscar-cnpj-modal.tsx",
+      "source_location": "L23",
+      "id": "crm_buscar_cnpj_modal_buscarcnpjmodal",
+      "community": 0,
+      "norm_label": "buscarcnpjmodal()"
+    },
+    {
+      "label": "campanhas-kanban.tsx",
+      "file_type": "code",
+      "source_file": "campanhas-kanban.tsx",
+      "source_location": "L1",
+      "id": "campanhas_kanban_tsx",
+      "community": 1,
+      "norm_label": "campanhas-kanban.tsx"
+    },
+    {
+      "label": "CampanhaCard",
+      "file_type": "code",
+      "source_file": "campanhas-kanban.tsx",
+      "source_location": "L10",
+      "id": "crm_campanhas_kanban_campanhacard",
+      "community": 1,
+      "norm_label": "campanhacard"
+    },
+    {
+      "label": "TIPO_LABELS",
+      "file_type": "code",
+      "source_file": "campanhas-kanban.tsx",
+      "source_location": "L19",
+      "id": "crm_campanhas_kanban_tipo_labels",
+      "community": 1,
+      "norm_label": "tipo_labels"
+    },
+    {
+      "label": "TIPO_CORES",
+      "file_type": "code",
+      "source_file": "campanhas-kanban.tsx",
+      "source_location": "L26",
+      "id": "crm_campanhas_kanban_tipo_cores",
+      "community": 1,
+      "norm_label": "tipo_cores"
+    },
+    {
+      "label": "DEFAULT_STATUSES",
+      "file_type": "code",
+      "source_file": "campanhas-kanban.tsx",
+      "source_location": "L33",
+      "id": "crm_campanhas_kanban_default_statuses",
+      "community": 1,
+      "norm_label": "default_statuses"
+    },
+    {
+      "label": "formatarData()",
+      "file_type": "code",
+      "source_file": "campanhas-kanban.tsx",
+      "source_location": "L39",
+      "id": "crm_campanhas_kanban_formatardata",
+      "community": 1,
+      "norm_label": "formatardata()"
+    },
+    {
+      "label": "DraggableCard()",
+      "file_type": "code",
+      "source_file": "campanhas-kanban.tsx",
+      "source_location": "L44",
+      "id": "crm_campanhas_kanban_draggablecard",
+      "community": 1,
+      "norm_label": "draggablecard()"
+    },
+    {
+      "label": "CampanhasKanban()",
+      "file_type": "code",
+      "source_file": "campanhas-kanban.tsx",
+      "source_location": "L91",
+      "id": "crm_campanhas_kanban_campanhaskanban",
+      "community": 1,
+      "norm_label": "campanhaskanban()"
+    },
+    {
+      "label": "crm-pessoa-timeline.tsx",
+      "file_type": "code",
+      "source_file": "crm-pessoa-timeline.tsx",
+      "source_location": "L1",
+      "id": "crm_pessoa_timeline_tsx",
+      "community": 2,
+      "norm_label": "crm-pessoa-timeline.tsx"
+    },
+    {
+      "label": "TIPO_ICON",
+      "file_type": "code",
+      "source_file": "crm-pessoa-timeline.tsx",
+      "source_location": "L6",
+      "id": "crm_crm_pessoa_timeline_tipo_icon",
+      "community": 2,
+      "norm_label": "tipo_icon"
+    },
+    {
+      "label": "TIPO_LABEL",
+      "file_type": "code",
+      "source_file": "crm-pessoa-timeline.tsx",
+      "source_location": "L16",
+      "id": "crm_crm_pessoa_timeline_tipo_label",
+      "community": 2,
+      "norm_label": "tipo_label"
+    },
+    {
+      "label": "fetchTimeline()",
+      "file_type": "code",
+      "source_file": "crm-pessoa-timeline.tsx",
+      "source_location": "L26",
+      "id": "crm_crm_pessoa_timeline_fetchtimeline",
+      "community": 2,
+      "norm_label": "fetchtimeline()"
+    },
+    {
+      "label": "CrmPessoaTimeline()",
+      "file_type": "code",
+      "source_file": "crm-pessoa-timeline.tsx",
+      "source_location": "L32",
+      "id": "crm_crm_pessoa_timeline_crmpessoatimeline",
+      "community": 2,
+      "norm_label": "crmpessoatimeline()"
+    },
+    {
+      "label": "crm-pessoa-whatsapp.tsx",
+      "file_type": "code",
+      "source_file": "crm-pessoa-whatsapp.tsx",
+      "source_location": "L1",
+      "id": "crm_pessoa_whatsapp_tsx",
+      "community": 3,
+      "norm_label": "crm-pessoa-whatsapp.tsx"
+    },
+    {
+      "label": "Mensagem",
+      "file_type": "code",
+      "source_file": "crm-pessoa-whatsapp.tsx",
+      "source_location": "L7",
+      "id": "crm_crm_pessoa_whatsapp_mensagem",
+      "community": 3,
+      "norm_label": "mensagem"
+    },
+    {
+      "label": "CrmPessoaWhatsapp()",
+      "file_type": "code",
+      "source_file": "crm-pessoa-whatsapp.tsx",
+      "source_location": "L19",
+      "id": "crm_crm_pessoa_whatsapp_crmpessoawhatsapp",
+      "community": 3,
+      "norm_label": "crmpessoawhatsapp()"
+    },
+    {
+      "label": "floatable-kanban.tsx",
+      "file_type": "code",
+      "source_file": "floatable-kanban.tsx",
+      "source_location": "L1",
+      "id": "floatable_kanban_tsx",
+      "community": 4,
+      "norm_label": "floatable-kanban.tsx"
+    },
+    {
+      "label": "FloatableKanban()",
+      "file_type": "code",
+      "source_file": "floatable-kanban.tsx",
+      "source_location": "L8",
+      "id": "crm_floatable_kanban_floatablekanban",
+      "community": 4,
+      "norm_label": "floatablekanban()"
+    },
+    {
+      "label": "google-drive-picker.tsx",
+      "file_type": "code",
+      "source_file": "google-drive-picker.tsx",
+      "source_location": "L1",
+      "id": "google_drive_picker_tsx",
+      "community": 5,
+      "norm_label": "google-drive-picker.tsx"
+    },
+    {
+      "label": "DriveItem",
+      "file_type": "code",
+      "source_file": "google-drive-picker.tsx",
+      "source_location": "L8",
+      "id": "crm_google_drive_picker_driveitem",
+      "community": 5,
+      "norm_label": "driveitem"
+    },
+    {
+      "label": "DriveFile",
+      "file_type": "code",
+      "source_file": "google-drive-picker.tsx",
+      "source_location": "L20",
+      "id": "crm_google_drive_picker_drivefile",
+      "community": 5,
+      "norm_label": "drivefile"
+    },
+    {
+      "label": "Breadcrumb",
+      "file_type": "code",
+      "source_file": "google-drive-picker.tsx",
+      "source_location": "L27",
+      "id": "crm_google_drive_picker_breadcrumb",
+      "community": 5,
+      "norm_label": "breadcrumb"
+    },
+    {
+      "label": "GoogleDrivePickerProps",
+      "file_type": "code",
+      "source_file": "google-drive-picker.tsx",
+      "source_location": "L32",
+      "id": "crm_google_drive_picker_googledrivepickerprops",
+      "community": 5,
+      "norm_label": "googledrivepickerprops"
+    },
+    {
+      "label": "GoogleDrivePicker()",
+      "file_type": "code",
+      "source_file": "google-drive-picker.tsx",
+      "source_location": "L38",
+      "id": "crm_google_drive_picker_googledrivepicker",
+      "community": 5,
+      "norm_label": "googledrivepicker()"
+    },
+    {
+      "label": "kanban-column.tsx",
+      "file_type": "code",
+      "source_file": "kanban-column.tsx",
+      "source_location": "L1",
+      "id": "kanban_column_tsx",
+      "community": 12,
+      "norm_label": "kanban-column.tsx"
+    },
+    {
+      "label": "DroppableColumn()",
+      "file_type": "code",
+      "source_file": "kanban-column.tsx",
+      "source_location": "L5",
+      "id": "crm_kanban_column_droppablecolumn",
+      "community": 12,
+      "norm_label": "droppablecolumn()"
+    },
+    {
+      "label": "KanbanSkeleton()",
+      "file_type": "code",
+      "source_file": "kanban-column.tsx",
+      "source_location": "L32",
+      "id": "crm_kanban_column_kanbanskeleton",
+      "community": 12,
+      "norm_label": "kanbanskeleton()"
+    },
+    {
+      "label": "leads-kanban.tsx",
+      "file_type": "code",
+      "source_file": "leads-kanban.tsx",
+      "source_location": "L1",
+      "id": "leads_kanban_tsx",
+      "community": 12,
+      "norm_label": "leads-kanban.tsx"
+    },
+    {
+      "label": "LeadCard",
+      "file_type": "code",
+      "source_file": "leads-kanban.tsx",
+      "source_location": "L10",
+      "id": "crm_leads_kanban_leadcard",
+      "community": 12,
+      "norm_label": "leadcard"
+    },
+    {
+      "label": "ORIGEM_LABELS",
+      "file_type": "code",
+      "source_file": "leads-kanban.tsx",
+      "source_location": "L21",
+      "id": "crm_leads_kanban_origem_labels",
+      "community": 12,
+      "norm_label": "origem_labels"
+    },
+    {
+      "label": "DEFAULT_STATUSES",
+      "file_type": "code",
+      "source_file": "leads-kanban.tsx",
+      "source_location": "L32",
+      "id": "crm_leads_kanban_default_statuses",
+      "community": 12,
+      "norm_label": "default_statuses"
+    },
+    {
+      "label": "DraggableCard()",
+      "file_type": "code",
+      "source_file": "leads-kanban.tsx",
+      "source_location": "L40",
+      "id": "crm_leads_kanban_draggablecard",
+      "community": 12,
+      "norm_label": "draggablecard()"
+    },
+    {
+      "label": "LeadsKanban()",
+      "file_type": "code",
+      "source_file": "leads-kanban.tsx",
+      "source_location": "L97",
+      "id": "crm_leads_kanban_leadskanban",
+      "community": 12,
+      "norm_label": "leadskanban()"
+    },
+    {
+      "label": "oportunidades-kanban.tsx",
+      "file_type": "code",
+      "source_file": "oportunidades-kanban.tsx",
+      "source_location": "L1",
+      "id": "oportunidades_kanban_tsx",
+      "community": 12,
+      "norm_label": "oportunidades-kanban.tsx"
+    },
+    {
+      "label": "OportunidadeCard",
+      "file_type": "code",
+      "source_file": "oportunidades-kanban.tsx",
+      "source_location": "L11",
+      "id": "crm_oportunidades_kanban_oportunidadecard",
+      "community": 12,
+      "norm_label": "oportunidadecard"
+    },
+    {
+      "label": "DEFAULT_STATUSES",
+      "file_type": "code",
+      "source_file": "oportunidades-kanban.tsx",
+      "source_location": "L20",
+      "id": "crm_oportunidades_kanban_default_statuses",
+      "community": 12,
+      "norm_label": "default_statuses"
+    },
+    {
+      "label": "formatar()",
+      "file_type": "code",
+      "source_file": "oportunidades-kanban.tsx",
+      "source_location": "L29",
+      "id": "crm_oportunidades_kanban_formatar",
+      "community": 12,
+      "norm_label": "formatar()"
+    },
+    {
+      "label": "DraggableCard()",
+      "file_type": "code",
+      "source_file": "oportunidades-kanban.tsx",
+      "source_location": "L34",
+      "id": "crm_oportunidades_kanban_draggablecard",
+      "community": 12,
+      "norm_label": "draggablecard()"
+    },
+    {
+      "label": "OportunidadesKanban()",
+      "file_type": "code",
+      "source_file": "oportunidades-kanban.tsx",
+      "source_location": "L82",
+      "id": "crm_oportunidades_kanban_oportunidadeskanban",
+      "community": 12,
+      "norm_label": "oportunidadeskanban()"
+    },
+    {
+      "label": "pessoas-kanban.tsx",
+      "file_type": "code",
+      "source_file": "pessoas-kanban.tsx",
+      "source_location": "L1",
+      "id": "pessoas_kanban_tsx",
+      "community": 6,
+      "norm_label": "pessoas-kanban.tsx"
+    },
+    {
+      "label": "PessoaCard",
+      "file_type": "code",
+      "source_file": "pessoas-kanban.tsx",
+      "source_location": "L10",
+      "id": "crm_pessoas_kanban_pessoacard",
+      "community": 6,
+      "norm_label": "pessoacard"
+    },
+    {
+      "label": "DEFAULT_STATUSES",
+      "file_type": "code",
+      "source_file": "pessoas-kanban.tsx",
+      "source_location": "L22",
+      "id": "crm_pessoas_kanban_default_statuses",
+      "community": 6,
+      "norm_label": "default_statuses"
+    },
+    {
+      "label": "formatarDocumento()",
+      "file_type": "code",
+      "source_file": "pessoas-kanban.tsx",
+      "source_location": "L30",
+      "id": "crm_pessoas_kanban_formatardocumento",
+      "community": 6,
+      "norm_label": "formatardocumento()"
+    },
+    {
+      "label": "DraggableCard()",
+      "file_type": "code",
+      "source_file": "pessoas-kanban.tsx",
+      "source_location": "L36",
+      "id": "crm_pessoas_kanban_draggablecard",
+      "community": 6,
+      "norm_label": "draggablecard()"
+    },
+    {
+      "label": "PessoasKanban()",
+      "file_type": "code",
+      "source_file": "pessoas-kanban.tsx",
+      "source_location": "L90",
+      "id": "crm_pessoas_kanban_pessoaskanban",
+      "community": 6,
+      "norm_label": "pessoaskanban()"
+    },
+    {
+      "label": "propostas-kanban.tsx",
+      "file_type": "code",
+      "source_file": "propostas-kanban.tsx",
+      "source_location": "L1",
+      "id": "propostas_kanban_tsx",
+      "community": 7,
+      "norm_label": "propostas-kanban.tsx"
+    },
+    {
+      "label": "PropostaCard",
+      "file_type": "code",
+      "source_file": "propostas-kanban.tsx",
+      "source_location": "L10",
+      "id": "crm_propostas_kanban_propostacard",
+      "community": 7,
+      "norm_label": "propostacard"
+    },
+    {
+      "label": "DEFAULT_STATUSES",
+      "file_type": "code",
+      "source_file": "propostas-kanban.tsx",
+      "source_location": "L18",
+      "id": "crm_propostas_kanban_default_statuses",
+      "community": 7,
+      "norm_label": "default_statuses"
+    },
+    {
+      "label": "formatar()",
+      "file_type": "code",
+      "source_file": "propostas-kanban.tsx",
+      "source_location": "L25",
+      "id": "crm_propostas_kanban_formatar",
+      "community": 7,
+      "norm_label": "formatar()"
+    },
+    {
+      "label": "DraggableCard()",
+      "file_type": "code",
+      "source_file": "propostas-kanban.tsx",
+      "source_location": "L30",
+      "id": "crm_propostas_kanban_draggablecard",
+      "community": 7,
+      "norm_label": "draggablecard()"
+    },
+    {
+      "label": "PropostasKanban()",
+      "file_type": "code",
+      "source_file": "propostas-kanban.tsx",
+      "source_location": "L74",
+      "id": "crm_propostas_kanban_propostaskanban",
+      "community": 7,
+      "norm_label": "propostaskanban()"
+    },
+    {
+      "label": "quick-create-cidade.tsx",
+      "file_type": "code",
+      "source_file": "quick-create-cidade.tsx",
+      "source_location": "L1",
+      "id": "quick_create_cidade_tsx",
+      "community": 8,
+      "norm_label": "quick-create-cidade.tsx"
+    },
+    {
+      "label": "Props",
+      "file_type": "code",
+      "source_file": "quick-create-cidade.tsx",
+      "source_location": "L10",
+      "id": "crm_quick_create_cidade_props",
+      "community": 8,
+      "norm_label": "props"
+    },
+    {
+      "label": "QuickCreateCidade()",
+      "file_type": "code",
+      "source_file": "quick-create-cidade.tsx",
+      "source_location": "L15",
+      "id": "crm_quick_create_cidade_quickcreatecidade",
+      "community": 8,
+      "norm_label": "quickcreatecidade()"
+    },
+    {
+      "label": "quick-create-contato.tsx",
+      "file_type": "code",
+      "source_file": "quick-create-contato.tsx",
+      "source_location": "L1",
+      "id": "quick_create_contato_tsx",
+      "community": 9,
+      "norm_label": "quick-create-contato.tsx"
+    },
+    {
+      "label": "Props",
+      "file_type": "code",
+      "source_file": "quick-create-contato.tsx",
+      "source_location": "L10",
+      "id": "crm_quick_create_contato_props",
+      "community": 9,
+      "norm_label": "props"
+    },
+    {
+      "label": "QuickCreateContato()",
+      "file_type": "code",
+      "source_file": "quick-create-contato.tsx",
+      "source_location": "L15",
+      "id": "crm_quick_create_contato_quickcreatecontato",
+      "community": 9,
+      "norm_label": "quickcreatecontato()"
+    },
+    {
+      "label": "quick-create-estado.tsx",
+      "file_type": "code",
+      "source_file": "quick-create-estado.tsx",
+      "source_location": "L1",
+      "id": "quick_create_estado_tsx",
+      "community": 8,
+      "norm_label": "quick-create-estado.tsx"
+    },
+    {
+      "label": "Props",
+      "file_type": "code",
+      "source_file": "quick-create-estado.tsx",
+      "source_location": "L10",
+      "id": "crm_quick_create_estado_props",
+      "community": 8,
+      "norm_label": "props"
+    },
+    {
+      "label": "QuickCreateEstado()",
+      "file_type": "code",
+      "source_file": "quick-create-estado.tsx",
+      "source_location": "L14",
+      "id": "crm_quick_create_estado_quickcreateestado",
+      "community": 8,
+      "norm_label": "quickcreateestado()"
+    },
+    {
+      "label": "quick-create-lead.tsx",
+      "file_type": "code",
+      "source_file": "quick-create-lead.tsx",
+      "source_location": "L1",
+      "id": "quick_create_lead_tsx",
+      "community": 10,
+      "norm_label": "quick-create-lead.tsx"
+    },
+    {
+      "label": "Props",
+      "file_type": "code",
+      "source_file": "quick-create-lead.tsx",
+      "source_location": "L10",
+      "id": "crm_quick_create_lead_props",
+      "community": 10,
+      "norm_label": "props"
+    },
+    {
+      "label": "QuickCreateLead()",
+      "file_type": "code",
+      "source_file": "quick-create-lead.tsx",
+      "source_location": "L14",
+      "id": "crm_quick_create_lead_quickcreatelead",
+      "community": 10,
+      "norm_label": "quickcreatelead()"
+    },
+    {
+      "label": "quick-create-oportunidade.tsx",
+      "file_type": "code",
+      "source_file": "quick-create-oportunidade.tsx",
+      "source_location": "L1",
+      "id": "quick_create_oportunidade_tsx",
+      "community": 11,
+      "norm_label": "quick-create-oportunidade.tsx"
+    },
+    {
+      "label": "Props",
+      "file_type": "code",
+      "source_file": "quick-create-oportunidade.tsx",
+      "source_location": "L10",
+      "id": "crm_quick_create_oportunidade_props",
+      "community": 11,
+      "norm_label": "props"
+    },
+    {
+      "label": "QuickCreateOportunidade()",
+      "file_type": "code",
+      "source_file": "quick-create-oportunidade.tsx",
+      "source_location": "L15",
+      "id": "crm_quick_create_oportunidade_quickcreateoportunidade",
+      "community": 11,
+      "norm_label": "quickcreateoportunidade()"
+    },
+    {
+      "label": "quick-create-pessoa.tsx",
+      "file_type": "code",
+      "source_file": "quick-create-pessoa.tsx",
+      "source_location": "L1",
+      "id": "quick_create_pessoa_tsx",
+      "community": 8,
+      "norm_label": "quick-create-pessoa.tsx"
+    },
+    {
+      "label": "Props",
+      "file_type": "code",
+      "source_file": "quick-create-pessoa.tsx",
+      "source_location": "L12",
+      "id": "crm_quick_create_pessoa_props",
+      "community": 8,
+      "norm_label": "props"
+    },
+    {
+      "label": "QuickCreatePessoa()",
+      "file_type": "code",
+      "source_file": "quick-create-pessoa.tsx",
+      "source_location": "L16",
+      "id": "crm_quick_create_pessoa_quickcreatepessoa",
+      "community": 8,
+      "norm_label": "quickcreatepessoa()"
+    },
+    {
+      "label": "requisicoes-corte-kanban.tsx",
+      "file_type": "code",
+      "source_file": "requisicoes-corte-kanban.tsx",
+      "source_location": "L1",
+      "id": "requisicoes_corte_kanban_tsx",
+      "community": 12,
+      "norm_label": "requisicoes-corte-kanban.tsx"
+    },
+    {
+      "label": "RequisicaoCard",
+      "file_type": "code",
+      "source_file": "requisicoes-corte-kanban.tsx",
+      "source_location": "L9",
+      "id": "crm_requisicoes_corte_kanban_requisicaocard",
+      "community": 12,
+      "norm_label": "requisicaocard"
+    },
+    {
+      "label": "STATUS_CONFIG",
+      "file_type": "code",
+      "source_file": "requisicoes-corte-kanban.tsx",
+      "source_location": "L18",
+      "id": "crm_requisicoes_corte_kanban_status_config",
+      "community": 12,
+      "norm_label": "status_config"
+    },
+    {
+      "label": "DraggableCard()",
+      "file_type": "code",
+      "source_file": "requisicoes-corte-kanban.tsx",
+      "source_location": "L24",
+      "id": "crm_requisicoes_corte_kanban_draggablecard",
+      "community": 12,
+      "norm_label": "draggablecard()"
+    },
+    {
+      "label": "RequisicoesCorteKanban()",
+      "file_type": "code",
+      "source_file": "requisicoes-corte-kanban.tsx",
+      "source_location": "L65",
+      "id": "crm_requisicoes_corte_kanban_requisicoescortekanban",
+      "community": 12,
+      "norm_label": "requisicoescortekanban()"
+    },
+    {
+      "label": "rich-text-editor.tsx",
+      "file_type": "code",
+      "source_file": "rich-text-editor.tsx",
+      "source_location": "L1",
+      "id": "rich_text_editor_tsx",
+      "community": 13,
+      "norm_label": "rich-text-editor.tsx"
+    },
+    {
+      "label": "FONT_SIZES",
+      "file_type": "code",
+      "source_file": "rich-text-editor.tsx",
+      "source_location": "L15",
+      "id": "crm_rich_text_editor_font_sizes",
+      "community": 13,
+      "norm_label": "font_sizes"
+    },
+    {
+      "label": "FONT_FAMILIES",
+      "file_type": "code",
+      "source_file": "rich-text-editor.tsx",
+      "source_location": "L23",
+      "id": "crm_rich_text_editor_font_families",
+      "community": 13,
+      "norm_label": "font_families"
+    },
+    {
+      "label": "RichTextEditorProps",
+      "file_type": "code",
+      "source_file": "rich-text-editor.tsx",
+      "source_location": "L28",
+      "id": "crm_rich_text_editor_richtexteditorprops",
+      "community": 13,
+      "norm_label": "richtexteditorprops"
+    },
+    {
+      "label": "RichTextEditor()",
+      "file_type": "code",
+      "source_file": "rich-text-editor.tsx",
+      "source_location": "L35",
+      "id": "crm_rich_text_editor_richtexteditor",
+      "community": 13,
+      "norm_label": "richtexteditor()"
+    },
+    {
+      "label": "select-cidade.tsx",
+      "file_type": "code",
+      "source_file": "select-cidade.tsx",
+      "source_location": "L1",
+      "id": "select_cidade_tsx",
+      "community": 8,
+      "norm_label": "select-cidade.tsx"
+    },
+    {
+      "label": "Cidade",
+      "file_type": "code",
+      "source_file": "select-cidade.tsx",
+      "source_location": "L6",
+      "id": "crm_select_cidade_cidade",
+      "community": 8,
+      "norm_label": "cidade"
+    },
+    {
+      "label": "Props",
+      "file_type": "code",
+      "source_file": "select-cidade.tsx",
+      "source_location": "L8",
+      "id": "crm_select_cidade_props",
+      "community": 8,
+      "norm_label": "props"
+    },
+    {
+      "label": "SelectCidade()",
+      "file_type": "code",
+      "source_file": "select-cidade.tsx",
+      "source_location": "L15",
+      "id": "crm_select_cidade_selectcidade",
+      "community": 8,
+      "norm_label": "selectcidade()"
+    },
+    {
+      "label": "select-uf.tsx",
+      "file_type": "code",
+      "source_file": "select-uf.tsx",
+      "source_location": "L1",
+      "id": "select_uf_tsx",
+      "community": 8,
+      "norm_label": "select-uf.tsx"
+    },
+    {
+      "label": "Estado",
+      "file_type": "code",
+      "source_file": "select-uf.tsx",
+      "source_location": "L6",
+      "id": "crm_select_uf_estado",
+      "community": 8,
+      "norm_label": "estado"
+    },
+    {
+      "label": "Props",
+      "file_type": "code",
+      "source_file": "select-uf.tsx",
+      "source_location": "L8",
+      "id": "crm_select_uf_props",
+      "community": 8,
+      "norm_label": "props"
+    },
+    {
+      "label": "SelectUf()",
+      "file_type": "code",
+      "source_file": "select-uf.tsx",
+      "source_location": "L14",
+      "id": "crm_select_uf_selectuf",
+      "community": 8,
+      "norm_label": "selectuf()"
+    },
+    {
+      "label": "tarefas-kanban.tsx",
+      "file_type": "code",
+      "source_file": "tarefas-kanban.tsx",
+      "source_location": "L1",
+      "id": "tarefas_kanban_tsx",
+      "community": 14,
+      "norm_label": "tarefas-kanban.tsx"
+    },
+    {
+      "label": "TarefaCard",
+      "file_type": "code",
+      "source_file": "tarefas-kanban.tsx",
+      "source_location": "L11",
+      "id": "crm_tarefas_kanban_tarefacard",
+      "community": 14,
+      "norm_label": "tarefacard"
+    },
+    {
+      "label": "TIPO_LABELS",
+      "file_type": "code",
+      "source_file": "tarefas-kanban.tsx",
+      "source_location": "L21",
+      "id": "crm_tarefas_kanban_tipo_labels",
+      "community": 14,
+      "norm_label": "tipo_labels"
+    },
+    {
+      "label": "TIPO_CORES",
+      "file_type": "code",
+      "source_file": "tarefas-kanban.tsx",
+      "source_location": "L28",
+      "id": "crm_tarefas_kanban_tipo_cores",
+      "community": 14,
+      "norm_label": "tipo_cores"
+    },
+    {
+      "label": "DEFAULT_STATUSES",
+      "file_type": "code",
+      "source_file": "tarefas-kanban.tsx",
+      "source_location": "L35",
+      "id": "crm_tarefas_kanban_default_statuses",
+      "community": 14,
+      "norm_label": "default_statuses"
+    },
+    {
+      "label": "formatarData()",
+      "file_type": "code",
+      "source_file": "tarefas-kanban.tsx",
+      "source_location": "L40",
+      "id": "crm_tarefas_kanban_formatardata",
+      "community": 14,
+      "norm_label": "formatardata()"
+    },
+    {
+      "label": "DraggableCard()",
+      "file_type": "code",
+      "source_file": "tarefas-kanban.tsx",
+      "source_location": "L45",
+      "id": "crm_tarefas_kanban_draggablecard",
+      "community": 14,
+      "norm_label": "draggablecard()"
+    },
+    {
+      "label": "TarefasKanban()",
+      "file_type": "code",
+      "source_file": "tarefas-kanban.tsx",
+      "source_location": "L93",
+      "id": "crm_tarefas_kanban_tarefaskanban",
+      "community": 14,
+      "norm_label": "tarefaskanban()"
+    },
+    {
+      "label": "visitas-calendario.tsx",
+      "file_type": "code",
+      "source_file": "visitas-calendario.tsx",
+      "source_location": "L1",
+      "id": "visitas_calendario_tsx",
+      "community": 15,
+      "norm_label": "visitas-calendario.tsx"
+    },
+    {
+      "label": "TIPO_LABELS",
+      "file_type": "code",
+      "source_file": "visitas-calendario.tsx",
+      "source_location": "L7",
+      "id": "crm_visitas_calendario_tipo_labels",
+      "community": 15,
+      "norm_label": "tipo_labels"
+    },
+    {
+      "label": "TIPO_CORES",
+      "file_type": "code",
+      "source_file": "visitas-calendario.tsx",
+      "source_location": "L13",
+      "id": "crm_visitas_calendario_tipo_cores",
+      "community": 15,
+      "norm_label": "tipo_cores"
+    },
+    {
+      "label": "DIAS_SEMANA",
+      "file_type": "code",
+      "source_file": "visitas-calendario.tsx",
+      "source_location": "L19",
+      "id": "crm_visitas_calendario_dias_semana",
+      "community": 15,
+      "norm_label": "dias_semana"
+    },
+    {
+      "label": "getMonthDays()",
+      "file_type": "code",
+      "source_file": "visitas-calendario.tsx",
+      "source_location": "L21",
+      "id": "crm_visitas_calendario_getmonthdays",
+      "community": 15,
+      "norm_label": "getmonthdays()"
+    },
+    {
+      "label": "formatDateKey()",
+      "file_type": "code",
+      "source_file": "visitas-calendario.tsx",
+      "source_location": "L34",
+      "id": "crm_visitas_calendario_formatdatekey",
+      "community": 15,
+      "norm_label": "formatdatekey()"
+    },
+    {
+      "label": "Visita",
+      "file_type": "code",
+      "source_file": "visitas-calendario.tsx",
+      "source_location": "L38",
+      "id": "crm_visitas_calendario_visita",
+      "community": 15,
+      "norm_label": "visita"
+    },
+    {
+      "label": "VisitasCalendario()",
+      "file_type": "code",
+      "source_file": "visitas-calendario.tsx",
+      "source_location": "L48",
+      "id": "crm_visitas_calendario_visitascalendario",
+      "community": 15,
+      "norm_label": "visitascalendario()"
+    },
+    {
+      "label": "visitas-kanban.tsx",
+      "file_type": "code",
+      "source_file": "visitas-kanban.tsx",
+      "source_location": "L1",
+      "id": "visitas_kanban_tsx",
+      "community": 16,
+      "norm_label": "visitas-kanban.tsx"
+    },
+    {
+      "label": "VisitaCard",
+      "file_type": "code",
+      "source_file": "visitas-kanban.tsx",
+      "source_location": "L10",
+      "id": "crm_visitas_kanban_visitacard",
+      "community": 16,
+      "norm_label": "visitacard"
+    },
+    {
+      "label": "TIPO_LABELS",
+      "file_type": "code",
+      "source_file": "visitas-kanban.tsx",
+      "source_location": "L20",
+      "id": "crm_visitas_kanban_tipo_labels",
+      "community": 16,
+      "norm_label": "tipo_labels"
+    },
+    {
+      "label": "formatarData()",
+      "file_type": "code",
+      "source_file": "visitas-kanban.tsx",
+      "source_location": "L26",
+      "id": "crm_visitas_kanban_formatardata",
+      "community": 16,
+      "norm_label": "formatardata()"
+    },
+    {
+      "label": "isFutura()",
+      "file_type": "code",
+      "source_file": "visitas-kanban.tsx",
+      "source_location": "L31",
+      "id": "crm_visitas_kanban_isfutura",
+      "community": 16,
+      "norm_label": "isfutura()"
+    },
+    {
+      "label": "DroppableColumn()",
+      "file_type": "code",
+      "source_file": "visitas-kanban.tsx",
+      "source_location": "L39",
+      "id": "crm_visitas_kanban_droppablecolumn",
+      "community": 16,
+      "norm_label": "droppablecolumn()"
+    },
+    {
+      "label": "DraggableCard()",
+      "file_type": "code",
+      "source_file": "visitas-kanban.tsx",
+      "source_location": "L66",
+      "id": "crm_visitas_kanban_draggablecard",
+      "community": 16,
+      "norm_label": "draggablecard()"
+    },
+    {
+      "label": "VisitasKanban()",
+      "file_type": "code",
+      "source_file": "visitas-kanban.tsx",
+      "source_location": "L112",
+      "id": "crm_visitas_kanban_visitaskanban",
+      "community": 16,
+      "norm_label": "visitaskanban()"
+    },
+    {
+      "label": "whatsapp-chat.tsx",
+      "file_type": "code",
+      "source_file": "whatsapp-chat.tsx",
+      "source_location": "L1",
+      "id": "whatsapp_chat_tsx",
+      "community": 17,
+      "norm_label": "whatsapp-chat.tsx"
+    },
+    {
+      "label": "Mensagem",
+      "file_type": "code",
+      "source_file": "whatsapp-chat.tsx",
+      "source_location": "L7",
+      "id": "crm_whatsapp_chat_mensagem",
+      "community": 17,
+      "norm_label": "mensagem"
+    },
+    {
+      "label": "Props",
+      "file_type": "code",
+      "source_file": "whatsapp-chat.tsx",
+      "source_location": "L19",
+      "id": "crm_whatsapp_chat_props",
+      "community": 17,
+      "norm_label": "props"
+    },
+    {
+      "label": "WhatsAppChat()",
+      "file_type": "code",
+      "source_file": "whatsapp-chat.tsx",
+      "source_location": "L24",
+      "id": "crm_whatsapp_chat_whatsappchat",
+      "community": 17,
+      "norm_label": "whatsappchat()"
+    }
+  ],
+  "links": [
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "buscar-cnpj-modal.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "buscar_cnpj_modal_tsx",
+      "target": "crm_buscar_cnpj_modal_buscarcnpjmodalprops",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "buscar-cnpj-modal.tsx",
+      "source_location": "L15",
+      "weight": 1.0,
+      "source": "buscar_cnpj_modal_tsx",
+      "target": "crm_buscar_cnpj_modal_apidata",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "buscar-cnpj-modal.tsx",
+      "source_location": "L17",
+      "weight": 1.0,
+      "source": "buscar_cnpj_modal_tsx",
+      "target": "crm_buscar_cnpj_modal_formatcnpj",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "buscar-cnpj-modal.tsx",
+      "source_location": "L23",
+      "weight": 1.0,
+      "source": "buscar_cnpj_modal_tsx",
+      "target": "crm_buscar_cnpj_modal_buscarcnpjmodal",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "buscar-cnpj-modal.tsx",
+      "source_location": "L172",
+      "weight": 1.0,
+      "source": "crm_buscar_cnpj_modal_buscarcnpjmodal",
+      "target": "crm_buscar_cnpj_modal_formatcnpj",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "campanhas-kanban.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "campanhas_kanban_tsx",
+      "target": "kanban_column_tsx",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "campanhas-kanban.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "campanhas_kanban_tsx",
+      "target": "crm_kanban_column_droppablecolumn",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "campanhas-kanban.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "campanhas_kanban_tsx",
+      "target": "crm_kanban_column_kanbanskeleton",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "campanhas-kanban.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "campanhas_kanban_tsx",
+      "target": "crm_campanhas_kanban_campanhacard",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "campanhas-kanban.tsx",
+      "source_location": "L19",
+      "weight": 1.0,
+      "source": "campanhas_kanban_tsx",
+      "target": "crm_campanhas_kanban_tipo_labels",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "campanhas-kanban.tsx",
+      "source_location": "L26",
+      "weight": 1.0,
+      "source": "campanhas_kanban_tsx",
+      "target": "crm_campanhas_kanban_tipo_cores",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "campanhas-kanban.tsx",
+      "source_location": "L33",
+      "weight": 1.0,
+      "source": "campanhas_kanban_tsx",
+      "target": "crm_campanhas_kanban_default_statuses",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "campanhas-kanban.tsx",
+      "source_location": "L39",
+      "weight": 1.0,
+      "source": "campanhas_kanban_tsx",
+      "target": "crm_campanhas_kanban_formatardata",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "campanhas-kanban.tsx",
+      "source_location": "L44",
+      "weight": 1.0,
+      "source": "campanhas_kanban_tsx",
+      "target": "crm_campanhas_kanban_draggablecard",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "campanhas-kanban.tsx",
+      "source_location": "L91",
+      "weight": 1.0,
+      "source": "campanhas_kanban_tsx",
+      "target": "crm_campanhas_kanban_campanhaskanban",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "campanhas-kanban.tsx",
+      "source_location": "L76",
+      "weight": 1.0,
+      "source": "crm_campanhas_kanban_draggablecard",
+      "target": "crm_campanhas_kanban_formatardata",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "crm-pessoa-timeline.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "crm_pessoa_timeline_tsx",
+      "target": "crm_crm_pessoa_timeline_tipo_icon",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "crm-pessoa-timeline.tsx",
+      "source_location": "L16",
+      "weight": 1.0,
+      "source": "crm_pessoa_timeline_tsx",
+      "target": "crm_crm_pessoa_timeline_tipo_label",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "crm-pessoa-timeline.tsx",
+      "source_location": "L26",
+      "weight": 1.0,
+      "source": "crm_pessoa_timeline_tsx",
+      "target": "crm_crm_pessoa_timeline_fetchtimeline",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "crm-pessoa-timeline.tsx",
+      "source_location": "L32",
+      "weight": 1.0,
+      "source": "crm_pessoa_timeline_tsx",
+      "target": "crm_crm_pessoa_timeline_crmpessoatimeline",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "crm-pessoa-whatsapp.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "crm_pessoa_whatsapp_tsx",
+      "target": "crm_crm_pessoa_whatsapp_mensagem",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "crm-pessoa-whatsapp.tsx",
+      "source_location": "L19",
+      "weight": 1.0,
+      "source": "crm_pessoa_whatsapp_tsx",
+      "target": "crm_crm_pessoa_whatsapp_crmpessoawhatsapp",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "floatable-kanban.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "floatable_kanban_tsx",
+      "target": "crm_floatable_kanban_floatablekanban",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "google-drive-picker.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "google_drive_picker_tsx",
+      "target": "crm_google_drive_picker_driveitem",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "google-drive-picker.tsx",
+      "source_location": "L20",
+      "weight": 1.0,
+      "source": "google_drive_picker_tsx",
+      "target": "crm_google_drive_picker_drivefile",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "google-drive-picker.tsx",
+      "source_location": "L27",
+      "weight": 1.0,
+      "source": "google_drive_picker_tsx",
+      "target": "crm_google_drive_picker_breadcrumb",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "google-drive-picker.tsx",
+      "source_location": "L32",
+      "weight": 1.0,
+      "source": "google_drive_picker_tsx",
+      "target": "crm_google_drive_picker_googledrivepickerprops",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "google-drive-picker.tsx",
+      "source_location": "L38",
+      "weight": 1.0,
+      "source": "google_drive_picker_tsx",
+      "target": "crm_google_drive_picker_googledrivepicker",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "kanban-column.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "kanban_column_tsx",
+      "target": "crm_kanban_column_droppablecolumn",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "kanban-column.tsx",
+      "source_location": "L32",
+      "weight": 1.0,
+      "source": "kanban_column_tsx",
+      "target": "crm_kanban_column_kanbanskeleton",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "leads-kanban.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "leads_kanban_tsx",
+      "target": "kanban_column_tsx",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "oportunidades-kanban.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "oportunidades_kanban_tsx",
+      "target": "kanban_column_tsx",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "pessoas-kanban.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "pessoas_kanban_tsx",
+      "target": "kanban_column_tsx",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "propostas-kanban.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "propostas_kanban_tsx",
+      "target": "kanban_column_tsx",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "requisicoes-corte-kanban.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "requisicoes_corte_kanban_tsx",
+      "target": "kanban_column_tsx",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tarefas-kanban.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "tarefas_kanban_tsx",
+      "target": "kanban_column_tsx",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "leads-kanban.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "leads_kanban_tsx",
+      "target": "crm_kanban_column_droppablecolumn",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "oportunidades-kanban.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "oportunidades_kanban_tsx",
+      "target": "crm_kanban_column_droppablecolumn",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "pessoas-kanban.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "pessoas_kanban_tsx",
+      "target": "crm_kanban_column_droppablecolumn",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "propostas-kanban.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "propostas_kanban_tsx",
+      "target": "crm_kanban_column_droppablecolumn",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "requisicoes-corte-kanban.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "requisicoes_corte_kanban_tsx",
+      "target": "crm_kanban_column_droppablecolumn",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tarefas-kanban.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "tarefas_kanban_tsx",
+      "target": "crm_kanban_column_droppablecolumn",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "leads-kanban.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "leads_kanban_tsx",
+      "target": "crm_kanban_column_kanbanskeleton",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "oportunidades-kanban.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "oportunidades_kanban_tsx",
+      "target": "crm_kanban_column_kanbanskeleton",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "pessoas-kanban.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "pessoas_kanban_tsx",
+      "target": "crm_kanban_column_kanbanskeleton",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "propostas-kanban.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "propostas_kanban_tsx",
+      "target": "crm_kanban_column_kanbanskeleton",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "requisicoes-corte-kanban.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "requisicoes_corte_kanban_tsx",
+      "target": "crm_kanban_column_kanbanskeleton",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tarefas-kanban.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "tarefas_kanban_tsx",
+      "target": "crm_kanban_column_kanbanskeleton",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "leads-kanban.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "leads_kanban_tsx",
+      "target": "crm_leads_kanban_leadcard",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "leads-kanban.tsx",
+      "source_location": "L21",
+      "weight": 1.0,
+      "source": "leads_kanban_tsx",
+      "target": "crm_leads_kanban_origem_labels",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "leads-kanban.tsx",
+      "source_location": "L32",
+      "weight": 1.0,
+      "source": "leads_kanban_tsx",
+      "target": "crm_leads_kanban_default_statuses",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "leads-kanban.tsx",
+      "source_location": "L40",
+      "weight": 1.0,
+      "source": "leads_kanban_tsx",
+      "target": "crm_leads_kanban_draggablecard",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "leads-kanban.tsx",
+      "source_location": "L97",
+      "weight": 1.0,
+      "source": "leads_kanban_tsx",
+      "target": "crm_leads_kanban_leadskanban",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "oportunidades-kanban.tsx",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "oportunidades_kanban_tsx",
+      "target": "crm_oportunidades_kanban_oportunidadecard",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "oportunidades-kanban.tsx",
+      "source_location": "L20",
+      "weight": 1.0,
+      "source": "oportunidades_kanban_tsx",
+      "target": "crm_oportunidades_kanban_default_statuses",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "oportunidades-kanban.tsx",
+      "source_location": "L29",
+      "weight": 1.0,
+      "source": "oportunidades_kanban_tsx",
+      "target": "crm_oportunidades_kanban_formatar",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "oportunidades-kanban.tsx",
+      "source_location": "L34",
+      "weight": 1.0,
+      "source": "oportunidades_kanban_tsx",
+      "target": "crm_oportunidades_kanban_draggablecard",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "oportunidades-kanban.tsx",
+      "source_location": "L82",
+      "weight": 1.0,
+      "source": "oportunidades_kanban_tsx",
+      "target": "crm_oportunidades_kanban_oportunidadeskanban",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "oportunidades-kanban.tsx",
+      "source_location": "L75",
+      "weight": 1.0,
+      "source": "crm_oportunidades_kanban_draggablecard",
+      "target": "crm_oportunidades_kanban_formatar",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "pessoas-kanban.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "pessoas_kanban_tsx",
+      "target": "crm_pessoas_kanban_pessoacard",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "pessoas-kanban.tsx",
+      "source_location": "L22",
+      "weight": 1.0,
+      "source": "pessoas_kanban_tsx",
+      "target": "crm_pessoas_kanban_default_statuses",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "pessoas-kanban.tsx",
+      "source_location": "L30",
+      "weight": 1.0,
+      "source": "pessoas_kanban_tsx",
+      "target": "crm_pessoas_kanban_formatardocumento",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "pessoas-kanban.tsx",
+      "source_location": "L36",
+      "weight": 1.0,
+      "source": "pessoas_kanban_tsx",
+      "target": "crm_pessoas_kanban_draggablecard",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "pessoas-kanban.tsx",
+      "source_location": "L90",
+      "weight": 1.0,
+      "source": "pessoas_kanban_tsx",
+      "target": "crm_pessoas_kanban_pessoaskanban",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "pessoas-kanban.tsx",
+      "source_location": "L53",
+      "weight": 1.0,
+      "source": "crm_pessoas_kanban_draggablecard",
+      "target": "crm_pessoas_kanban_formatardocumento",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "propostas-kanban.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "propostas_kanban_tsx",
+      "target": "crm_propostas_kanban_propostacard",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "propostas-kanban.tsx",
+      "source_location": "L18",
+      "weight": 1.0,
+      "source": "propostas_kanban_tsx",
+      "target": "crm_propostas_kanban_default_statuses",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "propostas-kanban.tsx",
+      "source_location": "L25",
+      "weight": 1.0,
+      "source": "propostas_kanban_tsx",
+      "target": "crm_propostas_kanban_formatar",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "propostas-kanban.tsx",
+      "source_location": "L30",
+      "weight": 1.0,
+      "source": "propostas_kanban_tsx",
+      "target": "crm_propostas_kanban_draggablecard",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "propostas-kanban.tsx",
+      "source_location": "L74",
+      "weight": 1.0,
+      "source": "propostas_kanban_tsx",
+      "target": "crm_propostas_kanban_propostaskanban",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "propostas-kanban.tsx",
+      "source_location": "L46",
+      "weight": 1.0,
+      "source": "crm_propostas_kanban_draggablecard",
+      "target": "crm_propostas_kanban_formatar",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "quick-create-cidade.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "quick_create_cidade_tsx",
+      "target": "crm_quick_create_cidade_props",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "quick-create-cidade.tsx",
+      "source_location": "L15",
+      "weight": 1.0,
+      "source": "quick_create_cidade_tsx",
+      "target": "crm_quick_create_cidade_quickcreatecidade",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "select-cidade.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "select_cidade_tsx",
+      "target": "quick_create_cidade_tsx",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "select-cidade.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "select_cidade_tsx",
+      "target": "crm_quick_create_cidade_quickcreatecidade",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "quick-create-contato.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "quick_create_contato_tsx",
+      "target": "crm_quick_create_contato_props",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "quick-create-contato.tsx",
+      "source_location": "L15",
+      "weight": 1.0,
+      "source": "quick_create_contato_tsx",
+      "target": "crm_quick_create_contato_quickcreatecontato",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "quick-create-estado.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "quick_create_estado_tsx",
+      "target": "crm_quick_create_estado_props",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "quick-create-estado.tsx",
+      "source_location": "L14",
+      "weight": 1.0,
+      "source": "quick_create_estado_tsx",
+      "target": "crm_quick_create_estado_quickcreateestado",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "select-uf.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "select_uf_tsx",
+      "target": "quick_create_estado_tsx",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "select-uf.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "select_uf_tsx",
+      "target": "crm_quick_create_estado_quickcreateestado",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "quick-create-lead.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "quick_create_lead_tsx",
+      "target": "crm_quick_create_lead_props",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "quick-create-lead.tsx",
+      "source_location": "L14",
+      "weight": 1.0,
+      "source": "quick_create_lead_tsx",
+      "target": "crm_quick_create_lead_quickcreatelead",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "quick-create-oportunidade.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "quick_create_oportunidade_tsx",
+      "target": "crm_quick_create_oportunidade_props",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "quick-create-oportunidade.tsx",
+      "source_location": "L15",
+      "weight": 1.0,
+      "source": "quick_create_oportunidade_tsx",
+      "target": "crm_quick_create_oportunidade_quickcreateoportunidade",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "quick-create-pessoa.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "quick_create_pessoa_tsx",
+      "target": "select_uf_tsx",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "quick-create-pessoa.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "quick_create_pessoa_tsx",
+      "target": "crm_select_uf_selectuf",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "quick-create-pessoa.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "quick_create_pessoa_tsx",
+      "target": "select_cidade_tsx",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "quick-create-pessoa.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "quick_create_pessoa_tsx",
+      "target": "crm_select_cidade_selectcidade",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "quick-create-pessoa.tsx",
+      "source_location": "L12",
+      "weight": 1.0,
+      "source": "quick_create_pessoa_tsx",
+      "target": "crm_quick_create_pessoa_props",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "quick-create-pessoa.tsx",
+      "source_location": "L16",
+      "weight": 1.0,
+      "source": "quick_create_pessoa_tsx",
+      "target": "crm_quick_create_pessoa_quickcreatepessoa",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "requisicoes-corte-kanban.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "requisicoes_corte_kanban_tsx",
+      "target": "crm_requisicoes_corte_kanban_requisicaocard",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "requisicoes-corte-kanban.tsx",
+      "source_location": "L18",
+      "weight": 1.0,
+      "source": "requisicoes_corte_kanban_tsx",
+      "target": "crm_requisicoes_corte_kanban_status_config",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "requisicoes-corte-kanban.tsx",
+      "source_location": "L24",
+      "weight": 1.0,
+      "source": "requisicoes_corte_kanban_tsx",
+      "target": "crm_requisicoes_corte_kanban_draggablecard",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "requisicoes-corte-kanban.tsx",
+      "source_location": "L65",
+      "weight": 1.0,
+      "source": "requisicoes_corte_kanban_tsx",
+      "target": "crm_requisicoes_corte_kanban_requisicoescortekanban",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "rich-text-editor.tsx",
+      "source_location": "L15",
+      "weight": 1.0,
+      "source": "rich_text_editor_tsx",
+      "target": "crm_rich_text_editor_font_sizes",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "rich-text-editor.tsx",
+      "source_location": "L23",
+      "weight": 1.0,
+      "source": "rich_text_editor_tsx",
+      "target": "crm_rich_text_editor_font_families",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "rich-text-editor.tsx",
+      "source_location": "L28",
+      "weight": 1.0,
+      "source": "rich_text_editor_tsx",
+      "target": "crm_rich_text_editor_richtexteditorprops",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "rich-text-editor.tsx",
+      "source_location": "L35",
+      "weight": 1.0,
+      "source": "rich_text_editor_tsx",
+      "target": "crm_rich_text_editor_richtexteditor",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "select-cidade.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "select_cidade_tsx",
+      "target": "crm_select_cidade_cidade",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "select-cidade.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "select_cidade_tsx",
+      "target": "crm_select_cidade_props",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "select-cidade.tsx",
+      "source_location": "L15",
+      "weight": 1.0,
+      "source": "select_cidade_tsx",
+      "target": "crm_select_cidade_selectcidade",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "select-uf.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "select_uf_tsx",
+      "target": "crm_select_uf_estado",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "select-uf.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "select_uf_tsx",
+      "target": "crm_select_uf_props",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "select-uf.tsx",
+      "source_location": "L14",
+      "weight": 1.0,
+      "source": "select_uf_tsx",
+      "target": "crm_select_uf_selectuf",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tarefas-kanban.tsx",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "tarefas_kanban_tsx",
+      "target": "crm_tarefas_kanban_tarefacard",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tarefas-kanban.tsx",
+      "source_location": "L21",
+      "weight": 1.0,
+      "source": "tarefas_kanban_tsx",
+      "target": "crm_tarefas_kanban_tipo_labels",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tarefas-kanban.tsx",
+      "source_location": "L28",
+      "weight": 1.0,
+      "source": "tarefas_kanban_tsx",
+      "target": "crm_tarefas_kanban_tipo_cores",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tarefas-kanban.tsx",
+      "source_location": "L35",
+      "weight": 1.0,
+      "source": "tarefas_kanban_tsx",
+      "target": "crm_tarefas_kanban_default_statuses",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tarefas-kanban.tsx",
+      "source_location": "L40",
+      "weight": 1.0,
+      "source": "tarefas_kanban_tsx",
+      "target": "crm_tarefas_kanban_formatardata",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tarefas-kanban.tsx",
+      "source_location": "L45",
+      "weight": 1.0,
+      "source": "tarefas_kanban_tsx",
+      "target": "crm_tarefas_kanban_draggablecard",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tarefas-kanban.tsx",
+      "source_location": "L93",
+      "weight": 1.0,
+      "source": "tarefas_kanban_tsx",
+      "target": "crm_tarefas_kanban_tarefaskanban",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tarefas-kanban.tsx",
+      "source_location": "L77",
+      "weight": 1.0,
+      "source": "crm_tarefas_kanban_draggablecard",
+      "target": "crm_tarefas_kanban_formatardata",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "visitas-calendario.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "visitas_calendario_tsx",
+      "target": "crm_visitas_calendario_tipo_labels",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "visitas-calendario.tsx",
+      "source_location": "L13",
+      "weight": 1.0,
+      "source": "visitas_calendario_tsx",
+      "target": "crm_visitas_calendario_tipo_cores",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "visitas-calendario.tsx",
+      "source_location": "L19",
+      "weight": 1.0,
+      "source": "visitas_calendario_tsx",
+      "target": "crm_visitas_calendario_dias_semana",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "visitas-calendario.tsx",
+      "source_location": "L21",
+      "weight": 1.0,
+      "source": "visitas_calendario_tsx",
+      "target": "crm_visitas_calendario_getmonthdays",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "visitas-calendario.tsx",
+      "source_location": "L34",
+      "weight": 1.0,
+      "source": "visitas_calendario_tsx",
+      "target": "crm_visitas_calendario_formatdatekey",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "visitas-calendario.tsx",
+      "source_location": "L38",
+      "weight": 1.0,
+      "source": "visitas_calendario_tsx",
+      "target": "crm_visitas_calendario_visita",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "visitas-calendario.tsx",
+      "source_location": "L48",
+      "weight": 1.0,
+      "source": "visitas_calendario_tsx",
+      "target": "crm_visitas_calendario_visitascalendario",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "visitas-calendario.tsx",
+      "source_location": "L70",
+      "weight": 1.0,
+      "source": "crm_visitas_calendario_visitascalendario",
+      "target": "crm_visitas_calendario_formatdatekey",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "visitas-kanban.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "visitas_kanban_tsx",
+      "target": "crm_visitas_kanban_visitacard",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "visitas-kanban.tsx",
+      "source_location": "L20",
+      "weight": 1.0,
+      "source": "visitas_kanban_tsx",
+      "target": "crm_visitas_kanban_tipo_labels",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "visitas-kanban.tsx",
+      "source_location": "L26",
+      "weight": 1.0,
+      "source": "visitas_kanban_tsx",
+      "target": "crm_visitas_kanban_formatardata",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "visitas-kanban.tsx",
+      "source_location": "L31",
+      "weight": 1.0,
+      "source": "visitas_kanban_tsx",
+      "target": "crm_visitas_kanban_isfutura",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "visitas-kanban.tsx",
+      "source_location": "L39",
+      "weight": 1.0,
+      "source": "visitas_kanban_tsx",
+      "target": "crm_visitas_kanban_droppablecolumn",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "visitas-kanban.tsx",
+      "source_location": "L66",
+      "weight": 1.0,
+      "source": "visitas_kanban_tsx",
+      "target": "crm_visitas_kanban_draggablecard",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "visitas-kanban.tsx",
+      "source_location": "L112",
+      "weight": 1.0,
+      "source": "visitas_kanban_tsx",
+      "target": "crm_visitas_kanban_visitaskanban",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "visitas-kanban.tsx",
+      "source_location": "L97",
+      "weight": 1.0,
+      "source": "crm_visitas_kanban_draggablecard",
+      "target": "crm_visitas_kanban_formatardata",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "visitas-kanban.tsx",
+      "source_location": "L198",
+      "weight": 1.0,
+      "source": "crm_visitas_kanban_visitaskanban",
+      "target": "crm_visitas_kanban_formatardata",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "visitas-kanban.tsx",
+      "source_location": "L82",
+      "weight": 1.0,
+      "source": "crm_visitas_kanban_draggablecard",
+      "target": "crm_visitas_kanban_isfutura",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "whatsapp-chat.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "whatsapp_chat_tsx",
+      "target": "crm_whatsapp_chat_mensagem",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "whatsapp-chat.tsx",
+      "source_location": "L19",
+      "weight": 1.0,
+      "source": "whatsapp_chat_tsx",
+      "target": "crm_whatsapp_chat_props",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "whatsapp-chat.tsx",
+      "source_location": "L24",
+      "weight": 1.0,
+      "source": "whatsapp_chat_tsx",
+      "target": "crm_whatsapp_chat_whatsappchat",
+      "confidence_score": 1.0
+    }
+  ],
+  "hyperedges": [],
+  "built_at_commit": "f219d1ccdbbdeb03e4f8b7a40fdca251e6a9e8c8"
+}
