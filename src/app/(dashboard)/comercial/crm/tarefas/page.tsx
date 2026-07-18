@@ -1,7 +1,7 @@
 "use client"
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { usePathname } from "next/navigation"
+import { usePathname, useSearchParams } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { useState } from "react"
@@ -44,10 +44,11 @@ const FILTROS = [
 export default function TarefasPage() {
   const queryClient = useQueryClient()
   const pathname = usePathname()
+  const searchParams = useSearchParams()
   const info = getInfoContent(pathname)
   const [filtro, setFiltro] = useState("pendentes")
   const [dialogOpen, setDialogOpen] = useState(false)
-  const [modo, setModo] = useState<"tabela" | "kanban">("tabela")
+  const [modo, setModo] = useState<"tabela" | "kanban">(searchParams.get("view") === "kanban" ? "kanban" : "tabela")
 
   const { data: tarefas, isLoading } = useQuery({
     queryKey: ["crm-tarefas", filtro],

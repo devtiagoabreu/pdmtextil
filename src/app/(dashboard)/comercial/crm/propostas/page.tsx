@@ -5,7 +5,7 @@ import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import Link from "next/link"
 import { useState } from "react"
-import { useRouter, usePathname } from "next/navigation"
+import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import { PlusCircle, FileText, Search, Table, Columns } from "lucide-react"
 import PropostasKanban from "@/components/crm/propostas-kanban"
 import { FloatableKanban } from "@/components/crm/floatable-kanban"
@@ -33,9 +33,10 @@ const STATUS_CORES: Record<string, string> = {
 export default function PropostasPage() {
   const router = useRouter()
   const pathname = usePathname()
+  const searchParams = useSearchParams()
   const info = getInfoContent(pathname)
   const [search, setSearch] = useState("")
-  const [modo, setModo] = useState<"tabela" | "kanban">("tabela")
+  const [modo, setModo] = useState<"tabela" | "kanban">(searchParams.get("view") === "kanban" ? "kanban" : "tabela")
 
   const { data: propostas, isLoading } = useQuery({
     queryKey: ["crm-propostas"],

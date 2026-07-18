@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { useRouter, usePathname } from "next/navigation"
+import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { Scissors, Plus, FileText, Loader2, Truck, Columns, Table, RotateCw } from "lucide-react"
@@ -22,6 +22,7 @@ const STATUS_CONFIG: Record<string, { label: string; classes: string }> = {
 export default function ListaRequisicoesCortePage() {
   const router = useRouter()
   const pathname = usePathname()
+  const searchParams = useSearchParams()
   const info = getInfoContent(pathname)
   const [data, setData] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -31,7 +32,7 @@ export default function ListaRequisicoesCortePage() {
 
   const [selected, setSelected] = useState<Set<number>>(new Set())
   const [gerandoPdf, setGerandoPdf] = useState(false)
-  const [modo, setModo] = useState<"tabela" | "kanban">("tabela")
+  const [modo, setModo] = useState<"tabela" | "kanban">(searchParams.get("view") === "kanban" ? "kanban" : "tabela")
   const [pdfOrientacao, setPdfOrientacao] = useState<"portrait" | "landscape">("portrait")
 
   useEffect(() => {

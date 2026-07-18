@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query"
 import Link from "next/link"
 import { useState } from "react"
-import { usePathname } from "next/navigation"
+import { usePathname, useSearchParams } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { PlusCircle, UserPlus, Search, Phone, Star, Building2, XCircle, Table, Columns } from "lucide-react"
@@ -39,9 +39,10 @@ const ORIGEM_LABELS: Record<string, string> = {
 
 export default function CrmLeadsPage() {
   const pathname = usePathname()
+  const searchParams = useSearchParams()
   const info = getInfoContent(pathname)
   const [search, setSearch] = useState("")
-  const [modo, setModo] = useState<"tabela" | "kanban">("tabela")
+  const [modo, setModo] = useState<"tabela" | "kanban">(searchParams.get("view") === "kanban" ? "kanban" : "tabela")
   const [leadToPerder, setLeadToPerder] = useState<any>(null)
 
   const { data: leads, isLoading, refetch } = useQuery({

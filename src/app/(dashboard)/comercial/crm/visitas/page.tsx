@@ -5,7 +5,7 @@ import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import Link from "next/link"
 import { useState } from "react"
-import { useRouter, usePathname } from "next/navigation"
+import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import { PlusCircle, CalendarDays, Table, Columns, Search } from "lucide-react"
 import { useStatuses } from "@/hooks/use-statuses"
 import VisitasCalendario from "@/components/crm/visitas-calendario"
@@ -35,10 +35,11 @@ type ModoVisao = "tabela" | "calendario" | "kanban"
 export default function VisitasPage() {
   const router = useRouter()
   const pathname = usePathname()
+  const searchParams = useSearchParams()
   const info = getInfoContent(pathname)
   const { getLabel, getColor } = useStatuses("VISITA")
   const [search, setSearch] = useState("")
-  const [modo, setModo] = useState<ModoVisao>("tabela")
+  const [modo, setModo] = useState<ModoVisao>(searchParams.get("view") === "kanban" ? "kanban" : "tabela")
 
   const { data: visitas, isLoading } = useQuery({
     queryKey: ["crm-visitas"],

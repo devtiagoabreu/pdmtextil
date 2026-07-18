@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
-import { usePathname } from "next/navigation"
+import { usePathname, useSearchParams } from "next/navigation"
 import { useState } from "react"
 import Link from "next/link"
 import { Plus, Megaphone, Calendar, TrendingUp, Users, DollarSign, ArrowRight, Loader2, Table, Columns } from "lucide-react"
@@ -32,8 +32,9 @@ const STATUS_CORES: Record<string, string> = {
 
 export default function CampanhasPage() {
   const pathname = usePathname()
+  const searchParams = useSearchParams()
   const info = getInfoContent(pathname)
-  const [modo, setModo] = useState<"tabela" | "kanban">("tabela")
+  const [modo, setModo] = useState<"tabela" | "kanban">(searchParams.get("view") === "kanban" ? "kanban" : "tabela")
   const { data, isLoading } = useQuery({
     queryKey: ["crm-campanhas"],
     queryFn: () => fetch("/api/crm/campanhas").then((r) => r.json()),
