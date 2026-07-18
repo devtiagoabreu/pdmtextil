@@ -4,8 +4,9 @@ import { useEffect, useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { DndContext, DragOverlay, useDraggable, useDroppable, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
-import { Loader2 } from "lucide-react"
+import { Loader2, MapPin } from "lucide-react"
 import { useStatuses } from "@/hooks/use-statuses"
+import VisitLocationModal from "@/components/crm/visit-location-modal"
 
 interface VisitaCard {
   id: number
@@ -63,7 +64,7 @@ function DroppableColumn({ id, children, rotulo, cor, count }: { id: string; chi
   )
 }
 
-function DraggableCard({ visita }: { visita: VisitaCard }) {
+function DraggableCard({ visita, onLocationClick }: { visita: VisitaCard; onLocationClick: (id: number, nome: string) => void }) {
   const router = useRouter()
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: `vis-${visita.id}`,
@@ -96,7 +97,19 @@ function DraggableCard({ visita }: { visita: VisitaCard }) {
         <span className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${future ? "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300" : "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300"}`}>
           {formatarData(visita.dataVisita)}
         </span>
-        <span className="text-[10px] text-slate-400">{TIPO_LABELS[visita.tipo] || visita.tipo}</span>
+        <div className="flex items-center gap-1">
+          <span className="text-[10px] text-slate-400">{TIPO_LABELS[visita.tipo] || visita.tipo}</span>
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              onLocationClick(visita.id, visita.empresaNome || "Visita")
+            }}
+            className="p-1 rounded hover:bg-blue-100 dark:hover:bg-blue-950/50 transition-colors"
+            title="Gerenciar localizações"
+          >
+            <MapPin size={12} className="text-blue-500" />
+          </button>
+        </div>
       </div>
       <p className="text-sm font-medium text-slate-900 dark:text-slate-100 mt-1 leading-snug line-clamp-2">
         {visita.empresaNome || "Sem pessoa"}
@@ -113,6 +126,7 @@ export default function VisitasKanban({ visitas }: { visitas: VisitaCard[] }) {
   const { statuses, loading: statusLoading, getLabel } = useStatuses("VISITA")
   const [activeCard, setActiveCard] = useState<VisitaCard | null>(null)
   const [cards, setCards] = useState<VisitaCard[]>(visitas || [])
+  const [selectedVisita, setSelectedVisita] = useState<{ id: number; nome: string } | null>(null)
 
   useEffect(() => { setCards(visitas || []) }, [visitas])
 
@@ -184,7 +198,11 @@ export default function VisitasKanban({ visitas }: { visitas: VisitaCard[] }) {
           {colunas.map(col => (
             <DroppableColumn key={col.nome} id={col.nome} rotulo={col.rotulo || col.nome} cor={col.cor} count={col.cards.length}>
               {col.cards.map(card => (
-                <DraggableCard key={`vis-${card.id}`} visita={card} />
+                <DraggableCard
+                  key={`vis-${card.id}`}
+                  visita={card}
+                  onLocationClick={(id, nome) => setSelectedVisita({ id, nome })}
+                />
               ))}
             </DroppableColumn>
           ))}
@@ -203,6 +221,15 @@ export default function VisitasKanban({ visitas }: { visitas: VisitaCard[] }) {
           </DragOverlay>
         )}
       </DndContext>
+
+      {selectedVisita && (
+        <VisitLocationModal
+          visitaId={selectedVisita.id}
+          empresaNome={selectedVisita.nome}
+          open={!!selectedVisita}
+          onClose={() => setSelectedVisita(null)}
+        />
+      )}
     </div>
   )
 }

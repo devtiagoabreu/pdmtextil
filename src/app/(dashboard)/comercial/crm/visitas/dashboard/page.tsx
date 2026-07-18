@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query"
 import Link from "next/link"
+import { useState } from "react"
 import {
   Calendar, CheckCircle2, XCircle, Clock, MapPin, Users,
   ArrowRight, BarChart3, PieChart as PieChartIcon,
@@ -12,6 +13,7 @@ import {
 } from "recharts"
 import { ChartTooltip } from "@/components/ui/chart-tooltip"
 import { AnimatedLine } from "@/components/ui/animated-line"
+import VisitLocationModal from "@/components/crm/visit-location-modal"
 
 type VisitasDashboardData = {
   total: number
@@ -23,6 +25,7 @@ type VisitasDashboardData = {
   byTipo: { tipo: string; total: number }[]
   byStatus: { status: string; total: number }[]
   porRepresentante: { representanteId: number | null; representanteNome: string; total: number }[]
+  ultimasVisitas: { id: number; empresaId: number; dataVisita: string; tipo: string; status: string }[]
 }
 
 const TIPO_CORES: Record<string, string> = {
@@ -54,6 +57,7 @@ const TIPO_LABELS: Record<string, string> = {
 const CHART_COLORS = ["#6366f1", "#06b6d4", "#f97316", "#22c55e", "#ef4444", "#8b5cf6"]
 
 export default function VisitasDashboardPage() {
+  const [selectedVisita, setSelectedVisita] = useState<{ id: number; nome: string } | null>(null)
   const { data, isLoading } = useQuery<VisitasDashboardData>({
     queryKey: ["visitas-dashboard"],
     queryFn: () => fetch("/api/crm/visitas/dashboard").then((r) => r.json()),
@@ -267,6 +271,63 @@ export default function VisitasDashboardPage() {
             )}
           </div>
 
+          {/* Linha 4: Últimas Visitas */}
+          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800">
+              <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 flex items-center gap-2">
+                <Calendar size={16} className="text-amber-500" />
+                Últimas Visitas
+              </h2>
+              <Link href="/comercial/crm/visitas" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
+                Ver todas <ArrowRight size={12} />
+              </Link>
+            </div>
+            {data?.ultimasVisitas && data.ultimasVisitas.length > 0 ? (
+              <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                {data.ultimasVisitas.map((visita) => (
+                  <div key={visita.id} className="flex items-center justify-between p-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <Link
+                        href={`/comercial/crm/visitas/${visita.id}`}
+                        className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate hover:underline"
+                      >
+                        Visita #{visita.id}
+                      </Link>
+                      <span className="text-xs text-slate-500">
+                        {visita.dataVisita
+                          ? new Date(visita.dataVisita + "T12:00:00").toLocaleDateString("pt-BR")
+                          : "—"}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
+                        visita.status === "REALIZADA"
+                          ? "bg-green-100 text-green-700 dark:bg-green-950/50 dark:text-green-400"
+                          : visita.status === "CANCELADA"
+                          ? "bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-400"
+                          : "bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
+                      }`}>
+                        {visita.status}
+                      </span>
+                      <button
+                        onClick={() => setSelectedVisita({ id: visita.id, nome: `Visita #${visita.id}` })}
+                        className="p-1.5 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-950/50 transition-colors"
+                        title="Gerenciar localizações"
+                      >
+                        <MapPin size={14} className="text-blue-500" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <Calendar className="w-10 h-10 text-slate-300 dark:text-slate-700 mb-2" />
+                <p className="text-sm text-slate-400">Nenhuma visita registrada</p>
+              </div>
+            )}
+          </div>
+
           {/* Quick Actions */}
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
             <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">Ações Rápidas</h2>
@@ -278,6 +339,15 @@ export default function VisitasDashboardPage() {
             </div>
           </div>
         </>
+      )}
+
+      {selectedVisita && (
+        <VisitLocationModal
+          visitaId={selectedVisita.id}
+          empresaNome={selectedVisita.nome}
+          open={!!selectedVisita}
+          onClose={() => setSelectedVisita(null)}
+        />
       )}
     </div>
   )
