@@ -1,8 +1,8 @@
 "use client"
 
-import { BarChart, Bar, Cell, ResponsiveContainer, type BarChartProps, type BarProps } from "recharts"
+import { BarChart, Bar, Cell, ResponsiveContainer } from "recharts"
 
-interface StaggeredBarChartProps extends Omit<BarChartProps, "children"> {
+interface StaggeredBarChartProps {
   data: Array<Record<string, unknown>>
   dataKey: string
   colors?: string[]
@@ -10,7 +10,9 @@ interface StaggeredBarChartProps extends Omit<BarChartProps, "children"> {
   staggerDelay?: number
   animationDuration?: number
   animationBegin?: number
-  barProps?: Partial<BarProps>
+  height?: number
+  margin?: { top?: number; right?: number; bottom?: number; left?: number }
+  children?: React.ReactNode
 }
 
 export function StaggeredBarChart({
@@ -21,13 +23,14 @@ export function StaggeredBarChart({
   staggerDelay = 100,
   animationDuration = 1200,
   animationBegin = 800,
-  barProps,
-  ...chartProps
+  height = 220,
+  margin,
+  children,
 }: StaggeredBarChartProps) {
   return (
-    <ResponsiveContainer width="100%" height={chartProps.height || 220}>
-      <BarChart {...chartProps} data={data}>
-        {chartProps.children}
+    <ResponsiveContainer width="100%" height={height}>
+      <BarChart data={data} margin={margin}>
+        {children}
         <Bar dataKey={dataKey} radius={radius} isAnimationActive={false}>
           {data.map((entry, index) => (
             <Cell
