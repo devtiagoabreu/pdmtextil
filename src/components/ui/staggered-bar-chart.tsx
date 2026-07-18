@@ -20,8 +20,7 @@ export function StaggeredBarChart({
   dataKey,
   colors = ["#6366f1"],
   radius = [4, 4, 0, 0],
-  staggerDelay = 100,
-  animationDuration = 1200,
+  animationDuration = 1800,
   animationBegin = 800,
   height = 220,
   margin,
@@ -31,15 +30,18 @@ export function StaggeredBarChart({
     <ResponsiveContainer width="100%" height={height}>
       <BarChart data={data} margin={margin}>
         {children}
-        <Bar dataKey={dataKey} radius={radius} isAnimationActive={false}>
+        <Bar
+          dataKey={dataKey}
+          radius={radius}
+          isAnimationActive={true}
+          animationDuration={animationDuration}
+          animationEasing="ease-in-out"
+          animationBegin={animationBegin}
+        >
           {data.map((entry, index) => (
             <Cell
               key={`cell-${index}`}
               fill={colors[index % colors.length]}
-              isAnimationActive={true}
-              animationDuration={animationDuration}
-              animationEasing="ease-in-out"
-              animationBegin={animationBegin + index * staggerDelay}
             />
           ))}
         </Bar>
