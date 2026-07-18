@@ -9,7 +9,10 @@ import { crmVisitas } from "@/lib/db/schema/crm-visitas"
 import { crmTarefas } from "@/lib/db/schema/crm-tarefas"
 import { crmTimelineEventos } from "@/lib/db/schema/crm-timeline-eventos"
 import { crmContatos } from "@/lib/db/schema/crm-contatos"
+import { crmCampanhas } from "@/lib/db/schema/crm-campanhas"
 import { crmPrevisaoVendas } from "@/lib/db/schema/crm-previsao-vendas"
+import { emailEnviados } from "@/lib/db/schema/email-enviados"
+import { emailCliques } from "@/lib/db/schema/email-cliques"
 import { eq, desc, sql, and, gte, lte, count } from "drizzle-orm"
 
 export const dynamic = "force-dynamic"
@@ -40,6 +43,12 @@ export async function GET() {
       forecastRaw,
       recentesRaw,
       previsaoVendasRaw,
+      campanhasTotal,
+      campanhasAtivas,
+      campanhasOrcamento,
+      emailEnviadosTotal,
+      emailEnviadosLidos,
+      emailCliquesTotal,
     ] = await Promise.all([
       db.select({ total: count() }).from(crmLeads),
       db.select({ total: count() }).from(crmLeads).where(gte(crmLeads.createdAt, new Date(inicioMes))),
@@ -98,6 +107,14 @@ export async function GET() {
         .from(crmPrevisaoVendas)
         .orderBy(desc(crmPrevisaoVendas.periodo))
         .limit(12),
+      db.select({ total: count() }).from(crmCampanhas),
+      db.select({ total: count() }).from(crmCampanhas).where(eq(crmCampanhas.status, "ATIVA")),
+      db
+        .select({ total: sql<string>`COALESCE(SUM(${crmCampanhas.orcamento}), 0)` })
+        .from(crmCampanhas),
+      db.select({ total: count() }).from(emailEnviados),
+      db.select({ total: count() }).from(emailEnviados).where(eq(emailEnviados.status, "aberto")),
+      db.select({ total: count() }).from(emailCliques),
     ])
 
     const getCount = (rows: { total: number }[]) => Number(rows[0]?.total ?? 0)
@@ -144,6 +161,16 @@ export async function GET() {
         valorReal: r.valorReal ? Number(r.valorReal) : null,
         dados: r.dados,
       })),
+      campanhas: {
+        total: getCount(campanhasTotal),
+        ativas: getCount(campanhasAtivas),
+        orcamentoTotal: Number(campanhasOrcamento[0]?.total ?? 0),
+      },
+      emailMassa: {
+        enviados: getCount(emailEnviadosTotal),
+        lidos: getCount(emailEnviadosLidos),
+        clicados: getCount(emailCliquesTotal),
+      },
     })
   } catch (error) {
     console.error("[GET /api/crm/dashboard]", error)

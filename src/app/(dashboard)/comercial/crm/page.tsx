@@ -8,7 +8,7 @@ import Link from "next/link"
 import {
   Building2, Users, Target, UserPlus, TrendingUp, Clock, CheckCircle2,
   FileText, Calendar, ArrowRight, Handshake, XCircle, AlertCircle,
-  BarChart3, PieChart,
+  BarChart3, PieChart, Megaphone, Mail, Eye, MousePointerClick,
 } from "lucide-react"
 import {
   LineChart, Line, BarChart, Bar, PieChart as RPieChart, Pie, Cell,
@@ -35,6 +35,8 @@ type CrmDashboardData = {
   conversao: { oportunidadesConvertidas: number; totalOportunidades: number }
   recentes: { id: number; tipo: string; descricao: string; dataEvento: string }[]
   previsaoVendas: { periodo: string; valorPrevisto: number; valorReal: number | null; dados: any }[]
+  campanhas: { total: number; ativas: number; orcamentoTotal: number }
+  emailMassa: { enviados: number; lidos: number; clicados: number }
 }
 
 const STATUS_CORES: Record<string, string> = {
@@ -125,7 +127,7 @@ export default function CrmDashboardPage() {
       ) : (
         <>
           {/* Linha 1: Cards de resumo */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8">
             <SummaryCard
               href="/comercial/crm/leads"
               icon={<UserPlus size={20} />}
@@ -177,6 +179,24 @@ export default function CrmDashboardPage() {
               sub={data?.tarefas.vencendo ? `${data.tarefas.vencendo} vencidas` : undefined}
               bgColor="bg-rose-100 dark:bg-rose-950/50"
               iconColor="text-rose-600 dark:text-rose-400"
+            />
+            <SummaryCard
+              href="/comercial/crm/campanhas"
+              icon={<Megaphone size={20} />}
+              value={data?.campanhas.total ?? 0}
+              label="Campanhas"
+              sub={`${data?.campanhas.ativas ?? 0} ativas`}
+              bgColor="bg-violet-100 dark:bg-violet-950/50"
+              iconColor="text-violet-600 dark:text-violet-400"
+            />
+            <SummaryCard
+              href="/email/massivo"
+              icon={<Mail size={20} />}
+              value={data?.emailMassa.enviados ?? 0}
+              label="Emails Enviados"
+              sub={`${data?.emailMassa.lidos ?? 0} lidos · ${data?.emailMassa.clicados ?? 0} clicados`}
+              bgColor="bg-teal-100 dark:bg-teal-950/50"
+              iconColor="text-teal-600 dark:text-teal-400"
             />
           </div>
 
@@ -372,13 +392,15 @@ export default function CrmDashboardPage() {
           {/* Quick Actions */}
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
             <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">Ações Rápidas</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-9 gap-3">
               <QuickAction href="/comercial/crm/leads/novo" icon={<UserPlus size={18} />} label="Novo Lead" color="text-emerald-600" bg="bg-emerald-100 dark:bg-emerald-950/50" />
               <QuickAction href="/comercial/crm/pessoas/novo" icon={<Building2 size={18} />} label="Nova Pessoa (Negócio)" color="text-blue-600" bg="bg-blue-100 dark:bg-blue-950/50" />
               <QuickAction href="/comercial/crm/oportunidades/novo" icon={<Target size={18} />} label="Nova Oportunidade" color="text-purple-600" bg="bg-purple-100 dark:bg-purple-950/50" />
               <QuickAction href="/comercial/crm/oportunidades/kanban" icon={<BarChart3 size={18} />} label="Kanban" color="text-indigo-600" bg="bg-indigo-100 dark:bg-indigo-950/50" />
               <QuickAction href="/comercial/crm/visitas/novo" icon={<Calendar size={18} />} label="Nova Visita" color="text-amber-600" bg="bg-amber-100 dark:bg-amber-950/50" />
               <QuickAction href="/comercial/crm/propostas/novo" icon={<FileText size={18} />} label="Nova Proposta" color="text-cyan-600" bg="bg-cyan-100 dark:bg-cyan-950/50" />
+              <QuickAction href="/comercial/crm/campanhas/nova" icon={<Megaphone size={18} />} label="Nova Campanha" color="text-violet-600" bg="bg-violet-100 dark:bg-violet-950/50" />
+              <QuickAction href="/email/massivo" icon={<Mail size={18} />} label="Email Massa" color="text-teal-600" bg="bg-teal-100 dark:bg-teal-950/50" />
               <QuickAction href="/comercial/crm/tarefas" icon={<CheckCircle2 size={18} />} label="Minhas Tarefas" color="text-rose-600" bg="bg-rose-100 dark:bg-rose-950/50" />
             </div>
           </div>
