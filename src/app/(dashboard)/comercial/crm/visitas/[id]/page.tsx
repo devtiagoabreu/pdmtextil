@@ -14,6 +14,7 @@ import { SelectUf } from "@/components/crm/select-uf"
 import { SelectCidade } from "@/components/crm/select-cidade"
 import { RichTextEditor } from "@/components/crm/rich-text-editor"
 import VisitReportButton from "@/components/crm/visit-report-button"
+import SendSurveyButton from "@/components/crm/send-survey-button"
 
 const TIPO_OPTIONS = [
   { value: "PRESENCIAL", label: "Presencial" },
@@ -233,6 +234,7 @@ export default function DetalheVisitaPage() {
           ) : (
             <>
               <VisitReportButton visita={visita} />
+              <SendSurveyButton visitaId={visita.id} empresaNome={visita.empresaNome || undefined} />
               <button onClick={startEditing} className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:underline">
                 <Pencil size={14} /> Editar
               </button>

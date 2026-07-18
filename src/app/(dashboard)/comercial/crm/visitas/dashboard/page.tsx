@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useState } from "react"
 import {
   Calendar, CheckCircle2, XCircle, Clock, MapPin, Users,
-  ArrowRight, BarChart3, PieChart as PieChartIcon,
+  ArrowRight, BarChart3, PieChart as PieChartIcon, ClipboardCheck,
 } from "lucide-react"
 import {
   BarChart, Bar, PieChart as RPieChart, Pie, Cell,
@@ -26,6 +26,7 @@ type VisitasDashboardData = {
   byStatus: { status: string; total: number }[]
   porRepresentante: { representanteId: number | null; representanteNome: string; total: number }[]
   ultimasVisitas: { id: number; empresaId: number; dataVisita: string; tipo: string; status: string }[]
+  pesquisas: { enviadas: number; abertas: number; respondidas: number }
 }
 
 const TIPO_CORES: Record<string, string> = {
@@ -88,7 +89,7 @@ export default function VisitasDashboardPage() {
       ) : (
         <>
           {/* Linha 1: Cards de resumo */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
             <SummaryCard
               href="/comercial/crm/visitas"
               icon={<Calendar size={20} />}
@@ -133,9 +134,18 @@ export default function VisitasDashboardPage() {
               href="/comercial/crm/visitas"
               icon={<Calendar size={20} />}
               value={data?.esteMes ?? 0}
-              label="Este Mês"
+              label="Este Mes"
               bgColor="bg-teal-100 dark:bg-teal-950/50"
               iconColor="text-teal-600 dark:text-teal-400"
+            />
+            <SummaryCard
+              href="/comercial/crm/visitas"
+              icon={<ClipboardCheck size={20} />}
+              value={data?.pesquisas?.respondidas ?? 0}
+              label="Pesquisas Respondidas"
+              sub={`${data?.pesquisas?.abertas ?? 0} abertas`}
+              bgColor="bg-violet-100 dark:bg-violet-950/50"
+              iconColor="text-violet-600 dark:text-violet-400"
             />
           </div>
 
