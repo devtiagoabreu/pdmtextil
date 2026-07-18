@@ -147,6 +147,7 @@ export const searchRegistry: SearchItem[] = [
   { id: "crm-visitas-detalhe", label: "CRM — Visita (Detalhe)", keywords: ["crm", "visita", "detalhe", "ata", "fotos"], href: "/comercial/crm/visitas/[id]", description: "Detalhe da visita com ata e fotos", module: "CRM" },
   { id: "crm-visitas-kanban", label: "Kanban — Visitas CRM", keywords: ["crm", "visita", "visitas", "kanban", "quadro", "status", "arrastar", "agenda"], href: "/comercial/crm/visitas?view=kanban", description: "Kanban de visitas comerciais com drag-and-drop", module: "CRM" },
   { id: "crm-visitas-dashboard", label: "CRM — Dashboard de Visitas", keywords: ["crm", "visita", "dashboard", "metricas", "painel", "performance", "checkin"], href: "/comercial/crm/visitas/dashboard", description: "Dashboard de métricas de visitas comerciais", module: "CRM" },
+  { id: "crm-email-config", label: "CRM — Config Email", keywords: ["crm", "email", "smtp", "config", "configuracao", "pesquisa"], href: "/comercial/crm/configuracoes/email", description: "Configuração de email para pesquisas do CRM", module: "CRM" },
 
   // CRM — Tarefas
   { id: "crm-tarefas", label: "CRM — Minhas Tarefas", keywords: ["crm", "tarefa", "tarefas", "agenda", "produtividade", "comercial"], href: "/comercial/crm/tarefas", description: "Minhas tarefas e agenda CRM", module: "CRM" },

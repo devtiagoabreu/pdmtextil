@@ -3,6 +3,7 @@ import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { crmVisitas } from "@/lib/db/schema/crm-visitas"
 import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
+import { clientes } from "@/lib/db/schema/clientes"
 import { crmOportunidades } from "@/lib/db/schema/crm-oportunidades"
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq, desc, sql } from "drizzle-orm"
@@ -39,6 +40,8 @@ export async function GET(req: NextRequest) {
         relato: crmVisitas.relato,
         empresaId: crmVisitas.empresaId,
         empresaNome: crmPessoas.razaoSocial,
+        clienteId: crmVisitas.clienteId,
+        clienteNome: clientes.nome,
         oportunidadeId: crmVisitas.oportunidadeId,
         oportunidadeTitulo: crmOportunidades.titulo,
         contatoId: crmVisitas.contatoId,
@@ -49,6 +52,7 @@ export async function GET(req: NextRequest) {
       })
       .from(crmVisitas)
       .leftJoin(crmPessoas, eq(crmVisitas.empresaId, crmPessoas.id))
+      .leftJoin(clientes, eq(crmVisitas.clienteId, clientes.id))
       .leftJoin(crmOportunidades, eq(crmVisitas.oportunidadeId, crmOportunidades.id))
       .leftJoin(usuarios, eq(crmVisitas.criadoPor, usuarios.id))
       .where(where)
@@ -73,7 +77,8 @@ export async function POST(req: NextRequest) {
     const [nova] = await db
       .insert(crmVisitas)
       .values({
-        empresaId: body.empresaId,
+        empresaId: body.empresaId || null,
+        clienteId: body.clienteId || null,
         oportunidadeId: body.oportunidadeId || null,
         contatoId: body.contatoId || null,
         dataVisita: body.dataVisita,

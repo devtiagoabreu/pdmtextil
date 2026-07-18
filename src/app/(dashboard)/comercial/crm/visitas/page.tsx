@@ -51,6 +51,7 @@ export default function VisitasPage() {
 
   const filtered = (visitas || []).filter((v: any) =>
     !search || v.empresaNome?.toLowerCase().includes(search.toLowerCase()) ||
+    v.clienteNome?.toLowerCase().includes(search.toLowerCase()) ||
     v.oportunidadeTitulo?.toLowerCase().includes(search.toLowerCase())
   )
 
@@ -154,7 +155,7 @@ export default function VisitasPage() {
               <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Data</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Pessoa (Negócio)</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Entidade</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Oportunidade</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Tipo</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Status</th>
@@ -172,7 +173,7 @@ export default function VisitasPage() {
                     <td className="px-4 py-3 text-sm text-slate-900 dark:text-slate-200">
                       {v.dataVisita ? new Date(v.dataVisita + "T12:00:00").toLocaleDateString("pt-BR") : "—"}
                     </td>
-                    <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-slate-200">{v.empresaNome || "—"}</td>
+                    <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-slate-200">{v.empresaNome || v.clienteNome || "—"}</td>
                     <td className="px-4 py-3 text-sm text-slate-500">{v.oportunidadeTitulo || "—"}</td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex text-[10px] px-2 py-0.5 rounded-full font-medium ${TIPO_CORES[v.tipo] || ""}`}>
@@ -192,7 +193,7 @@ export default function VisitasPage() {
                       <button
                         onClick={(e) => {
                           e.stopPropagation()
-                          setSelectedVisita({ id: v.id, nome: v.empresaNome || "Visita" })
+                          setSelectedVisita({ id: v.id, nome: v.empresaNome || v.clienteNome || "Visita" })
                         }}
                         className="p-1.5 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-950/50 transition-colors"
                         title="Gerenciar localizações"

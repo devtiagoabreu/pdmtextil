@@ -14,6 +14,7 @@ interface VisitaCard {
   tipo: string
   status: string
   empresaNome: string | null
+  clienteNome: string | null
   oportunidadeTitulo: string | null
   criadoPorNome: string | null
 }
@@ -102,7 +103,7 @@ function DraggableCard({ visita, onLocationClick }: { visita: VisitaCard; onLoca
           <button
             onClick={(e) => {
               e.stopPropagation()
-              onLocationClick(visita.id, visita.empresaNome || "Visita")
+              onLocationClick(visita.id, visita.empresaNome || visita.clienteNome || "Visita")
             }}
             className="p-1 rounded hover:bg-blue-100 dark:hover:bg-blue-950/50 transition-colors"
             title="Gerenciar localizações"
@@ -112,7 +113,7 @@ function DraggableCard({ visita, onLocationClick }: { visita: VisitaCard; onLoca
         </div>
       </div>
       <p className="text-sm font-medium text-slate-900 dark:text-slate-100 mt-1 leading-snug line-clamp-2">
-        {visita.empresaNome || "Sem pessoa"}
+        {visita.empresaNome || visita.clienteNome || "Sem entidade"}
       </p>
       {visita.oportunidadeTitulo && (
         <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">{visita.oportunidadeTitulo}</p>
@@ -216,7 +217,7 @@ export default function VisitasKanban({ visitas }: { visitas: VisitaCard[] }) {
                   {formatarData(activeCard.dataVisita)}
                 </span>
               </div>
-              <p className="text-sm font-medium text-slate-900 mt-1">{activeCard.empresaNome || "Sem negócio"}</p>
+              <p className="text-sm font-medium text-slate-900 mt-1">{activeCard.empresaNome || activeCard.clienteNome || "Sem entidade"}</p>
             </div>
           </DragOverlay>
         )}

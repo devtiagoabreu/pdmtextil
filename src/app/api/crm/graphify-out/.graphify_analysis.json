@@ -1,0 +1,314 @@
+{
+  "communities": {
+    "0": [
+      "campanhas_route_ts",
+      "campanhas_route_post",
+      "campanhas_route_get"
+    ],
+    "1": [
+      "cidades_route_get",
+      "cidades_route_ts",
+      "cidades_route_post"
+    ],
+    "2": [
+      "consulta_cnpj_route_ts",
+      "consulta_cnpj_route_get"
+    ],
+    "3": [
+      "contatos_route_post",
+      "contatos_route_get",
+      "contatos_route_ts"
+    ],
+    "4": [
+      "dashboard_route_get",
+      "dashboard_route_ts"
+    ],
+    "5": [
+      "equipes_route_get",
+      "equipes_route_ts",
+      "equipes_route_post"
+    ],
+    "6": [
+      "membros_route_post",
+      "membros_route_get",
+      "equipes_id_membros_route_ts",
+      "membros_route_delete"
+    ],
+    "7": [
+      "estados_route_delete",
+      "estados_route_get",
+      "estados_route_ts",
+      "estados_route_post"
+    ],
+    "8": [
+      "classificar_lead_route_post",
+      "ia_classificar_lead_route_ts"
+    ],
+    "9": [
+      "ia_previsao_route_ts",
+      "previsao_route_post",
+      "previsao_route_get"
+    ],
+    "10": [
+      "reativar_route_post",
+      "ia_reativar_route_ts"
+    ],
+    "11": [
+      "tarefas_id_route_ts",
+      "regioes_id_route_ts",
+      "contatos_id_route_ts",
+      "id_route_delete",
+      "id_route_post",
+      "campanhas_id_route_ts",
+      "leads_id_route_ts",
+      "visitas_id_route_ts",
+      "treinamento_id_route_ts",
+      "paises_id_route_ts",
+      "propostas_id_route_ts",
+      "oportunidades_id_route_ts",
+      "id_route_put",
+      "treinamento_modulos_id_route_ts",
+      "estados_id_route_ts",
+      "pessoas_id_route_ts",
+      "id_route_get",
+      "equipes_id_route_ts",
+      "ia_resumo_pessoa_id_route_ts"
+    ],
+    "12": [
+      "leads_route_ts",
+      "leads_route_get",
+      "leads_route_post"
+    ],
+    "13": [
+      "whatsapp_route_post",
+      "leads_id_whatsapp_route_ts",
+      "whatsapp_route_ts",
+      "whatsapp_route_extractremotejid",
+      "whatsapp_route_get"
+    ],
+    "14": [
+      "notificacoes_route_get",
+      "notificacoes_route_ts",
+      "notificacoes_route_post"
+    ],
+    "15": [
+      "ler_route_patch",
+      "notificacoes_id_ler_route_ts",
+      "ler_route_post"
+    ],
+    "16": [
+      "oportunidades_route_get",
+      "oportunidades_route_ts",
+      "oportunidades_route_post"
+    ],
+    "17": [
+      "status_route_patch",
+      "oportunidades_id_status_route_ts",
+      "status_route_sincronizarempresacliente"
+    ],
+    "18": [
+      "paises_route_ts",
+      "paises_route_delete",
+      "paises_route_post",
+      "paises_route_get"
+    ],
+    "19": [
+      "pessoas_route_post",
+      "pessoas_route_ts",
+      "pessoas_route_get"
+    ],
+    "20": [
+      "representantes_route_post",
+      "pessoas_id_representantes_route_ts",
+      "representantes_route_get",
+      "representantes_route_delete"
+    ],
+    "21": [
+      "propostas_route_post",
+      "propostas_route_ts",
+      "propostas_route_get"
+    ],
+    "22": [
+      "regioes_route_ts",
+      "regioes_route_post",
+      "regioes_route_get"
+    ],
+    "23": [
+      "relatorios_route_ts",
+      "relatorios_route_get"
+    ],
+    "24": [
+      "tarefas_route_ts",
+      "tarefas_route_post",
+      "tarefas_route_get"
+    ],
+    "25": [
+      "timeline_route_ts",
+      "timeline_route_get"
+    ],
+    "26": [
+      "treinamento_route_post",
+      "treinamento_route_get",
+      "treinamento_route_ts"
+    ],
+    "27": [
+      "exportar_pdf_route_get",
+      "treinamento_exportar_pdf_route_ts"
+    ],
+    "28": [
+      "modulos_route_get",
+      "treinamento_modulos_route_ts",
+      "modulos_route_post"
+    ],
+    "29": [
+      "visitas_route_ts",
+      "visitas_route_post",
+      "visitas_route_get"
+    ],
+    "30": [
+      "conversa_route_step",
+      "conversa_route_fulfilled",
+      "conversa_route_adopt",
+      "conversa_route_post",
+      "whatsapp_conversa_route_ts",
+      "whatsapp_conversa_route_js",
+      "conversa_route_get",
+      "conversa_route_extrairnumero",
+      "conversa_route_rejected",
+      "conversa_route_crmwhatsappconversas",
+      "conversa_route_verb"
+    ],
+    "31": [
+      "whatsapp_conversas_route_ts",
+      "conversas_route_get"
+    ],
+    "32": [
+      "webhook_route_criarleadwhatsapp",
+      "webhook_route_post",
+      "whatsapp_webhook_route_ts"
+    ],
+    "33": [
+      "id_route_patch",
+      "whatsapp_id_route_ts"
+    ]
+  },
+  "cohesion": {
+    "0": 0.5,
+    "1": 0.5,
+    "2": 0.5,
+    "3": 0.5,
+    "4": 0.5,
+    "5": 0.5,
+    "6": 0.5,
+    "7": 0.5,
+    "8": 0.5,
+    "9": 0.5,
+    "10": 0.5,
+    "11": 0.5,
+    "12": 0.5,
+    "13": 0.5,
+    "14": 0.5,
+    "15": 0.5,
+    "16": 0.5,
+    "17": 0.5,
+    "18": 0.5,
+    "19": 0.5,
+    "20": 0.5,
+    "21": 0.5,
+    "22": 0.5,
+    "23": 0.5,
+    "24": 0.5,
+    "25": 0.5,
+    "26": 0.5,
+    "27": 0.5,
+    "28": 0.5,
+    "29": 0.5,
+    "30": 0.5,
+    "31": 0.5,
+    "32": 0.5,
+    "33": 0.5
+  },
+  "gods": [
+    {
+      "id": "id_route_put",
+      "label": "PUT()",
+      "degree": 14
+    },
+    {
+      "id": "id_route_delete",
+      "label": "DELETE()",
+      "degree": 14
+    },
+    {
+      "id": "id_route_get",
+      "label": "GET()",
+      "degree": 9
+    },
+    {
+      "id": "conversa_route_step",
+      "label": "step()",
+      "degree": 5
+    },
+    {
+      "id": "conversa_route_extrairnumero",
+      "label": "extrairNumero()",
+      "degree": 4
+    },
+    {
+      "id": "whatsapp_route_extractremotejid",
+      "label": "extractRemoteJid()",
+      "degree": 3
+    },
+    {
+      "id": "whatsapp_route_get",
+      "label": "GET()",
+      "degree": 3
+    },
+    {
+      "id": "whatsapp_route_post",
+      "label": "POST()",
+      "degree": 3
+    },
+    {
+      "id": "conversa_route_get",
+      "label": "GET()",
+      "degree": 3
+    },
+    {
+      "id": "conversa_route_post",
+      "label": "POST()",
+      "degree": 3
+    }
+  ],
+  "surprises": [
+    {
+      "source": "GET()",
+      "target": "extractRemoteJid()",
+      "source_files": [
+        "whatsapp/route.ts",
+        "leads/[id]/whatsapp/route.ts"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "connects across different repos/directories"
+    },
+    {
+      "source": "POST()",
+      "target": "extractRemoteJid()",
+      "source_files": [
+        "whatsapp/route.ts",
+        "leads/[id]/whatsapp/route.ts"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "connects across different repos/directories"
+    }
+  ],
+  "questions": [
+    {
+      "type": "isolated_nodes",
+      "question": "What connects `crmWhatsappConversas` to the rest of the system?",
+      "why": "1 weakly-connected nodes found - possible documentation gaps or missing edges."
+    }
+  ]
+}

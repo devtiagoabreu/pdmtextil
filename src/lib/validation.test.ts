@@ -48,7 +48,11 @@ describe("clienteSchema", () => {
   })
 
   it("accepts optional email as empty string", () => {
-    const result = clienteSchema.safeParse({ nome: "Cliente", cnpj: "00.000.000/0001-00", email: "" })
+    const result = clienteSchema.safeParse({
+      nome: "Cliente",
+      cnpj: "00.000.000/0001-00",
+      email: "",
+    })
     expect(result.success).toBe(true)
   })
 
@@ -62,7 +66,11 @@ describe("clienteSchema", () => {
   })
 
   it("requires uf to have 2 characters exactly", () => {
-    const result = clienteSchema.safeParse({ nome: "Cliente", cnpj: "00.000.000/0001-00", uf: "SP" })
+    const result = clienteSchema.safeParse({
+      nome: "Cliente",
+      cnpj: "00.000.000/0001-00",
+      uf: "SP",
+    })
     expect(result.success).toBe(true)
   })
 
@@ -294,11 +302,15 @@ describe("produtoQuimicoSchema", () => {
 
   it("accepts ph within range", () => {
     const r1 = produtoQuimicoSchema.safeParse({
-      codigo: "QUIM-001", nome: "Teste", ph: 7,
+      codigo: "QUIM-001",
+      nome: "Teste",
+      ph: 7,
     })
     expect(r1.success).toBe(true)
     const r2 = produtoQuimicoSchema.safeParse({
-      codigo: "QUIM-001", nome: "Teste", ph: 15,
+      codigo: "QUIM-001",
+      nome: "Teste",
+      ph: 15,
     })
     expect(r2.success).toBe(false)
   })

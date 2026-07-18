@@ -2,11 +2,13 @@ import { pgTable, serial, integer, varchar, text, timestamp, date, jsonb, double
 import { crmPessoas } from "./crm-pessoas"
 import { crmOportunidades } from "./crm-oportunidades"
 import { crmContatos } from "./crm-contatos"
+import { clientes } from "./clientes"
 import { usuarios } from "./usuarios"
 
 export const crmVisitas = pgTable("crm_visitas", {
   id: serial("id").primaryKey(),
-  empresaId: integer("empresa_id").notNull().references(() => crmPessoas.id),
+  empresaId: integer("empresa_id").references(() => crmPessoas.id),
+  clienteId: integer("cliente_id").references(() => clientes.id),
   oportunidadeId: integer("oportunidade_id").references(() => crmOportunidades.id),
   contatoId: integer("contato_id").references(() => crmContatos.id),
   dataVisita: date("data_visita").notNull(),

@@ -17,6 +17,7 @@ interface Location {
 interface Visita {
   id: number
   empresaNome: string | null
+  clienteNome: string | null
   oportunidadeTitulo: string | null
   contatoNome: string | null
   dataVisita: string | null
@@ -109,7 +110,7 @@ export default function VisitReportButton({ visita }: { visita: Visita }) {
       doc.setTextColor(0, 0, 0)
       doc.text("Pessoa:", col1X, ly)
       doc.setFont("helvetica", "normal")
-      doc.text(visita.empresaNome || "—", col1X + 18, ly)
+      doc.text(visita.empresaNome || visita.clienteNome || "—", col1X + 18, ly)
       doc.setFont("helvetica", "bold")
       doc.text("Status:", col2X, ly)
       doc.setFont("helvetica", "normal")
