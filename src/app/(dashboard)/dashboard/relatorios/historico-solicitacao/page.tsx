@@ -64,7 +64,7 @@ export default function HistoricoSolicitacaoPage() {
   }, [selectedId, fetchHistory])
 
   useEffect(() => {
-    fetch("/api/solicitacoes").then(r => r.json()).then(setSolicitacoesList).catch(() => {})
+    fetch("/api/solicitacoes?limit=200").then(r => r.json()).then(setSolicitacoesList).catch(() => {})
   }, [])
 
   useEffect(() => {

@@ -48,18 +48,20 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
     fetch("/api/user/menus")
       .then(r => r.json())
       .then(data => {
-        if (Array.isArray(data)) {
-          setMenus(data)
-          for (const menu of data) {
-            if (menu.itens.some((i: MenuItem) => pathname === i.url || pathname?.startsWith(i.url + "/"))) {
-              setExpandedMenus(prev => new Set(prev).add(menu.id))
-            }
-          }
-        }
+        if (Array.isArray(data)) setMenus(data)
       })
       .catch(() => setMenus([]))
       .finally(() => setLoading(false))
-  }, [pathname])
+  }, [])
+
+  useEffect(() => {
+    if (menus.length === 0) return
+    for (const menu of menus) {
+      if (menu.itens.some((i: MenuItem) => pathname === i.url || pathname?.startsWith(i.url + "/"))) {
+        setExpandedMenus(prev => new Set(prev).add(menu.id))
+      }
+    }
+  }, [pathname, menus])
 
   function toggleMenu(id: number) {
     setExpandedMenus(prev => {

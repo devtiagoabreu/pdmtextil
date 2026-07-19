@@ -27,7 +27,9 @@ export async function GET(req: NextRequest) {
       )
       .where(eq(chatParticipantes.usuarioId, userId))
 
-    return NextResponse.json({ naoLidas: result?.total || 0 })
+    return NextResponse.json({ naoLidas: result?.total || 0 }, {
+      headers: { "Cache-Control": "private, max-age=30, stale-while-revalidate=60" },
+    })
   } catch (error) {
     console.error("[GET /api/chats/nao-lidas]", error)
     return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })

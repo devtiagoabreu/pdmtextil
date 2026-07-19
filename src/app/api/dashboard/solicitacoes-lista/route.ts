@@ -18,6 +18,7 @@ export async function GET(req: NextRequest) {
         SELECT id, codigo_pdm, descricao, status, created_at
         FROM produtos_cru
         ORDER BY created_at DESC
+        LIMIT 500
       `)
       const lista = Array.isArray(rows) ? rows.map((r: any) => ({
         id: r.id,
@@ -42,6 +43,7 @@ export async function GET(req: NextRequest) {
       FROM solicitacoes
       ${whereClause}
       ORDER BY created_at DESC
+      LIMIT 500
     `)
 
     const lista = Array.isArray(rows) ? rows.map((r: any) => ({

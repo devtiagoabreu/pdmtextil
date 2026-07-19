@@ -30,6 +30,7 @@ export async function GET() {
       .from(produtoCruAmostra)
       .innerJoin(produtosCru, eq(produtoCruAmostra.produtoCruId, produtosCru.id))
       .orderBy(produtoCruAmostra.createdAt)
+      .limit(500)
 
     const amostrasAcabamento = await db
       .select({
@@ -54,6 +55,7 @@ export async function GET() {
       .innerJoin(produtoCruAcabamento, eq(produtoCruAcabamentoAmostra.acabamentoId, produtoCruAcabamento.id))
       .innerJoin(produtosCru, eq(produtoCruAcabamento.produtoCruId, produtosCru.id))
       .orderBy(produtoCruAcabamentoAmostra.createdAt)
+      .limit(500)
 
     return NextResponse.json({
       tecidoCru: amostrasCru.map((a: Record<string, unknown>) => ({ ...a, tipoAmostra: "TECIDO_CRU" })),

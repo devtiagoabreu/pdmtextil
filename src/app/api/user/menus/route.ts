@@ -37,19 +37,25 @@ export async function GET(req: NextRequest) {
 
     // 1. Tentar menus do usuário
     let result = await carregarMenus({ usuarioId: userId })
-    if (result.length > 0) return NextResponse.json(result)
+    if (result.length > 0) return NextResponse.json(result, {
+      headers: { "Cache-Control": "private, max-age=60, stale-while-revalidate=300" },
+    })
 
     // 2. Tentar menus do role do usuário
     const userRole = session?.user?.role
     if (userRole) {
       result = await carregarMenus({ role: userRole })
-      if (result.length > 0) return NextResponse.json(result)
+      if (result.length > 0) return NextResponse.json(result, {
+        headers: { "Cache-Control": "private, max-age=60, stale-while-revalidate=300" },
+      })
     }
 
     // 3. Tentar menus DEFAULT
     result = await carregarMenus({ role: "DEFAULT" })
 
-    return NextResponse.json(result)
+    return NextResponse.json(result, {
+      headers: { "Cache-Control": "private, max-age=60, stale-while-revalidate=300" },
+    })
   } catch (error) {
     return handleApiError(error, "UserMenosList")
   }

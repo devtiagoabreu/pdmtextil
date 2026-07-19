@@ -275,7 +275,7 @@ function ConversationView({ chatId, onBack }: { chatId: number; onBack: () => vo
   const { data: msgsData, refetch } = useQuery({
     queryKey: ["mensagens", chatId],
     queryFn: () => fetchMensagens(chatId),
-    refetchInterval: 3000,
+    refetchInterval: 30000,
   })
 
   const { data: allUsers = [] } = useQuery<{ id: number; name: string }[]>({

@@ -20,7 +20,9 @@ export async function GET() {
       .where(eq(usuarios.id, userId))
       .limit(1)
 
-    if (user?.paginaInicial) return NextResponse.json({ paginaInicial: user.paginaInicial })
+    if (user?.paginaInicial) return NextResponse.json({ paginaInicial: user.paginaInicial }, {
+      headers: { "Cache-Control": "private, max-age=60, stale-while-revalidate=300" },
+    })
 
     // 2. Página inicial configurada para o role do usuário
     if (userRole) {
@@ -30,7 +32,9 @@ export async function GET() {
         .where(eq(rolesTable.name, userRole))
         .limit(1)
 
-      if (role?.paginaInicial) return NextResponse.json({ paginaInicial: role.paginaInicial })
+      if (role?.paginaInicial) return NextResponse.json({ paginaInicial: role.paginaInicial }, {
+        headers: { "Cache-Control": "private, max-age=60, stale-while-revalidate=300" },
+      })
     }
 
     // 3. Página inicial do role DEFAULT
@@ -40,10 +44,14 @@ export async function GET() {
       .where(eq(rolesTable.name, "DEFAULT"))
       .limit(1)
 
-    if (defaultRole?.paginaInicial) return NextResponse.json({ paginaInicial: defaultRole.paginaInicial })
+    if (defaultRole?.paginaInicial) return NextResponse.json({ paginaInicial: defaultRole.paginaInicial }, {
+      headers: { "Cache-Control": "private, max-age=60, stale-while-revalidate=300" },
+    })
 
     // 4. Fallback
-    return NextResponse.json({ paginaInicial: "/comercial/solicitacoes" })
+    return NextResponse.json({ paginaInicial: "/comercial/solicitacoes" }, {
+      headers: { "Cache-Control": "private, max-age=60, stale-while-revalidate=300" },
+    })
   } catch (error) {
     return handleApiError(error, "PaginaInicialGet")
   }
