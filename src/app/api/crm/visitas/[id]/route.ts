@@ -140,7 +140,7 @@ export async function PUT(
 
     if (body.status && body.status !== existente.status) {
       await inserirTimelineEvento({
-        empresaId: existente.empresaId,
+        empresaId: existente.empresaId ?? 0,
         tipo: "VISITA",
         descricao: `Visita alterada para "${body.status}"${body.status === "REALIZADA" && body.relato ? " — relato registrado" : ""}${body.status === "CANCELADA" && body.motivoCancelamento ? ` — motivo: ${body.motivoCancelamento}` : ""}`,
         metadados: { visitaId: atualizada.id, statusAnterior: existente.status, statusNovo: body.status },
