@@ -61,9 +61,16 @@ export async function GET() {
         .select({
           id: crmVisitas.id,
           empresaId: crmVisitas.empresaId,
+          clienteId: crmVisitas.clienteId,
           dataVisita: crmVisitas.dataVisita,
           tipo: crmVisitas.tipo,
           status: crmVisitas.status,
+          endereco: crmVisitas.endereco,
+          numero: crmVisitas.numero,
+          complemento: crmVisitas.complemento,
+          bairro: crmVisitas.bairro,
+          cidade: crmVisitas.cidade,
+          uf: crmVisitas.uf,
         })
         .from(crmVisitas)
         .orderBy(desc(crmVisitas.createdAt))
@@ -92,9 +99,16 @@ export async function GET() {
       ultimasVisitas: ultimasVisitas.map((r) => ({
         id: r.id,
         empresaId: r.empresaId,
+        clienteId: r.clienteId,
         dataVisita: r.dataVisita,
         tipo: r.tipo,
         status: r.status,
+        endereco: r.endereco,
+        numero: r.numero,
+        complemento: r.complemento,
+        bairro: r.bairro,
+        cidade: r.cidade,
+        uf: r.uf,
       })),
       pesquisas: {
         enviadas: getCount(pesquisasEnviadas),

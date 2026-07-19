@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useState } from "react"
 import {
   Calendar, CheckCircle2, XCircle, Clock, MapPin, Users,
-  ArrowRight, BarChart3, PieChart as PieChartIcon, ClipboardCheck,
+  ArrowRight, BarChart3, PieChart as PieChartIcon, ClipboardCheck, Navigation,
 } from "lucide-react"
 import {
   BarChart, Bar, PieChart as RPieChart, Pie, Cell,
@@ -25,7 +25,7 @@ type VisitasDashboardData = {
   byTipo: { tipo: string; total: number }[]
   byStatus: { status: string; total: number }[]
   porRepresentante: { representanteId: number | null; representanteNome: string; total: number }[]
-  ultimasVisitas: { id: number; empresaId: number; dataVisita: string; tipo: string; status: string }[]
+  ultimasVisitas: { id: number; empresaId: number; clienteId: number | null; dataVisita: string; tipo: string; status: string; endereco: string | null; numero: string | null; complemento: string | null; bairro: string | null; cidade: string | null; uf: string | null }[]
   pesquisas: { enviadas: number; abertas: number; respondidas: number }
 }
 
@@ -319,6 +319,17 @@ export default function VisitasDashboardPage() {
                       }`}>
                         {visita.status}
                       </span>
+                      {(visita.endereco || visita.cidade) && (
+                        <a
+                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([visita.endereco, visita.numero, visita.complemento, visita.bairro, visita.cidade, visita.uf].filter(Boolean).join(", "))}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-1.5 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-950/50 transition-colors"
+                          title="Abrir no Google Maps"
+                        >
+                          <Navigation size={14} className="text-emerald-500" />
+                        </a>
+                      )}
                       <button
                         onClick={() => setSelectedVisita({ id: visita.id, nome: `Visita #${visita.id}` })}
                         className="p-1.5 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-950/50 transition-colors"

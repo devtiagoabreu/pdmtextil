@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { DndContext, DragOverlay, useDraggable, useDroppable, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
-import { Loader2, MapPin } from "lucide-react"
+import { Loader2, MapPin, Navigation } from "lucide-react"
 import { useStatuses } from "@/hooks/use-statuses"
 import VisitLocationModal from "@/components/crm/visit-location-modal"
 
@@ -17,6 +17,12 @@ interface VisitaCard {
   clienteNome: string | null
   oportunidadeTitulo: string | null
   criadoPorNome: string | null
+  endereco: string | null
+  numero: string | null
+  complemento: string | null
+  bairro: string | null
+  cidade: string | null
+  uf: string | null
 }
 
 const TIPO_LABELS: Record<string, string> = {
@@ -65,6 +71,12 @@ function DroppableColumn({ id, children, rotulo, cor, count }: { id: string; chi
   )
 }
 
+function buildGoogleMapsUrl(endereco: string | null, numero: string | null, complemento: string | null, bairro: string | null, cidade: string | null, uf: string | null) {
+  const parts = [endereco, numero, complemento, bairro, cidade, uf].filter(Boolean)
+  if (parts.length === 0) return null
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(parts.join(", "))}`
+}
+
 function DraggableCard({ visita, onLocationClick }: { visita: VisitaCard; onLocationClick: (id: number, nome: string) => void }) {
   const router = useRouter()
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
@@ -100,6 +112,18 @@ function DraggableCard({ visita, onLocationClick }: { visita: VisitaCard; onLoca
         </span>
         <div className="flex items-center gap-1">
           <span className="text-[10px] text-slate-400">{TIPO_LABELS[visita.tipo] || visita.tipo}</span>
+          {buildGoogleMapsUrl(visita.endereco, visita.numero, visita.complemento, visita.bairro, visita.cidade, visita.uf) && (
+            <a
+              href={buildGoogleMapsUrl(visita.endereco, visita.numero, visita.complemento, visita.bairro, visita.cidade, visita.uf)!}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="p-1 rounded hover:bg-emerald-100 dark:hover:bg-emerald-950/50 transition-colors"
+              title="Abrir no Google Maps"
+            >
+              <Navigation size={12} className="text-emerald-500" />
+            </a>
+          )}
           <button
             onClick={(e) => {
               e.stopPropagation()

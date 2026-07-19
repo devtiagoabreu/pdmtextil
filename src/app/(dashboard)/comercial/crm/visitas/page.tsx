@@ -6,7 +6,7 @@ import { getInfoContent } from "@/lib/info-content"
 import Link from "next/link"
 import { useState } from "react"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
-import { PlusCircle, CalendarDays, Table, Columns, Search, MapPin } from "lucide-react"
+import { PlusCircle, CalendarDays, Table, Columns, Search, MapPin, Navigation } from "lucide-react"
 import { useStatuses } from "@/hooks/use-statuses"
 import VisitasCalendario from "@/components/crm/visitas-calendario"
 import VisitasKanban from "@/components/crm/visitas-kanban"
@@ -190,16 +190,30 @@ export default function VisitasPage() {
                     </td>
                     <td className="px-4 py-3 text-sm text-slate-500">{v.criadoPorNome || "—"}</td>
                     <td className="px-4 py-3">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          setSelectedVisita({ id: v.id, nome: v.empresaNome || v.clienteNome || "Visita" })
-                        }}
-                        className="p-1.5 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-950/50 transition-colors"
-                        title="Gerenciar localizações"
-                      >
-                        <MapPin size={16} className="text-blue-500" />
-                      </button>
+                      <div className="flex items-center gap-1">
+                        {(v.endereco || v.cidade) && (
+                          <a
+                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([v.endereco, v.numero, v.complemento, v.bairro, v.cidade, v.uf].filter(Boolean).join(", "))}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="p-1.5 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-950/50 transition-colors"
+                            title="Abrir no Google Maps"
+                          >
+                            <Navigation size={16} className="text-emerald-500" />
+                          </a>
+                        )}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setSelectedVisita({ id: v.id, nome: v.empresaNome || v.clienteNome || "Visita" })
+                          }}
+                          className="p-1.5 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-950/50 transition-colors"
+                          title="Gerenciar localizações"
+                        >
+                          <MapPin size={16} className="text-blue-500" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
