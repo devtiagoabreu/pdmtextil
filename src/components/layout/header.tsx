@@ -57,7 +57,7 @@ export function Header({ onMenuClick }: HeaderProps) {
 
   useEffect(() => {
     fetchNotificacoes()
-    const interval = setInterval(fetchNotificacoes, 30000)
+    const interval = setInterval(fetchNotificacoes, 120000)
     return () => clearInterval(interval)
   }, [fetchNotificacoes])
 

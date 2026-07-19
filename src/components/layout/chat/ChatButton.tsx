@@ -18,7 +18,7 @@ export function ChatButton() {
       } catch {}
     }
     fetchNaoLidas()
-    const interval = setInterval(fetchNaoLidas, 30000)
+    const interval = setInterval(fetchNaoLidas, 120000)
     return () => clearInterval(interval)
   }, [])
 

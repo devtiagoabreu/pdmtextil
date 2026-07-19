@@ -3,7 +3,7 @@ import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { chatMensagens, chatLeituras, chatParticipantes, chats, usuarios } from "@/lib/db/schema"
 import { notificacoes } from "@/lib/db/schema/notificacoes"
-import { eq, and, inArray } from "drizzle-orm"
+import { eq, and, inArray, desc } from "drizzle-orm"
 import { sendEmail } from "@/lib/email"
 
 const SITE_URL = process.env.NEXT_PUBLIC_APP_URL
@@ -16,6 +16,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
     const { id } = await params
     const chatId = parseInt(id)
+    const limitParam = parseInt(req.nextUrl.searchParams.get("limit") || "100")
+    const limit = Math.min(Math.max(limitParam, 1), 200)
 
     const mensagens = await db
       .select({
@@ -29,18 +31,22 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       .from(chatMensagens)
       .leftJoin(usuarios, eq(chatMensagens.remetenteId, usuarios.id))
       .where(eq(chatMensagens.chatId, chatId))
-      .orderBy(chatMensagens.createdAt)
+      .orderBy(desc(chatMensagens.createdAt))
+      .limit(limit)
 
-    const leituras = await db
-      .select({
-        mensagemId: chatLeituras.mensagemId,
-        usuarioId: chatLeituras.usuarioId,
-        lidaEm: chatLeituras.lidaEm,
-      })
-      .from(chatLeituras)
-      .where(
-        inArray(chatLeituras.mensagemId, mensagens.length > 0 ? mensagens.map((m) => m.id) : [-1])
-      )
+    mensagens.reverse()
+
+    const msgIds = mensagens.map((m) => m.id)
+    const leituras = msgIds.length > 0
+      ? await db
+          .select({
+            mensagemId: chatLeituras.mensagemId,
+            usuarioId: chatLeituras.usuarioId,
+            lidaEm: chatLeituras.lidaEm,
+          })
+          .from(chatLeituras)
+          .where(inArray(chatLeituras.mensagemId, msgIds))
+      : []
 
     return NextResponse.json({ mensagens, leituras })
   } catch (error) {

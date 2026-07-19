@@ -94,6 +94,10 @@ export async function GET() {
       statusDistribution: statusRows.map((r: any) => ({ status: r.status, total: Number(r.total) })),
       tipoDistribution: tipoRows.map((r: any) => ({ tipo: r.tipo, total: Number(r.total) })),
       totalProdutosCru,
+    }, {
+      headers: {
+        "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+      },
     })
   } catch (error) {
     console.error("[GET /api/dashboard/stats]", error)

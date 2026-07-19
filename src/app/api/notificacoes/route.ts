@@ -23,7 +23,9 @@ export async function GET(req: NextRequest) {
       .orderBy(desc(notificacoes.createdAt))
       .limit(limit)
 
-    return NextResponse.json(lista)
+    return NextResponse.json(lista, {
+      headers: { "Cache-Control": "private, max-age=30, stale-while-revalidate=60" },
+    })
   } catch (error) {
     console.error("[GET /api/notificacoes]", error)
     return NextResponse.json({ error: "Erro interno" }, { status: 500 })

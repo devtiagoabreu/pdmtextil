@@ -77,7 +77,11 @@ export async function GET(req: NextRequest) {
       .where(or(...conditions))
       .orderBy(desc(chats.updatedAt))
 
-    return NextResponse.json(lista)
+    return NextResponse.json(lista, {
+      headers: {
+        "Cache-Control": "private, max-age=15, stale-while-revalidate=30",
+      },
+    })
   } catch (error) {
     console.error("[GET /api/chats]", error)
     return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
