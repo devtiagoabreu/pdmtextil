@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
-import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react"
+import { ChevronLeft, ChevronRight, CalendarDays, Navigation } from "lucide-react"
 
 const TIPO_LABELS: Record<string, string> = {
   PRESENCIAL: "Presencial",
@@ -41,14 +41,27 @@ type Visita = {
   tipo: string
   status: string
   empresaNome: string | null
+  clienteNome: string | null
   oportunidadeTitulo: string | null
   criadoPorNome: string | null
+  endereco: string | null
+  numero: string | null
+  complemento: string | null
+  bairro: string | null
+  cidade: string | null
+  uf: string | null
 }
 
 export default function VisitasCalendario({ visitas }: { visitas: Visita[] }) {
   const router = useRouter()
   const [currentDate, setCurrentDate] = useState(new Date())
   const [selectedDay, setSelectedDay] = useState<number | null>(null)
+
+  function buildGoogleMapsUrl(v: Visita) {
+    const parts = [v.endereco, v.numero, v.complemento, v.bairro, v.cidade, v.uf].filter(Boolean)
+    if (parts.length === 0) return null
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(parts.join(", "))}`
+  }
 
   const year = currentDate.getFullYear()
   const month = currentDate.getMonth()
@@ -161,16 +174,30 @@ export default function VisitasCalendario({ visitas }: { visitas: Visita[] }) {
                     <div
                       key={v.id}
                       className="flex items-center gap-1 group cursor-pointer"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        router.push(`/comercial/crm/visitas/${v.id}`)
-                      }}
-                      title={`${v.empresaNome || "Sem pessoa"} - ${TIPO_LABELS[v.tipo] || v.tipo}`}
+                      title={`${v.empresaNome || v.clienteNome || "Sem entidade"} - ${TIPO_LABELS[v.tipo] || v.tipo}`}
                     >
                       <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${TIPO_CORES[v.tipo] || "bg-slate-400"}`} />
-                      <span className="text-[10px] text-slate-600 dark:text-slate-400 truncate leading-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                        {v.empresaNome || "—"}
+                      <span
+                        className="text-[10px] text-slate-600 dark:text-slate-400 truncate leading-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          router.push(`/comercial/crm/visitas/${v.id}`)
+                        }}
+                      >
+                        {v.empresaNome || v.clienteNome || "—"}
                       </span>
+                      {buildGoogleMapsUrl(v) && (
+                        <a
+                          href={buildGoogleMapsUrl(v)!}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity"
+                          title="Abrir no Google Maps"
+                        >
+                          <Navigation size={9} className="text-emerald-500 shrink-0" />
+                        </a>
+                      )}
                     </div>
                   ))}
                   {diaVisitas.length > 2 && (
@@ -211,7 +238,7 @@ export default function VisitasCalendario({ visitas }: { visitas: Visita[] }) {
                   <span className={`w-2 h-2 rounded-full ${TIPO_CORES[v.tipo] || "bg-slate-400"}`} />
                   <div>
                     <p className="text-sm font-medium text-slate-900 dark:text-slate-200">
-                      {v.empresaNome || "—"}
+                      {v.empresaNome || v.clienteNome || "—"}
                     </p>
                     <p className="text-xs text-slate-500">
                       {TIPO_LABELS[v.tipo] || v.tipo}
@@ -219,7 +246,21 @@ export default function VisitasCalendario({ visitas }: { visitas: Visita[] }) {
                     </p>
                   </div>
                 </div>
-                <span className="text-xs text-slate-400">{v.criadoPorNome || ""}</span>
+                <div className="flex items-center gap-2">
+                  {buildGoogleMapsUrl(v) && (
+                    <a
+                      href={buildGoogleMapsUrl(v)!}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="p-1.5 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-950/50 transition-colors"
+                      title="Abrir no Google Maps"
+                    >
+                      <Navigation size={14} className="text-emerald-500" />
+                    </a>
+                  )}
+                  <span className="text-xs text-slate-400">{v.criadoPorNome || ""}</span>
+                </div>
               </div>
             ))}
           </div>
