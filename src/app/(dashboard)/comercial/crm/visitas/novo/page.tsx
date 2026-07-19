@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
-import { useRouter, usePathname } from "next/navigation"
+import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft, Save, Plus, X, Building2, UserCheck } from "lucide-react"
 import { toast } from "sonner"
@@ -24,7 +24,9 @@ const TIPO_OPTIONS = [
 export default function NovaVisitaPage() {
   const router = useRouter()
   const pathname = usePathname()
+  const searchParams = useSearchParams()
   const info = getInfoContent(pathname)
+  const dataParam = searchParams.get("data")
   const [tipoEntidade, setTipoEntidade] = useState<"CLIENTE" | "PESSOA" | "">("")
   const [empresas, setEmpresas] = useState<any[]>([])
   const [clientesList, setClientesList] = useState<any[]>([])
@@ -40,7 +42,7 @@ export default function NovaVisitaPage() {
     clienteId: "",
     oportunidadeId: "",
     contatoId: "",
-    dataVisita: new Date().toISOString().split("T")[0],
+    dataVisita: dataParam || new Date().toISOString().split("T")[0],
     tipo: "PRESENCIAL",
     endereco: "",
     numero: "",
