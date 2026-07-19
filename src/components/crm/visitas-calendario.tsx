@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
-import { ChevronLeft, ChevronRight, CalendarDays, Navigation } from "lucide-react"
+import { ChevronLeft, ChevronRight, CalendarDays, Navigation, Plus, X, MapPin } from "lucide-react"
 
 const TIPO_LABELS: Record<string, string> = {
   PRESENCIAL: "Presencial",
@@ -35,6 +35,12 @@ function formatDateKey(year: number, month: number, day: number) {
   return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`
 }
 
+function formatarDataBR(dateKey: string) {
+  const [y, m, d] = dateKey.split("-")
+  const date = new Date(parseInt(y), parseInt(m) - 1, parseInt(d))
+  return date.toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long", year: "numeric" })
+}
+
 type Visita = {
   id: number
   dataVisita: string
@@ -55,13 +61,7 @@ type Visita = {
 export default function VisitasCalendario({ visitas }: { visitas: Visita[] }) {
   const router = useRouter()
   const [currentDate, setCurrentDate] = useState(new Date())
-  const [selectedDay, setSelectedDay] = useState<number | null>(null)
-
-  function buildGoogleMapsUrl(v: Visita) {
-    const parts = [v.endereco, v.numero, v.complemento, v.bairro, v.cidade, v.uf].filter(Boolean)
-    if (parts.length === 0) return null
-    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(parts.join(", "))}`
-  }
+  const [modalDay, setModalDay] = useState<string | null>(null)
 
   const year = currentDate.getFullYear()
   const month = currentDate.getMonth()
@@ -86,17 +86,23 @@ export default function VisitasCalendario({ visitas }: { visitas: Visita[] }) {
 
   function prevMonth() {
     setCurrentDate(new Date(year, month - 1, 1))
-    setSelectedDay(null)
   }
 
   function nextMonth() {
     setCurrentDate(new Date(year, month + 1, 1))
-    setSelectedDay(null)
   }
 
-  const selectedVisitas = selectedDay
-    ? visitasPorDia.get(formatDateKey(year, month, selectedDay)) || []
-    : []
+  function handleDayClick(dateKey: string) {
+    setModalDay(dateKey)
+  }
+
+  function buildGoogleMapsUrl(v: Visita) {
+    const parts = [v.endereco, v.numero, v.complemento, v.bairro, v.cidade, v.uf].filter(Boolean)
+    if (parts.length === 0) return null
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(parts.join(", "))}`
+  }
+
+  const modalVisitas = modalDay ? visitasPorDia.get(modalDay) || [] : []
 
   return (
     <div className="space-y-4">
@@ -139,19 +145,14 @@ export default function VisitasCalendario({ visitas }: { visitas: Visita[] }) {
             const dateKey = formatDateKey(year, month, day)
             const diaVisitas = visitasPorDia.get(dateKey) || []
             const isToday = dateKey === hojeStr
-            const isSelected = day === selectedDay
 
             return (
               <div
                 key={dateKey}
-                className={`min-h-[90px] p-1.5 border-b border-r border-slate-100 dark:border-slate-800 cursor-pointer transition-colors ${
-                  isSelected
-                    ? "bg-blue-50 dark:bg-blue-950/40 ring-2 ring-inset ring-blue-400"
-                    : isToday
-                      ? "bg-blue-50/60 dark:bg-blue-950/20"
-                      : "hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                onClick={() => handleDayClick(dateKey)}
+                className={`min-h-[90px] p-1.5 border-b border-r border-slate-100 dark:border-slate-800 cursor-pointer transition-colors hover:bg-blue-50/60 dark:hover:bg-blue-950/20 ${
+                  isToday ? "bg-blue-50/60 dark:bg-blue-950/20" : ""
                 }`}
-                onClick={() => setSelectedDay(isSelected ? null : day)}
               >
                 <div className="flex items-center justify-between mb-1">
                   <span
@@ -173,31 +174,13 @@ export default function VisitasCalendario({ visitas }: { visitas: Visita[] }) {
                   {diaVisitas.slice(0, 2).map((v) => (
                     <div
                       key={v.id}
-                      className="flex items-center gap-1 group cursor-pointer"
+                      className="flex items-center gap-1"
                       title={`${v.empresaNome || v.clienteNome || "Sem entidade"} - ${TIPO_LABELS[v.tipo] || v.tipo}`}
                     >
                       <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${TIPO_CORES[v.tipo] || "bg-slate-400"}`} />
-                      <span
-                        className="text-[10px] text-slate-600 dark:text-slate-400 truncate leading-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          router.push(`/comercial/crm/visitas/${v.id}`)
-                        }}
-                      >
+                      <span className="text-[10px] text-slate-600 dark:text-slate-400 truncate leading-tight">
                         {v.empresaNome || v.clienteNome || "—"}
                       </span>
-                      {buildGoogleMapsUrl(v) && (
-                        <a
-                          href={buildGoogleMapsUrl(v)!}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => e.stopPropagation()}
-                          className="opacity-0 group-hover:opacity-100 transition-opacity"
-                          title="Abrir no Google Maps"
-                        >
-                          <Navigation size={9} className="text-emerald-500 shrink-0" />
-                        </a>
-                      )}
                     </div>
                   ))}
                   {diaVisitas.length > 2 && (
@@ -212,57 +195,105 @@ export default function VisitasCalendario({ visitas }: { visitas: Visita[] }) {
         </div>
       </div>
 
-      {selectedVisitas.length > 0 && (
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
-          <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-800">
-            <h4 className="text-sm font-semibold text-slate-800 dark:text-slate-200">
-              {selectedVisitas[0].dataVisita
-                ? new Date(selectedVisitas[0].dataVisita + "T12:00:00").toLocaleDateString("pt-BR", {
-                    weekday: "long",
-                    day: "numeric",
-                    month: "long",
-                  })
-                : "Visitas do dia"}
-              {" — "}
-              {selectedVisitas.length} visita(s)
-            </h4>
-          </div>
-          <div className="divide-y divide-slate-100 dark:divide-slate-800">
-            {selectedVisitas.map((v) => (
-              <div
-                key={v.id}
-                className="px-4 py-3 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors"
-                onClick={() => router.push(`/comercial/crm/visitas/${v.id}`)}
-              >
-                <div className="flex items-center gap-3">
-                  <span className={`w-2 h-2 rounded-full ${TIPO_CORES[v.tipo] || "bg-slate-400"}`} />
-                  <div>
-                    <p className="text-sm font-medium text-slate-900 dark:text-slate-200">
-                      {v.empresaNome || v.clienteNome || "—"}
-                    </p>
-                    <p className="text-xs text-slate-500">
-                      {TIPO_LABELS[v.tipo] || v.tipo}
-                      {v.oportunidadeTitulo && ` • ${v.oportunidadeTitulo}`}
-                    </p>
-                  </div>
+      {/* Modal ao clicar em um dia */}
+      {modalDay && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in" onClick={() => setModalDay(null)}>
+          <div
+            className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 w-full max-w-md mx-4 overflow-hidden animate-in zoom-in-95"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/50">
+                  <CalendarDays size={18} className="text-blue-600 dark:text-blue-400" />
                 </div>
-                <div className="flex items-center gap-2">
-                  {buildGoogleMapsUrl(v) && (
-                    <a
-                      href={buildGoogleMapsUrl(v)!}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={(e) => e.stopPropagation()}
-                      className="p-1.5 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-950/50 transition-colors"
-                      title="Abrir no Google Maps"
-                    >
-                      <Navigation size={14} className="text-emerald-500" />
-                    </a>
-                  )}
-                  <span className="text-xs text-slate-400">{v.criadoPorNome || ""}</span>
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                    {formatarDataBR(modalDay)}
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    {modalVisitas.length === 0
+                      ? "Nenhuma visita agendada"
+                      : `${modalVisitas.length} visita(s) agendada(s)`}
+                  </p>
                 </div>
               </div>
-            ))}
+              <button
+                onClick={() => setModalDay(null)}
+                className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              >
+                <X size={16} className="text-slate-400" />
+              </button>
+            </div>
+
+            {/* Lista de visitas ou mensagem vazia */}
+            <div className="max-h-[300px] overflow-y-auto">
+              {modalVisitas.length === 0 ? (
+                <div className="px-5 py-8 text-center">
+                  <div className="mx-auto w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-3">
+                    <CalendarDays size={24} className="text-slate-300 dark:text-slate-600" />
+                  </div>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 mb-1">Nenhuma visita neste dia</p>
+                  <p className="text-xs text-slate-400 dark:text-slate-500">Deseja agendar uma visita?</p>
+                </div>
+              ) : (
+                <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                  {modalVisitas.map((v) => (
+                    <div
+                      key={v.id}
+                      className="px-5 py-3 flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors"
+                      onClick={() => {
+                        setModalDay(null)
+                        router.push(`/comercial/crm/visitas/${v.id}`)
+                      }}
+                    >
+                      <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${TIPO_CORES[v.tipo] || "bg-slate-400"}`} />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
+                          {v.empresaNome || v.clienteNome || "Sem entidade"}
+                        </p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                          {TIPO_LABELS[v.tipo] || v.tipo}
+                          {v.oportunidadeTitulo && ` • ${v.oportunidadeTitulo}`}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-1 shrink-0">
+                        {buildGoogleMapsUrl(v) && (
+                          <a
+                            href={buildGoogleMapsUrl(v)!}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="p-1.5 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-950/50 transition-colors"
+                            title="Abrir no Google Maps"
+                          >
+                            <Navigation size={14} className="text-emerald-500" />
+                          </a>
+                        )}
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium bg-slate-100 dark:bg-slate-800 text-slate-500">
+                          {v.status}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Footer com botão Nova Visita */}
+            <div className="px-5 py-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
+              <button
+                onClick={() => {
+                  setModalDay(null)
+                  router.push(`/comercial/crm/visitas/novo?data=${modalDay}`)
+                }}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm"
+              >
+                <Plus size={16} />
+                Nova Visita para {new Date(modalDay + "T12:00:00").toLocaleDateString("pt-BR", { day: "numeric", month: "short" })}
+              </button>
+            </div>
           </div>
         </div>
       )}
