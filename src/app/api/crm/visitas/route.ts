@@ -107,7 +107,7 @@ export async function POST(req: NextRequest) {
     })
 
     await inserirTimelineEvento({
-      empresaId: nova.empresaId,
+      empresaId: nova.empresaId ?? 0,
       tipo: "VISITA",
       descricao: `Visita ${nova.tipo} agendada para ${new Date(nova.dataVisita + "T12:00:00").toLocaleDateString("pt-BR")}`,
       metadados: { visitaId: nova.id, tipo: nova.tipo, dataVisita: nova.dataVisita },
