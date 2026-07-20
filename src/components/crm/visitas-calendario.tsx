@@ -139,7 +139,7 @@ export default function VisitasCalendario({ visitas }: { visitas: Visita[] }) {
         <div className="grid grid-cols-7">
           {days.map((day, idx) => {
             if (day === null) {
-              return <div key={`empty-${idx}`} className="min-h-[90px] bg-slate-50/50 dark:bg-slate-900/50" />
+              return <div key={`empty-${idx}`} className="min-h-[50px] md:min-h-[90px] bg-slate-50/50 dark:bg-slate-900/50" />
             }
 
             const dateKey = formatDateKey(year, month, day)
@@ -150,13 +150,13 @@ export default function VisitasCalendario({ visitas }: { visitas: Visita[] }) {
               <div
                 key={dateKey}
                 onClick={() => handleDayClick(dateKey)}
-                className={`min-h-[90px] p-1.5 border-b border-r border-slate-100 dark:border-slate-800 cursor-pointer transition-colors hover:bg-blue-50/60 dark:hover:bg-blue-950/20 ${
+                className={`min-h-[50px] md:min-h-[90px] p-1 md:p-1.5 border-b border-r border-slate-100 dark:border-slate-800 cursor-pointer transition-colors hover:bg-blue-50/60 dark:hover:bg-blue-950/20 ${
                   isToday ? "bg-blue-50/60 dark:bg-blue-950/20" : ""
                 }`}
               >
                 <div className="flex items-center justify-between mb-1">
                   <span
-                    className={`text-xs font-semibold w-6 h-6 flex items-center justify-center rounded-full ${
+                    className={`text-[10px] md:text-xs font-semibold w-5 h-5 md:w-6 md:h-6 flex items-center justify-center rounded-full ${
                       isToday
                         ? "bg-blue-600 text-white"
                         : "text-slate-700 dark:text-slate-300"

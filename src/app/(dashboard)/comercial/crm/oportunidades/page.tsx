@@ -67,7 +67,7 @@ export default function OportunidadesPage() {
             {isLoading ? "Carregando..." : `${filtered.length} oportunidade(s)`}
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2">
           <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-0.5 shadow-sm">
             <button
               onClick={() => setModo("tabela")}
@@ -94,9 +94,9 @@ export default function OportunidadesPage() {
           </div>
           <Link
             href="/comercial/crm/oportunidades/novo"
-            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors shadow-sm"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 transition-colors shadow-sm"
           >
-            <PlusCircle size={16} />
+            <PlusCircle size={14} />
             Nova Oportunidade
           </Link>
         </div>
@@ -130,13 +130,13 @@ export default function OportunidadesPage() {
             <table className="w-full">
               <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Título</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Pessoa (Negócio)</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Valor Estimado</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Status</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Responsável</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Prob.</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Data</th>
+                  <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">Título</th>
+                  <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">Pessoa</th>
+                  <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden sm:table-cell">Valor Est.</th>
+                  <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">Status</th>
+                  <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden md:table-cell">Responsável</th>
+                  <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden sm:table-cell">Prob.</th>
+                  <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden sm:table-cell">Data</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -146,17 +146,17 @@ export default function OportunidadesPage() {
                     className="hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"
                     onClick={() => router.push(`/comercial/crm/oportunidades/${op.id}`)}
                   >
-                    <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-slate-200">{op.titulo}</td>
-                    <td className="px-4 py-3 text-sm text-slate-500">{op.empresaNome || "—"}</td>
-                    <td className="px-4 py-3 text-sm text-slate-500">{formatarMoeda(op.valorEstimado)}</td>
-                    <td className="px-4 py-3">
-                      <span className={`inline-flex text-[10px] px-2 py-0.5 rounded-full font-medium ${STATUS_CORES[op.status] || ""}`}>
+                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-medium text-slate-900 dark:text-slate-200 whitespace-nowrap">{op.titulo}</td>
+                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500">{op.empresaNome || "—"}</td>
+                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden sm:table-cell whitespace-nowrap">{formatarMoeda(op.valorEstimado)}</td>
+                    <td className="px-2 py-2 md:px-4 md:py-3">
+                      <span className={`inline-flex text-[10px] px-1.5 md:px-2 py-0.5 rounded-full font-medium ${STATUS_CORES[op.status] || ""}`}>
                         {STATUS_LABELS[op.status] || op.status}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-sm text-slate-500">{op.responsavelNome || "—"}</td>
-                    <td className="px-4 py-3 text-sm text-slate-500">{op.probabilidade ?? 0}%</td>
-                    <td className="px-4 py-3 text-sm text-slate-500">
+                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden md:table-cell">{op.responsavelNome || "—"}</td>
+                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden sm:table-cell">{op.probabilidade ?? 0}%</td>
+                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 whitespace-nowrap hidden sm:table-cell">
                       {op.createdAt ? new Date(op.createdAt).toLocaleDateString("pt-BR") : "—"}
                     </td>
                   </tr>

@@ -64,7 +64,7 @@ export default function VisitasPage() {
             {isLoading ? "Carregando..." : `${filtered.length} visita(s)`}
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2">
           <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-0.5 shadow-sm">
             <button
               onClick={() => setModo("tabela")}
@@ -102,9 +102,9 @@ export default function VisitasPage() {
           </div>
           <Link
             href="/comercial/crm/visitas/novo"
-            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors shadow-sm"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 transition-colors shadow-sm"
           >
-            <PlusCircle size={16} />
+            <PlusCircle size={14} />
             Nova Visita
           </Link>
         </div>
@@ -154,13 +154,13 @@ export default function VisitasPage() {
             <table className="w-full">
               <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Data</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Entidade</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Oportunidade</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Tipo</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Status</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Criado por</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Ações</th>
+                  <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">Data</th>
+                  <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">Entidade</th>
+                  <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden sm:table-cell">Oportunidade</th>
+                  <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">Tipo</th>
+                  <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">Status</th>
+                  <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden md:table-cell">Criado por</th>
+                  <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">Ações</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -170,26 +170,26 @@ export default function VisitasPage() {
                     className="hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"
                     onClick={() => router.push(`/comercial/crm/visitas/${v.id}`)}
                   >
-                    <td className="px-4 py-3 text-sm text-slate-900 dark:text-slate-200">
+                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-900 dark:text-slate-200 whitespace-nowrap">
                       {v.dataVisita ? new Date(v.dataVisita + "T12:00:00").toLocaleDateString("pt-BR") : "—"}
                     </td>
-                    <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-slate-200">{v.empresaNome || v.clienteNome || "—"}</td>
-                    <td className="px-4 py-3 text-sm text-slate-500">{v.oportunidadeTitulo || "—"}</td>
-                    <td className="px-4 py-3">
-                      <span className={`inline-flex text-[10px] px-2 py-0.5 rounded-full font-medium ${TIPO_CORES[v.tipo] || ""}`}>
+                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-medium text-slate-900 dark:text-slate-200">{v.empresaNome || v.clienteNome || "—"}</td>
+                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden sm:table-cell">{v.oportunidadeTitulo || "—"}</td>
+                    <td className="px-2 py-2 md:px-4 md:py-3">
+                      <span className={`inline-flex text-[10px] px-1.5 md:px-2 py-0.5 rounded-full font-medium ${TIPO_CORES[v.tipo] || ""}`}>
                         {TIPO_LABELS[v.tipo] || v.tipo}
                       </span>
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-2 py-2 md:px-4 md:py-3">
                       <span
-                        className="inline-flex text-[10px] px-2 py-0.5 rounded-full font-medium"
+                        className="inline-flex text-[10px] px-1.5 md:px-2 py-0.5 rounded-full font-medium"
                         style={{ backgroundColor: getColor(v.status) + "20", color: getColor(v.status) }}
                       >
                         {getLabel(v.status)}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-sm text-slate-500">{v.criadoPorNome || "—"}</td>
-                    <td className="px-4 py-3">
+                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden md:table-cell">{v.criadoPorNome || "—"}</td>
+                    <td className="px-2 py-2 md:px-4 md:py-3">
                       <div className="flex items-center gap-1">
                         {(v.endereco || v.cidade) && (
                           <a
