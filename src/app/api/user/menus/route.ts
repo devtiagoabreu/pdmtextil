@@ -25,6 +25,9 @@ async function carregarMenus(params: { usuarioId?: number; role?: string }) {
       .orderBy(asc(userMenuItens.ordem))
     result.push({ ...menu, itens })
   }
+
+  const hasItens = result.some(m => m.itens.length > 0)
+  if (!hasItens && result.length > 0) return []
   return result
 }
 
