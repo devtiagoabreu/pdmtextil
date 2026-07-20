@@ -69,7 +69,7 @@ export default function CrmPessoasPage() {
             {isLoading ? "Carregando..." : `${filtered.length} pessoa(s)`}
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2">
           <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-0.5 shadow-sm">
             <button
               onClick={() => setModo("tabela")}
@@ -94,20 +94,20 @@ export default function CrmPessoasPage() {
               Kanban
             </button>
           </div>
-          <Button variant="outline" onClick={() => setShowCnpjSearch(true)} className="gap-2">
-            <Building2 size={16} />
+          <Button variant="outline" size="sm" onClick={() => setShowCnpjSearch(true)} className="gap-1.5">
+            <Building2 size={14} />
             Buscar CNPJ
           </Button>
-          <Button variant="outline" onClick={() => setShowApiImport(true)} className="gap-2">
-            <Database size={16} />
+          <Button variant="outline" size="sm" onClick={() => setShowApiImport(true)} className="gap-1.5">
+            <Database size={14} />
             Importar via API
           </Button>
           <Link
             href="/comercial/crm/pessoas/novo"
-            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors shadow-sm"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 transition-colors shadow-sm"
           >
-            <PlusCircle size={16} />
-            Nova Pessoa (Negócio)
+            <PlusCircle size={14} />
+            Nova Pessoa
           </Link>
         </div>
       </div>
@@ -140,13 +140,13 @@ export default function CrmPessoasPage() {
             <table className="w-full">
               <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Tipo</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Nome</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Documento</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Segmento</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Responsável</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Status</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Data</th>
+                  <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">Tipo</th>
+                  <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">Nome</th>
+                  <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden sm:table-cell">Documento</th>
+                  <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden lg:table-cell">Segmento</th>
+                  <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden md:table-cell">Responsável</th>
+                  <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">Status</th>
+                  <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden sm:table-cell">Data</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -156,7 +156,7 @@ export default function CrmPessoasPage() {
                     className="hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"
                     onClick={() => router.push(`/comercial/crm/pessoas/${emp.id}`)}
                   >
-                    <td className="px-4 py-3">
+                    <td className="px-2 py-2 md:px-4 md:py-3">
                       {emp.tipoPessoa ? (
                         <span className={`inline-flex text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
                           emp.tipoPessoa === "PF"
@@ -167,16 +167,16 @@ export default function CrmPessoasPage() {
                         </span>
                       ) : "—"}
                     </td>
-                    <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-slate-200">{nomeExibicao(emp)}</td>
-                    <td className="px-4 py-3 text-sm font-mono text-slate-500">{documento(emp)}</td>
-                    <td className="px-4 py-3 text-sm text-slate-500">{emp.segmento || "—"}</td>
-                    <td className="px-4 py-3 text-sm text-slate-500">{emp.responsavelNome || "—"}</td>
-                    <td className="px-4 py-3">
-                      <span className={`inline-flex text-[10px] px-2 py-0.5 rounded-full font-medium ${STATUS_CORES[emp.status] || "text-slate-600 bg-slate-100"}`}>
+                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-medium text-slate-900 dark:text-slate-200 whitespace-nowrap">{nomeExibicao(emp)}</td>
+                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-mono text-slate-500 hidden sm:table-cell">{documento(emp)}</td>
+                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden lg:table-cell">{emp.segmento || "—"}</td>
+                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden md:table-cell">{emp.responsavelNome || "—"}</td>
+                    <td className="px-2 py-2 md:px-4 md:py-3">
+                      <span className={`inline-flex text-[10px] px-1.5 md:px-2 py-0.5 rounded-full font-medium ${STATUS_CORES[emp.status] || "text-slate-600 bg-slate-100"}`}>
                         {emp.status}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-sm text-slate-500">
+                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 whitespace-nowrap hidden sm:table-cell">
                       {emp.createdAt ? new Date(emp.createdAt).toLocaleDateString("pt-BR") : "—"}
                     </td>
                   </tr>

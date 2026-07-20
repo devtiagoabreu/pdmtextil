@@ -127,7 +127,7 @@ export default function CrmDashboardPage() {
       ) : (
         <>
           {/* Linha 1: Cards de resumo */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8">
+           <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8">
             <SummaryCard
               href="/comercial/crm/leads"
               icon={<UserPlus size={20} />}
@@ -209,10 +209,10 @@ export default function CrmDashboardPage() {
                 <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50">Pipeline (Funil)</h2>
               </div>
               <ResponsiveContainer width="100%" height={220}>
-                <BarChart data={pipelineData} layout="vertical" margin={{ left: 100 }}>
+                <BarChart data={pipelineData} layout="vertical" margin={{ left: 10, right: 10 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" horizontal={false} />
                   <XAxis type="number" tick={{ fontSize: 11 }} stroke="#94a3b8" />
-                  <YAxis type="category" dataKey="name" tick={{ fontSize: 12 }} stroke="#94a3b8" width={90} />
+                  <YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} stroke="#94a3b8" width={80} interval={0} angle={0} tickFormatter={(v: string) => v.length > 12 ? v.slice(0, 11) + '…' : v} />
                   <Tooltip content={<ChartTooltip formatter={(v) => `${v} registros`} />} />
                   <Bar dataKey="value" radius={[0, 4, 4, 0]} animationDuration={1800} animationEasing="ease-in-out" animationBegin={800}>
                     {pipelineData.map((_, i) => (

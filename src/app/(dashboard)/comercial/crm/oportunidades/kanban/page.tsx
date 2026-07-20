@@ -241,25 +241,25 @@ export default function KanbanOportunidadesPage() {
 
   return (
     <div className="flex flex-col h-screen animate-fade-in">
-      <div className="flex items-center justify-between shrink-0 px-6 pt-6 pb-2">
-        <div className="flex items-center gap-2">
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Kanban — Oportunidades CRM{info && <InfoButton content={info} />}</h1>
-          <span className="text-xs text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">Arraste os cards para mover</span>
+      <div className="flex items-center justify-between shrink-0 px-4 md:px-6 pt-4 md:pt-6 pb-2">
+        <div className="flex items-center gap-2 min-w-0">
+          <h1 className="text-lg md:text-2xl font-bold text-slate-900 dark:text-slate-50 truncate">Kanban — Oportunidades CRM{info && <InfoButton content={info} />}</h1>
+          <span className="text-[10px] md:text-xs text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 md:px-2 py-0.5 rounded-full whitespace-nowrap hidden sm:inline">Arraste os cards para mover</span>
         </div>
-        <div className="flex items-center gap-2">
-          <Link href="/comercial/crm/oportunidades" className="text-sm text-blue-600 hover:underline">
+        <div className="flex items-center gap-1.5 md:gap-2 shrink-0">
+          <Link href="/comercial/crm/oportunidades" className="text-xs md:text-sm text-blue-600 hover:underline">
             Lista
           </Link>
           <Link
             href="/comercial/crm/oportunidades/novo"
-            className="inline-flex items-center gap-1 text-sm bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700"
+            className="inline-flex items-center gap-1 text-xs md:text-sm bg-blue-600 text-white px-2 md:px-3 py-1 md:py-1.5 rounded-lg hover:bg-blue-700"
           >
-            <Plus size={14} /> Nova Oportunidade
+            <Plus size={14} /> <span className="hidden sm:inline">Nova Oportunidade</span><span className="sm:hidden">Nova</span>
           </Link>
         </div>
       </div>
 
-      <div className="flex-1 min-h-0 flex flex-col px-6 pb-6">
+      <div className="flex-1 min-h-0 flex flex-col px-4 md:px-6 pb-4 md:pb-6">
         <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
           <div className="flex-1 min-h-0 flex gap-4 overflow-x-auto">
             {colunas.map(col => (

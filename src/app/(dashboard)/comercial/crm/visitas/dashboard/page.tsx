@@ -89,7 +89,7 @@ export default function VisitasDashboardPage() {
       ) : (
         <>
           {/* Linha 1: Cards de resumo */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
+           <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
             <SummaryCard
               href="/comercial/crm/visitas"
               icon={<Calendar size={20} />}
@@ -295,22 +295,22 @@ export default function VisitasDashboardPage() {
             {data?.ultimasVisitas && data.ultimasVisitas.length > 0 ? (
               <div className="divide-y divide-slate-100 dark:divide-slate-800">
                 {data.ultimasVisitas.map((visita) => (
-                  <div key={visita.id} className="flex items-center justify-between p-3">
-                    <div className="flex items-center gap-3 min-w-0">
+                  <div key={visita.id} className="flex items-center justify-between gap-2 p-3">
+                    <div className="flex items-center gap-2 min-w-0 shrink">
                       <Link
                         href={`/comercial/crm/visitas/${visita.id}`}
-                        className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate hover:underline"
+                        className="text-xs md:text-sm font-medium text-slate-900 dark:text-slate-100 truncate hover:underline whitespace-nowrap"
                       >
                         Visita #{visita.id}
                       </Link>
-                      <span className="text-xs text-slate-500">
+                      <span className="text-[10px] md:text-xs text-slate-500 whitespace-nowrap">
                         {visita.dataVisita
                           ? new Date(visita.dataVisita + "T12:00:00").toLocaleDateString("pt-BR")
                           : "—"}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
+                    <div className="flex items-center gap-1 md:gap-2 shrink-0">
+                      <span className={`text-[10px] px-1.5 md:px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${
                         visita.status === "REALIZADA"
                           ? "bg-green-100 text-green-700 dark:bg-green-950/50 dark:text-green-400"
                           : visita.status === "CANCELADA"
@@ -324,18 +324,18 @@ export default function VisitasDashboardPage() {
                           href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([visita.endereco, visita.numero, visita.complemento, visita.bairro, visita.cidade, visita.uf].filter(Boolean).join(", "))}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="p-1.5 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-950/50 transition-colors"
+                          className="p-1 md:p-1.5 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-950/50 transition-colors"
                           title="Abrir no Google Maps"
                         >
-                          <Navigation size={14} className="text-emerald-500" />
+                          <Navigation size={12} className="text-emerald-500 md:text-emerald-500" />
                         </a>
                       )}
                       <button
                         onClick={() => setSelectedVisita({ id: visita.id, nome: `Visita #${visita.id}` })}
-                        className="p-1.5 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-950/50 transition-colors"
+                        className="p-1 md:p-1.5 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-950/50 transition-colors"
                         title="Gerenciar localizações"
                       >
-                        <MapPin size={14} className="text-blue-500" />
+                        <MapPin size={12} className="text-blue-500 md:text-blue-500" />
                       </button>
                     </div>
                   </div>
