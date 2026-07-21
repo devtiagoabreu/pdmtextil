@@ -64,15 +64,28 @@ export default function NovaVisitaPage() {
     async function load() {
       try {
         const [empresasRes, oportunidadesRes, clientesRes] = await Promise.allSettled([
-          fetch("/api/crm/pessoas").then(r => r.json()),
-          fetch("/api/crm/oportunidades").then(r => r.json()),
-          fetch("/api/clientes").then(r => r.json()),
+          fetch("/api/crm/pessoas").then(r => {
+            if (!r.ok) throw new Error(`pessoas ${r.status}`)
+            return r.json()
+          }),
+          fetch("/api/crm/oportunidades").then(r => {
+            if (!r.ok) throw new Error(`oportunidades ${r.status}`)
+            return r.json()
+          }),
+          fetch("/api/clientes").then(r => {
+            if (!r.ok) throw new Error(`clientes ${r.status}`)
+            return r.json()
+          }),
         ])
         if (empresasRes.status === "fulfilled" && Array.isArray(empresasRes.value)) setEmpresas(empresasRes.value)
+        else console.error("[visitas/novo] pessoas failed:", empresasRes.status === "rejected" ? empresasRes.reason : empresasRes.value)
         if (oportunidadesRes.status === "fulfilled" && Array.isArray(oportunidadesRes.value)) setOportunidades(oportunidadesRes.value)
+        else console.error("[visitas/novo] oportunidades failed:", oportunidadesRes.status === "rejected" ? oportunidadesRes.reason : oportunidadesRes.value)
         if (clientesRes.status === "fulfilled" && Array.isArray(clientesRes.value)) setClientesList(clientesRes.value)
-      } catch {
-        toast.error("Erro ao carregar dados")
+        else console.error("[visitas/novo] clientes failed:", clientesRes.status === "rejected" ? clientesRes.reason : clientesRes.value)
+      } catch (e) {
+        console.error("[visitas/novo] load error:", e)
+        toast.error("Erro ao carregar dados do formulário")
       }
     }
     load()
