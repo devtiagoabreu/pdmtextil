@@ -39,22 +39,29 @@ export function QuickCreateContato({ empresaId, clienteId, clienteNome, onClickG
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!nome.trim() || !selectedEmpresaId) {
-      toast.error("Nome e Pessoa são obrigatórios")
+    if (!nome.trim()) {
+      toast.error("Nome é obrigatório")
+      return
+    }
+    if (!selectedEmpresaId && !clienteId) {
+      toast.error("Selecione uma Pessoa ou tenha um Cliente vinculado")
       return
     }
     setSaving(true)
     try {
+      const payload: any = {
+        nome,
+        cargo: cargo || null,
+        email: email || null,
+        celular: celular || null,
+      }
+      if (selectedEmpresaId) payload.empresaId = parseInt(selectedEmpresaId)
+      if (clienteId) payload.clienteId = parseInt(clienteId)
+
       const res = await fetch("/api/crm/contatos", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          nome,
-          empresaId: parseInt(selectedEmpresaId),
-          cargo: cargo || null,
-          email: email || null,
-          celular: celular || null,
-        }),
+        body: JSON.stringify(payload),
       })
       if (!res.ok) {
         const err = await res.json()
@@ -81,6 +88,8 @@ export function QuickCreateContato({ empresaId, clienteId, clienteNome, onClickG
     setOpen(true)
   }
 
+  const isClienteMode = !empresaId && !!clienteId
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <button
@@ -95,30 +104,30 @@ export function QuickCreateContato({ empresaId, clienteId, clienteNome, onClickG
         <DialogHeader>
           <DialogTitle>Novo Contato</DialogTitle>
         </DialogHeader>
-        {!empresaId && clienteId && clienteNome && (
+        {isClienteMode && clienteNome && (
           <div className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg px-3 py-2">
             <span className="font-medium">Cliente:</span> {clienteNome}
           </div>
         )}
-        {!empresaId && clienteId && (
-          <p className="text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg px-3 py-2">
-            Contatos são vinculados a uma Pessoa (Negócio). Selecione a pessoa responsável abaixo.
-          </p>
-        )}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Pessoa (Negócio) *</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Pessoa (Negócio) {isClienteMode ? "" : "*"}
+            </label>
             <select
               value={selectedEmpresaId}
               onChange={e => setSelectedEmpresaId(e.target.value)}
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
+              required={!isClienteMode}
             >
               <option value="">Selecione...</option>
               {empresas.map((e: any) => (
                 <option key={e.id} value={String(e.id)}>{e.razaoSocial || e.nomeFantasia}</option>
               ))}
             </select>
+            {isClienteMode && (
+              <p className="text-[11px] text-slate-400 mt-1">Opcional — vincule a uma Pessoa se desejar</p>
+            )}
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nome *</label>
