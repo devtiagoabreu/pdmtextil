@@ -61,6 +61,12 @@ export async function GET(
         fotos: crmVisitas.fotos,
         criadoPor: crmVisitas.criadoPor,
         criadoPorNome: usuarios.name,
+        checkInTime: crmVisitas.checkInTime,
+        checkOutTime: crmVisitas.checkOutTime,
+        checkInLat: crmVisitas.checkInLat,
+        checkInLng: crmVisitas.checkInLng,
+        checkOutLat: crmVisitas.checkOutLat,
+        checkOutLng: crmVisitas.checkOutLng,
         createdAt: crmVisitas.createdAt,
         updatedAt: crmVisitas.updatedAt,
       })

@@ -5,7 +5,7 @@ import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { useRouter, useParams, usePathname } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Trash2, Pencil, Check, X, MapPin, Plus, ExternalLink } from "lucide-react"
+import { ArrowLeft, Trash2, Pencil, Check, X, MapPin, Plus, ExternalLink, LogIn, LogOut, Loader2, Navigation } from "lucide-react"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { sanitizeHtml } from "@/lib/sanitize"
@@ -41,6 +41,7 @@ export default function DetalheVisitaPage() {
   const [estadoId, setEstadoId] = useState<number | null>(null)
   const [estados, setEstados] = useState<{ id: number; uf: string }[]>([])
   const [empresaEndereco, setEmpresaEndereco] = useState<Record<string, string>>({})
+  const [checkLoading, setCheckLoading] = useState<"in" | "out" | null>(null)
 
   const fetchEstados = useCallback(async () => {
     try {
@@ -179,6 +180,42 @@ export default function DetalheVisitaPage() {
       uf: empresaEndereco.uf || "",
       cep: empresaEndereco.cep || "",
     }))
+  }
+
+  async function handleCheck(tipo: "check_in" | "check_out") {
+    setCheckLoading(tipo === "check_in" ? "in" : "out")
+    try {
+      let lat: number | null = null
+      let lng: number | null = null
+
+      if ("geolocation" in navigator) {
+        try {
+          const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000, enableHighAccuracy: true })
+          })
+          lat = pos.coords.latitude
+          lng = pos.coords.longitude
+        } catch {
+          toast.warning("Sem acesso à localização. Check-in/out será registrado sem GPS.")
+        }
+      }
+
+      const res = await fetch(`/api/crm/visitas/${params.id}/check`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tipo, latitude: lat, longitude: lng }),
+      })
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.error || "Erro ao registrar")
+      }
+      await loadVisita()
+      toast.success(tipo === "check_in" ? "Check-in registrado!" : "Check-out registrado!")
+    } catch (err: any) {
+      toast.error(err.message)
+    } finally {
+      setCheckLoading(null)
+    }
   }
 
   if (loading) {
@@ -453,6 +490,79 @@ export default function DetalheVisitaPage() {
               )}
             </div>
           </>
+        )}
+
+        {!editing && (
+          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 md:col-span-2">
+            <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4">Check-in / Check-out</h2>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex-1 rounded-lg border border-slate-200 dark:border-slate-700 p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <LogIn size={16} className={visita.checkInTime ? "text-emerald-500" : "text-slate-400"} />
+                  <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Check-in</span>
+                </div>
+                {visita.checkInTime ? (
+                  <div className="space-y-1">
+                    <p className="text-sm text-slate-900 dark:text-slate-100 font-medium">
+                      {new Date(visita.checkInTime).toLocaleString("pt-BR")}
+                    </p>
+                    {visita.checkInLat != null && visita.checkInLng != null && (
+                      <a
+                        href={`https://www.google.com/maps/search/?api=1&query=${visita.checkInLat},${visita.checkInLng}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline"
+                      >
+                        <Navigation size={12} /> Ver no Maps
+                      </a>
+                    )}
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => handleCheck("check_in")}
+                    disabled={checkLoading === "in" || !!visita.checkOutTime}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {checkLoading === "in" ? <Loader2 size={14} className="animate-spin" /> : <LogIn size={14} />}
+                    {checkLoading === "in" ? "Registrando..." : "Fazer Check-in"}
+                  </button>
+                )}
+              </div>
+
+              <div className="flex-1 rounded-lg border border-slate-200 dark:border-slate-700 p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <LogOut size={16} className={visita.checkOutTime ? "text-emerald-500" : "text-slate-400"} />
+                  <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Check-out</span>
+                </div>
+                {visita.checkOutTime ? (
+                  <div className="space-y-1">
+                    <p className="text-sm text-slate-900 dark:text-slate-100 font-medium">
+                      {new Date(visita.checkOutTime).toLocaleString("pt-BR")}
+                    </p>
+                    {visita.checkOutLat != null && visita.checkOutLng != null && (
+                      <a
+                        href={`https://www.google.com/maps/search/?api=1&query=${visita.checkOutLat},${visita.checkOutLng}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline"
+                      >
+                        <Navigation size={12} /> Ver no Maps
+                      </a>
+                    )}
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => handleCheck("check_out")}
+                    disabled={checkLoading === "out" || !visita.checkInTime}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-600 text-white text-sm font-medium hover:bg-amber-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {checkLoading === "out" ? <Loader2 size={14} className="animate-spin" /> : <LogOut size={14} />}
+                    {checkLoading === "out" ? "Registrando..." : "Fazer Check-out"}
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
         )}
       </div>
 
