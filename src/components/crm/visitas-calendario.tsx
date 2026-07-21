@@ -176,11 +176,11 @@ export default function VisitasCalendario({ visitas }: { visitas: Visita[] }) {
                     <div
                       key={v.id}
                       className="flex items-center gap-1"
-                      title={`${v.empresaNome || v.clienteNome || "Sem entidade"} - ${TIPO_LABELS[v.tipo] || v.tipo}`}
+                      title={`${v.empresaNome || v.clienteNome || "Sem entidade"} - ${TIPO_LABELS[v.tipo] || v.tipo}${v.hora ? ` às ${v.hora}` : ""}`}
                     >
                       <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${TIPO_CORES[v.tipo] || "bg-slate-400"}`} />
                       <span className="text-[10px] text-slate-600 dark:text-slate-400 truncate leading-tight">
-                        {v.empresaNome || v.clienteNome || "—"}
+                        {v.hora && <span className="font-semibold">{v.hora} </span>}{v.empresaNome || v.clienteNome || "—"}
                       </span>
                     </div>
                   ))}

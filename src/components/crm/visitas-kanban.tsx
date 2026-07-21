@@ -11,6 +11,7 @@ import VisitLocationModal from "@/components/crm/visit-location-modal"
 interface VisitaCard {
   id: number
   dataVisita: string
+  hora: string | null
   tipo: string
   status: string
   empresaNome: string | null
@@ -108,7 +109,7 @@ function DraggableCard({ visita, onLocationClick }: { visita: VisitaCard; onLoca
     >
       <div className="flex items-start justify-between gap-2">
         <span className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${future ? "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300" : "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300"}`}>
-          {formatarData(visita.dataVisita)}
+          {formatarData(visita.dataVisita)}{visita.hora ? ` ${visita.hora}` : ""}
         </span>
         <div className="flex items-center gap-1">
           <span className="text-[10px] text-slate-400">{TIPO_LABELS[visita.tipo] || visita.tipo}</span>
@@ -238,7 +239,7 @@ export default function VisitasKanban({ visitas }: { visitas: VisitaCard[] }) {
             <div className="bg-white dark:bg-slate-800 rounded-lg border border-blue-400 shadow-xl p-3 w-72 opacity-90">
               <div className="flex items-start justify-between gap-2">
                 <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-blue-100 text-blue-700">
-                  {formatarData(activeCard.dataVisita)}
+                  {formatarData(activeCard.dataVisita)}{activeCard.hora ? ` ${activeCard.hora}` : ""}
                 </span>
               </div>
               <p className="text-sm font-medium text-slate-900 mt-1">{activeCard.empresaNome || activeCard.clienteNome || "Sem entidade"}</p>
