@@ -13,6 +13,7 @@ import { useStatuses } from "@/hooks/use-statuses"
 import { SelectUf } from "@/components/crm/select-uf"
 import { SelectCidade } from "@/components/crm/select-cidade"
 import { RichTextEditor } from "@/components/crm/rich-text-editor"
+import { TimePickerModal } from "@/components/crm/time-picker-modal"
 import VisitReportButton from "@/components/crm/visit-report-button"
 import SendSurveyButton from "@/components/crm/send-survey-button"
 
@@ -218,7 +219,7 @@ export default function DetalheVisitaPage() {
             </span>
           </div>
           <p className="text-sm text-slate-500">
-            {TIPO_LABELS[visita.tipo] || visita.tipo} — {visita.dataVisita ? new Date(visita.dataVisita + "T12:00:00").toLocaleDateString("pt-BR") : "—"}
+            {TIPO_LABELS[visita.tipo] || visita.tipo} — {visita.dataVisita ? new Date(visita.dataVisita + "T12:00:00").toLocaleDateString("pt-BR") : "—"}{visita.hora ? ` às ${visita.hora}` : ""}
           </p>
         </div>
         <div className="flex gap-2">
@@ -295,6 +296,10 @@ export default function DetalheVisitaPage() {
                     onChange={e => setField("dataVisita", e.target.value)}
                     className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
                   />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-500 mb-1">Hora</label>
+                  <TimePickerModal value={form.hora || ""} onChange={v => setField("hora", v)} />
                 </div>
               </div>
             </div>
@@ -373,7 +378,7 @@ export default function DetalheVisitaPage() {
                 </div>
                 <div>
                   <span className="text-xs text-slate-500 block mb-0.5">Data da Visita</span>
-                  <p className="text-slate-900 dark:text-slate-200">{visita.dataVisita ? new Date(visita.dataVisita + "T12:00:00").toLocaleDateString("pt-BR") : "—"}</p>
+                  <p className="text-slate-900 dark:text-slate-200">{visita.dataVisita ? new Date(visita.dataVisita + "T12:00:00").toLocaleDateString("pt-BR") : "—"}{visita.hora ? ` às ${visita.hora}` : ""}</p>
                 </div>
                 <div>
                   <span className="text-xs text-slate-500 block mb-0.5">{visita.empresaId ? "Pessoa (Negócio)" : "Cliente"}</span>

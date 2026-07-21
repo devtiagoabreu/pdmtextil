@@ -120,7 +120,7 @@ export default function VisitReportButton({ visita }: { visita: Visita }) {
       doc.setFont("helvetica", "bold")
       doc.text("Data:", col1X, ly)
       doc.setFont("helvetica", "normal")
-      doc.text(visita.dataVisita ? new Date(visita.dataVisita + "T12:00:00").toLocaleDateString("pt-BR") : "—", col1X + 12, ly)
+      doc.text(visita.dataVisita ? `${new Date(visita.dataVisita + "T12:00:00").toLocaleDateString("pt-BR")}${visita.hora ? ` às ${visita.hora}` : ""}` : "—", col1X + 12, ly)
       doc.setFont("helvetica", "bold")
       doc.text("Tipo:", col2X, ly)
       doc.setFont("helvetica", "normal")
