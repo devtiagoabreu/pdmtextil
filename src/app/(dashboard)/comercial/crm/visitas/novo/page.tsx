@@ -175,8 +175,9 @@ export default function NovaVisitaPage() {
   }
 
   async function loadContatosCliente() {
+    if (!form.clienteId) { setContatos([]); return }
     try {
-      const res = await fetch(`/api/crm/contatos`)
+      const res = await fetch(`/api/crm/contatos?clienteId=${form.clienteId}`)
       const data = await res.json()
       if (Array.isArray(data)) setContatos(data)
       else setContatos([])

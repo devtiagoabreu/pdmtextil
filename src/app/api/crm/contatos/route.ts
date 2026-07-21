@@ -12,11 +12,15 @@ export async function GET(req: NextRequest) {
     if (auth instanceof NextResponse) return auth
     const { searchParams } = new URL(req.url)
     const empresaId = searchParams.get("empresaId")
+    const clienteId = searchParams.get("clienteId")
     const search = searchParams.get("search")
 
     const conditions: any[] = []
     if (empresaId) {
       conditions.push(eq(crmContatos.empresaId, parseInt(empresaId)))
+    }
+    if (clienteId) {
+      conditions.push(eq(crmContatos.clienteId, parseInt(clienteId)))
     }
     if (search) {
       conditions.push(
@@ -64,6 +68,10 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json()
 
+    if (!body.empresaId && !body.clienteId) {
+      return NextResponse.json({ error: "É necessário vincular a uma Pessoa ou Cliente" }, { status: 400 })
+    }
+
     const [novo] = await db
       .insert(crmContatos)
       .values({
@@ -75,11 +83,16 @@ export async function POST(req: NextRequest) {
         whatsapp: body.whatsapp || null,
         principal: body.principal || false,
         observacoes: body.observacoes || null,
-        empresaId: body.empresaId,
+        empresaId: body.empresaId || null,
+        clienteId: body.clienteId || null,
       })
       .returning()
 
-    await notificar("CONTATO_CRIADO", `Contato criado: ${novo.nome}`, `/comercial/crm/pessoas/${novo.empresaId}`, session.user.name)
+    const linkDestino = novo.empresaId
+      ? `/comercial/crm/pessoas/${novo.empresaId}`
+      : `/comercial/crm/clientes/${novo.clienteId}`
+
+    await notificar("CONTATO_CRIADO", `Contato criado: ${novo.nome}`, linkDestino, session.user.name)
 
     return NextResponse.json(novo, { status: 201 })
   } catch (error) {
