@@ -96,7 +96,10 @@ export default function NovaVisitaPage() {
       loadContatos(form.empresaId)
       loadEmpresaEndereco(form.empresaId)
     } else if (tipoEntidade === "CLIENTE") {
+      loadContatosCliente()
       loadClienteEndereco(form.clienteId)
+    } else {
+      setContatos([])
     }
   }, [form.empresaId, form.clienteId, tipoEntidade])
 
@@ -152,6 +155,7 @@ export default function NovaVisitaPage() {
 
   function handleContatoCreated(id: number) {
     if (tipoEntidade === "PESSOA") loadContatos(form.empresaId)
+    else if (tipoEntidade === "CLIENTE") loadContatosCliente()
     setField("contatoId", String(id))
   }
 
@@ -166,6 +170,15 @@ export default function NovaVisitaPage() {
       const res = await fetch(`/api/crm/pessoas/${empresaId}`)
       const data = await res.json()
       if (Array.isArray(data.contatos)) setContatos(data.contatos)
+      else setContatos([])
+    } catch { setContatos([]) }
+  }
+
+  async function loadContatosCliente() {
+    try {
+      const res = await fetch(`/api/crm/contatos`)
+      const data = await res.json()
+      if (Array.isArray(data)) setContatos(data)
       else setContatos([])
     } catch { setContatos([]) }
   }
@@ -453,7 +466,18 @@ export default function NovaVisitaPage() {
             <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                 Contato
-                <QuickCreateContato empresaId={tipoEntidade === "PESSOA" ? form.empresaId : ""} onCreated={handleContatoCreated} />
+                <QuickCreateContato
+                  empresaId={tipoEntidade === "PESSOA" ? form.empresaId : ""}
+                  clienteId={tipoEntidade === "CLIENTE" ? form.clienteId : ""}
+                  onClickGuard={() => {
+                    if (!form.empresaId && !form.clienteId) {
+                      toast.error("Selecione uma pessoa ou cliente primeiro")
+                      return false
+                    }
+                    return true
+                  }}
+                  onCreated={handleContatoCreated}
+                />
               </label>
               <select
                 value={form.contatoId}
