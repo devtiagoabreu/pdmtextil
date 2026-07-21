@@ -30,6 +30,11 @@ export async function POST(
       return NextResponse.json({ error: "Visita não encontrada" }, { status: 404 })
     }
 
+    const userRole = auth.session.user.role
+    if (userRole !== "ADMIN" && userRole !== "SUDO" && visita.criadoPor !== auth.userId) {
+      return NextResponse.json({ error: "Apenas o criador da visita pode registrar check-in/out" }, { status: 403 })
+    }
+
     if (tipo === "check_in" && visita.checkInTime) {
       return NextResponse.json({ error: "Check-in já realizado" }, { status: 400 })
     }

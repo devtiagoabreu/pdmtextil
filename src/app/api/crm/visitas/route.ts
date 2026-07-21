@@ -17,10 +17,14 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url)
     const empresaId = searchParams.get("empresaId")
     const status = searchParams.get("status")
+    const mine = searchParams.get("mine")
 
     const conditions = []
     if (empresaId) conditions.push(eq(crmVisitas.empresaId, parseInt(empresaId)))
     if (status) conditions.push(eq(crmVisitas.status, status))
+    if (mine === "true" && auth.session.user.role !== "ADMIN" && auth.session.user.role !== "SUDO") {
+      conditions.push(eq(crmVisitas.criadoPor, auth.userId))
+    }
 
     const where = conditions.length > 0 ? sql`${conditions.reduce((a, b) => sql`${a} AND ${b}`)}` : undefined
 
@@ -46,6 +50,7 @@ export async function GET(req: NextRequest) {
         oportunidadeId: crmVisitas.oportunidadeId,
         oportunidadeTitulo: crmOportunidades.titulo,
         contatoId: crmVisitas.contatoId,
+        criadoPor: crmVisitas.criadoPor,
         criadoPorNome: usuarios.name,
         fotos: crmVisitas.fotos,
         motivoCancelamento: crmVisitas.motivoCancelamento,

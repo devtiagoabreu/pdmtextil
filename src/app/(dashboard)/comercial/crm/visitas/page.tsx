@@ -1,20 +1,21 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
+import { useSession } from "next-auth/react"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import Link from "next/link"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
-import { PlusCircle, CalendarDays, Table, Columns, Search, MapPin, Navigation } from "lucide-react"
+import { PlusCircle, CalendarDays, Table, Columns, Search, MapPin, Navigation, Users, User } from "lucide-react"
 import { useStatuses } from "@/hooks/use-statuses"
 import VisitasCalendario from "@/components/crm/visitas-calendario"
 import VisitasKanban from "@/components/crm/visitas-kanban"
 import { FloatableKanban } from "@/components/crm/floatable-kanban"
 import VisitLocationModal from "@/components/crm/visit-location-modal"
 
-async function fetchVisitas() {
-  const res = await fetch("/api/crm/visitas")
+async function fetchVisitas(mine: boolean) {
+  const res = await fetch(`/api/crm/visitas${mine ? "?mine=true" : ""}`)
   if (!res.ok) throw new Error("Falha ao carregar")
   return res.json()
 }
@@ -39,13 +40,26 @@ export default function VisitasPage() {
   const searchParams = useSearchParams()
   const info = getInfoContent(pathname)
   const { getLabel, getColor } = useStatuses("VISITA")
+  const { data: session } = useSession()
   const [search, setSearch] = useState("")
   const [modo, setModo] = useState<ModoVisao>(searchParams.get("view") === "kanban" ? "kanban" : "tabela")
   const [selectedVisita, setSelectedVisita] = useState<{ id: number; nome: string } | null>(null)
 
+  const userRole = (session?.user as any)?.role
+  const isComercial = userRole && !["ADMIN", "SUDO", "CRM"].includes(userRole)
+  const [visitasFilter, setVisitasFilter] = useState<"todas" | "minhas">("todas")
+  const [filterReady, setFilterReady] = useState(false)
+
+  useEffect(() => {
+    if (session && !filterReady) {
+      setVisitasFilter(isComercial ? "minhas" : "todas")
+      setFilterReady(true)
+    }
+  }, [session, isComercial, filterReady])
+
   const { data: visitas, isLoading } = useQuery({
-    queryKey: ["crm-visitas"],
-    queryFn: fetchVisitas,
+    queryKey: ["crm-visitas", visitasFilter],
+    queryFn: () => fetchVisitas(visitasFilter === "minhas"),
     retry: 1,
   })
 
@@ -65,6 +79,30 @@ export default function VisitasPage() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-0.5 shadow-sm">
+            <button
+              onClick={() => setVisitasFilter("todas")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                visitasFilter === "todas"
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+              }`}
+            >
+              <Users size={14} />
+              Todas
+            </button>
+            <button
+              onClick={() => setVisitasFilter("minhas")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                visitasFilter === "minhas"
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+              }`}
+            >
+              <User size={14} />
+              Minhas Visitas
+            </button>
+          </div>
           <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-0.5 shadow-sm">
             <button
               onClick={() => setModo("tabela")}
