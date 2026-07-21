@@ -469,6 +469,7 @@ export default function NovaVisitaPage() {
                 <QuickCreateContato
                   empresaId={tipoEntidade === "PESSOA" ? form.empresaId : ""}
                   clienteId={tipoEntidade === "CLIENTE" ? form.clienteId : ""}
+                  clienteNome={tipoEntidade === "CLIENTE" ? clientesList.find((c: any) => String(c.id) === form.clienteId)?.nome || "" : ""}
                   onClickGuard={() => {
                     if (!form.empresaId && !form.clienteId) {
                       toast.error("Selecione uma pessoa ou cliente primeiro")
