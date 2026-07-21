@@ -3,6 +3,7 @@ import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { crmContatos } from "@/lib/db/schema/crm-contatos"
 import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
+import { clientes } from "@/lib/db/schema/clientes"
 import { eq, desc, like, sql } from "drizzle-orm"
 import { notificar } from "@/lib/notificar"
 
@@ -43,11 +44,14 @@ export async function GET(req: NextRequest) {
         empresaNome: crmPessoas.nome,
         empresaRazaoSocial: crmPessoas.razaoSocial,
         empresaNomeFantasia: crmPessoas.nomeFantasia,
+        clienteId: crmContatos.clienteId,
+        clienteNome: clientes.nome,
         createdAt: crmContatos.createdAt,
         updatedAt: crmContatos.updatedAt,
       })
       .from(crmContatos)
       .leftJoin(crmPessoas, eq(crmContatos.empresaId, crmPessoas.id))
+      .leftJoin(clientes, eq(crmContatos.clienteId, clientes.id))
       .orderBy(desc(crmContatos.createdAt))
 
     const lista = conditions.length > 0
