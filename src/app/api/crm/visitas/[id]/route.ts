@@ -111,6 +111,11 @@ export async function PUT(
       return NextResponse.json({ error: "Visita não encontrada" }, { status: 404 })
     }
 
+    const userRole = auth.session.user.role
+    if (userRole !== "ADMIN" && userRole !== "SUDO" && existente.criadoPor !== auth.userId) {
+      return NextResponse.json({ error: "Apenas o criador da visita pode editá-la" }, { status: 403 })
+    }
+
     const values: Record<string, any> = { updatedAt: new Date() }
     if (body.empresaId !== undefined) values.empresaId = body.empresaId
     if (body.clienteId !== undefined) values.clienteId = body.clienteId
@@ -178,11 +183,18 @@ export async function DELETE(
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
-    if (!["ADMIN", "SUDO", "COMERCIAL", "CRM"].includes(auth.session.user.role)) {
+    const userRole = auth.session.user.role
+    if (userRole !== "ADMIN" && userRole !== "SUDO" && userRole !== "COMERCIAL" && userRole !== "CRM") {
       return NextResponse.json({ error: "Apenas administradores podem excluir" }, { status: 403 })
     }
 
     const { id } = await params
+
+    const [existente] = await db.select({ criadoPor: crmVisitas.criadoPor }).from(crmVisitas).where(eq(crmVisitas.id, parseInt(id))).limit(1)
+    if (userRole !== "ADMIN" && userRole !== "SUDO" && existente?.criadoPor !== auth.userId) {
+      return NextResponse.json({ error: "Apenas o criador da visita pode excluí-la" }, { status: 403 })
+    }
+
     await db.delete(crmVisitas).where(eq(crmVisitas.id, parseInt(id)))
 
     await notificarDelecao("Visita CRM", id, auth.session.user.name)

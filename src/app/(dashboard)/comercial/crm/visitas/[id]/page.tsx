@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import { useSession } from "next-auth/react"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { useRouter, useParams, usePathname } from "next/navigation"
@@ -42,6 +43,7 @@ export default function DetalheVisitaPage() {
   const [estados, setEstados] = useState<{ id: number; uf: string }[]>([])
   const [empresaEndereco, setEmpresaEndereco] = useState<Record<string, string>>({})
   const [checkLoading, setCheckLoading] = useState<"in" | "out" | null>(null)
+  const { data: session } = useSession()
 
   const fetchEstados = useCallback(async () => {
     try {
@@ -237,6 +239,12 @@ export default function DetalheVisitaPage() {
 
   const STATUS_OPTIONS = ["AGENDADA", "REALIZADA", "CANCELADA"]
 
+  const userRole = (session?.user as any)?.role
+  const userId = session?.user?.id ? parseInt(session.user.id) : null
+  const isOwner = userId != null && visita?.criadoPor === userId
+  const isAdmin = userRole === "ADMIN" || userRole === "SUDO"
+  const canEdit = isAdmin || isOwner
+
   return (
     <div className="space-y-6 animate-fade-in max-w-4xl">
       <div className="flex items-center gap-3">
@@ -273,12 +281,16 @@ export default function DetalheVisitaPage() {
             <>
               <VisitReportButton visita={visita} />
               <SendSurveyButton visitaId={visita.id} empresaNome={visita.empresaNome || visita.clienteNome || undefined} />
-              <button onClick={startEditing} className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:underline">
-                <Pencil size={14} /> Editar
-              </button>
-              <button onClick={() => setShowDelete(true)} className="flex items-center gap-1 text-xs font-medium text-red-600 hover:underline">
-                <Trash2 size={14} /> Excluir
-              </button>
+              {canEdit && (
+                <>
+                  <button onClick={startEditing} className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:underline">
+                    <Pencil size={14} /> Editar
+                  </button>
+                  <button onClick={() => setShowDelete(true)} className="flex items-center gap-1 text-xs font-medium text-red-600 hover:underline">
+                    <Trash2 size={14} /> Excluir
+                  </button>
+                </>
+              )}
             </>
           )}
         </div>
@@ -492,7 +504,7 @@ export default function DetalheVisitaPage() {
           </>
         )}
 
-        {!editing && (
+        {!editing && canEdit && (
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 md:col-span-2">
             <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4">Check-in / Check-out</h2>
             <div className="flex flex-col sm:flex-row gap-4">
