@@ -6,7 +6,7 @@ import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { useRouter, useParams, usePathname } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Trash2, Pencil, Check, X, MapPin, Plus, ExternalLink, LogIn, LogOut, Loader2, Navigation } from "lucide-react"
+import { ArrowLeft, Trash2, Pencil, Check, X, MapPin, Plus, ExternalLink, LogIn, LogOut, Loader2, Navigation, Undo2 } from "lucide-react"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { sanitizeHtml } from "@/lib/sanitize"
@@ -213,6 +213,28 @@ export default function DetalheVisitaPage() {
       }
       await loadVisita()
       toast.success(tipo === "check_in" ? "Check-in registrado!" : "Check-out registrado!")
+    } catch (err: any) {
+      toast.error(err.message)
+    } finally {
+      setCheckLoading(null)
+    }
+  }
+
+  async function handleUndo(tipo: "undo_check_in" | "undo_check_out") {
+    const label = tipo === "undo_check_in" ? "check-in" : "check-out"
+    setCheckLoading(tipo === "undo_check_in" ? "in" : "out")
+    try {
+      const res = await fetch(`/api/crm/visitas/${params.id}/check`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tipo }),
+      })
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.error || "Erro ao desfazer")
+      }
+      await loadVisita()
+      toast.success(`${label.charAt(0).toUpperCase() + label.slice(1)} desfeito!`)
     } catch (err: any) {
       toast.error(err.message)
     } finally {
@@ -514,7 +536,7 @@ export default function DetalheVisitaPage() {
                   <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Check-in</span>
                 </div>
                 {visita.checkInTime ? (
-                  <div className="space-y-1">
+                  <div className="space-y-2">
                     <p className="text-sm text-slate-900 dark:text-slate-100 font-medium">
                       {new Date(visita.checkInTime).toLocaleString("pt-BR")}
                     </p>
@@ -528,6 +550,13 @@ export default function DetalheVisitaPage() {
                         <Navigation size={12} /> Ver no Maps
                       </a>
                     )}
+                    <button
+                      onClick={() => handleUndo("undo_check_in")}
+                      disabled={!!checkLoading || !!visita.checkOutTime}
+                      className="inline-flex items-center gap-1 text-xs text-red-500 hover:text-red-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                    >
+                      <Undo2 size={12} /> Desfazer
+                    </button>
                   </div>
                 ) : (
                   <button
@@ -547,7 +576,7 @@ export default function DetalheVisitaPage() {
                   <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Check-out</span>
                 </div>
                 {visita.checkOutTime ? (
-                  <div className="space-y-1">
+                  <div className="space-y-2">
                     <p className="text-sm text-slate-900 dark:text-slate-100 font-medium">
                       {new Date(visita.checkOutTime).toLocaleString("pt-BR")}
                     </p>
@@ -561,6 +590,13 @@ export default function DetalheVisitaPage() {
                         <Navigation size={12} /> Ver no Maps
                       </a>
                     )}
+                    <button
+                      onClick={() => handleUndo("undo_check_out")}
+                      disabled={!!checkLoading}
+                      className="inline-flex items-center gap-1 text-xs text-red-500 hover:text-red-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                    >
+                      <Undo2 size={12} /> Desfazer
+                    </button>
                   </div>
                 ) : (
                   <button

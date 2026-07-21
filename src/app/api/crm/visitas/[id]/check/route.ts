@@ -16,8 +16,8 @@ export async function POST(
     const body = await req.json()
     const { tipo, latitude, longitude } = body
 
-    if (tipo !== "check_in" && tipo !== "check_out") {
-      return NextResponse.json({ error: "Tipo inválido (use check_in ou check_out)" }, { status: 400 })
+    if (tipo !== "check_in" && tipo !== "check_out" && tipo !== "undo_check_in" && tipo !== "undo_check_out") {
+      return NextResponse.json({ error: "Tipo inválido (use check_in, check_out, undo_check_in ou undo_check_out)" }, { status: 400 })
     }
 
     const [visita] = await db
@@ -38,6 +38,12 @@ export async function POST(
     if (tipo === "check_in" && visita.checkInTime) {
       return NextResponse.json({ error: "Check-in já realizado" }, { status: 400 })
     }
+    if (tipo === "undo_check_in" && !visita.checkInTime) {
+      return NextResponse.json({ error: "Check-in não foi realizado" }, { status: 400 })
+    }
+    if (tipo === "undo_check_out" && !visita.checkOutTime) {
+      return NextResponse.json({ error: "Check-out não foi realizado" }, { status: 400 })
+    }
     if (tipo === "check_out" && !visita.checkInTime) {
       return NextResponse.json({ error: "Faça check-in primeiro" }, { status: 400 })
     }
@@ -50,6 +56,15 @@ export async function POST(
       values.checkInTime = new Date()
       values.checkInLat = latitude ?? null
       values.checkInLng = longitude ?? null
+    } else if (tipo === "undo_check_in") {
+      values.checkInTime = null
+      values.checkInLat = null
+      values.checkInLng = null
+    } else if (tipo === "undo_check_out") {
+      values.checkOutTime = null
+      values.checkOutLat = null
+      values.checkOutLng = null
+      values.status = "AGENDADA"
     } else {
       values.checkOutTime = new Date()
       values.checkOutLat = latitude ?? null
