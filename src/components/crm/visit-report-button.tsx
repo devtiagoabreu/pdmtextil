@@ -21,6 +21,7 @@ interface Visita {
   oportunidadeTitulo: string | null
   contatoNome: string | null
   dataVisita: string | null
+  hora: string | null
   tipo: string
   status: string
   endereco: string | null
