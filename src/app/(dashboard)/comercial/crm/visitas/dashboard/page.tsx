@@ -25,7 +25,7 @@ type VisitasDashboardData = {
   byTipo: { tipo: string; total: number }[]
   byStatus: { status: string; total: number }[]
   porRepresentante: { representanteId: number | null; representanteNome: string; total: number }[]
-  ultimasVisitas: { id: number; empresaId: number; clienteId: number | null; dataVisita: string; tipo: string; status: string; endereco: string | null; numero: string | null; complemento: string | null; bairro: string | null; cidade: string | null; uf: string | null }[]
+  ultimasVisitas: { id: number; empresaId: number; clienteId: number | null; dataVisita: string; hora: string | null; tipo: string; status: string; endereco: string | null; numero: string | null; complemento: string | null; bairro: string | null; cidade: string | null; uf: string | null }[]
   pesquisas: { enviadas: number; abertas: number; respondidas: number }
 }
 
