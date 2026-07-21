@@ -3,7 +3,7 @@ import { crmPessoas } from "./crm-pessoas"
 
 export const crmTimelineEventos = pgTable("crm_timeline_eventos", {
   id: serial("id").primaryKey(),
-  empresaId: integer("empresa_id").notNull().references(() => crmPessoas.id),
+  empresaId: integer("empresa_id").references(() => crmPessoas.id),
   tipo: varchar("tipo", { length: 30 }).notNull(),
   descricao: text("descricao").notNull(),
   metadados: jsonb("metadados").$type<Record<string, any>>().default({}),

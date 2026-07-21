@@ -46,6 +46,7 @@ export async function GET(
         contatoId: crmVisitas.contatoId,
         contatoNome: crmContatos.nome,
         dataVisita: crmVisitas.dataVisita,
+        hora: crmVisitas.hora,
         tipo: crmVisitas.tipo,
         status: crmVisitas.status,
         endereco: crmVisitas.endereco,
@@ -110,6 +111,7 @@ export async function PUT(
     if (body.oportunidadeId !== undefined) values.oportunidadeId = body.oportunidadeId
     if (body.contatoId !== undefined) values.contatoId = body.contatoId
     if (body.dataVisita !== undefined) values.dataVisita = body.dataVisita
+    if (body.hora !== undefined) values.hora = body.hora || null
     if (body.tipo !== undefined) values.tipo = body.tipo
     if (body.status !== undefined) values.status = body.status
     if (body.motivoCancelamento !== undefined) values.motivoCancelamento = body.motivoCancelamento
@@ -139,12 +141,14 @@ export async function PUT(
     })
 
     if (body.status && body.status !== existente.status) {
-      await inserirTimelineEvento({
-        empresaId: existente.empresaId ?? 0,
-        tipo: "VISITA",
-        descricao: `Visita alterada para "${body.status}"${body.status === "REALIZADA" && body.relato ? " — relato registrado" : ""}${body.status === "CANCELADA" && body.motivoCancelamento ? ` — motivo: ${body.motivoCancelamento}` : ""}`,
-        metadados: { visitaId: atualizada.id, statusAnterior: existente.status, statusNovo: body.status },
-      })
+      if (existente.empresaId) {
+        await inserirTimelineEvento({
+          empresaId: existente.empresaId,
+          tipo: "VISITA",
+          descricao: `Visita alterada para "${body.status}"${body.status === "REALIZADA" && body.relato ? " — relato registrado" : ""}${body.status === "CANCELADA" && body.motivoCancelamento ? ` — motivo: ${body.motivoCancelamento}` : ""}`,
+          metadados: { visitaId: atualizada.id, statusAnterior: existente.status, statusNovo: body.status },
+        })
+      }
 
       if (body.status === "REALIZADA") {
         enviarPesquisaSatisfacao(atualizada.id, existente.empresaId, existente.clienteId, atualizada.contatoId).catch(err =>

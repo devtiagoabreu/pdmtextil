@@ -14,6 +14,7 @@ import { QuickCreateOportunidade } from "@/components/crm/quick-create-oportunid
 import { SelectUf } from "@/components/crm/select-uf"
 import { SelectCidade } from "@/components/crm/select-cidade"
 import { RichTextEditor } from "@/components/crm/rich-text-editor"
+import { TimePickerModal } from "@/components/crm/time-picker-modal"
 
 const TIPO_OPTIONS = [
   { value: "PRESENCIAL", label: "Presencial" },
@@ -43,6 +44,7 @@ export default function NovaVisitaPage() {
     oportunidadeId: "",
     contatoId: "",
     dataVisita: dataParam || new Date().toISOString().split("T")[0],
+    hora: "",
     tipo: "PRESENCIAL",
     endereco: "",
     numero: "",
@@ -175,7 +177,9 @@ export default function NovaVisitaPage() {
   async function loadClienteEndereco(clienteId: string) {
     if (!clienteId) { setEmpresaEndereco({}); return }
     try {
-      const cliente = clientesList.find(c => String(c.id) === clienteId)
+      const res = await fetch(`/api/clientes`)
+      const data = await res.json()
+      const cliente = Array.isArray(data) ? data.find((c: any) => String(c.id) === clienteId) : null
       if (cliente) {
         setEmpresaEndereco({
           endereco: cliente.endereco || "",
@@ -241,6 +245,7 @@ export default function NovaVisitaPage() {
           oportunidadeId: form.oportunidadeId ? parseInt(form.oportunidadeId) : null,
           contatoId: form.contatoId ? parseInt(form.contatoId) : null,
           dataVisita: form.dataVisita,
+          hora: form.hora || null,
           tipo: form.tipo,
           endereco: form.endereco || null,
           numero: form.numero || null,
@@ -397,6 +402,10 @@ export default function NovaVisitaPage() {
               />
             </div>
             <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Hora</label>
+              <TimePickerModal value={form.hora} onChange={v => setField("hora", v)} />
+            </div>
+            <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Tipo</label>
               <select
                 value={form.tipo}
@@ -461,7 +470,7 @@ export default function NovaVisitaPage() {
                 }}
                 className="text-xs text-blue-600 hover:underline flex items-center gap-1"
               >
-                Copiar endereço do negócio
+                Copiar endereço {tipoEntidade === "CLIENTE" ? "do cliente" : "do negócio"}
               </button>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">

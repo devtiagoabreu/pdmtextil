@@ -306,7 +306,7 @@ export default function VisitasDashboardPage() {
                       <span className="text-[10px] md:text-xs text-slate-500 whitespace-nowrap">
                         {visita.dataVisita
                           ? new Date(visita.dataVisita + "T12:00:00").toLocaleDateString("pt-BR")
-                          : "—"}
+                          : "—"}{visita.hora ? ` ${visita.hora}` : ""}
                       </span>
                     </div>
                     <div className="flex items-center gap-1 md:gap-2 shrink-0">

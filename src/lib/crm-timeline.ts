@@ -11,11 +11,12 @@ type TipoEvento =
   | "SOLICITACAO"
 
 export async function inserirTimelineEvento(params: {
-  empresaId: number
+  empresaId: number | null
   tipo: TipoEvento
   descricao: string
   metadados?: Record<string, any>
 }) {
+  if (!params.empresaId) return
   await db.insert(crmTimelineEventos).values({
     empresaId: params.empresaId,
     tipo: params.tipo,

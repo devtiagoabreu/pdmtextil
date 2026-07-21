@@ -28,6 +28,7 @@ export async function GET(req: NextRequest) {
       .select({
         id: crmVisitas.id,
         dataVisita: crmVisitas.dataVisita,
+        hora: crmVisitas.hora,
         tipo: crmVisitas.tipo,
         status: crmVisitas.status,
         endereco: crmVisitas.endereco,
@@ -82,6 +83,7 @@ export async function POST(req: NextRequest) {
         oportunidadeId: body.oportunidadeId || null,
         contatoId: body.contatoId || null,
         dataVisita: body.dataVisita,
+        hora: body.hora || null,
         tipo: body.tipo || "PRESENCIAL",
         status: "AGENDADA",
         endereco: body.endereco || null,
@@ -106,12 +108,14 @@ export async function POST(req: NextRequest) {
       usuarioNome: session.user.name,
     })
 
-    await inserirTimelineEvento({
-      empresaId: nova.empresaId ?? 0,
-      tipo: "VISITA",
-      descricao: `Visita ${nova.tipo} agendada para ${new Date(nova.dataVisita + "T12:00:00").toLocaleDateString("pt-BR")}`,
-      metadados: { visitaId: nova.id, tipo: nova.tipo, dataVisita: nova.dataVisita },
-    })
+    if (nova.empresaId) {
+      await inserirTimelineEvento({
+        empresaId: nova.empresaId,
+        tipo: "VISITA",
+        descricao: `Visita ${nova.tipo} agendada para ${new Date(nova.dataVisita + "T12:00:00").toLocaleDateString("pt-BR")}`,
+        metadados: { visitaId: nova.id, tipo: nova.tipo, dataVisita: nova.dataVisita },
+      })
+    }
 
     await notificar("VISITA_CRIADA", `Visita ${nova.tipo} agendada para ${new Date(nova.dataVisita + "T12:00:00").toLocaleDateString("pt-BR")}`, `/comercial/crm/visitas/${nova.id}`, session.user.name)
 

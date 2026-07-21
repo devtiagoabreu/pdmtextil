@@ -44,6 +44,7 @@ function formatarDataBR(dateKey: string) {
 type Visita = {
   id: number
   dataVisita: string
+  hora?: string | null
   tipo: string
   status: string
   empresaNome: string | null
@@ -255,6 +256,7 @@ export default function VisitasCalendario({ visitas }: { visitas: Visita[] }) {
                         </p>
                         <p className="text-xs text-slate-500 dark:text-slate-400">
                           {TIPO_LABELS[v.tipo] || v.tipo}
+                          {v.hora ? ` às ${v.hora}` : ""}
                           {v.oportunidadeTitulo && ` • ${v.oportunidadeTitulo}`}
                         </p>
                       </div>

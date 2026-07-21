@@ -12,6 +12,7 @@ export const crmVisitas = pgTable("crm_visitas", {
   oportunidadeId: integer("oportunidade_id").references(() => crmOportunidades.id),
   contatoId: integer("contato_id").references(() => crmContatos.id),
   dataVisita: date("data_visita").notNull(),
+  hora: varchar("hora", { length: 5 }),
   tipo: varchar("tipo", { length: 20 }).notNull().default("PRESENCIAL"),
   status: varchar("status", { length: 20 }).notNull().default("AGENDADA"),
   endereco: varchar("endereco", { length: 300 }),
