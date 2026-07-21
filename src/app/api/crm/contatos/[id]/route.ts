@@ -38,6 +38,7 @@ export async function PUT(
     if (body.principal !== undefined) values.principal = body.principal
     if (body.observacoes !== undefined) values.observacoes = body.observacoes || null
     if (body.empresaId !== undefined) values.empresaId = body.empresaId
+    if (body.clienteId !== undefined) values.clienteId = body.clienteId
 
     const [atualizado] = await db
       .update(crmContatos)

@@ -9,7 +9,7 @@ import { getInfoContent } from "@/lib/info-content"
 import {
   PlusCircle, Search, Users,
   Star, StarOff, Phone, Mail,
-  Building2,
+  Building2, User,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -117,14 +117,27 @@ export default function CrmContatosPage() {
                     <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-slate-200">{c.nome}</td>
                     <td className="px-4 py-3 text-sm text-slate-500">{c.cargo || "—"}</td>
                     <td className="px-4 py-3">
-                      <Link
-                        href={`/comercial/crm/pessoas/${c.empresaId}`}
-                        onClick={e => e.stopPropagation()}
-                        className="inline-flex items-center gap-1 text-sm text-blue-600 hover:underline"
-                      >
-                        <Building2 size={12} />
-                        {empresaNome(c)}
-                      </Link>
+                      {c.empresaId ? (
+                        <Link
+                          href={`/comercial/crm/pessoas/${c.empresaId}`}
+                          onClick={e => e.stopPropagation()}
+                          className="inline-flex items-center gap-1 text-sm text-blue-600 hover:underline"
+                        >
+                          <Building2 size={12} />
+                          {empresaNome(c)}
+                        </Link>
+                      ) : c.clienteId ? (
+                        <Link
+                          href={`/comercial/crm/clientes/${c.clienteId}`}
+                          onClick={e => e.stopPropagation()}
+                          className="inline-flex items-center gap-1 text-sm text-emerald-600 hover:underline"
+                        >
+                          <User size={12} />
+                          {c.clienteNome || "—"}
+                        </Link>
+                      ) : (
+                        <span className="text-sm text-slate-400">—</span>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-sm text-slate-500">
                       {c.email ? (

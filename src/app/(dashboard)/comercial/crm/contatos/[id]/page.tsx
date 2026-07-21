@@ -207,11 +207,20 @@ export default function ContatoDetailPage() {
         ) : (
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div className="col-span-2">
-              <p className="text-xs text-slate-500 mb-0.5">Pessoa (Negócio)</p>
-              <Link href={`/comercial/crm/pessoas/${contato.empresaId}`} className="inline-flex items-center gap-1 text-blue-600 hover:underline font-medium">
-                <Building2 size={14} />
-                {empresaNome(contato)}
-              </Link>
+              <p className="text-xs text-slate-500 mb-0.5">{contato.empresaId ? "Pessoa (Negócio)" : "Cliente"}</p>
+              {contato.empresaId ? (
+                <Link href={`/comercial/crm/pessoas/${contato.empresaId}`} className="inline-flex items-center gap-1 text-blue-600 hover:underline font-medium">
+                  <Building2 size={14} />
+                  {empresaNome(contato)}
+                </Link>
+              ) : contato.clienteId ? (
+                <Link href={`/comercial/crm/clientes/${contato.clienteId}`} className="inline-flex items-center gap-1 text-emerald-600 hover:underline font-medium">
+                  <Building2 size={14} />
+                  {contato.clienteNome || `Cliente #${contato.clienteId}`}
+                </Link>
+              ) : (
+                <span className="text-slate-400">—</span>
+              )}
             </div>
             <div>
               <p className="text-xs text-slate-500 mb-0.5">Cargo</p>
