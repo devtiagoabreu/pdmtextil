@@ -54,6 +54,7 @@ export async function POST(
       values.checkOutTime = new Date()
       values.checkOutLat = latitude ?? null
       values.checkOutLng = longitude ?? null
+      values.status = "REALIZADA"
     }
 
     const [atualizada] = await db
