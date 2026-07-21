@@ -10,11 +10,12 @@ import {
 type Props = {
   empresaId?: string
   clienteId?: string
+  clienteNome?: string
   onClickGuard?: () => boolean
   onCreated: (id: number, nome: string) => void
 }
 
-export function QuickCreateContato({ empresaId, clienteId, onClickGuard, onCreated }: Props) {
+export function QuickCreateContato({ empresaId, clienteId, clienteNome, onClickGuard, onCreated }: Props) {
   const [open, setOpen] = useState(false)
   const [saving, setSaving] = useState(false)
   const [empresas, setEmpresas] = useState<any[]>([])
@@ -94,6 +95,11 @@ export function QuickCreateContato({ empresaId, clienteId, onClickGuard, onCreat
         <DialogHeader>
           <DialogTitle>Novo Contato</DialogTitle>
         </DialogHeader>
+        {!empresaId && clienteId && clienteNome && (
+          <div className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg px-3 py-2">
+            <span className="font-medium">Cliente:</span> {clienteNome}
+          </div>
+        )}
         {!empresaId && clienteId && (
           <p className="text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg px-3 py-2">
             Contatos são vinculados a uma Pessoa (Negócio). Selecione a pessoa responsável abaixo.
