@@ -1,11 +1,12 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
+import { useSession } from "next-auth/react"
 import Link from "next/link"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   Calendar, CheckCircle2, XCircle, Clock, MapPin, Users,
-  ArrowRight, BarChart3, PieChart as PieChartIcon, ClipboardCheck, Navigation,
+  ArrowRight, BarChart3, PieChart as PieChartIcon, ClipboardCheck, Navigation, User,
 } from "lucide-react"
 import {
   BarChart, Bar, PieChart as RPieChart, Pie, Cell,
@@ -59,27 +60,66 @@ const CHART_COLORS = ["#6366f1", "#06b6d4", "#f97316", "#22c55e", "#ef4444", "#8
 
 export default function VisitasDashboardPage() {
   const [selectedVisita, setSelectedVisita] = useState<{ id: number; nome: string } | null>(null)
+  const { data: session } = useSession()
+  const userRole = (session?.user as any)?.role
+  const isComercial = userRole && !["ADMIN", "SUDO", "CRM"].includes(userRole)
+  const [visitasFilter, setVisitasFilter] = useState<"todas" | "minhas">("todas")
+  const [filterReady, setFilterReady] = useState(false)
+
+  useEffect(() => {
+    if (session && !filterReady) {
+      setVisitasFilter(isComercial ? "minhas" : "todas")
+      setFilterReady(true)
+    }
+  }, [session, isComercial, filterReady])
+
   const { data, isLoading } = useQuery<VisitasDashboardData>({
-    queryKey: ["visitas-dashboard"],
-    queryFn: () => fetch("/api/crm/visitas/dashboard").then((r) => r.json()),
+    queryKey: ["visitas-dashboard", visitasFilter],
+    queryFn: () => fetch(`/api/crm/visitas/dashboard${visitasFilter === "minhas" ? "?mine=true" : ""}`).then((r) => r.json()),
     retry: 1,
   })
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Dashboard de Visitas</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             Métricas de visitas comerciais, check-in e performance
           </p>
         </div>
-        <Link
-          href="/comercial/crm/visitas"
-          className="text-sm text-blue-600 hover:underline flex items-center gap-1"
-        >
-          Ver todas <ArrowRight size={14} />
-        </Link>
+        <div className="flex items-center gap-3">
+          <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-0.5 shadow-sm">
+            <button
+              onClick={() => setVisitasFilter("todas")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                visitasFilter === "todas"
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+              }`}
+            >
+              <Users size={14} />
+              Todas
+            </button>
+            <button
+              onClick={() => setVisitasFilter("minhas")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                visitasFilter === "minhas"
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+              }`}
+            >
+              <User size={14} />
+              Minhas Visitas
+            </button>
+          </div>
+          <Link
+            href="/comercial/crm/visitas"
+            className="text-sm text-blue-600 hover:underline flex items-center gap-1"
+          >
+            Ver todas <ArrowRight size={14} />
+          </Link>
+        </div>
       </div>
 
       {isLoading ? (

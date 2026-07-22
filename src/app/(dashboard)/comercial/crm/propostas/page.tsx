@@ -1,17 +1,18 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
+import { useSession } from "next-auth/react"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import Link from "next/link"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
-import { PlusCircle, FileText, Search, Table, Columns } from "lucide-react"
+import { PlusCircle, FileText, Search, Table, Columns, Users, User } from "lucide-react"
 import PropostasKanban from "@/components/crm/propostas-kanban"
 import { FloatableKanban } from "@/components/crm/floatable-kanban"
 
-async function fetchPropostas() {
-  const res = await fetch("/api/crm/propostas")
+async function fetchPropostas(mine: boolean) {
+  const res = await fetch(`/api/crm/propostas${mine ? "?mine=true" : ""}`)
   if (!res.ok) throw new Error("Falha ao carregar")
   return res.json()
 }
@@ -35,12 +36,25 @@ export default function PropostasPage() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const info = getInfoContent(pathname)
+  const { data: session } = useSession()
   const [search, setSearch] = useState("")
   const [modo, setModo] = useState<"tabela" | "kanban">(searchParams.get("view") === "kanban" ? "kanban" : "tabela")
 
+  const userRole = (session?.user as any)?.role
+  const isComercial = userRole && !["ADMIN", "SUDO", "CRM"].includes(userRole)
+  const [visitasFilter, setVisitasFilter] = useState<"todas" | "minhas">("todas")
+  const [filterReady, setFilterReady] = useState(false)
+
+  useEffect(() => {
+    if (session && !filterReady) {
+      setVisitasFilter(isComercial ? "minhas" : "todas")
+      setFilterReady(true)
+    }
+  }, [session, isComercial, filterReady])
+
   const { data: propostas, isLoading } = useQuery({
-    queryKey: ["crm-propostas"],
-    queryFn: fetchPropostas,
+    queryKey: ["crm-propostas", visitasFilter],
+    queryFn: () => fetchPropostas(visitasFilter === "minhas"),
     retry: 1,
   })
 
@@ -59,6 +73,30 @@ export default function PropostasPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
+          <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-0.5 shadow-sm">
+            <button
+              onClick={() => setVisitasFilter("todas")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                visitasFilter === "todas"
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+              }`}
+            >
+              <Users size={14} />
+              Todas
+            </button>
+            <button
+              onClick={() => setVisitasFilter("minhas")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                visitasFilter === "minhas"
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+              }`}
+            >
+              <User size={14} />
+              Minhas
+            </button>
+          </div>
           <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-0.5 shadow-sm">
             <button
               onClick={() => setModo("tabela")}

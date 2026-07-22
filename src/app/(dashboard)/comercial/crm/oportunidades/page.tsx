@@ -1,18 +1,19 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
+import { useSession } from "next-auth/react"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import Link from "next/link"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter, usePathname } from "next/navigation"
-import { PlusCircle, Target, Search, Table, Columns } from "lucide-react"
+import { PlusCircle, Target, Search, Table, Columns, Users, User } from "lucide-react"
 import { toast } from "sonner"
 import { FloatableKanban } from "@/components/crm/floatable-kanban"
 import OportunidadesKanban from "@/components/crm/oportunidades-kanban"
 
-async function fetchOportunidades() {
-  const res = await fetch("/api/crm/oportunidades")
+async function fetchOportunidades(mine: boolean) {
+  const res = await fetch(`/api/crm/oportunidades${mine ? "?mine=true" : ""}`)
   if (!res.ok) throw new Error("Falha ao carregar")
   return res.json()
 }
@@ -39,12 +40,25 @@ export default function OportunidadesPage() {
   const router = useRouter()
   const pathname = usePathname()
   const info = getInfoContent(pathname)
+  const { data: session } = useSession()
   const [search, setSearch] = useState("")
   const [modo, setModo] = useState<"tabela" | "kanban">("tabela")
 
+  const userRole = (session?.user as any)?.role
+  const isComercial = userRole && !["ADMIN", "SUDO", "CRM"].includes(userRole)
+  const [visitasFilter, setVisitasFilter] = useState<"todas" | "minhas">("todas")
+  const [filterReady, setFilterReady] = useState(false)
+
+  useEffect(() => {
+    if (session && !filterReady) {
+      setVisitasFilter(isComercial ? "minhas" : "todas")
+      setFilterReady(true)
+    }
+  }, [session, isComercial, filterReady])
+
   const { data: oportunidades, isLoading } = useQuery({
-    queryKey: ["crm-oportunidades"],
-    queryFn: fetchOportunidades,
+    queryKey: ["crm-oportunidades", visitasFilter],
+    queryFn: () => fetchOportunidades(visitasFilter === "minhas"),
     retry: 1,
   })
 
@@ -68,6 +82,30 @@ export default function OportunidadesPage() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-0.5 shadow-sm">
+            <button
+              onClick={() => setVisitasFilter("todas")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                visitasFilter === "todas"
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+              }`}
+            >
+              <Users size={14} />
+              Todas
+            </button>
+            <button
+              onClick={() => setVisitasFilter("minhas")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                visitasFilter === "minhas"
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+              }`}
+            >
+              <User size={14} />
+              Minhas
+            </button>
+          </div>
           <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-0.5 shadow-sm">
             <button
               onClick={() => setModo("tabela")}

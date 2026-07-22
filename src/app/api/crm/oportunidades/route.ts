@@ -17,9 +17,13 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url)
     const search = searchParams.get("search")
     const status = searchParams.get("status")
+    const mine = searchParams.get("mine")
 
     let conditions = []
     if (status) conditions.push(eq(crmOportunidades.status, status))
+    if (mine === "true" && auth.session.user.role !== "ADMIN" && auth.session.user.role !== "SUDO") {
+      conditions.push(eq(crmOportunidades.responsavelId, auth.userId))
+    }
     if (search) {
       conditions.push(
         or(
