@@ -17,11 +17,15 @@ export async function GET(req: NextRequest) {
     const empresaId = searchParams.get("empresaId")
     const status = searchParams.get("status")
     const oportunidadeId = searchParams.get("oportunidadeId")
+    const mine = searchParams.get("mine")
 
     const conditions = []
     if (empresaId) conditions.push(eq(crmPropostas.empresaId, parseInt(empresaId)))
     if (status) conditions.push(eq(crmPropostas.status, status))
     if (oportunidadeId) conditions.push(eq(crmPropostas.oportunidadeId, parseInt(oportunidadeId)))
+    if (mine === "true" && auth.session.user.role !== "ADMIN" && auth.session.user.role !== "SUDO") {
+      conditions.push(eq(crmPropostas.criadoPor, auth.userId))
+    }
 
     const where = conditions.length > 0 ? sql`${conditions.reduce((a, b) => sql`${a} AND ${b}`)}` : undefined
 
@@ -41,6 +45,7 @@ export async function GET(req: NextRequest) {
         arquivoUrl: crmPropostas.arquivoUrl,
         dataEnvio: crmPropostas.dataEnvio,
         dataResposta: crmPropostas.dataResposta,
+        criadoPor: crmPropostas.criadoPor,
         criadoPorNome: usuarios.name,
         createdAt: crmPropostas.createdAt,
       })

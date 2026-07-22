@@ -1,20 +1,22 @@
 "use client"
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { useSession } from "next-auth/react"
 import { usePathname, useSearchParams } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
-import { useState } from "react"
-import { PlusCircle, ListChecks, CheckCircle2, Circle, Loader2, Table, Columns } from "lucide-react"
+import { useState, useEffect } from "react"
+import { PlusCircle, ListChecks, CheckCircle2, Circle, Loader2, Table, Columns, Users, User } from "lucide-react"
 import CriarTarefaDialog from "./criar-dialog"
 import TarefasKanban from "@/components/crm/tarefas-kanban"
 import { FloatableKanban } from "@/components/crm/floatable-kanban"
 
-async function fetchTarefas(filtro: string) {
+async function fetchTarefas(filtro: string, mine: boolean) {
   const params = new URLSearchParams()
   if (filtro === "hoje") params.set("hoje", "true")
   if (filtro === "pendentes") params.set("status", "PENDENTE")
   if (filtro === "concluidas") params.set("status", "CONCLUIDO")
+  if (mine) params.set("mine", "true")
   const res = await fetch(`/api/crm/tarefas?${params}`)
   if (!res.ok) throw new Error("Falha ao carregar")
   return res.json()
@@ -46,13 +48,26 @@ export default function TarefasPage() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const info = getInfoContent(pathname)
+  const { data: session } = useSession()
   const [filtro, setFiltro] = useState("pendentes")
   const [dialogOpen, setDialogOpen] = useState(false)
   const [modo, setModo] = useState<"tabela" | "kanban">(searchParams.get("view") === "kanban" ? "kanban" : "tabela")
 
+  const userRole = (session?.user as any)?.role
+  const isComercial = userRole && !["ADMIN", "SUDO", "CRM"].includes(userRole)
+  const [visitasFilter, setVisitasFilter] = useState<"todas" | "minhas">("todas")
+  const [filterReady, setFilterReady] = useState(false)
+
+  useEffect(() => {
+    if (session && !filterReady) {
+      setVisitasFilter(isComercial ? "minhas" : "todas")
+      setFilterReady(true)
+    }
+  }, [session, isComercial, filterReady])
+
   const { data: tarefas, isLoading } = useQuery({
-    queryKey: ["crm-tarefas", filtro],
-    queryFn: () => fetchTarefas(filtro),
+    queryKey: ["crm-tarefas", filtro, visitasFilter],
+    queryFn: () => fetchTarefas(filtro, visitasFilter === "minhas"),
     retry: 1,
   })
 
@@ -90,12 +105,36 @@ export default function TarefasPage() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Minhas Tarefas{info && <InfoButton content={info} />}</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Tarefas{info && <InfoButton content={info} />}</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             {isLoading ? "Carregando..." : `${tarefas?.length || 0} tarefa(s)`}
           </p>
         </div>
         <div className="flex items-center gap-3">
+          <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-0.5 shadow-sm">
+            <button
+              onClick={() => setVisitasFilter("todas")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                visitasFilter === "todas"
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+              }`}
+            >
+              <Users size={14} />
+              Todas
+            </button>
+            <button
+              onClick={() => setVisitasFilter("minhas")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                visitasFilter === "minhas"
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+              }`}
+            >
+              <User size={14} />
+              Minhas
+            </button>
+          </div>
           <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-0.5 shadow-sm">
             <button
               onClick={() => setModo("tabela")}
