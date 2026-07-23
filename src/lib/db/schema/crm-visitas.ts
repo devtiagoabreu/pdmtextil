@@ -32,6 +32,7 @@ export const crmVisitas = pgTable("crm_visitas", {
   checkOutLat: doublePrecision("check_out_lat"),
   checkOutLng: doublePrecision("check_out_lng"),
   criadoPor: integer("criado_por").references(() => usuarios.id),
+  duracaoEstimada: integer("duracao_estimada"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 })

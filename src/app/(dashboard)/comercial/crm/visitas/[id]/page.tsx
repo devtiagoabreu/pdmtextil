@@ -8,6 +8,7 @@ import { useRouter, useParams, usePathname } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft, Trash2, Pencil, Check, X, MapPin, ExternalLink, LogIn, LogOut, Loader2, Navigation, Undo2, AlertTriangle } from "lucide-react"
 import PhotoUpload from "@/components/crm/photo-upload"
+import { RelatoTemplateSelector } from "@/components/crm/relato-templates"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { sanitizeHtml } from "@/lib/sanitize"
@@ -390,6 +391,25 @@ export default function DetalheVisitaPage() {
                     </div>
                   )}
                 </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-500 mb-1">Duracao Estimada</label>
+                  <select
+                    value={form.duracaoEstimada || ""}
+                    onChange={e => setField("duracaoEstimada", e.target.value ? parseInt(e.target.value) : null)}
+                    className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+                  >
+                    <option value="">Nao definida</option>
+                    <option value="15">15 minutos</option>
+                    <option value="30">30 minutos</option>
+                    <option value="45">45 minutos</option>
+                    <option value="60">1 hora</option>
+                    <option value="90">1h30</option>
+                    <option value="120">2 horas</option>
+                    <option value="180">3 horas</option>
+                    <option value="240">4 horas</option>
+                    <option value="480">Dia inteiro</option>
+                  </select>
+                </div>
               </div>
             </div>
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
@@ -469,6 +489,12 @@ export default function DetalheVisitaPage() {
                   <span className="text-xs text-slate-500 block mb-0.5">Data da Visita</span>
                   <p className="text-slate-900 dark:text-slate-200">{visita.dataVisita ? new Date(visita.dataVisita + "T12:00:00").toLocaleDateString("pt-BR") : "—"}{visita.hora ? ` às ${visita.hora}` : ""}</p>
                 </div>
+                {visita.duracaoEstimada && (
+                  <div>
+                    <span className="text-xs text-slate-500 block mb-0.5">Duracao Estimada</span>
+                    <p className="text-slate-900 dark:text-slate-200">{visita.duracaoEstimada >= 60 ? `${Math.floor(visita.duracaoEstimada / 60)}h${visita.duracaoEstimada % 60 ? ` ${visita.duracaoEstimada % 60}min` : ""}` : `${visita.duracaoEstimada} min`}</p>
+                  </div>
+                )}
                 <div>
                   <span className="text-xs text-slate-500 block mb-0.5">{visita.empresaId ? "Pessoa (Negócio)" : "Cliente"}</span>
                   {visita.empresaId ? (
@@ -636,6 +662,7 @@ export default function DetalheVisitaPage() {
         <>
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
             <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-2">Relato / Ata</h2>
+            <RelatoTemplateSelector onSelect={html => setField("relato", html)} />
             <RichTextEditor
               value={form.relato || ""}
               onChange={v => setField("relato", v)}

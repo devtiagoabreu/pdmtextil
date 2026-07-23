@@ -70,6 +70,7 @@ export async function GET(req: NextRequest) {
         contatoId: crmVisitas.contatoId,
         criadoPor: crmVisitas.criadoPor,
         criadoPorNome: usuarios.name,
+        duracaoEstimada: crmVisitas.duracaoEstimada,
         fotos: crmVisitas.fotos,
         motivoCancelamento: crmVisitas.motivoCancelamento,
         createdAt: crmVisitas.createdAt,
@@ -138,6 +139,7 @@ export async function POST(req: NextRequest) {
       cep: body.cep || null,
       relato: body.relato || null,
       fotos: body.fotos || [],
+      duracaoEstimada: body.duracaoEstimada || null,
       criadoPor: userId,
     }
 

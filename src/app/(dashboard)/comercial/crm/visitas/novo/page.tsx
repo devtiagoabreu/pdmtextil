@@ -8,6 +8,7 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft, Save, Building2, UserCheck, Repeat } from "lucide-react"
 import PhotoUpload from "@/components/crm/photo-upload"
+import { RelatoTemplateSelector } from "@/components/crm/relato-templates"
 import { toast } from "sonner"
 import { QuickCreatePessoa } from "@/components/crm/quick-create-pessoa"
 import { QuickCreateCliente } from "@/components/crm/quick-create-cliente"
@@ -59,6 +60,7 @@ export default function NovaVisitaPage() {
     uf: "",
     cep: "",
     relato: "",
+    duracaoEstimada: "",
   })
 
   function setField(field: string, value: string) {
@@ -289,6 +291,7 @@ export default function NovaVisitaPage() {
           uf: form.uf || null,
           cep: form.cep || null,
           relato: form.relato || null,
+          duracaoEstimada: form.duracaoEstimada ? parseInt(form.duracaoEstimada) : null,
           fotos: fotos,
           recorrencia: recorrencia !== "nenhuma" ? recorrencia : undefined,
           recorrenciaFim: recorrencia !== "nenhuma" ? recorrenciaFim : undefined,
@@ -472,6 +475,25 @@ export default function NovaVisitaPage() {
                 ))}
               </select>
             </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Duracao Estimada</label>
+              <select
+                value={form.duracaoEstimada}
+                onChange={e => setField("duracaoEstimada", e.target.value)}
+                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Nao definida</option>
+                <option value="15">15 minutos</option>
+                <option value="30">30 minutos</option>
+                <option value="45">45 minutos</option>
+                <option value="60">1 hora</option>
+                <option value="90">1h30</option>
+                <option value="120">2 horas</option>
+                <option value="180">3 horas</option>
+                <option value="240">4 horas</option>
+                <option value="480">Dia inteiro</option>
+              </select>
+            </div>
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-4">
               <div className="flex items-center gap-2 mb-3">
                 <Repeat size={16} className="text-slate-500" />
@@ -647,6 +669,7 @@ export default function NovaVisitaPage() {
 
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Relato / Ata da Visita</label>
+            <RelatoTemplateSelector onSelect={html => setField("relato", html)} />
             <RichTextEditor
               value={form.relato}
               onChange={v => setField("relato", v)}
