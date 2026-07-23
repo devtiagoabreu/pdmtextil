@@ -4,7 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { useState, useEffect } from "react"
-import { LayoutDashboard, FileText, ClipboardList, User, Loader2 } from "lucide-react"
+import { LayoutDashboard, Calendar, List, User, Loader2 } from "lucide-react"
 
 export function MobileBottomNav() {
   const pathname = usePathname()
@@ -22,8 +22,8 @@ export function MobileBottomNav() {
 
   const mobileNavItems = [
     { href: paginaInicial, icon: LayoutDashboard, label: "Home" },
-    { href: "/dashboard/amostras", icon: ClipboardList, label: "Amostras Desenv." },
-    { href: "/comercial/solicitacoes", icon: FileText, label: "Lista" },
+    { href: "/comercial/crm/visitas/novo", icon: Calendar, label: "Nova Visita" },
+    { href: "/comercial/crm/visitas", icon: List, label: "Agenda" },
     { href: "/perfil", icon: User, label: "Perfil" },
   ] as const
 
