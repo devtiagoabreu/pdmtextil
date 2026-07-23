@@ -13,7 +13,7 @@ import { toast } from "sonner"
 import {
   Send, Loader2, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight,
   Link, List, Plus, Pencil, Trash2, FileText, Users, Copy, X, Eye,
-  ImageIcon, Type, Strikethrough, ListOrdered, Palette,
+  ImageIcon, Type, Strikethrough, ListOrdered, Palette, Code,
   RefreshCw, CheckCircle2, XCircle, Clock, Search,
   ChevronUp, ChevronDown, Move3D,
 } from "lucide-react"
@@ -120,6 +120,9 @@ export default function EmailMassaPage() {
   const [imageUrl, setImageUrl] = useState("")
   const [imageUploading, setImageUploading] = useState(false)
   const imageFileRef = useRef<HTMLInputElement>(null)
+
+  const [htmlCodeDialogOpen, setHtmlCodeDialogOpen] = useState(false)
+  const [htmlCodeValue, setHtmlCodeValue] = useState("")
   const [selectedImageEl, setSelectedImageEl] = useState<HTMLElement | null>(null)
   const [imageToolbarPos, setImageToolbarPos] = useState({ top: 0, left: 0 })
 
@@ -223,6 +226,19 @@ export default function EmailMassaPage() {
       setImageUrl("")
     }
   }, [imageUrl])
+
+  const insertHtmlCode = useCallback(() => {
+    if (htmlCodeValue && editorRef.current) {
+      editorRef.current.focus()
+      if (savedRange.current) {
+        const sel = window.getSelection()
+        if (sel) { sel.removeAllRanges(); sel.addRange(savedRange.current) }
+      }
+      document.execCommand("insertHTML", false, htmlCodeValue)
+      setHtmlCodeDialogOpen(false)
+      setHtmlCodeValue("")
+    }
+  }, [htmlCodeValue])
 
   const handleEditorMouseUp = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement
@@ -943,6 +959,7 @@ export default function EmailMassaPage() {
                       <div className="flex items-center gap-0.5 px-1">
                         <button type="button" onClick={insertLinkHandler} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Inserir Link"><Link size={15} /></button>
                         <button type="button" onClick={insertImageHandler} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Inserir Imagem"><ImageIcon size={15} /></button>
+                        <button type="button" onClick={() => { const sel = window.getSelection(); if (sel && sel.rangeCount > 0) savedRange.current = sel.getRangeAt(0); setHtmlCodeValue(""); setHtmlCodeDialogOpen(true) }} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Inserir HTML"><Code size={15} /></button>
                       </div>
                     </div>
 
@@ -1632,6 +1649,35 @@ export default function EmailMassaPage() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setImageDialogOpen(false)}>Cancelar</Button>
             <Button onClick={confirmImage} disabled={!imageUrl || imageUploading}>Inserir</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ─────── DIALOG HTML CODE ─────── */}
+      <Dialog open={htmlCodeDialogOpen} onOpenChange={setHtmlCodeDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Inserir Código HTML</DialogTitle>
+            <DialogDescription>Cole ou escreva código HTML para inserir no corpo do email</DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <textarea
+              value={htmlCodeValue}
+              onChange={e => setHtmlCodeValue(e.target.value)}
+              placeholder='<div style="background:#f0f0f0;padding:20px;border-radius:8px;"><h2>Título</h2><p>Texto do email...</p></div>'
+              className="w-full h-64 p-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 font-mono text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y"
+            />
+            {htmlCodeValue && (
+              <div className="mt-3">
+                <p className="text-xs text-slate-400 mb-1">Preview:</p>
+                <div className="border rounded-lg p-3 bg-white dark:bg-slate-800 max-h-40 overflow-auto"
+                  dangerouslySetInnerHTML={{ __html: htmlCodeValue }} />
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setHtmlCodeDialogOpen(false)}>Cancelar</Button>
+            <Button onClick={insertHtmlCode} disabled={!htmlCodeValue}>Inserir</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
