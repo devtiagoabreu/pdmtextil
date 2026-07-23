@@ -1,9 +1,9 @@
-const { neon } = require("@neondatabase/serverless")
+const postgres = require("postgres")
 const dotenv = require("dotenv")
 
 dotenv.config({ path: ".env.local" })
 
-const sql = neon(process.env.DATABASE_URL)
+const sql = postgres(process.env.DATABASE_URL, { prepare: false })
 
 async function migrate() {
   console.log("Criando tabelas no banco de dados...")

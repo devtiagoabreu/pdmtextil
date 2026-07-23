@@ -10,6 +10,7 @@
     "format": "prettier --write \"src/**/*.{ts,tsx,css,json}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css,json}\"",
     "db:migrate": "node scripts/migrate.js",
+    "db:migrate:all": "node scripts/migrate-all.js",
     "test": "vitest run",
     "test:watch": "vitest"
   },
