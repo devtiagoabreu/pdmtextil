@@ -118,6 +118,8 @@ export default function EmailMassaPage() {
 
   const [imageDialogOpen, setImageDialogOpen] = useState(false)
   const [imageUrl, setImageUrl] = useState("")
+  const [imageUploading, setImageUploading] = useState(false)
+  const imageFileRef = useRef<HTMLInputElement>(null)
   const [selectedImageEl, setSelectedImageEl] = useState<HTMLElement | null>(null)
   const [imageToolbarPos, setImageToolbarPos] = useState({ top: 0, left: 0 })
 
@@ -184,6 +186,27 @@ export default function EmailMassaPage() {
     if (sel && sel.rangeCount > 0) savedRange.current = sel.getRangeAt(0)
     setImageUrl("")
     setImageDialogOpen(true)
+  }, [])
+
+  const uploadImageToCloudinary = useCallback(async (file: File) => {
+    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || ""
+    const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || ""
+    if (!cloudName || !uploadPreset) { toast.error("Cloudinary não configurado"); return }
+
+    setImageUploading(true)
+    try {
+      const formData = new FormData()
+      formData.append("file", file)
+      formData.append("upload_preset", uploadPreset)
+      formData.append("folder", "email-massa")
+
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, { method: "POST", body: formData })
+      if (!res.ok) throw new Error("Erro no upload")
+      const data = await res.json()
+      setImageUrl(data.secure_url)
+      toast.success("Imagem enviada!")
+    } catch { toast.error("Erro ao enviar imagem") }
+    finally { setImageUploading(false) }
   }, [])
 
   const confirmImage = useCallback(() => {
@@ -1585,10 +1608,20 @@ export default function EmailMassaPage() {
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Inserir Imagem</DialogTitle>
-            <DialogDescription>Digite a URL da imagem</DialogDescription>
+            <DialogDescription>Envie um arquivo ou digite a URL da imagem</DialogDescription>
           </DialogHeader>
           <div className="py-4 space-y-3">
-            <Input value={imageUrl} onChange={e => setImageUrl(e.target.value)} placeholder="https://exemplo.com/imagem.jpg" />
+            <input ref={imageFileRef} type="file" accept="image/*" className="hidden"
+              onChange={e => { const f = e.target.files?.[0]; if (f) uploadImageToCloudinary(f); e.target.value = "" }} />
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={() => imageFileRef.current?.click()} disabled={imageUploading} className="gap-1">
+                {imageUploading ? <Loader2 size={14} className="animate-spin" /> : <ImageIcon size={14} />}
+                {imageUploading ? "Enviando..." : "Enviar arquivo"}
+              </Button>
+              <div className="flex-1">
+                <Input value={imageUrl} onChange={e => setImageUrl(e.target.value)} placeholder="Ou cole a URL da imagem" />
+              </div>
+            </div>
             {imageUrl && (
               <div className="border rounded-lg overflow-hidden bg-slate-50 dark:bg-slate-800 p-2">
                 <img src={imageUrl} alt="Preview" className="max-h-40 mx-auto"
@@ -1598,7 +1631,7 @@ export default function EmailMassaPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setImageDialogOpen(false)}>Cancelar</Button>
-            <Button onClick={confirmImage} disabled={!imageUrl}>Inserir</Button>
+            <Button onClick={confirmImage} disabled={!imageUrl || imageUploading}>Inserir</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
