@@ -285,7 +285,7 @@ export default function DetalheVisitaPage() {
           ) : (
             <>
               <VisitReportButton visita={visita} />
-              <SendSurveyButton visitaId={visita.id} empresaNome={visita.empresaNome || visita.clienteNome || undefined} />
+              <SendSurveyButton visitaId={visita.id} empresaNome={visita.empresaNome || visita.clienteNome || undefined} contatoEmail={visita.contatoEmail || undefined} contatoNome={visita.contatoNome || undefined} />
               {canEdit && (
                 <>
                   <button onClick={startEditing} className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:underline px-2 py-1.5 rounded-lg min-h-[36px]">
