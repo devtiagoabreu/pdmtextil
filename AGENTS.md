@@ -12,28 +12,38 @@ Sempre consulte o grafo ANTES de responder perguntas sobre arquitetura, fluxos o
 
 # Multi-Database Setup
 
-O projeto utiliza **3 bancos de dados PostgreSQL** no mesmo servidor:
+O projeto utiliza **4 bancos de dados PostgreSQL**:
 
 | Banco | Uso | Variável |
 |---|---|---|
 | `pdm_textil` | Instância principal | `DATABASE_URL` |
 | `pdm_pro_textil` | PDM Pro Têxtil (produção) | `DATABASE_URL_PDM_PRO_TEXTIL` |
 | `pdm_ibirapuera` | PDM Ibirapuera (produção) | `DATABASE_URL_PDM_IBIRAPUERA` |
+| Neon | Banco auxiliar Neon (produção) | `DATABASE_URL_NEON` |
 
 ## IMPORTANTE: Replicação de Mudanças
 
-**TODA mudança no schema do banco `pdm_textil` DEVE ser replicada para os outros dois bancos.**
+**TODA mudança no schema do banco `pdm_textil` DEVE ser replicada para TODOS os outros 3 bancos.**
 
 ### Procedimento obrigatório:
 
 1. Crie a migration: `npx drizzle-kit generate`
 2. Aplique no principal: `npm run db:migrate`
-3. **Replicate para todos**: `npm run db:migrate:all`
+3. **Replicate para os 3 secundários**: `npm run db:migrate:all`
+4. **Neon também**: rode `node scripts/sync-all-dbs.js` (cria colunas/tabelas faltantes com IF NOT EXISTS)
 
-### Documentação completa
+### Para alterações manuais de schema (SQL direto):
 
-Consulte `docs/MULTI-DATABASE-SETUP.md` para detalhes sobre:
-- URLs de conexão
-- Scripts de migração
-- Verificação de integridade
-- Troubleshooting
+Se precisar rodar SQL manualmente (ALTER TABLE, CREATE TABLE, etc.), execute em TODOS:
+- `pdm_textil` (principal)
+- `pdm_pro_textil`
+- `pdm_ibirapuera`
+- Neon (`DATABASE_URL_NEON`)
+
+### Verificação de integridade:
+
+```bash
+node scripts/compare-schemas.js
+```
+
+Compara colunas entre os 4 bancos e lista diferenças.
