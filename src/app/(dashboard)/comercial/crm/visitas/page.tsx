@@ -1,13 +1,13 @@
 "use client"
 
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useSession } from "next-auth/react"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import Link from "next/link"
 import { useState, useEffect, useCallback, useRef } from "react"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
-import { PlusCircle, CalendarDays, Table, Columns, Search, MapPin, Navigation, Users, User, ChevronLeft, ChevronRight, CalendarRange, X } from "lucide-react"
+import { PlusCircle, CalendarDays, Table, Columns, Search, MapPin, Navigation, Users, User, ChevronLeft, ChevronRight, CalendarRange, X, Trash2, CheckSquare } from "lucide-react"
 import { useStatuses } from "@/hooks/use-statuses"
 import VisitasCalendario from "@/components/crm/visitas-calendario"
 import VisitasKanban from "@/components/crm/visitas-kanban"
@@ -63,7 +63,9 @@ export default function VisitasPage() {
   const [selectedVisita, setSelectedVisita] = useState<{ id: number; nome: string } | null>(null)
   const [dataInicio, setDataInicio] = useState("")
   const [dataFim, setDataFim] = useState("")
+  const [selectedIds, setSelectedIds] = useState<number[]>([])
   const debounceRef = useRef<NodeJS.Timeout | null>(null)
+  const queryClient = useQueryClient()
 
   const userRole = (session?.user as any)?.role
   const isComercial = userRole && !["ADMIN", "SUDO", "CRM"].includes(userRole)
@@ -114,6 +116,47 @@ export default function VisitasPage() {
 
   const fromRow = totalRows === 0 ? 0 : (page - 1) * PAGE_SIZE + 1
   const toRow = Math.min(page * PAGE_SIZE, totalRows)
+
+  const allSelected = tableRows.length > 0 && tableRows.every((v: any) => selectedIds.includes(v.id))
+
+  const bulkStatusMutation = useMutation({
+    mutationFn: async ({ ids, status }: { ids: number[]; status: string }) => {
+      const res = await fetch("/api/crm/visitas/bulk", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids, status }),
+      })
+      if (!res.ok) throw new Error("Erro ao atualizar")
+      return res.json()
+    },
+    onSuccess: () => {
+      setSelectedIds([])
+      queryClient.invalidateQueries({ queryKey: ["crm-visitas-table"] })
+      toast.success("Status atualizado com sucesso")
+    },
+    onError: () => toast.error("Erro ao atualizar status"),
+  })
+
+  const bulkDeleteMutation = useMutation({
+    mutationFn: async (ids: number[]) => {
+      const res = await fetch("/api/crm/visitas/bulk", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids }),
+      })
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.error || "Erro ao excluir")
+      }
+      return res.json()
+    },
+    onSuccess: () => {
+      setSelectedIds([])
+      queryClient.invalidateQueries({ queryKey: ["crm-visitas-table"] })
+      toast.success("Visitas excluidas com sucesso")
+    },
+    onError: (err: Error) => toast.error(err.message),
+  })
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -274,6 +317,20 @@ export default function VisitasPage() {
               <table className="w-full">
                 <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
                   <tr>
+                    <th className="px-2 py-2 md:px-4 md:py-3 w-10">
+                      <input
+                        type="checkbox"
+                        checked={allSelected}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedIds(tableRows.map((v: any) => v.id))
+                          } else {
+                            setSelectedIds([])
+                          }
+                        }}
+                        className="rounded border-slate-300 dark:border-slate-600 text-blue-600 focus:ring-blue-500"
+                      />
+                    </th>
                     <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">Data</th>
                     <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">Entidade</th>
                     <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden sm:table-cell">Oportunidade</th>
@@ -287,9 +344,23 @@ export default function VisitasPage() {
                   {tableRows.map((v: any) => (
                     <tr
                       key={v.id}
-                      className="hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"
+                      className={`hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer ${selectedIds.includes(v.id) ? "bg-blue-50 dark:bg-blue-950/30" : ""}`}
                       onClick={() => router.push(`/comercial/crm/visitas/${v.id}`)}
                     >
+                      <td className="px-2 py-2 md:px-4 md:py-3 w-10" onClick={(e) => e.stopPropagation()}>
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.includes(v.id)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedIds(prev => [...prev, v.id])
+                            } else {
+                              setSelectedIds(prev => prev.filter(id => id !== v.id))
+                            }
+                          }}
+                          className="rounded border-slate-300 dark:border-slate-600 text-blue-600 focus:ring-blue-500"
+                        />
+                      </td>
                       <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-900 dark:text-slate-200 whitespace-nowrap">
                         {v.dataVisita ? new Date(v.dataVisita + "T12:00:00").toLocaleDateString("pt-BR") : "—"}{v.hora ? ` ${v.hora}` : ""}
                       </td>
@@ -392,6 +463,50 @@ export default function VisitasPage() {
           </>
         )}
       </div>
+
+      {selectedIds.length > 0 && isTableMode && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-xl shadow-2xl px-5 py-3 animate-fade-in">
+          <div className="flex items-center gap-2">
+            <CheckSquare size={16} />
+            <span className="text-sm font-medium">{selectedIds.length} selecionada(s)</span>
+          </div>
+          <div className="w-px h-6 bg-slate-700 dark:bg-slate-300" />
+          <select
+            onChange={(e) => {
+              if (e.target.value) {
+                bulkStatusMutation.mutate({ ids: selectedIds, status: e.target.value })
+                e.target.value = ""
+              }
+            }}
+            defaultValue=""
+            className="bg-slate-800 dark:bg-slate-200 text-white dark:text-slate-900 text-xs rounded-lg px-3 py-2 border-0 focus:ring-2 focus:ring-blue-500 min-h-[36px]"
+          >
+            <option value="" disabled>Mudar status...</option>
+            <option value="AGENDADA">Agendada</option>
+            <option value="EM_ANDAMENTO">Em Andamento</option>
+            <option value="REALIZADA">Realizada</option>
+            <option value="CANCELADA">Cancelada</option>
+          </select>
+          <button
+            onClick={() => {
+              if (window.confirm(`Excluir ${selectedIds.length} visita(s)?`)) {
+                bulkDeleteMutation.mutate(selectedIds)
+              }
+            }}
+            disabled={bulkDeleteMutation.isPending}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-medium min-h-[36px] transition-colors disabled:opacity-50"
+          >
+            <Trash2 size={14} />
+            Excluir
+          </button>
+          <button
+            onClick={() => setSelectedIds([])}
+            className="p-2 rounded-lg hover:bg-slate-700 dark:hover:bg-slate-300 transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center"
+          >
+            <X size={16} />
+          </button>
+        </div>
+      )}
 
       {selectedVisita && (
         <VisitLocationModal
