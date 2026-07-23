@@ -45,6 +45,7 @@ export async function GET(
         oportunidadeTitulo: crmOportunidades.titulo,
         contatoId: crmVisitas.contatoId,
         contatoNome: crmContatos.nome,
+        contatoEmail: crmContatos.email,
         dataVisita: crmVisitas.dataVisita,
         hora: crmVisitas.hora,
         tipo: crmVisitas.tipo,

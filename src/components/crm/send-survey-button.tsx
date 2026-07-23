@@ -8,12 +8,20 @@ import { toast } from "sonner"
 interface SendSurveyButtonProps {
   visitaId: number
   empresaNome?: string
+  contatoEmail?: string
+  contatoNome?: string
 }
 
-export default function SendSurveyButton({ visitaId, empresaNome }: SendSurveyButtonProps) {
+export default function SendSurveyButton({ visitaId, empresaNome, contatoEmail, contatoNome }: SendSurveyButtonProps) {
   const [open, setOpen] = useState(false)
   const [email, setEmail] = useState("")
   const [nome, setNome] = useState("")
+
+  function handleOpen() {
+    setEmail(contatoEmail || "")
+    setNome(contatoNome || "")
+    setOpen(true)
+  }
 
   const sendMutation = useMutation({
     mutationFn: async () => {
@@ -42,7 +50,7 @@ export default function SendSurveyButton({ visitaId, empresaNome }: SendSurveyBu
   return (
     <>
       <button
-        onClick={() => setOpen(true)}
+        onClick={handleOpen}
         className="flex items-center gap-1.5 text-xs font-medium text-violet-600 hover:underline px-2 py-1.5 rounded-lg min-h-[36px]"
       >
         <Mail size={14} />
