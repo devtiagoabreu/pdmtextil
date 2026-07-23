@@ -6,7 +6,7 @@ import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
 import { clientes } from "@/lib/db/schema/clientes"
 import { crmOportunidades } from "@/lib/db/schema/crm-oportunidades"
 import { usuarios } from "@/lib/db/schema/usuarios"
-import { eq, desc, sql, like, or, and, count } from "drizzle-orm"
+import { eq, desc, sql, like, or, and, count, gte, lte } from "drizzle-orm"
 import { registrarLog, notificar } from "@/lib/notificar"
 import { inserirTimelineEvento } from "@/lib/crm-timeline"
 
@@ -22,6 +22,8 @@ export async function GET(req: NextRequest) {
     const page = Math.max(1, parseInt(searchParams.get("page") || "1"))
     const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "50")))
     const all = searchParams.get("all") === "true"
+    const dataInicio = searchParams.get("dataInicio")
+    const dataFim = searchParams.get("dataFim")
 
     const conditions = []
     if (empresaId) conditions.push(eq(crmVisitas.empresaId, parseInt(empresaId)))
@@ -39,6 +41,8 @@ export async function GET(req: NextRequest) {
         )!
       )
     }
+    if (dataInicio) conditions.push(gte(crmVisitas.dataVisita, dataInicio))
+    if (dataFim) conditions.push(lte(crmVisitas.dataVisita, dataFim))
 
     const where = conditions.length > 0 ? and(...conditions) : undefined
 

@@ -7,7 +7,7 @@ import { getInfoContent } from "@/lib/info-content"
 import Link from "next/link"
 import { useState, useEffect, useCallback, useRef } from "react"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
-import { PlusCircle, CalendarDays, Table, Columns, Search, MapPin, Navigation, Users, User, ChevronLeft, ChevronRight } from "lucide-react"
+import { PlusCircle, CalendarDays, Table, Columns, Search, MapPin, Navigation, Users, User, ChevronLeft, ChevronRight, CalendarRange, X } from "lucide-react"
 import { useStatuses } from "@/hooks/use-statuses"
 import VisitasCalendario from "@/components/crm/visitas-calendario"
 import VisitasKanban from "@/components/crm/visitas-kanban"
@@ -16,12 +16,14 @@ import VisitLocationModal from "@/components/crm/visit-location-modal"
 
 const PAGE_SIZE = 50
 
-async function fetchVisitasPaginated(params: { mine: boolean; page: number; q: string }) {
+async function fetchVisitasPaginated(params: { mine: boolean; page: number; q: string; dataInicio: string; dataFim: string }) {
   const sp = new URLSearchParams()
   sp.set("page", String(params.page))
   sp.set("limit", String(PAGE_SIZE))
   if (params.mine) sp.set("mine", "true")
   if (params.q) sp.set("q", params.q)
+  if (params.dataInicio) sp.set("dataInicio", params.dataInicio)
+  if (params.dataFim) sp.set("dataFim", params.dataFim)
   const res = await fetch(`/api/crm/visitas?${sp}`)
   if (!res.ok) throw new Error("Falha ao carregar")
   return res.json()
@@ -59,6 +61,8 @@ export default function VisitasPage() {
   const [page, setPage] = useState(1)
   const [modo, setModo] = useState<ModoVisao>(searchParams.get("view") === "kanban" ? "kanban" : "tabela")
   const [selectedVisita, setSelectedVisita] = useState<{ id: number; nome: string } | null>(null)
+  const [dataInicio, setDataInicio] = useState("")
+  const [dataFim, setDataFim] = useState("")
   const debounceRef = useRef<NodeJS.Timeout | null>(null)
 
   const userRole = (session?.user as any)?.role
@@ -89,8 +93,8 @@ export default function VisitasPage() {
   const isTableMode = modo === "tabela"
 
   const { data: tableData, isLoading: tableLoading } = useQuery({
-    queryKey: ["crm-visitas-table", visitasFilter, page, debouncedSearch],
-    queryFn: () => fetchVisitasPaginated({ mine: visitasFilter === "minhas", page, q: debouncedSearch }),
+    queryKey: ["crm-visitas-table", visitasFilter, page, debouncedSearch, dataInicio, dataFim],
+    queryFn: () => fetchVisitasPaginated({ mine: visitasFilter === "minhas", page, q: debouncedSearch, dataInicio, dataFim }),
     retry: 1,
     enabled: isTableMode,
   })
@@ -194,15 +198,45 @@ export default function VisitasPage() {
       </div>
 
       {modo === "tabela" && (
-        <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-          <input
-            type="text"
-            placeholder="Buscar por pessoa, cliente ou oportunidade..."
-            value={search}
-            onChange={(e) => handleSearchChange(e.target.value)}
-            className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="relative max-w-md flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+            <input
+              type="text"
+              placeholder="Buscar por pessoa, cliente ou oportunidade..."
+              value={search}
+              onChange={(e) => handleSearchChange(e.target.value)}
+              className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+              <CalendarRange size={14} />
+              <span>Período:</span>
+            </div>
+            <input
+              type="date"
+              value={dataInicio}
+              onChange={e => { setDataInicio(e.target.value); setPage(1) }}
+              className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <span className="text-xs text-slate-400">até</span>
+            <input
+              type="date"
+              value={dataFim}
+              onChange={e => { setDataFim(e.target.value); setPage(1) }}
+              className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            {(dataInicio || dataFim) && (
+              <button
+                onClick={() => { setDataInicio(""); setDataFim(""); setPage(1) }}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors min-h-[32px] min-w-[32px] flex items-center justify-center"
+                title="Limpar período"
+              >
+                <X size={14} />
+              </button>
+            )}
+          </div>
         </div>
       )}
 
