@@ -6,7 +6,7 @@ import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Save, Building2, UserCheck } from "lucide-react"
+import { ArrowLeft, Save, Building2, UserCheck, Repeat } from "lucide-react"
 import PhotoUpload from "@/components/crm/photo-upload"
 import { toast } from "sonner"
 import { QuickCreatePessoa } from "@/components/crm/quick-create-pessoa"
@@ -37,6 +37,8 @@ export default function NovaVisitaPage() {
   const [saving, setSaving] = useState(false)
   const [fotos, setFotos] = useState<string[]>([])
   const [conflictos, setConflictos] = useState<any[]>([])
+  const [recorrencia, setRecorrencia] = useState<string>("nenhuma")
+  const [recorrenciaFim, setRecorrenciaFim] = useState("")
   const conflictTimerRef = useRef<NodeJS.Timeout | null>(null)
   const [empresaEndereco, setEmpresaEndereco] = useState<any>({})
   const [estadoId, setEstadoId] = useState<number | null>(null)
@@ -262,6 +264,10 @@ export default function NovaVisitaPage() {
       toast.error("Cliente é obrigatório")
       return
     }
+    if (recorrencia !== "nenhuma" && !recorrenciaFim) {
+      toast.error("Informe a data final da recorrência")
+      return
+    }
     setSaving(true)
     try {
       const res = await fetch("/api/crm/visitas", {
@@ -284,13 +290,16 @@ export default function NovaVisitaPage() {
           cep: form.cep || null,
           relato: form.relato || null,
           fotos: fotos,
+          recorrencia: recorrencia !== "nenhuma" ? recorrencia : undefined,
+          recorrenciaFim: recorrencia !== "nenhuma" ? recorrenciaFim : undefined,
         }),
       })
       if (!res.ok) {
         const err = await res.json()
         throw new Error(err.error || "Erro ao criar visita")
       }
-      toast.success("Visita criada com sucesso")
+      const data = await res.json()
+      toast.success(data.total > 1 ? `${data.total} visitas criadas com sucesso` : "Visita criada com sucesso")
       router.push("/comercial/crm/visitas")
     } catch (err: any) {
       toast.error(err.message)
@@ -462,6 +471,53 @@ export default function NovaVisitaPage() {
                   <option key={opt.value} value={opt.value}>{opt.label}</option>
                 ))}
               </select>
+            </div>
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Repeat size={16} className="text-slate-500" />
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Recorrencia</label>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs text-slate-500 mb-1">Frequencia</label>
+                  <select
+                    value={recorrencia}
+                    onChange={e => setRecorrencia(e.target.value)}
+                    className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="nenhuma">Nenhuma (visita unica)</option>
+                    <option value="semanal">Semanal (a cada 7 dias)</option>
+                    <option value="quinzenal">Quinzenal (a cada 14 dias)</option>
+                    <option value="mensal">Mensal (a cada 30 dias)</option>
+                  </select>
+                </div>
+                {recorrencia !== "nenhuma" && (
+                  <div>
+                    <label className="block text-xs text-slate-500 mb-1">Repetir ate</label>
+                    <input
+                      type="date"
+                      value={recorrenciaFim}
+                      onChange={e => setRecorrenciaFim(e.target.value)}
+                      min={form.dataVisita}
+                      className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
+                    />
+                  </div>
+                )}
+              </div>
+              {recorrencia !== "nenhuma" && recorrenciaFim && form.dataVisita && (
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
+                  {(() => {
+                    const start = new Date(form.dataVisita + "T12:00:00")
+                    const end = new Date(recorrenciaFim + "T12:00:00")
+                    const diffMs = end.getTime() - start.getTime()
+                    const days = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+                    const interval = recorrencia === "semanal" ? 7 : recorrencia === "quinzenal" ? 14 : 30
+                    const count = Math.floor(days / interval) + 1
+                    return `${count} visita(s) serao criadas`
+                  })()}
+                </p>
+              )}
             </div>
             {tipoEntidade === "PESSOA" && (
               <div>

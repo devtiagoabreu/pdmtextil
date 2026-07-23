@@ -121,51 +121,68 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json()
 
-    const [nova] = await db
+    const baseValues = {
+      empresaId: body.empresaId || null,
+      clienteId: body.clienteId || null,
+      oportunidadeId: body.oportunidadeId || null,
+      contatoId: body.contatoId || null,
+      hora: body.hora || null,
+      tipo: body.tipo || "PRESENCIAL",
+      status: "AGENDADA" as const,
+      endereco: body.endereco || null,
+      numero: body.numero || null,
+      complemento: body.complemento || null,
+      bairro: body.bairro || null,
+      cidade: body.cidade || null,
+      uf: body.uf || null,
+      cep: body.cep || null,
+      relato: body.relato || null,
+      fotos: body.fotos || [],
+      criadoPor: userId,
+    }
+
+    const datas: string[] = [body.dataVisita]
+
+    if (body.recorrencia && body.recorrenciaFim) {
+      const interval = body.recorrencia === "semanal" ? 7 : body.recorrencia === "quinzenal" ? 14 : 30
+      const start = new Date(body.dataVisita + "T12:00:00")
+      const end = new Date(body.recorrenciaFim + "T12:00:00")
+      const current = new Date(start)
+      while (true) {
+        current.setDate(current.getDate() + interval)
+        if (current > end) break
+        datas.push(current.toISOString().split("T")[0])
+      }
+    }
+
+    const inserted = await db
       .insert(crmVisitas)
-      .values({
-        empresaId: body.empresaId || null,
-        clienteId: body.clienteId || null,
-        oportunidadeId: body.oportunidadeId || null,
-        contatoId: body.contatoId || null,
-        dataVisita: body.dataVisita,
-        hora: body.hora || null,
-        tipo: body.tipo || "PRESENCIAL",
-        status: "AGENDADA",
-        endereco: body.endereco || null,
-        numero: body.numero || null,
-        complemento: body.complemento || null,
-        bairro: body.bairro || null,
-        cidade: body.cidade || null,
-        uf: body.uf || null,
-        cep: body.cep || null,
-        relato: body.relato || null,
-        fotos: body.fotos || [],
-        criadoPor: userId,
-      })
+      .values(datas.map(d => ({ ...baseValues, dataVisita: d })))
       .returning()
+
+    const primeira = inserted[0]
 
     await registrarLog({
       tipo: "CADASTRO",
       acao: "criar",
-      descricao: `Visita criada para empresa ID ${body.empresaId} em ${body.dataVisita}`,
+      descricao: `Visita criada para empresa ID ${body.empresaId} em ${body.dataVisita}${datas.length > 1 ? ` (${datas.length} recorrencias)` : ""}`,
       entidade: "CrmVisita",
-      entidadeId: nova.id,
+      entidadeId: primeira.id,
       usuarioNome: session.user.name,
     })
 
-    if (nova.empresaId) {
+    if (primeira.empresaId) {
       await inserirTimelineEvento({
-        empresaId: nova.empresaId,
+        empresaId: primeira.empresaId,
         tipo: "VISITA",
-        descricao: `Visita ${nova.tipo} agendada para ${new Date(nova.dataVisita + "T12:00:00").toLocaleDateString("pt-BR")}`,
-        metadados: { visitaId: nova.id, tipo: nova.tipo, dataVisita: nova.dataVisita },
+        descricao: `Visita ${primeira.tipo} agendada para ${new Date(primeira.dataVisita + "T12:00:00").toLocaleDateString("pt-BR")}${datas.length > 1 ? ` (${datas.length} recorrencias)` : ""}`,
+        metadados: { visitaId: primeira.id, tipo: primeira.tipo, dataVisita: primeira.dataVisita },
       })
     }
 
-    await notificar("VISITA_CRIADA", `Visita ${nova.tipo} agendada para ${new Date(nova.dataVisita + "T12:00:00").toLocaleDateString("pt-BR")}`, `/comercial/crm/visitas/${nova.id}`, session.user.name)
+    await notificar("VISITA_CRIADA", `Visita ${primeira.tipo} agendada para ${new Date(primeira.dataVisita + "T12:00:00").toLocaleDateString("pt-BR")}${datas.length > 1 ? ` (${datas.length} recorrencias)` : ""}`, `/comercial/crm/visitas/${primeira.id}`, session.user.name)
 
-    return NextResponse.json(nova, { status: 201 })
+    return NextResponse.json({ visita: primeira, total: inserted.length }, { status: 201 })
   } catch (error) {
     console.error("[POST /api/crm/visitas]", error)
     return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
