@@ -49,7 +49,7 @@ export function FloatableKanban({ tipo, children }: { tipo: string; children: Re
       <div className="flex justify-end mb-2">
         <button
           onClick={handleDetach}
-          className="inline-flex items-center gap-1 text-sm border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          className="hidden sm:inline-flex items-center gap-1 text-sm border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           title="Descolar kanban em janela flutuante"
         >
           <Maximize2 size={14} /> Flutuar

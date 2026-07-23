@@ -235,7 +235,7 @@ export default function VisitasPage() {
                             target="_blank"
                             rel="noopener noreferrer"
                             onClick={(e) => e.stopPropagation()}
-                            className="p-1.5 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-950/50 transition-colors"
+                            className="p-2 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-950/50 transition-colors"
                             title="Abrir no Google Maps"
                           >
                             <Navigation size={16} className="text-emerald-500" />
@@ -246,7 +246,7 @@ export default function VisitasPage() {
                             e.stopPropagation()
                             setSelectedVisita({ id: v.id, nome: v.empresaNome || v.clienteNome || "Visita" })
                           }}
-                          className="p-1.5 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-950/50 transition-colors"
+                          className="p-2 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-950/50 transition-colors"
                           title="Gerenciar localizações"
                         >
                           <MapPin size={16} className="text-blue-500" />

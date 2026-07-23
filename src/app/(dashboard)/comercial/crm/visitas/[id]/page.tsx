@@ -6,7 +6,8 @@ import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { useRouter, useParams, usePathname } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Trash2, Pencil, Check, X, MapPin, Plus, ExternalLink, LogIn, LogOut, Loader2, Navigation, Undo2 } from "lucide-react"
+import { ArrowLeft, Trash2, Pencil, Check, X, MapPin, ExternalLink, LogIn, LogOut, Loader2, Navigation, Undo2 } from "lucide-react"
+import PhotoUpload from "@/components/crm/photo-upload"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { sanitizeHtml } from "@/lib/sanitize"
@@ -14,7 +15,6 @@ import { useStatuses } from "@/hooks/use-statuses"
 import { SelectUf } from "@/components/crm/select-uf"
 import { SelectCidade } from "@/components/crm/select-cidade"
 import { RichTextEditor } from "@/components/crm/rich-text-editor"
-import { TimePickerModal } from "@/components/crm/time-picker-modal"
 import VisitReportButton from "@/components/crm/visit-report-button"
 import SendSurveyButton from "@/components/crm/send-survey-button"
 
@@ -38,7 +38,7 @@ export default function DetalheVisitaPage() {
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [editing, setEditing] = useState(false)
   const [form, setForm] = useState<any>({})
-  const [fotoInputs, setFotoInputs] = useState<string[]>([""])
+  const [fotos, setFotos] = useState<string[]>([])
   const [estadoId, setEstadoId] = useState<number | null>(null)
   const [estados, setEstados] = useState<{ id: number; uf: string }[]>([])
   const [empresaEndereco, setEmpresaEndereco] = useState<Record<string, string>>({})
@@ -69,9 +69,7 @@ export default function DetalheVisitaPage() {
       const data = await res.json()
       setVisita(data)
       setForm(data)
-      if (data.fotos?.length > 0) {
-        setFotoInputs([...data.fotos, ""])
-      }
+      setFotos(data.fotos || [])
     } catch {
       toast.error("Erro ao carregar visita")
     } finally {
@@ -87,7 +85,7 @@ export default function DetalheVisitaPage() {
 
   function startEditing() {
     setForm({ ...visita })
-    setFotoInputs(visita.fotos?.length > 0 ? [...visita.fotos, ""] : [""])
+    setFotos(visita.fotos || [])
     if (visita.empresaId) loadEmpresaEndereco(visita.empresaId)
     setEditing(true)
   }
@@ -95,18 +93,17 @@ export default function DetalheVisitaPage() {
   function cancelEditing() {
     setEditing(false)
     setForm(visita)
-    setFotoInputs(visita.fotos?.length > 0 ? [...visita.fotos, ""] : [""])
+    setFotos(visita.fotos || [])
   }
 
   async function handleSave() {
     try {
-      const fotos = fotoInputs.filter(f => f.trim())
       const res = await fetch(`/api/crm/visitas/${params.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...form,
-          fotos: fotos.length > 0 ? fotos : [],
+          fotos: fotos,
         }),
       })
       if (!res.ok) {
@@ -137,22 +134,6 @@ export default function DetalheVisitaPage() {
       setDeleteLoading(false)
       setShowDelete(false)
     }
-  }
-
-  function addFotoInput() {
-    setFotoInputs(prev => [...prev, ""])
-  }
-
-  function updateFotoInput(index: number, value: string) {
-    setFotoInputs(prev => {
-      const next = [...prev]
-      next[index] = value
-      return next
-    })
-  }
-
-  function removeFotoInput(index: number) {
-    setFotoInputs(prev => prev.filter((_, i) => i !== index))
   }
 
   async function loadEmpresaEndereco(empresaId: number) {
@@ -269,33 +250,35 @@ export default function DetalheVisitaPage() {
 
   return (
     <div className="space-y-6 animate-fade-in max-w-4xl">
-      <div className="flex items-center gap-3">
-        <button onClick={() => router.back()} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
-          <ArrowLeft size={18} className="text-slate-500" />
-        </button>
-        <div className="flex-1">
-          <div className="flex items-center gap-3">
-            <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">
-              Visita — {visita.empresaNome || visita.clienteNome || `#${visita.id}`}{info && <InfoButton content={info} />}
-            </h1>
-            <span
-              className="inline-flex text-[10px] px-2 py-0.5 rounded-full font-medium"
-              style={{ backgroundColor: getColor(visita.status) + "20", color: getColor(visita.status) }}
-            >
-              {getLabel(visita.status)}
-            </span>
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          <button onClick={() => router.back()} className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 shrink-0">
+            <ArrowLeft size={18} className="text-slate-500" />
+          </button>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-50 truncate">
+                Visita — {visita.empresaNome || visita.clienteNome || `#${visita.id}`}{info && <InfoButton content={info} />}
+              </h1>
+              <span
+                className="inline-flex text-[10px] px-2 py-0.5 rounded-full font-medium shrink-0"
+                style={{ backgroundColor: getColor(visita.status) + "20", color: getColor(visita.status) }}
+              >
+                {getLabel(visita.status)}
+              </span>
+            </div>
+            <p className="text-xs sm:text-sm text-slate-500 truncate">
+              {TIPO_LABELS[visita.tipo] || visita.tipo} — {visita.dataVisita ? new Date(visita.dataVisita + "T12:00:00").toLocaleDateString("pt-BR") : "—"}{visita.hora ? ` às ${visita.hora}` : ""}
+            </p>
           </div>
-          <p className="text-sm text-slate-500">
-            {TIPO_LABELS[visita.tipo] || visita.tipo} — {visita.dataVisita ? new Date(visita.dataVisita + "T12:00:00").toLocaleDateString("pt-BR") : "—"}{visita.hora ? ` às ${visita.hora}` : ""}
-          </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2 shrink-0">
           {editing ? (
             <>
-              <button onClick={handleSave} className="flex items-center gap-1 text-xs font-medium text-emerald-600 hover:underline">
+              <button onClick={handleSave} className="flex items-center gap-1 text-xs font-medium text-emerald-600 hover:underline px-2 py-1.5 rounded-lg min-h-[36px]">
                 <Check size={14} /> Salvar
               </button>
-              <button onClick={cancelEditing} className="flex items-center gap-1 text-xs font-medium text-slate-500 hover:underline">
+              <button onClick={cancelEditing} className="flex items-center gap-1 text-xs font-medium text-slate-500 hover:underline px-2 py-1.5 rounded-lg min-h-[36px]">
                 <X size={14} /> Cancelar
               </button>
             </>
@@ -305,10 +288,10 @@ export default function DetalheVisitaPage() {
               <SendSurveyButton visitaId={visita.id} empresaNome={visita.empresaNome || visita.clienteNome || undefined} />
               {canEdit && (
                 <>
-                  <button onClick={startEditing} className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:underline">
+                  <button onClick={startEditing} className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:underline px-2 py-1.5 rounded-lg min-h-[36px]">
                     <Pencil size={14} /> Editar
                   </button>
-                  <button onClick={() => setShowDelete(true)} className="flex items-center gap-1 text-xs font-medium text-red-600 hover:underline">
+                  <button onClick={() => setShowDelete(true)} className="flex items-center gap-1 text-xs font-medium text-red-600 hover:underline px-2 py-1.5 rounded-lg min-h-[36px]">
                     <Trash2 size={14} /> Excluir
                   </button>
                 </>
@@ -370,7 +353,12 @@ export default function DetalheVisitaPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-slate-500 mb-1">Hora</label>
-                  <TimePickerModal value={form.hora || ""} onChange={v => setField("hora", v)} />
+                  <input
+                    type="time"
+                    value={form.hora || ""}
+                    onChange={e => setField("hora", e.target.value)}
+                    className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+                  />
                 </div>
               </div>
             </div>
@@ -492,7 +480,7 @@ export default function DetalheVisitaPage() {
                     <span className="text-xs text-slate-500 block mb-0.5">Logradouro</span>
                     <p className="text-sm text-slate-900 dark:text-slate-200">{visita.endereco || "—"}</p>
                   </div>
-                  <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-2 gap-3">
                     <div>
                       <span className="text-xs text-slate-500 block mb-0.5">Número</span>
                       <p className="text-sm text-slate-900 dark:text-slate-200">{visita.numero || "—"}</p>
@@ -553,7 +541,7 @@ export default function DetalheVisitaPage() {
                     <button
                       onClick={() => handleUndo("undo_check_in")}
                       disabled={!!checkLoading || !!visita.checkOutTime}
-                      className="inline-flex items-center gap-1 text-xs text-red-500 hover:text-red-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                      className="inline-flex items-center gap-1 text-xs text-red-500 hover:text-red-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors px-2 py-1.5 rounded-lg min-h-[36px]"
                     >
                       <Undo2 size={12} /> Desfazer
                     </button>
@@ -593,7 +581,7 @@ export default function DetalheVisitaPage() {
                     <button
                       onClick={() => handleUndo("undo_check_out")}
                       disabled={!!checkLoading}
-                      className="inline-flex items-center gap-1 text-xs text-red-500 hover:text-red-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                      className="inline-flex items-center gap-1 text-xs text-red-500 hover:text-red-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors px-2 py-1.5 rounded-lg min-h-[36px]"
                     >
                       <Undo2 size={12} /> Desfazer
                     </button>
@@ -626,30 +614,7 @@ export default function DetalheVisitaPage() {
             />
           </div>
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50">Fotos (URLs)</h2>
-              <button type="button" onClick={addFotoInput} className="text-xs text-blue-600 hover:underline flex items-center gap-1">
-                <Plus size={12} /> Adicionar foto
-              </button>
-            </div>
-            <div className="space-y-2">
-              {fotoInputs.map((url, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <input
-                    type="url"
-                    value={url}
-                    onChange={e => updateFotoInput(i, e.target.value)}
-                    placeholder="https://..."
-                    className="flex-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
-                  />
-                  {fotoInputs.length > 1 && (
-                    <button type="button" onClick={() => removeFotoInput(i)} className="p-1 text-slate-400 hover:text-red-500">
-                      <X size={14} />
-                    </button>
-                  )}
-                </div>
-              ))}
-            </div>
+            <PhotoUpload photos={fotos} onPhotosChange={setFotos} />
           </div>
         </>
       ) : (
@@ -681,12 +646,12 @@ export default function DetalheVisitaPage() {
                         (e.target as HTMLImageElement).style.display = "none"
                         const parent = (e.target as HTMLImageElement).parentElement
                         if (parent) {
-                          parent.innerHTML = `<span class="text-xs text-slate-400">URL inválida</span>`
+                          parent.innerHTML = `<span class="text-xs text-slate-400">URL invalida</span>`
                         }
                       }}
                     />
-                    <div className="absolute inset-0 bg-black/0 hover:bg-black/30 transition-colors flex items-center justify-center">
-                      <ExternalLink size={16} className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 group-active:bg-black/40 transition-colors flex items-center justify-center">
+                      <ExternalLink size={16} className="text-white opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity" />
                     </div>
                   </a>
                 ))}

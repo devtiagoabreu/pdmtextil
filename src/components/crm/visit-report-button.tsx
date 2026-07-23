@@ -313,7 +313,7 @@ export default function VisitReportButton({ visita }: { visita: Visita }) {
     <button
       onClick={generateReport}
       disabled={generating}
-      className="flex items-center gap-1.5 text-xs font-medium text-emerald-600 hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+      className="flex items-center gap-1.5 text-xs font-medium text-emerald-600 hover:underline disabled:opacity-50 disabled:cursor-not-allowed px-2 py-1.5 rounded-lg min-h-[36px]"
     >
       {generating ? (
         <Loader2 size={14} className="animate-spin" />

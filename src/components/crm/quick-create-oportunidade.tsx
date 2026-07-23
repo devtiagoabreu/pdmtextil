@@ -56,7 +56,7 @@ export function QuickCreateOportunidade({ empresaId, onCreated }: Props) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger
         type="button"
-        className="p-1 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 rounded transition-colors"
+        className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 rounded transition-colors min-w-[32px] min-h-[32px] flex items-center justify-center"
         title="Cadastrar nova oportunidade"
       >
         <Plus size={14} />

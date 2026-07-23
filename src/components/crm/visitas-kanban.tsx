@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { DndContext, DragOverlay, useDraggable, useDroppable, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
+import { DndContext, DragOverlay, useDraggable, useDroppable, PointerSensor, TouchSensor, useSensor, useSensors } from "@dnd-kit/core"
 import { Loader2, MapPin, Navigation } from "lucide-react"
 import { useStatuses } from "@/hooks/use-statuses"
 import VisitLocationModal from "@/components/crm/visit-location-modal"
@@ -119,7 +119,7 @@ function DraggableCard({ visita, onLocationClick }: { visita: VisitaCard; onLoca
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="p-1 rounded hover:bg-emerald-100 dark:hover:bg-emerald-950/50 transition-colors"
+              className="p-2 rounded hover:bg-emerald-100 dark:hover:bg-emerald-950/50 transition-colors"
               title="Abrir no Google Maps"
             >
               <Navigation size={12} className="text-emerald-500" />
@@ -130,7 +130,7 @@ function DraggableCard({ visita, onLocationClick }: { visita: VisitaCard; onLoca
               e.stopPropagation()
               onLocationClick(visita.id, visita.empresaNome || visita.clienteNome || "Visita")
             }}
-            className="p-1 rounded hover:bg-blue-100 dark:hover:bg-blue-950/50 transition-colors"
+            className="p-2 rounded hover:bg-blue-100 dark:hover:bg-blue-950/50 transition-colors"
             title="Gerenciar localizações"
           >
             <MapPin size={12} className="text-blue-500" />
@@ -157,7 +157,8 @@ export default function VisitasKanban({ visitas }: { visitas: VisitaCard[] }) {
   useEffect(() => { setCards(visitas || []) }, [visitas])
 
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } })
   )
 
   const colunas = statuses
