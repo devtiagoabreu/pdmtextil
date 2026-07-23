@@ -71,6 +71,7 @@ export async function GET(req: NextRequest) {
         criadoPor: crmVisitas.criadoPor,
         criadoPorNome: usuarios.name,
         duracaoEstimada: crmVisitas.duracaoEstimada,
+        googleEventId: crmVisitas.googleEventId,
         fotos: crmVisitas.fotos,
         motivoCancelamento: crmVisitas.motivoCancelamento,
         createdAt: crmVisitas.createdAt,

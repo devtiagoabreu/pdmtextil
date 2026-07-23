@@ -6,7 +6,7 @@ import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { useRouter, useParams, usePathname } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Trash2, Pencil, Check, X, MapPin, ExternalLink, LogIn, LogOut, Loader2, Navigation, Undo2, AlertTriangle } from "lucide-react"
+import { ArrowLeft, Trash2, Pencil, Check, X, MapPin, ExternalLink, LogIn, LogOut, Loader2, Navigation, Undo2, AlertTriangle, Calendar, RefreshCw } from "lucide-react"
 import PhotoUpload from "@/components/crm/photo-upload"
 import { RelatoTemplateSelector } from "@/components/crm/relato-templates"
 import { toast } from "sonner"
@@ -29,6 +29,8 @@ const TIPO_LABELS: Record<string, string> = Object.fromEntries(TIPO_OPTIONS.map(
 
 export default function DetalheVisitaPage() {
   const router = useRouter()
+  const { data: session } = useSession()
+  const isGoogleUser = (session?.user as any)?.provider === "google"
   const pathname = usePathname()
   const info = getInfoContent(pathname)
   const params = useParams()
@@ -46,7 +48,6 @@ export default function DetalheVisitaPage() {
   const [estados, setEstados] = useState<{ id: number; uf: string }[]>([])
   const [empresaEndereco, setEmpresaEndereco] = useState<Record<string, string>>({})
   const [checkLoading, setCheckLoading] = useState<"in" | "out" | null>(null)
-  const { data: session } = useSession()
 
   const fetchEstados = useCallback(async () => {
     try {
@@ -151,6 +152,38 @@ export default function DetalheVisitaPage() {
     } finally {
       setDeleteLoading(false)
       setShowDelete(false)
+    }
+  }
+
+  async function handleSyncGoogle() {
+    try {
+      const res = await fetch("/api/crm/visitas/sync-google", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ visitaId: visita.id }),
+      })
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.error || "Erro ao sincronizar")
+      }
+      await loadVisita()
+      toast.success("Sincronizado com Google Calendar")
+    } catch (err: any) {
+      toast.error(err.message)
+    }
+  }
+
+  async function handleUnsyncGoogle() {
+    try {
+      const res = await fetch(`/api/crm/visitas/sync-google?visitaId=${visita.id}`, { method: "DELETE" })
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.error || "Erro ao dessincronizar")
+      }
+      await loadVisita()
+      toast.success("Removido do Google Calendar")
+    } catch (err: any) {
+      toast.error(err.message)
     }
   }
 
@@ -304,6 +337,17 @@ export default function DetalheVisitaPage() {
             <>
               <VisitReportButton visita={visita} />
               <SendSurveyButton visitaId={visita.id} empresaNome={visita.empresaNome || visita.clienteNome || undefined} contatoEmail={visita.contatoEmail || undefined} contatoNome={visita.contatoNome || undefined} />
+              {isGoogleUser && (
+                visita.googleEventId ? (
+                  <button onClick={handleUnsyncGoogle} className="flex items-center gap-1 text-xs font-medium text-orange-600 hover:underline px-2 py-1.5 rounded-lg min-h-[36px]">
+                    <Calendar size={14} /> Dessincronizar
+                  </button>
+                ) : (
+                  <button onClick={handleSyncGoogle} className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:underline px-2 py-1.5 rounded-lg min-h-[36px]">
+                    <Calendar size={14} /> Sincronizar
+                  </button>
+                )
+              )}
               {canEdit && (
                 <>
                   <button onClick={startEditing} className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:underline px-2 py-1.5 rounded-lg min-h-[36px]">
@@ -521,6 +565,14 @@ export default function DetalheVisitaPage() {
                   <div>
                     <span className="text-xs text-slate-500 block mb-0.5">Criado por</span>
                     <p className="text-slate-900 dark:text-slate-200">{visita.criadoPorNome}</p>
+                  </div>
+                )}
+                {visita.googleEventId && (
+                  <div>
+                    <span className="text-xs text-slate-500 block mb-0.5">Google Calendar</span>
+                    <p className="text-emerald-600 dark:text-emerald-400 text-xs font-medium inline-flex items-center gap-1">
+                      <Calendar size={12} /> Sincronizado
+                    </p>
                   </div>
                 )}
               </div>
