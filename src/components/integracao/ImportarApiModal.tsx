@@ -88,11 +88,12 @@ export default function ImportarApiModal({ tela, existingRecords, existingKey = 
         return
       }
       setItems(rawItems)
-      // Default: select all non-duplicate
+      // Default: select all non-duplicate AND with required fields filled
       const autoSelect = new Set<number>()
       rawItems.forEach((_: any, idx: number) => {
         const keyVal = rawItems[idx][uniqueKey]
-        if (!keyVal || !existingSet.has(String(keyVal).trim().toLowerCase())) {
+        const hasRequiredField = rawItems[idx][uniqueKey] != null && String(rawItems[idx][uniqueKey]).trim() !== ""
+        if (hasRequiredField && !existingSet.has(String(keyVal).trim().toLowerCase())) {
           autoSelect.add(idx)
         }
       })
@@ -134,6 +135,12 @@ export default function ImportarApiModal({ tela, existingRecords, existingKey = 
     return existingSet.has(String(val).trim().toLowerCase())
   }
 
+  function hasMissingRequiredField(item: Record<string, any>) {
+    const apiKeyField = Object.entries(fieldMapping).find(([, v]) => v === uniqueKey)?.[0]
+    const val = item[apiKeyField || uniqueKey]
+    return val == null || String(val).trim() === ""
+  }
+
   const columns = items.length > 0 ? Object.keys(items[0]) : []
   const filteredItems = items.filter(item =>
     !searchQuery || columns.some(col =>
@@ -151,7 +158,7 @@ export default function ImportarApiModal({ tela, existingRecords, existingKey = 
     }
     setImporting(true)
     try {
-      const selectedItems = items.filter((_, i) => selectedRows.has(i))
+      const selectedItems = items.filter((_, i) => selectedRows.has(i) && !hasMissingRequiredField(items[i]))
       const res = await fetch("/api/integracao/importar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -225,6 +232,11 @@ export default function ImportarApiModal({ tela, existingRecords, existingKey = 
 
               {items.length > 0 && (
                 <>
+                  {items.filter(i => hasMissingRequiredField(i)).length > 0 && (
+                    <p className="text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 px-3 py-1.5 rounded-lg">
+                      {items.filter(i => hasMissingRequiredField(i)).length} item(s) com &quot;{uniqueKey}&quot; vazio — não serão selecionados para importação.
+                    </p>
+                  )}
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
                     <Input
@@ -250,15 +262,18 @@ export default function ImportarApiModal({ tela, existingRecords, existingKey = 
                       {filteredItems.map((item) => {
                         const originalIdx = items.indexOf(item)
                         const dup = isDuplicate(item)
+                        const missingField = hasMissingRequiredField(item)
+                        const disabled = dup || missingField
                         return (
-                          <tr key={originalIdx} className={`hover:bg-slate-50 dark:hover:bg-slate-800/30 ${dup ? "opacity-50" : ""}`}>
+                          <tr key={originalIdx} className={`hover:bg-slate-50 dark:hover:bg-slate-800/30 ${dup ? "opacity-50" : ""} ${missingField && !dup ? "opacity-40" : ""}`}>
                             <td className="p-2">
                               <input
                                 type="checkbox"
                                 checked={selectedRows.has(originalIdx)}
                                 onChange={() => toggleRow(originalIdx)}
-                                disabled={dup}
+                                disabled={disabled}
                                 className="rounded"
+                                title={missingField ? `Campo obrigatório "${uniqueKey}" vazio` : dup ? "Duplicado" : ""}
                               />
                             </td>
                             {columns.slice(0, 8).map(col => (
@@ -276,7 +291,7 @@ export default function ImportarApiModal({ tela, existingRecords, existingKey = 
               )}
 
               <div className="flex items-center justify-between text-xs text-slate-400">
-                <span>{searchQuery ? `Exibindo ${filteredItems.length} de ` : ""}{items.length} itens | {selectedRows.size} selecionados | {existingSet.size} registros existentes</span>
+                <span>{searchQuery ? `Exibindo ${filteredItems.length} de ` : ""}{items.length} itens | {selectedRows.size} selecionados | {existingSet.size} existentes | {items.filter(i => hasMissingRequiredField(i)).length} sem {uniqueKey}</span>
                 {integracao?.mapping?.uniqueKey && (
                   <span className="flex items-center gap-1">
                     <Check size={12} className="text-green-500" />
