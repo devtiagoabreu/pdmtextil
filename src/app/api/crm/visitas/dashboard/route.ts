@@ -85,9 +85,9 @@ export async function GET(req: NextRequest) {
         .where(mineCondition)
         .orderBy(desc(crmVisitas.createdAt))
         .limit(5),
-      db.select({ total: count() }).from(crmPesquisasSatisfacao),
-      db.select({ total: count() }).from(crmPesquisasSatisfacao).where(eq(crmPesquisasSatisfacao.status, "ABERTO")),
-      db.select({ total: count() }).from(crmPesquisasSatisfacao).where(eq(crmPesquisasSatisfacao.status, "RESPONDIDO")),
+      db.select({ total: count() }).from(crmPesquisasSatisfacao).innerJoin(crmVisitas, eq(crmPesquisasSatisfacao.visitaId, crmVisitas.id)).where(mineCondition),
+      db.select({ total: count() }).from(crmPesquisasSatisfacao).innerJoin(crmVisitas, eq(crmPesquisasSatisfacao.visitaId, crmVisitas.id)).where(mineCondition ? and(mineCondition, eq(crmPesquisasSatisfacao.status, "ABERTO")) : eq(crmPesquisasSatisfacao.status, "ABERTO")),
+      db.select({ total: count() }).from(crmPesquisasSatisfacao).innerJoin(crmVisitas, eq(crmPesquisasSatisfacao.visitaId, crmVisitas.id)).where(mineCondition ? and(mineCondition, eq(crmPesquisasSatisfacao.status, "RESPONDIDO")) : eq(crmPesquisasSatisfacao.status, "RESPONDIDO")),
     ])
 
     const getCount = (rows: { total: number }[]) => Number(rows[0]?.total ?? 0)
