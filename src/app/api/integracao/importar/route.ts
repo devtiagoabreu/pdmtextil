@@ -128,9 +128,13 @@ export async function POST(req: NextRequest) {
     let existingRecords: Set<string> = new Set()
     if (uniqueValues.length > 0) {
       const conditions = uniqueValues.map(v => sql`${sql.identifier(dbUniqueFieldName)} = ${v}`)
+      // For email-listas, only check duplicates within the same list
+      const listCondition = (entidade === "email-listas" && listaId)
+        ? and(or(...conditions), sql`${sql.identifier("lista_id")} = ${Number(listaId)}`)
+        : or(...conditions)
       const existing = await db.select({ [pdmUniqueKey]: table[pdmUniqueKey] })
         .from(table)
-        .where(or(...conditions))
+        .where(listCondition)
       existingRecords = new Set(existing.map((r: any) => String(r[pdmUniqueKey])))
     }
 
