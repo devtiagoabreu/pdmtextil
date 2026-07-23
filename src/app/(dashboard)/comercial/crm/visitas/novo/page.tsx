@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
+import { AlertTriangle } from "lucide-react"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
@@ -35,6 +36,8 @@ export default function NovaVisitaPage() {
   const [contatos, setContatos] = useState<any[]>([])
   const [saving, setSaving] = useState(false)
   const [fotos, setFotos] = useState<string[]>([])
+  const [conflictos, setConflictos] = useState<any[]>([])
+  const conflictTimerRef = useRef<NodeJS.Timeout | null>(null)
   const [empresaEndereco, setEmpresaEndereco] = useState<any>({})
   const [estadoId, setEstadoId] = useState<number | null>(null)
   const [estados, setEstados] = useState<{ id: number; uf: string }[]>([])
@@ -115,6 +118,21 @@ export default function NovaVisitaPage() {
       setEstadoId(null)
     }
   }, [form.uf, estados])
+
+  useEffect(() => {
+    if (conflictTimerRef.current) clearTimeout(conflictTimerRef.current)
+    if (!form.dataVisita || !form.hora) { setConflictos([]); return }
+    conflictTimerRef.current = setTimeout(async () => {
+      try {
+        const sp = new URLSearchParams({ dataVisita: form.dataVisita, hora: form.hora })
+        const res = await fetch(`/api/crm/visitas/conflictos?${sp}`)
+        if (res.ok) {
+          const data = await res.json()
+          setConflictos(data.conflictos || [])
+        }
+      } catch {}
+    }, 500)
+  }, [form.dataVisita, form.hora])
 
   async function loadEmpresas() {
     try {
@@ -419,6 +437,19 @@ export default function NovaVisitaPage() {
                 onChange={e => setField("hora", e.target.value)}
                 className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
+              {conflictos.length > 0 && (
+                <div className="mt-2 flex items-start gap-2 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 px-3 py-2">
+                  <AlertTriangle size={16} className="text-amber-500 mt-0.5 shrink-0" />
+                  <div className="text-xs text-amber-700 dark:text-amber-300">
+                    <p className="font-medium">{conflictos.length} visita(s) ja agendada(s) neste horario:</p>
+                    <ul className="mt-1 space-y-0.5">
+                      {conflictos.map((c: any) => (
+                        <li key={c.id}>• {c.empresaNome || c.clienteNome || "Visita"} ({c.tipo})</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Tipo</label>
