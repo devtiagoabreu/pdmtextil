@@ -138,9 +138,10 @@ export async function POST(req: NextRequest) {
       const val = String(m[pdmUniqueKey] ?? "")
       return !existingRecords.has(val)
     })
+    const duplicatesCount = mapped.length - toInsert.length
 
     if (toInsert.length === 0) {
-      return NextResponse.json({ importados: 0, ignorados: mapped.length, message: "Nenhum novo registro para importar" })
+      return NextResponse.json({ importados: 0, duplicados: duplicatesCount, vazios: 0, message: `${duplicatesCount} registro(s) já existente(s) na base` })
     }
 
     // Strip unknown fields - only keep columns that exist on the table
@@ -174,15 +175,16 @@ export async function POST(req: NextRequest) {
     const skippedNull = cleaned.length - valid.length
 
     if (valid.length === 0) {
-      return NextResponse.json({ importados: 0, ignorados: mapped.length, message: skippedNull > 0 ? `${skippedNull} registro(s) ignorado(s) por campos obrigatórios vazios` : "Nenhum novo registro para importar" })
+      return NextResponse.json({ importados: 0, duplicados: duplicatesCount, vazios: skippedNull, message: `${skippedNull} registro(s) com campos vazios, ${duplicatesCount} já existente(s)` })
     }
 
     await db.insert(table).values(valid)
 
     return NextResponse.json({
       importados: valid.length,
-      ignorados: mapped.length - valid.length + skippedNull,
-      message: `${valid.length} registro(s) importado(s), ${mapped.length - valid.length + skippedNull} ignorado(s)${skippedNull > 0 ? ` (${skippedNull} com campos vazios)` : ""}`,
+      duplicados: duplicatesCount,
+      vazios: skippedNull,
+      message: `${valid.length} importado(s), ${duplicatesCount} duplicado(s), ${skippedNull} com campos vazios`,
     })
   } catch (error) {
     console.error("[POST /api/integracao/importar]", error)

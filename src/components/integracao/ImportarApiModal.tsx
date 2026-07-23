@@ -176,7 +176,7 @@ export default function ImportarApiModal({ tela, existingRecords, existingKey = 
         throw new Error(err.error || "Erro na importação")
       }
       const result = await res.json()
-      toast.success(`${result.importados} registro(s) importado(s)${result.ignorados ? `, ${result.ignorados} ignorado(s)` : ""}`)
+      toast.success(`${result.importados} importado(s)${result.duplicados ? `, ${result.duplicados} duplicado(s)` : ""}${result.vazios ? `, ${result.vazios} com campo vazio` : ""}`)
       onImportado?.()
       onClose()
     } catch (e) {
