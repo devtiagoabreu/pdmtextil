@@ -153,10 +153,15 @@ export async function POST(req: NextRequest) {
       return clean
     })
 
-    // Filter out rows where required (notNull) fields are missing
+    // Filter out rows where required (notNull) fields that are actually present in data are missing
+    // Collect all field names that appear in any row
+    const dataFields = new Set<string>()
+    for (const row of cleaned) {
+      for (const key of Object.keys(row)) dataFields.add(key)
+    }
     const notNullFields = new Set<string>()
     for (const [key, col] of Object.entries(table)) {
-      if (col && typeof col === "object" && "notNull" in col && (col as any).notNull) {
+      if (dataFields.has(key) && col && typeof col === "object" && "notNull" in col && (col as any).notNull) {
         notNullFields.add(key)
       }
     }
