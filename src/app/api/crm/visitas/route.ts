@@ -6,7 +6,7 @@ import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
 import { clientes } from "@/lib/db/schema/clientes"
 import { crmOportunidades } from "@/lib/db/schema/crm-oportunidades"
 import { usuarios } from "@/lib/db/schema/usuarios"
-import { eq, desc, sql } from "drizzle-orm"
+import { eq, desc, sql, like, or, and, count } from "drizzle-orm"
 import { registrarLog, notificar } from "@/lib/notificar"
 import { inserirTimelineEvento } from "@/lib/crm-timeline"
 
@@ -18,6 +18,10 @@ export async function GET(req: NextRequest) {
     const empresaId = searchParams.get("empresaId")
     const status = searchParams.get("status")
     const mine = searchParams.get("mine")
+    const q = searchParams.get("q")
+    const page = Math.max(1, parseInt(searchParams.get("page") || "1"))
+    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "50")))
+    const all = searchParams.get("all") === "true"
 
     const conditions = []
     if (empresaId) conditions.push(eq(crmVisitas.empresaId, parseInt(empresaId)))
@@ -25,10 +29,20 @@ export async function GET(req: NextRequest) {
     if (mine === "true" && auth.session.user.role !== "ADMIN" && auth.session.user.role !== "SUDO") {
       conditions.push(eq(crmVisitas.criadoPor, auth.userId))
     }
+    if (q) {
+      const searchPattern = `%${q}%`
+      conditions.push(
+        or(
+          like(crmPessoas.razaoSocial, searchPattern),
+          like(clientes.nome, searchPattern),
+          like(crmOportunidades.titulo, searchPattern),
+        )!
+      )
+    }
 
-    const where = conditions.length > 0 ? sql`${conditions.reduce((a, b) => sql`${a} AND ${b}`)}` : undefined
+    const where = conditions.length > 0 ? and(...conditions) : undefined
 
-    const lista = await db
+    const baseQuery = db
       .select({
         id: crmVisitas.id,
         dataVisita: crmVisitas.dataVisita,
@@ -62,9 +76,32 @@ export async function GET(req: NextRequest) {
       .leftJoin(crmOportunidades, eq(crmVisitas.oportunidadeId, crmOportunidades.id))
       .leftJoin(usuarios, eq(crmVisitas.criadoPor, usuarios.id))
       .where(where)
-      .orderBy(desc(crmVisitas.dataVisita))
 
-    return NextResponse.json(lista)
+    if (all) {
+      const lista = await baseQuery.orderBy(desc(crmVisitas.dataVisita))
+      return NextResponse.json(lista)
+    }
+
+    const [{ total }] = await db
+      .select({ total: count() })
+      .from(crmVisitas)
+      .leftJoin(crmPessoas, eq(crmVisitas.empresaId, crmPessoas.id))
+      .leftJoin(clientes, eq(crmVisitas.clienteId, clientes.id))
+      .leftJoin(crmOportunidades, eq(crmVisitas.oportunidadeId, crmOportunidades.id))
+      .where(where)
+
+    const lista = await baseQuery
+      .orderBy(desc(crmVisitas.dataVisita))
+      .limit(limit)
+      .offset((page - 1) * limit)
+
+    return NextResponse.json({
+      data: lista,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit),
+      limit,
+    })
   } catch (error) {
     console.error("[GET /api/crm/visitas]", error)
     return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })

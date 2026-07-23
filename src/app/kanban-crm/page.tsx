@@ -62,7 +62,7 @@ function CRMKanbanStandaloneContent() {
     setLoading(true)
     const endpoint = API_ENDPOINTS[tipo]
     if (!endpoint) { setLoading(false); return }
-    fetch(endpoint)
+    fetch(`${endpoint}?all=true`)
       .then((r) => r.json())
       .then((d) => { if (Array.isArray(d)) setData(d) })
       .catch(() => {})
