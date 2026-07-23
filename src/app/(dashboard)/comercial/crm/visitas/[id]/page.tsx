@@ -1,12 +1,12 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { useSession } from "next-auth/react"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { useRouter, useParams, usePathname } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Trash2, Pencil, Check, X, MapPin, ExternalLink, LogIn, LogOut, Loader2, Navigation, Undo2 } from "lucide-react"
+import { ArrowLeft, Trash2, Pencil, Check, X, MapPin, ExternalLink, LogIn, LogOut, Loader2, Navigation, Undo2, AlertTriangle } from "lucide-react"
 import PhotoUpload from "@/components/crm/photo-upload"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
@@ -39,6 +39,8 @@ export default function DetalheVisitaPage() {
   const [editing, setEditing] = useState(false)
   const [form, setForm] = useState<any>({})
   const [fotos, setFotos] = useState<string[]>([])
+  const [conflictos, setConflictos] = useState<any[]>([])
+  const conflictTimerRef = useRef<NodeJS.Timeout | null>(null)
   const [estadoId, setEstadoId] = useState<number | null>(null)
   const [estados, setEstados] = useState<{ id: number; uf: string }[]>([])
   const [empresaEndereco, setEmpresaEndereco] = useState<Record<string, string>>({})
@@ -62,6 +64,21 @@ export default function DetalheVisitaPage() {
       setEstadoId(null)
     }
   }, [form.uf, estados])
+
+  useEffect(() => {
+    if (conflictTimerRef.current) clearTimeout(conflictTimerRef.current)
+    if (!editing || !form.dataVisita || !form.hora) { setConflictos([]); return }
+    conflictTimerRef.current = setTimeout(async () => {
+      try {
+        const sp = new URLSearchParams({ dataVisita: form.dataVisita, hora: form.hora, excludeId: String(params.id) })
+        const res = await fetch(`/api/crm/visitas/conflictos?${sp}`)
+        if (res.ok) {
+          const data = await res.json()
+          setConflictos(data.conflictos || [])
+        }
+      } catch {}
+    }, 500)
+  }, [form.dataVisita, form.hora, editing, params.id])
 
   async function loadVisita() {
     try {
@@ -359,6 +376,19 @@ export default function DetalheVisitaPage() {
                     onChange={e => setField("hora", e.target.value)}
                     className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
                   />
+                  {conflictos.length > 0 && (
+                    <div className="mt-2 flex items-start gap-2 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 px-3 py-2">
+                      <AlertTriangle size={16} className="text-amber-500 mt-0.5 shrink-0" />
+                      <div className="text-xs text-amber-700 dark:text-amber-300">
+                        <p className="font-medium">{conflictos.length} visita(s) ja agendada(s) neste horario:</p>
+                        <ul className="mt-1 space-y-0.5">
+                          {conflictos.map((c: any) => (
+                            <li key={c.id}>• {c.empresaNome || c.clienteNome || "Visita"} ({c.tipo})</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
