@@ -64,3 +64,21 @@ export const FONT_FAMILIES = [
   "Raleway", "Ubuntu", "Playfair Display", "Merriweather", "Oswald", "Noto Sans",
   "Source Sans Pro", "PT Sans", "Quicksand", "Work Sans",
 ]
+
+export interface Agendado {
+  id: number
+  nome: string
+  para: string
+  assunto: string
+  html: string
+  listas: number[] | null
+  modoEnvio: string | null
+  remetente: string | null
+  agendadoPara: string | null
+  status: string
+  enviadoEm: string | null
+  erro: string | null
+  criadoPor: number | null
+  createdAt: string
+  updatedAt: string
+}
