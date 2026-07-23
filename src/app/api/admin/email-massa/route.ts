@@ -57,9 +57,17 @@ async function buscarDestinatarios(para: string, listas?: number[]): Promise<Des
   }
 
   if (para === "lista" && listas && listas.length > 0) {
-    return await db.select({ email: emailListaContatos.email, nome: emailListaContatos.nome })
+    const contatos = await db.select({ email: emailListaContatos.email, nome: emailListaContatos.nome })
       .from(emailListaContatos)
       .where(inArray(emailListaContatos.listaId, listas))
+    const result: Destinatario[] = []
+    for (const c of contatos) {
+      const emails = parseEmails(c.email)
+      for (const addr of emails) {
+        result.push({ email: addr, nome: c.nome || "Contato" })
+      }
+    }
+    return result
   }
 
   return []
