@@ -63,6 +63,7 @@ export async function GET(
         criadoPor: crmVisitas.criadoPor,
         criadoPorNome: usuarios.name,
         duracaoEstimada: crmVisitas.duracaoEstimada,
+        googleEventId: crmVisitas.googleEventId,
         checkInTime: crmVisitas.checkInTime,
         checkOutTime: crmVisitas.checkOutTime,
         checkInLat: crmVisitas.checkInLat,
@@ -193,9 +194,19 @@ export async function DELETE(
 
     const { id } = await params
 
-    const [existente] = await db.select({ criadoPor: crmVisitas.criadoPor }).from(crmVisitas).where(eq(crmVisitas.id, parseInt(id))).limit(1)
+    const [existente] = await db.select({ criadoPor: crmVisitas.criadoPor, googleEventId: crmVisitas.googleEventId }).from(crmVisitas).where(eq(crmVisitas.id, parseInt(id))).limit(1)
     if (userRole !== "ADMIN" && userRole !== "SUDO" && existente?.criadoPor !== auth.userId) {
       return NextResponse.json({ error: "Apenas o criador da visita pode excluí-la" }, { status: 403 })
+    }
+
+    if (existente?.googleEventId) {
+      try {
+        const accessToken = (auth.session.user as any).accessToken
+        if (accessToken) {
+          const { deleteCalendarEvent } = await import("@/lib/google-calendar")
+          await deleteCalendarEvent(accessToken, existente.googleEventId)
+        }
+      } catch {}
     }
 
     await db.delete(crmVisitas).where(eq(crmVisitas.id, parseInt(id)))

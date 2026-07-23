@@ -53,7 +53,7 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
       authorization: {
         params: {
-          scope: "openid email profile https://www.googleapis.com/auth/drive.file",
+          scope: "openid email profile https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/calendar",
           access_type: "offline",
           prompt: "consent",
         },
@@ -95,6 +95,7 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id
         token.role = user.role
+        token.provider = account?.provider || "credentials"
         if (account?.provider === "google") {
           token.accessToken = account.access_token
           token.refreshToken = account.refresh_token
@@ -111,6 +112,7 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id as string
         session.user.role = token.role as string
         ;(session.user as any).accessToken = token.accessToken
+        ;(session.user as any).provider = token.provider
       }
       return session
     }

@@ -6,7 +6,8 @@ import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Save, Building2, UserCheck, Repeat } from "lucide-react"
+import { ArrowLeft, Save, Building2, UserCheck, Repeat, Calendar } from "lucide-react"
+import { useSession } from "next-auth/react"
 import PhotoUpload from "@/components/crm/photo-upload"
 import { RelatoTemplateSelector } from "@/components/crm/relato-templates"
 import { toast } from "sonner"
@@ -26,6 +27,8 @@ const TIPO_OPTIONS = [
 
 export default function NovaVisitaPage() {
   const router = useRouter()
+  const { data: session } = useSession()
+  const isGoogleUser = (session?.user as any)?.provider === "google"
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const info = getInfoContent(pathname)
@@ -40,6 +43,7 @@ export default function NovaVisitaPage() {
   const [conflictos, setConflictos] = useState<any[]>([])
   const [recorrencia, setRecorrencia] = useState<string>("nenhuma")
   const [recorrenciaFim, setRecorrenciaFim] = useState("")
+  const [syncGoogle, setSyncGoogle] = useState(false)
   const conflictTimerRef = useRef<NodeJS.Timeout | null>(null)
   const [empresaEndereco, setEmpresaEndereco] = useState<any>({})
   const [estadoId, setEstadoId] = useState<number | null>(null)
@@ -302,6 +306,15 @@ export default function NovaVisitaPage() {
         throw new Error(err.error || "Erro ao criar visita")
       }
       const data = await res.json()
+      if (syncGoogle && data.visita?.id) {
+        try {
+          await fetch("/api/crm/visitas/sync-google", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ visitaId: data.visita.id }),
+          })
+        } catch {}
+      }
       toast.success(data.total > 1 ? `${data.total} visitas criadas com sucesso` : "Visita criada com sucesso")
       router.push("/comercial/crm/visitas")
     } catch (err: any) {
@@ -681,6 +694,23 @@ export default function NovaVisitaPage() {
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
             <PhotoUpload photos={fotos} onPhotosChange={setFotos} />
           </div>
+
+          {isGoogleUser && (
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 flex items-center gap-3">
+              <Calendar size={18} className="text-blue-500 shrink-0" />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Sincronizar com Google Calendar</p>
+                <p className="text-xs text-slate-500">Crie um evento no Google Calendar para esta visita</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSyncGoogle(!syncGoogle)}
+                className={`relative inline-flex h-6 w-11 shrink-0 rounded-full transition-colors ${syncGoogle ? "bg-blue-600" : "bg-slate-200 dark:bg-slate-700"}`}
+              >
+                <span className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform mt-0.5 ${syncGoogle ? "translate-x-5.5 ml-0.5" : "translate-x-0.5"}`} />
+              </button>
+            </div>
+          )}
 
           <div className="flex justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
             <Link
