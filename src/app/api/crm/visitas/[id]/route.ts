@@ -62,6 +62,7 @@ export async function GET(
         fotos: crmVisitas.fotos,
         criadoPor: crmVisitas.criadoPor,
         criadoPorNome: usuarios.name,
+        duracaoEstimada: crmVisitas.duracaoEstimada,
         checkInTime: crmVisitas.checkInTime,
         checkOutTime: crmVisitas.checkOutTime,
         checkInLat: crmVisitas.checkInLat,
@@ -136,6 +137,7 @@ export async function PUT(
     if (body.cep !== undefined) values.cep = body.cep || null
     if (body.relato !== undefined) values.relato = body.relato
     if (body.fotos !== undefined) values.fotos = body.fotos
+    if (body.duracaoEstimada !== undefined) values.duracaoEstimada = body.duracaoEstimada
 
     const [atualizada] = await db
       .update(crmVisitas)

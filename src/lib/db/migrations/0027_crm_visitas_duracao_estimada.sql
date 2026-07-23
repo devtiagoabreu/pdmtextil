@@ -1,0 +1,1 @@
+ALTER TABLE crm_visitas ADD COLUMN IF NOT EXISTS duracao_estimada integer;
