@@ -832,7 +832,25 @@ export default function EmailMassaPage() {
 
               <Separator />
 
-              {/* ── Editor de Conteúdo ── */}
+              {/* ── Programação (quando aplicável) ── */}
+              <section className="flex flex-col space-y-3 p-4 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
+                <h2 className="text-base font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                  <Clock size={16} className="text-blue-500" /> Programação
+                  <span className="text-xs font-normal text-slate-400">(opcional — para salvar rascunho ou agendar)</span>
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex flex-col space-y-1">
+                    <Label className="text-xs">Nome do Disparo</Label>
+                    <Input value={agendadoForm.nome} onChange={e => setAgendadoForm(f => ({ ...f, nome: e.target.value }))} placeholder="Ex: Promoção de Verão" />
+                  </div>
+                  <div className="flex flex-col space-y-1">
+                    <Label className="text-xs">Agendar para (data/hora)</Label>
+                    <Input type="datetime-local" value={agendadoForm.agendadoPara} onChange={e => setAgendadoForm(f => ({ ...f, agendadoPara: e.target.value }))} />
+                  </div>
+                </div>
+              </section>
+
+              <Separator />
               <section className="flex flex-col space-y-3">
                 <div className="flex items-center justify-between">
                   <h2 className="text-base font-semibold text-slate-800 dark:text-slate-200">Conteúdo do Email</h2>
@@ -952,6 +970,19 @@ export default function EmailMassaPage() {
               </section>
 
               {/* ── Botão Enviar ── */}
+              {editAgendado && (
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800">
+                  <Clock size={16} className="text-blue-500" />
+                  <span className="text-sm text-blue-700 dark:text-blue-300">
+                    Editando: <strong>{editAgendado.nome || editAgendado.assunto}</strong>
+                    {editAgendado.status === "rascunho" ? " (Rascunho)" : ""}
+                  </span>
+                  <Button variant="ghost" size="xs" onClick={() => { setEditAgendado(null); setAgendadoForm({ nome: "", agendadoPara: "" }) }} className="ml-auto gap-1">
+                    <X size={12} /> Limpar
+                  </Button>
+                </div>
+              )}
+
               <div className="flex flex-wrap items-center justify-between gap-2 pt-4 border-t border-slate-100 dark:border-slate-800">
                 {modelos.length > 0 && (
                   <div className="flex items-center gap-1 flex-wrap max-w-md">
@@ -964,10 +995,24 @@ export default function EmailMassaPage() {
                     ))}
                   </div>
                 )}
-                <Button onClick={handleSend} disabled={sending} className="gap-2 ml-auto">
-                  {sending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
-                  {sending ? "Enviando..." : "Enviar Email em Massa"}
-                </Button>
+                <div className="flex gap-2 ml-auto">
+                  <Button variant="outline" onClick={() => salvarAgendado("rascunho")} className="gap-2">
+                    <FileText size={16} /> Salvar Rascunho
+                  </Button>
+                  <Button variant="outline" onClick={() => {
+                    if (!agendadoForm.agendadoPara) {
+                      toast.info("Preencha a data/hora na seção Programação acima")
+                      return
+                    }
+                    salvarAgendado("agendado")
+                  }} className="gap-2">
+                    <Clock size={16} /> Agendar
+                  </Button>
+                  <Button onClick={handleSend} disabled={sending} className="gap-2">
+                    {sending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+                    {sending ? "Enviando..." : "Enviar Email em Massa"}
+                  </Button>
+                </div>
               </div>
 
             </div>
