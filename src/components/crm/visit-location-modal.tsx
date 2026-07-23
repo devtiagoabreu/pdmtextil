@@ -116,7 +116,7 @@ export default function VisitLocationModal({ visitaId, empresaNome, open, onClos
               <p className="text-sm text-slate-500 dark:text-slate-400">{empresaNome}</p>
             )}
           </div>
-          <button onClick={onClose} className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+          <button onClick={onClose} className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
             <X size={20} className="text-slate-500" />
           </button>
         </div>
@@ -173,14 +173,18 @@ export default function VisitLocationModal({ visitaId, empresaNome, open, onClos
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => openGoogleMaps(loc.latitude, loc.longitude)}
-                      className="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                      className="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                       title="Abrir no Google Maps"
                     >
                       <ExternalLink size={14} className="text-slate-500" />
                     </button>
                     <button
-                      onClick={() => deleteMutation.mutate(loc.id)}
-                      className="p-1.5 rounded-lg hover:bg-red-100 dark:hover:bg-red-950/50 transition-colors"
+                      onClick={() => {
+                        if (window.confirm("Excluir esta localização?")) {
+                          deleteMutation.mutate(loc.id)
+                        }
+                      }}
+                      className="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-950/50 transition-colors"
                       title="Excluir localização"
                     >
                       <Trash2 size={14} className="text-red-500" />

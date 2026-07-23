@@ -150,7 +150,7 @@ export function QuickCreateCliente({ onCreated }: Props) {
     <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) resetForm() }}>
       <DialogTrigger
         type="button"
-        className="p-1 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 rounded transition-colors"
+        className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 rounded transition-colors min-w-[32px] min-h-[32px] flex items-center justify-center"
         title="Cadastrar novo cliente"
       >
         <Plus size={14} />

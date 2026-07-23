@@ -364,7 +364,7 @@ export default function VisitasDashboardPage() {
                           href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([visita.endereco, visita.numero, visita.complemento, visita.bairro, visita.cidade, visita.uf].filter(Boolean).join(", "))}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="p-1 md:p-1.5 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-950/50 transition-colors"
+                          className="p-2 md:p-1.5 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-950/50 transition-colors"
                           title="Abrir no Google Maps"
                         >
                           <Navigation size={12} className="text-emerald-500 md:text-emerald-500" />
@@ -372,7 +372,7 @@ export default function VisitasDashboardPage() {
                       )}
                       <button
                         onClick={() => setSelectedVisita({ id: visita.id, nome: `Visita #${visita.id}` })}
-                        className="p-1 md:p-1.5 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-950/50 transition-colors"
+                        className="p-2 md:p-1.5 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-950/50 transition-colors"
                         title="Gerenciar localizações"
                       >
                         <MapPin size={12} className="text-blue-500 md:text-blue-500" />

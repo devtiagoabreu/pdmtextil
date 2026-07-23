@@ -103,52 +103,52 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = "300p
 
   return (
     <div className="w-full border rounded-lg border-slate-300 dark:border-slate-600 overflow-hidden bg-white dark:bg-slate-700">
-      <div className="flex flex-wrap items-center gap-0.5 p-1.5 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700" onMouseDown={saveSelection}>
-        <div className="flex items-center gap-0.5 px-1 border-r border-slate-200 dark:border-slate-700">
-          <button type="button" onClick={() => exec("bold")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Negrito"><Bold size={15} /></button>
-          <button type="button" onClick={() => exec("italic")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Itálico"><Italic size={15} /></button>
-          <button type="button" onClick={() => exec("underline")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Sublinhado"><Underline size={15} /></button>
-          <button type="button" onClick={() => exec("strikeThrough")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Tachado"><Strikethrough size={15} /></button>
+      <div className="flex flex-wrap items-center gap-1 p-2 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700" onMouseDown={saveSelection}>
+        <div className="flex items-center gap-1 px-1 border-r border-slate-200 dark:border-slate-700">
+          <button type="button" onClick={() => exec("bold")} className="p-2 rounded hover:bg-slate-200 dark:hover:bg-slate-700 min-h-[36px] min-w-[36px] flex items-center justify-center" title="Negrito"><Bold size={16} /></button>
+          <button type="button" onClick={() => exec("italic")} className="p-2 rounded hover:bg-slate-200 dark:hover:bg-slate-700 min-h-[36px] min-w-[36px] flex items-center justify-center" title="Itálico"><Italic size={16} /></button>
+          <button type="button" onClick={() => exec("underline")} className="p-2 rounded hover:bg-slate-200 dark:hover:bg-slate-700 min-h-[36px] min-w-[36px] flex items-center justify-center" title="Sublinhado"><Underline size={16} /></button>
+          <button type="button" onClick={() => exec("strikeThrough")} className="p-2 rounded hover:bg-slate-200 dark:hover:bg-slate-700 min-h-[36px] min-w-[36px] flex items-center justify-center" title="Tachado"><Strikethrough size={16} /></button>
         </div>
 
-        <div className="flex items-center gap-0.5 px-1 border-r border-slate-200 dark:border-slate-700">
-          <button type="button" onClick={() => exec("justifyLeft")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Alinhar Esquerda"><AlignLeft size={15} /></button>
-          <button type="button" onClick={() => exec("justifyCenter")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Centralizar"><AlignCenter size={15} /></button>
-          <button type="button" onClick={() => exec("justifyRight")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Alinhar Direita"><AlignRight size={15} /></button>
+        <div className="flex items-center gap-1 px-1 border-r border-slate-200 dark:border-slate-700">
+          <button type="button" onClick={() => exec("justifyLeft")} className="p-2 rounded hover:bg-slate-200 dark:hover:bg-slate-700 min-h-[36px] min-w-[36px] flex items-center justify-center" title="Alinhar Esquerda"><AlignLeft size={16} /></button>
+          <button type="button" onClick={() => exec("justifyCenter")} className="p-2 rounded hover:bg-slate-200 dark:hover:bg-slate-700 min-h-[36px] min-w-[36px] flex items-center justify-center" title="Centralizar"><AlignCenter size={16} /></button>
+          <button type="button" onClick={() => exec("justifyRight")} className="p-2 rounded hover:bg-slate-200 dark:hover:bg-slate-700 min-h-[36px] min-w-[36px] flex items-center justify-center" title="Alinhar Direita"><AlignRight size={16} /></button>
         </div>
 
-        <div className="flex items-center gap-0.5 px-1 border-r border-slate-200 dark:border-slate-700">
-          <button type="button" onClick={() => insertList(false)} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Lista Marcadores"><List size={15} /></button>
-          <button type="button" onClick={() => insertList(true)} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Lista Numerada"><ListOrdered size={15} /></button>
+        <div className="flex items-center gap-1 px-1 border-r border-slate-200 dark:border-slate-700">
+          <button type="button" onClick={() => insertList(false)} className="p-2 rounded hover:bg-slate-200 dark:hover:bg-slate-700 min-h-[36px] min-w-[36px] flex items-center justify-center" title="Lista Marcadores"><List size={16} /></button>
+          <button type="button" onClick={() => insertList(true)} className="p-2 rounded hover:bg-slate-200 dark:hover:bg-slate-700 min-h-[36px] min-w-[36px] flex items-center justify-center" title="Lista Numerada"><ListOrdered size={16} /></button>
         </div>
 
-        <div className="flex items-center gap-0.5 px-1 border-r border-slate-200 dark:border-slate-700">
-          <select onChange={e => exec("fontName", e.target.value)} className="text-xs p-1 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 w-28" title="Fonte">
+        <div className="flex items-center gap-1 px-1 border-r border-slate-200 dark:border-slate-700">
+          <select onChange={e => exec("fontName", e.target.value)} className="text-xs p-1.5 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 w-20 sm:w-28 min-h-[36px]" title="Fonte">
             {FONT_FAMILIES.map(f => (
               <option key={f} value={f} style={{ fontFamily: f }}>{f}</option>
             ))}
           </select>
-          <select onChange={e => exec("fontSize", e.target.value)} className="text-xs p-1 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 w-20" title="Tamanho">
+          <select onChange={e => exec("fontSize", e.target.value)} className="text-xs p-1.5 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 w-16 sm:w-20 min-h-[36px]" title="Tamanho">
             {FONT_SIZES.map(s => (
               <option key={s.value} value={s.value}>{s.label}</option>
             ))}
           </select>
         </div>
 
-        <div className="flex items-center gap-0.5 px-1 border-r border-slate-200 dark:border-slate-700">
-          <button type="button" onClick={() => openColorPicker("fore")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Cor do Texto">
-            <Palette size={15} />
+        <div className="flex items-center gap-1 px-1 border-r border-slate-200 dark:border-slate-700">
+          <button type="button" onClick={() => openColorPicker("fore")} className="p-2 rounded hover:bg-slate-200 dark:hover:bg-slate-700 min-h-[36px] min-w-[36px] flex items-center justify-center" title="Cor do Texto">
+            <Palette size={16} />
           </button>
-          <button type="button" onClick={() => openColorPicker("back")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700 relative" title="Cor de Fundo">
+          <button type="button" onClick={() => openColorPicker("back")} className="p-2 rounded hover:bg-slate-200 dark:hover:bg-slate-700 min-h-[36px] min-w-[36px] flex items-center justify-center relative" title="Cor de Fundo">
             <div className="relative">
-              <Type size={15} />
+              <Type size={16} />
               <span className="absolute -bottom-0.5 left-0 right-0 h-1 bg-yellow-400 rounded" />
             </div>
           </button>
         </div>
 
-        <div className="flex items-center gap-0.5 px-1">
-          <button type="button" onClick={openLinkDialog} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Inserir Link"><Link size={15} /></button>
+        <div className="flex items-center gap-1 px-1">
+          <button type="button" onClick={openLinkDialog} className="p-2 rounded hover:bg-slate-200 dark:hover:bg-slate-700 min-h-[36px] min-w-[36px] flex items-center justify-center" title="Inserir Link"><Link size={16} /></button>
         </div>
       </div>
 

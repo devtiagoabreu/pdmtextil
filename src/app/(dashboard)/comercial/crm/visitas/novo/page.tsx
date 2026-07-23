@@ -5,7 +5,8 @@ import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Save, Plus, X, Building2, UserCheck } from "lucide-react"
+import { ArrowLeft, Save, Building2, UserCheck } from "lucide-react"
+import PhotoUpload from "@/components/crm/photo-upload"
 import { toast } from "sonner"
 import { QuickCreatePessoa } from "@/components/crm/quick-create-pessoa"
 import { QuickCreateCliente } from "@/components/crm/quick-create-cliente"
@@ -14,7 +15,6 @@ import { QuickCreateOportunidade } from "@/components/crm/quick-create-oportunid
 import { SelectUf } from "@/components/crm/select-uf"
 import { SelectCidade } from "@/components/crm/select-cidade"
 import { RichTextEditor } from "@/components/crm/rich-text-editor"
-import { TimePickerModal } from "@/components/crm/time-picker-modal"
 
 const TIPO_OPTIONS = [
   { value: "PRESENCIAL", label: "Presencial" },
@@ -34,7 +34,7 @@ export default function NovaVisitaPage() {
   const [oportunidades, setOportunidades] = useState<any[]>([])
   const [contatos, setContatos] = useState<any[]>([])
   const [saving, setSaving] = useState(false)
-  const [fotoInputs, setFotoInputs] = useState<string[]>([""])
+  const [fotos, setFotos] = useState<string[]>([])
   const [empresaEndereco, setEmpresaEndereco] = useState<any>({})
   const [estadoId, setEstadoId] = useState<number | null>(null)
   const [estados, setEstados] = useState<{ id: number; uf: string }[]>([])
@@ -234,22 +234,6 @@ export default function NovaVisitaPage() {
     }))
   }
 
-  function addFotoInput() {
-    setFotoInputs(prev => [...prev, ""])
-  }
-
-  function updateFotoInput(index: number, value: string) {
-    setFotoInputs(prev => {
-      const next = [...prev]
-      next[index] = value
-      return next
-    })
-  }
-
-  function removeFotoInput(index: number) {
-    setFotoInputs(prev => prev.filter((_, i) => i !== index))
-  }
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (tipoEntidade === "PESSOA" && !form.empresaId) {
@@ -262,7 +246,6 @@ export default function NovaVisitaPage() {
     }
     setSaving(true)
     try {
-      const fotos = fotoInputs.filter(f => f.trim())
       const res = await fetch("/api/crm/visitas", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -282,7 +265,7 @@ export default function NovaVisitaPage() {
           uf: form.uf || null,
           cep: form.cep || null,
           relato: form.relato || null,
-          fotos: fotos.length > 0 ? fotos : [],
+          fotos: fotos,
         }),
       })
       if (!res.ok) {
@@ -301,7 +284,7 @@ export default function NovaVisitaPage() {
   return (
     <div className="space-y-6 animate-fade-in max-w-2xl">
       <div className="flex items-center gap-3">
-        <Link href="/comercial/crm/visitas" className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+        <Link href="/comercial/crm/visitas" className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
           <ArrowLeft size={18} className="text-slate-500" />
         </Link>
         <div>
@@ -430,7 +413,12 @@ export default function NovaVisitaPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Hora</label>
-              <TimePickerModal value={form.hora} onChange={v => setField("hora", v)} />
+              <input
+                type="time"
+                value={form.hora}
+                onChange={e => setField("hora", e.target.value)}
+                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Tipo</label>
@@ -580,31 +568,8 @@ export default function NovaVisitaPage() {
             />
           </div>
 
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Fotos (URLs)</label>
-              <button type="button" onClick={addFotoInput} className="text-xs text-blue-600 hover:underline flex items-center gap-1">
-                <Plus size={12} /> Adicionar foto
-              </button>
-            </div>
-            <div className="space-y-2">
-              {fotoInputs.map((url, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <input
-                    type="url"
-                    value={url}
-                    onChange={e => updateFotoInput(i, e.target.value)}
-                    placeholder="https://..."
-                    className="flex-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                  {fotoInputs.length > 1 && (
-                    <button type="button" onClick={() => removeFotoInput(i)} className="p-1 text-slate-400 hover:text-red-500">
-                      <X size={14} />
-                    </button>
-                  )}
-                </div>
-              ))}
-            </div>
+          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
+            <PhotoUpload photos={fotos} onPhotosChange={setFotos} />
           </div>
 
           <div className="flex justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">

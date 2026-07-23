@@ -43,7 +43,7 @@ export default function SendSurveyButton({ visitaId, empresaNome }: SendSurveyBu
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1.5 text-xs font-medium text-violet-600 hover:underline"
+        className="flex items-center gap-1.5 text-xs font-medium text-violet-600 hover:underline px-2 py-1.5 rounded-lg min-h-[36px]"
       >
         <Mail size={14} />
         Enviar Pesquisa
@@ -57,7 +57,7 @@ export default function SendSurveyButton({ visitaId, empresaNome }: SendSurveyBu
               <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">
                 Enviar Pesquisa de Satisfacao
               </h2>
-              <button onClick={() => setOpen(false)} className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+              <button onClick={() => setOpen(false)} className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
                 <X size={20} className="text-slate-500" />
               </button>
             </div>
