@@ -153,12 +153,31 @@ export async function POST(req: NextRequest) {
       return clean
     })
 
-    await db.insert(table).values(cleaned)
+    // Filter out rows where required (notNull) fields are missing
+    const notNullFields = new Set<string>()
+    for (const [key, col] of Object.entries(table)) {
+      if (col && typeof col === "object" && "notNull" in col && (col as any).notNull) {
+        notNullFields.add(key)
+      }
+    }
+    const valid = cleaned.filter((row) => {
+      for (const field of notNullFields) {
+        if (row[field] === undefined || row[field] === null || row[field] === "") return false
+      }
+      return true
+    })
+    const skippedNull = cleaned.length - valid.length
+
+    if (valid.length === 0) {
+      return NextResponse.json({ importados: 0, ignorados: mapped.length, message: skippedNull > 0 ? `${skippedNull} registro(s) ignorado(s) por campos obrigatórios vazios` : "Nenhum novo registro para importar" })
+    }
+
+    await db.insert(table).values(valid)
 
     return NextResponse.json({
-      importados: toInsert.length,
-      ignorados: mapped.length - toInsert.length,
-      message: `${toInsert.length} registro(s) importado(s), ${mapped.length - toInsert.length} ignorado(s) (já existentes)`,
+      importados: valid.length,
+      ignorados: mapped.length - valid.length + skippedNull,
+      message: `${valid.length} registro(s) importado(s), ${mapped.length - valid.length + skippedNull} ignorado(s)${skippedNull > 0 ? ` (${skippedNull} com campos vazios)` : ""}`,
     })
   } catch (error) {
     console.error("[POST /api/integracao/importar]", error)
