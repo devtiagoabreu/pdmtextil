@@ -240,7 +240,7 @@ export default function DetalheVisitaPage() {
     )
   }
 
-  const STATUS_OPTIONS = ["AGENDADA", "REALIZADA", "CANCELADA"]
+  const STATUS_OPTIONS = ["AGENDADA", "EM_ANDAMENTO", "REALIZADA", "CANCELADA"]
 
   const userRole = (session?.user as any)?.role
   const userId = session?.user?.id ? parseInt(session.user.id) : null
