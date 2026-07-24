@@ -88,6 +88,7 @@ export default function EmailMassaPage() {
   const editorRef = useRef<HTMLDivElement>(null)
   const savedRange = useRef<Range | null>(null)
   const [assunto, setAssunto] = useState("")
+  const [preheader, setPreheader] = useState("")
   const [para, setPara] = useState("todos")
   const [modoEnvio, setModoEnvio] = useState("bcc")
   const [selectedListaIds, setSelectedListaIds] = useState<number[]>([])
@@ -415,7 +416,7 @@ export default function EmailMassaPage() {
 
     setSending(true)
     try {
-      const body: any = { para, assunto, html, modo_envio: modoEnvio, remetente }
+      const body: any = { para, assunto, html, modo_envio: modoEnvio, remetente, preheader }
       if (para === "lista") body.listas = selectedListaIds
 
       const res = await fetch("/api/admin/email-massa", {
@@ -539,7 +540,7 @@ export default function EmailMassaPage() {
     try {
       const body: any = {
         nome: agendadoForm.nome || assunto,
-        para, assunto, html, listas: para === "lista" ? selectedListaIds : null,
+        para, assunto, preheader, html, listas: para === "lista" ? selectedListaIds : null,
         modoEnvio, remetente, agendadoPara: agendadoForm.agendadoPara || null, status,
       }
       const url = editAgendado ? `/api/admin/email-massa/agendados/${editAgendado.id}` : "/api/admin/email-massa/agendados"
@@ -559,6 +560,7 @@ export default function EmailMassaPage() {
   const carregarAgendado = (a: Agendado) => {
     setEditAgendado(a)
     setAssunto(a.assunto)
+    setPreheader(a.preheader || "")
     setPara(a.para)
     setModoEnvio(a.modoEnvio || "bcc")
     setRemetente(a.remetente || "sistema")
@@ -609,6 +611,7 @@ export default function EmailMassaPage() {
 
   const usarModelo = (m: Modelo) => {
     setAssunto(m.assunto)
+    setPreheader("")
     setActiveTab("enviar")
     setTimeout(() => {
       if (editorRef.current) {
@@ -843,6 +846,12 @@ export default function EmailMassaPage() {
                 <div className="flex flex-col space-y-2">
                   <Label>Assunto</Label>
                   <Input value={assunto} onChange={e => setAssunto(e.target.value)} placeholder="Assunto do email" />
+                </div>
+
+                <div className="flex flex-col space-y-2">
+                  <Label>Texto de Preview (opcional)</Label>
+                  <Input value={preheader} onChange={e => setPreheader(e.target.value)} placeholder="Texto que aparece após o assunto na caixa de entrada" maxLength={150} />
+                  <p className="text-xs text-slate-400">Texto curto que aparece após o assunto no cliente de email. Máx. 150 caracteres.</p>
                 </div>
 
                 {para === "lista" && (

@@ -40,6 +40,15 @@ function aplicarTracking(html: string, trackingId: string, baseUrl: string): str
   return resultado
 }
 
+function injectPreheader(html: string, preheader: string): string {
+  if (!preheader) return html
+  const tag = `<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;font-size:1px;line-height:1px;color:#ffffff;" aria-hidden="true">${preheader}&zwnj;&nbsp;</div>`
+  if (html.includes("<body")) {
+    return html.replace(/<body([^>]*)>/i, `<body$1>${tag}`)
+  }
+  return tag + html
+}
+
 export async function POST(req: NextRequest) {
   try {
     const authHeader = req.headers.get("authorization")
@@ -84,10 +93,11 @@ export async function POST(req: NextRequest) {
 
         const remessaId = crypto.randomUUID()
         let enviados = 0
+        const htmlWithPreheader = injectPreheader(agendado.html, agendado.preheader || "")
 
         if (agendado.modoEnvio === "bcc") {
           const trackingId = crypto.randomUUID()
-          const comTracking = aplicarTracking(agendado.html, trackingId, baseUrl)
+          const comTracking = aplicarTracking(htmlWithPreheader, trackingId, baseUrl)
           const result = await enviarEmailFn({ to: destinatarios[0].email, subject: agendado.assunto, html: comTracking, bcc: destinatarios.slice(1).map(d => d.email) })
           if (result.sent > 0) {
             enviados = destinatarios.length
@@ -99,7 +109,7 @@ export async function POST(req: NextRequest) {
         } else {
           for (const d of destinatarios) {
             const trackingId = crypto.randomUUID()
-            const personalizado = agendado.html.replace(/\[NOME\]/g, agendado.modoEnvio === "individual" ? d.nome : "Cliente")
+            const personalizado = htmlWithPreheader.replace(/\[NOME\]/g, agendado.modoEnvio === "individual" ? d.nome : "Cliente")
             const comTracking = aplicarTracking(personalizado, trackingId, baseUrl)
             const result = await enviarEmailFn({ to: d.email, subject: agendado.assunto, html: comTracking })
             await db.insert(emailEnviados).values({ remessaId, email: d.email, nome: d.nome, assunto: agendado.assunto, status: result.sent > 0 ? "enviado" : "falhou", trackingId, error: result.sent > 0 ? undefined : result.error })

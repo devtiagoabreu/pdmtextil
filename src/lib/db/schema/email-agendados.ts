@@ -6,6 +6,7 @@ export const emailAgendados = pgTable("email_agendados", {
   nome: varchar("nome", { length: 255 }).notNull().default(""),
   para: varchar("para", { length: 50 }).notNull(),
   assunto: varchar("assunto", { length: 500 }).notNull().default(""),
+  preheader: varchar("preheader", { length: 255 }).default(""),
   html: text("html").notNull().default(""),
   listas: json("listas").$type<number[]>(),
   modoEnvio: varchar("modo_envio", { length: 20 }).default("bcc"),

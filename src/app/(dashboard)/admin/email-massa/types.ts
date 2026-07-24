@@ -70,6 +70,7 @@ export interface Agendado {
   nome: string
   para: string
   assunto: string
+  preheader: string | null
   html: string
   listas: number[] | null
   modoEnvio: string | null

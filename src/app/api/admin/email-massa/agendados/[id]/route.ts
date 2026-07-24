@@ -14,12 +14,13 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
     const id = Number(params.id)
     const body = await req.json()
-    const { nome, para, assunto, html, listas, modoEnvio, remetente, agendadoPara, status } = body
+    const { nome, para, assunto, html, listas, modoEnvio, remetente, agendadoPara, status, preheader } = body
 
     const updates: Record<string, any> = { updatedAt: new Date() }
     if (nome !== undefined) updates.nome = nome
     if (para !== undefined) updates.para = para
     if (assunto !== undefined) updates.assunto = assunto
+    if (preheader !== undefined) updates.preheader = preheader
     if (html !== undefined) updates.html = html
     if (listas !== undefined) updates.listas = listas
     if (modoEnvio !== undefined) updates.modoEnvio = modoEnvio
