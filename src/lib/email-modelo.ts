@@ -205,7 +205,7 @@ export function modeloToHtml(stored: string): string {
           free: " position:absolute;",
         }
         const ps = posStyles[b.p ?? "inline"] ?? ""
-        return `<div contenteditable="false" class="resizable-image" style="${ps}width:fit-content"><img src="${b.s || ""}" alt="${b.a || ""}" style="max-width:100%"></div>`
+        return `<div contenteditable="false" class="resizable-image" style="${ps}width:fit-content;position:relative;overflow:visible"><img src="${b.s || ""}" alt="${b.a || ""}" style="max-width:100%" /><span class="resize-handle" style="position:absolute;bottom:-4px;right:-4px;width:14px;height:14px;background:#3b82f6;border:2px solid white;border-radius:2px;cursor:nwse-resize;display:block;z-index:10;box-shadow:0 1px 3px rgba(0,0,0,0.3)"></span></div>`
       }
 
       if (b.t === "hr") return "<hr>"
