@@ -217,9 +217,10 @@ export default function EmailMassaPage() {
       editorRef.current.focus()
       document.execCommand("insertHTML", false,
         `<div contenteditable="false" class="resizable-image" ` +
-        `style="display:inline-block;resize:both;overflow:hidden;max-width:100%;` +
-        `border:1px dashed #94a3b8;padding:3px;margin:4px 0;line-height:0">` +
+        `style="display:inline-block;overflow:visible;max-width:100%;` +
+        `border:1px dashed #94a3b8;padding:3px;margin:4px 0;line-height:0;position:relative">` +
         `<img src="${imageUrl}" style="display:block;width:100%;height:auto;pointer-events:none" alt="" />` +
+        `<span class="resize-handle" style="position:absolute;bottom:-4px;right:-4px;width:14px;height:14px;background:#3b82f6;border:2px solid white;border-radius:2px;cursor:nwse-resize;display:block;z-index:10;box-shadow:0 1px 3px rgba(0,0,0,0.3)"></span>` +
         `</div>`
       )
       setImageDialogOpen(false)
@@ -242,6 +243,7 @@ export default function EmailMassaPage() {
 
   const handleEditorMouseUp = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement
+    if (target.closest(".resize-handle")) return
     const container = target.closest(".resizable-image") as HTMLElement | null
     if (container && editorRef.current) {
       setSelectedImageEl(container)
@@ -334,6 +336,45 @@ export default function EmailMassaPage() {
     el.addEventListener("mousedown", onMouseDown)
     return () => el.removeEventListener("mousedown", onMouseDown)
   }, [selectedImageEl])
+
+  useEffect(() => {
+    const editor = editorRef.current
+    if (!editor) return
+
+    const onMouseDown = (e: MouseEvent) => {
+      const handle = (e.target as HTMLElement).closest?.(".resize-handle") as HTMLElement | null
+      if (!handle) return
+      const container = handle.closest(".resizable-image") as HTMLElement | null
+      if (!container) return
+      e.preventDefault()
+      e.stopPropagation()
+
+      const img = container.querySelector("img") as HTMLImageElement | null
+      const startW = container.offsetWidth
+      const startX = e.clientX
+
+      const onMove = (ev: MouseEvent) => {
+        const dx = ev.clientX - startX
+        const newW = Math.max(40, startW + dx)
+        container.style.width = `${newW}px`
+        if (img) {
+          img.style.width = "100%"
+          img.style.height = "auto"
+        }
+      }
+
+      const onUp = () => {
+        document.removeEventListener("mousemove", onMove)
+        document.removeEventListener("mouseup", onUp)
+      }
+
+      document.addEventListener("mousemove", onMove)
+      document.addEventListener("mouseup", onUp)
+    }
+
+    editor.addEventListener("mousedown", onMouseDown)
+    return () => editor.removeEventListener("mousedown", onMouseDown)
+  }, [])
 
   const openColorPicker = useCallback((mode: "fore" | "back") => {
     const sel = window.getSelection()
