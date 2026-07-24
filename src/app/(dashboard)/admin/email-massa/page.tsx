@@ -282,8 +282,14 @@ export default function EmailMassaPage() {
       const rect = selectedImageEl.getBoundingClientRect()
       const editorRect = editorRef.current?.getBoundingClientRect()
       if (editorRect) {
-        selectedImageEl.style.left = `${rect.left - editorRect.left}px`
-        selectedImageEl.style.top = `${rect.top - editorRect.top}px`
+        const maxW = editorRect.width * 0.6
+        const curW = rect.width
+        if (curW > maxW) {
+          selectedImageEl.style.width = `${maxW}px`
+        }
+        const newRect = selectedImageEl.getBoundingClientRect()
+        selectedImageEl.style.left = `${newRect.left - editorRect.left}px`
+        selectedImageEl.style.top = `${newRect.top - editorRect.top}px`
       }
     }
   }, [selectedImageEl])
@@ -337,43 +343,37 @@ export default function EmailMassaPage() {
     return () => el.removeEventListener("mousedown", onMouseDown)
   }, [selectedImageEl])
 
-  useEffect(() => {
-    const editor = editorRef.current
-    if (!editor) return
+  const handleEditorMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement
+    const handle = target.closest?.(".resize-handle") as HTMLElement | null
+    if (!handle) return
+    const container = handle.closest(".resizable-image") as HTMLElement | null
+    if (!container) return
+    e.preventDefault()
+    e.stopPropagation()
+    e.nativeEvent.stopImmediatePropagation()
 
-    const onMouseDown = (e: MouseEvent) => {
-      const handle = (e.target as HTMLElement).closest?.(".resize-handle") as HTMLElement | null
-      if (!handle) return
-      const container = handle.closest(".resizable-image") as HTMLElement | null
-      if (!container) return
-      e.preventDefault()
-      e.stopPropagation()
+    const img = container.querySelector("img") as HTMLImageElement | null
+    const startW = container.offsetWidth
+    const startX = e.clientX
 
-      const img = container.querySelector("img") as HTMLImageElement | null
-      const startW = container.offsetWidth
-      const startX = e.clientX
-
-      const onMove = (ev: MouseEvent) => {
-        const dx = ev.clientX - startX
-        const newW = Math.max(40, startW + dx)
-        container.style.width = `${newW}px`
-        if (img) {
-          img.style.width = "100%"
-          img.style.height = "auto"
-        }
+    const onMove = (ev: MouseEvent) => {
+      const dx = ev.clientX - startX
+      const newW = Math.max(40, startW + dx)
+      container.style.width = `${newW}px`
+      if (img) {
+        img.style.width = "100%"
+        img.style.height = "auto"
       }
-
-      const onUp = () => {
-        document.removeEventListener("mousemove", onMove)
-        document.removeEventListener("mouseup", onUp)
-      }
-
-      document.addEventListener("mousemove", onMove)
-      document.addEventListener("mouseup", onUp)
     }
 
-    editor.addEventListener("mousedown", onMouseDown)
-    return () => editor.removeEventListener("mousedown", onMouseDown)
+    const onUp = () => {
+      document.removeEventListener("mousemove", onMove)
+      document.removeEventListener("mouseup", onUp)
+    }
+
+    document.addEventListener("mousemove", onMove)
+    document.addEventListener("mouseup", onUp)
   }, [])
 
   const openColorPicker = useCallback((mode: "fore" | "back") => {
@@ -1009,6 +1009,7 @@ export default function EmailMassaPage() {
                       contentEditable
                       suppressContentEditableWarning
                       onMouseUp={handleEditorMouseUp}
+                      onMouseDown={handleEditorMouseDown}
                       className="w-full min-h-[600px] p-6 bg-white dark:bg-slate-700 text-slate-950 dark:text-white focus:outline-none overflow-y-auto"
                       style={{ fontFamily: "Arial, sans-serif", lineHeight: "1.8", fontSize: "15px" }}
                       data-placeholder="Escreva o conteúdo do email aqui..."
