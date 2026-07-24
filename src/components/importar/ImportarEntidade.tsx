@@ -210,9 +210,9 @@ export function ImportarEntidade({ config, onImportado, buttonVariant = "default
                     </div>
                   ) : null}
 
-                  <div className="space-y-2">
+                  <div className="relative flex flex-col gap-2">
                     <label className="text-sm font-medium">Selecionar arquivo (CSV ou JSON)</label>
-                    <input ref={fileInputRef} type="file" accept=".csv,.json" onChange={handleFileChange} className="hidden" />
+                    <input ref={fileInputRef} type="file" accept=".csv,.json" onChange={handleFileChange} className="absolute w-0 h-0 overflow-hidden opacity-0" />
                     <button
                       onClick={() => fileInputRef.current?.click()}
                       className="w-full rounded-lg border-2 border-dashed border-slate-300 dark:border-slate-600 p-6 text-center hover:border-blue-500 hover:bg-slate-50 dark:hover:bg-slate-800"
