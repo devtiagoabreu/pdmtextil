@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
     const body = await req.json()
-    const { nome, para, assunto, html, listas, modoEnvio, remetente, agendadoPara, status } = body
+    const { nome, para, assunto, html, listas, modoEnvio, remetente, agendadoPara, status, preheader } = body
 
     if (!para || !assunto || !html) {
       return NextResponse.json({ error: "para, assunto e html são obrigatórios" }, { status: 400 })
@@ -40,6 +40,7 @@ export async function POST(req: NextRequest) {
       nome: nome || "",
       para,
       assunto,
+      preheader: preheader || "",
       html,
       listas: listas || null,
       modoEnvio: modoEnvio || "bcc",

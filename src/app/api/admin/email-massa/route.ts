@@ -106,6 +106,15 @@ function aplicarTracking(html: string, trackingId: string, baseUrl: string): str
   return resultado
 }
 
+function injectPreheader(html: string, preheader: string): string {
+  if (!preheader) return html
+  const tag = `<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;font-size:1px;line-height:1px;color:#ffffff;" aria-hidden="true">${preheader}&zwnj;&nbsp;</div>`
+  if (html.includes("<body")) {
+    return html.replace(/<body([^>]*)>/i, `<body$1>${tag}`)
+  }
+  return tag + html
+}
+
 async function registrarEnvio(params: {
   listaId?: number
   remessaId?: string
@@ -140,11 +149,15 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json()
-    const { para, assunto, html, listas, modo_envio, remetente } = body
+    const { para, assunto, html, listas, modo_envio, remetente, preheader } = body
 
     if (!para || !assunto || !html) {
       return NextResponse.json({ error: "Para, assunto e conteúdo são obrigatórios" }, { status: 400 })
     }
+
+    const preheaderHtml = preheader
+      ? `<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;" aria-hidden="true">${preheader}</div>`
+      : ""
 
     if (para === "lista" && (!listas || listas.length === 0)) {
       return NextResponse.json({ error: "Selecione pelo menos uma lista" }, { status: 400 })
@@ -183,11 +196,13 @@ export async function POST(req: NextRequest) {
           sendEmailAsUser({ ...params, userConfig: userSmtpConfig! })
       : sendEmail
 
+    const htmlWithPreheader = injectPreheader(html, preheader || "")
+
     if (modo_envio === "individual") {
       for (const d of destinatarios) {
         total++
         const trackingId = crypto.randomUUID()
-        const personalizado = html.replace(/\[NOME\]/g, d.nome)
+        const personalizado = htmlWithPreheader.replace(/\[NOME\]/g, d.nome)
         const comTracking = aplicarTracking(personalizado, trackingId, baseUrl)
         const result = await enviarEmailFn({ to: d.email, subject: assunto, html: comTracking })
         if (result.sent > 0) {
@@ -215,7 +230,7 @@ export async function POST(req: NextRequest) {
         }
       }
     } else {
-      const personalizado = html.replace(/\[NOME\]/g, "Cliente")
+      const personalizado = htmlWithPreheader.replace(/\[NOME\]/g, "Cliente")
       total = destinatarios.length
 
       if (modo_envio === "bcc") {
