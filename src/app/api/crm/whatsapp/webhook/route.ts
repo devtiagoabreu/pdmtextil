@@ -43,9 +43,9 @@ async function criarLeadWhatsApp(remoteJid: string, mensagem: string) {
 
 export async function POST(req: NextRequest) {
   try {
-    const webhookSecret = process.env.WHATSAPP_WEBHOOK_SECRET
+    const webhookSecret = process.env.PDM_WEBHOOK_SECRET
     if (!webhookSecret) {
-      console.error("[POST /api/crm/whatsapp/webhook] WHATSAPP_WEBHOOK_SECRET não configurado")
+      console.error("[POST /api/crm/whatsapp/webhook] PDM_WEBHOOK_SECRET não configurado")
       return NextResponse.json({ error: "Webhook não configurado" }, { status: 500 })
     }
     const authHeader = req.headers.get("authorization")

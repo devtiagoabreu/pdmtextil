@@ -1,18 +1,9 @@
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
-import { pgTable, serial, varchar, jsonb, timestamp } from "drizzle-orm/pg-core"
 import { eq, sql } from "drizzle-orm"
 import { crmLeads } from "@/lib/db/schema/crm-leads"
 import { crmWhatsappMensagens } from "@/lib/db/schema/crm-whatsapp"
-
-const crmWhatsappConversas = pgTable("crm_whatsapp_conversas", {
-  id: serial("id").primaryKey(),
-  remoteJid: varchar("remote_jid", { length: 255 }).notNull().unique(),
-  estado: varchar("estado", { length: 50 }).notNull().default("SAUDACAO"),
-  dados: jsonb("dados").$type<Record<string, any>>().default({}),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-})
+import { crmWhatsappConversas } from "@/lib/db/schema/crm-whatsapp-conversas"
 
 function extrairNumero(remoteJid: string): string {
   return remoteJid.replace(/@s\.whatsapp\.net$/, "").replace(/\D/g, "")
