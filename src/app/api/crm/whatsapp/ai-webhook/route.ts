@@ -277,7 +277,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
-    const body: EvolutionWebhookBody = await req.json()
+    const rawText = await req.text()
+    let body: EvolutionWebhookBody
+    try {
+      body = JSON.parse(rawText)
+    } catch {
+      try {
+        const decoded = Buffer.from(rawText, "base64").toString("utf-8")
+        body = JSON.parse(decoded)
+      } catch {
+        await logStep(executionId, remoteJidGlobal, pushNameGlobal, "extract", "error", { rawTextLen: rawText.length, rawPreview: rawText.substring(0, 100) }, {}, "Failed to parse body (JSON or base64)", 0)
+        return NextResponse.json({ error: "Invalid body" }, { status: 400 })
+      }
+    }
 
     const pushName = body.data?.pushName || body.pushName || ""
     const remoteJid = body.data?.key?.remoteJid || body.remoteJid || body.sender || ""

@@ -1,0 +1,1 @@
+{"webhook":{"url":"https://pdmprotextil.vercel.app/api/crm/whatsapp/ai-webhook","headers":{"Authorization":"Bearer PDM_WEBHOOK_SECRET_PARANGARICUTIRIMIRRUARO"},"enabled":true,"events":["MESSAGES_UPSERT"],"webhookByEvents":true,"webhookBase64":false}}
