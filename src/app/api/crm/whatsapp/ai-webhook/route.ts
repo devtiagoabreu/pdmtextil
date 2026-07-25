@@ -5,7 +5,8 @@ import { crmWhatsappMensagens } from "@/lib/db/schema/crm-whatsapp"
 import { crmLeads } from "@/lib/db/schema/crm-leads"
 import { crmNotificacoes } from "@/lib/db/schema/crm-notificacoes"
 import { crmWhatsappFlowLogs } from "@/lib/db/schema/crm-whatsapp-flow-logs"
-import { eq, sql, desc } from "drizzle-orm"
+import { crmWhatsAppCatalogos } from "@/lib/db/schema/crm-whatsapp-catalogos"
+import { eq, sql, desc, and } from "drizzle-orm"
 import { enviarMensagem, evolutionConfigurado } from "@/lib/evolution-api"
 import crypto from "crypto"
 
@@ -21,19 +22,22 @@ const SYSTEM_PROMPT = `Voce e o assistente de vendas virtual da Pro Moda Textil,
 FLUXO DA CONVERSA:
 Estado SAUDACAO: Apresente-se e pergunte "Qual o seu nome?".
 Estado COLETANDO_NOME: Extraia apenas o nome proprio do usuario (ex: se ele disser "Meu nome e Tiago", registre apenas "Tiago"). Confirme: "Prazer em te conhecer, [NOME]!".
-Estado COLETANDO_INTERESSE: Informe que todas as linhas sao de tecidos planos e pergunte em qual linha ele tem interesse. Use lista numerada:
-"Todas as nossas linhas sao de tecidos planos. Qual dessas mais te interessa hoje?
+Estado COLETANDO_DOC: Pergunte "Voce e pessoa fisica ou juridica? Digite:
+1 - Pessoa Fisica (PF)
+2 - Pessoa Juridica (PJ)"
+Depois, informe o seu CPF ou CNPJ.
+Estado COLETANDO_INTERESSE: Informe que todas as linhas sao de tecidos planos e pergunte em qual linha ele tem interesse. O cliente pode escolher UMA ou MAIS linhas separadas por virgula. Use lista numerada:
+"Todas as nossas linhas sao de tecidos planos. Qual delas te interessa? Voce pode escolher mais de uma, separando por virgula (ex: 1,3).
 1 - Linha Lencol
 2 - Linha Hospitalar (lencois e campos)
 3 - Tecidos para Lateral de Colchao
 4 - Tecidos Rusticos e Decoracao
 5 - Movelaria e Forros"
-Estado COLETANDO_DOC: Pergunte "Voce e pessoa fisica ou juridica? Digite:
-1 - Pessoa Fisica (PF)
-2 - Pessoa Juridica (PJ)"
-Depois, informe o seu CPF ou CNPJ.
-Estado CONFIRMACAO: Mostre o resumo dos dados e da linha de interesse. Pergunte "Esta correto? Digite SIM para confirmar."
-Estado ENCERRADO: Informe "Seu contato foi direcionado para um representante comercial, que entrara em contato em ate 10 min." Agradeca.
+Quando o cliente responder, confirme as linhas escolhidas: "Otimo! Voce tem interesse nas linhas: [LINHAS]. Vou enviar os links do catalogo para voce conferir!".
+Estado CONFIRMACAO: Mostre o resumo dos dados (nome, documento, tipo pessoa) e da(s) linha(s) de interesse. Pergunte "Esta correto? Digite SIM para confirmar."
+Estado ENCERRADO: Informe que os links do catalogo foram enviados acima e que um representante comercial entrara em contato em ate 10 min. Agradeca.
+
+IMPORTANTE: Apos a CONFIRMACAO com SIM, o sistema automaticamente envia os links do catalogo das linhas escolhidas. Voce so precisa informar "Aqui estao os catalogos das linhas que voce escolheu!" e os links serao enviados em seguida.
 
 CONTEXTO:
 - Cliente: {{pushName}}
@@ -49,13 +53,14 @@ REGRAS OBRIGATORIAS - O QUE VOCE DEVE FAZER:
 - Deixe claro que todas as linhas sao de tecidos planos.
 - Para PF colete: nome, CPF, tipoPessoa=PF.
 - Para PJ colete: nome, CNPJ, tipoPessoa=PJ.
+- No estado COLETANDO_INTERESSE, aceite multiplas opcoes separadas por virgula (ex: "1,2,4").
 
 REGRAS OBRIGATORIAS - O QUE VOCE NAO PODE FAZER:
 - NAO use emojis em hipotese alguma.
 - NAO invente informacoes sobre produtos, precos ou prazos.
 - NAO responda sobre assuntos fora do escopo de vendas e atendimento.
 - NAO compartilhe dados de outros clientes.
-- NAO faça promessas de entrega ou estoque.
+- NAO faca promessas de entrega ou estoque.
 - NAO use linguagem tecnica ou formal demais.
 - NAO envie mais de uma mensagem por vez.
 - NAO repita a pergunta ja feita.
@@ -122,11 +127,30 @@ function confirmou(texto: string): boolean {
   return /\b(sim|s|ss|claro|ok|confirmo|correto|certo)\b/.test(texto)
 }
 
+const LINHA_MAP: Record<number, string> = {
+  1: "Linha Lencol",
+  2: "Linha Hospitalar",
+  3: "Tecidos Lateral Colchao",
+  4: "Tecidos Rusticos e Decoracao",
+  5: "Movelaria e Forros",
+}
+
+function parseLinhas(texto: string): number[] {
+  const nums = texto.match(/\d/g)
+  if (!nums) return []
+  return [...new Set(nums.map(Number))].filter((n) => n >= 1 && n <= 5).sort()
+}
+
+function linhasNomes(nums: number[]): string {
+  return nums.map((n) => `${n} - ${LINHA_MAP[n]}`).join(", ")
+}
+
 interface MaquinaEstadoResult {
   nextEstado: string
   dados: Record<string, any>
   resposta?: string
   finalizado: boolean
+  enviarCatalogo?: number[]
 }
 
 function maquinaEstados(
@@ -138,6 +162,7 @@ function maquinaEstados(
   const msg = msgOriginal.toLowerCase().trim()
   let nextEstado = curEstado
   const dados = JSON.parse(JSON.stringify(curDados))
+  let enviarCatalogo: number[] | undefined
 
   if (curEstado === "SAUDACAO") {
     nextEstado = "COLETANDO_NOME"
@@ -156,18 +181,26 @@ function maquinaEstados(
       dados.nome = msgOriginal
     }
     if (dados.documento || dados.tipoPessoa) {
+      nextEstado = "COLETANDO_INTERESSE"
+    }
+  } else if (curEstado === "COLETANDO_INTERESSE") {
+    const linhas = parseLinhas(msgOriginal)
+    if (linhas.length > 0) {
+      dados.linhasInteresse = linhas
+      dados.linhasInteresseNomes = linhasNomes(linhas)
       nextEstado = "CONFIRMACAO"
     }
   } else if (curEstado === "CONFIRMACAO") {
     if (confirmou(msg)) {
       nextEstado = "ENCERRADO"
       dados.finalizado = true
+      enviarCatalogo = dados.linhasInteresse || []
     }
   } else if (curEstado === "ENCERRADO") {
     dados.finalizado = true
   }
 
-  return { nextEstado, dados, finalizado: !!dados.finalizado }
+  return { nextEstado, dados, finalizado: !!dados.finalizado, enviarCatalogo }
 }
 
 async function chamarGroq(
@@ -387,10 +420,10 @@ export async function POST(req: NextRequest) {
     await logStep(executionId, remoteJid, pushName, "groq_call", groqError ? "error" : "success", { model: process.env.GROQ_MODEL || "llama-3.3-70b-versatile", estado: conversa.estado, historicoSize: historico.length, userMessage: mensagem.substring(0, 100) }, { response: aiResponse.substring(0, 200) }, groqError ? "Groq returned error message" : null, groqDuration)
 
     const tState = Date.now()
-    const { nextEstado, dados, finalizado } = maquinaEstados(conversa.estado, conversa.dados || {}, mensagem, aiResponse)
+    const { nextEstado, dados, finalizado, enviarCatalogo } = maquinaEstados(conversa.estado, conversa.dados || {}, mensagem, aiResponse)
     const stateDuration = Date.now() - tState
 
-    await logStep(executionId, remoteJid, pushName, "state_machine", "success", { curEstado: conversa.estado, msg: mensagem.substring(0, 100) }, { nextEstado, dados, finalizado }, null, stateDuration)
+    await logStep(executionId, remoteJid, pushName, "state_machine", "success", { curEstado: conversa.estado, msg: mensagem.substring(0, 100) }, { nextEstado, dados, finalizado, enviarCatalogo }, null, stateDuration)
 
     const tSave = Date.now()
     await db.insert(crmWhatsappMensagens).values({ mensagem, tipo: "RECEBIDA", status: "RECEBIDA", remoteJid })
@@ -422,6 +455,47 @@ export async function POST(req: NextRequest) {
 
     let leadCriado = null
 
+    if (enviarCatalogo && enviarCatalogo.length > 0 && evolutionConfigurado()) {
+      const tCat = Date.now()
+      try {
+        const catalogos = await db
+          .select()
+          .from(crmWhatsAppCatalogos)
+          .where(
+            and(
+              eq(crmWhatsAppCatalogos.ativo, true),
+              sql`${crmWhatsAppCatalogos.linhaNumero} IN ${enviarCatalogo}`
+            )
+          )
+          .orderBy(crmWhatsAppCatalogos.linhaNumero, crmWhatsAppCatalogos.titulo)
+
+        if (catalogos.length > 0) {
+          const linhasAgrupadas: Record<number, typeof catalogos> = {}
+          for (const cat of catalogos) {
+            if (!linhasAgrupadas[cat.linhaNumero]) linhasAgrupadas[cat.linhaNumero] = []
+            linhasAgrupadas[cat.linhaNumero].push(cat)
+          }
+
+          for (const [linhaNum, cats] of Object.entries(linhasAgrupadas)) {
+            const linhaNome = cats[0]?.linhaNome || `Linha ${linhaNum}`
+            const linhas = [
+              `*Catalogo - ${linhaNome}*`,
+              "",
+              ...cats.map((c) => `*${c.titulo}*\n${c.descricao || ""}\n${c.linkUrl}`),
+            ].join("\n")
+            await enviarMensagem(remoteJid, linhas)
+          }
+
+          await logStep(executionId, remoteJid, pushName, "send_catalog", "success", { linhas: enviarCatalogo, totalCatalogos: catalogos.length }, { catalogosEnviados: true }, null, Date.now() - tCat)
+        } else {
+          await logStep(executionId, remoteJid, pushName, "send_catalog", "empty", { linhas: enviarCatalogo }, { catalogosEnviados: false, reason: "no_active_catalogs" }, null, Date.now() - tCat)
+        }
+      } catch (catErr) {
+        console.error("[AI-Webhook] Erro ao enviar catalogos:", catErr)
+        await logStep(executionId, remoteJid, pushName, "send_catalog", "error", { linhas: enviarCatalogo }, {}, catErr instanceof Error ? catErr.message : "Unknown error", Date.now() - tCat)
+      }
+    }
+
     if (finalizado && dados.nome) {
       const existing = await db
         .select({ id: crmLeads.id })
@@ -436,6 +510,7 @@ export async function POST(req: NextRequest) {
         const descricaoParts: string[] = []
         if (dados.documento) descricaoParts.push(`Documento: ${dados.documento}`)
         if (dados.tipoPessoa) descricaoParts.push(`Tipo: ${dados.tipoPessoa}`)
+        if (dados.linhasInteresseNomes) descricaoParts.push(`Interesse: ${dados.linhasInteresseNomes}`)
         descricaoParts.push("Lead finalizado via WhatsApp")
 
         const [novo] = await db
@@ -464,6 +539,7 @@ export async function POST(req: NextRequest) {
           `Telefone: ${numero}`,
           `Tipo: ${dados.tipoPessoa === "PJ" ? "Pessoa Juridica" : "Pessoa Fisica"}`,
           `Documento: ${dados.documento || "Nao informado"}`,
+          dados.linhasInteresseNomes ? `Interesse: ${dados.linhasInteresseNomes}` : "",
           "",
           "Dados capturados pelo atendente automatico.",
         ].join("\n")
