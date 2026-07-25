@@ -264,7 +264,14 @@ export async function POST(req: NextRequest) {
     const querySecret = req.nextUrl.searchParams.get("secret")
     const authValid = authHeader === `Bearer ${webhookSecret}` || querySecret === webhookSecret
 
-    await logStep(executionId, remoteJidGlobal, pushNameGlobal, "auth", authValid ? "success" : "error", { method: authHeader ? "bearer" : "query" }, { valid: authValid }, authValid ? null : "Unauthorized", 0)
+    await logStep(executionId, remoteJidGlobal, pushNameGlobal, "auth", authValid ? "success" : "error", {
+      method: authHeader ? "bearer" : "query",
+      querySecretLen: querySecret?.length || 0,
+      querySecretLast4: querySecret?.slice(-4) || "",
+      envSecretLen: webhookSecret.length,
+      envSecretLast4: webhookSecret.slice(-4),
+      fullUrl: req.nextUrl.pathname + "?" + req.nextUrl.searchParams.toString(),
+    }, { valid: authValid }, authValid ? null : "Unauthorized", 0)
 
     if (!authValid) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
