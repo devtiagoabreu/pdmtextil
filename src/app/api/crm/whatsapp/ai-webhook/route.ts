@@ -248,9 +248,10 @@ async function logStep(
 }
 
 export async function POST(req: NextRequest) {
-  const executionId = crypto.randomUUID()
-  const remoteJidGlobal = ""
-  const pushNameGlobal = ""
+  let executionId = "no-exec"
+  let remoteJidGlobal = ""
+  let pushNameGlobal = ""
+  try { executionId = crypto.randomUUID() } catch { executionId = `fallback-${Date.now()}` }
 
   try {
     const webhookSecret = process.env.PDM_WEBHOOK_SECRET
@@ -474,8 +475,10 @@ export async function POST(req: NextRequest) {
       executionId,
     })
   } catch (error) {
-    console.error("[AI-Webhook] Erro:", error)
-    await logStep(executionId, remoteJidGlobal, pushNameGlobal, "unknown", "error", {}, {}, error instanceof Error ? error.message : "Unknown error", 0)
-    return NextResponse.json({ error: "Erro interno" }, { status: 500 })
+    const errMsg = error instanceof Error ? error.message : "Unknown error"
+    const errStack = error instanceof Error ? error.stack : ""
+    console.error("[AI-Webhook] Erro:", errMsg, errStack)
+    await logStep(executionId, remoteJidGlobal, pushNameGlobal, "unknown", "error", {}, {}, errMsg, 0)
+    return NextResponse.json({ error: "Erro interno", detail: errMsg }, { status: 500 })
   }
 }

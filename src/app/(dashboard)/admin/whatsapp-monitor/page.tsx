@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
@@ -176,6 +176,9 @@ export default function WhatsAppMonitorPage() {
   const [activeStep, setActiveStep] = useState<string | null>(null)
   const [expandedExecutions, setExpandedExecutions] = useState<Set<string>>(new Set())
 
+  const autoRefreshRef = useRef(false)
+  autoRefreshRef.current = autoRefresh
+
   const fetchExecutions = useCallback(async () => {
     try {
       const params = new URLSearchParams()
@@ -188,7 +191,9 @@ export default function WhatsAppMonitorPage() {
       const data = await res.json()
       setExecutions(data.executions || [])
     } catch {
-      toast.error("Erro ao carregar execuções")
+      if (!autoRefreshRef.current) {
+        toast.error("Erro ao carregar execuções")
+      }
     } finally {
       setLoading(false)
     }

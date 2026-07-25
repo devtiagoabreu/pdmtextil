@@ -65,7 +65,7 @@ export async function GET(req: NextRequest) {
     const allSteps = await db
       .select()
       .from(crmWhatsappFlowLogs)
-      .where(sql`${crmWhatsappFlowLogs.executionId} IN ${sql.join(executionIds.map((id) => sql`${id}`), sql`, `)}`)
+      .where(sql`${crmWhatsappFlowLogs.executionId} IN (${sql.join(executionIds.map((id) => sql`${id}`), sql`, `)})`)
       .orderBy(crmWhatsappFlowLogs.createdAt)
 
     const stepsByExecution = new Map<string, typeof allSteps>()
