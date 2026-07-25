@@ -4,8 +4,10 @@ import { crmWhatsappConversas } from "@/lib/db/schema/crm-whatsapp-conversas"
 import { crmWhatsappMensagens } from "@/lib/db/schema/crm-whatsapp"
 import { crmLeads } from "@/lib/db/schema/crm-leads"
 import { crmNotificacoes } from "@/lib/db/schema/crm-notificacoes"
+import { crmWhatsappFlowLogs } from "@/lib/db/schema/crm-whatsapp-flow-logs"
 import { eq, sql, desc } from "drizzle-orm"
 import { enviarMensagem, evolutionConfigurado } from "@/lib/evolution-api"
+import crypto from "crypto"
 
 export const dynamic = "force-dynamic"
 
@@ -217,7 +219,39 @@ async function chamarGroq(
   return data.choices?.[0]?.message?.content || "Desculpe, nao consegui processar sua mensagem."
 }
 
+async function logStep(
+  executionId: string,
+  remoteJid: string,
+  pushName: string,
+  step: string,
+  status: string,
+  input: Record<string, any>,
+  output: Record<string, any>,
+  error: string | null,
+  durationMs: number
+) {
+  try {
+    await db.insert(crmWhatsappFlowLogs).values({
+      executionId,
+      remoteJid,
+      pushName,
+      step,
+      status,
+      input,
+      output,
+      error,
+      durationMs,
+    })
+  } catch (e) {
+    console.error("[FlowLog] Falha ao salvar log:", e)
+  }
+}
+
 export async function POST(req: NextRequest) {
+  const executionId = crypto.randomUUID()
+  const remoteJidGlobal = ""
+  const pushNameGlobal = ""
+
   try {
     const webhookSecret = process.env.PDM_WEBHOOK_SECRET
     if (!webhookSecret) {
@@ -227,7 +261,11 @@ export async function POST(req: NextRequest) {
 
     const authHeader = req.headers.get("authorization")
     const querySecret = req.nextUrl.searchParams.get("secret")
-    if (authHeader !== `Bearer ${webhookSecret}` && querySecret !== webhookSecret) {
+    const authValid = authHeader === `Bearer ${webhookSecret}` || querySecret === webhookSecret
+
+    await logStep(executionId, remoteJidGlobal, pushNameGlobal, "auth", authValid ? "success" : "error", { method: authHeader ? "bearer" : "query" }, { valid: authValid }, authValid ? null : "Unauthorized", 0)
+
+    if (!authValid) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
@@ -238,16 +276,24 @@ export async function POST(req: NextRequest) {
     const fromMe = body.data?.key?.fromMe === true
     const mensagem = extrairMensagem(body)
 
+    await logStep(executionId, remoteJid, pushName, "extract", "success", { rawBody: { remoteJid, pushName, fromMe } }, { remoteJid, pushName, fromMe, mensagem: mensagem.substring(0, 100), msgType: body.data?.messageType }, null, 0)
+
     if (fromMe) {
+      await logStep(executionId, remoteJid, pushName, "filter", "ignored", { fromMe, mensagem }, { reason: "fromMe" }, null, 0)
       return NextResponse.json({ status: "ignored", reason: "fromMe" })
     }
     if (!mensagem || !mensagem.trim()) {
+      await logStep(executionId, remoteJid, pushName, "filter", "ignored", { mensagem }, { reason: "empty" }, null, 0)
       return NextResponse.json({ status: "ignored", reason: "empty" })
     }
     if (!remoteJid) {
+      await logStep(executionId, remoteJid, pushName, "filter", "ignored", { remoteJid }, { reason: "no_sender" }, null, 0)
       return NextResponse.json({ status: "ignored", reason: "no_sender" })
     }
 
+    await logStep(executionId, remoteJid, pushName, "filter", "success", { fromMe, mensagem: mensagem.substring(0, 100) }, { reason: "passed" }, null, 0)
+
+    const t0 = Date.now()
     let conversa = await db
       .select()
       .from(crmWhatsappConversas)
@@ -255,9 +301,13 @@ export async function POST(req: NextRequest) {
       .limit(1)
       .then((r) => r[0] || null)
 
+    let isNew = false
+    let leadExistenteData = null
+
     if (!conversa) {
+      isNew = true
       const numero = extrairNumero(remoteJid)
-      const leadExistente = await db
+      leadExistenteData = await db
         .select({
           id: crmLeads.id,
           nome: crmLeads.nome,
@@ -274,11 +324,11 @@ export async function POST(req: NextRequest) {
       const dadosIniciais: Record<string, any> = {}
       let estadoInicial = "SAUDACAO"
 
-      if (leadExistente) {
-        if (leadExistente.empresaNome) dadosIniciais.razaoSocial = leadExistente.empresaNome
-        if (leadExistente.nome) dadosIniciais.nomeContato = leadExistente.nome
-        if (leadExistente.tipoPessoa) dadosIniciais.tipoPessoa = leadExistente.tipoPessoa
-        estadoInicial = leadExistente.empresaNome ? "AGUARDANDO_REPRESENTANTE" : "COLETANDO_DADOS"
+      if (leadExistenteData) {
+        if (leadExistenteData.empresaNome) dadosIniciais.razaoSocial = leadExistenteData.empresaNome
+        if (leadExistenteData.nome) dadosIniciais.nomeContato = leadExistenteData.nome
+        if (leadExistenteData.tipoPessoa) dadosIniciais.tipoPessoa = leadExistenteData.tipoPessoa
+        estadoInicial = leadExistenteData.empresaNome ? "AGUARDANDO_REPRESENTANTE" : "COLETANDO_DADOS"
       }
 
       const [nova] = await db
@@ -288,7 +338,11 @@ export async function POST(req: NextRequest) {
       conversa = nova
     }
 
+    const findConvDuration = Date.now() - t0
+    await logStep(executionId, remoteJid, pushName, "find_conversation", "success", { remoteJid, isNew, leadExists: !!leadExistenteData }, { estado: conversa.estado, conversaId: conversa.id, dados: conversa.dados }, null, findConvDuration)
+
     if (conversa.estado === "AGUARDANDO_REPRESENTANTE" || conversa.estado === "ENCERRADO") {
+      await logStep(executionId, remoteJid, pushName, "state_machine", "ignored", { estado: conversa.estado }, { reason: "conversation_ended" }, null, 0)
       return NextResponse.json({ status: "ignored", reason: "conversation_ended", estado: conversa.estado })
     }
 
@@ -305,39 +359,22 @@ export async function POST(req: NextRequest) {
       content: row.mensagem,
     }))
 
-    const aiResponse = await chamarGroq(
-      mensagem,
-      pushName,
-      conversa.estado,
-      conversa.dados || {},
-      historico
-    )
+    const tGroq = Date.now()
+    const aiResponse = await chamarGroq(mensagem, pushName, conversa.estado, conversa.dados || {}, historico)
+    const groqDuration = Date.now() - tGroq
 
-    const { nextEstado, dados, finalizado } = maquinaEstados(
-      conversa.estado,
-      conversa.dados || {},
-      mensagem,
-      aiResponse
-    )
+    const groqError = aiResponse.includes("dificuldades tecnicas") || aiResponse.includes("nao consegui processar")
+    await logStep(executionId, remoteJid, pushName, "groq_call", groqError ? "error" : "success", { model: process.env.GROQ_MODEL || "llama-3.3-70b-versatile", estado: conversa.estado, historicoSize: historico.length, userMessage: mensagem.substring(0, 100) }, { response: aiResponse.substring(0, 200) }, groqError ? "Groq returned error message" : null, groqDuration)
 
-    await db
-      .insert(crmWhatsappMensagens)
-      .values({
-        mensagem,
-        tipo: "RECEBIDA",
-        status: "RECEBIDA",
-        remoteJid,
-      })
+    const tState = Date.now()
+    const { nextEstado, dados, finalizado } = maquinaEstados(conversa.estado, conversa.dados || {}, mensagem, aiResponse)
+    const stateDuration = Date.now() - tState
 
-    await db
-      .insert(crmWhatsappMensagens)
-      .values({
-        mensagem: aiResponse,
-        tipo: "ENVIADA",
-        status: "ENVIADA",
-        remoteJid,
-      })
+    await logStep(executionId, remoteJid, pushName, "state_machine", "success", { curEstado: conversa.estado, msg: mensagem.substring(0, 100) }, { nextEstado, dados, finalizado }, null, stateDuration)
 
+    const tSave = Date.now()
+    await db.insert(crmWhatsappMensagens).values({ mensagem, tipo: "RECEBIDA", status: "RECEBIDA", remoteJid })
+    await db.insert(crmWhatsappMensagens).values({ mensagem: aiResponse, tipo: "ENVIADA", status: "ENVIADA", remoteJid })
     await db
       .insert(crmWhatsappConversas)
       .values({ remoteJid, estado: nextEstado, dados })
@@ -345,12 +382,22 @@ export async function POST(req: NextRequest) {
         target: crmWhatsappConversas.remoteJid,
         set: { estado: sql`EXCLUDED.estado`, dados: sql`EXCLUDED.dados`, updatedAt: sql`NOW()` },
       })
+    const saveDuration = Date.now() - tSave
 
+    await logStep(executionId, remoteJid, pushName, "save_messages", "success", { remoteJid, nextEstado }, { msgsSaved: 2, conversationUpdated: true }, null, saveDuration)
+
+    let envioOk = true
     if (evolutionConfigurado()) {
+      const tSend = Date.now()
       const envio = await enviarMensagem(remoteJid, aiResponse)
+      const sendDuration = Date.now() - tSend
+      envioOk = envio.sucesso
+      await logStep(executionId, remoteJid, pushName, "send_response", envio.sucesso ? "success" : "error", { remoteJid, msgLength: aiResponse.length }, { sucesso: envio.sucesso, externalId: envio.externalId }, envio.erro || null, sendDuration)
       if (!envio.sucesso) {
         console.error("[AI-Webhook] Falha ao enviar:", envio.erro)
       }
+    } else {
+      await logStep(executionId, remoteJid, pushName, "send_response", "skipped", { remoteJid }, { reason: "evolution_not_configured" }, null, 0)
     }
 
     let leadCriado = null
@@ -364,6 +411,7 @@ export async function POST(req: NextRequest) {
         .then((r) => r[0] || null)
 
       if (!existing) {
+        const tLead = Date.now()
         const numero = extrairNumero(remoteJid)
         const descricaoParts: string[] = []
         if (dados.documento) descricaoParts.push(`Documento: ${dados.documento}`)
@@ -384,7 +432,10 @@ export async function POST(req: NextRequest) {
           .returning()
 
         leadCriado = novo
+        const leadDuration = Date.now() - tLead
+        await logStep(executionId, remoteJid, pushName, "create_lead", "success", { nome: dados.nome, numero, tipoPessoa: dados.tipoPessoa, documento: dados.documento }, { leadId: novo.id, idIntegracao: `whatsapp:${remoteJid}` }, null, leadDuration)
 
+        const tNotif = Date.now()
         const numeroNotificacao = dados.tipoPessoa === "PJ" ? REPRESENTANTE_PJ : REPRESENTANTE_PF
         const textoNotificacao = [
           "*Novo lead cadastrado no CRM*",
@@ -408,6 +459,10 @@ export async function POST(req: NextRequest) {
         if (evolutionConfigurado()) {
           await enviarMensagem(`${numeroNotificacao}@s.whatsapp.net`, textoNotificacao)
         }
+        const notifDuration = Date.now() - tNotif
+        await logStep(executionId, remoteJid, pushName, "notify", "success", { numeroNotificacao, tipoPessoa: dados.tipoPessoa }, { notificacaoSalva: true, whatsappEnviado: evolutionConfigurado() }, null, notifDuration)
+      } else {
+        await logStep(executionId, remoteJid, pushName, "create_lead", "skipped", { remoteJid }, { reason: "lead_already_exists", existingLeadId: existing.id }, null, 0)
       }
     }
 
@@ -416,9 +471,11 @@ export async function POST(req: NextRequest) {
       estado: nextEstado,
       leadCriado: !!leadCriado,
       leadId: leadCriado?.id || null,
+      executionId,
     })
   } catch (error) {
     console.error("[AI-Webhook] Erro:", error)
+    await logStep(executionId, remoteJidGlobal, pushNameGlobal, "unknown", "error", {}, {}, error instanceof Error ? error.message : "Unknown error", 0)
     return NextResponse.json({ error: "Erro interno" }, { status: 500 })
   }
 }

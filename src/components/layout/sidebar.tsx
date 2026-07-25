@@ -10,6 +10,7 @@ import {
   ChevronDown,
   ChevronRight,
   Loader2,
+  Activity,
 } from "lucide-react"
 
 interface MenuItem {
@@ -159,6 +160,19 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
               <Settings size={18} className={isAtiva("/admin/configuracoes") ? "text-blue-600 dark:text-blue-400" : ""} />
               Configurações
               {isAtiva("/admin/configuracoes") && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />}
+            </Link>
+            <Link
+              href="/admin/whatsapp-monitor"
+              onClick={onClose}
+              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
+                isAtiva("/admin/whatsapp-monitor")
+                  ? "bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400 shadow-sm"
+                  : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+              }`}
+            >
+              <Activity size={18} className={isAtiva("/admin/whatsapp-monitor") ? "text-blue-600 dark:text-blue-400" : ""} />
+              Monitor WhatsApp
+              {isAtiva("/admin/whatsapp-monitor") && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />}
             </Link>
           </div>
         )}
