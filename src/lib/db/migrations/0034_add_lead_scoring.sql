@@ -1,0 +1,1 @@
+ALTER TABLE crm_leads ADD COLUMN IF NOT EXISTS prioridade varchar(20) DEFAULT 'BAIXA';

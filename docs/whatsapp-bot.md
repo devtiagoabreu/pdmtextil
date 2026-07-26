@@ -18,19 +18,21 @@ Evolution API (webhook)
 POST /api/crm/whatsapp/ai-webhook/route.ts
     │
     ├── 1. Extrair mensagem, remoteJid, pushName
-    ├── 2. Filtrar: fromMe, midia, mensagem vazia
-    ├── 3. Buscar/criar conversa no DB (crm_whatsapp_conversas)
-    ├── 4. Verificar TTL (24h) → resetar se expirada
-    ├── 5. Detectar "reiniciar" → resetar conversa
-    ├── 6. Detectar "atendente/humano" → escalar para representante
-    ├── 7. Buscar linhas ativas do DB → montar linhaMap
-    ├── 8. Chamar Groq API (llama-3.3-70b-versatile) com system prompt dinamico
-    ├── 9. Executar maquina de estados (validar resposta do usuario)
-    ├── 10. Salvar mensagens no DB (crm_whatsapp_mensagens)
-    ├── 11. Enviar resposta via Evolution API
-    ├── 12. Se CONFIRMACAO: enviar catalogos (crm_whatsapp_catalogos)
-    ├── 13. Se finalizado: criar lead (crm_leads) + notificar representante
-    └── 14. Salvar log de execucao (crm_whatsapp_flow_logs)
+    ├── 2. Idempotency check (evitar webhook duplicado)
+    ├── 3. Filtrar: fromMe, midia, mensagem vazia
+    ├── 4. Buscar/criar conversa no DB (crm_whatsapp_conversas)
+    ├── 5. Verificar TTL (24h) → resetar se expirada
+    ├── 6. Detectar "reiniciar" → resetar conversa
+    ├── 7. Detectar "atendente/humano" → escalar para representante
+    ├── 8. Buscar linhas ativas do DB → montar linhaMap
+    ├── 9. Chamar Groq API (llama-3.3-70b-versatile) com system prompt dinamico
+    ├── 10. Executar maquina de estados (validar resposta do usuario)
+    ├── 11. Salvar mensagens no DB (crm_whatsapp_mensagens)
+    ├── 12. Enviar resposta via Evolution API (com retry queue se falhar)
+    ├── 13. Se CONFIRMACAO: enviar catalogos (crm_whatsapp_catalogos)
+    ├── 14. Se finalizado: criar lead com score + notificar representante
+    ├── 15. Verificar abandonos (clientes inativos 15min+)
+    └── 16. Salvar log de execucao (crm_whatsapp_flow_logs)
 ```
 
 ---
@@ -44,7 +46,8 @@ POST /api/crm/whatsapp/ai-webhook/route.ts
 | `crm_whatsapp_linhas` | Linhas de tecidos disponiveis (numero, nome, ativo) |
 | `crm_whatsapp_catalogos` | Catalogos por linha e tipoPessoa (titulo, linkUrl, descricao, ativo) |
 | `crm_whatsapp_flow_logs` | Logs de cada execucao do bot (step, status, input, output, durationMs) |
-| `crm_leads` | Leads criados pelo bot (nome, celular, documento, tipoPessoa, origem) |
+| `crm_whatsapp_retry_queue` | Fila de retry para mensagens que falharam no envio |
+| `crm_leads` | Leads criados pelo bot (nome, celular, documento, tipoPessoa, origem, score, prioridade) |
 | `crm_notificacoes` | Notificacoes enviadas ao representante (titulo, mensagem, tipo, metadados) |
 
 ---
@@ -199,6 +202,36 @@ Detecta "reiniciar", "recomecar", "do zero", "resetar", "limpar". Reseta a conve
 ### 6. Estado HUMANO_ASSUMINDO
 Quando o representante assume a conversa via chat CRM, o bot para de responder. O cliente so recebe mensagens do representante. Ao clicar "Devolver ao Bot", volta para `SAUDACAO`.
 
+### 7. Retry Queue
+Se a Evolution API falha ao enviar uma mensagem, ela e enfileirada em `crm_whatsapp_retry_queue` com exponential backoff (2min → 4min → 8min, maximo 3 tentativas). Um endpoint `/api/admin/whatsapp-retry` permite processar a fila manualmente.
+
+### 8. Idempotency Check
+Antes de processar cada webhook, o bot verifica se a mesma mensagem (remoteJid + texto + ultimos 2 minutos) ja foi processada. Se sim, ignora para evitar duplicacao.
+
+### 9. Dashboard de Conversao
+Pagina `/admin/whatsapp-dashboard` com metricas em tempo real:
+- **5 cards:** Total Conversas, Leads Criados, Taxa de Conclusao %, Tempo Medio (min), Ativos 24h
+- **Grafico de barras:** conversas por estado
+- **Drop-off:** onde os clientes abandonam
+- **Mensagens por dia:** recebidas vs enviadas
+- **Top erros:** etapas com mais falhas
+- Auto-refresh a cada 30 segundos
+
+### 10. Notificacao de Abandono
+Se um cliente nao responde por 15 minutos e a conversa esta em andamento (nao SAUDACAO, nao ENCERRADO, nao HUMANO_ASSUMINDO), o representante e notificado via WhatsApp e in-app. Roda a cada webhook.
+
+### 11. Lead Scoring
+Cada lead recebe um score de 0-100 baseado em:
+- **PJ:** +30 pontos
+- **CNPJ Ativo:** +20 pontos
+- **Multiplas linhas de interesse:** +15 pontos
+- **Razao Social identificada:** +10 pontos
+- **Documento informado:** +10 pontos
+
+Prioridade: CRITICA (70+), ALTA (50-69), MEDIA (30-49), BAIXA (0-29).
+
+O score e incluido na notificacao ao representante.
+
 ---
 
 ## Chat CRM
@@ -291,23 +324,48 @@ Bot: [NOTIFICA REPRESENTANTE PJ via WhatsApp]
 
 ## Arquivos Principais
 
+### Webhook (modular)
+
 | Arquivo | Descricao |
 |---|---|
-| `src/app/api/crm/whatsapp/ai-webhook/route.ts` | Webhook principal do bot (1164 linhas) |
+| `src/app/api/crm/whatsapp/ai-webhook/route.ts` | Webhook principal do bot (~720 linhas) |
+| `src/lib/whatsapp/prompt.ts` | buildSystemPrompt — prompt dinamico |
+| `src/lib/whatsapp/validation.ts` | rejeitarNome, negou, confirmou, parseLinhas, etc. |
+| `src/lib/whatsapp/state-machine.ts` | maquinaEstados — logica de estados |
+| `src/lib/whatsapp/groq.ts` | chamarGroq — chamada a API Groq |
+| `src/lib/whatsapp/cnpj.ts` | consultarCNPJ — lookup na API OpenCNPJ |
+| `src/lib/whatsapp/helpers.ts` | extrairMensagem, extrairNumero, logStep |
+| `src/lib/whatsapp/retry-processor.ts` | processarRetryQueue, enfileirarRetry |
+| `src/lib/whatsapp/abandon-checker.ts` | verificarAbandonos — clientes inativos |
+| `src/lib/whatsapp/lead-scoring.ts` | calcularLeadScore — score 0-100 |
+
+### APIs e Paginas
+
+| Arquivo | Descricao |
+|---|---|
 | `src/app/api/crm/whatsapp/chat/route.ts` | API de chat manual (envio + assumir/devolver) |
 | `src/app/api/crm/whatsapp/conversas/route.ts` | Lista de conversas |
 | `src/app/api/crm/whatsapp/conversa/route.ts` | Detalhe/criacao de conversa |
+| `src/app/api/admin/whatsapp-dashboard/route.ts` | API do dashboard de conversao |
+| `src/app/api/admin/whatsapp-retry/route.ts` | Endpoint para processar retry queue |
+| `src/app/api/admin/whatsapp-abandon/route.ts` | Endpoint para verificar abandonos |
 | `src/app/(dashboard)/admin/whatsapp-chat/page.tsx` | Pagina de chat CRM |
 | `src/app/(dashboard)/admin/whatsapp-monitor/page.tsx` | Monitor de execucoes |
+| `src/app/(dashboard)/admin/whatsapp-dashboard/page.tsx` | Dashboard de conversao |
 | `src/app/(dashboard)/admin/whatsapp-catalogos/page.tsx` | Gerenciamento de linhas/catalogos |
-| `src/lib/evolution-api.ts` | Envio de mensagens via Evolution API |
-| `src/lib/db/schema/crm-whatsapp-conversas.ts` | Schema da tabela de conversas |
-| `src/lib/db/schema/crm-whatsapp.ts` | Schema da tabela de mensagens |
-| `src/lib/db/schema/crm-whatsapp-linhas.ts` | Schema da tabela de linhas |
-| `src/lib/db/schema/crm-whatsapp-catalogos.ts` | Schema da tabela de catalogos |
-| `src/lib/db/schema/crm-whatsapp-flow-logs.ts` | Schema da tabela de logs |
-| `src/lib/db/schema/crm-leads.ts` | Schema da tabela de leads |
-| `src/lib/db/schema/crm-notificacoes.ts` | Schema da tabela de notificacoes |
+
+### Schemas
+
+| Arquivo | Descricao |
+|---|---|
+| `src/lib/db/schema/crm-whatsapp-conversas.ts` | Tabela de conversas |
+| `src/lib/db/schema/crm-whatsapp.ts` | Tabela de mensagens |
+| `src/lib/db/schema/crm-whatsapp-linhas.ts` | Tabela de linhas |
+| `src/lib/db/schema/crm-whatsapp-catalogos.ts` | Tabela de catalogos |
+| `src/lib/db/schema/crm-whatsapp-flow-logs.ts` | Tabela de logs |
+| `src/lib/db/schema/crm-whatsapp-retry-queue.ts` | Tabela de retry queue |
+| `src/lib/db/schema/crm-leads.ts` | Tabela de leads (com score/prioridade) |
+| `src/lib/db/schema/crm-notificacoes.ts` | Tabela de notificacoes |
 
 ---
 

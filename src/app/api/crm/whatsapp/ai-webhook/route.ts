@@ -4,465 +4,25 @@ import { crmWhatsappConversas } from "@/lib/db/schema/crm-whatsapp-conversas"
 import { crmWhatsappMensagens } from "@/lib/db/schema/crm-whatsapp"
 import { crmLeads } from "@/lib/db/schema/crm-leads"
 import { crmNotificacoes } from "@/lib/db/schema/crm-notificacoes"
-import { crmWhatsappFlowLogs } from "@/lib/db/schema/crm-whatsapp-flow-logs"
 import { crmWhatsAppCatalogos } from "@/lib/db/schema/crm-whatsapp-catalogos"
 import { crmWhatsAppLinhas } from "@/lib/db/schema/crm-whatsapp-linhas"
 import { eq, sql, desc, and } from "drizzle-orm"
 import { enviarMensagem, evolutionConfigurado } from "@/lib/evolution-api"
+import { enfileirarRetry } from "@/lib/whatsapp/retry-processor"
 import crypto from "crypto"
+import { buildSystemPrompt } from "@/lib/whatsapp/prompt"
+import { rejeitarNome, negou, confirmou, pareceNome, detectarTipo, extrairDoc, parseLinhas, linhasNomes, pediuAtendente, pediuReiniciar } from "@/lib/whatsapp/validation"
+import { maquinaEstados, type MaquinaEstadoResult } from "@/lib/whatsapp/state-machine"
+import { chamarGroq } from "@/lib/whatsapp/groq"
+import { consultarCNPJ } from "@/lib/whatsapp/cnpj"
+import { extrairMensagem, extrairNumero, logStep, type EvolutionWebhookBody } from "@/lib/whatsapp/helpers"
+import { calcularLeadScore } from "@/lib/whatsapp/lead-scoring"
+import { verificarAbandonos } from "@/lib/whatsapp/abandon-checker"
 
 export const dynamic = "force-dynamic"
 
-const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
-
 const REPRESENTANTE_PJ = process.env.WHATSAPP_REPRESENTANTE_PJ || "5519999999999"
 const REPRESENTANTE_PF = process.env.WHATSAPP_REPRESENTANTE_PF || "5519999999998"
-
-function buildSystemPrompt(linhas: { numero: number; nome: string }[]): string {
-  const listaLinhas = linhas.map(l => `${l.numero} - ${l.nome}`).join("\n")
-  return `Voce e o assistente de vendas virtual da Pro Moda Textil, uma industria textil brasileira especializada em tecidos planos, hospitalares e industriais.
-
-FLUXO DA CONVERSA:
-Estado SAUDACAO: Apresente-se e pergunte "Qual o seu nome?".
-Estado COLETANDO_NOME: Extraia apenas o nome proprio do usuario (ex: se ele disser "Meu nome e Tiago", registre apenas "Tiago"). Confirme: "Prazer em te conhecer, [NOME]!".
-Estado COLETANDO_DOC: Pergunte "Voce e pessoa fisica ou juridica? Digite:
-1 - Pessoa Fisica (PF)
-2 - Pessoa Juridica (PJ)"
-Depois, informe o seu CPF ou CNPJ.
-Estado CONFIRMANDO_TIPO_PESSOA: O usuario escolheu PF mas informou um CNPJ. Pergunte: "Voce informou um CNPJ, que e de pessoa juridica. Posso seguir tratando como Pessoa Juridica? Se preferir, pode informar um CPF no lugar."
-Estado CONFIRMANDO_DADOS_CNPJ: O sistema consultou os dados do CNPJ. Mostre os dados retornados (razao social, nome fantasia, situacao, endereco) e pergunte: "Esses dados estao corretos?"
-Estado COLETANDO_INTERESSE: Informe que todas as linhas sao de tecidos planos e pergunte em qual linha ele tem interesse. O cliente pode escolher UMA ou MAIS linhas separadas por virgula. Use lista numerada:
-"Todas as nossas linhas sao de tecidos planos. Qual delas te interessa? Voce pode escolher mais de uma, separando por virgula (ex: 1,3).
-${listaLinhas}"
-Quando o cliente responder, confirme as linhas escolhidas: "Otimo! Voce tem interesse nas linhas: [LINHAS]. Vou enviar os links do catalogo para voce conferir!".
-Estado CONFIRMACAO: Mostre o resumo dos dados (nome, documento, tipo pessoa) e da(s) linha(s) de interesse. Pergunte "Esta correto? Digite SIM para confirmar."
-Estado ENCERRADO: Informe que os links do catalogo foram enviados acima e que um representante comercial entrara em contato em ate 10 min. Agradeca.
-
-IMPORTANTE: Apos a CONFIRMACAO com SIM, o sistema automaticamente envia os links do catalogo das linhas escolhidas. Voce so precisa informar "Aqui estao os catalogos das linhas que voce escolheu!" e os links serao enviados em seguida.
-
-CONTEXTO:
-- Cliente: {{pushName}}
-- Estado: {{estado}}
-- Dados: {{dados}}
-- IMPORTANTE: Quando o estado for CONFIRMANDO_TIPO_PESSOA, explique que o CNPJ e de pessoa juridica e pergunte se pode seguir como PJ. Quando o estado for CONFIRMANDO_DADOS_CNPJ, os dados ja foram consultados e estao em dados._cnpjConsulta. Apresente-os ao cliente e peça confirmacao.
-
-REGRAS DE VALIDACAO POR ESTADO (OBRIGATORIO SEGUIR):
-
-ESTADO COLETANDO_NOME - O que ACEITAR:
-- Apenas um nome proprio ou nome completo (ex: "Tiago", "Maria Silva", "Joao de Sousa")
-- Respostas como "Meu nome e Tiago", "Pode me chamar de Maria", "Sou o Joao"
-
-ESTADO COLETANDO_NOME - O que REJEITAR (NAO registre como nome, peca para repetir):
-- Numeros ou frases com numeros ("Tenho 20 anos", "25", "123")
-- Palavras soltas que nao sao nomes ("Tenho", "Ola", "Bom dia", "Ok", "Sim", "Nao")
-- Respostas do tipo "nao sei", "nao quero informar", "deixa pra la"
-- Frases inteiras que claramente nao sao nomes ("Quero comprar tecido", "Qual o preco")
-- Documentos (CPF, CNPJ) enviados no estado de nome
-Se o que o usuario enviou nao e claramente um nome proprio, responda: "Preciso do seu nome para continuar. Por favor, informe seu nome proprio."
-
-ESTADO COLETANDO_DOC - O que ACEITAR:
-- Opcao 1 ou 2 (ou PF/PJ/fisica/juridica)
-- CPF ou CNPJ (com ou sem formatacao)
-- Pode vir junto: "PF 123.456.789-00" ou "2 PJ 12.345.678/0001-90"
-
-ESTADO COLETANDO_DOC - O que REJEITAR:
-- Nommes, palavras aleatorias, emojis, perguntas sobre preco/produto
-- Respostas que nao contenham numero 1 ou 2, PF/PJ, ou documento
-Se o usuario nao entender, explique: "Por favor, digite 1 para Pessoa Fisica ou 2 para Pessoa Juridica, e em seguida seu CPF ou CNPJ."
-
-ESTADO CONFIRMANDO_TIPO_PESSOA - O que ACEITAR:
-- SIM, S, OK, CLARO, PODE SER para confirmar que sera tratado como PJ
-- NAO, N, PREFERO, TENHO CPF para indicar que quer informar CPF
-Se o usuario confirmar, o sistema automaticamente prossegue com os dados do CNPJ.
-Se o usuario recusar, o sistema encaminha para atendente de pessoa fisica.
-
-ESTADO CONFIRMANDO_DADOS_CNPJ - O que ACEITAR:
-- SIM, S, OK, CORRETO, CERTO, CONFIRMO para confirmar que os dados estao corretos
-- NAO, N, ERRADO, INCORRETO, DIFERENTE para indicar que os dados estao errados
-Se confirmar, o sistema prossegue para selecao de linhas.
-Se recusar, o sistema encaminha para atendente de pessoa fisica.
-
-ESTADO COLETANDO_INTERESSE - O que ACEITAR:
-- Numeros das linhas listadas, separados por virgula (ex: "1", "1,3", "2 e 4")
-- Nomes das linhas (ex: "Linha Lencol", "Hospitalar")
-
-ESTADO COLETANDO_INTERESSE - O que REJEITAR:
-- Respostas que nao contenham nenhum numero ou nome de linha
-- "Nao sei", "nenhuma", "todos", sem especificar
-Se o usuario nao escolher, responda: "Por favor, escolha pelo menos uma linha digitando o numero correspondente. As opcoes sao: [lista]."
-
-ESTADO CONFIRMACAO - O que ACEITAR:
-- SIM, S, OK, CORRETO, CERTO, CONFIRMO, CLARO para confirmar
-- NAO, N, ERRADO, INCORRETO, ALTERAR para alterar (volta para o estado anterior)
-
-REGRAS GERAIS:
-- Use portugues brasileiro natural, cordial e profissional.
-- Maximo 3 linhas por mensagem.
-- Faca apenas UMA pergunta de cada vez.
-- Extraia o nome proprio ignorando preambulos como "Meu nome e", "Pode me chamar de" ou "Eu sou".
-- Use listas numeradas e quebras de linha para opcoes multiplas.
-- Deixe claro que todas as linhas sao de tecidos planos.
-- Para PF colete: nome, CPF, tipoPessoa=PF.
-- Para PJ colete: nome, CNPJ, tipoPessoa=PJ.
-- No estado COLETANDO_INTERESSE, aceite multiplas opcoes separadas por virgula (ex: "1,2,4").
-
-REGRAS OBRIGATORIAS - O QUE VOCE NAO PODE FAZER:
-- NAO use emojis em hipotese alguma.
-- NAO invente informacoes sobre produtos, precos ou prazos.
-- NAO responda sobre assuntos fora do escopo de vendas e atendimento.
-- NAO compartilhe dados de outros clientes.
-- NAO faca promessas de entrega ou estoque.
-- NAO use linguagem tecnica ou formal demais.
-- NAO envie mais de uma mensagem por vez.
-- NAO repita a pergunta ja feita.
-- NAO mude de assunto antes de completar o fluxo atual.`
-}
-
-interface EvolutionWebhookBody {
-  data?: {
-    key?: {
-      remoteJid?: string
-      fromMe?: boolean
-    }
-    pushName?: string
-    message?: {
-      conversation?: string
-      extendedTextMessage?: { text?: string }
-      imageMessage?: { caption?: string }
-      documentMessage?: { caption?: string }
-      videoMessage?: { caption?: string }
-    }
-    messageType?: string
-  }
-  sender?: string
-  pushName?: string
-  remoteJid?: string
-}
-
-function extrairMensagem(body: EvolutionWebhookBody): string {
-  const msg = body.data?.message
-  if (!msg) return ""
-  return (
-    msg.conversation ||
-    msg.extendedTextMessage?.text ||
-    msg.imageMessage?.caption ||
-    msg.documentMessage?.caption ||
-    msg.videoMessage?.caption ||
-    ""
-  )
-}
-
-function extrairNumero(remoteJid: string): string {
-  return remoteJid.replace(/@s\.whatsapp\.net$/, "").replace(/@lid$/, "").replace(/\D/g, "")
-}
-
-function extrairDoc(texto: string): { doc: string; tipo: string } | null {
-  const cnpj = texto.match(/\d{2}\.?\d{3}\.?\d{3}\/?\d{4}-?\d{2}/)
-  if (cnpj) return { doc: cnpj[0], tipo: "PJ" }
-  const cpf = texto.match(/\d{3}\.?\d{3}\.?\d{3}-?\d{2}/)
-  if (cpf) return { doc: cpf[0], tipo: "PF" }
-  return null
-}
-
-function detectarTipo(texto: string): string | null {
-  if (/\b(1|pf|fisica|física)\b/.test(texto)) return "PF"
-  if (/\b(2|pj|juridica|jurídica|cnpj)\b/.test(texto)) return "PJ"
-  return null
-}
-
-function pareceNome(texto: string): boolean {
-  const alpha = texto.replace(/[^a-zA-ZÀ-ÿ ]/g, "").trim()
-  return alpha.length > 2
-}
-
-function confirmou(texto: string): boolean {
-  return /\b(sim|s|ss|claro|ok|confirmo|correto|certo)\b/.test(texto)
-}
-
-function parseLinhas(texto: string, maxNumero: number): number[] {
-  const nums = texto.match(/\d/g)
-  if (!nums) return []
-  return [...new Set(nums.map(Number))].filter((n) => n >= 1 && n <= maxNumero).sort()
-}
-
-function linhasNomes(nums: number[], linhaMap: Record<number, string>): string {
-  return nums.map((n) => `${n} - ${linhaMap[n]}`).join(", ")
-}
-
-async function consultarCNPJ(cnpj: string): Promise<{ razaoSocial: string; nomeFantasia: string; situacao: string; endereco: string; bairro: string; cidade: string; uf: string } | null> {
-  try {
-    const cnpjLimpo = cnpj.replace(/\D/g, "")
-    const res = await fetch(`https://api.opencnpj.org/${cnpjLimpo}`, {
-      signal: AbortSignal.timeout(10000),
-    })
-    if (!res.ok) return null
-    const data = await res.json()
-    if (!data || !data.razao_social) return null
-    const addr = data.logradouro || ""
-    const num = data.numero || ""
-    const bairro = data.bairro || ""
-    const cidade = data.municipio || ""
-    const uf = data.uf || ""
-    const endereco = num ? `${addr}, ${num}` : addr
-    return {
-      razaoSocial: data.razao_social || "",
-      nomeFantasia: data.nome_fantasia || "",
-      situacao: data.situacao_cadastral || "",
-      endereco,
-      bairro,
-      cidade,
-      uf,
-    }
-  } catch (err) {
-    console.error("[consultarCNPJ] Erro:", err)
-    return null
-  }
-}
-
-function pediuAtendente(texto: string): boolean {
-  const t = texto.toLowerCase().trim()
-  return /\b(falar com|falar pra|atendente|humano|pessoa|representante|suporte|ajuda humana|atencao|admin|gerente)\b/.test(t)
-}
-
-function pediuReiniciar(texto: string): boolean {
-  const t = texto.toLowerCase().trim()
-  return /\b(reiniciar|recomecar|comecar de novo|do zero|comecar do zero|recomecar do zero|resetar|reset|limpar)\b/.test(t)
-}
-
-interface MaquinaEstadoResult {
-  nextEstado: string
-  dados: Record<string, any>
-  resposta?: string
-  finalizado: boolean
-  enviarCatalogo?: number[]
-  needsCnpjLookup?: boolean
-  redirecionarPf?: boolean
-}
-
-function maquinaEstados(
-  curEstado: string,
-  curDados: Record<string, any>,
-  msgOriginal: string,
-  aiResponse: string,
-  linhaMap: Record<number, string>,
-  maxNumero: number
-): MaquinaEstadoResult {
-  const msg = msgOriginal.toLowerCase().trim()
-  let nextEstado = curEstado
-  const dados = JSON.parse(JSON.stringify(curDados))
-  let enviarCatalogo: number[] | undefined
-  let needsCnpjLookup: boolean | undefined
-  let redirecionarPf: boolean | undefined
-
-  dados._tentativas = (dados._tentativas || 0) + 1
-  const MAX_TENTATIVAS = 3
-
-  if (curEstado === "SAUDACAO") {
-    nextEstado = "COLETANDO_NOME"
-  } else if (curEstado === "COLETANDO_NOME") {
-    const rejeitado = rejeitarNome(msgOriginal)
-    if (!rejeitado && msgOriginal.length > 2 && pareceNome(msgOriginal)) {
-      dados.nome = msgOriginal
-      nextEstado = "COLETANDO_DOC"
-      dados._tentativas = 0
-    } else if (dados._tentativas >= MAX_TENTATIVAS) {
-      dados._bloqueado = true
-      dados._motivoBloqueio = "nome_invalido_repetido"
-    }
-  } else if (curEstado === "COLETANDO_DOC") {
-    const tipoEscolhido = detectarTipo(msg)
-    const doc = extrairDoc(msgOriginal)
-
-    if (tipoEscolhido) dados.tipoPessoa = tipoEscolhido
-    if (doc) dados.documento = doc.doc
-    if (!dados.tipoPessoa && doc) dados.tipoPessoa = doc.tipo
-    if (!dados.nome && pareceNome(msgOriginal) && msgOriginal.length < 50) {
-      dados.nome = msgOriginal
-    }
-
-    if (tipoEscolhido === "PF" && doc && doc.tipo === "PJ") {
-      nextEstado = "CONFIRMANDO_TIPO_PESSOA"
-      dados._tentativas = 0
-      dados._docRecebido = doc.doc
-    } else if (tipoEscolhido === "PJ" && doc && doc.tipo === "PJ") {
-      dados.tipoPessoa = "PJ"
-      dados.documento = doc.doc
-      needsCnpjLookup = true
-      nextEstado = "CONFIRMANDO_DADOS_CNPJ"
-      dados._tentativas = 0
-    } else if (doc) {
-      if (dados.documento || dados.tipoPessoa) {
-        nextEstado = "COLETANDO_INTERESSE"
-        dados._tentativas = 0
-      }
-    } else if (dados._tentativas >= MAX_TENTATIVAS) {
-      dados._bloqueado = true
-      dados._motivoBloqueio = "doc_invalido_repetido"
-    }
-  } else if (curEstado === "CONFIRMANDO_TIPO_PESSOA") {
-    if (confirmou(msg)) {
-      dados.tipoPessoa = "PJ"
-      dados.documento = dados._docRecebido || dados.documento
-      needsCnpjLookup = true
-      nextEstado = "CONFIRMANDO_DADOS_CNPJ"
-      dados._tentativas = 0
-    } else if (negou(msg)) {
-      redirecionarPf = true
-      dados._bloqueado = true
-      dados._motivoBloqueio = "recusou_corrigir_tipo"
-    } else if (dados._tentativas >= MAX_TENTATIVAS) {
-      redirecionarPf = true
-      dados._bloqueado = true
-      dados._motivoBloqueio = "confirmacao_tipo_invalida_repetido"
-    }
-  } else if (curEstado === "CONFIRMANDO_DADOS_CNPJ") {
-    if (confirmou(msg)) {
-      nextEstado = "COLETANDO_INTERESSE"
-      dados._tentativas = 0
-    } else if (negou(msg)) {
-      redirecionarPf = true
-      dados._bloqueado = true
-      dados._motivoBloqueio = "recusou_dados_cnpj"
-    } else if (dados._tentativas >= MAX_TENTATIVAS) {
-      redirecionarPf = true
-      dados._bloqueado = true
-      dados._motivoBloqueio = "confirmacao_cnpj_invalida_repetido"
-    }
-  } else if (curEstado === "COLETANDO_INTERESSE") {
-    const linhas = parseLinhas(msgOriginal, maxNumero)
-    const temNomeLinha = linhas.map(n => linhaMap[n]?.toLowerCase() || "").some(nome => msg.includes(nome))
-    if (linhas.length > 0 || temNomeLinha) {
-      dados.linhasInteresse = linhas
-      dados.linhasInteresseNomes = linhasNomes(linhas, linhaMap)
-      nextEstado = "CONFIRMACAO"
-      dados._tentativas = 0
-    } else if (msg.match(/\b(todos|todas|tudo|qualquer|tanto faz|indiferente|foda-se|se foda)\b/)) {
-      dados.linhasInteresse = Object.keys(linhaMap).map(Number)
-      dados.linhasInteresseNomes = linhasNomes(dados.linhasInteresse, linhaMap)
-      nextEstado = "CONFIRMACAO"
-      dados._tentativas = 0
-    } else if (dados._tentativas >= MAX_TENTATIVAS) {
-      dados._bloqueado = true
-      dados._motivoBloqueio = "interesse_invalido_repetido"
-    }
-  } else if (curEstado === "CONFIRMACAO") {
-    if (confirmou(msg)) {
-      nextEstado = "ENCERRADO"
-      dados.finalizado = true
-      enviarCatalogo = dados.linhasInteresse || []
-      dados._tentativas = 0
-    } else if (negou(msg)) {
-      nextEstado = "COLETANDO_NOME"
-      dados.nome = undefined
-      dados.documento = undefined
-      dados.tipoPessoa = undefined
-      dados.linhasInteresse = undefined
-      dados.linhasInteresseNomes = undefined
-      dados._tentativas = 0
-    } else if (dados._tentativas >= MAX_TENTATIVAS) {
-      dados._bloqueado = true
-      dados._motivoBloqueio = "confirmacao_invalida_repetido"
-    }
-  } else if (curEstado === "ENCERRADO") {
-    dados.finalizado = true
-  }
-
-  return { nextEstado, dados, finalizado: !!dados.finalizado, enviarCatalogo, needsCnpjLookup, redirecionarPf }
-}
-
-function rejeitarNome(texto: string): string | null {
-  const t = texto.toLowerCase().trim()
-  if (/^\d+$/.test(t)) return "numero_puro"
-  if (/\d/.test(t) && /\b(ano|mes|dia|hora|idade|ano|tel|cel|whatsapp)\b/.test(t)) return "idade_ou_info_pessoal"
-  if (/^(tenho|possuo|sou|meu|minha|meu nome|meu nome e|minha nome)\b/.test(t) && t.split(" ").length <= 3) return "frase_incompleta"
-  if (/^(nao sei|não sei|nao quero|não quero|deixa pra la|deixa pra la|se foda|foda-se|tanto faz|indiferente|whatever|ok|sim|nao|não|s|n)\b/.test(t)) return "resposta_evaziva"
-  if (/^(cpf|cnpj|documento|doc|registro)\b/.test(t)) return "documento_no_nome"
-  if (/^(preco|preço|valor|quanto|custa|frete)\b/.test(t)) return "pergunta_fora_do_fluxo"
-  if (/^(oi|ola|olá|bom dia|boa tarde|boa noite|hello|hi|hey)\b/.test(t) && t.split(" ").length <= 3) return "saudacao_sem_nome"
-  return null
-}
-
-function negou(texto: string): boolean {
-  return /\b(nao|não|errado|incorreto|alterar|corrigir|voltar|diferente|trocar|mudar)\b/.test(texto)
-}
-
-async function chamarGroq(
-  userMessage: string,
-  pushName: string,
-  estado: string,
-  dados: Record<string, any>,
-  historico: Array<{ role: "user" | "assistant"; content: string }>,
-  linhas: { numero: number; nome: string }[]
-): Promise<string> {
-  const apiKey = process.env.GROQ_API_KEY
-  if (!apiKey || apiKey === "cole-sua-chave-groq-aqui") {
-    console.error("[Groq] GROQ_API_KEY não configurada")
-    return "Desculpe, estou com dificuldades tecnicas no momento. Por favor, tente novamente em instantes."
-  }
-
-  const model = process.env.GROQ_MODEL || "llama-3.3-70b-versatile"
-
-  const systemMessage = buildSystemPrompt(linhas).replace("{{pushName}}", pushName)
-    .replace("{{estado}}", estado)
-    .replace("{{dados}}", JSON.stringify(dados))
-
-  const messages = [
-    { role: "system" as const, content: systemMessage },
-    ...historico.slice(-15),
-    { role: "user" as const, content: userMessage },
-  ]
-
-  const res = await fetch(GROQ_API_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model,
-      messages,
-      temperature: 0.7,
-      max_tokens: 300,
-    }),
-  })
-
-  if (!res.ok) {
-    const err = await res.text()
-    console.error(`[Groq] Erro ${res.status}:`, err)
-    return "Desculpe, estou com dificuldades tecnicas no momento. Por favor, tente novamente em instantes."
-  }
-
-  const data = await res.json()
-  return data.choices?.[0]?.message?.content || "Desculpe, nao consegui processar sua mensagem."
-}
-
-async function logStep(
-  executionId: string,
-  remoteJid: string,
-  pushName: string,
-  step: string,
-  status: string,
-  input: Record<string, any>,
-  output: Record<string, any>,
-  error: string | null,
-  durationMs: number
-) {
-  try {
-    await db.insert(crmWhatsappFlowLogs).values({
-      executionId,
-      remoteJid,
-      pushName,
-      step,
-      status,
-      input,
-      output,
-      error,
-      durationMs,
-    })
-  } catch (e) {
-    console.error("[FlowLog] Falha ao salvar log:", e)
-  }
-}
 
 export async function POST(req: NextRequest) {
   let executionId = "no-exec"
@@ -515,6 +75,25 @@ export async function POST(req: NextRequest) {
 
     await logStep(executionId, remoteJid, pushName, "extract", "success", { rawBody: { remoteJid, pushName, fromMe } }, { remoteJid, pushName, fromMe, mensagem: mensagem.substring(0, 100), msgType: body.data?.messageType }, null, 0)
 
+    // Idempotency check
+    const recentSameMsg = await db
+      .select({ id: crmWhatsappMensagens.id })
+      .from(crmWhatsappMensagens)
+      .where(
+        and(
+          eq(crmWhatsappMensagens.remoteJid, remoteJid),
+          eq(crmWhatsappMensagens.mensagem, mensagem),
+          eq(crmWhatsappMensagens.tipo, "RECEBIDA"),
+          sql`${crmWhatsappMensagens.createdAt} > NOW() - INTERVAL '2 minutes'`
+        )
+      )
+      .limit(1)
+
+    if (recentSameMsg.length > 0) {
+      await logStep(executionId, remoteJid, pushName, "filter", "ignored", { duplicate: true }, { reason: "idempotency_duplicate" }, null, 0)
+      return NextResponse.json({ status: "ignored", reason: "duplicate" })
+    }
+
     if (fromMe) {
       await logStep(executionId, remoteJid, pushName, "filter", "ignored", { fromMe, mensagem }, { reason: "fromMe" }, null, 0)
       return NextResponse.json({ status: "ignored", reason: "fromMe" })
@@ -523,7 +102,10 @@ export async function POST(req: NextRequest) {
       const msgType = body.data?.messageType || ""
       if (msgType && msgType !== "conversation" && msgType !== "extendedTextMessage" && msgType !== "") {
         if (evolutionConfigurado()) {
-          await enviarMensagem(remoteJid, "No momento consigo apenas ler mensagens de texto. Por favor, digite sua resposta.")
+          const envio = await enviarMensagem(remoteJid, "No momento consigo apenas ler mensagens de texto. Por favor, digite sua resposta.")
+          if (!envio.sucesso) {
+            await enfileirarRetry(remoteJid, "No momento consigo apenas ler mensagens de texto. Por favor, digite sua resposta.", envio.erro || "send_failed")
+          }
         }
         await logStep(executionId, remoteJid, pushName, "filter", "media_detected", { msgType }, { reason: "non_text_message" }, null, 0)
         return NextResponse.json({ status: "ignored", reason: "media_detected" })
@@ -616,7 +198,10 @@ export async function POST(req: NextRequest) {
       await db.insert(crmWhatsappMensagens).values({ mensagem: "Claro! Vamos comecar novamente. Qual o seu nome?", tipo: "ENVIADA", status: "ENVIADA", remoteJid })
 
       if (evolutionConfigurado()) {
-        await enviarMensagem(remoteJid, "Claro! Vamos comecar novamente. Qual o seu nome?")
+        const envio = await enviarMensagem(remoteJid, "Claro! Vamos comecar novamente. Qual o seu nome?")
+        if (!envio.sucesso) {
+          await enfileirarRetry(remoteJid, "Claro! Vamos comecar novamente. Qual o seu nome?", envio.erro || "send_failed")
+        }
       }
 
       await logStep(executionId, remoteJid, pushName, "restart", "success", { previousState: conversa.estado }, { reason: "user_requested_restart" }, null, 0)
@@ -638,7 +223,10 @@ export async function POST(req: NextRequest) {
         })
 
       if (evolutionConfigurado()) {
-        await enviarMensagem(remoteJid, "Entendido! Vou te conectar com um representante comercial. Aguarde um momento.")
+        const envio = await enviarMensagem(remoteJid, "Entendido! Vou te conectar com um representante comercial. Aguarde um momento.")
+        if (!envio.sucesso) {
+          await enfileirarRetry(remoteJid, "Entendido! Vou te conectar com um representante comercial. Aguarde um momento.", envio.erro || "send_failed")
+        }
       }
 
       try {
@@ -688,7 +276,10 @@ export async function POST(req: NextRequest) {
         : "Voce ja esta sendo atendido por um representante comercial. Aguarde o contato dele."
 
       if (evolutionConfigurado()) {
-        await enviarMensagem(remoteJid, msgEncerrada)
+        const envio = await enviarMensagem(remoteJid, msgEncerrada)
+        if (!envio.sucesso) {
+          await enfileirarRetry(remoteJid, msgEncerrada, envio.erro || "send_failed")
+        }
       }
 
       await logStep(executionId, remoteJid, pushName, "state_machine", "ignored", { estado: conversa.estado }, { reason: "conversation_ended" }, null, 0)
@@ -721,7 +312,10 @@ export async function POST(req: NextRequest) {
       await db.insert(crmWhatsappMensagens).values({ mensagem: retryMsg, tipo: "ENVIADA", status: "ENVIADA", remoteJid })
 
       if (evolutionConfigurado()) {
-        await enviarMensagem(remoteJid, retryMsg)
+        const envio = await enviarMensagem(remoteJid, retryMsg)
+        if (!envio.sucesso) {
+          await enfileirarRetry(remoteJid, retryMsg, envio.erro || "send_failed")
+        }
       }
 
       await logStep(executionId, remoteJid, pushName, "groq_fallback", "success", { groqError: true }, { retried: true }, null, 0)
@@ -749,14 +343,17 @@ export async function POST(req: NextRequest) {
           .then((r) => r[0] || null)
 
         if (!existente) {
+          const pfLeadScore = calcularLeadScore({ tipoPessoa: "PF", documento: null })
           const [novoLead] = await db.insert(crmLeads).values({
             nome: nomeFinal,
             celular: numero,
             tipoPessoa: "PF",
             origem: "WHATSAPP",
             status: "NOVO",
-            descricao: `Lead criado via bot. Motivo: ${motivo}. Cliente recusou corrigir tipo/pessoa.`,
+            descricao: `Lead criado via bot. Motivo: ${motivo}. Cliente recusou corrigir tipo/pessoa. | Score: ${pfLeadScore.score}/100 (${pfLeadScore.prioridade})`,
             idIntegracao: `whatsapp:${remoteJid}`,
+            score: pfLeadScore.score,
+            prioridade: pfLeadScore.prioridade,
           }).returning()
           dados.leadId = novoLead.id
         } else {
@@ -778,7 +375,10 @@ export async function POST(req: NextRequest) {
         })
 
       if (evolutionConfigurado()) {
-        await enviarMensagem(remoteJid, bloqueioMsg)
+        const envio = await enviarMensagem(remoteJid, bloqueioMsg)
+        if (!envio.sucesso) {
+          await enfileirarRetry(remoteJid, bloqueioMsg, envio.erro || "send_failed")
+        }
       }
 
       try {
@@ -828,14 +428,17 @@ export async function POST(req: NextRequest) {
           .then((r) => r[0] || null)
 
         if (!existente) {
+          const blockedLeadScore = calcularLeadScore({ tipoPessoa: "PF", documento: null })
           const [novoLead] = await db.insert(crmLeads).values({
             nome: nomeFinal,
             celular: numero,
             tipoPessoa: "PF",
             origem: "WHATSAPP",
             status: "NOVO",
-            descricao: `Lead criado automaticamente via bot (bloqueado). Motivo: ${motivo}. Respostas invalidas 3x seguidas.`,
+            descricao: `Lead criado automaticamente via bot (bloqueado). Motivo: ${motivo}. Respostas invalidas 3x seguidas. | Score: ${blockedLeadScore.score}/100 (${blockedLeadScore.prioridade})`,
             idIntegracao: `whatsapp:${remoteJid}`,
+            score: blockedLeadScore.score,
+            prioridade: blockedLeadScore.prioridade,
           }).returning()
           dados.leadId = novoLead.id
         } else {
@@ -859,7 +462,10 @@ export async function POST(req: NextRequest) {
         })
 
       if (evolutionConfigurado()) {
-        await enviarMensagem(remoteJid, bloqueioMsg)
+        const envio = await enviarMensagem(remoteJid, bloqueioMsg)
+        if (!envio.sucesso) {
+          await enfileirarRetry(remoteJid, bloqueioMsg, envio.erro || "send_failed")
+        }
       }
 
       const repData = { remoteJid, motivo, nome: nomeFinal, leadId: dados.leadId, estado: "AGUARDANDO_REPRESENTANTE" }
@@ -927,7 +533,10 @@ export async function POST(req: NextRequest) {
           })
 
         if (evolutionConfigurado()) {
-          await enviarMensagem(remoteJid, partesMsg)
+          const envio = await enviarMensagem(remoteJid, partesMsg)
+          if (!envio.sucesso) {
+            await enfileirarRetry(remoteJid, partesMsg, envio.erro || "send_failed")
+          }
         }
 
         await logStep(executionId, remoteJid, pushName, "cnpj_lookup", "success", { cnpj: cnpjLimpo }, { razaoSocial: cnpjData.razaoSocial, nomeFantasia: cnpjData.nomeFantasia, situacao: cnpjData.situacao }, null, 0)
@@ -951,7 +560,10 @@ export async function POST(req: NextRequest) {
             })
 
           if (evolutionConfigurado()) {
-            await enviarMensagem(remoteJid, retryMsg)
+            const envio = await enviarMensagem(remoteJid, retryMsg)
+            if (!envio.sucesso) {
+              await enfileirarRetry(remoteJid, retryMsg, envio.erro || "send_failed")
+            }
           }
 
           await logStep(executionId, remoteJid, pushName, "cnpj_lookup", "retry", { cnpj: cnpjLimpo, tentativa: tentativaAtual }, { fallback: false }, "API lookup failed, asking retry", 0)
@@ -973,7 +585,10 @@ export async function POST(req: NextRequest) {
             })
 
           if (evolutionConfigurado()) {
-            await enviarMensagem(remoteJid, confirmarMsg)
+            const envio = await enviarMensagem(remoteJid, confirmarMsg)
+            if (!envio.sucesso) {
+              await enfileirarRetry(remoteJid, confirmarMsg, envio.erro || "send_failed")
+            }
           }
 
           await logStep(executionId, remoteJid, pushName, "cnpj_lookup", "fallback_confirm", { cnpj: cnpjLimpo, tentativa: tentativaAtual }, { estado: "CONFIRMANDO_DADOS_CNPJ" }, "API lookup failed twice, asking user to confirm CNPJ", 0)
@@ -1006,6 +621,7 @@ export async function POST(req: NextRequest) {
       await logStep(executionId, remoteJid, pushName, "send_response", envio.sucesso ? "success" : "error", { remoteJid, msgLength: aiResponse.length }, { sucesso: envio.sucesso, externalId: envio.externalId }, envio.erro || null, sendDuration)
       if (!envio.sucesso) {
         console.error("[AI-Webhook] Falha ao enviar:", envio.erro)
+        await enfileirarRetry(remoteJid, aiResponse, envio.erro || "send_failed")
       }
     } else {
       await logStep(executionId, remoteJid, pushName, "send_response", "skipped", { remoteJid }, { reason: "evolution_not_configured" }, null, 0)
@@ -1045,18 +661,28 @@ export async function POST(req: NextRequest) {
               "",
               ...cats.map((c) => `*${c.titulo}*\n${c.descricao || ""}\n${c.linkUrl}`),
             ].join("\n")
-            await enviarMensagem(remoteJid, linhas)
+            const envio = await enviarMensagem(remoteJid, linhas)
+            if (!envio.sucesso) {
+              await enfileirarRetry(remoteJid, linhas, envio.erro || "send_failed")
+            }
           }
 
           const linhasSemCatalogo = enviarCatalogo.filter(n => !linhasAgrupadas[n])
           if (linhasSemCatalogo.length > 0) {
             const nomesSemCatalogo = linhasSemCatalogo.map(n => linhaMap[n] || `Linha ${n}`).join(", ")
-            await enviarMensagem(remoteJid, `As seguintes linhas ainda nao possuem catalogo disponivel: ${nomesSemCatalogo}. Um representante comercial entrara em contato com mais informacoes.`)
+            const msgSemCatalogo = `As seguintes linhas ainda nao possuem catalogo disponivel: ${nomesSemCatalogo}. Um representante comercial entrara em contato com mais informacoes.`
+            const envio = await enviarMensagem(remoteJid, msgSemCatalogo)
+            if (!envio.sucesso) {
+              await enfileirarRetry(remoteJid, msgSemCatalogo, envio.erro || "send_failed")
+            }
           }
 
           await logStep(executionId, remoteJid, pushName, "send_catalog", "success", { linhas: enviarCatalogo, totalCatalogos: catalogos.length, linhasSemCatalogo }, { catalogosEnviados: true }, null, Date.now() - tCat)
         } else {
-          await enviarMensagem(remoteJid, "No momento nao temos catalogos disponiveis para as linhas selecionadas. Um representante comercial entrara em contato com mais informacoes.")
+          const envio = await enviarMensagem(remoteJid, "No momento nao temos catalogos disponiveis para as linhas selecionadas. Um representante comercial entrara em contato com mais informacoes.")
+          if (!envio.sucesso) {
+            await enfileirarRetry(remoteJid, "No momento nao temos catalogos disponiveis para as linhas selecionadas. Um representante comercial entrara em contato com mais informacoes.", envio.erro || "send_failed")
+          }
           await logStep(executionId, remoteJid, pushName, "send_catalog", "empty", { linhas: enviarCatalogo }, { catalogosEnviados: false, reason: "no_active_catalogs" }, null, Date.now() - tCat)
         }
       } catch (catErr) {
@@ -1066,7 +692,10 @@ export async function POST(req: NextRequest) {
     }
 
     if (finalizado && evolutionConfigurado()) {
-      await enviarMensagem(remoteJid, "Um representante comercial entrara em contato em breve.")
+      const envio = await enviarMensagem(remoteJid, "Um representante comercial entrara em contato em breve.")
+      if (!envio.sucesso) {
+        await enfileirarRetry(remoteJid, "Um representante comercial entrara em contato em breve.", envio.erro || "send_failed")
+      }
     }
 
     if (finalizado && dados.nome) {
@@ -1080,13 +709,20 @@ export async function POST(req: NextRequest) {
       if (!existing) {
         const tLead = Date.now()
         const numero = extrairNumero(remoteJid)
+        const leadScore = calcularLeadScore({
+          tipoPessoa: dados.tipoPessoa,
+          documento: dados.documento,
+          linhasInteresse: dados.linhasInteresse,
+          razaoSocial: dados._cnpjConsulta?.razaoSocial,
+          _cnpjConsulta: dados._cnpjConsulta,
+        })
         const descricaoParts: string[] = []
         if (dados.documento) descricaoParts.push(`Documento: ${dados.documento}`)
         if (dados.tipoPessoa) descricaoParts.push(`Tipo: ${dados.tipoPessoa}`)
         if (dados.linhasInteresseNomes) descricaoParts.push(`Interesse: ${dados.linhasInteresseNomes}`)
         if (dados._cnpjConsulta) descricaoParts.push(`Razao Social: ${dados._cnpjConsulta.razaoSocial}`)
         if (dados._cnpjSemDados) descricaoParts.push("CNPJ nao consultado na Receita Federal")
-        descricaoParts.push("Lead finalizado via WhatsApp")
+        descricaoParts.push(`Lead finalizado via WhatsApp | Score: ${leadScore.score}/100 (${leadScore.prioridade})`)
 
         let nomeLead = dados.nome
         if (dados.tipoPessoa === "PJ" && dados._cnpjConsulta?.razaoSocial) {
@@ -1106,15 +742,18 @@ export async function POST(req: NextRequest) {
             origem: "WHATSAPP",
             descricao: descricaoParts.join(" | "),
             idIntegracao: `whatsapp:${remoteJid}`,
+            score: leadScore.score,
+            prioridade: leadScore.prioridade,
           })
           .returning()
 
         leadCriado = novo
         const leadDuration = Date.now() - tLead
-        await logStep(executionId, remoteJid, pushName, "create_lead", "success", { nome: dados.nome, numero, tipoPessoa: dados.tipoPessoa, documento: dados.documento }, { leadId: novo.id, idIntegracao: `whatsapp:${remoteJid}` }, null, leadDuration)
+        await logStep(executionId, remoteJid, pushName, "create_lead", "success", { nome: dados.nome, numero, tipoPessoa: dados.tipoPessoa, documento: dados.documento, score: leadScore.score, prioridade: leadScore.prioridade }, { leadId: novo.id, idIntegracao: `whatsapp:${remoteJid}`, motivos: leadScore.motivos }, null, leadDuration)
 
         const tNotif = Date.now()
         const numeroNotificacao = dados.tipoPessoa === "PJ" ? REPRESENTANTE_PJ : REPRESENTANTE_PF
+        const scoreTexto = `Score: ${leadScore.score}/100 (${leadScore.prioridade})`
         const textoNotificacao = [
           "*Novo lead cadastrado no CRM*",
           "",
@@ -1125,6 +764,9 @@ export async function POST(req: NextRequest) {
           dados._cnpjConsulta?.razaoSocial ? `Razao Social: ${dados._cnpjConsulta.razaoSocial}` : "",
           dados._cnpjConsulta?.nomeFantasia ? `Nome Fantasia: ${dados._cnpjConsulta.nomeFantasia}` : "",
           dados.linhasInteresseNomes ? `Interesse: ${dados.linhasInteresseNomes}` : "",
+          "",
+          scoreTexto,
+          leadScore.motivos.length > 0 ? `Motivos: ${leadScore.motivos.join(", ")}` : "",
           "",
           "Dados capturados pelo atendente automatico.",
         ].filter(Boolean).join("\n")
@@ -1145,6 +787,13 @@ export async function POST(req: NextRequest) {
       } else {
         await logStep(executionId, remoteJid, pushName, "create_lead", "skipped", { remoteJid }, { reason: "lead_already_exists", existingLeadId: existing.id }, null, 0)
       }
+    }
+
+    // Check for abandoned conversations (lightweight, runs on each webhook)
+    try {
+      await verificarAbandonos()
+    } catch (e) {
+      // silent - abandonment check is non-critical
     }
 
     return NextResponse.json({
