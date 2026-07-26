@@ -43,7 +43,44 @@ CONTEXTO:
 - Estado: {{estado}}
 - Dados: {{dados}}
 
-REGRAS OBRIGATORIAS - O QUE VOCE DEVE FAZER:
+REGRAS DE VALIDACAO POR ESTADO (OBRIGATORIO SEGUIR):
+
+ESTADO COLETANDO_NOME - O que ACEITAR:
+- Apenas um nome proprio ou nome completo (ex: "Tiago", "Maria Silva", "Joao de Sousa")
+- Respostas como "Meu nome e Tiago", "Pode me chamar de Maria", "Sou o Joao"
+
+ESTADO COLETANDO_NOME - O que REJEITAR (NAO registre como nome, peca para repetir):
+- Numeros ou frases com numeros ("Tenho 20 anos", "25", "123")
+- Palavras soltas que nao sao nomes ("Tenho", "Ola", "Bom dia", "Ok", "Sim", "Nao")
+- Respostas do tipo "nao sei", "nao quero informar", "deixa pra la"
+- Frases inteiras que claramente nao sao nomes ("Quero comprar tecido", "Qual o preco")
+- Documentos (CPF, CNPJ) enviados no estado de nome
+Se o que o usuario enviou nao e claramente um nome proprio, responda: "Preciso do seu nome para continuar. Por favor, informe seu nome proprio."
+
+ESTADO COLETANDO_DOC - O que ACEITAR:
+- Opcao 1 ou 2 (ou PF/PJ/fisica/juridica)
+- CPF ou CNPJ (com ou sem formatacao)
+- Pode vir junto: "PF 123.456.789-00" ou "2 PJ 12.345.678/0001-90"
+
+ESTADO COLETANDO_DOC - O que REJEITAR:
+- Nommes, palavras aleatorias, emojis, perguntas sobre preco/produto
+- Respostas que nao contenham numero 1 ou 2, PF/PJ, ou documento
+Se o usuario nao entender, explique: "Por favor, digite 1 para Pessoa Fisica ou 2 para Pessoa Juridica, e em seguida seu CPF ou CNPJ."
+
+ESTADO COLETANDO_INTERESSE - O que ACEITAR:
+- Numeros das linhas listadas, separados por virgula (ex: "1", "1,3", "2 e 4")
+- Nomes das linhas (ex: "Linha Lencol", "Hospitalar")
+
+ESTADO COLETANDO_INTERESSE - O que REJEITAR:
+- Respostas que nao contenham nenhum numero ou nome de linha
+- "Nao sei", "nenhuma", "todos", sem especificar
+Se o usuario nao escolher, responda: "Por favor, escolha pelo menos uma linha digitando o numero correspondente. As opcoes sao: [lista]."
+
+ESTADO CONFIRMACAO - O que ACEITAR:
+- SIM, S, OK, CORRETO, CERTO, CONFIRMO, CLARO para confirmar
+- NAO, N, ERRADO, INCORRETO, ALTERAR para alterar (volta para o estado anterior)
+
+REGRAS GERAIS:
 - Use portugues brasileiro natural, cordial e profissional.
 - Maximo 3 linhas por mensagem.
 - Faca apenas UMA pergunta de cada vez.
@@ -158,12 +195,20 @@ function maquinaEstados(
   const dados = JSON.parse(JSON.stringify(curDados))
   let enviarCatalogo: number[] | undefined
 
+  dados._tentativas = (dados._tentativas || 0) + 1
+  const MAX_TENTATIVAS = 3
+
   if (curEstado === "SAUDACAO") {
     nextEstado = "COLETANDO_NOME"
   } else if (curEstado === "COLETANDO_NOME") {
-    if (msgOriginal.length > 2 && pareceNome(msgOriginal)) {
+    const rejeitado = rejeitarNome(msgOriginal)
+    if (!rejeitado && msgOriginal.length > 2 && pareceNome(msgOriginal)) {
       dados.nome = msgOriginal
       nextEstado = "COLETANDO_DOC"
+      dados._tentativas = 0
+    } else if (dados._tentativas >= MAX_TENTATIVAS) {
+      dados._bloqueado = true
+      dados._motivoBloqueio = "nome_invalido_repetido"
     }
   } else if (curEstado === "COLETANDO_DOC") {
     const tipo = detectarTipo(msg) || (extrairDoc(msgOriginal) ? extrairDoc(msgOriginal)!.tipo : null)
@@ -176,25 +221,67 @@ function maquinaEstados(
     }
     if (dados.documento || dados.tipoPessoa) {
       nextEstado = "COLETANDO_INTERESSE"
+      dados._tentativas = 0
+    } else if (dados._tentativas >= MAX_TENTATIVAS) {
+      dados._bloqueado = true
+      dados._motivoBloqueio = "doc_invalido_repetido"
     }
   } else if (curEstado === "COLETANDO_INTERESSE") {
     const linhas = parseLinhas(msgOriginal, maxNumero)
-    if (linhas.length > 0) {
+    const temNomeLinha = linhas.map(n => linhaMap[n]?.toLowerCase() || "").some(nome => msg.includes(nome))
+    if (linhas.length > 0 || temNomeLinha) {
       dados.linhasInteresse = linhas
       dados.linhasInteresseNomes = linhasNomes(linhas, linhaMap)
       nextEstado = "CONFIRMACAO"
+      dados._tentativas = 0
+    } else if (msg.match(/\b(todos|todas|tudo|qualquer|tanto faz|indiferente|foda-se|se foda)\b/)) {
+      dados.linhasInteresse = Object.keys(linhaMap).map(Number)
+      dados.linhasInteresseNomes = linhasNomes(dados.linhasInteresse, linhaMap)
+      nextEstado = "CONFIRMACAO"
+      dados._tentativas = 0
+    } else if (dados._tentativas >= MAX_TENTATIVAS) {
+      dados._bloqueado = true
+      dados._motivoBloqueio = "interesse_invalido_repetido"
     }
   } else if (curEstado === "CONFIRMACAO") {
     if (confirmou(msg)) {
       nextEstado = "ENCERRADO"
       dados.finalizado = true
       enviarCatalogo = dados.linhasInteresse || []
+      dados._tentativas = 0
+    } else if (negou(msg)) {
+      nextEstado = "COLETANDO_NOME"
+      dados.nome = undefined
+      dados.documento = undefined
+      dados.tipoPessoa = undefined
+      dados.linhasInteresse = undefined
+      dados.linhasInteresseNomes = undefined
+      dados._tentativas = 0
+    } else if (dados._tentativas >= MAX_TENTATIVAS) {
+      dados._bloqueado = true
+      dados._motivoBloqueio = "confirmacao_invalida_repetido"
     }
   } else if (curEstado === "ENCERRADO") {
     dados.finalizado = true
   }
 
   return { nextEstado, dados, finalizado: !!dados.finalizado, enviarCatalogo }
+}
+
+function rejeitarNome(texto: string): string | null {
+  const t = texto.toLowerCase().trim()
+  if (/^\d+$/.test(t)) return "numero_puro"
+  if (/\d/.test(t) && /\b(ano|mes|dia|hora|idade|ano|tel|cel|whatsapp)\b/.test(t)) return "idade_ou_info_pessoal"
+  if (/^(tenho|possuo|sou|meu|minha|meu nome|meu nome e|minha nome)\b/.test(t) && t.split(" ").length <= 3) return "frase_incompleta"
+  if (/^(nao sei|não sei|nao quero|não quero|deixa pra la|deixa pra la|se foda|foda-se|tanto faz|indiferente|whatever|ok|sim|nao|não|s|n)\b/.test(t)) return "resposta_evaziva"
+  if (/^(cpf|cnpj|documento|doc|registro)\b/.test(t)) return "documento_no_nome"
+  if (/^(preco|preço|valor|quanto|custa|frete)\b/.test(t)) return "pergunta_fora_do_fluxo"
+  if (/^(oi|ola|olá|bom dia|boa tarde|boa noite|hello|hi|hey)\b/.test(t) && t.split(" ").length <= 3) return "saudacao_sem_nome"
+  return null
+}
+
+function negou(texto: string): boolean {
+  return /\b(nao|não|errado|incorreto|alterar|corrigir|voltar|diferente|trocar|mudar)\b/.test(texto)
 }
 
 async function chamarGroq(
@@ -431,6 +518,45 @@ export async function POST(req: NextRequest) {
     const stateDuration = Date.now() - tState
 
     await logStep(executionId, remoteJid, pushName, "state_machine", "success", { curEstado: conversa.estado, msg: mensagem.substring(0, 100) }, { nextEstado, dados, finalizado, enviarCatalogo }, null, stateDuration)
+
+    if (dados._bloqueado) {
+      const motivo = dados._motivoBloqueio || "respostas_invalidas"
+      const representante = dados.tipoPessoa === "PJ" ? REPRESENTANTE_PJ : REPRESENTANTE_PF
+      const bloqueioMsg = "Parece que nao estou conseguindo entender suas respostas. Vou te conectar com um representante comercial que podera ajudar voce melhor!"
+      const contatoMsg = `Voce tambem pode entrar em contato diretamente: https://wa.me/${representante}`
+
+      await db.insert(crmWhatsappMensagens).values({ mensagem, tipo: "RECEBIDA", status: "RECEBIDA", remoteJid })
+      await db.insert(crmWhatsappMensagens).values({ mensagem: bloqueioMsg, tipo: "ENVIADA", status: "ENVIADA", remoteJid })
+      await db
+        .insert(crmWhatsappConversas)
+        .values({ remoteJid, estado: "AGUARDANDO_REPRESENTANTE", dados })
+        .onConflictDoUpdate({
+          target: crmWhatsappConversas.remoteJid,
+          set: { estado: sql`EXCLUDED.estado`, dados: sql`EXCLUDED.dados`, updatedAt: sql`NOW()` },
+        })
+
+      if (evolutionConfigurado()) {
+        await enviarMensagem(remoteJid, bloqueioMsg)
+        await enviarMensagem(remoteJid, contatoMsg)
+      }
+
+      const repData = { remoteJid, motivo, estado: "AGUARDANDO_REPRESENTANTE" }
+      try {
+        await db.insert(crmNotificacoes).values({
+          tipo: "WHATSAPP_BLOQUEADO",
+          titulo: "Cliente bloqueado pelo bot",
+          mensagem: `Cliente ${pushName} (${remoteJid}) deu respostas invalidas 3x seguidas. Motivo: ${motivo}. Redirecionado para representante.`,
+          dados: repData,
+          lida: false,
+        })
+      } catch (notifErr) {
+        console.error("[AI-Webhook] Erro ao criar notificacao de bloqueio:", notifErr)
+      }
+
+      await logStep(executionId, remoteJid, pushName, "blocked_transfer", "success", { motivo, representante }, { estadoFinal: "AGUARDANDO_REPRESENTANTE" }, null, 0)
+
+      return NextResponse.json({ ok: true, blocked: true })
+    }
 
     const tSave = Date.now()
     await db.insert(crmWhatsappMensagens).values({ mensagem, tipo: "RECEBIDA", status: "RECEBIDA", remoteJid })
