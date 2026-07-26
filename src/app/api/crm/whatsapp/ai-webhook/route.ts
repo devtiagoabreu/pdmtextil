@@ -6,6 +6,7 @@ import { crmLeads } from "@/lib/db/schema/crm-leads"
 import { crmNotificacoes } from "@/lib/db/schema/crm-notificacoes"
 import { crmWhatsappFlowLogs } from "@/lib/db/schema/crm-whatsapp-flow-logs"
 import { crmWhatsAppCatalogos } from "@/lib/db/schema/crm-whatsapp-catalogos"
+import { crmWhatsAppLinhas } from "@/lib/db/schema/crm-whatsapp-linhas"
 import { eq, sql, desc, and } from "drizzle-orm"
 import { enviarMensagem, evolutionConfigurado } from "@/lib/evolution-api"
 import crypto from "crypto"
@@ -17,7 +18,9 @@ const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 const REPRESENTANTE_PJ = process.env.WHATSAPP_REPRESENTANTE_PJ || "5519999999999"
 const REPRESENTANTE_PF = process.env.WHATSAPP_REPRESENTANTE_PF || "5519999999998"
 
-const SYSTEM_PROMPT = `Voce e o assistente de vendas virtual da Pro Moda Textil, uma industria textil brasileira especializada em tecidos planos, hospitalares e industriais.
+function buildSystemPrompt(linhas: { numero: number; nome: string }[]): string {
+  const listaLinhas = linhas.map(l => `${l.numero} - ${l.nome}`).join("\n")
+  return `Voce e o assistente de vendas virtual da Pro Moda Textil, uma industria textil brasileira especializada em tecidos planos, hospitalares e industriais.
 
 FLUXO DA CONVERSA:
 Estado SAUDACAO: Apresente-se e pergunte "Qual o seu nome?".
@@ -28,11 +31,7 @@ Estado COLETANDO_DOC: Pergunte "Voce e pessoa fisica ou juridica? Digite:
 Depois, informe o seu CPF ou CNPJ.
 Estado COLETANDO_INTERESSE: Informe que todas as linhas sao de tecidos planos e pergunte em qual linha ele tem interesse. O cliente pode escolher UMA ou MAIS linhas separadas por virgula. Use lista numerada:
 "Todas as nossas linhas sao de tecidos planos. Qual delas te interessa? Voce pode escolher mais de uma, separando por virgula (ex: 1,3).
-1 - Linha Lencol
-2 - Linha Hospitalar (lencois e campos)
-3 - Tecidos para Lateral de Colchao
-4 - Tecidos Rusticos e Decoracao
-5 - Movelaria e Forros"
+${listaLinhas}"
 Quando o cliente responder, confirme as linhas escolhidas: "Otimo! Voce tem interesse nas linhas: [LINHAS]. Vou enviar os links do catalogo para voce conferir!".
 Estado CONFIRMACAO: Mostre o resumo dos dados (nome, documento, tipo pessoa) e da(s) linha(s) de interesse. Pergunte "Esta correto? Digite SIM para confirmar."
 Estado ENCERRADO: Informe que os links do catalogo foram enviados acima e que um representante comercial entrara em contato em ate 10 min. Agradeca.
@@ -65,6 +64,7 @@ REGRAS OBRIGATORIAS - O QUE VOCE NAO PODE FAZER:
 - NAO envie mais de uma mensagem por vez.
 - NAO repita a pergunta ja feita.
 - NAO mude de assunto antes de completar o fluxo atual.`
+}
 
 interface EvolutionWebhookBody {
   data?: {
@@ -127,22 +127,14 @@ function confirmou(texto: string): boolean {
   return /\b(sim|s|ss|claro|ok|confirmo|correto|certo)\b/.test(texto)
 }
 
-const LINHA_MAP: Record<number, string> = {
-  1: "Linha Lencol",
-  2: "Linha Hospitalar",
-  3: "Tecidos Lateral Colchao",
-  4: "Tecidos Rusticos e Decoracao",
-  5: "Movelaria e Forros",
-}
-
-function parseLinhas(texto: string): number[] {
+function parseLinhas(texto: string, maxNumero: number): number[] {
   const nums = texto.match(/\d/g)
   if (!nums) return []
-  return [...new Set(nums.map(Number))].filter((n) => n >= 1 && n <= 5).sort()
+  return [...new Set(nums.map(Number))].filter((n) => n >= 1 && n <= maxNumero).sort()
 }
 
-function linhasNomes(nums: number[]): string {
-  return nums.map((n) => `${n} - ${LINHA_MAP[n]}`).join(", ")
+function linhasNomes(nums: number[], linhaMap: Record<number, string>): string {
+  return nums.map((n) => `${n} - ${linhaMap[n]}`).join(", ")
 }
 
 interface MaquinaEstadoResult {
@@ -157,7 +149,9 @@ function maquinaEstados(
   curEstado: string,
   curDados: Record<string, any>,
   msgOriginal: string,
-  aiResponse: string
+  aiResponse: string,
+  linhaMap: Record<number, string>,
+  maxNumero: number
 ): MaquinaEstadoResult {
   const msg = msgOriginal.toLowerCase().trim()
   let nextEstado = curEstado
@@ -184,10 +178,10 @@ function maquinaEstados(
       nextEstado = "COLETANDO_INTERESSE"
     }
   } else if (curEstado === "COLETANDO_INTERESSE") {
-    const linhas = parseLinhas(msgOriginal)
+    const linhas = parseLinhas(msgOriginal, maxNumero)
     if (linhas.length > 0) {
       dados.linhasInteresse = linhas
-      dados.linhasInteresseNomes = linhasNomes(linhas)
+      dados.linhasInteresseNomes = linhasNomes(linhas, linhaMap)
       nextEstado = "CONFIRMACAO"
     }
   } else if (curEstado === "CONFIRMACAO") {
@@ -208,7 +202,8 @@ async function chamarGroq(
   pushName: string,
   estado: string,
   dados: Record<string, any>,
-  historico: Array<{ role: "user" | "assistant"; content: string }>
+  historico: Array<{ role: "user" | "assistant"; content: string }>,
+  linhas: { numero: number; nome: string }[]
 ): Promise<string> {
   const apiKey = process.env.GROQ_API_KEY
   if (!apiKey || apiKey === "cole-sua-chave-groq-aqui") {
@@ -218,7 +213,7 @@ async function chamarGroq(
 
   const model = process.env.GROQ_MODEL || "llama-3.3-70b-versatile"
 
-  const systemMessage = SYSTEM_PROMPT.replace("{{pushName}}", pushName)
+  const systemMessage = buildSystemPrompt(linhas).replace("{{pushName}}", pushName)
     .replace("{{estado}}", estado)
     .replace("{{dados}}", JSON.stringify(dados))
 
@@ -394,6 +389,18 @@ export async function POST(req: NextRequest) {
     const findConvDuration = Date.now() - t0
     await logStep(executionId, remoteJid, pushName, "find_conversation", "success", { remoteJid, isNew, leadExists: !!leadExistenteData }, { estado: conversa.estado, conversaId: conversa.id, dados: conversa.dados }, null, findConvDuration)
 
+    const linhasAtivas = await db
+      .select()
+      .from(crmWhatsAppLinhas)
+      .where(eq(crmWhatsAppLinhas.ativo, true))
+      .orderBy(crmWhatsAppLinhas.numero)
+
+    const linhaMap: Record<number, string> = {}
+    for (const l of linhasAtivas) {
+      linhaMap[l.numero] = l.nome
+    }
+    const maxNumero = linhasAtivas.length > 0 ? linhasAtivas[linhasAtivas.length - 1].numero : 5
+
     if (conversa.estado === "AGUARDANDO_REPRESENTANTE" || conversa.estado === "ENCERRADO") {
       await logStep(executionId, remoteJid, pushName, "state_machine", "ignored", { estado: conversa.estado }, { reason: "conversation_ended" }, null, 0)
       return NextResponse.json({ status: "ignored", reason: "conversation_ended", estado: conversa.estado })
@@ -413,14 +420,14 @@ export async function POST(req: NextRequest) {
     }))
 
     const tGroq = Date.now()
-    const aiResponse = await chamarGroq(mensagem, pushName, conversa.estado, conversa.dados || {}, historico)
+    const aiResponse = await chamarGroq(mensagem, pushName, conversa.estado, conversa.dados || {}, historico, linhasAtivas)
     const groqDuration = Date.now() - tGroq
 
     const groqError = aiResponse.includes("dificuldades tecnicas") || aiResponse.includes("nao consegui processar")
     await logStep(executionId, remoteJid, pushName, "groq_call", groqError ? "error" : "success", { model: process.env.GROQ_MODEL || "llama-3.3-70b-versatile", estado: conversa.estado, historicoSize: historico.length, userMessage: mensagem.substring(0, 100) }, { response: aiResponse.substring(0, 200) }, groqError ? "Groq returned error message" : null, groqDuration)
 
     const tState = Date.now()
-    const { nextEstado, dados, finalizado, enviarCatalogo } = maquinaEstados(conversa.estado, conversa.dados || {}, mensagem, aiResponse)
+    const { nextEstado, dados, finalizado, enviarCatalogo } = maquinaEstados(conversa.estado, conversa.dados || {}, mensagem, aiResponse, linhaMap, maxNumero)
     const stateDuration = Date.now() - tState
 
     await logStep(executionId, remoteJid, pushName, "state_machine", "success", { curEstado: conversa.estado, msg: mensagem.substring(0, 100) }, { nextEstado, dados, finalizado, enviarCatalogo }, null, stateDuration)
@@ -481,7 +488,7 @@ export async function POST(req: NextRequest) {
           }
 
           for (const [linhaNum, cats] of Object.entries(linhasAgrupadas)) {
-            const linhaNome = cats[0]?.linhaNome || `Linha ${linhaNum}`
+            const linhaNome = cats[0]?.linhaNome || linhaMap[Number(linhaNum)] || `Linha ${linhaNum}`
             const linhas = [
               `*Catalogo - ${linhaNome}*`,
               "",
@@ -490,8 +497,15 @@ export async function POST(req: NextRequest) {
             await enviarMensagem(remoteJid, linhas)
           }
 
-          await logStep(executionId, remoteJid, pushName, "send_catalog", "success", { linhas: enviarCatalogo, totalCatalogos: catalogos.length }, { catalogosEnviados: true }, null, Date.now() - tCat)
+          const linhasSemCatalogo = enviarCatalogo.filter(n => !linhasAgrupadas[n])
+          if (linhasSemCatalogo.length > 0) {
+            const nomesSemCatalogo = linhasSemCatalogo.map(n => linhaMap[n] || `Linha ${n}`).join(", ")
+            await enviarMensagem(remoteJid, `As seguintes linhas ainda nao possuem catalogo disponivel: ${nomesSemCatalogo}. Um representante comercial entrara em contato com mais informacoes.`)
+          }
+
+          await logStep(executionId, remoteJid, pushName, "send_catalog", "success", { linhas: enviarCatalogo, totalCatalogos: catalogos.length, linhasSemCatalogo }, { catalogosEnviados: true }, null, Date.now() - tCat)
         } else {
+          await enviarMensagem(remoteJid, "No momento nao temos catalogos disponiveis para as linhas selecionadas. Um representante comercial entrara em contato com mais informacoes.")
           await logStep(executionId, remoteJid, pushName, "send_catalog", "empty", { linhas: enviarCatalogo }, { catalogosEnviados: false, reason: "no_active_catalogs" }, null, Date.now() - tCat)
         }
       } catch (catErr) {
