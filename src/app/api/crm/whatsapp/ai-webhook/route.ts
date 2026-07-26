@@ -581,18 +581,15 @@ export async function POST(req: NextRequest) {
     const maxNumero = linhasAtivas.length > 0 ? linhasAtivas[linhasAtivas.length - 1].numero : 5
 
     if (conversa.estado === "AGUARDANDO_REPRESENTANTE" || conversa.estado === "ENCERRADO") {
-      const numeroRepresentante = REPRESENTANTE_PF
       const msgEncerrada = conversa.estado === "ENCERRADO"
-        ? "Sua atendimento ja foi finalizado e os catalogos foram enviados. Se precisar de mais ajuda, entre em contato com nosso representante comercial."
-        : "Voce ja esta sendo atendido por um representante comercial. Aguarde o contato dele, ou entre em contato diretamente:"
-      const linkContato = `https://wa.me/${numeroRepresentante}`
+        ? "Sua atendimento ja foi finalizado e os catalogos foram enviados. Um representante comercial entrara em contato."
+        : "Voce ja esta sendo atendido por um representante comercial. Aguarde o contato dele."
 
       if (evolutionConfigurado()) {
         await enviarMensagem(remoteJid, msgEncerrada)
-        await enviarMensagem(remoteJid, linkContato)
       }
 
-      await logStep(executionId, remoteJid, pushName, "state_machine", "ignored", { estado: conversa.estado }, { reason: "conversation_ended", whatsappSent: true }, null, 0)
+      await logStep(executionId, remoteJid, pushName, "state_machine", "ignored", { estado: conversa.estado }, { reason: "conversation_ended" }, null, 0)
       return NextResponse.json({ status: "ignored", reason: "conversation_ended", estado: conversa.estado })
     }
 
@@ -626,8 +623,7 @@ export async function POST(req: NextRequest) {
       const motivo = dados._motivoBloqueio || "recusou_corrigir_tipo"
       const nomeFinal = dados.nome && dados.nome.trim().length > 0 ? dados.nome.trim() : "Anonimo"
       const numero = extrairNumero(remoteJid)
-      const bloqueioMsg = "Entendido. Vou te conectar com um representante de pessoa fisica que podera ajudar voce."
-      const contatoMsg = `Voce tambem pode entrar em contato diretamente: https://wa.me/${REPRESENTANTE_PF}`
+      const bloqueioMsg = "Entendido. Um representante comercial entrara em contato para ajudar voce."
 
       try {
         const existente = await db
@@ -668,7 +664,6 @@ export async function POST(req: NextRequest) {
 
       if (evolutionConfigurado()) {
         await enviarMensagem(remoteJid, bloqueioMsg)
-        await enviarMensagem(remoteJid, contatoMsg)
       }
 
       try {
@@ -679,6 +674,21 @@ export async function POST(req: NextRequest) {
           dados: { remoteJid, motivo, nome: nomeFinal, leadId: dados.leadId },
           lida: false,
         })
+
+        if (evolutionConfigurado()) {
+          const numero = extrairNumero(remoteJid)
+          const msgRep = [
+            "*Novo lead - atendimento automatico*",
+            "",
+            `Nome: ${nomeFinal}`,
+            `WhatsApp: https://wa.me/${numero}`,
+            `Tipo: Pessoa Fisica`,
+            `Motivo: ${motivo}`,
+            "",
+            "Cliente recusou informar CNPJ/CPF correto e foi redirecionado para voce.",
+          ].join("\n")
+          await enviarMensagem(`${REPRESENTANTE_PF}@s.whatsapp.net`, msgRep)
+        }
       } catch (notifErr) {
         console.error("[AI-Webhook] Erro ao criar notificacao:", notifErr)
       }
@@ -692,8 +702,7 @@ export async function POST(req: NextRequest) {
       const motivo = dados._motivoBloqueio || "respostas_invalidas"
       const nomeFinal = dados.nome && dados.nome.trim().length > 0 ? dados.nome.trim() : "Anonimo"
       const numero = extrairNumero(remoteJid)
-      const bloqueioMsg = "Parece que nao estou conseguindo entender suas respostas. Vou te conectar com um representante comercial que podera ajudar voce melhor!"
-      const contatoMsg = `Voce tambem pode entrar em contato diretamente: https://wa.me/${REPRESENTANTE_PF}`
+      const bloqueioMsg = "Parece que nao estou conseguindo entender suas respostas. Um representante comercial entrara em contato para ajudar voce."
 
       try {
         const existente = await db
@@ -736,7 +745,6 @@ export async function POST(req: NextRequest) {
 
       if (evolutionConfigurado()) {
         await enviarMensagem(remoteJid, bloqueioMsg)
-        await enviarMensagem(remoteJid, contatoMsg)
       }
 
       const repData = { remoteJid, motivo, nome: nomeFinal, leadId: dados.leadId, estado: "AGUARDANDO_REPRESENTANTE" }
@@ -748,6 +756,21 @@ export async function POST(req: NextRequest) {
           dados: repData,
           lida: false,
         })
+
+        if (evolutionConfigurado()) {
+          const numero = extrairNumero(remoteJid)
+          const msgRep = [
+            "*Novo lead - atendimento automatico*",
+            "",
+            `Nome: ${nomeFinal}`,
+            `WhatsApp: https://wa.me/${numero}`,
+            `Tipo: Pessoa Fisica`,
+            `Motivo do bloqueio: ${motivo}`,
+            "",
+            "Cliente deu respostas invalidas 3x seguidas e foi redirecionado para voce.",
+          ].join("\n")
+          await enviarMensagem(`${REPRESENTANTE_PF}@s.whatsapp.net`, msgRep)
+        }
       } catch (notifErr) {
         console.error("[AI-Webhook] Erro ao criar notificacao de bloqueio:", notifErr)
       }
@@ -928,13 +951,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (finalizado && evolutionConfigurado()) {
-      const numeroRep = dados.tipoPessoa === "PJ" ? REPRESENTANTE_PJ : REPRESENTANTE_PF
-      const msgFinal = [
-        "Um representante comercial entrara em contato em breve.",
-        "",
-        `Voce tambem pode entrar em contato diretamente: https://wa.me/${numeroRep}`,
-      ].join("\n")
-      await enviarMensagem(remoteJid, msgFinal)
+      await enviarMensagem(remoteJid, "Um representante comercial entrara em contato em breve.")
     }
 
     if (finalizado && dados.nome) {
@@ -987,7 +1004,7 @@ export async function POST(req: NextRequest) {
           "*Novo lead cadastrado no CRM*",
           "",
           `Nome: ${nomeLead}`,
-          `Telefone: ${numero}`,
+          `WhatsApp: https://wa.me/${numero}`,
           `Tipo: ${dados.tipoPessoa === "PJ" ? "Pessoa Juridica" : "Pessoa Fisica"}`,
           `Documento: ${dados.documento || "Nao informado"}`,
           dados._cnpjConsulta?.razaoSocial ? `Razao Social: ${dados._cnpjConsulta.razaoSocial}` : "",
