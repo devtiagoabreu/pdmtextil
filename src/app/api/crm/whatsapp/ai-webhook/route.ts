@@ -521,9 +521,39 @@ export async function POST(req: NextRequest) {
 
     if (dados._bloqueado) {
       const motivo = dados._motivoBloqueio || "respostas_invalidas"
-      const representante = dados.tipoPessoa === "PJ" ? REPRESENTANTE_PJ : REPRESENTANTE_PF
+      const nomeFinal = dados.nome && dados.nome.trim().length > 0 ? dados.nome.trim() : "Anonimo"
+      const numero = extrairNumero(remoteJid)
       const bloqueioMsg = "Parece que nao estou conseguindo entender suas respostas. Vou te conectar com um representante comercial que podera ajudar voce melhor!"
-      const contatoMsg = `Voce tambem pode entrar em contato diretamente: https://wa.me/${representante}`
+      const contatoMsg = `Voce tambem pode entrar em contato diretamente: https://wa.me/${REPRESENTANTE_PF}`
+
+      try {
+        const existente = await db
+          .select({ id: crmLeads.id })
+          .from(crmLeads)
+          .where(sql`${eq(crmLeads.idIntegracao, `whatsapp:${remoteJid}`)} OR ${eq(crmLeads.celular, numero)}`)
+          .limit(1)
+          .then((r) => r[0] || null)
+
+        if (!existente) {
+          const [novoLead] = await db.insert(crmLeads).values({
+            nome: nomeFinal,
+            celular: numero,
+            tipoPessoa: "PF",
+            origem: "WHATSAPP",
+            status: "NOVO",
+            descricao: `Lead criado automaticamente via bot (bloqueado). Motivo: ${motivo}. Respostas invalidas 3x seguidas.`,
+            idIntegracao: `whatsapp:${remoteJid}`,
+          }).returning()
+          dados.leadId = novoLead.id
+        } else {
+          dados.leadId = existente.id
+          if (nomeFinal !== "Anonimo") {
+            await db.update(crmLeads).set({ nome: nomeFinal, tipoPessoa: "PF", updatedAt: sql`NOW()` }).where(eq(crmLeads.id, existente.id))
+          }
+        }
+      } catch (leadErr) {
+        console.error("[AI-Webhook] Erro ao criar lead bloqueado:", leadErr)
+      }
 
       await db.insert(crmWhatsappMensagens).values({ mensagem, tipo: "RECEBIDA", status: "RECEBIDA", remoteJid })
       await db.insert(crmWhatsappMensagens).values({ mensagem: bloqueioMsg, tipo: "ENVIADA", status: "ENVIADA", remoteJid })
@@ -540,12 +570,12 @@ export async function POST(req: NextRequest) {
         await enviarMensagem(remoteJid, contatoMsg)
       }
 
-      const repData = { remoteJid, motivo, estado: "AGUARDANDO_REPRESENTANTE" }
+      const repData = { remoteJid, motivo, nome: nomeFinal, leadId: dados.leadId, estado: "AGUARDANDO_REPRESENTANTE" }
       try {
         await db.insert(crmNotificacoes).values({
           tipo: "WHATSAPP_BLOQUEADO",
           titulo: "Cliente bloqueado pelo bot",
-          mensagem: `Cliente ${pushName} (${remoteJid}) deu respostas invalidas 3x seguidas. Motivo: ${motivo}. Redirecionado para representante.`,
+          mensagem: `Cliente ${nomeFinal} (${remoteJid}) deu respostas invalidas 3x seguidas. Motivo: ${motivo}. Lead cadastrado como PF. Redirecionado para representante PF.`,
           dados: repData,
           lida: false,
         })
@@ -553,7 +583,7 @@ export async function POST(req: NextRequest) {
         console.error("[AI-Webhook] Erro ao criar notificacao de bloqueio:", notifErr)
       }
 
-      await logStep(executionId, remoteJid, pushName, "blocked_transfer", "success", { motivo, representante }, { estadoFinal: "AGUARDANDO_REPRESENTANTE" }, null, 0)
+      await logStep(executionId, remoteJid, pushName, "blocked_transfer", "success", { motivo, representante: REPRESENTANTE_PF, nomeFinal, leadId: dados.leadId }, { estadoFinal: "AGUARDANDO_REPRESENTANTE" }, null, 0)
 
       return NextResponse.json({ ok: true, blocked: true })
     }
