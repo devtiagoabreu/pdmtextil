@@ -785,25 +785,52 @@ export async function POST(req: NextRequest) {
 
         return NextResponse.json({ ok: true, cnpjLookup: true })
       } else {
-        const fallbackMsg = `Nao consegui consultar o CNPJ ${dados.documento}. Por favor, verifique se o numero esta correto e tente novamente, ou digite NAO para informar outro documento.`
+        const tentativaAtual = (dados._cnpjTentativas || 0) + 1
+        dados._cnpjTentativas = tentativaAtual
 
-        await db.insert(crmWhatsappMensagens).values({ mensagem, tipo: "RECEBIDA", status: "RECEBIDA", remoteJid })
-        await db.insert(crmWhatsappMensagens).values({ mensagem: fallbackMsg, tipo: "ENVIADA", status: "ENVIADA", remoteJid })
-        await db
-          .insert(crmWhatsappConversas)
-          .values({ remoteJid, estado: nextEstado, dados })
-          .onConflictDoUpdate({
-            target: crmWhatsappConversas.remoteJid,
-            set: { estado: sql`EXCLUDED.estado`, dados: sql`EXCLUDED.dados`, updatedAt: sql`NOW()` },
-          })
+        if (tentativaAtual < 2) {
+          const retryMsg = `Nao consegui consultar o CNPJ ${dados.documento} na Receita Federal. Por favor, verifique se o numero esta correto e informe novamente.`
 
-        if (evolutionConfigurado()) {
-          await enviarMensagem(remoteJid, fallbackMsg)
+          await db.insert(crmWhatsappMensagens).values({ mensagem, tipo: "RECEBIDA", status: "RECEBIDA", remoteJid })
+          await db.insert(crmWhatsappMensagens).values({ mensagem: retryMsg, tipo: "ENVIADA", status: "ENVIADA", remoteJid })
+          await db
+            .insert(crmWhatsappConversas)
+            .values({ remoteJid, estado: nextEstado, dados })
+            .onConflictDoUpdate({
+              target: crmWhatsappConversas.remoteJid,
+              set: { estado: sql`EXCLUDED.estado`, dados: sql`EXCLUDED.dados`, updatedAt: sql`NOW()` },
+            })
+
+          if (evolutionConfigurado()) {
+            await enviarMensagem(remoteJid, retryMsg)
+          }
+
+          await logStep(executionId, remoteJid, pushName, "cnpj_lookup", "retry", { cnpj: cnpjLimpo, tentativa: tentativaAtual }, { fallback: false }, "API lookup failed, asking retry", 0)
+
+          return NextResponse.json({ ok: true, cnpjLookupRetry: true })
+        } else {
+          dados._cnpjSemDados = true
+          dados.tipoPessoa = "PJ"
+          const confirmarMsg = `Nao foi possivel consultar o CNPJ ${dados.documento} na Receita Federal. Posso seguir usando esse CNPJ como Pessoa Juridica? Responda SIM para confirmar ou NAO se preferir ser atendido como pessoa fisica.`
+
+          await db.insert(crmWhatsappMensagens).values({ mensagem, tipo: "RECEBIDA", status: "RECEBIDA", remoteJid })
+          await db.insert(crmWhatsappMensagens).values({ mensagem: confirmarMsg, tipo: "ENVIADA", status: "ENVIADA", remoteJid })
+          await db
+            .insert(crmWhatsappConversas)
+            .values({ remoteJid, estado: "CONFIRMANDO_DADOS_CNPJ", dados })
+            .onConflictDoUpdate({
+              target: crmWhatsappConversas.remoteJid,
+              set: { estado: sql`EXCLUDED.estado`, dados: sql`EXCLUDED.dados`, updatedAt: sql`NOW()` },
+            })
+
+          if (evolutionConfigurado()) {
+            await enviarMensagem(remoteJid, confirmarMsg)
+          }
+
+          await logStep(executionId, remoteJid, pushName, "cnpj_lookup", "fallback_confirm", { cnpj: cnpjLimpo, tentativa: tentativaAtual }, { estado: "CONFIRMANDO_DADOS_CNPJ" }, "API lookup failed twice, asking user to confirm CNPJ", 0)
+
+          return NextResponse.json({ ok: true, cnpjLookupFallback: true })
         }
-
-        await logStep(executionId, remoteJid, pushName, "cnpj_lookup", "error", { cnpj: cnpjLimpo }, { fallback: true }, "API lookup failed", 0)
-
-        return NextResponse.json({ ok: true, cnpjLookupFailed: true })
       }
     }
 
@@ -904,12 +931,22 @@ export async function POST(req: NextRequest) {
         if (dados.documento) descricaoParts.push(`Documento: ${dados.documento}`)
         if (dados.tipoPessoa) descricaoParts.push(`Tipo: ${dados.tipoPessoa}`)
         if (dados.linhasInteresseNomes) descricaoParts.push(`Interesse: ${dados.linhasInteresseNomes}`)
+        if (dados._cnpjConsulta) descricaoParts.push(`Razao Social: ${dados._cnpjConsulta.razaoSocial}`)
+        if (dados._cnpjSemDados) descricaoParts.push("CNPJ nao consultado na Receita Federal")
         descricaoParts.push("Lead finalizado via WhatsApp")
+
+        let nomeLead = dados.nome
+        if (dados.tipoPessoa === "PJ" && dados._cnpjConsulta?.razaoSocial) {
+          nomeLead = dados._cnpjConsulta.nomeFantasia || dados._cnpjConsulta.razaoSocial
+        }
+        if (!nomeLead || nomeLead.trim().length === 0) {
+          nomeLead = "Anonimo"
+        }
 
         const [novo] = await db
           .insert(crmLeads)
           .values({
-            nome: dados.nome,
+            nome: nomeLead,
             celular: numero,
             documento: dados.documento || null,
             tipoPessoa: dados.tipoPessoa || null,
@@ -928,14 +965,16 @@ export async function POST(req: NextRequest) {
         const textoNotificacao = [
           "*Novo lead cadastrado no CRM*",
           "",
-          `Nome: ${dados.nome}`,
+          `Nome: ${nomeLead}`,
           `Telefone: ${numero}`,
           `Tipo: ${dados.tipoPessoa === "PJ" ? "Pessoa Juridica" : "Pessoa Fisica"}`,
           `Documento: ${dados.documento || "Nao informado"}`,
+          dados._cnpjConsulta?.razaoSocial ? `Razao Social: ${dados._cnpjConsulta.razaoSocial}` : "",
+          dados._cnpjConsulta?.nomeFantasia ? `Nome Fantasia: ${dados._cnpjConsulta.nomeFantasia}` : "",
           dados.linhasInteresseNomes ? `Interesse: ${dados.linhasInteresseNomes}` : "",
           "",
           "Dados capturados pelo atendente automatico.",
-        ].join("\n")
+        ].filter(Boolean).join("\n")
 
         await db.insert(crmNotificacoes).values({
           titulo: "Novo lead cadastrado via WhatsApp",
