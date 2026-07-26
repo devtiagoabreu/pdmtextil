@@ -671,7 +671,7 @@ export async function POST(req: NextRequest) {
           tipo: "WHATSAPP_REDIRECIONADO_PF",
           titulo: "Cliente redirecionado para PF",
           mensagem: `Cliente ${nomeFinal} (${remoteJid}) recusou corrigir tipo. Motivo: ${motivo}. Redirecionado para representante PF.`,
-          dados: { remoteJid, motivo, nome: nomeFinal, leadId: dados.leadId },
+          metadados: { remoteJid, motivo, nome: nomeFinal, leadId: dados.leadId },
           lida: false,
         })
 
@@ -753,7 +753,7 @@ export async function POST(req: NextRequest) {
           tipo: "WHATSAPP_BLOQUEADO",
           titulo: "Cliente bloqueado pelo bot",
           mensagem: `Cliente ${nomeFinal} (${remoteJid}) deu respostas invalidas 3x seguidas. Motivo: ${motivo}. Lead cadastrado como PF. Redirecionado para representante PF.`,
-          dados: repData,
+          metadados: repData,
           lida: false,
         })
 
