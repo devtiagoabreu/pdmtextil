@@ -219,6 +219,16 @@ async function consultarCNPJ(cnpj: string): Promise<{ razaoSocial: string; nomeF
   }
 }
 
+function pediuAtendente(texto: string): boolean {
+  const t = texto.toLowerCase().trim()
+  return /\b(falar com|falar pra|atendente|humano|pessoa|representante|suporte|ajuda humana|atencao|admin|gerente)\b/.test(t)
+}
+
+function pediuReiniciar(texto: string): boolean {
+  const t = texto.toLowerCase().trim()
+  return /\b(reiniciar|recomecar|comecar de novo|do zero|comecar do zero|recomecar do zero|resetar|reset|limpar)\b/.test(t)
+}
+
 interface MaquinaEstadoResult {
   nextEstado: string
   dados: Record<string, any>
@@ -510,6 +520,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ status: "ignored", reason: "fromMe" })
     }
     if (!mensagem || !mensagem.trim()) {
+      const msgType = body.data?.messageType || ""
+      if (msgType && msgType !== "conversation" && msgType !== "extendedTextMessage" && msgType !== "") {
+        if (evolutionConfigurado()) {
+          await enviarMensagem(remoteJid, "No momento consigo apenas ler mensagens de texto. Por favor, digite sua resposta.")
+        }
+        await logStep(executionId, remoteJid, pushName, "filter", "media_detected", { msgType }, { reason: "non_text_message" }, null, 0)
+        return NextResponse.json({ status: "ignored", reason: "media_detected" })
+      }
       await logStep(executionId, remoteJid, pushName, "filter", "ignored", { mensagem }, { reason: "empty" }, null, 0)
       return NextResponse.json({ status: "ignored", reason: "empty" })
     }
@@ -568,6 +586,85 @@ export async function POST(req: NextRequest) {
     const findConvDuration = Date.now() - t0
     await logStep(executionId, remoteJid, pushName, "find_conversation", "success", { remoteJid, isNew, leadExists: !!leadExistenteData }, { estado: conversa.estado, conversaId: conversa.id, dados: conversa.dados }, null, findConvDuration)
 
+    const CONVERSATION_TTL_MS = 24 * 60 * 60 * 1000 // 24h
+    const lastUpdate = conversa.updatedAt ? new Date(conversa.updatedAt).getTime() : 0
+    if (lastUpdate && (Date.now() - lastUpdate > CONVERSATION_TTL_MS) && conversa.estado !== "SAUDACAO" && conversa.estado !== "HUMANO_ASSUMINDO") {
+      const dadosReset: Record<string, any> = {}
+      await db
+        .insert(crmWhatsappConversas)
+        .values({ remoteJid, estado: "SAUDACAO", dados: dadosReset })
+        .onConflictDoUpdate({
+          target: crmWhatsappConversas.remoteJid,
+          set: { estado: sql`EXCLUDED.estado`, dados: sql`EXCLUDED.dados`, updatedAt: sql`NOW()` },
+        })
+      conversa = { ...conversa, estado: "SAUDACAO", dados: dadosReset }
+      await logStep(executionId, remoteJid, pushName, "ttl_reset", "success", { previousState: conversa.estado }, { reason: "conversation_expired_24h" }, null, 0)
+    }
+
+    if (pediuReiniciar(mensagem) && conversa.estado !== "SAUDACAO") {
+      const dadosReset: Record<string, any> = {}
+      await db
+        .insert(crmWhatsappConversas)
+        .values({ remoteJid, estado: "SAUDACAO", dados: dadosReset })
+        .onConflictDoUpdate({
+          target: crmWhatsappConversas.remoteJid,
+          set: { estado: sql`EXCLUDED.estado`, dados: sql`EXCLUDED.dados`, updatedAt: sql`NOW()` },
+        })
+      conversa = { ...conversa, estado: "SAUDACAO", dados: dadosReset }
+
+      await db.insert(crmWhatsappMensagens).values({ mensagem, tipo: "RECEBIDA", status: "RECEBIDA", remoteJid })
+      await db.insert(crmWhatsappMensagens).values({ mensagem: "Claro! Vamos comecar novamente. Qual o seu nome?", tipo: "ENVIADA", status: "ENVIADA", remoteJid })
+
+      if (evolutionConfigurado()) {
+        await enviarMensagem(remoteJid, "Claro! Vamos comecar novamente. Qual o seu nome?")
+      }
+
+      await logStep(executionId, remoteJid, pushName, "restart", "success", { previousState: conversa.estado }, { reason: "user_requested_restart" }, null, 0)
+      return NextResponse.json({ ok: true, restarted: true })
+    }
+
+    if (pediuAtendente(mensagem) && conversa.estado !== "AGUARDANDO_REPRESENTANTE" && conversa.estado !== "ENCERRADO" && conversa.estado !== "HUMANO_ASSUMINDO") {
+      const nomeFinal = conversa.dados?.nome || pushName || "Anonimo"
+      const numero = extrairNumero(remoteJid)
+
+      await db.insert(crmWhatsappMensagens).values({ mensagem, tipo: "RECEBIDA", status: "RECEBIDA", remoteJid })
+      await db.insert(crmWhatsappMensagens).values({ mensagem: "Entendido! Vou te conectar com um representante comercial. Aguarde um momento.", tipo: "ENVIADA", status: "ENVIADA", remoteJid })
+      await db
+        .insert(crmWhatsappConversas)
+        .values({ remoteJid, estado: "AGUARDANDO_REPRESENTANTE", dados: conversa.dados || {} })
+        .onConflictDoUpdate({
+          target: crmWhatsappConversas.remoteJid,
+          set: { estado: sql`EXCLUDED.estado`, dados: sql`EXCLUDED.dados`, updatedAt: sql`NOW()` },
+        })
+
+      if (evolutionConfigurado()) {
+        await enviarMensagem(remoteJid, "Entendido! Vou te conectar com um representante comercial. Aguarde um momento.")
+      }
+
+      try {
+        const numeroRep = REPRESENTANTE_PF
+        const msgRep = [
+          "*Solicitacao de atendimento*",
+          "",
+          `Nome: ${nomeFinal}`,
+          `WhatsApp: https://wa.me/${numero}`,
+          "Cliente solicitou falar com um atendente.",
+        ].join("\n")
+        await enviarMensagem(`${numeroRep}@s.whatsapp.net`, msgRep)
+        await db.insert(crmNotificacoes).values({
+          tipo: "WHATSAPP_ESCALACAO",
+          titulo: "Cliente pediu atendente",
+          mensagem: `${nomeFinal} (${remoteJid}) solicitou falar com um atendente.`,
+          metadados: { remoteJid, nome: nomeFinal },
+          lida: false,
+        })
+      } catch (e) {
+        console.error("[AI-Webhook] Erro ao notificar escalation:", e)
+      }
+
+      return NextResponse.json({ ok: true, escalated: true })
+    }
+
     const linhasAtivas = await db
       .select()
       .from(crmWhatsAppLinhas)
@@ -579,6 +676,11 @@ export async function POST(req: NextRequest) {
       linhaMap[l.numero] = l.nome
     }
     const maxNumero = linhasAtivas.length > 0 ? linhasAtivas[linhasAtivas.length - 1].numero : 5
+
+    if (conversa.estado === "HUMANO_ASSUMINDO") {
+      await logStep(executionId, remoteJid, pushName, "state_machine", "ignored", { estado: conversa.estado }, { reason: "human_mode_active" }, null, 0)
+      return NextResponse.json({ status: "ignored", reason: "human_mode_active", estado: conversa.estado })
+    }
 
     if (conversa.estado === "AGUARDANDO_REPRESENTANTE" || conversa.estado === "ENCERRADO") {
       const msgEncerrada = conversa.estado === "ENCERRADO"
@@ -612,6 +714,19 @@ export async function POST(req: NextRequest) {
 
     const groqError = aiResponse.includes("dificuldades tecnicas") || aiResponse.includes("nao consegui processar")
     await logStep(executionId, remoteJid, pushName, "groq_call", groqError ? "error" : "success", { model: process.env.GROQ_MODEL || "llama-3.3-70b-versatile", estado: conversa.estado, historicoSize: historico.length, userMessage: mensagem.substring(0, 100) }, { response: aiResponse.substring(0, 200) }, groqError ? "Groq returned error message" : null, groqDuration)
+
+    if (groqError) {
+      const retryMsg = "Tive uma dificuldade tecnica. Pode repetir sua mensagem, por favor?"
+      await db.insert(crmWhatsappMensagens).values({ mensagem, tipo: "RECEBIDA", status: "RECEBIDA", remoteJid })
+      await db.insert(crmWhatsappMensagens).values({ mensagem: retryMsg, tipo: "ENVIADA", status: "ENVIADA", remoteJid })
+
+      if (evolutionConfigurado()) {
+        await enviarMensagem(remoteJid, retryMsg)
+      }
+
+      await logStep(executionId, remoteJid, pushName, "groq_fallback", "success", { groqError: true }, { retried: true }, null, 0)
+      return NextResponse.json({ ok: true, groqRetry: true })
+    }
 
     const tState = Date.now()
     const { nextEstado, dados, finalizado, enviarCatalogo, needsCnpjLookup, redirecionarPf } = maquinaEstados(conversa.estado, conversa.dados || {}, mensagem, aiResponse, linhaMap, maxNumero)

@@ -12,6 +12,7 @@ import {
   Loader2,
   Activity,
   Package,
+  MessageSquare,
 } from "lucide-react"
 
 interface MenuItem {
@@ -175,7 +176,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
               Monitor WhatsApp
               {isAtiva("/admin/whatsapp-monitor") && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />}
             </Link>
-            <Link
+              <Link
               href="/admin/whatsapp-catalogos"
               onClick={onClose}
               className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
@@ -187,6 +188,19 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
               <Package size={18} className={isAtiva("/admin/whatsapp-catalogos") ? "text-blue-600 dark:text-blue-400" : ""} />
               Catalogos WhatsApp
               {isAtiva("/admin/whatsapp-catalogos") && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />}
+            </Link>
+            <Link
+              href="/admin/whatsapp-chat"
+              onClick={onClose}
+              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
+                isAtiva("/admin/whatsapp-chat")
+                  ? "bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400 shadow-sm"
+                  : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+              }`}
+            >
+              <MessageSquare size={18} className={isAtiva("/admin/whatsapp-chat") ? "text-blue-600 dark:text-blue-400" : ""} />
+              Chat WhatsApp
+              {isAtiva("/admin/whatsapp-chat") && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />}
             </Link>
           </div>
         )}
