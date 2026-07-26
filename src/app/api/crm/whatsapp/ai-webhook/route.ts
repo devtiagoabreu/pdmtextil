@@ -581,7 +581,18 @@ export async function POST(req: NextRequest) {
     const maxNumero = linhasAtivas.length > 0 ? linhasAtivas[linhasAtivas.length - 1].numero : 5
 
     if (conversa.estado === "AGUARDANDO_REPRESENTANTE" || conversa.estado === "ENCERRADO") {
-      await logStep(executionId, remoteJid, pushName, "state_machine", "ignored", { estado: conversa.estado }, { reason: "conversation_ended" }, null, 0)
+      const numeroRepresentante = REPRESENTANTE_PF
+      const msgEncerrada = conversa.estado === "ENCERRADO"
+        ? "Sua atendimento ja foi finalizado e os catalogos foram enviados. Se precisar de mais ajuda, entre em contato com nosso representante comercial."
+        : "Voce ja esta sendo atendido por um representante comercial. Aguarde o contato dele, ou entre em contato diretamente:"
+      const linkContato = `https://wa.me/${numeroRepresentante}`
+
+      if (evolutionConfigurado()) {
+        await enviarMensagem(remoteJid, msgEncerrada)
+        await enviarMensagem(remoteJid, linkContato)
+      }
+
+      await logStep(executionId, remoteJid, pushName, "state_machine", "ignored", { estado: conversa.estado }, { reason: "conversation_ended", whatsappSent: true }, null, 0)
       return NextResponse.json({ status: "ignored", reason: "conversation_ended", estado: conversa.estado })
     }
 
@@ -914,6 +925,16 @@ export async function POST(req: NextRequest) {
         console.error("[AI-Webhook] Erro ao enviar catalogos:", catErr)
         await logStep(executionId, remoteJid, pushName, "send_catalog", "error", { linhas: enviarCatalogo }, {}, catErr instanceof Error ? catErr.message : "Unknown error", Date.now() - tCat)
       }
+    }
+
+    if (finalizado && evolutionConfigurado()) {
+      const numeroRep = dados.tipoPessoa === "PJ" ? REPRESENTANTE_PJ : REPRESENTANTE_PF
+      const msgFinal = [
+        "Um representante comercial entrara em contato em breve.",
+        "",
+        `Voce tambem pode entrar em contato diretamente: https://wa.me/${numeroRep}`,
+      ].join("\n")
+      await enviarMensagem(remoteJid, msgFinal)
     }
 
     if (finalizado && dados.nome) {
