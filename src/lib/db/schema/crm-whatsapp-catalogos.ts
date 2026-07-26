@@ -4,6 +4,7 @@ export const crmWhatsAppCatalogos = pgTable("crm_whatsapp_catalogos", {
   id: serial("id").primaryKey(),
   linhaNumero: integer("linha_numero").notNull(),
   linhaNome: varchar("linha_nome", { length: 100 }).notNull(),
+  tipoPessoa: varchar("tipo_pessoa", { length: 5 }).notNull().default("AMBOS"),
   titulo: varchar("titulo", { length: 255 }).notNull(),
   linkUrl: text("link_url").notNull(),
   descricao: text("descricao"),

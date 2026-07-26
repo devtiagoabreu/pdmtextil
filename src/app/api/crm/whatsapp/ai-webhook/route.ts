@@ -458,15 +458,19 @@ export async function POST(req: NextRequest) {
     if (enviarCatalogo && enviarCatalogo.length > 0 && evolutionConfigurado()) {
       const tCat = Date.now()
       try {
+        const tipoPessoa = dados.tipoPessoa || null
+        const conditions = [
+          eq(crmWhatsAppCatalogos.ativo, true),
+          sql`${crmWhatsAppCatalogos.linhaNumero} IN ${enviarCatalogo}`,
+        ]
+        if (tipoPessoa) {
+          conditions.push(sql`${crmWhatsAppCatalogos.tipoPessoa} IN (${tipoPessoa}, 'AMBOS')`)
+        }
+
         const catalogos = await db
           .select()
           .from(crmWhatsAppCatalogos)
-          .where(
-            and(
-              eq(crmWhatsAppCatalogos.ativo, true),
-              sql`${crmWhatsAppCatalogos.linhaNumero} IN ${enviarCatalogo}`
-            )
-          )
+          .where(and(...conditions))
           .orderBy(crmWhatsAppCatalogos.linhaNumero, crmWhatsAppCatalogos.titulo)
 
         if (catalogos.length > 0) {

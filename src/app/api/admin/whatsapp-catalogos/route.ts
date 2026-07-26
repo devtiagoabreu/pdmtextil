@@ -3,21 +3,30 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { crmWhatsAppCatalogos } from "@/lib/db/schema/crm-whatsapp-catalogos"
-import { eq } from "drizzle-orm"
+import { eq, and, sql } from "drizzle-orm"
 
 export const dynamic = "force-dynamic"
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     if (!session) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
-    const catalogos = await db
-      .select()
-      .from(crmWhatsAppCatalogos)
-      .orderBy(crmWhatsAppCatalogos.linhaNumero, crmWhatsAppCatalogos.titulo)
+    const tipoPessoa = req.nextUrl.searchParams.get("tipoPessoa")
+
+    const conditions = []
+    if (tipoPessoa && tipoPessoa !== "AMBOS") {
+      conditions.push(sql`${crmWhatsAppCatalogos.tipoPessoa} IN (${tipoPessoa}, 'AMBOS')`)
+    }
+
+    const catalogos = conditions.length > 0
+      ? await db.select().from(crmWhatsAppCatalogos)
+          .where(and(...conditions))
+          .orderBy(crmWhatsAppCatalogos.linhaNumero, crmWhatsAppCatalogos.titulo)
+      : await db.select().from(crmWhatsAppCatalogos)
+          .orderBy(crmWhatsAppCatalogos.linhaNumero, crmWhatsAppCatalogos.titulo)
 
     return NextResponse.json(catalogos)
   } catch (error) {
@@ -34,7 +43,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json()
-    const { linhaNumero, linhaNome, titulo, linkUrl, descricao } = body
+    const { linhaNumero, linhaNome, tipoPessoa, titulo, linkUrl, descricao } = body
 
     if (!linhaNumero || !linhaNome || !titulo || !linkUrl) {
       return NextResponse.json({ error: "Campos obrigatórios: linhaNumero, linhaNome, titulo, linkUrl" }, { status: 400 })
@@ -42,7 +51,7 @@ export async function POST(req: NextRequest) {
 
     const [novo] = await db
       .insert(crmWhatsAppCatalogos)
-      .values({ linhaNumero, linhaNome, titulo, linkUrl, descricao: descricao || null })
+      .values({ linhaNumero, linhaNome, tipoPessoa: tipoPessoa || "AMBOS", titulo, linkUrl, descricao: descricao || null })
       .returning()
 
     return NextResponse.json(novo)

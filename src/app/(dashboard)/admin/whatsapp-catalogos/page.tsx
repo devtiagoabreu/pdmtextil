@@ -18,6 +18,7 @@ interface Catalogo {
   id: number
   linhaNumero: number
   linhaNome: string
+  tipoPessoa: string
   titulo: string
   linkUrl: string
   descricao: string | null
@@ -33,10 +34,12 @@ export default function WhatsAppCatalogosPage() {
   const [editId, setEditId] = useState<number | null>(null)
 
   const [linhaNumero, setLinhaNumero] = useState(1)
+  const [tipoPessoa, setTipoPessoa] = useState("AMBOS")
   const [titulo, setTitulo] = useState("")
   const [linkUrl, setLinkUrl] = useState("")
   const [descricao, setDescricao] = useState("")
   const [showForm, setShowForm] = useState(false)
+  const [filtroTipo, setFiltroTipo] = useState<string>("TODOS")
 
   const [showLinhas, setShowLinhas] = useState(false)
   const [linhaEditId, setLinhaEditId] = useState<number | null>(null)
@@ -70,6 +73,7 @@ export default function WhatsAppCatalogosPage() {
 
   const resetForm = () => {
     setLinhaNumero(1)
+    setTipoPessoa("AMBOS")
     setTitulo("")
     setLinkUrl("")
     setDescricao("")
@@ -79,6 +83,7 @@ export default function WhatsAppCatalogosPage() {
 
   const handleEdit = (c: Catalogo) => {
     setLinhaNumero(c.linhaNumero)
+    setTipoPessoa(c.tipoPessoa || "AMBOS")
     setTitulo(c.titulo)
     setLinkUrl(c.linkUrl)
     setDescricao(c.descricao || "")
@@ -98,6 +103,7 @@ export default function WhatsAppCatalogosPage() {
         ...(editId ? { id: editId } : {}),
         linhaNumero,
         linhaNome: linha?.nome || "",
+        tipoPessoa,
         titulo,
         linkUrl,
         descricao: descricao || null,
@@ -251,6 +257,15 @@ export default function WhatsAppCatalogosPage() {
               </select>
             </div>
             <div className="space-y-2">
+              <Label>Tipo de Pessoa *</Label>
+              <select value={tipoPessoa} onChange={e => setTipoPessoa(e.target.value)}
+                className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-sm">
+                <option value="AMBOS">Todos (PF e PJ)</option>
+                <option value="PF">Pessoa Fisica (PF)</option>
+                <option value="PJ">Pessoa Juridica (PJ)</option>
+              </select>
+            </div>
+            <div className="space-y-2">
               <Label>Titulo do Catalogo *</Label>
               <Input value={titulo} onChange={e => setTitulo(e.target.value)} placeholder="Ex: Catalogo Lencol 2026" />
             </div>
@@ -352,23 +367,51 @@ export default function WhatsAppCatalogosPage() {
         <div className="flex justify-center p-8"><Loader2 className="animate-spin text-slate-400" size={24} /></div>
       ) : (
         <div className="space-y-4">
-          {grouped.map(g => (
+          <div className="flex gap-2">
+            {(["TODOS", "PF", "PJ"] as const).map(t => (
+              <button key={t} onClick={() => setFiltroTipo(t)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                  filtroTipo === t
+                    ? "bg-blue-600 text-white"
+                    : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"
+                }`}>
+                {t === "TODOS" ? "Todos" : t === "PF" ? "Pessoa Fisica" : "Pessoa Juridica"}
+              </button>
+            ))}
+          </div>
+
+          {grouped.map(g => {
+            const filteredItems = filtroTipo === "TODOS"
+              ? g.items
+              : g.items.filter(c => c.tipoPessoa === filtroTipo || c.tipoPessoa === "AMBOS")
+            return (
             <div key={g.id} className="rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-white dark:bg-slate-900">
               <div className="px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
                 <h3 className="font-medium text-sm text-slate-700 dark:text-slate-300">
                   {g.numero} - {g.nome}
-                  <span className="ml-2 text-xs text-slate-400">({g.items.length})</span>
+                  <span className="ml-2 text-xs text-slate-400">({filteredItems.length})</span>
                 </h3>
               </div>
-              {g.items.length === 0 ? (
-                <p className="px-4 py-3 text-sm text-slate-400">Nenhum catalogo cadastrado</p>
+              {filteredItems.length === 0 ? (
+                <p className="px-4 py-3 text-sm text-slate-400">
+                  {g.items.length === 0 ? "Nenhum catalogo cadastrado" : "Nenhum catalogo para este filtro"}
+                </p>
               ) : (
                 <div className="divide-y dark:divide-slate-800">
-                  {g.items.map(c => (
+                  {filteredItems.map(c => (
                     <div key={c.id} className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/30">
                       <button onClick={() => handleToggleAtivo(c)} className={`w-2 h-2 rounded-full shrink-0 ${c.ativo ? "bg-green-400" : "bg-slate-300"}`} title={c.ativo ? "Ativo" : "Inativo"} />
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">{c.titulo}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">{c.titulo}</p>
+                          <span className={`shrink-0 text-[10px] font-semibold px-1.5 py-0.5 rounded ${
+                            c.tipoPessoa === "PF" ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+                            : c.tipoPessoa === "PJ" ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300"
+                            : "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
+                          }`}>
+                            {c.tipoPessoa === "PF" ? "PF" : c.tipoPessoa === "PJ" ? "PJ" : "PF/PJ"}
+                          </span>
+                        </div>
                         {c.descricao && <p className="text-xs text-slate-400 truncate">{c.descricao}</p>}
                       </div>
                       <a href={c.linkUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700 shrink-0">
@@ -381,7 +424,8 @@ export default function WhatsAppCatalogosPage() {
                 </div>
               )}
             </div>
-          ))}
+            )
+          })}
           {linhas.length === 0 && !loading && (
             <div className="text-center py-8 text-slate-400 text-sm">
               Cadastre linhas de tecido acima para poder adicionar catalogos.
