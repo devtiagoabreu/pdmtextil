@@ -29,6 +29,8 @@ Estado COLETANDO_DOC: Pergunte "Voce e pessoa fisica ou juridica? Digite:
 1 - Pessoa Fisica (PF)
 2 - Pessoa Juridica (PJ)"
 Depois, informe o seu CPF ou CNPJ.
+Estado CONFIRMANDO_TIPO_PESSOA: O usuario escolheu PF mas informou um CNPJ. Pergunte: "Voce informou um CNPJ, que e de pessoa juridica. Posso seguir tratando como Pessoa Juridica? Se preferir, pode informar um CPF no lugar."
+Estado CONFIRMANDO_DADOS_CNPJ: O sistema consultou os dados do CNPJ. Mostre os dados retornados (razao social, nome fantasia, situacao, endereco) e pergunte: "Esses dados estao corretos?"
 Estado COLETANDO_INTERESSE: Informe que todas as linhas sao de tecidos planos e pergunte em qual linha ele tem interesse. O cliente pode escolher UMA ou MAIS linhas separadas por virgula. Use lista numerada:
 "Todas as nossas linhas sao de tecidos planos. Qual delas te interessa? Voce pode escolher mais de uma, separando por virgula (ex: 1,3).
 ${listaLinhas}"
@@ -42,6 +44,7 @@ CONTEXTO:
 - Cliente: {{pushName}}
 - Estado: {{estado}}
 - Dados: {{dados}}
+- IMPORTANTE: Quando o estado for CONFIRMANDO_TIPO_PESSOA, explique que o CNPJ e de pessoa juridica e pergunte se pode seguir como PJ. Quando o estado for CONFIRMANDO_DADOS_CNPJ, os dados ja foram consultados e estao em dados._cnpjConsulta. Apresente-os ao cliente e peça confirmacao.
 
 REGRAS DE VALIDACAO POR ESTADO (OBRIGATORIO SEGUIR):
 
@@ -66,6 +69,18 @@ ESTADO COLETANDO_DOC - O que REJEITAR:
 - Nommes, palavras aleatorias, emojis, perguntas sobre preco/produto
 - Respostas que nao contenham numero 1 ou 2, PF/PJ, ou documento
 Se o usuario nao entender, explique: "Por favor, digite 1 para Pessoa Fisica ou 2 para Pessoa Juridica, e em seguida seu CPF ou CNPJ."
+
+ESTADO CONFIRMANDO_TIPO_PESSOA - O que ACEITAR:
+- SIM, S, OK, CLARO, PODE SER para confirmar que sera tratado como PJ
+- NAO, N, PREFERO, TENHO CPF para indicar que quer informar CPF
+Se o usuario confirmar, o sistema automaticamente prossegue com os dados do CNPJ.
+Se o usuario recusar, o sistema encaminha para atendente de pessoa fisica.
+
+ESTADO CONFIRMANDO_DADOS_CNPJ - O que ACEITAR:
+- SIM, S, OK, CORRETO, CERTO, CONFIRMO para confirmar que os dados estao corretos
+- NAO, N, ERRADO, INCORRETO, DIFERENTE para indicar que os dados estao errados
+Se confirmar, o sistema prossegue para selecao de linhas.
+Se recusar, o sistema encaminha para atendente de pessoa fisica.
 
 ESTADO COLETANDO_INTERESSE - O que ACEITAR:
 - Numeros das linhas listadas, separados por virgula (ex: "1", "1,3", "2 e 4")
@@ -174,12 +189,44 @@ function linhasNomes(nums: number[], linhaMap: Record<number, string>): string {
   return nums.map((n) => `${n} - ${linhaMap[n]}`).join(", ")
 }
 
+async function consultarCNPJ(cnpj: string): Promise<{ razaoSocial: string; nomeFantasia: string; situacao: string; endereco: string; bairro: string; cidade: string; uf: string } | null> {
+  try {
+    const cnpjLimpo = cnpj.replace(/\D/g, "")
+    const res = await fetch(`https://api.opencnpj.org/${cnpjLimpo}`, {
+      signal: AbortSignal.timeout(10000),
+    })
+    if (!res.ok) return null
+    const data = await res.json()
+    if (!data || !data.razao_social) return null
+    const addr = data.logradouro || ""
+    const num = data.numero || ""
+    const bairro = data.bairro || ""
+    const cidade = data.municipio || ""
+    const uf = data.uf || ""
+    const endereco = num ? `${addr}, ${num}` : addr
+    return {
+      razaoSocial: data.razao_social || "",
+      nomeFantasia: data.nome_fantasia || "",
+      situacao: data.situacao_cadastral || "",
+      endereco,
+      bairro,
+      cidade,
+      uf,
+    }
+  } catch (err) {
+    console.error("[consultarCNPJ] Erro:", err)
+    return null
+  }
+}
+
 interface MaquinaEstadoResult {
   nextEstado: string
   dados: Record<string, any>
   resposta?: string
   finalizado: boolean
   enviarCatalogo?: number[]
+  needsCnpjLookup?: boolean
+  redirecionarPf?: boolean
 }
 
 function maquinaEstados(
@@ -194,6 +241,8 @@ function maquinaEstados(
   let nextEstado = curEstado
   const dados = JSON.parse(JSON.stringify(curDados))
   let enviarCatalogo: number[] | undefined
+  let needsCnpjLookup: boolean | undefined
+  let redirecionarPf: boolean | undefined
 
   dados._tentativas = (dados._tentativas || 0) + 1
   const MAX_TENTATIVAS = 3
@@ -211,20 +260,63 @@ function maquinaEstados(
       dados._motivoBloqueio = "nome_invalido_repetido"
     }
   } else if (curEstado === "COLETANDO_DOC") {
-    const tipo = detectarTipo(msg) || (extrairDoc(msgOriginal) ? extrairDoc(msgOriginal)!.tipo : null)
+    const tipoEscolhido = detectarTipo(msg)
     const doc = extrairDoc(msgOriginal)
-    if (tipo) dados.tipoPessoa = tipo
+
+    if (tipoEscolhido) dados.tipoPessoa = tipoEscolhido
     if (doc) dados.documento = doc.doc
     if (!dados.tipoPessoa && doc) dados.tipoPessoa = doc.tipo
     if (!dados.nome && pareceNome(msgOriginal) && msgOriginal.length < 50) {
       dados.nome = msgOriginal
     }
-    if (dados.documento || dados.tipoPessoa) {
-      nextEstado = "COLETANDO_INTERESSE"
+
+    if (tipoEscolhido === "PF" && doc && doc.tipo === "PJ") {
+      nextEstado = "CONFIRMANDO_TIPO_PESSOA"
       dados._tentativas = 0
+      dados._docRecebido = doc.doc
+    } else if (tipoEscolhido === "PJ" && doc && doc.tipo === "PJ") {
+      dados.tipoPessoa = "PJ"
+      dados.documento = doc.doc
+      needsCnpjLookup = true
+      nextEstado = "CONFIRMANDO_DADOS_CNPJ"
+      dados._tentativas = 0
+    } else if (doc) {
+      if (dados.documento || dados.tipoPessoa) {
+        nextEstado = "COLETANDO_INTERESSE"
+        dados._tentativas = 0
+      }
     } else if (dados._tentativas >= MAX_TENTATIVAS) {
       dados._bloqueado = true
       dados._motivoBloqueio = "doc_invalido_repetido"
+    }
+  } else if (curEstado === "CONFIRMANDO_TIPO_PESSOA") {
+    if (confirmou(msg)) {
+      dados.tipoPessoa = "PJ"
+      dados.documento = dados._docRecebido || dados.documento
+      needsCnpjLookup = true
+      nextEstado = "CONFIRMANDO_DADOS_CNPJ"
+      dados._tentativas = 0
+    } else if (negou(msg)) {
+      redirecionarPf = true
+      dados._bloqueado = true
+      dados._motivoBloqueio = "recusou_corrigir_tipo"
+    } else if (dados._tentativas >= MAX_TENTATIVAS) {
+      redirecionarPf = true
+      dados._bloqueado = true
+      dados._motivoBloqueio = "confirmacao_tipo_invalida_repetido"
+    }
+  } else if (curEstado === "CONFIRMANDO_DADOS_CNPJ") {
+    if (confirmou(msg)) {
+      nextEstado = "COLETANDO_INTERESSE"
+      dados._tentativas = 0
+    } else if (negou(msg)) {
+      redirecionarPf = true
+      dados._bloqueado = true
+      dados._motivoBloqueio = "recusou_dados_cnpj"
+    } else if (dados._tentativas >= MAX_TENTATIVAS) {
+      redirecionarPf = true
+      dados._bloqueado = true
+      dados._motivoBloqueio = "confirmacao_cnpj_invalida_repetido"
     }
   } else if (curEstado === "COLETANDO_INTERESSE") {
     const linhas = parseLinhas(msgOriginal, maxNumero)
@@ -265,7 +357,7 @@ function maquinaEstados(
     dados.finalizado = true
   }
 
-  return { nextEstado, dados, finalizado: !!dados.finalizado, enviarCatalogo }
+  return { nextEstado, dados, finalizado: !!dados.finalizado, enviarCatalogo, needsCnpjLookup, redirecionarPf }
 }
 
 function rejeitarNome(texto: string): string | null {
@@ -514,10 +606,76 @@ export async function POST(req: NextRequest) {
     await logStep(executionId, remoteJid, pushName, "groq_call", groqError ? "error" : "success", { model: process.env.GROQ_MODEL || "llama-3.3-70b-versatile", estado: conversa.estado, historicoSize: historico.length, userMessage: mensagem.substring(0, 100) }, { response: aiResponse.substring(0, 200) }, groqError ? "Groq returned error message" : null, groqDuration)
 
     const tState = Date.now()
-    const { nextEstado, dados, finalizado, enviarCatalogo } = maquinaEstados(conversa.estado, conversa.dados || {}, mensagem, aiResponse, linhaMap, maxNumero)
+    const { nextEstado, dados, finalizado, enviarCatalogo, needsCnpjLookup, redirecionarPf } = maquinaEstados(conversa.estado, conversa.dados || {}, mensagem, aiResponse, linhaMap, maxNumero)
     const stateDuration = Date.now() - tState
 
-    await logStep(executionId, remoteJid, pushName, "state_machine", "success", { curEstado: conversa.estado, msg: mensagem.substring(0, 100) }, { nextEstado, dados, finalizado, enviarCatalogo }, null, stateDuration)
+    await logStep(executionId, remoteJid, pushName, "state_machine", "success", { curEstado: conversa.estado, msg: mensagem.substring(0, 100) }, { nextEstado, dados, finalizado, enviarCatalogo, needsCnpjLookup, redirecionarPf }, null, stateDuration)
+
+    if (redirecionarPf && dados._bloqueado) {
+      const motivo = dados._motivoBloqueio || "recusou_corrigir_tipo"
+      const nomeFinal = dados.nome && dados.nome.trim().length > 0 ? dados.nome.trim() : "Anonimo"
+      const numero = extrairNumero(remoteJid)
+      const bloqueioMsg = "Entendido. Vou te conectar com um representante de pessoa fisica que podera ajudar voce."
+      const contatoMsg = `Voce tambem pode entrar em contato diretamente: https://wa.me/${REPRESENTANTE_PF}`
+
+      try {
+        const existente = await db
+          .select({ id: crmLeads.id })
+          .from(crmLeads)
+          .where(sql`${eq(crmLeads.idIntegracao, `whatsapp:${remoteJid}`)} OR ${eq(crmLeads.celular, numero)}`)
+          .limit(1)
+          .then((r) => r[0] || null)
+
+        if (!existente) {
+          const [novoLead] = await db.insert(crmLeads).values({
+            nome: nomeFinal,
+            celular: numero,
+            tipoPessoa: "PF",
+            origem: "WHATSAPP",
+            status: "NOVO",
+            descricao: `Lead criado via bot. Motivo: ${motivo}. Cliente recusou corrigir tipo/pessoa.`,
+            idIntegracao: `whatsapp:${remoteJid}`,
+          }).returning()
+          dados.leadId = novoLead.id
+        } else {
+          dados.leadId = existente.id
+          await db.update(crmLeads).set({ nome: nomeFinal, tipoPessoa: "PF", updatedAt: sql`NOW()` }).where(eq(crmLeads.id, existente.id))
+        }
+      } catch (leadErr) {
+        console.error("[AI-Webhook] Erro ao criar lead redirecionado PF:", leadErr)
+      }
+
+      await db.insert(crmWhatsappMensagens).values({ mensagem, tipo: "RECEBIDA", status: "RECEBIDA", remoteJid })
+      await db.insert(crmWhatsappMensagens).values({ mensagem: bloqueioMsg, tipo: "ENVIADA", status: "ENVIADA", remoteJid })
+      await db
+        .insert(crmWhatsappConversas)
+        .values({ remoteJid, estado: "AGUARDANDO_REPRESENTANTE", dados })
+        .onConflictDoUpdate({
+          target: crmWhatsappConversas.remoteJid,
+          set: { estado: sql`EXCLUDED.estado`, dados: sql`EXCLUDED.dados`, updatedAt: sql`NOW()` },
+        })
+
+      if (evolutionConfigurado()) {
+        await enviarMensagem(remoteJid, bloqueioMsg)
+        await enviarMensagem(remoteJid, contatoMsg)
+      }
+
+      try {
+        await db.insert(crmNotificacoes).values({
+          tipo: "WHATSAPP_REDIRECIONADO_PF",
+          titulo: "Cliente redirecionado para PF",
+          mensagem: `Cliente ${nomeFinal} (${remoteJid}) recusou corrigir tipo. Motivo: ${motivo}. Redirecionado para representante PF.`,
+          dados: { remoteJid, motivo, nome: nomeFinal, leadId: dados.leadId },
+          lida: false,
+        })
+      } catch (notifErr) {
+        console.error("[AI-Webhook] Erro ao criar notificacao:", notifErr)
+      }
+
+      await logStep(executionId, remoteJid, pushName, "pf_redirect", "success", { motivo, leadId: dados.leadId }, { estadoFinal: "AGUARDANDO_REPRESENTANTE" }, null, 0)
+
+      return NextResponse.json({ ok: true, redirected: true })
+    }
 
     if (dados._bloqueado) {
       const motivo = dados._motivoBloqueio || "respostas_invalidas"
@@ -586,6 +744,67 @@ export async function POST(req: NextRequest) {
       await logStep(executionId, remoteJid, pushName, "blocked_transfer", "success", { motivo, representante: REPRESENTANTE_PF, nomeFinal, leadId: dados.leadId }, { estadoFinal: "AGUARDANDO_REPRESENTANTE" }, null, 0)
 
       return NextResponse.json({ ok: true, blocked: true })
+    }
+
+    if (needsCnpjLookup && dados.documento) {
+      const cnpjLimpo = dados.documento.replace(/\D/g, "")
+      const cnpjData = await consultarCNPJ(cnpjLimpo)
+      if (cnpjData) {
+        dados._cnpjConsulta = cnpjData
+        if (cnpjData.razaoSocial) dados.razaoSocial = cnpjData.razaoSocial
+        if (cnpjData.nomeFantasia && !dados.nome) dados.nomeContato = cnpjData.nomeFantasia
+
+        const nomeEmpresa = cnpjData.razaoSocial || cnpjData.nomeFantasia || "Empresa"
+        const nomeContato = dados.nome || cnpjData.nomeFantasia || ""
+        const partesMsg = [
+          `Encontrei os seguintes dados para o CNPJ ${dados.documento}:`,
+          "",
+          `*Razao Social:* ${cnpjData.razaoSocial || "Nao informado"}`,
+          cnpjData.nomeFantasia ? `*Nome Fantasia:* ${cnpjData.nomeFantasia}` : null,
+          `*Situacao:* ${cnpjData.situacao || "Nao informado"}`,
+          cnpjData.endereco ? `*Endereco:* ${cnpjData.endereco}${cnpjData.bairro ? `, ${cnpjData.bairro}` : ""}${cnpjData.cidade ? ` - ${cnpjData.cidade}/${cnpjData.uf}` : ""}` : null,
+          "",
+          "Esses dados estao corretos? Digite SIM para confirmar ou NAO para informar um CNPJ diferente.",
+        ].filter(Boolean).join("\n")
+
+        await db.insert(crmWhatsappMensagens).values({ mensagem, tipo: "RECEBIDA", status: "RECEBIDA", remoteJid })
+        await db.insert(crmWhatsappMensagens).values({ mensagem: partesMsg, tipo: "ENVIADA", status: "ENVIADA", remoteJid })
+        await db
+          .insert(crmWhatsappConversas)
+          .values({ remoteJid, estado: nextEstado, dados })
+          .onConflictDoUpdate({
+            target: crmWhatsappConversas.remoteJid,
+            set: { estado: sql`EXCLUDED.estado`, dados: sql`EXCLUDED.dados`, updatedAt: sql`NOW()` },
+          })
+
+        if (evolutionConfigurado()) {
+          await enviarMensagem(remoteJid, partesMsg)
+        }
+
+        await logStep(executionId, remoteJid, pushName, "cnpj_lookup", "success", { cnpj: cnpjLimpo }, { razaoSocial: cnpjData.razaoSocial, nomeFantasia: cnpjData.nomeFantasia, situacao: cnpjData.situacao }, null, 0)
+
+        return NextResponse.json({ ok: true, cnpjLookup: true })
+      } else {
+        const fallbackMsg = `Nao consegui consultar o CNPJ ${dados.documento}. Por favor, verifique se o numero esta correto e tente novamente, ou digite NAO para informar outro documento.`
+
+        await db.insert(crmWhatsappMensagens).values({ mensagem, tipo: "RECEBIDA", status: "RECEBIDA", remoteJid })
+        await db.insert(crmWhatsappMensagens).values({ mensagem: fallbackMsg, tipo: "ENVIADA", status: "ENVIADA", remoteJid })
+        await db
+          .insert(crmWhatsappConversas)
+          .values({ remoteJid, estado: nextEstado, dados })
+          .onConflictDoUpdate({
+            target: crmWhatsappConversas.remoteJid,
+            set: { estado: sql`EXCLUDED.estado`, dados: sql`EXCLUDED.dados`, updatedAt: sql`NOW()` },
+          })
+
+        if (evolutionConfigurado()) {
+          await enviarMensagem(remoteJid, fallbackMsg)
+        }
+
+        await logStep(executionId, remoteJid, pushName, "cnpj_lookup", "error", { cnpj: cnpjLimpo }, { fallback: true }, "API lookup failed", 0)
+
+        return NextResponse.json({ ok: true, cnpjLookupFailed: true })
+      }
     }
 
     const tSave = Date.now()
