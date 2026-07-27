@@ -93,7 +93,7 @@ export async function GET() {
       safeQuery(() => db.select({ total: count() }).from(crmCampanhas).where(eq(crmCampanhas.status, "ATIVA")).then(r => r), []),
       safeQuery(() => db.select({ total: sql<string>`COALESCE(SUM(${crmCampanhas.orcamento}), 0)` }).from(crmCampanhas).then(r => r), []),
       safeQuery(() => db.select({ total: count() }).from(emailEnviados).then(r => r), []),
-      safeQuery(() => db.select({ total: count() }).from(emailEnviados).where(eq(emailEnviados.status, "aberto")).then(r => r), []),
+      safeQuery(() => db.select({ total: count() }).from(emailEnviados).where(sql`${emailEnviados.abertoEm} IS NOT NULL`).then(r => r), []),
       safeQuery(() => db.select({ total: count() }).from(emailCliques).then(r => r), []),
     ])
 

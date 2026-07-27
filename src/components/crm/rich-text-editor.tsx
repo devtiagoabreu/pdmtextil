@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useCallback, useState } from "react"
+import { useRef, useCallback, useState, useEffect } from "react"
 import { sanitizeHtml } from "@/lib/sanitize"
 import {
   Bold, Italic, Underline, Strikethrough,
@@ -36,12 +36,22 @@ interface RichTextEditorProps {
 export function RichTextEditor({ value, onChange, placeholder, minHeight = "300px" }: RichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null)
   const savedRange = useRef<Range | null>(null)
+  const initialized = useRef(false)
+  const lastExternalValue = useRef(value)
 
   const [linkDialogOpen, setLinkDialogOpen] = useState(false)
   const [linkUrl, setLinkUrl] = useState("https://")
   const [colorDialogOpen, setColorDialogOpen] = useState(false)
   const [colorMode, setColorMode] = useState<"fore" | "back">("fore")
   const [colorValue, setColorValue] = useState("#000000")
+
+  useEffect(() => {
+    if (editorRef.current && !initialized.current) {
+      editorRef.current.innerHTML = sanitizeHtml(value || "")
+      initialized.current = true
+      lastExternalValue.current = value
+    }
+  }, [value])
 
   const saveSelection = useCallback(() => {
     const sel = window.getSelection()
@@ -161,7 +171,6 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = "300p
         className="w-full p-4 bg-white dark:bg-slate-700 text-slate-950 dark:text-white focus:outline-none overflow-y-auto"
         style={{ fontFamily: "Arial, sans-serif", lineHeight: "1.8", fontSize: "15px", minHeight }}
         data-placeholder={placeholder}
-        dangerouslySetInnerHTML={{ __html: sanitizeHtml(value) }}
       />
 
       <Dialog open={linkDialogOpen} onOpenChange={setLinkDialogOpen}>
