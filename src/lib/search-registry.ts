@@ -184,6 +184,8 @@ export const searchRegistry: SearchItem[] = [
   // CRM — WhatsApp
   { id: "crm-conversas", label: "CRM — Conversas WhatsApp", keywords: ["crm", "whatsapp", "conversas", "chat", "mensagens", "comercial", "lead", "contato"], href: "/comercial/crm/conversas", description: "Conversas do WhatsApp integradas ao CRM", module: "CRM" },
   { id: "crm-notificacoes", label: "CRM — Notificações", keywords: ["crm", "notificacao", "notificacoes", "alerta", "aviso", "sistema", "lead"], href: "/comercial/crm/notificacoes", description: "Central de notificações do sistema CRM", module: "CRM" },
+  { id: "admin-whatsapp-dashboard", label: "Admin — Dashboard WhatsApp", keywords: ["admin", "whatsapp", "dashboard", "metricas", "conversao", "painel", "grafico", "estatistica"], href: "/admin/whatsapp-dashboard", description: "Dashboard de métricas e conversão do WhatsApp", module: "Admin" },
+  { id: "admin-whatsapp-chat", label: "Admin — Chat WhatsApp", keywords: ["admin", "whatsapp", "chat", "atendimento", "humano", "conversa", "mensagem"], href: "/admin/whatsapp-chat", description: "Chat de atendimento WhatsApp com modo humano", module: "Admin" },
   { id: "admin-whatsapp-monitor", label: "Admin — Monitor WhatsApp", keywords: ["admin", "whatsapp", "monitor", "webhook", "flow", "logs", "diagnostico", "debug"], href: "/admin/whatsapp-monitor", description: "Monitor de fluxo do webhook WhatsApp com logs detalhados", module: "Admin" },
   { id: "admin-whatsapp-catalogos", label: "Admin — Catalogos WhatsApp", keywords: ["admin", "whatsapp", "catalogo", "catalogos", "mostruario", "linhas", "tecidos", "links"], href: "/admin/whatsapp-catalogos", description: "Gerenciar links de catalogo por linha de tecidos", module: "Admin" },
 
