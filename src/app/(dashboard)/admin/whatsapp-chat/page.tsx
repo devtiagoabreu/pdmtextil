@@ -363,7 +363,7 @@ export default function WhatsAppChatPage() {
               {isHumano && (
                 <p className="text-[10px] text-orange-600 dark:text-orange-400 mt-1.5 flex items-center gap-1">
                   <AlertTriangle size={10} />
-                  Modo humano ativo — o bot nao respondera esta conversa. Clique "Devolver ao Bot" quando finalizar.
+                  Modo humano ativo — o bot nao respondera esta conversa. Clique &quot;Devolver ao Bot&quot; quando finalizar.
                 </p>
               )}
             </div>
