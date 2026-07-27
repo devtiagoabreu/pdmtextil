@@ -10,6 +10,7 @@ import { PlusCircle, FileText, Clock, Pencil, Trash2, MessageSquare } from "luci
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { useStatuses, hexToRgba } from "@/hooks/use-statuses"
+import ListFilters from "@/components/ui/list-filters"
 
 const TIPO_CONFIG: Record<string, string> = {
   DESENVOLVIMENTO_TECELAGEM:      "Tecelagem",
@@ -33,7 +34,10 @@ export default function ListaSolicitacoesPage() {
   const [deleteTarget, setDeleteTarget] = useState<any>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [deleteBlocked, setDeleteBlocked] = useState(false)
-  const { getLabel: getStatusLabel, getColor: getStatusColor } = useStatuses("SOLICITACAO_DESENVOLVIMENTO")
+  const { statuses, getLabel: getStatusLabel, getColor: getStatusColor } = useStatuses("SOLICITACAO_DESENVOLVIMENTO")
+  const [filteredData, setFilteredData] = useState<any[]>([])
+
+  const statusOptions = statuses.filter(s => s.ativo !== false).map(s => ({ value: s.nome, label: s.rotulo || s.nome }))
 
   useEffect(() => {
     setMounted(true)
@@ -108,7 +112,7 @@ if (isLoading) {
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Minhas Solicitações de Desenvolvimento{info && <InfoButton content={info} />}</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-            {lista?.length || 0} solicitação(ões)
+            {filteredData.length || 0} de {lista?.length || 0} solicitacao(oes)
           </p>
         </div>
         <Link
@@ -120,11 +124,24 @@ if (isLoading) {
         </Link>
       </div>
 
+      <ListFilters
+        config={{
+          searchFields: ["cliente", "solicitanteNome", "produtoCodigoPdm", "produtoIdIntegracaoErpCru", "tipo", "observacoes"],
+          statusOptions,
+          dateField: "createdAt",
+        }}
+        data={lista || []}
+        onFiltered={setFilteredData}
+        placeholder="Buscar por cliente, produto, tipo, criado por..."
+      />
+
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
-        {(!lista || lista.length === 0) ? (
+        {(!filteredData || filteredData.length === 0) ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <FileText className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nenhuma solicitação encontrada</p>
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+              {(lista && lista.length > 0 && filteredData.length === 0) ? "Nenhum resultado para os filtros aplicados" : "Nenhuma solicitacao encontrada"}
+            </p>
             <Link href="/comercial/solicitacoes/nova" className="text-sm text-blue-600 hover:underline mt-2">
               Criar primeira solicitação
             </Link>
@@ -146,7 +163,7 @@ if (isLoading) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {lista.map((s: any) => {
+                {filteredData.map((s: any) => {
                   return (
                     <tr
                       key={s.id}

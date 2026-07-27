@@ -9,6 +9,7 @@ import Link from "next/link"
 import { Plus, Megaphone, Calendar, TrendingUp, Users, DollarSign, ArrowRight, Loader2, Table, Columns } from "lucide-react"
 import CampanhasKanban from "@/components/crm/campanhas-kanban"
 import { FloatableKanban } from "@/components/crm/floatable-kanban"
+import ListFilters from "@/components/ui/list-filters"
 
 const TIPO_LABELS: Record<string, string> = {
   EMAIL: "E-mail",
@@ -35,6 +36,7 @@ export default function CampanhasPage() {
   const searchParams = useSearchParams()
   const info = getInfoContent(pathname)
   const [modo, setModo] = useState<"tabela" | "kanban">(searchParams.get("view") === "kanban" ? "kanban" : "tabela")
+  const [filteredData, setFilteredData] = useState<any[]>([])
   const { data, isLoading } = useQuery({
     queryKey: ["crm-campanhas"],
     queryFn: () => fetch("/api/crm/campanhas").then((r) => r.json()),
@@ -48,7 +50,7 @@ export default function CampanhasPage() {
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Campanhas{info && <InfoButton content={info} />}</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-            Gerencie campanhas de marketing e comunicação
+            {isLoading ? "Carregando..." : `${filteredData.length} de ${campanhas.length} total`}
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -88,11 +90,25 @@ export default function CampanhasPage() {
 
       {modo === "tabela" && (
         <>
+        <ListFilters
+          config={{
+            searchFields: ["nome", "tipo"],
+            statusOptions: [
+              { value: "ATIVA", label: "Ativa" },
+              { value: "PAUSADA", label: "Pausada" },
+              { value: "CONCLUIDA", label: "Concluída" },
+            ],
+            dateField: "dataInicio",
+          }}
+          data={campanhas}
+          onFiltered={setFilteredData}
+          placeholder="Buscar por nome ou tipo..."
+        />
         {isLoading ? (
           <div className="flex justify-center py-20">
             <Loader2 className="animate-spin h-8 w-8 text-slate-400" />
           </div>
-        ) : campanhas.length === 0 ? (
+        ) : filteredData.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <Megaphone className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
             <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nenhuma campanha cadastrada</p>
@@ -102,7 +118,7 @@ export default function CampanhasPage() {
           </div>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {campanhas.map((camp: any) => (
+            {filteredData.map((camp: any) => (
               <Link
                 key={camp.id}
                 href={`/comercial/crm/campanhas/${camp.id}`}

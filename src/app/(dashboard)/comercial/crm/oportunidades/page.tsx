@@ -11,6 +11,7 @@ import { PlusCircle, Target, Search, Table, Columns, Users, User } from "lucide-
 import { toast } from "sonner"
 import { FloatableKanban } from "@/components/crm/floatable-kanban"
 import OportunidadesKanban from "@/components/crm/oportunidades-kanban"
+import ListFilters from "@/components/ui/list-filters"
 
 async function fetchOportunidades(mine: boolean) {
   const res = await fetch(`/api/crm/oportunidades${mine ? "?mine=true" : ""}`)
@@ -41,7 +42,7 @@ export default function OportunidadesPage() {
   const pathname = usePathname()
   const info = getInfoContent(pathname)
   const { data: session } = useSession()
-  const [search, setSearch] = useState("")
+  const [filteredData, setFilteredData] = useState<any[]>([])
   const [modo, setModo] = useState<"tabela" | "kanban">("tabela")
 
   const userRole = (session?.user as any)?.role
@@ -62,11 +63,6 @@ export default function OportunidadesPage() {
     retry: 1,
   })
 
-  const filtered = (oportunidades || []).filter((o: any) =>
-    !search || o.titulo?.toLowerCase().includes(search.toLowerCase()) ||
-    o.empresaNome?.toLowerCase().includes(search.toLowerCase())
-  )
-
   function formatarMoeda(valor: string | null | undefined) {
     if (!valor) return "-"
     return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(Number(valor))
@@ -78,7 +74,7 @@ export default function OportunidadesPage() {
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Oportunidades{info && <InfoButton content={info} />}</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-            {isLoading ? "Carregando..." : `${filtered.length} oportunidade(s)`}
+            {isLoading ? "Carregando..." : `${filteredData.length} de ${(oportunidades || []).length} total`}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -142,23 +138,30 @@ export default function OportunidadesPage() {
 
       {modo === "tabela" && (
       <>
-      <div className="relative max-w-md">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-        <input
-          type="text"
-          placeholder="Buscar por título ou pessoa..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-      </div>
+      <ListFilters
+        config={{
+          searchFields: ["titulo", "empresaNome", "responsavelNome"],
+          statusOptions: [
+            { value: "NOVO", label: "Novo" },
+            { value: "QUALIFICACAO", label: "Qualificação" },
+            { value: "PROPOSTA", label: "Proposta" },
+            { value: "NEGOCIACAO", label: "Negociação" },
+            { value: "FECHADO_GANHO", label: "Fechado Ganho" },
+            { value: "FECHADO_PERDIDO", label: "Fechado Perdido" },
+          ],
+          dateField: "createdAt",
+        }}
+        data={oportunidades || []}
+        onFiltered={setFilteredData}
+        placeholder="Buscar por título ou pessoa..."
+      />
 
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
         {isLoading ? (
           <div className="flex justify-center py-20">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
           </div>
-        ) : filtered.length === 0 ? (
+        ) : filteredData.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <Target className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
             <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nenhuma oportunidade encontrada</p>
@@ -178,7 +181,7 @@ export default function OportunidadesPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {filtered.map((op: any) => (
+                {filteredData.map((op: any) => (
                   <tr
                     key={op.id}
                     className="hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"

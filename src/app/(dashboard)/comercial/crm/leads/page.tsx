@@ -11,6 +11,7 @@ import { toast } from "sonner"
 import { FloatableKanban } from "@/components/crm/floatable-kanban"
 import LeadsKanban from "@/components/crm/leads-kanban"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
+import ListFilters from "@/components/ui/list-filters"
 
 async function fetchLeads() {
   const res = await fetch("/api/crm/leads")
@@ -42,6 +43,7 @@ export default function CrmLeadsPage() {
   const searchParams = useSearchParams()
   const info = getInfoContent(pathname)
   const [search, setSearch] = useState("")
+  const [filteredData, setFilteredData] = useState<any[]>([])
   const [modo, setModo] = useState<"tabela" | "kanban">(searchParams.get("view") === "kanban" ? "kanban" : "tabela")
   const [leadToPerder, setLeadToPerder] = useState<any>(null)
 
@@ -116,7 +118,7 @@ export default function CrmLeadsPage() {
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Leads{info && <InfoButton content={info} />}</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-            {isLoading ? "Carregando..." : `${filtered.length} lead(s)`}
+            {isLoading ? "Carregando..." : `${filteredData.length} de ${(leads || []).length} total`}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -154,25 +156,32 @@ export default function CrmLeadsPage() {
         </div>
       </div>
 
+      <ListFilters
+        config={{
+          searchFields: ["nome", "email", "empresaNome", "responsavelNome", "origem", "tipoPessoa"],
+          statusOptions: [
+            { value: "NOVO", label: "Novo" },
+            { value: "CONTATADO", label: "Contatado" },
+            { value: "QUALIFICADO", label: "Qualificado" },
+            { value: "CONVERTIDO", label: "Convertido" },
+            { value: "PERDIDO", label: "Perdido" },
+          ],
+          dateField: "createdAt",
+        }}
+        data={leads || []}
+        onFiltered={setFilteredData}
+        placeholder="Buscar leads..."
+      />
+
       {modo === "tabela" && (
       <>
-      <div className="relative max-w-md">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-        <input
-          type="text"
-          placeholder="Buscar por nome, email ou pessoa..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-      </div>
 
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
         {isLoading ? (
           <div className="flex justify-center py-20">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
           </div>
-        ) : filtered.length === 0 ? (
+        ) : filteredData.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <UserPlus className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
             <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nenhum lead encontrado</p>
@@ -194,7 +203,7 @@ export default function CrmLeadsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {filtered.map((lead: any) => (
+                {filteredData.map((lead: any) => (
                   <tr key={lead.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
                     <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-medium whitespace-nowrap">
                       <Link href={`/comercial/crm/leads/${lead.id}`} className="text-slate-900 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400">
@@ -307,7 +316,7 @@ export default function CrmLeadsPage() {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
           </div>
         ) : (
-          <FloatableKanban tipo="LEAD"><LeadsKanban leads={filtered} /></FloatableKanban>
+          <FloatableKanban tipo="LEAD"><LeadsKanban leads={filteredData} /></FloatableKanban>
         )
       )}
 

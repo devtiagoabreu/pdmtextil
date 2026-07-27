@@ -7,6 +7,7 @@ import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { Scissors, Plus, FileText, Loader2, Truck, Columns, Table, RotateCw } from "lucide-react"
 import { toast } from "sonner"
+import ListFilters from "@/components/ui/list-filters"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { Button } from "@/components/ui/button"
 import { gerarRequisicaoCortePdf, gerarRequisicaoCortePdfConsolidado, RequisicaoCorteData } from "@/lib/gerar-requisicao-corte-pdf"
@@ -25,6 +26,7 @@ export default function ListaRequisicoesCortePage() {
   const searchParams = useSearchParams()
   const info = getInfoContent(pathname)
   const [data, setData] = useState<any[]>([])
+  const [filteredData, setFilteredData] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [mounted, setMounted] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<any>(null)
@@ -162,7 +164,7 @@ export default function ListaRequisicoesCortePage() {
             Requisições de Corte{info && <InfoButton content={info} />}
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-            {data.length} requisição(ões)
+            {filteredData.length} de {data.length} total
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -216,7 +218,7 @@ export default function ListaRequisicoesCortePage() {
               Paisagem
             </button>
           </div>
-          {data.length > 0 && modo === "tabela" && (
+           {filteredData.length > 0 && modo === "tabela" && (
             <>
               <Button
                 onClick={gerarPdfsSelecionados}
@@ -254,15 +256,30 @@ export default function ListaRequisicoesCortePage() {
         </div>
       </div>
 
-      {modo === "kanban" && data.length > 0 ? (
+      <ListFilters
+        config={{
+          searchFields: ["requisitanteNome"],
+          statusOptions: [
+            { value: "SOLICITADO", label: "Solicitado" },
+            { value: "PROCESSANDO", label: "Processando" },
+            { value: "ATENDIDO", label: "Atendido" },
+          ],
+          dateField: "createdAt",
+        }}
+        data={data}
+        onFiltered={setFilteredData}
+        placeholder="Buscar por requitante..."
+      />
+
+      {modo === "kanban" && filteredData.length > 0 ? (
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden p-4">
           <FloatableKanban tipo="REQUISICAO_CORTE">
-            <RequisicoesCorteKanban data={data} />
+            <RequisicoesCorteKanban data={filteredData} />
           </FloatableKanban>
         </div>
       ) : (
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
-        {data.length === 0 ? (
+        {filteredData.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <Scissors className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
             <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nenhuma requisição encontrada</p>
@@ -278,10 +295,10 @@ export default function ListaRequisicoesCortePage() {
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase w-10">
                     <input
                       type="checkbox"
-                      checked={data.length > 0 && selected.size === data.length}
+                      checked=                    {filteredData.length > 0 && selected.size === filteredData.length}
                       onChange={() => {
-                        if (selected.size === data.length) setSelected(new Set())
-                        else setSelected(new Set(data.map(d => d.id)))
+                        if (selected.size === filteredData.length) setSelected(new Set())
+                        else setSelected(new Set(filteredData.map(d => d.id)))
                       }}
                       className="rounded"
                     />
@@ -296,7 +313,7 @@ export default function ListaRequisicoesCortePage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {data.map((item: any) => {
+                {filteredData.map((item: any) => {
                   const statusCfg = STATUS_CONFIG[item.status] ?? { label: item.status, classes: "bg-slate-100 text-slate-600" }
                   const isSel = selected.has(item.id)
                   return (

@@ -10,6 +10,7 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import { PlusCircle, FileText, Search, Table, Columns, Users, User } from "lucide-react"
 import PropostasKanban from "@/components/crm/propostas-kanban"
 import { FloatableKanban } from "@/components/crm/floatable-kanban"
+import ListFilters from "@/components/ui/list-filters"
 
 async function fetchPropostas(mine: boolean) {
   const res = await fetch(`/api/crm/propostas${mine ? "?mine=true" : ""}`)
@@ -37,7 +38,7 @@ export default function PropostasPage() {
   const searchParams = useSearchParams()
   const info = getInfoContent(pathname)
   const { data: session } = useSession()
-  const [search, setSearch] = useState("")
+  const [filteredData, setFilteredData] = useState<any[]>([])
   const [modo, setModo] = useState<"tabela" | "kanban">(searchParams.get("view") === "kanban" ? "kanban" : "tabela")
 
   const userRole = (session?.user as any)?.role
@@ -58,18 +59,13 @@ export default function PropostasPage() {
     retry: 1,
   })
 
-  const filtered = (propostas || []).filter((p: any) =>
-    !search || p.empresaNome?.toLowerCase().includes(search.toLowerCase()) ||
-    p.titulo?.toLowerCase().includes(search.toLowerCase())
-  )
-
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Propostas{info && <InfoButton content={info} />}</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-            {isLoading ? "Carregando..." : `${filtered.length} proposta(s)`}
+            {isLoading ? "Carregando..." : `${filteredData.length} de ${(propostas || []).length} total`}
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -133,23 +129,28 @@ export default function PropostasPage() {
 
       {modo === "tabela" && (
       <>
-      <div className="relative max-w-md">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-        <input
-          type="text"
-          placeholder="Buscar por pessoa ou título..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-      </div>
+      <ListFilters
+        config={{
+          searchFields: ["titulo", "empresaNome"],
+          statusOptions: [
+            { value: "ENVIADA", label: "Enviada" },
+            { value: "ACEITA", label: "Aceita" },
+            { value: "RECUSADA", label: "Recusada" },
+            { value: "REVISAO", label: "Revisão" },
+          ],
+          dateField: "createdAt",
+        }}
+        data={propostas || []}
+        onFiltered={setFilteredData}
+        placeholder="Buscar por pessoa ou título..."
+      />
 
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
         {isLoading ? (
           <div className="flex justify-center py-20">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
           </div>
-        ) : filtered.length === 0 ? (
+        ) : filteredData.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <FileText className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
             <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nenhuma proposta encontrada</p>
@@ -167,7 +168,7 @@ export default function PropostasPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {filtered.map((p: any) => (
+                {filteredData.map((p: any) => (
                   <tr
                     key={p.id}
                     className="hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"
@@ -202,7 +203,7 @@ export default function PropostasPage() {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
           </div>
         ) : (
-          <FloatableKanban tipo="PROPOSTA"><PropostasKanban propostas={filtered} /></FloatableKanban>
+          <FloatableKanban tipo="PROPOSTA"><PropostasKanban propostas={filteredData} /></FloatableKanban>
         )
       )}
     </div>

@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { PlusCircle, Search, Building2, Phone, Mail, MapPin, Pencil, Users, Database, FileText, FlaskConical, Loader2, X, ExternalLink } from "lucide-react"
+import { PlusCircle, Building2, Phone, Mail, MapPin, Pencil, Users, Database, FileText, FlaskConical, Loader2, X, ExternalLink } from "lucide-react"
 import { toast } from "sonner"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
+import ListFilters from "@/components/ui/list-filters"
 import { getInfoContent } from "@/lib/info-content"
 import { Button } from "@/components/ui/button"
 import ImportarApiModal from "@/components/integracao/ImportarApiModal"
@@ -59,8 +60,8 @@ export default function ClientesPage() {
   const pathname = usePathname()
   const info = getInfoContent(pathname)
   const { getLabel: getStatusLabel, getColor: getStatusColor } = useStatuses("SOLICITACAO_DESENVOLVIMENTO")
-  const [search, setSearch] = useState("")
   const [clientes, setClientes] = useState<Cliente[]>([])
+  const [filteredData, setFilteredData] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [showApiImport, setShowApiImport] = useState(false)
 
@@ -122,12 +123,7 @@ export default function ClientesPage() {
     }
   }
 
-  const filtered = clientes.filter((c) =>
-    c.nome.toLowerCase().includes(search.toLowerCase()) ||
-    c.cnpj.includes(search) ||
-    c.razaoSocial?.toLowerCase().includes(search.toLowerCase()) ||
-    c.cidade?.toLowerCase().includes(search.toLowerCase())
-  )
+
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -135,11 +131,11 @@ export default function ClientesPage() {
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Clientes{info && <InfoButton content={info} />}</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-            {loading ? "Carregando..." : `${filtered.length} cliente${filtered.length !== 1 ? "s" : ""} encontrado${filtered.length !== 1 ? "s" : ""}`}
+            {loading ? "Carregando..." : `${filteredData.length} de ${clientes.length} total`}
           </p>
         </div>
         <div className="flex gap-2">
-          <ExportarDados data={filtered} columns={[
+          <ExportarDados data={filteredData} columns={[
             { key: "nome", label: "Nome" }, { key: "cnpj", label: "CNPJ" }, { key: "email", label: "Email" },
             { key: "telefone", label: "Telefone" }, { key: "cidade", label: "Cidade" }, { key: "uf", label: "UF" },
           ]} filename="clientes-comercial" title="Clientes" />
@@ -157,16 +153,14 @@ export default function ClientesPage() {
         </div>
       </div>
 
-      <div className="relative max-w-md">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-        <input
-          type="text"
-          placeholder="Buscar por nome, CNPJ, razão social ou cidade..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-      </div>
+      <ListFilters
+        config={{
+          searchFields: ["nome", "razaoSocial", "cnpj", "contato", "email", "telefone", "cidade"],
+        }}
+        data={clientes}
+        onFiltered={setFilteredData}
+        placeholder="Buscar por nome, CNPJ, razão social, contato, email, telefone ou cidade..."
+      />
 
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
         {loading ? (
@@ -174,14 +168,14 @@ export default function ClientesPage() {
             <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
             <p className="text-sm text-slate-500 mt-2">Carregando clientes...</p>
           </div>
-        ) : filtered.length === 0 ? (
+        ) : filteredData.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <Building2 className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
             <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nenhum cliente encontrado</p>
           </div>
         ) : (
           <div className="grid gap-4 p-4 md:grid-cols-2 lg:grid-cols-3">
-            {filtered.map((cliente) => (
+            {filteredData.map((cliente) => (
               <div
                 key={cliente.id}
                 className="rounded-lg border border-slate-200 dark:border-slate-700 p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
