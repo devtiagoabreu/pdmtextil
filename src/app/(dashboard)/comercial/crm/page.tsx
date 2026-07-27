@@ -200,11 +200,11 @@ export default function CrmDashboardPage() {
               iconColor="text-violet-600 dark:text-violet-400"
             />
             <SummaryCard
-              href="/email/massivo"
+              href="/admin/email-massa"
               icon={<Mail size={20} />}
               value={data?.emailMassa.enviados ?? 0}
               label="Emails Enviados"
-              sub={`${data?.emailMassa.lidos ?? 0} abertos · ${data?.emailMassa.clicados ?? 0} clicados`}
+              sub={`${data?.emailMassa.clicados ?? 0} cliques · ${data?.emailMassa.lidos ?? 0} abertos`}
               bgColor="bg-teal-100 dark:bg-teal-950/50"
               iconColor="text-teal-600 dark:text-teal-400"
             />
@@ -410,7 +410,7 @@ export default function CrmDashboardPage() {
               <QuickAction href="/comercial/crm/visitas/novo" icon={<Calendar size={18} />} label="Nova Visita" color="text-amber-600" bg="bg-amber-100 dark:bg-amber-950/50" />
               <QuickAction href="/comercial/crm/propostas/novo" icon={<FileText size={18} />} label="Nova Proposta" color="text-cyan-600" bg="bg-cyan-100 dark:bg-cyan-950/50" />
               <QuickAction href="/comercial/crm/campanhas/nova" icon={<Megaphone size={18} />} label="Nova Campanha" color="text-violet-600" bg="bg-violet-100 dark:bg-violet-950/50" />
-              <QuickAction href="/email/massivo" icon={<Mail size={18} />} label="Email Massa" color="text-teal-600" bg="bg-teal-100 dark:bg-teal-950/50" />
+              <QuickAction href="/admin/email-massa" icon={<Mail size={18} />} label="Email Massa" color="text-teal-600" bg="bg-teal-100 dark:bg-teal-950/50" />
               <QuickAction href="/comercial/crm/tarefas" icon={<CheckCircle2 size={18} />} label="Minhas Tarefas" color="text-rose-600" bg="bg-rose-100 dark:bg-rose-950/50" />
             </div>
           </div>

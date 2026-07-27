@@ -13,8 +13,9 @@ async function main() {
 INSERT INTO status (nome, rotulo, tipo, cor, ordem, ativo)
 VALUES
   ('AGENDADA', 'Agendada', 'VISITA', '#3b82f6', 1, true),
-  ('REALIZADA', 'Realizada', 'VISITA', '#22c55e', 2, true),
-  ('CANCELADA', 'Cancelada', 'VISITA', '#ef4444', 3, true)
+  ('EM_ANDAMENTO', 'Em Andamento', 'VISITA', '#f97316', 2, true),
+  ('REALIZADA', 'Realizada', 'VISITA', '#22c55e', 3, true),
+  ('CANCELADA', 'Cancelada', 'VISITA', '#ef4444', 4, true)
 ON CONFLICT (nome, tipo) DO NOTHING;
   `
 

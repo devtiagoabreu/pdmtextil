@@ -56,20 +56,30 @@ export async function POST(
       values.checkInTime = new Date()
       values.checkInLat = latitude ?? null
       values.checkInLng = longitude ?? null
+      if (visita.status === "AGENDADA") {
+        values.status = "EM_ANDAMENTO"
+      }
     } else if (tipo === "undo_check_in") {
       values.checkInTime = null
       values.checkInLat = null
       values.checkInLng = null
+      if (visita.status === "EM_ANDAMENTO") {
+        values.status = "AGENDADA"
+      }
     } else if (tipo === "undo_check_out") {
       values.checkOutTime = null
       values.checkOutLat = null
       values.checkOutLng = null
-      values.status = "AGENDADA"
+      if (visita.status === "REALIZADA") {
+        values.status = "EM_ANDAMENTO"
+      }
     } else {
       values.checkOutTime = new Date()
       values.checkOutLat = latitude ?? null
       values.checkOutLng = longitude ?? null
-      values.status = "REALIZADA"
+      if (visita.status === "EM_ANDAMENTO") {
+        values.status = "REALIZADA"
+      }
     }
 
     const [atualizada] = await db
