@@ -2,18 +2,29 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { chats, chatMensagens, chatParticipantes } from "@/lib/db/schema"
-import { eq, inArray } from "drizzle-orm"
+import { eq, inArray, and } from "drizzle-orm"
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
+    const { userId } = auth
 
     const { id } = await params
     const chatId = parseInt(id)
 
     const [chat] = await db.select().from(chats).where(eq(chats.id, chatId)).limit(1)
     if (!chat) return NextResponse.json({ error: "Chat não encontrado" }, { status: 404 })
+
+    const [jaParticipa] = await db
+      .select()
+      .from(chatParticipantes)
+      .where(and(eq(chatParticipantes.chatId, chatId), eq(chatParticipantes.usuarioId, userId)))
+      .limit(1)
+
+    if (!jaParticipa) {
+      await db.insert(chatParticipantes).values({ chatId, usuarioId: userId })
+    }
 
     const participantes = await db
       .select({

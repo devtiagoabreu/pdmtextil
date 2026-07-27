@@ -2,7 +2,29 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { chats, chatMensagens, chatParticipantes, chatLeituras, usuarios } from "@/lib/db/schema"
+import { solicitacoes } from "@/lib/db/schema/solicitacoes"
+import { produtosCru } from "@/lib/db/schema/produto-cru"
 import { eq, desc, and, or, sql } from "drizzle-orm"
+
+async function getEntidadeResponsavel(entidadeTipo: string, entidadeId: number): Promise<number | null> {
+  if (entidadeTipo === "SOLICITACAO") {
+    const [row] = await db
+      .select({ responsavelId: solicitacoes.responsavelId, solicitanteId: solicitacoes.solicitanteId })
+      .from(solicitacoes)
+      .where(eq(solicitacoes.id, entidadeId))
+      .limit(1)
+    return row?.responsavelId || row?.solicitanteId || null
+  }
+  if (entidadeTipo === "PRODUTO_CRU") {
+    const [row] = await db
+      .select({ criadoPor: produtosCru.criadoPor })
+      .from(produtosCru)
+      .where(eq(produtosCru.id, entidadeId))
+      .limit(1)
+    return row?.criadoPor || null
+  }
+  return null
+}
 
 export async function GET(req: NextRequest) {
   try {
@@ -105,7 +127,14 @@ export async function POST(req: NextRequest) {
     }
 
     const participantes: number[] = []
-    if (destinatarios === "todos") {
+    const isVinculado = !!(entidadeTipo && entidadeId)
+
+    if (isVinculado) {
+      const responsavelId = await getEntidadeResponsavel(entidadeTipo, parseInt(entidadeId))
+      if (responsavelId && responsavelId !== userId) {
+        participantes.push(responsavelId)
+      }
+    } else if (destinatarios === "todos") {
       const todos = await db.select({ id: usuarios.id }).from(usuarios).where(sql`ativo = true`)
       todos.forEach((u) => { if (u.id !== userId) participantes.push(u.id) })
     } else if (Array.isArray(destinatarios)) {

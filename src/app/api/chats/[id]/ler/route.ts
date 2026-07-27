@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { chatLeituras, chatMensagens, chatParticipantes, chats } from "@/lib/db/schema"
+import { notificacoes } from "@/lib/db/schema/notificacoes"
 import { eq, and, inArray } from "drizzle-orm"
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -21,7 +22,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       .limit(1)
 
     if (!participante) {
-      return NextResponse.json({ error: "Você não é participante deste chat" }, { status: 403 })
+      await db.insert(chatParticipantes).values({ chatId, usuarioId: userId })
     }
 
     const mensagens = await db
@@ -63,6 +64,16 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         await db.insert(chatLeituras).values(novas)
       }
     }
+
+    const chatLink = `/chat?chatId=${chatId}`
+    await db
+      .update(notificacoes)
+      .set({ lida: true, lidaEm: new Date() })
+      .where(and(
+        eq(notificacoes.usuarioId, userId),
+        eq(notificacoes.lida, false),
+        eq(notificacoes.link, chatLink),
+      ))
 
     return NextResponse.json({ success: true })
   } catch (error) {
