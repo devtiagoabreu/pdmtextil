@@ -512,6 +512,8 @@ export async function POST(req: NextRequest) {
       const motivo = dados._motivoBloqueio || "respostas_invalidas"
       const nomeFinal = dados.nome && dados.nome.trim().length > 0 ? dados.nome.trim() : "Anonimo"
       const numero = extrairNumero(remoteJid)
+      const tipoPessoaFinal = dados.tipoPessoa || "PF"
+      const repNumero = tipoPessoaFinal === "PJ" ? REPRESENTANTE_PJ : REPRESENTANTE_PF
       const bloqueioMsg = "Parece que nao estou conseguindo entender suas respostas. Um representante comercial entrara em contato para ajudar voce."
 
       try {
@@ -523,11 +525,11 @@ export async function POST(req: NextRequest) {
           .then((r) => r[0] || null)
 
         if (!existente) {
-          const blockedLeadScore = calcularLeadScore({ tipoPessoa: "PF", documento: null })
+          const blockedLeadScore = calcularLeadScore({ tipoPessoa: tipoPessoaFinal, documento: dados.documento || null })
           const [novoLead] = await db.insert(crmLeads).values({
             nome: nomeFinal,
             celular: numero,
-            tipoPessoa: "PF",
+            tipoPessoa: tipoPessoaFinal,
             origem: "WHATSAPP",
             status: "NOVO",
             descricao: `Lead criado automaticamente via bot (bloqueado). Motivo: ${motivo}. Respostas invalidas 3x seguidas. | Score: ${blockedLeadScore.score}/100 (${blockedLeadScore.prioridade})`,
@@ -539,7 +541,7 @@ export async function POST(req: NextRequest) {
         } else {
           dados.leadId = existente.id
           if (nomeFinal !== "Anonimo") {
-            await db.update(crmLeads).set({ nome: nomeFinal, tipoPessoa: "PF", updatedAt: sql`NOW()` }).where(eq(crmLeads.id, existente.id))
+            await db.update(crmLeads).set({ nome: nomeFinal, tipoPessoa: tipoPessoaFinal, updatedAt: sql`NOW()` }).where(eq(crmLeads.id, existente.id))
           }
         }
       } catch (leadErr) {
@@ -565,10 +567,11 @@ export async function POST(req: NextRequest) {
 
       const repData = { remoteJid, motivo, nome: nomeFinal, leadId: dados.leadId, estado: "AGUARDANDO_REPRESENTANTE" }
       try {
+        const tipoLabel = tipoPessoaFinal === "PJ" ? "Pessoa Juridica" : "Pessoa Fisica"
         await db.insert(crmNotificacoes).values({
           tipo: "WHATSAPP_BLOQUEADO",
           titulo: "Cliente bloqueado pelo bot",
-          mensagem: `Cliente ${nomeFinal} (${remoteJid}) deu respostas invalidas 3x seguidas. Motivo: ${motivo}. Lead cadastrado como PF. Redirecionado para representante PF.`,
+          mensagem: `Cliente ${nomeFinal} (${remoteJid}) deu respostas invalidas 3x seguidas. Motivo: ${motivo}. Lead cadastrado como ${tipoLabel}. Redirecionado para representante ${tipoLabel}.`,
           metadados: repData,
           lida: false,
         })
@@ -580,18 +583,18 @@ export async function POST(req: NextRequest) {
             "",
             `Nome: ${nomeFinal}`,
             `WhatsApp: https://wa.me/${numero}`,
-            `Tipo: Pessoa Fisica`,
+            `Tipo: ${tipoLabel}`,
             `Motivo do bloqueio: ${motivo}`,
             "",
             "Cliente deu respostas invalidas 3x seguidas e foi redirecionado para voce.",
           ].join("\n")
-          await enviarMensagem(`${REPRESENTANTE_PF}@s.whatsapp.net`, msgRep)
+          await enviarMensagem(`${repNumero}@s.whatsapp.net`, msgRep)
         }
       } catch (notifErr) {
         console.error("[AI-Webhook] Erro ao criar notificacao de bloqueio:", notifErr)
       }
 
-      await logStep(executionId, remoteJid, pushName, "blocked_transfer", "success", { motivo, representante: REPRESENTANTE_PF, nomeFinal, leadId: dados.leadId }, { estadoFinal: "AGUARDANDO_REPRESENTANTE" }, null, 0)
+      await logStep(executionId, remoteJid, pushName, "blocked_transfer", "success", { motivo, representante: repNumero, nomeFinal, leadId: dados.leadId }, { estadoFinal: "AGUARDANDO_REPRESENTANTE" }, null, 0)
 
       return NextResponse.json({ ok: true, blocked: true })
     }
@@ -614,7 +617,7 @@ export async function POST(req: NextRequest) {
           `*Situacao:* ${cnpjData.situacao || "Nao informado"}`,
           cnpjData.endereco ? `*Endereco:* ${cnpjData.endereco}${cnpjData.bairro ? `, ${cnpjData.bairro}` : ""}${cnpjData.cidade ? ` - ${cnpjData.cidade}/${cnpjData.uf}` : ""}` : null,
           "",
-          "Esses dados estao corretos? Digite SIM para confirmar ou NAO para informar um CNPJ diferente.",
+          "Esses dados estao corretos? Digite SIM para confirmar ou NAO para prosseguir sem validacao do CNPJ.",
         ].filter(Boolean).join("\n")
 
         await db.insert(crmWhatsappMensagens).values({ mensagem, tipo: "RECEBIDA", status: "RECEBIDA", remoteJid })
@@ -667,7 +670,7 @@ export async function POST(req: NextRequest) {
         } else {
           dados._cnpjSemDados = true
           dados.tipoPessoa = "PJ"
-          const confirmarMsg = `Nao foi possivel consultar o CNPJ ${dados.documento} na Receita Federal. Posso seguir usando esse CNPJ como Pessoa Juridica? Responda SIM para confirmar ou NAO se preferir ser atendido como pessoa fisica.`
+          const confirmarMsg = `Nao foi possivel consultar o CNPJ ${dados.documento} na Receita Federal. Posso seguir usando esse CNPJ como Pessoa Juridica? Responda SIM para confirmar.`
 
           await db.insert(crmWhatsappMensagens).values({ mensagem, tipo: "RECEBIDA", status: "RECEBIDA", remoteJid })
           await db.insert(crmWhatsappMensagens).values({ mensagem: confirmarMsg, tipo: "ENVIADA", status: "ENVIADA", remoteJid })

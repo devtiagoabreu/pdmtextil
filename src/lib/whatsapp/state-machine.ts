@@ -68,6 +68,14 @@ export function maquinaEstados(
       needsCnpjLookup = true
       nextEstado = "CONFIRMANDO_DADOS_CNPJ"
       dados._tentativas = 0
+    } else if (tipoEscolhido === "PJ" && !doc) {
+      dados.tipoPessoa = "PJ"
+      nextEstado = "COLETANDO_INTERESSE"
+      dados._tentativas = 0
+    } else if (tipoEscolhido === "PF") {
+      dados.tipoPessoa = "PF"
+      nextEstado = "COLETANDO_INTERESSE"
+      dados._tentativas = 0
     } else if (doc) {
       if (dados.documento || dados.tipoPessoa) {
         nextEstado = "COLETANDO_INTERESSE"
@@ -98,13 +106,13 @@ export function maquinaEstados(
       nextEstado = "COLETANDO_INTERESSE"
       dados._tentativas = 0
     } else if (negou(msg)) {
-      redirecionarPf = true
-      dados._bloqueado = true
-      dados._motivoBloqueio = "recusou_dados_cnpj"
+      dados.documento = undefined
+      dados._cnpjConsulta = undefined
+      nextEstado = "COLETANDO_INTERESSE"
+      dados._tentativas = 0
     } else if (dados._tentativas >= MAX_TENTATIVAS) {
-      redirecionarPf = true
-      dados._bloqueado = true
-      dados._motivoBloqueio = "confirmacao_cnpj_invalida_repetido"
+      nextEstado = "COLETANDO_INTERESSE"
+      dados._tentativas = 0
     }
   } else if (curEstado === "COLETANDO_INTERESSE") {
     const linhas = parseLinhas(msgOriginal, maxNumero)
