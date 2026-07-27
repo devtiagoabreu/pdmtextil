@@ -75,6 +75,7 @@ export default function ListFilters({ config, data, onFiltered, placeholder }: P
 
   useEffect(() => {
     onFiltered(filtered)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filtered])
 
   const hasActiveFilters = search || statusFilter !== "all" || dateFrom || dateTo
@@ -105,7 +106,7 @@ export default function ListFilters({ config, data, onFiltered, placeholder }: P
         </div>
 
         {config.statusOptions && config.statusOptions.length > 0 && (
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v || "all")}>
             <SelectTrigger className="h-9 text-sm w-full sm:w-[180px]">
               <Filter size={14} className="mr-1.5 text-slate-400" />
               <SelectValue placeholder="Status" />
