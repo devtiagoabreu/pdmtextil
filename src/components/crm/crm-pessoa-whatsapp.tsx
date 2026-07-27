@@ -106,9 +106,13 @@ export default function CrmPessoaWhatsapp({ pessoaId }: { pessoaId: string }) {
   }
 
   function formatTime(dateStr: string) {
-    return new Date(dateStr).toLocaleString("pt-BR", {
-      day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit",
-    })
+    const d = new Date(dateStr)
+    const dias = ["dom", "seg", "ter", "qua", "qui", "sex", "sab"]
+    const dd = String(d.getDate()).padStart(2, "0")
+    const mm = String(d.getMonth() + 1).padStart(2, "0")
+    const hh = String(d.getHours()).padStart(2, "0")
+    const min = String(d.getMinutes()).padStart(2, "0")
+    return `${dd}/${mm} ${hh}:${min} (${dias[d.getDay()]})`
   }
 
   if (loading) {

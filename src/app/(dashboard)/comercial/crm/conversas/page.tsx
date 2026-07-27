@@ -47,10 +47,12 @@ export default function ConversasPage() {
 
   function formatTime(dateStr: string) {
     const d = new Date(dateStr)
-    const now = new Date()
-    const diff = now.getTime() - d.getTime()
-    if (diff < 86400000) return d.toLocaleString("pt-BR", { hour: "2-digit", minute: "2-digit" })
-    return d.toLocaleString("pt-BR", { day: "2-digit", month: "2-digit" })
+    const dias = ["dom", "seg", "ter", "qua", "qui", "sex", "sab"]
+    const dd = String(d.getDate()).padStart(2, "0")
+    const mm = String(d.getMonth() + 1).padStart(2, "0")
+    const hh = String(d.getHours()).padStart(2, "0")
+    const min = String(d.getMinutes()).padStart(2, "0")
+    return `${dd}/${mm} ${hh}:${min} (${dias[d.getDay()]})`
   }
 
   const info = getInfoContent("/comercial/crm/conversas")

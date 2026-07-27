@@ -17,6 +17,17 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "remoteJid obrigatório" }, { status: 400 })
     }
 
+    await db
+      .update(crmWhatsappMensagens)
+      .set({ lida: true })
+      .where(
+        and(
+          eq(crmWhatsappMensagens.remoteJid, remoteJid),
+          eq(crmWhatsappMensagens.tipo, "RECEBIDA"),
+          eq(crmWhatsappMensagens.lida, false),
+        )
+      )
+
     const mensagens = await db
       .select()
       .from(crmWhatsappMensagens)

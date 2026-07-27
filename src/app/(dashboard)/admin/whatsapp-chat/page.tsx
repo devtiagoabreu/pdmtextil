@@ -330,7 +330,7 @@ export default function WhatsAppChatPage() {
                         <p className="whitespace-pre-wrap break-words">{msg.mensagem}</p>
                         <div className={`flex items-center gap-1 mt-1 ${isFromBot ? "justify-end" : ""}`}>
                           <span className={`text-[10px] ${isFromBot ? "text-blue-200" : "text-slate-400"}`}>
-                            {msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : ""}
+                            {msg.createdAt ? (() => { const d = new Date(msg.createdAt); const dias = ["dom","seg","ter","qua","qui","sex","sab"]; return `${String(d.getDate()).padStart(2,"0")}/${String(d.getMonth()+1).padStart(2,"0")} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")} (${dias[d.getDay()]})` })() : ""}
                           </span>
                           {isFromBot && (
                             msg.status === "ENTREGUE" ? <CheckCheck size={12} className="text-blue-200" /> :
