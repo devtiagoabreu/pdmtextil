@@ -194,7 +194,7 @@ export default function CrmDashboardPage() {
               icon={<Mail size={20} />}
               value={data?.emailMassa.enviados ?? 0}
               label="Emails Enviados"
-              sub={`${data?.emailMassa.lidos ?? 0} lidos · ${data?.emailMassa.clicados ?? 0} clicados`}
+              sub={`${data?.emailMassa.lidos ?? 0} abertos · ${data?.emailMassa.clicados ?? 0} clicados`}
               bgColor="bg-teal-100 dark:bg-teal-950/50"
               iconColor="text-teal-600 dark:text-teal-400"
             />
