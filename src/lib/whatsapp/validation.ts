@@ -1,7 +1,7 @@
 export function extrairDoc(texto: string): { doc: string; tipo: string } | null {
-  const cnpj = texto.match(/\d{2}\.?\d{3}\.?\d{3}\/?\d{4}-?\d{2}/)
+  const cnpj = texto.match(/\d{2}\.?\d{3}\.?\d{3}\/?\d{4}-?\d{2}|\b\d{14}\b/)
   if (cnpj) return { doc: cnpj[0], tipo: "PJ" }
-  const cpf = texto.match(/\d{3}\.?\d{3}\.?\d{3}-?\d{2}/)
+  const cpf = texto.match(/\d{3}\.?\d{3}\.?\d{3}-?\d{2}|\b\d{11}\b/)
   if (cpf) return { doc: cpf[0], tipo: "PF" }
   return null
 }
@@ -29,6 +29,27 @@ export function parseLinhas(texto: string, maxNumero: number): number[] {
 
 export function linhasNomes(nums: number[], linhaMap: Record<number, string>): string {
   return nums.map((n) => `${n} - ${linhaMap[n]}`).join(", ")
+}
+
+export function extrairNomeDaResposta(texto: string): string | null {
+  const t = texto.toLowerCase().trim()
+  const padroes = [
+    /\b(?:meu\s+nome\s+e|me\s+chamo|pode\s+me\s+chamar\s+de|sou\s+a?o?\s+|me\s+informo\s+como)\s+(.+)/i,
+    /^(.+?)(?:aqui|falando|escrevendo|contatando)/i,
+  ]
+  for (const padrao of padroes) {
+    const m = texto.match(padrao)
+    if (m && m[1]) {
+      let nome = m[1].trim().replace(/[.,!?;:]+$/, "").trim()
+      if (nome.length > 2 && nome.length < 60 && pareceNome(nome) && !rejeitarNome(nome)) {
+        return nome
+      }
+    }
+  }
+  if (pareceNome(texto) && !rejeitarNome(texto) && texto.split(" ").length <= 4 && texto.length < 40) {
+    return texto.trim()
+  }
+  return null
 }
 
 export function rejeitarNome(texto: string): string | null {

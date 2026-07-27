@@ -1,4 +1,4 @@
-import { rejeitarNome, negou, confirmou, parseLinhas, linhasNomes, pareceNome, detectarTipo, extrairDoc } from "./validation"
+import { rejeitarNome, negou, confirmou, parseLinhas, linhasNomes, pareceNome, detectarTipo, extrairDoc, extrairNomeDaResposta } from "./validation"
 
 export interface MaquinaEstadoResult {
   nextEstado: string
@@ -29,7 +29,14 @@ export function maquinaEstados(
   const MAX_TENTATIVAS = 3
 
   if (curEstado === "SAUDACAO") {
-    nextEstado = "COLETANDO_NOME"
+    const nomeDetectado = extrairNomeDaResposta(msgOriginal)
+    if (nomeDetectado) {
+      dados.nome = nomeDetectado
+      nextEstado = "COLETANDO_DOC"
+      dados._tentativas = 0
+    } else {
+      nextEstado = "COLETANDO_NOME"
+    }
   } else if (curEstado === "COLETANDO_NOME") {
     const rejeitado = rejeitarNome(msgOriginal)
     if (!rejeitado && msgOriginal.length > 2 && pareceNome(msgOriginal)) {

@@ -13,10 +13,10 @@ import crypto from "crypto"
 import { buildSystemPrompt } from "@/lib/whatsapp/prompt"
 import { rejeitarNome, negou, confirmou, pareceNome, detectarTipo, extrairDoc, parseLinhas, linhasNomes, pediuAtendente, pediuReiniciar } from "@/lib/whatsapp/validation"
 import { maquinaEstados, type MaquinaEstadoResult } from "@/lib/whatsapp/state-machine"
+import { calcularLeadScore } from "@/lib/whatsapp/lead-scoring"
 import { chamarGroq } from "@/lib/whatsapp/groq"
 import { consultarCNPJ } from "@/lib/whatsapp/cnpj"
 import { extrairMensagem, extrairNumero, logStep, type EvolutionWebhookBody } from "@/lib/whatsapp/helpers"
-import { calcularLeadScore } from "@/lib/whatsapp/lead-scoring"
 import { verificarAbandonos } from "@/lib/whatsapp/abandon-checker"
 
 export const dynamic = "force-dynamic"
@@ -318,7 +318,102 @@ export async function POST(req: NextRequest) {
         }
       }
 
-      await logStep(executionId, remoteJid, pushName, "groq_fallback", "success", { groqError: true }, { retried: true }, null, 0)
+      const dadosGroq = { ...(conversa.dados || {}) }
+      const tentativasGroq = (dadosGroq._groqErros || 0) + 1
+      dadosGroq._groqErros = tentativasGroq
+
+      if (tentativasGroq >= 2) {
+        const nomeFinal = dadosGroq.nome || pushName || "Anonimo"
+        const numero = extrairNumero(remoteJid)
+        const motivo = "groq_error_repeated"
+
+        try {
+          const existente = await db
+            .select({ id: crmLeads.id })
+            .from(crmLeads)
+            .where(sql`${eq(crmLeads.idIntegracao, `whatsapp:${remoteJid}`)} OR ${eq(crmLeads.celular, numero)}`)
+            .limit(1)
+            .then((r) => r[0] || null)
+
+          if (!existente) {
+            const pfLeadScore = calcularLeadScore({ tipoPessoa: "PF", documento: null })
+            const [novoLead] = await db.insert(crmLeads).values({
+              nome: nomeFinal,
+              celular: numero,
+              tipoPessoa: "PF",
+              origem: "WHATSAPP",
+              status: "NOVO",
+              descricao: `Lead criado via bot (erro tecnico). Motivo: ${motivo}. Bot falhou ${tentativasGroq}x seguidas. | Score: ${pfLeadScore.score}/100 (${pfLeadScore.prioridade})`,
+              idIntegracao: `whatsapp:${remoteJid}`,
+              score: pfLeadScore.score,
+              prioridade: pfLeadScore.prioridade,
+            }).returning()
+            dadosGroq.leadId = novoLead.id
+          } else {
+            dadosGroq.leadId = existente.id
+          }
+        } catch (leadErr) {
+          console.error("[AI-Webhook] Erro ao criar lead groq error:", leadErr)
+        }
+
+        const encaminharMsg = "Parece que estou com dificuldades tecnicas no momento. Vou te conectar com um representante comercial que podera ajudar voce."
+        await db.insert(crmWhatsappMensagens).values({ mensagem: encaminharMsg, tipo: "ENVIADA", status: "ENVIADA", remoteJid })
+        await db
+          .insert(crmWhatsappConversas)
+          .values({ remoteJid, estado: "AGUARDANDO_REPRESENTANTE", dados: dadosGroq })
+          .onConflictDoUpdate({
+            target: crmWhatsappConversas.remoteJid,
+            set: { estado: sql`EXCLUDED.estado`, dados: sql`EXCLUDED.dados`, updatedAt: sql`NOW()` },
+          })
+
+        if (evolutionConfigurado()) {
+          const envio = await enviarMensagem(remoteJid, encaminharMsg)
+          if (!envio.sucesso) {
+            await enfileirarRetry(remoteJid, encaminharMsg, envio.erro || "send_failed")
+          }
+
+          try {
+            const msgRep = [
+              "*Atendimento automatico - erro tecnico*",
+              "",
+              `Nome: ${nomeFinal}`,
+              `WhatsApp: https://wa.me/${numero}`,
+              `Tipo: Pessoa Fisica`,
+              `Motivo: Bot apresentou erro tecnico ${tentativasGroq}x seguidas.`,
+              "",
+              "Cliente aguarda atendimento.",
+            ].join("\n")
+            await enviarMensagem(`${REPRESENTANTE_PF}@s.whatsapp.net`, msgRep)
+          } catch (repErr) {
+            console.error("[AI-Webhook] Erro ao notificar rep groq error:", repErr)
+          }
+        }
+
+        try {
+          await db.insert(crmNotificacoes).values({
+            tipo: "WHATSAPP_ERRO_TECNICO",
+            titulo: "Bot com erro tecnico",
+            mensagem: `Cliente ${nomeFinal} (${remoteJid}) - bot falhou ${tentativasGroq}x. Lead criado e encaminhado para representante PF.`,
+            metadados: { remoteJid, nome: nomeFinal, tentativas: tentativasGroq, leadId: dadosGroq.leadId },
+            lida: false,
+          })
+        } catch (notifErr) {
+          console.error("[AI-Webhook] Erro ao criar notificacao groq:", notifErr)
+        }
+
+        await logStep(executionId, remoteJid, pushName, "groq_fallback", "success", { groqError: true, tentativas: tentativasGroq }, { escalated: true, leadId: dadosGroq.leadId }, null, 0)
+        return NextResponse.json({ ok: true, groqEscalated: true })
+      }
+
+      await db
+        .insert(crmWhatsappConversas)
+        .values({ remoteJid, estado: conversa.estado, dados: dadosGroq })
+        .onConflictDoUpdate({
+          target: crmWhatsappConversas.remoteJid,
+          set: { dados: sql`EXCLUDED.dados`, updatedAt: sql`NOW()` },
+        })
+
+      await logStep(executionId, remoteJid, pushName, "groq_fallback", "success", { groqError: true, tentativas: tentativasGroq }, { retried: true }, null, 0)
       return NextResponse.json({ ok: true, groqRetry: true })
     }
 
