@@ -92,9 +92,13 @@ function getTipoBg(tipo: string) {
 export default function CrmDashboardPage() {
   const pathname = usePathname()
   const info = getInfoContent(pathname)
-  const { data, isLoading } = useQuery<CrmDashboardData>({
+  const { data, isLoading, isError } = useQuery<CrmDashboardData>({
     queryKey: ["crm-dashboard"],
-    queryFn: () => fetch("/api/crm/dashboard").then((r) => r.json()),
+    queryFn: async () => {
+      const res = await fetch("/api/crm/dashboard")
+      if (!res.ok) throw new Error("Falha ao carregar dashboard")
+      return res.json()
+    },
     retry: 1,
   })
 
@@ -123,6 +127,12 @@ export default function CrmDashboardPage() {
       {isLoading ? (
         <div className="flex justify-center py-20">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+        </div>
+      ) : isError ? (
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <AlertCircle className="w-12 h-12 text-red-400 mb-3" />
+          <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Erro ao carregar dashboard</p>
+          <p className="text-xs text-slate-400 mt-1">Verifique se as tabelas do CRM existem no banco de dados.</p>
         </div>
       ) : (
         <>
