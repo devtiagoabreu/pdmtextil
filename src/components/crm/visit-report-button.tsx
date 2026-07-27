@@ -101,21 +101,41 @@ export default function VisitReportButton({ visita }: { visita: Visita }) {
 
       doc.setFillColor(248, 250, 252)
       doc.setDrawColor(200, 200, 200)
-      doc.roundedRect(marginX, y, contentW, 50, 2, 2, "FD")
 
       let ly = y + 8
       const col1X = marginX + 4
       const col2X = marginX + contentW / 2 + 4
 
-      doc.setFontSize(8).setFont("helvetica", "bold")
+      const pessoaNome = visita.empresaNome || visita.clienteNome || "—"
+      const pessoaLines = doc.splitTextToSize(pessoaNome, contentW - 22)
+
+      doc.setFontSize(8)
       doc.setTextColor(0, 0, 0)
+      let boxLines = 1 + pessoaLines.length
+      if (visita.oportunidadeTitulo) boxLines++
+      if (visita.contatoNome) boxLines++
+      if (visita.criadoPorNome) boxLines++
+      const boxH = boxLines * 7 + 6
+      doc.roundedRect(marginX, y, contentW, boxH, 2, 2, "FD")
+
+      doc.setFont("helvetica", "bold")
       doc.text("Pessoa:", col1X, ly)
       doc.setFont("helvetica", "normal")
-      doc.text(visita.empresaNome || visita.clienteNome || "—", col1X + 18, ly)
+      doc.text(pessoaLines[0], col1X + 18, ly)
+      ly += 5
+
+      if (pessoaLines.length > 1) {
+        for (let i = 1; i < pessoaLines.length; i++) {
+          doc.text(pessoaLines[i], col1X + 18, ly)
+          ly += 4
+        }
+        ly += 1
+      }
+
       doc.setFont("helvetica", "bold")
-      doc.text("Status:", col2X, ly)
+      doc.text("Status:", col1X, ly)
       doc.setFont("helvetica", "normal")
-      doc.text(visita.status, col2X + 15, ly)
+      doc.text(visita.status, col1X + 16, ly)
       ly += 7
 
       doc.setFont("helvetica", "bold")
@@ -152,7 +172,7 @@ export default function VisitReportButton({ visita }: { visita: Visita }) {
         ly += 7
       }
 
-      y += 58
+      y = ly + 6
 
       if (visita.endereco || visita.cidade) {
         doc.setFontSize(10).setFont("helvetica", "bold")
@@ -171,6 +191,19 @@ export default function VisitReportButton({ visita }: { visita: Visita }) {
           doc.text(enderecoParts.join(", "), marginX, y)
           y += 7
         }
+
+        const enderecoCompleto = enderecoParts.join(", ")
+        const mapsUrl = visita.checkInLat && visita.checkInLng
+          ? `https://www.google.com/maps?q=${visita.checkInLat},${visita.checkInLng}`
+          : `https://www.google.com/maps/search/${encodeURIComponent(enderecoCompleto)}`
+        doc.setFontSize(7).setFont("helvetica", "normal")
+        doc.setTextColor(59, 130, 246)
+        const mapsText = "Abrir no Google Maps"
+        doc.text(mapsText, marginX, y)
+        const textW = doc.getTextWidth(mapsText)
+        doc.link(marginX, y - 3, textW, 4, { url: mapsUrl })
+        doc.setTextColor(0, 0, 0)
+        y += 7
         y += 4
       }
 
