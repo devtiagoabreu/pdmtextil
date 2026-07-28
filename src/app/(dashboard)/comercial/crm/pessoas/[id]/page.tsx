@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
-import { useRouter, useParams, usePathname } from "next/navigation"
+import { useRouter, useParams, usePathname, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { SelectUf } from "@/components/crm/select-uf"
 import { SelectCidade } from "@/components/crm/select-cidade"
@@ -26,11 +26,12 @@ const STATUS_CORES: Record<string, string> = {
 export default function PessoaDetailPage() {
   const router = useRouter()
   const pathname = usePathname()
+  const searchParams = useSearchParams()
   const info = getInfoContent(pathname)
   const params = useParams()
   const [pessoa, setPessoa] = useState<any>(null)
   const [loading, setLoading] = useState(true)
-  const [editing, setEditing] = useState(false)
+  const [editing, setEditing] = useState(searchParams.get("edit") === "true")
   const [form, setForm] = useState<any>({})
   const [tipoPessoa, setTipoPessoa] = useState<"PF" | "PJ">("PJ")
   const [showDelete, setShowDelete] = useState(false)

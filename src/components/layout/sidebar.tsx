@@ -31,9 +31,10 @@ interface UserMenu {
 interface SidebarProps {
   isOpen: boolean
   onClose: () => void
+  collapsed?: boolean
 }
 
-function SidebarContent({ onClose }: { onClose?: () => void }) {
+function SidebarContent({ onClose, collapsed }: { onClose?: () => void; collapsed?: boolean }) {
   const pathname = usePathname()
   const { data: session } = useSession()
   const role = session?.user?.role as string | undefined
@@ -78,6 +79,52 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
 
   function isAtiva(url: string) {
     return pathname === url || pathname?.startsWith(url + "/")
+  }
+
+  if (collapsed) {
+    return (
+      <div className="flex h-full flex-col bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 items-center py-3 gap-1">
+        <Link href={paginaInicial} onClick={onClose} className="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-600 shadow-sm mb-3" title="PDM Pro Moda">
+          <span className="text-sm font-bold text-white">PM</span>
+        </Link>
+        {loading ? (
+          <div className="py-4"><Loader2 size={16} className="animate-spin text-slate-400" /></div>
+        ) : (
+          menus.map(menu => {
+            const menuActive = menu.itens.some((i: MenuItem) => isAtiva(i.url))
+            const firstItem = menu.itens[0]
+            return (
+              <Link
+                key={menu.id}
+                href={firstItem?.url || "#"}
+                onClick={onClose}
+                title={menu.titulo}
+                className={`flex items-center justify-center w-10 h-10 rounded-lg text-sm transition-all ${
+                  menuActive
+                    ? "bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400"
+                    : "text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+                }`}
+              >
+                <span className="font-semibold text-xs">{menu.titulo.charAt(0)}</span>
+              </Link>
+            )
+          })
+        )}
+        {!loading && isAdminOuSudo && (
+          <>
+            <div className="w-6 border-t border-slate-200 dark:border-slate-700 my-1" />
+            <Link href="/admin/configuracoes" onClick={onClose} title="Configurações"
+              className={`flex items-center justify-center w-10 h-10 rounded-lg transition-all ${isAtiva("/admin/configuracoes") ? "bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400" : "text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"}`}>
+              <Settings size={18} />
+            </Link>
+            <Link href="/admin/whatsapp-chat" onClick={onClose} title="Chat WhatsApp"
+              className={`flex items-center justify-center w-10 h-10 rounded-lg transition-all ${isAtiva("/admin/whatsapp-chat") ? "bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400" : "text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"}`}>
+              <MessageSquare size={18} />
+            </Link>
+          </>
+        )}
+      </div>
+    )
   }
 
   return (
@@ -231,12 +278,12 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
   )
 }
 
-export function Sidebar({ isOpen, onClose }: SidebarProps) {
+export function Sidebar({ isOpen, onClose, collapsed }: SidebarProps) {
   return (
     <>
-      {/* Desktop sidebar — always visible */}
-      <aside className="hidden w-64 lg:flex flex-col h-screen fixed left-0 top-0 z-20">
-        <SidebarContent />
+      {/* Desktop sidebar */}
+      <aside className={`hidden lg:flex flex-col h-screen fixed left-0 top-0 z-20 transition-all duration-200 ${collapsed ? "w-16" : "w-64"}`}>
+        <SidebarContent collapsed={collapsed} />
       </aside>
 
       {/* Mobile overlay */}

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react"
 import { signOut, useSession } from "next-auth/react"
-import { Bell, Menu, Search, X, User, LogOut, Settings, CheckCheck, Loader2 } from "lucide-react"
+import { Bell, Menu, Search, X, User, LogOut, Settings, CheckCheck, Loader2, PanelLeftClose, PanelLeftOpen } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { ThemeToggle } from "./theme-toggle"
@@ -11,6 +11,8 @@ import { ChatButton } from "./chat/ChatButton"
 
 interface HeaderProps {
   onMenuClick?: () => void
+  onToggleSidebar?: () => void
+  sidebarCollapsed?: boolean
 }
 
 interface Notificacao {
@@ -22,7 +24,7 @@ interface Notificacao {
   createdAt: string
 }
 
-export function Header({ onMenuClick }: HeaderProps) {
+export function Header({ onMenuClick, onToggleSidebar, sidebarCollapsed }: HeaderProps) {
   const { data: session } = useSession()
   const router = useRouter()
   const [showNotifications, setShowNotifications] = useState(false)
@@ -98,7 +100,7 @@ export function Header({ onMenuClick }: HeaderProps) {
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:border-slate-800 dark:bg-slate-950/95 px-4 md:px-6">
-      {/* LEFT: Menu button + Search */}
+      {/* LEFT: Menu button + Toggle + Search */}
       <div className="flex items-center gap-2">
         <button
           onClick={onMenuClick}
@@ -106,6 +108,15 @@ export function Header({ onMenuClick }: HeaderProps) {
         >
           <Menu size={20} />
         </button>
+        {onToggleSidebar && (
+          <button
+            onClick={onToggleSidebar}
+            className="rounded-md p-2 text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 hidden lg:flex"
+            title={sidebarCollapsed ? "Expandir menu" : "Recolher menu"}
+          >
+            {sidebarCollapsed ? <PanelLeftOpen size={20} /> : <PanelLeftClose size={20} />}
+          </button>
+        )}
         <button
           onClick={() => setShowMobileSearch(!showMobileSearch)}
           className="rounded-md p-2 text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 md:hidden"

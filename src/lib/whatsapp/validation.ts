@@ -1,8 +1,17 @@
-export function extrairDoc(texto: string): { doc: string; tipo: string } | null {
-  const cnpj = texto.match(/\d{2}\.?\d{3}\.?\d{3}\/?\d{4}-?\d{2}|\b\d{14}\b/)
-  if (cnpj) return { doc: cnpj[0], tipo: "PJ" }
-  const cpf = texto.match(/\d{3}\.?\d{3}\.?\d{3}-?\d{2}|\b\d{11}\b/)
-  if (cpf) return { doc: cpf[0], tipo: "PF" }
+export function extrairDoc(texto: string, tipoPessoaForcado?: string): { doc: string; tipo: string } | null {
+  const numeros = texto.match(/\d{8,}/g) || []
+  if (numeros.length === 0) return null
+
+  const clean = numeros[0].replace(/\D/g, "")
+
+  if (tipoPessoaForcado === "PF" || tipoPessoaForcado === "PJ") {
+    return { doc: clean, tipo: tipoPessoaForcado }
+  }
+
+  if (clean.length === 14) return { doc: clean, tipo: "PJ" }
+  if (clean.length === 11) return { doc: clean, tipo: "PF" }
+  if (clean.length >= 8 && clean.length <= 13) return { doc: clean, tipo: "PF" }
+
   return null
 }
 

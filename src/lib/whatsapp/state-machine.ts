@@ -49,7 +49,7 @@ export function maquinaEstados(
     }
   } else if (curEstado === "COLETANDO_DOC") {
     const tipoEscolhido = detectarTipo(msg)
-    const doc = extrairDoc(msgOriginal)
+    const doc = extrairDoc(msgOriginal, tipoEscolhido || dados.tipoPessoa)
 
     if (tipoEscolhido) dados.tipoPessoa = tipoEscolhido
     if (doc) dados.documento = doc.doc
@@ -58,29 +58,20 @@ export function maquinaEstados(
       dados.nome = msgOriginal
     }
 
-    if (tipoEscolhido === "PF" && doc && doc.tipo === "PJ") {
-      nextEstado = "CONFIRMANDO_TIPO_PESSOA"
-      dados._tentativas = 0
-      dados._docRecebido = doc.doc
-    } else if (tipoEscolhido === "PJ" && doc && doc.tipo === "PJ") {
+    const hasTipo = !!dados.tipoPessoa
+    const hasDoc = !!dados.documento
+
+    if (hasTipo && hasDoc && dados.tipoPessoa === "PJ") {
       dados.tipoPessoa = "PJ"
-      dados.documento = doc.doc
       needsCnpjLookup = true
       nextEstado = "CONFIRMANDO_DADOS_CNPJ"
       dados._tentativas = 0
-    } else if (tipoEscolhido === "PJ" && !doc) {
-      dados.tipoPessoa = "PJ"
+    } else if (hasTipo && hasDoc) {
       nextEstado = "COLETANDO_INTERESSE"
       dados._tentativas = 0
-    } else if (tipoEscolhido === "PF") {
-      dados.tipoPessoa = "PF"
+    } else if (hasDoc && !hasTipo) {
       nextEstado = "COLETANDO_INTERESSE"
       dados._tentativas = 0
-    } else if (doc) {
-      if (dados.documento || dados.tipoPessoa) {
-        nextEstado = "COLETANDO_INTERESSE"
-        dados._tentativas = 0
-      }
     } else if (dados._tentativas >= MAX_TENTATIVAS) {
       dados._bloqueado = true
       dados._motivoBloqueio = "doc_invalido_repetido"

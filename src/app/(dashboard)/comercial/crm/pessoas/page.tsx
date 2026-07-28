@@ -6,13 +6,15 @@ import { useState } from "react"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
-import { PlusCircle, UserCircle, Search, Table, Columns, Database, Building2 } from "lucide-react"
+import { PlusCircle, UserCircle, Search, Table, Columns, Database, Building2, Eye, Pencil, Trash2, ExternalLink } from "lucide-react"
 import PessoasKanban from "@/components/crm/pessoas-kanban"
 import { FloatableKanban } from "@/components/crm/floatable-kanban"
 import ImportarApiModal from "@/components/integracao/ImportarApiModal"
 import BuscarCnpjModal from "@/components/crm/buscar-cnpj-modal"
 import { Button } from "@/components/ui/button"
 import ListFilters from "@/components/ui/list-filters"
+import { ConfirmModal } from "@/components/ui/confirm-modal"
+import { toast } from "sonner"
 
 async function fetchEmpresas() {
   const res = await fetch("/api/crm/pessoas")
@@ -38,6 +40,8 @@ export default function CrmPessoasPage() {
   const [modo, setModo] = useState<"tabela" | "kanban">(searchParams.get("view") === "kanban" ? "kanban" : "tabela")
   const [showApiImport, setShowApiImport] = useState(false)
   const [showCnpjSearch, setShowCnpjSearch] = useState(false)
+  const [deleteTarget, setDeleteTarget] = useState<any>(null)
+  const [deleteLoading, setDeleteLoading] = useState(false)
 
   const { data: empresas, isLoading } = useQuery({
     queryKey: ["crm-pessoas"],
@@ -60,6 +64,28 @@ export default function CrmPessoasPage() {
   function documento(p: any) {
     if (p.tipoPessoa === "PF") return p.cpf || "—"
     return p.cnpj || "—"
+  }
+
+  function mapsUrl(p: any) {
+    const parts = [p.endereco, p.numero, p.bairro, p.cidade, p.uf, p.cep].filter(Boolean)
+    if (parts.length === 0) return null
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(parts.join(", "))}`
+  }
+
+  async function handleDelete() {
+    if (!deleteTarget) return
+    setDeleteLoading(true)
+    try {
+      const res = await fetch(`/api/crm/pessoas/${deleteTarget.id}`, { method: "DELETE" })
+      if (!res.ok) throw new Error("Erro ao excluir")
+      toast.success("Pessoa excluída")
+      setFilteredData(prev => prev.filter((e: any) => e.id !== deleteTarget.id))
+    } catch {
+      toast.error("Erro ao excluir pessoa")
+    } finally {
+      setDeleteLoading(false)
+      setDeleteTarget(null)
+    }
   }
 
   return (
@@ -156,6 +182,7 @@ export default function CrmPessoasPage() {
                   <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden md:table-cell">Responsável</th>
                   <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">Status</th>
                   <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden sm:table-cell">Data</th>
+                  <th className="px-2 py-2 md:px-4 md:py-3 text-right text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">Ações</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -187,6 +214,42 @@ export default function CrmPessoasPage() {
                     </td>
                     <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 whitespace-nowrap hidden sm:table-cell">
                       {emp.createdAt ? new Date(emp.createdAt).toLocaleDateString("pt-BR") : "—"}
+                    </td>
+                    <td className="px-2 py-2 md:px-4 md:py-3 text-right" onClick={e => e.stopPropagation()}>
+                      <div className="flex items-center justify-end gap-1">
+                        <button
+                          onClick={() => router.push(`/comercial/crm/pessoas/${emp.id}`)}
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/50 transition-colors"
+                          title="Ver detalhes"
+                        >
+                          <Eye size={14} />
+                        </button>
+                        <button
+                          onClick={() => router.push(`/comercial/crm/pessoas/${emp.id}?edit=true`)}
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/50 transition-colors"
+                          title="Editar"
+                        >
+                          <Pencil size={14} />
+                        </button>
+                        {mapsUrl(emp) && (
+                          <a
+                            href={mapsUrl(emp)!}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 transition-colors"
+                            title="Abrir no Google Maps"
+                          >
+                            <ExternalLink size={14} />
+                          </a>
+                        )}
+                        <button
+                          onClick={() => setDeleteTarget(emp)}
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/50 transition-colors"
+                          title="Excluir"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -225,6 +288,17 @@ export default function CrmPessoasPage() {
           onClose={() => setShowCnpjSearch(false)}
         />
       )}
+
+      <ConfirmModal
+        open={!!deleteTarget}
+        title="Excluir pessoa?"
+        message={`Tem certeza que deseja excluir "${deleteTarget?.razaoSocial || deleteTarget?.nome || "esta pessoa"}"? Esta ação não pode ser desfeita.`}
+        confirmLabel="Excluir"
+        variant="danger"
+        loading={deleteLoading}
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   )
 }
