@@ -27,8 +27,8 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} collapsed={collapsed} />
       <div className={collapsed ? "lg:pl-16" : "lg:pl-64"}>
         <Header onMenuClick={() => setSidebarOpen(true)} onToggleSidebar={toggleCollapsed} sidebarCollapsed={collapsed} />
-        <main className="animate-fade-in p-4 md:p-6 pb-20 lg:pb-6">
-          <div className="mx-auto max-w-7xl">
+        <main className="p-4 md:p-6 pb-20 lg:pb-6">
+          <div className="mx-auto max-w-7xl animate-fade-in">
             {children}
           </div>
         </main>

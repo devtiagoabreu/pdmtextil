@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useSession } from "next-auth/react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback, memo } from "react"
 import {
   Settings,
   X,
@@ -34,7 +34,7 @@ interface SidebarProps {
   collapsed?: boolean
 }
 
-function SidebarContent({ onClose, collapsed }: { onClose?: () => void; collapsed?: boolean }) {
+const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { onClose?: () => void; collapsed?: boolean }) {
   const pathname = usePathname()
   const { data: session } = useSession()
   const role = session?.user?.role as string | undefined
@@ -68,18 +68,18 @@ function SidebarContent({ onClose, collapsed }: { onClose?: () => void; collapse
     }
   }, [pathname, menus])
 
-  function toggleMenu(id: number) {
+  const toggleMenu = useCallback((id: number) => {
     setExpandedMenus(prev => {
       const next = new Set(prev)
       if (next.has(id)) next.delete(id)
       else next.add(id)
       return next
     })
-  }
+  }, [])
 
-  function isAtiva(url: string) {
+  const isAtiva = useCallback((url: string) => {
     return pathname === url || pathname?.startsWith(url + "/")
-  }
+  }, [pathname])
 
   if (collapsed) {
     return (
@@ -276,7 +276,7 @@ function SidebarContent({ onClose, collapsed }: { onClose?: () => void; collapse
       </div>
     </div>
   )
-}
+})
 
 export function Sidebar({ isOpen, onClose, collapsed }: SidebarProps) {
   return (
