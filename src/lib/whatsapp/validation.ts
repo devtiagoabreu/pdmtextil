@@ -1,6 +1,6 @@
 export function extrairDoc(texto: string, tipoPessoaForcado?: string): { doc: string; tipo: string } | null {
-  const numeros = texto.match(/\d{8,}/g) || []
-  if (numeros.length === 0) return null
+  const numeros = texto.match(/\d{8,}/g)
+  if (!numeros || numeros.length === 0) return null
 
   const clean = numeros[0].replace(/\D/g, "")
 
