@@ -83,8 +83,8 @@ const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { on
 
   if (collapsed) {
     return (
-      <div className="flex h-full flex-col bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 items-center py-3 gap-1">
-        <Link href={paginaInicial} onClick={onClose} className="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-600 shadow-sm mb-3" title="PDM Pro Moda">
+      <div className="flex h-full flex-col bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 items-center py-3 gap-1 relative">
+        <Link href={paginaInicial} prefetch={false} onClick={onClose} className="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-600 shadow-sm mb-3" title="PDM Pro Moda">
           <span className="text-sm font-bold text-white">PM</span>
         </Link>
         {loading ? (
@@ -96,6 +96,7 @@ const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { on
             return (
               <Link
                 key={menu.id}
+                prefetch={false}
                 href={firstItem?.url || "#"}
                 onClick={onClose}
                 title={menu.titulo}
@@ -113,11 +114,11 @@ const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { on
         {!loading && isAdminOuSudo && (
           <>
             <div className="w-6 border-t border-slate-200 dark:border-slate-700 my-1" />
-            <Link href="/admin/configuracoes" onClick={onClose} title="Configurações"
+            <Link href="/admin/configuracoes" prefetch={false} onClick={onClose} title="Configurações"
               className={`flex items-center justify-center w-10 h-10 rounded-lg transition-all ${isAtiva("/admin/configuracoes") ? "bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400" : "text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"}`}>
               <Settings size={18} />
             </Link>
-            <Link href="/admin/whatsapp-chat" onClick={onClose} title="Chat WhatsApp"
+            <Link href="/admin/whatsapp-chat" prefetch={false} onClick={onClose} title="Chat WhatsApp"
               className={`flex items-center justify-center w-10 h-10 rounded-lg transition-all ${isAtiva("/admin/whatsapp-chat") ? "bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400" : "text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"}`}>
               <MessageSquare size={18} />
             </Link>
@@ -128,10 +129,10 @@ const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { on
   }
 
   return (
-    <div className="flex h-full flex-col bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800">
+    <div className="flex h-full flex-col bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 relative">
       {/* Logo */}
       <div className="flex h-16 items-center justify-between border-b border-slate-200 dark:border-slate-800 px-6">
-        <Link href={paginaInicial} className="flex items-center gap-2.5" onClick={onClose}>
+        <Link href={paginaInicial} prefetch={false} className="flex items-center gap-2.5" onClick={onClose}>
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 shadow-sm">
             <span className="text-sm font-bold text-white">PM</span>
           </div>
@@ -173,6 +174,7 @@ const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { on
                     {menu.itens.map(item => (
                       <Link
                         key={item.id}
+                        prefetch={false}
                         href={item.url}
                         onClick={onClose}
                         className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-all ${
@@ -200,6 +202,7 @@ const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { on
           <div className="pt-2 mt-2 border-t border-slate-100 dark:border-slate-800">
             <Link
               href="/admin/configuracoes"
+              prefetch={false}
               onClick={onClose}
               className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
                 isAtiva("/admin/configuracoes")
@@ -213,6 +216,7 @@ const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { on
             </Link>
             <Link
               href="/admin/whatsapp-monitor"
+              prefetch={false}
               onClick={onClose}
               className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
                 isAtiva("/admin/whatsapp-monitor")
@@ -226,6 +230,7 @@ const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { on
             </Link>
               <Link
               href="/admin/whatsapp-catalogos"
+              prefetch={false}
               onClick={onClose}
               className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
                 isAtiva("/admin/whatsapp-catalogos")
@@ -239,6 +244,7 @@ const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { on
             </Link>
             <Link
               href="/admin/whatsapp-dashboard"
+              prefetch={false}
               onClick={onClose}
               className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
                 isAtiva("/admin/whatsapp-dashboard")
@@ -252,6 +258,7 @@ const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { on
             </Link>
             <Link
               href="/admin/whatsapp-chat"
+              prefetch={false}
               onClick={onClose}
               className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
                 isAtiva("/admin/whatsapp-chat")
@@ -282,7 +289,7 @@ export function Sidebar({ isOpen, onClose, collapsed }: SidebarProps) {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className={`hidden lg:flex flex-col h-screen fixed left-0 top-0 z-20 transition-all duration-200 ${collapsed ? "w-16" : "w-64"}`}>
+      <aside className={`hidden lg:flex flex-col h-screen fixed left-0 top-0 z-30 transition-all duration-200 ${collapsed ? "w-16" : "w-64"}`}>
         <SidebarContent collapsed={collapsed} />
       </aside>
 
