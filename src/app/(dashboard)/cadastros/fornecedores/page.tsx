@@ -70,7 +70,7 @@ export default function FornecedoresPage() {
         }
         throw new Error(data.error || "Erro ao excluir")
       }
-      toast.success("Fornecedor excluÃ­do com sucesso")
+      toast.success("Fornecedor excluído com sucesso")
       setDeleteTarget(null)
       refetch()
     } catch (err) {
@@ -142,9 +142,9 @@ export default function FornecedoresPage() {
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Email</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Telefone</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Cidade/UF</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">ID IntegraÃ§Ã£o</th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">ID Integração</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Status</th>
-                <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">AÃ§Ãµes</th>
+                <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Ações</th>
               </tr>
             </thead>
             <tbody>
@@ -155,13 +155,13 @@ export default function FornecedoresPage() {
                   onClick={() => router.push(`/cadastros/fornecedores/${fornecedor.id}`)}
                 >
                   <td className="p-4 text-sm font-medium">{fornecedor.nome}</td>
-                  <td className="p-4 text-sm text-slate-500">{fornecedor.cnpj || "â€”"}</td>
-                  <td className="p-4 text-sm text-slate-500">{fornecedor.email || "â€”"}</td>
-                  <td className="p-4 text-sm text-slate-500">{fornecedor.telefone || "â€”"}</td>
+                  <td className="p-4 text-sm text-slate-500">{fornecedor.cnpj || "�"}</td>
+                  <td className="p-4 text-sm text-slate-500">{fornecedor.email || "�"}</td>
+                  <td className="p-4 text-sm text-slate-500">{fornecedor.telefone || "�"}</td>
                   <td className="p-4 text-sm text-slate-500">
-                    {fornecedor.cidade && fornecedor.uf ? `${fornecedor.cidade}/${fornecedor.uf}` : "â€”"}
+                    {fornecedor.cidade && fornecedor.uf ? `${fornecedor.cidade}/${fornecedor.uf}` : "�"}
                   </td>
-                  <td className="p-4 text-sm font-mono text-xs text-slate-500">{fornecedor.idIntegracao || "â€”"}</td>
+                  <td className="p-4 text-sm font-mono text-xs text-slate-500">{fornecedor.idIntegracao || "�"}</td>
                   <td className="p-4">
                     <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
                       fornecedor.ativo 
@@ -201,12 +201,12 @@ export default function FornecedoresPage() {
 
       <ConfirmModal
         open={deleteTarget !== null}
-        title={deleteBlocked ? "ExclusÃ£o nÃ£o permitida" : "Excluir fornecedor?"}
+        title={deleteBlocked ? "Exclusão não permitida" : "Excluir fornecedor?"}
         message={deleteBlocked
-          ? "Este fornecedor possui cadastros vinculados e nÃ£o pode ser excluÃ­do."
+          ? "Este fornecedor possui cadastros vinculados e não pode ser excluído."
           : `Tem certeza que deseja excluir?`}
         subMessage={deleteBlocked
-          ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informaÃ§Ãµes."
+          ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informações."
           : undefined}
         confirmLabel={deleteBlocked ? "OK" : "Excluir"}
         variant={deleteBlocked ? "warning" : "danger"}

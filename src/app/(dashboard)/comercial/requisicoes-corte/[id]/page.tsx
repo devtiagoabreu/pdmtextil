@@ -78,7 +78,7 @@ export default function DetalheRequisicaoCortePage() {
         setRequisitanteNome(d.requisitanteNome || "")
         setItens(Array.isArray(d.itens) ? d.itens : [])
       })
-      .catch(() => toast.error("Erro ao carregar requisiÃ§Ã£o"))
+      .catch(() => toast.error("Erro ao carregar requisição"))
       .finally(() => setLoading(false))
   }, [mounted, id])
 
@@ -117,7 +117,7 @@ export default function DetalheRequisicaoCortePage() {
         const err = await res.json().catch(() => ({}))
         throw new Error(err.error || "Erro ao salvar")
       }
-      toast.success("RequisiÃ§Ã£o atualizada com sucesso")
+      toast.success("Requisição atualizada com sucesso")
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erro ao salvar")
     } finally {
@@ -157,13 +157,13 @@ export default function DetalheRequisicaoCortePage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
-            RequisiÃ§Ã£o #{id}{info && <InfoButton content={info} />}
+            Requisição #{id}{info && <InfoButton content={info} />}
           </h1>
           <div className="flex items-center gap-3 mt-1">
             <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${statusCfg.classes}`}>
               {statusCfg.label}
             </span>
-            <span className="text-sm text-slate-500">{totalCortes} corte(s) â€” Qtd total: {totalQtd}</span>
+            <span className="text-sm text-slate-500">{totalCortes} corte(s) � Qtd total: {totalQtd}</span>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -197,7 +197,7 @@ export default function DetalheRequisicaoCortePage() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-slate-200 dark:border-slate-700">
-                <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">CÃ³d. Produto</th>
+                <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Cód. Produto</th>
                 <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Ordem</th>
                 <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Artigo</th>
                 <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Cor</th>
@@ -277,7 +277,7 @@ export default function DetalheRequisicaoCortePage() {
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="observacoes">ObservaÃ§Ãµes</Label>
+            <Label htmlFor="observacoes">Observações</Label>
             <Textarea
               id="observacoes"
               value={observacoes}

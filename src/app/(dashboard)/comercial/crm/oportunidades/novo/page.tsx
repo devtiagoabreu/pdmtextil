@@ -85,7 +85,7 @@ export default function NovaOportunidadePage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!form.titulo.trim()) {
-      toast.error("TÃ­tulo Ã© obrigatÃ³rio")
+      toast.error("Título é obrigatório")
       return
     }
     setSaving(true)
@@ -133,19 +133,19 @@ export default function NovaOportunidadePage() {
       <form onSubmit={handleSubmit} className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-5">
         <div className="grid gap-5 sm:grid-cols-2">
           <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">TÃ­tulo *</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Título *</label>
             <input
               type="text"
               value={form.titulo}
               onChange={e => setField("titulo", e.target.value)}
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Ex: Venda de malha 100% algodÃ£o"
+              placeholder="Ex: Venda de malha 100% algodão"
               required
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Pessoa (NegÃ³cio)
+              Pessoa (Negócio)
               <QuickCreatePessoa onCreated={handleEmpresaCreated} />
             </label>
             <select
@@ -176,7 +176,7 @@ export default function NovaOportunidadePage() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">ResponsÃ¡vel</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Responsável</label>
             <select
               value={form.responsavelId}
               onChange={e => setField("responsavelId", e.target.value)}
@@ -200,7 +200,7 @@ export default function NovaOportunidadePage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">PrevisÃ£o de Fechamento</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Previsão de Fechamento</label>
             <input
               type="date"
               value={form.dataFechamentoPrevista}
@@ -232,7 +232,7 @@ export default function NovaOportunidadePage() {
             </select>
           </div>
           <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">DescriÃ§Ã£o</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Descrição</label>
             <textarea
               value={form.descricao}
               onChange={e => setField("descricao", e.target.value)}

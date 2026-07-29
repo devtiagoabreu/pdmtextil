@@ -21,7 +21,7 @@ export default function SmtpConfigPage() {
   const [port, setPort] = useState("587")
   const [user, setUser] = useState("")
   const [pass, setPass] = useState("")
-  const [fromName, setFromName] = useState("PDM TÃªxtil")
+  const [fromName, setFromName] = useState("PDM Têxtil")
   const [ativo, setAtivo] = useState(true)
 
   const [testEmail, setTestEmail] = useState("")
@@ -37,7 +37,7 @@ export default function SmtpConfigPage() {
           setPort(String(data.port || 587))
           setUser(data.user || "")
           setPass(data.pass || "")
-          setFromName(data.fromName || "PDM TÃªxtil")
+          setFromName(data.fromName || "PDM Têxtil")
           setAtivo(data.ativo ?? true)
           setHasConfig(true)
         }
@@ -48,7 +48,7 @@ export default function SmtpConfigPage() {
 
   const handleSave = async () => {
     if (!user || !pass) {
-      toast.error("Email e senha de app sÃ£o obrigatÃ³rios")
+      toast.error("Email e senha de app são obrigatórios")
       return
     }
     setSaving(true)
@@ -59,10 +59,10 @@ export default function SmtpConfigPage() {
         body: JSON.stringify({ host, port: parseInt(port), user, pass, fromName, ativo }),
       })
       if (!res.ok) throw new Error()
-      toast.success("ConfiguraÃ§Ã£o salva!")
+      toast.success("Configuração salva!")
       setHasConfig(true)
     } catch {
-      toast.error("Erro ao salvar configuraÃ§Ã£o")
+      toast.error("Erro ao salvar configuração")
     } finally {
       setSaving(false)
     }
@@ -94,19 +94,19 @@ export default function SmtpConfigPage() {
   }
 
   const handleClear = async () => {
-    if (!confirm("Limpar configuraÃ§Ã£o de email?")) return
+    if (!confirm("Limpar configuração de email?")) return
     try {
       await fetch("/api/admin/config/smtp", { method: "DELETE" })
       setHost("smtp.gmail.com")
       setPort("587")
       setUser("")
       setPass("")
-      setFromName("PDM TÃªxtil")
+      setFromName("PDM Têxtil")
       setAtivo(true)
       setHasConfig(false)
-      toast.success("ConfiguraÃ§Ã£o removida")
+      toast.success("Configuração removida")
     } catch {
-      toast.error("Erro ao remover configuraÃ§Ã£o")
+      toast.error("Erro ao remover configuração")
     }
   }
 
@@ -125,17 +125,17 @@ export default function SmtpConfigPage() {
             <Mail className="text-blue-600" size={24} />
             <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">SMTP{info && <InfoButton content={info} />}</h1>
           </div>
-          <p className="text-sm text-slate-500 mt-1">ConfiguraÃ§Ã£o do servidor de email</p>
+          <p className="text-sm text-slate-500 mt-1">Configuração do servidor de email</p>
         </div>
       </div>
 
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-6 space-y-4 bg-white dark:bg-slate-900">
         <div className="flex items-center gap-2">
           <Mail size={20} className="text-blue-600" />
-          <h2 className="text-lg font-semibold">ConfiguraÃ§Ã£o de Email (SMTP)</h2>
+          <h2 className="text-lg font-semibold">Configuração de Email (SMTP)</h2>
         </div>
         <p className="text-sm text-slate-500">
-          Configure o servidor SMTP para envio de emails. Para Gmail, use a senha de app gerada em <strong>Conta Google &gt; SeguranÃ§a &gt; Senhas de app</strong>.
+          Configure o servidor SMTP para envio de emails. Para Gmail, use a senha de app gerada em <strong>Conta Google &gt; Segurança &gt; Senhas de app</strong>.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -157,11 +157,11 @@ export default function SmtpConfigPage() {
           </div>
           <div className="space-y-2">
             <Label>Nome do Remetente</Label>
-            <Input value={fromName} onChange={e => setFromName(e.target.value)} placeholder="PDM TÃªxtil" />
+            <Input value={fromName} onChange={e => setFromName(e.target.value)} placeholder="PDM Têxtil" />
           </div>
           <div className="flex items-end gap-2">
             <input type="checkbox" id="smtpAtivo" checked={ativo} onChange={e => setAtivo(e.target.checked)} className="w-4 h-4 mb-2" />
-            <Label htmlFor="smtpAtivo">ConfiguraÃ§Ã£o ativa</Label>
+            <Label htmlFor="smtpAtivo">Configuração ativa</Label>
           </div>
         </div>
 
@@ -181,7 +181,7 @@ export default function SmtpConfigPage() {
       {hasConfig && (
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-6 space-y-4 bg-white dark:bg-slate-900">
           <h2 className="text-lg font-semibold">Testar Envio</h2>
-          <p className="text-sm text-slate-500">Envie um email de teste para verificar se a configuraÃ§Ã£o estÃ¡ funcionando.</p>
+          <p className="text-sm text-slate-500">Envie um email de teste para verificar se a configuração está funcionando.</p>
           <div className="flex gap-2 items-end">
             <div className="space-y-2 flex-1">
               <Label>Email de destino</Label>

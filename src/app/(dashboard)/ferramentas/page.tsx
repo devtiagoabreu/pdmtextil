@@ -4,9 +4,9 @@ import { PageInfoButton } from "@/components/ui/page-info-button"
 
 const ferramentas = [
   { href: "/ferramentas/consulta-cnpj", label: "Consulta CNPJ", desc: "Consultar dados de CNPJ na Receita Federal, comparar com registros locais e sincronizar", icon: Search },
-  { href: "/ferramentas/regra-de-tres", label: "Calculadora de Regra de TrÃªs", desc: "Resolve regra de trÃªs simples (direta/inversa) e composta", icon: Calculator },
-  { href: "/ferramentas/conversores", label: "NumeraÃ§Ã£o de Fio", desc: "ConversÃ£o entre Ne, Nm, Tex, Dtex e Denier", icon: Repeat },
-  { href: "/admin/email-massa", label: "Email em Massa", desc: "Enviar email para mÃºltiplos destinatÃ¡rios", icon: Send },
+  { href: "/ferramentas/regra-de-tres", label: "Calculadora de Regra de Três", desc: "Resolve regra de três simples (direta/inversa) e composta", icon: Calculator },
+  { href: "/ferramentas/conversores", label: "Numeração de Fio", desc: "Conversão entre Ne, Nm, Tex, Dtex e Denier", icon: Repeat },
+  { href: "/admin/email-massa", label: "Email em Massa", desc: "Enviar email para múltiplos destinatários", icon: Send },
 ]
 
 export default function FerramentasHubPage() {

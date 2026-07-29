@@ -10,34 +10,34 @@ const modulos = [
   {
     href: "/documentos/romaneios",
     label: "Romaneios",
-    desc: "EmissÃ£o e consulta de romaneios de carga",
+    desc: "Emissão e consulta de romaneios de carga",
     icon: Truck,
   },
   {
     href: "/documentos/pre-danfe",
-    label: "PrÃ©-DANFE",
-    desc: "GeraÃ§Ã£o de prÃ©-DANFE para faturamento",
+    label: "Pré-DANFE",
+    desc: "Geração de pré-DANFE para faturamento",
     icon: FileSpreadsheet,
     disabled: true,
   },
   {
     href: "/documentos/pedidos-venda",
     label: "Pedidos de Venda",
-    desc: "Consulta e gestÃ£o de pedidos de venda",
+    desc: "Consulta e gestão de pedidos de venda",
     icon: ShoppingCart,
     disabled: true,
   },
   {
     href: "/documentos/pedidos-compra",
     label: "Pedidos de Compra",
-    desc: "Consulta e gestÃ£o de pedidos de compra",
+    desc: "Consulta e gestão de pedidos de compra",
     icon: FileText,
     disabled: true,
   },
   {
     href: "/documentos/relatorios",
-    label: "RelatÃ³rios",
-    desc: "RelatÃ³rios e dashbacks operacionais",
+    label: "Relatórios",
+    desc: "Relatórios e dashbacks operacionais",
     icon: BarChart3,
     disabled: true,
   },
@@ -54,7 +54,7 @@ export default function DocumentosPage() {
           Documentos{info && <InfoButton content={info} />}
         </h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-          Documentos operacionais, fiscais e logÃ­sticos
+          Documentos operacionais, fiscais e logísticos
         </p>
       </div>
 

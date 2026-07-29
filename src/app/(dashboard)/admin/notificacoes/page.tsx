@@ -16,27 +16,27 @@ interface Regra {
 const ALL_ROLES = ["COMERCIAL", "CRM", "DESENVOLVIMENTO", "ADMIN", "SUDO", "QUALIDADE", "TECELAGEM", "BENEFICIAMENTO", "PCP"]
 
 const TIPO_LABEL: Record<string, string> = {
-  SOLICITACAO_CRIADA: "SolicitaÃ§Ã£o Criada",
-  SOLICITACAO_APROVADA: "SolicitaÃ§Ã£o Aprovada",
-  SOLICITACAO_REPROVADA: "SolicitaÃ§Ã£o Reprovada",
-  SOLICITACAO_ATUALIZADA: "SolicitaÃ§Ã£o Atualizada",
+  SOLICITACAO_CRIADA: "Solicitação Criada",
+  SOLICITACAO_APROVADA: "Solicitação Aprovada",
+  SOLICITACAO_REPROVADA: "Solicitação Reprovada",
+  SOLICITACAO_ATUALIZADA: "Solicitação Atualizada",
   PRODUTO_CRU_CRIADO: "Produto Criado",
   PRODUTO_CRU_ATUALIZADO: "Produto Atualizado",
-  PRODUTO_CRU_EXCLUIDO: "Produto ExcluÃ­do",
+  PRODUTO_CRU_EXCLUIDO: "Produto Excluído",
   AMOSTRA_CRIADA: "Amostra Criada",
   AMOSTRA_APROVADA: "Amostra Aprovada",
   AMOSTRA_REPROVADA: "Amostra Reprovada",
   AMOSTRA_ATUALIZADA: "Amostra Atualizada",
-  AMOSTRA_EXCLUIDA: "Amostra ExcluÃ­da",
+  AMOSTRA_EXCLUIDA: "Amostra Excluída",
   ACABAMENTO_CRIADO: "Acabamento Criado",
-  ACABAMENTO_EXCLUIDO: "Acabamento ExcluÃ­do",
-  REQUISICAO_CORTE: "RequisiÃ§Ã£o de Corte",
-  REQUISICAO_CORTE_STATUS: "RequisiÃ§Ã£o de Corte â€” Status Alterado",
+  ACABAMENTO_EXCLUIDO: "Acabamento Excluído",
+  REQUISICAO_CORTE: "Requisição de Corte",
+  REQUISICAO_CORTE_STATUS: "Requisição de Corte � Status Alterado",
   LEAD_CRIADO: "Lead Criado",
   LEAD_ATUALIZADO: "Lead Atualizado",
   OPORTUNIDADE_CRIADA: "Oportunidade Criada",
   OPORTUNIDADE_ATUALIZADA: "Oportunidade Atualizada",
-  OPORTUNIDADE_STATUS: "Oportunidade â€” Status Alterado",
+  OPORTUNIDADE_STATUS: "Oportunidade � Status Alterado",
   PESSOA_CRIADA: "Pessoa Criada",
   PESSOA_ATUALIZADA: "Pessoa Atualizada",
   CONTATO_CRIADO: "Contato Criado",
@@ -51,8 +51,8 @@ const TIPO_LABEL: Record<string, string> = {
   CAMPANHA_ATUALIZADA: "Campanha Atualizada",
   EQUIPE_CRIADA: "Equipe Criada",
   EQUIPE_ATUALIZADA: "Equipe Atualizada",
-  REGIAO_CRIADA: "RegiÃ£o Criada",
-  REGIAO_ATUALIZADA: "RegiÃ£o Atualizada",
+  REGIAO_CRIADA: "Região Criada",
+  REGIAO_ATUALIZADA: "Região Atualizada",
 }
 
 export default function NotificacoesAdminPage() {
@@ -67,7 +67,7 @@ export default function NotificacoesAdminPage() {
     fetch("/api/admin/notificacao-regras")
       .then((res: any) => { if (!res.ok) throw new Error("Erro HTTP"); return res.json() })
       .then((d: { regras: Regra[] }) => setRegras(d.regras ?? []))
-      .catch(() => toast.error("Erro ao carregar regras de notificaÃ§Ã£o"))
+      .catch(() => toast.error("Erro ao carregar regras de notificação"))
       .finally(() => setLoading(false))
   }, [])
 
@@ -101,7 +101,7 @@ export default function NotificacoesAdminPage() {
         })
         if (!res.ok) throw new Error(`Erro ao salvar regra ${regra.tipo}`)
       }
-      toast.success("Regras de notificaÃ§Ã£o salvas!")
+      toast.success("Regras de notificação salvas!")
       setDirty(false)
     } catch (err: any) {
       toast.error(err.message || "Erro ao salvar")
@@ -127,9 +127,9 @@ export default function NotificacoesAdminPage() {
         <div>
           <div className="flex items-center gap-2">
             <Bell className="text-blue-600" size={24} />
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">NotificaÃ§Ãµes por Tipo{info && <InfoButton content={info} />}</h1>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Notificações por Tipo{info && <InfoButton content={info} />}</h1>
           </div>
-          <p className="text-sm text-slate-500 mt-1">Selecione quais perfis recebem notificaÃ§Ã£o para cada tipo de evento</p>
+          <p className="text-sm text-slate-500 mt-1">Selecione quais perfis recebem notificação para cada tipo de evento</p>
         </div>
       </div>
 
@@ -137,7 +137,7 @@ export default function NotificacoesAdminPage() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
-              <th className="p-3 text-left font-semibold text-slate-700 dark:text-slate-300 min-w-[180px]">Tipo de NotificaÃ§Ã£o</th>
+              <th className="p-3 text-left font-semibold text-slate-700 dark:text-slate-300 min-w-[180px]">Tipo de Notificação</th>
               {ALL_ROLES.map((role: any) => (
                 <th key={role} className="p-3 text-center font-semibold text-slate-700 dark:text-slate-300 text-xs">
                   {role}

@@ -20,7 +20,7 @@ export default function DashboardError({
         Algo deu errado
       </h1>
       <p className="text-sm text-slate-500 dark:text-slate-400 max-w-md">
-        Ocorreu um erro ao carregar esta pÃ¡gina. Por favor, tente novamente.
+        Ocorreu um erro ao carregar esta página. Por favor, tente novamente.
       </p>
       <div className="flex gap-3">
         <button

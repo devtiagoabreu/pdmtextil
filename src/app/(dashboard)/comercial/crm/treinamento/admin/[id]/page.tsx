@@ -64,14 +64,14 @@ export default function EditarLicaoPage() {
         setLinksPop(data.linksPop || [])
         setLinksVideo(data.linksVideo || [])
       })
-      .catch(() => toast.error("Erro ao carregar liÃ§Ã£o"))
+      .catch(() => toast.error("Erro ao carregar lição"))
       .finally(() => setLoading(false))
   }, [params.id])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!form.moduloId || !form.titulo) {
-      toast.error("MÃ³dulo e tÃ­tulo sÃ£o obrigatÃ³rios")
+      toast.error("Módulo e título são obrigatórios")
       return
     }
     setSaving(true)
@@ -92,10 +92,10 @@ export default function EditarLicaoPage() {
         }),
       })
       if (!res.ok) throw new Error()
-      toast.success("LiÃ§Ã£o atualizada!")
+      toast.success("Lição atualizada!")
       router.push("/comercial/crm/treinamento/admin")
     } catch {
-      toast.error("Erro ao atualizar liÃ§Ã£o")
+      toast.error("Erro ao atualizar lição")
     } finally {
       setSaving(false)
     }
@@ -121,7 +121,7 @@ export default function EditarLicaoPage() {
         <div className="flex items-center gap-3">
           <FileText size={24} className="text-indigo-600" />
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
-            Editar LiÃ§Ã£o{info && <InfoButton content={info} />}
+            Editar Lição{info && <InfoButton content={info} />}
           </h1>
         </div>
       </div>
@@ -129,7 +129,7 @@ export default function EditarLicaoPage() {
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">MÃ³dulo *</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Módulo *</label>
             <select
               value={form.moduloId}
               onChange={(e) => setForm({ ...form, moduloId: e.target.value })}
@@ -142,7 +142,7 @@ export default function EditarLicaoPage() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">TÃ­tulo *</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Título *</label>
             <input
               value={form.titulo}
               onChange={(e) => setForm({ ...form, titulo: e.target.value })}
@@ -181,7 +181,7 @@ export default function EditarLicaoPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">PrÃ©-requisitos</label>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Pré-requisitos</label>
           <textarea
             value={form.preRequisitos}
             onChange={(e) => setForm({ ...form, preRequisitos: e.target.value })}
@@ -191,7 +191,7 @@ export default function EditarLicaoPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">ConteÃºdo (Markdown)</label>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Conteúdo (Markdown)</label>
           <textarea
             value={form.conteudoMd}
             onChange={(e) => setForm({ ...form, conteudoMd: e.target.value })}
@@ -216,7 +216,7 @@ export default function EditarLicaoPage() {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Links VÃ­deos</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Links Vídeos</label>
             {linksVideo.map((link: any, i: any) => (
               <div key={i} className="flex items-center gap-2 text-sm bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg mb-2">
                 <span className="flex-1 truncate">{link.label}</span>

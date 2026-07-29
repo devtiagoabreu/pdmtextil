@@ -67,7 +67,7 @@ export default function ProdutosQuimicosPage() {
         }
         throw new Error(data.error || "Erro ao excluir")
       }
-      toast.success("Produto quÃ­mico excluÃ­do com sucesso")
+      toast.success("Produto químico excluído com sucesso")
       setDeleteTarget(null)
       refetch()
     } catch (err) {
@@ -83,19 +83,19 @@ export default function ProdutosQuimicosPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
-            Produtos QuÃ­micos
+            Produtos Químicos
             {info && <InfoButton content={info} />}
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400">
-            Produtos quÃ­micos para beneficiamento
+            Produtos químicos para beneficiamento
           </p>
         </div>
         <div className="flex gap-2">
           <ImportarProdutosQuimicos onImportado={() => refetch()} />
           <ExportarDados data={filtered} columns={[
-            { key: "codigo", label: "CÃ³digo" }, { key: "nome", label: "Nome" },
+            { key: "codigo", label: "Código" }, { key: "nome", label: "Nome" },
             { key: "categoria", label: "Categoria" }, { key: "unidadePadrao", label: "Unidade" },
-          ]} filename="produtos-quimicos" title="Produtos QuÃ­micos" />
+          ]} filename="produtos-quimicos" title="Produtos Químicos" />
           <Button variant="outline" onClick={() => setShowApiImport(true)} className="gap-2">
             <Database size={16} />
             Importar via API
@@ -113,7 +113,7 @@ export default function ProdutosQuimicosPage() {
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
           <Input
-            placeholder="Buscar por cÃ³digo, nome..."
+            placeholder="Buscar por código, nome..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-10"
@@ -128,19 +128,19 @@ export default function ProdutosQuimicosPage() {
           </div>
         ) : filtered.length === 0 ? (
           <div className="p-8 text-center text-slate-500">
-            Nenhum produto quÃ­mico encontrado
+            Nenhum produto químico encontrado
           </div>
         ) : (
           <table className="w-full">
             <thead className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
               <tr>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">CÃ³digo</th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Código</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Nome</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Categoria</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Unidade</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">ID IntegraÃ§Ã£o</th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">ID Integração</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Status</th>
-                <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">AÃ§Ãµes</th>
+                <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Ações</th>
               </tr>
             </thead>
             <tbody>
@@ -152,9 +152,9 @@ export default function ProdutosQuimicosPage() {
                 >
                   <td className="p-4 text-sm font-medium">{p.codigo}</td>
                   <td className="p-4 text-sm">{p.nome}</td>
-                  <td className="p-4 text-sm text-slate-500">{p.categoria || "â€”"}</td>
+                  <td className="p-4 text-sm text-slate-500">{p.categoria || "�"}</td>
                   <td className="p-4 text-sm text-slate-500">{p.unidadePadrao}</td>
-                  <td className="p-4 text-sm font-mono text-xs text-slate-500">{p.idIntegracao || "â€”"}</td>
+                  <td className="p-4 text-sm font-mono text-xs text-slate-500">{p.idIntegracao || "�"}</td>
                   <td className="p-4">
                     <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
                       p.ativo
@@ -194,12 +194,12 @@ export default function ProdutosQuimicosPage() {
 
       <ConfirmModal
         open={deleteTarget !== null}
-        title={deleteBlocked ? "ExclusÃ£o nÃ£o permitida" : "Excluir produto quÃ­mico?"}
+        title={deleteBlocked ? "Exclusão não permitida" : "Excluir produto químico?"}
         message={deleteBlocked
-          ? "Este produto quÃ­mico possui cadastros vinculados e nÃ£o pode ser excluÃ­do."
+          ? "Este produto químico possui cadastros vinculados e não pode ser excluído."
           : `Tem certeza que deseja excluir o produto "${deleteTarget?.nome}"?`}
         subMessage={deleteBlocked
-          ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informaÃ§Ãµes."
+          ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informações."
           : undefined}
         confirmLabel={deleteBlocked ? "OK" : "Excluir"}
         variant={deleteBlocked ? "warning" : "danger"}

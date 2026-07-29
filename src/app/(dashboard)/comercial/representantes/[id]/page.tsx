@@ -42,7 +42,7 @@ export default function EditarRepresentantePage({ params }: { params: Promise<{ 
           const data = await res.json()
           setRepresentante(data)
         } else {
-          toast.error("Representante nÃ£o encontrado")
+          toast.error("Representante não encontrado")
           router.push("/comercial/representantes")
         }
       } catch (err) {
@@ -151,7 +151,7 @@ export default function EditarRepresentantePage({ params }: { params: Promise<{ 
 
             <div className="space-y-2 md:col-span-2">
               <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                RazÃ£o Social
+                Razão Social
               </label>
               <input
                 type="text"
@@ -224,7 +224,7 @@ export default function EditarRepresentantePage({ params }: { params: Promise<{ 
 
             <div className="space-y-2 md:col-span-2">
               <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                EndereÃ§o
+                Endereço
               </label>
               <input
                 type="text"
@@ -236,27 +236,27 @@ export default function EditarRepresentantePage({ params }: { params: Promise<{ 
 
             <div className="space-y-2">
               <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                Gerente ResponsÃ¡vel (ID)
+                Gerente Responsável (ID)
               </label>
               <input
                 type="number"
                 value={representante.gerenteId || ""}
                 onChange={(e) => handleNumberChange("gerenteId", e.target.value)}
                 className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
-                placeholder="ID do usuÃ¡rio gerente"
+                placeholder="ID do usuário gerente"
               />
             </div>
 
             <div className="space-y-2 md:col-span-2">
               <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                ID IntegraÃ§Ã£o (ERP/WMS/CRM/OUTROS)
+                ID Integração (ERP/WMS/CRM/OUTROS)
               </label>
               <input
                 type="text"
                 value={representante.idIntegracao || ""}
                 onChange={(e) => handleChange("idIntegracao", e.target.value)}
                 className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
-                placeholder="CÃ³digo do sistema externo"
+                placeholder="Código do sistema externo"
               />
             </div>
           </div>

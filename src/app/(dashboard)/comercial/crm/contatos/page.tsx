@@ -43,7 +43,7 @@ export default function CrmContatosPage() {
   )
 
   function empresaNome(c: any) {
-    return c.empresaRazaoSocial || c.empresaNomeFantasia || c.empresaNome || "â€”"
+    return c.empresaRazaoSocial || c.empresaNomeFantasia || c.empresaNome || "—"
   }
 
   return (
@@ -116,7 +116,7 @@ export default function CrmContatosPage() {
                       )}
                     </td>
                     <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-slate-200">{c.nome}</td>
-                    <td className="px-4 py-3 text-sm text-slate-500">{c.cargo || "â€”"}</td>
+                    <td className="px-4 py-3 text-sm text-slate-500">{c.cargo || "—"}</td>
                     <td className="px-4 py-3">
                       {c.empresaId ? (
                         <Link prefetch={false}
@@ -134,10 +134,10 @@ export default function CrmContatosPage() {
                           className="inline-flex items-center gap-1 text-sm text-emerald-600 hover:underline"
                         >
                           <User size={12} />
-                          {c.clienteNome || "â€”"}
+                          {c.clienteNome || "—"}
                         </Link>
                       ) : (
-                        <span className="text-sm text-slate-400">â€”</span>
+                        <span className="text-sm text-slate-400">—</span>
                       )}
                     </td>
                     <td className="px-4 py-3 text-sm text-slate-500">
@@ -146,7 +146,7 @@ export default function CrmContatosPage() {
                           <Mail size={12} className="text-slate-400" />
                           {c.email}
                         </span>
-                      ) : "â€”"}
+                      ) : "—"}
                     </td>
                     <td className="px-4 py-3 text-sm text-slate-500">
                       {c.celular ? (
@@ -154,10 +154,10 @@ export default function CrmContatosPage() {
                           <Phone size={12} className="text-slate-400" />
                           {c.celular}
                         </span>
-                      ) : "â€”"}
+                      ) : "—"}
                     </td>
                     <td className="px-4 py-3 text-sm text-slate-500">
-                      {c.createdAt ? new Date(c.createdAt).toLocaleDateString("pt-BR") : "â€”"}
+                      {c.createdAt ? new Date(c.createdAt).toLocaleDateString("pt-BR") : "—"}
                     </td>
                   </tr>
                 ))}

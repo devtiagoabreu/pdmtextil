@@ -30,7 +30,7 @@ import { toast } from "sonner"
 
 const STEPS = [
   { id: 1, title: "Dados Comerciais", icon: FileText },
-  { id: 2, title: "Briefing TÃ©cnico", icon: ClipboardList },
+  { id: 2, title: "Briefing Técnico", icon: ClipboardList },
   { id: 3, title: "Salvar", icon: CheckCircle },
 ]
 
@@ -85,7 +85,7 @@ export default function EditarSolicitacaoPage() {
     async function loadSolicitacao() {
       try {
         const res = await fetch(`/api/solicitacoes/${id}`)
-        if (!res.ok) throw new Error("NÃ£o encontrado")
+        if (!res.ok) throw new Error("Não encontrado")
         
         const data = await res.json()
         
@@ -121,7 +121,7 @@ export default function EditarSolicitacaoPage() {
         }
       } catch (err) {
         if (isMounted) {
-          toast.error("Erro ao carregar solicitaÃ§Ã£o")
+          toast.error("Erro ao carregar solicitação")
           router.push("/comercial/solicitacoes")
         }
       } finally {
@@ -153,7 +153,7 @@ const onStep2Submit = (data: BriefingTecelagem) => {
   const handleFinalSubmit = async () => {
     setIsSubmitting(true)
     try {
-      // Usa getValues() do RHF como fonte primÃ¡ria (mais confiÃ¡vel), com fallback para comercialData
+      // Usa getValues() do RHF como fonte primária (mais confiável), com fallback para comercialData
       const rhfValues = getValues()
       
       const payload = {
@@ -168,12 +168,12 @@ const onStep2Submit = (data: BriefingTecelagem) => {
         anexos: anexosData,
       }
 
-      // ValidaÃ§Ã£o final antes do envio
+      // Validação final antes do envio
       if (!payload.tipo) {
-        throw new Error("Tipo de solicitaÃ§Ã£o Ã© obrigatÃ³rio")
+        throw new Error("Tipo de solicitação é obrigatório")
       }
       if (!payload.cliente) {
-        throw new Error("Cliente Ã© obrigatÃ³rio")
+        throw new Error("Cliente é obrigatório")
       }
 
       const res = await fetch(`/api/solicitacoes/${id}`, {
@@ -184,10 +184,10 @@ const onStep2Submit = (data: BriefingTecelagem) => {
 
       if (!res.ok) throw new Error("Erro ao salvar")
 
-      toast.success("SolicitaÃ§Ã£o salva com sucesso!")
+      toast.success("Solicitação salva com sucesso!")
       router.push(`/comercial/solicitacoes/${id}`)
     } catch (err) {
-      toast.error("Erro ao salvar solicitaÃ§Ã£o")
+      toast.error("Erro ao salvar solicitação")
     } finally {
       setIsSubmitting(false)
     }
@@ -245,8 +245,8 @@ const onStep2Submit = (data: BriefingTecelagem) => {
       </div>
 
       <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight">Editar SolicitaÃ§Ã£o #{id}{info && <InfoButton content={info} />}</h1>
-        <p className="text-muted-foreground mt-2">Altere os dados da solicitaÃ§Ã£o.</p>
+        <h1 className="text-3xl font-bold tracking-tight">Editar Solicitação #{id}{info && <InfoButton content={info} />}</h1>
+        <p className="text-muted-foreground mt-2">Altere os dados da solicitação.</p>
       </div>
 
       {/* PROGRESS BAR */}
@@ -287,7 +287,7 @@ const onStep2Submit = (data: BriefingTecelagem) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                  Tipo de SolicitaÃ§Ã£o <span className="text-red-500">*</span>
+                  Tipo de Solicitação <span className="text-red-500">*</span>
                 </Label>
                 <Controller
                   name="tipo"
@@ -354,7 +354,7 @@ const onStep2Submit = (data: BriefingTecelagem) => {
                   render={({ field }) => (
                     <Input 
                       {...field} 
-                      placeholder="Ex: ColeÃ§Ã£o Inverno 2027" 
+                      placeholder="Ex: Coleção Inverno 2027" 
                       onChange={(e) => {
                         field.onChange(e)
                         setComercialData(prev => ({ ...prev, projeto: e.target.value }))
@@ -386,7 +386,7 @@ const onStep2Submit = (data: BriefingTecelagem) => {
 
             <div className="flex justify-end pt-6 border-t border-slate-200 dark:border-slate-700 mt-8">
               <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white">
-                Continuar para Briefing â†’
+                Continuar para Briefing � 
               </Button>
             </div>
           </form>
@@ -404,7 +404,7 @@ const onStep2Submit = (data: BriefingTecelagem) => {
           <div className="space-y-6">
             <h2 className="text-xl font-semibold border-b pb-2">Links e Salvar</h2>
             <p className="text-sm text-muted-foreground">
-              Edite os links de referÃªncia e salve a solicitaÃ§Ã£o.
+              Edite os links de referência e salve a solicitação.
             </p>
             
             <AnexosUpload 
@@ -413,21 +413,21 @@ const onStep2Submit = (data: BriefingTecelagem) => {
             />
 
             <div className="bg-muted/50 p-4 rounded-lg mt-8 border border-border">
-              <h3 className="font-semibold mb-2">Resumo da SolicitaÃ§Ã£o</h3>
+              <h3 className="font-semibold mb-2">Resumo da Solicitação</h3>
               <ul className="space-y-1 text-sm">
-                <li><span className="font-medium">Cliente:</span> {watch("cliente") || comercialData.cliente || "â€”"}</li>
+                <li><span className="font-medium">Cliente:</span> {watch("cliente") || comercialData.cliente || "�"}</li>
                 <li><span className="font-medium">Projeto:</span> {watch("projeto") || comercialData.projeto || "N/A"}</li>
-                <li><span className="font-medium">Tipo:</span> {(watch("tipo") || comercialData.tipo)?.replace("DESENVOLVIMENTO_", "") || "â€”"}</li>
+                <li><span className="font-medium">Tipo:</span> {(watch("tipo") || comercialData.tipo)?.replace("DESENVOLVIMENTO_", "") || "�"}</li>
                 <li><span className="font-medium">Total de Links:</span> {anexosData.length}</li>
               </ul>
             </div>
 
             <div className="flex justify-between items-center pt-8 border-t">
               <Button variant="outline" onClick={() => setStep(2)}>
-                â† Voltar para Briefing
+                � � Voltar para Briefing
               </Button>
               <Button onClick={handleFinalSubmit} disabled={isSubmitting}>
-                {isSubmitting ? "Salvando..." : "Salvar AlteraÃ§Ãµes"}
+                {isSubmitting ? "Salvando..." : "Salvar Alterações"}
               </Button>
             </div>
           </div>
@@ -439,7 +439,7 @@ const onStep2Submit = (data: BriefingTecelagem) => {
           <DialogHeader>
             <DialogTitle>Novo Cliente</DialogTitle>
             <DialogDescription>
-              Cadastre um novo cliente para usar na solicitaÃ§Ã£o.
+              Cadastre um novo cliente para usar na solicitação.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -463,12 +463,12 @@ const onStep2Submit = (data: BriefingTecelagem) => {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="novo-razao">RazÃ£o Social</Label>
+              <Label htmlFor="novo-razao">Razão Social</Label>
               <Input
                 id="novo-razao"
                 value={novoClienteData.razaoSocial}
                 onChange={(e) => setNovoClienteData((p) => ({ ...p, razaoSocial: e.target.value }))}
-                placeholder="RazÃ£o Social completa"
+                placeholder="Razão Social completa"
               />
             </div>
             <div className="grid grid-cols-2 gap-4">

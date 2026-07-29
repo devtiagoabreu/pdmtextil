@@ -83,7 +83,7 @@ interface GrupoRomaneio {
 type OrientacaoPdf = "portrait" | "landscape"
 
 function formatarData(data: string | null | undefined): string {
-  if (!data) return "â€”"
+  if (!data) return "�"
   try {
     return new Date(data).toLocaleDateString("pt-BR")
   } catch {
@@ -92,12 +92,12 @@ function formatarData(data: string | null | undefined): string {
 }
 
 function formatarMetragem(valor: number | null | undefined): string {
-  if (valor === null || valor === undefined) return "â€”"
+  if (valor === null || valor === undefined) return "�"
   return `${Number(valor).toFixed(1)} m`
 }
 
 function formatarPeso(valor: number | null | undefined): string {
-  if (valor === null || valor === undefined) return "â€”"
+  if (valor === null || valor === undefined) return "�"
   return `${Number(valor).toFixed(4)} kg`
 }
 
@@ -145,7 +145,7 @@ export default function RequisicaoPorRomaneioPage() {
         setIntegracoes(data)
         if (data.length > 0) setSelectedId(data[0].id)
       })
-      .catch(() => toast.error("Erro ao carregar integraÃ§Ãµes"))
+      .catch(() => toast.error("Erro ao carregar integrações"))
       .finally(() => setLoadingInt(false))
   }, [pathname])
 
@@ -333,22 +333,22 @@ export default function RequisicaoPorRomaneioPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           itens: itensPayload,
-          observacoes: `Criado a partir do Romaneio NÂº ${dialogRomaneio.romaneio}`,
+          observacoes: `Criado a partir do Romaneio Nº ${dialogRomaneio.romaneio}`,
           entreguePor: "",
         }),
       })
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({}))
-        throw new Error(err.error || "Erro ao criar requisiÃ§Ã£o")
+        throw new Error(err.error || "Erro ao criar requisição")
       }
 
       const criada = await res.json()
-      toast.success(`RequisiÃ§Ã£o de corte #${criada.id} criada com sucesso!`)
+      toast.success(`Requisição de corte #${criada.id} criada com sucesso!`)
       setDialogOpen(false)
       router.push(`/comercial/requisicoes-corte/${criada.id}`)
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Erro ao criar requisiÃ§Ã£o")
+      toast.error(err instanceof Error ? err.message : "Erro ao criar requisição")
     } finally {
       setCriando(false)
     }
@@ -396,7 +396,7 @@ export default function RequisicaoPorRomaneioPage() {
     doc.roundedRect(margin, barTop, pageWidth - margin * 2, tituloH, 2, 2, "F")
     doc.setTextColor(255, 255, 255)
     doc.setFontSize(isLandscape ? 14 : 12).setFont("helvetica", "bold")
-    doc.text(`Romaneio NÂº ${numero}`, margin + 3, barTop + tituloH / 2 + 1.5)
+    doc.text(`Romaneio Nº ${numero}`, margin + 3, barTop + tituloH / 2 + 1.5)
     doc.setTextColor(0, 0, 0)
 
     const c = grupo.capa
@@ -425,7 +425,7 @@ export default function RequisicaoPorRomaneioPage() {
     doc.text("REPRESENTANTE", col2, y + 4)
     doc.setFont("helvetica", "normal").setFontSize(fsVal)
     doc.text(`${c.nome_represenante}`, col2, y + 10)
-    doc.text(`RegiÃ£o: ${c.nome_regiao}`, col2, y + 16)
+    doc.text(`Região: ${c.nome_regiao}`, col2, y + 16)
 
     doc.setFont("helvetica", "bold").setFontSize(fsTit)
     doc.text("TOTAIS", col4, y + 4)
@@ -433,7 +433,7 @@ export default function RequisicaoPorRomaneioPage() {
     doc.text(`${grupo.totalRolos} rolo(s)`, col4, y + 10)
     doc.text(`Metragem: ${formatarMetragem(grupo.totalMetragem)}`, col4, y + 16)
     doc.text(`P. Bruto: ${formatarPeso(grupo.totalPesoBruto)}`, col4, y + 22)
-    doc.text(`P. LÃ­quido: ${formatarPeso(grupo.totalPesoLiquido)}`, col4, y + 28)
+    doc.text(`P. Líquido: ${formatarPeso(grupo.totalPesoLiquido)}`, col4, y + 28)
 
     const pedidoY = y + capaH + (isLandscape ? 3 : 5)
     doc.setDrawColor(200)
@@ -444,14 +444,14 @@ export default function RequisicaoPorRomaneioPage() {
     doc.setFont("helvetica", "bold").setFontSize(fsTit)
     doc.text("PEDIDO", col1, pedidoY + (isLandscape ? 4 : 6))
     doc.setFont("helvetica", "normal").setFontSize(fsVal)
-    doc.text(`NÂº ${c.pedido}`, col2, pedidoY + (isLandscape ? 4 : 6))
-    doc.text(`EmissÃ£o: ${formatarData(c.emissao)}`, col3, pedidoY + (isLandscape ? 4 : 6))
+    doc.text(`Nº ${c.pedido}`, col2, pedidoY + (isLandscape ? 4 : 6))
+    doc.text(`Emissão: ${formatarData(c.emissao)}`, col3, pedidoY + (isLandscape ? 4 : 6))
     doc.text(`Entrega: ${formatarData(c.entrega)}`, col4, pedidoY + (isLandscape ? 4 : 6))
 
     y += capaH + (isLandscape ? 14 : 22)
 
     const head = [
-      ["#", "CÃ³d. Rolo", "Produto", "Narrativa", "Lote", "Metragem", "P. Bruto", "P. LÃ­quido"],
+      ["#", "Cód. Rolo", "Produto", "Narrativa", "Lote", "Metragem", "P. Bruto", "P. Líquido"],
     ]
     const body: any[] = []
 
@@ -504,9 +504,9 @@ export default function RequisicaoPorRomaneioPage() {
           body.push([
             String(idx + 1),
             String(r.codigo_rolo),
-            r.produto || "â€”",
-            r.narrativa || "â€”",
-            r.lote_produto || "â€”",
+            r.produto || "�",
+            r.narrativa || "�",
+            r.lote_produto || "�",
             formatarMetragem(r.quantidade),
             formatarPeso(r.peso_bruto),
             formatarPeso(r.peso_liquido),
@@ -558,8 +558,8 @@ export default function RequisicaoPorRomaneioPage() {
       didDrawPage: (data: any) => {
         doc.setFontSize(isLandscape ? 6.5 : 6).setFont("helvetica", "normal")
         doc.setTextColor(0, 0, 0)
-        doc.text(`Romaneio NÂº ${numero}`, margin, pageH - (isLandscape ? 6 : 5))
-        doc.text(`PÃ¡gina ${data.pageNumber}`, pageWidth - margin, pageH - (isLandscape ? 6 : 5), { align: "right" })
+        doc.text(`Romaneio Nº ${numero}`, margin, pageH - (isLandscape ? 6 : 5))
+        doc.text(`Página ${data.pageNumber}`, pageWidth - margin, pageH - (isLandscape ? 6 : 5), { align: "right" })
         doc.setTextColor(0, 0, 0)
       },
     })
@@ -674,10 +674,10 @@ export default function RequisicaoPorRomaneioPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
-            RequisiÃ§Ã£o de Corte por Romaneio{info && <InfoButton content={info} />}
+            Requisição de Corte por Romaneio{info && <InfoButton content={info} />}
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-            Selecione um romaneio e crie uma requisiÃ§Ã£o de corte com a metragem desejada
+            Selecione um romaneio e crie uma requisição de corte com a metragem desejada
           </p>
         </div>
       </div>
@@ -690,10 +690,10 @@ export default function RequisicaoPorRomaneioPage() {
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-12 text-center">
           <Globe size={44} className="mx-auto text-slate-300 mb-3" />
           <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-            Nenhuma integraÃ§Ã£o configurada para romaneios
+            Nenhuma integração configurada para romaneios
           </p>
           <p className="text-xs text-slate-400 mt-1">
-            Cadastre uma integraÃ§Ã£o em ConfiguraÃ§Ãµes &gt; IntegraÃ§Ãµes com a tela &quot;romaneios&quot;
+            Cadastre uma integração em Configurações &gt; Integrações com a tela &quot;romaneios&quot;
           </p>
         </div>
       ) : (
@@ -701,7 +701,7 @@ export default function RequisicaoPorRomaneioPage() {
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
               <div>
-                <label className="text-xs font-medium text-slate-500 mb-1 block">IntegraÃ§Ã£o</label>
+                <label className="text-xs font-medium text-slate-500 mb-1 block">Integração</label>
                 <div className="flex gap-2 flex-wrap">
                   {integracoes.map((int: any) => (
                     <button
@@ -722,7 +722,7 @@ export default function RequisicaoPorRomaneioPage() {
               <div className="flex gap-2 items-end">
                 <div>
                   <label className="text-xs font-medium text-slate-500 mb-1 block">
-                    NÂº Pedido / Romaneio
+                    Nº Pedido / Romaneio
                   </label>
                   <Input
                     value={searchInput}
@@ -793,7 +793,7 @@ export default function RequisicaoPorRomaneioPage() {
             <div className="space-y-3">
               {searchTerm && (
                 <p className="text-xs text-slate-500">
-                  Filtrando por &quot;{searchTerm}&quot; â€” {itensFiltrados.length} de {itens.length} rolo(s)
+                  Filtrando por &quot;{searchTerm}&quot; � {itensFiltrados.length} de {itens.length} rolo(s)
                 </p>
               )}
               <div className="space-y-4">
@@ -814,7 +814,7 @@ export default function RequisicaoPorRomaneioPage() {
                         <div className="min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
                             <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
-                              Romaneio NÂº {grupo.romaneio}
+                              Romaneio Nº {grupo.romaneio}
                             </h2>
                             <span className="text-[11px] px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 font-medium">
                               {grupo.totalRolos} rolo(s)
@@ -842,7 +842,7 @@ export default function RequisicaoPorRomaneioPage() {
                             className="gap-1.5 text-xs"
                           >
                             <Scissors size={14} />
-                            RequisiÃ§Ã£o de Corte
+                            Requisição de Corte
                           </Button>
                           <button
                             onClick={() =>
@@ -892,7 +892,7 @@ export default function RequisicaoPorRomaneioPage() {
                               {prod.nome}
                             </p>
                             <p className="text-[11px] text-slate-500 mt-0.5">
-                              {formatarMetragem(prod.totalMetragem)} disponÃ­vel
+                              {formatarMetragem(prod.totalMetragem)} disponível
                             </p>
                             {prod.cor && (
                               <p className="text-[11px] text-slate-400 truncate" title={prod.cor}>
@@ -911,13 +911,13 @@ export default function RequisicaoPorRomaneioPage() {
                             <thead className="bg-slate-50 dark:bg-slate-800/50">
                               <tr>
                                 <th className="px-3 py-2.5 text-center text-[11px] font-medium text-slate-500 uppercase w-10">#</th>
-                                <th className="px-4 py-2.5 text-left text-[11px] font-medium text-slate-500 uppercase">CÃ³d. Rolo</th>
+                                <th className="px-4 py-2.5 text-left text-[11px] font-medium text-slate-500 uppercase">Cód. Rolo</th>
                                 <th className="px-4 py-2.5 text-left text-[11px] font-medium text-slate-500 uppercase">Produto</th>
                                 <th className="px-4 py-2.5 text-left text-[11px] font-medium text-slate-500 uppercase">Narrativa</th>
                                 <th className="px-4 py-2.5 text-left text-[11px] font-medium text-slate-500 uppercase">Lote</th>
                                 <th className="px-4 py-2.5 text-right text-[11px] font-medium text-slate-500 uppercase">Metragem</th>
                                 <th className="px-4 py-2.5 text-right text-[11px] font-medium text-slate-500 uppercase">P. Bruto</th>
-                                <th className="px-4 py-2.5 text-right text-[11px] font-medium text-slate-500 uppercase">P. LÃ­quido</th>
+                                <th className="px-4 py-2.5 text-right text-[11px] font-medium text-slate-500 uppercase">P. Líquido</th>
                               </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -980,10 +980,10 @@ export default function RequisicaoPorRomaneioPage() {
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-12 text-center">
               <Truck size={44} className="mx-auto text-slate-300 mb-3" />
               <p className="text-sm font-medium text-slate-500">
-                Carregue os romaneios para criar requisiÃ§Ãµes de corte
+                Carregue os romaneios para criar requisições de corte
               </p>
               <p className="text-xs text-slate-400 mt-1">
-                Clique em &quot;Carregar Todos&quot; para listar os romaneios disponÃ­veis
+                Clique em &quot;Carregar Todos&quot; para listar os romaneios disponíveis
               </p>
             </div>
           ) : null}
@@ -993,9 +993,9 @@ export default function RequisicaoPorRomaneioPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Nova RequisiÃ§Ã£o de Corte</DialogTitle>
+            <DialogTitle>Nova Requisição de Corte</DialogTitle>
             <DialogDescription>
-              Romaneio NÂº {dialogRomaneio?.romaneio} â€” Informe a metragem desejada para cada produto
+              Romaneio Nº {dialogRomaneio?.romaneio} � Informe a metragem desejada para cada produto
             </DialogDescription>
           </DialogHeader>
 
@@ -1011,8 +1011,8 @@ export default function RequisicaoPorRomaneioPage() {
                       {item.produto}
                     </p>
                     <p className="text-[11px] text-slate-500">
-                      DisponÃ­vel: {formatarMetragem(item.metragemDisponivel)}
-                      {item.cor && ` â€” Cor: ${item.cor}`}
+                      Disponível: {formatarMetragem(item.metragemDisponivel)}
+                      {item.cor && ` � Cor: ${item.cor}`}
                     </p>
                   </div>
                 </div>
@@ -1036,7 +1036,7 @@ export default function RequisicaoPorRomaneioPage() {
             <Button onClick={confirmarCriacao} disabled={criando} className="gap-2">
               {criando && <Loader2 size={16} className="animate-spin" />}
               <Scissors size={16} />
-              Criar RequisiÃ§Ã£o de Corte
+              Criar Requisição de Corte
             </Button>
           </DialogFooter>
         </DialogContent>

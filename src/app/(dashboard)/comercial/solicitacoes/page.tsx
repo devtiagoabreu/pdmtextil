@@ -63,7 +63,7 @@ export default function ListaSolicitacoesPage() {
         }
         throw new Error(data.error || "Erro ao excluir")
       }
-      toast.success("SolicitaÃ§Ã£o excluÃ­da com sucesso")
+      toast.success("Solicitação excluída com sucesso")
       setDeleteTarget(null)
       refetch()
     } catch (err) {
@@ -89,7 +89,7 @@ if (isLoading) {
   if (error) {
     return (
       <div className="text-center py-20">
-        <p className="text-red-500 mb-2">Erro ao carregar solicitaÃ§Ãµes</p>
+        <p className="text-red-500 mb-2">Erro ao carregar solicitações</p>
         <p className="text-sm text-slate-500">Tente fazer login novamente</p>
         <Link prefetch={false} href="/login" className="text-blue-600 hover:underline mt-2 inline-block">
           Ir para login
@@ -101,7 +101,7 @@ if (isLoading) {
   if (!lista || !Array.isArray(lista)) {
     return (
       <div className="text-center py-20">
-        <p className="text-red-500">Erro ao carregar solicitaÃ§Ãµes</p>
+        <p className="text-red-500">Erro ao carregar solicitações</p>
       </div>
     )
   }
@@ -110,7 +110,7 @@ if (isLoading) {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Minhas SolicitaÃ§Ãµes de Desenvolvimento{info && <InfoButton content={info} />}</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Minhas Solicitações de Desenvolvimento{info && <InfoButton content={info} />}</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             {filteredData.length || 0} de {lista?.length || 0} solicitacao(oes)
           </p>
@@ -120,7 +120,7 @@ if (isLoading) {
           className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors shadow-sm"
         >
           <PlusCircle size={16} />
-          Nova SolicitaÃ§Ã£o
+          Nova Solicitação
         </Link>
       </div>
 
@@ -143,7 +143,7 @@ if (isLoading) {
               {(lista && lista.length > 0 && filteredData.length === 0) ? "Nenhum resultado para os filtros aplicados" : "Nenhuma solicitacao encontrada"}
             </p>
             <Link prefetch={false} href="/comercial/solicitacoes/nova" className="text-sm text-blue-600 hover:underline mt-2">
-              Criar primeira solicitaÃ§Ã£o
+              Criar primeira solicitação
             </Link>
           </div>
         ) : (
@@ -158,8 +158,8 @@ if (isLoading) {
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Produto Vinculado</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Status</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Data</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">ObservaÃ§Ãµes</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">AÃ§Ãµes</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Observações</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Ações</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -178,14 +178,14 @@ if (isLoading) {
                       </td>
                       <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">{TIPO_CONFIG[s.tipo] || s.tipo}</td>
                       <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-slate-200">{s.cliente}</td>
-                      <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">{s.solicitanteNome || "â€”"}</td>
+                      <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">{s.solicitanteNome || "�"}</td>
                       <td className="px-4 py-3 text-sm">
                         {s.produtoCodigoPdm ? (
                           <span className="text-xs font-mono text-slate-700 dark:text-slate-300">
                             {s.produtoCodigoPdm}{s.produtoIdIntegracaoErpCru ? ` (ERP: ${s.produtoIdIntegracaoErpCru})` : ""}
                           </span>
                         ) : (
-                          <span className="text-xs text-slate-400">â€”</span>
+                          <span className="text-xs text-slate-400">�</span>
                         )}
                       </td>
                       <td className="px-4 py-3">
@@ -197,10 +197,10 @@ if (isLoading) {
                         </span>
                       </td>
                       <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">
-                        {s.createdAt ? new Date(s.createdAt).toLocaleDateString("pt-BR") : "â€”"}
+                        {s.createdAt ? new Date(s.createdAt).toLocaleDateString("pt-BR") : "�"}
                       </td>
                       <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400 max-w-[200px] truncate" title={s.observacoes || ""}>
-                        {s.observacoes || "â€”"}
+                        {s.observacoes || "�"}
                       </td>
                       <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
@@ -234,14 +234,14 @@ if (isLoading) {
 
       <ConfirmModal
         open={deleteTarget !== null}
-        title={deleteBlocked ? "ExclusÃ£o nÃ£o permitida" : "Excluir solicitaÃ§Ã£o?"}
+        title={deleteBlocked ? "Exclusão não permitida" : "Excluir solicitação?"}
         message={deleteBlocked
-          ? "Esta solicitaÃ§Ã£o possui cadastros vinculados e nÃ£o pode ser excluÃ­da."
+          ? "Esta solicitação possui cadastros vinculados e não pode ser excluída."
           : deleteTarget?.anexosCount > 0
-            ? `Esta solicitaÃ§Ã£o possui ${deleteTarget?.anexosCount} link(s) anexado(s). Ao excluir, os links tambÃ©m serÃ£o removidos. Continuar?`
-            : `Tem certeza que deseja excluir a solicitaÃ§Ã£o #${deleteTarget?.id}?`}
+            ? `Esta solicitação possui ${deleteTarget?.anexosCount} link(s) anexado(s). Ao excluir, os links também serão removidos. Continuar?`
+            : `Tem certeza que deseja excluir a solicitação #${deleteTarget?.id}?`}
         subMessage={deleteBlocked
-          ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informaÃ§Ãµes."
+          ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informações."
           : undefined}
         confirmLabel={deleteBlocked ? "OK" : "Excluir"}
         variant={deleteBlocked ? "warning" : "danger"}

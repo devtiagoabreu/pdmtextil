@@ -57,11 +57,11 @@ export default function NovoClientePage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!form.nome.trim()) {
-      toast.error("Nome fantasia Ã© obrigatÃ³rio")
+      toast.error("Nome fantasia é obrigatório")
       return
     }
     if (!form.cnpj.trim()) {
-      toast.error("CNPJ Ã© obrigatÃ³rio")
+      toast.error("CNPJ é obrigatório")
       return
     }
 
@@ -128,7 +128,7 @@ export default function NovoClientePage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">RazÃ£o Social</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Razão Social</label>
             <input
               type="text"
               value={form.razaoSocial}
@@ -191,10 +191,10 @@ export default function NovoClientePage() {
           </div>
 
           <div className="sm:col-span-2">
-            <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200 border-b border-slate-100 dark:border-slate-800 pb-2">EndereÃ§o</h3>
+            <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200 border-b border-slate-100 dark:border-slate-800 pb-2">Endereço</h3>
           </div>
           <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">EndereÃ§o</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Endereço</label>
             <input
               type="text"
               value={form.endereco}
@@ -212,15 +212,15 @@ export default function NovoClientePage() {
           </div>
 
           <div className="sm:col-span-2">
-            <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200 border-b border-slate-100 dark:border-slate-800 pb-2">IntegraÃ§Ã£o</h3>
+            <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200 border-b border-slate-100 dark:border-slate-800 pb-2">Integração</h3>
           </div>
           <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">ID IntegraÃ§Ã£o (ERP/WMS/CRM/OUTROS)</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">ID Integração (ERP/WMS/CRM/OUTROS)</label>
             <input
               type="text"
               value={form.idIntegracao}
               onChange={e => setField("idIntegracao", e.target.value)}
-              placeholder="CÃ³digo do sistema externo"
+              placeholder="Código do sistema externo"
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>

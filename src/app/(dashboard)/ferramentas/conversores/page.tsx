@@ -90,9 +90,9 @@ export default function ConversoresPage() {
         <div>
           <div className="flex items-center gap-2">
             <Repeat className="text-blue-600" size={24} />
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">NumeraÃ§Ã£o de Fio{info && <InfoButton content={info} />}</h1>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Numeração de Fio{info && <InfoButton content={info} />}</h1>
           </div>
-          <p className="text-sm text-slate-500 mt-1">ConversÃ£o entre Ne Â· Nm Â· Tex Â· Dtex Â· Denier</p>
+          <p className="text-sm text-slate-500 mt-1">Conversão entre Ne · Nm · Tex · Dtex · Denier</p>
         </div>
       </div>
 
@@ -119,7 +119,7 @@ export default function ConversoresPage() {
 
       <details className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
         <summary className="px-5 py-3 text-sm font-medium text-slate-600 dark:text-slate-300 cursor-pointer hover:text-slate-900 dark:hover:text-slate-100">
-          FÃ³rmulas de conversÃ£o
+          Fórmulas de conversão
         </summary>
         <div className="px-5 pb-4 text-xs text-slate-500 space-y-0.5 font-mono">
           <p>Tex = 590.5 / Ne</p>
@@ -127,11 +127,11 @@ export default function ConversoresPage() {
           <p>Tex = Dtex / 10</p>
           <p>Tex = Denier / 9</p>
           <p className="pt-2">Nm = 1000 / Tex</p>
-          <p>Nm = Ne Ã— 590.5 / 1000</p>
+          <p>Nm = Ne � 590.5 / 1000</p>
           <p className="pt-2">Ne = 590.5 / Tex</p>
-          <p>Ne = Nm Ã— 1000 / 590.5</p>
-          <p className="pt-2">Dtex = 10 Ã— Tex</p>
-          <p className="pt-2">Denier = 9 Ã— Tex</p>
+          <p>Ne = Nm � 1000 / 590.5</p>
+          <p className="pt-2">Dtex = 10 � Tex</p>
+          <p className="pt-2">Denier = 9 � Tex</p>
         </div>
       </details>
     </div>

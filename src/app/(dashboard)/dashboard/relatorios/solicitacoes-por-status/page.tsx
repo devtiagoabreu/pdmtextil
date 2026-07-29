@@ -75,7 +75,7 @@ export default function RelatorioSolicitacoesPorStatus() {
   function handleExportCSV() {
     const rotulo = getStatusLabel(selectedStatus)
     setTimeout(() => {
-      exportCSV(`solicitacoes-${selectedStatus.toLowerCase()}`, ["#", "Cliente", "Projeto", "Tipo", "Criado em", "ConcluÃ­do em", "Prazo"], lista.map((r: any) => [
+      exportCSV(`solicitacoes-${selectedStatus.toLowerCase()}`, ["#", "Cliente", "Projeto", "Tipo", "Criado em", "Concluído em", "Prazo"], lista.map((r: any) => [
         r.id,
         r.cliente,
         r.projeto || "-",
@@ -90,15 +90,15 @@ export default function RelatorioSolicitacoesPorStatus() {
   async function handleExportPDF() {
     const rotulo = getStatusLabel(selectedStatus)
     await exportPDFRelatorio({
-      title: `RelatÃ³rio: SolicitaÃ§Ãµes ${rotulo}`,
+      title: `Relatório: Solicitações ${rotulo}`,
       stats: stats ? {
         "Total": stats.total,
         "Tecelagem": stats.tecelagem,
         "Beneficiamento": stats.beneficiamento,
       } : undefined,
       tables: [
-        { headers: ["MÃªs", "Total"], rows: porMes.map((m: any) => [m.mes, m.total]) },
-        { headers: ["#", "Cliente", "Projeto", "Tipo", "Criado em", "ConcluÃ­do em", "Prazo"], rows: lista.map((r: any) => [
+        { headers: ["Mês", "Total"], rows: porMes.map((m: any) => [m.mes, m.total]) },
+        { headers: ["#", "Cliente", "Projeto", "Tipo", "Criado em", "Concluído em", "Prazo"], rows: lista.map((r: any) => [
           r.id,
           r.cliente,
           r.projeto || "-",
@@ -117,9 +117,9 @@ export default function RelatorioSolicitacoesPorStatus() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">RelatÃ³rio: SolicitaÃ§Ãµes de Desenvolvimento por Status{info && <InfoButton content={info} />}</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Relatório: Solicitações de Desenvolvimento por Status{info && <InfoButton content={info} />}</h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-          Filtre solicitaÃ§Ãµes de desenvolvimento por status â€” total, distribuiÃ§Ã£o por tipo e detalhamento
+          Filtre solicitações de desenvolvimento por status � total, distribuição por tipo e detalhamento
         </p>
       </div>
 
@@ -140,7 +140,7 @@ export default function RelatorioSolicitacoesPorStatus() {
           </select>
         </div>
         <div>
-          <label className="block text-xs text-slate-400 mb-1">Data inÃ­cio</label>
+          <label className="block text-xs text-slate-400 mb-1">Data início</label>
           <input
             type="date"
             value={dataInicio}
@@ -196,7 +196,7 @@ export default function RelatorioSolicitacoesPorStatus() {
       {porMes.length > 0 && (
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
           <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">
-            <BarChart3 size={16} className="inline mr-1" /> Por MÃªs
+            <BarChart3 size={16} className="inline mr-1" /> Por Mês
           </h3>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
@@ -216,7 +216,7 @@ export default function RelatorioSolicitacoesPorStatus() {
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
         <div className="p-4 border-b border-slate-100 dark:border-slate-800">
           <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-            SolicitaÃ§Ãµes {getStatusLabel(selectedStatus)}
+            Solicitações {getStatusLabel(selectedStatus)}
           </h3>
         </div>
         {loading ? (
@@ -229,7 +229,7 @@ export default function RelatorioSolicitacoesPorStatus() {
         ) : lista.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <BarChart3 className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nenhuma solicitaÃ§Ã£o encontrada</p>
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nenhuma solicitação encontrada</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -240,7 +240,7 @@ export default function RelatorioSolicitacoesPorStatus() {
                   <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">Cliente</th>
                   <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">Tipo</th>
                   <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">Criado em</th>
-                  <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">ConcluÃ­do em</th>
+                  <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">Concluído em</th>
                   <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">Prazo</th>
                   <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase"></th>
                 </tr>

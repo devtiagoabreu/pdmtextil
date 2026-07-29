@@ -64,8 +64,8 @@ export default function ListaReceitasPage() {
         </p>
       </div>
       <ExportarDados data={completas.map((r: any) => ({ produto: r.produtoCodigo, descricao: r.descricao, versao: r.versao, itens: r.totalItens, acabamento: r.acabamento }))} columns={[
-        { key: "produto", label: "Produto" }, { key: "descricao", label: "DescriÃ§Ã£o" },
-        { key: "versao", label: "VersÃ£o" }, { key: "itens", label: "Itens" },
+        { key: "produto", label: "Produto" }, { key: "descricao", label: "Descrição" },
+        { key: "versao", label: "Versão" }, { key: "itens", label: "Itens" },
         { key: "acabamento", label: "Acabamento" },
       ]} filename="receitas" title="Receitas" />
 
@@ -110,8 +110,8 @@ export default function ListaReceitasPage() {
                 <tr className="border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
                   <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">Produto</th>
                   <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">Acabamento</th>
-                  <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">DescriÃ§Ã£o</th>
-                  <th className="text-center p-3 text-xs font-medium text-slate-500 uppercase">VersÃ£o</th>
+                  <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">Descrição</th>
+                  <th className="text-center p-3 text-xs font-medium text-slate-500 uppercase">Versão</th>
                   <th className="text-center p-3 text-xs font-medium text-slate-500 uppercase">Itens</th>
                   <th className="text-center p-3 text-xs font-medium text-slate-500 uppercase">Amostra</th>
                   <th className="text-right p-3 text-xs font-medium text-slate-500 uppercase"></th>
@@ -166,7 +166,7 @@ export default function ListaReceitasPage() {
                   <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">Produto</th>
                   <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">Acabamento</th>
                   <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">Tipo Receita</th>
-                  <th className="text-center p-3 text-xs font-medium text-slate-500 uppercase">ParÃ¢metros</th>
+                  <th className="text-center p-3 text-xs font-medium text-slate-500 uppercase">Parâmetros</th>
                   <th className="text-right p-3 text-xs font-medium text-slate-500 uppercase"></th>
                 </tr>
               </thead>
@@ -189,7 +189,7 @@ export default function ListaReceitasPage() {
                       {r.possuiParametros ? (
                         <span className="text-xs text-green-600 dark:text-green-400">Sim</span>
                       ) : (
-                        <span className="text-xs text-slate-400">â€”</span>
+                        <span className="text-xs text-slate-400">�</span>
                       )}
                     </td>
                     <td className="p-3 text-right">

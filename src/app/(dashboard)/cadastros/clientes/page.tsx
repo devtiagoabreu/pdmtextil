@@ -70,7 +70,7 @@ export default function ClientesPage() {
         }
         throw new Error(data.error || "Erro ao excluir")
       }
-      toast.success("Cliente excluÃ­do com sucesso")
+      toast.success("Cliente excluído com sucesso")
       setDeleteTarget(null)
       refetch()
     } catch (err) {
@@ -142,9 +142,9 @@ export default function ClientesPage() {
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Email</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Telefone</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Cidade/UF</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">ID IntegraÃ§Ã£o</th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">ID Integração</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Status</th>
-                <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">AÃ§Ãµes</th>
+                <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Ações</th>
               </tr>
             </thead>
             <tbody>
@@ -155,13 +155,13 @@ export default function ClientesPage() {
                   onClick={() => router.push(`/comercial/clientes/${cliente.id}`)}
                 >
                   <td className="p-4 text-sm font-medium">{cliente.nome}</td>
-                  <td className="p-4 text-sm text-slate-500">{cliente.cnpj || "â€”"}</td>
-                  <td className="p-4 text-sm text-slate-500">{cliente.email || "â€”"}</td>
-                  <td className="p-4 text-sm text-slate-500">{cliente.telefone || "â€”"}</td>
+                  <td className="p-4 text-sm text-slate-500">{cliente.cnpj || "�"}</td>
+                  <td className="p-4 text-sm text-slate-500">{cliente.email || "�"}</td>
+                  <td className="p-4 text-sm text-slate-500">{cliente.telefone || "�"}</td>
                   <td className="p-4 text-sm text-slate-500">
-                    {cliente.cidade && cliente.uf ? `${cliente.cidade}/${cliente.uf}` : "â€”"}
+                    {cliente.cidade && cliente.uf ? `${cliente.cidade}/${cliente.uf}` : "�"}
                   </td>
-                  <td className="p-4 text-sm font-mono text-xs text-slate-500">{cliente.idIntegracao || "â€”"}</td>
+                  <td className="p-4 text-sm font-mono text-xs text-slate-500">{cliente.idIntegracao || "�"}</td>
                   <td className="p-4">
                     <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
                       cliente.ativo
@@ -201,12 +201,12 @@ export default function ClientesPage() {
 
       <ConfirmModal
         open={deleteTarget !== null}
-        title={deleteBlocked ? "ExclusÃ£o nÃ£o permitida" : "Excluir cliente?"}
+        title={deleteBlocked ? "Exclusão não permitida" : "Excluir cliente?"}
         message={deleteBlocked
-          ? "Este cliente possui cadastros vinculados e nÃ£o pode ser excluÃ­do."
+          ? "Este cliente possui cadastros vinculados e não pode ser excluído."
           : `Tem certeza que deseja excluir?`}
         subMessage={deleteBlocked
-          ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informaÃ§Ãµes."
+          ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informações."
           : undefined}
         confirmLabel={deleteBlocked ? "OK" : "Excluir"}
         variant={deleteBlocked ? "warning" : "danger"}

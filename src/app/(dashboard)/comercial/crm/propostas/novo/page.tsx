@@ -78,7 +78,7 @@ export default function NovaPropostaPage() {
 
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-5">
         <div>
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">TÃ­tulo *</label>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Título *</label>
           <input
             type="text"
             value={titulo}
@@ -91,7 +91,7 @@ export default function NovaPropostaPage() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Pessoa (NegÃ³cio) *
+              Pessoa (Negócio) *
               <QuickCreatePessoa onCreated={handleEmpresaCreated} />
             </label>
             <select
@@ -148,7 +148,7 @@ export default function NovaPropostaPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">CondiÃ§Ãµes de Pagamento</label>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Condições de Pagamento</label>
           <input
             type="text"
             value={condicoesPagamento}
@@ -159,7 +159,7 @@ export default function NovaPropostaPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">DescriÃ§Ã£o</label>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Descrição</label>
           <textarea
             value={descricao}
             onChange={(e) => setDescricao(e.target.value)}

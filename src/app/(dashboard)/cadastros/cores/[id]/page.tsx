@@ -66,7 +66,7 @@ export default function CorFormPage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!cor.codigo || !cor.nome) {
-      toast.error("CÃ³digo e Nome sÃ£o obrigatÃ³rios")
+      toast.error("Código e Nome são obrigatórios")
       return
     }
 
@@ -118,7 +118,7 @@ export default function CorFormPage() {
         </Link>
         <div>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
-          {isEditing ? "Editar Cor" : "Nova Cor SÃ³lida"}
+          {isEditing ? "Editar Cor" : "Nova Cor Sólida"}
           {info && <InfoButton content={info} />}
         </h1>
       </div>
@@ -127,7 +127,7 @@ export default function CorFormPage() {
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="codigo">CÃ³digo (6 dÃ­gitos) *</Label>
+            <Label htmlFor="codigo">Código (6 dígitos) *</Label>
             <Input
               id="codigo"
               value={cor.codigo}
@@ -151,7 +151,7 @@ export default function CorFormPage() {
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="pantone">ReferÃªncia Pantone</Label>
+            <Label htmlFor="pantone">Referência Pantone</Label>
             <Input
               id="pantone"
               value={cor.pantone || ""}
@@ -160,7 +160,7 @@ export default function CorFormPage() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="familia">FamÃ­lia</Label>
+            <Label htmlFor="familia">Família</Label>
             <Input
               id="familia"
               value={cor.familia || ""}
@@ -187,8 +187,8 @@ export default function CorFormPage() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="idIntegracao">ID IntegraÃ§Ã£o (ERP/WMS/CRM/OUTROS)</Label>
-          <Input id="idIntegracao" value={cor.idIntegracao || ""} onChange={e => handleChange("idIntegracao", e.target.value)} placeholder="CÃ³digo do sistema externo" />
+          <Label htmlFor="idIntegracao">ID Integração (ERP/WMS/CRM/OUTROS)</Label>
+          <Input id="idIntegracao" value={cor.idIntegracao || ""} onChange={e => handleChange("idIntegracao", e.target.value)} placeholder="Código do sistema externo" />
         </div>
 
         <div className="flex gap-4">

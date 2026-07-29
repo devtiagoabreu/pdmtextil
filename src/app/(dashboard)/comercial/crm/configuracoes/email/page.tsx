@@ -47,7 +47,7 @@ export default function CrmEmailConfigPage() {
 
   const handleSave = async () => {
     if (!user || !pass) {
-      toast.error("Email e senha de app sÃ£o obrigatÃ³rios")
+      toast.error("Email e senha de app são obrigatórios")
       return
     }
     setSaving(true)
@@ -58,17 +58,17 @@ export default function CrmEmailConfigPage() {
         body: JSON.stringify({ host, port: parseInt(port), user, pass, fromName, replyTo, ativo }),
       })
       if (!res.ok) throw new Error()
-      toast.success("ConfiguraÃ§Ã£o CRM salva!")
+      toast.success("Configuração CRM salva!")
       setHasConfig(true)
     } catch {
-      toast.error("Erro ao salvar configuraÃ§Ã£o")
+      toast.error("Erro ao salvar configuração")
     } finally {
       setSaving(false)
     }
   }
 
   const handleClear = async () => {
-    if (!confirm("Limpar configuraÃ§Ã£o de email CRM?")) return
+    if (!confirm("Limpar configuração de email CRM?")) return
     try {
       await fetch("/api/crm/config/email", { method: "DELETE" })
       setHost("smtp.gmail.com")
@@ -79,9 +79,9 @@ export default function CrmEmailConfigPage() {
       setReplyTo("")
       setAtivo(true)
       setHasConfig(false)
-      toast.success("ConfiguraÃ§Ã£o removida")
+      toast.success("Configuração removida")
     } catch {
-      toast.error("Erro ao remover configuraÃ§Ã£o")
+      toast.error("Erro ao remover configuração")
     }
   }
 
@@ -100,17 +100,17 @@ export default function CrmEmailConfigPage() {
             <Mail className="text-blue-600" size={24} />
             <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Email CRM{info && <InfoButton content={info} />}</h1>
           </div>
-          <p className="text-sm text-slate-500 mt-1">ConfiguraÃ§Ã£o de email para pesquisas de satisfaÃ§Ã£o do CRM</p>
+          <p className="text-sm text-slate-500 mt-1">Configuração de email para pesquisas de satisfação do CRM</p>
         </div>
       </div>
 
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-6 space-y-4 bg-white dark:bg-slate-900">
         <div className="flex items-center gap-2">
           <Mail size={20} className="text-blue-600" />
-          <h2 className="text-lg font-semibold">Email PadrÃ£o CRM</h2>
+          <h2 className="text-lg font-semibold">Email Padrão CRM</h2>
         </div>
         <p className="text-sm text-slate-500">
-          Configure o servidor SMTP para envio automÃ¡tico de pesquisas de satisfaÃ§Ã£o e outros emails do CRM. Para Gmail, use a senha de app gerada em <strong>Conta Google &gt; SeguranÃ§a &gt; Senhas de app</strong>.
+          Configure o servidor SMTP para envio automático de pesquisas de satisfação e outros emails do CRM. Para Gmail, use a senha de app gerada em <strong>Conta Google &gt; Segurança &gt; Senhas de app</strong>.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -140,7 +140,7 @@ export default function CrmEmailConfigPage() {
           </div>
           <div className="flex items-end gap-2">
             <input type="checkbox" id="crmAtivo" checked={ativo} onChange={e => setAtivo(e.target.checked)} className="w-4 h-4 mb-2" />
-            <Label htmlFor="crmAtivo">ConfiguraÃ§Ã£o ativa</Label>
+            <Label htmlFor="crmAtivo">Configuração ativa</Label>
           </div>
         </div>
 

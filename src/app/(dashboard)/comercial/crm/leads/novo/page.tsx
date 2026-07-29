@@ -10,10 +10,10 @@ import { toast } from "sonner"
 
 const ORIGEM_OPTIONS = [
   { value: "SITE", label: "Site" },
-  { value: "INDICACAO", label: "IndicaÃ§Ã£o" },
+  { value: "INDICACAO", label: "Indicação" },
   { value: "EVENTO", label: "Evento" },
-  { value: "PROSPECCAO", label: "ProspecÃ§Ã£o" },
-  { value: "LIGACAO", label: "LigaÃ§Ã£o" },
+  { value: "PROSPECCAO", label: "Prospecção" },
+  { value: "LIGACAO", label: "Ligação" },
   { value: "WHATSAPP", label: "WhatsApp" },
   { value: "EMAIL", label: "E-mail" },
   { value: "OUTRO", label: "Outro" },
@@ -44,7 +44,7 @@ export default function NovoLeadPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!form.nome.trim()) {
-      toast.error("Nome Ã© obrigatÃ³rio")
+      toast.error("Nome é obrigatório")
       return
     }
     setSaving(true)
@@ -100,9 +100,9 @@ export default function NovoLeadPage() {
               onChange={e => { setField("tipoPessoa", e.target.value); setField("documento", "") }}
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="">Sem classificaÃ§Ã£o</option>
-              <option value="PF">Pessoa FÃ­sica</option>
-              <option value="PJ">Pessoa JurÃ­dica</option>
+              <option value="">Sem classificação</option>
+              <option value="PF">Pessoa Física</option>
+              <option value="PJ">Pessoa Jurídica</option>
             </select>
           </div>
           <div>
@@ -145,7 +145,7 @@ export default function NovoLeadPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Pessoa (NegÃ³cio)</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Pessoa (Negócio)</label>
             <input
               type="text"
               value={form.empresaNome}
@@ -175,7 +175,7 @@ export default function NovoLeadPage() {
             </select>
           </div>
           <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">DescriÃ§Ã£o</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Descrição</label>
             <textarea
               value={form.descricao}
               onChange={e => setField("descricao", e.target.value)}

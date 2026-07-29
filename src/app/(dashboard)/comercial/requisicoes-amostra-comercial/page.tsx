@@ -38,7 +38,7 @@ export default function ListaRequisicoesAmostraComercialPage() {
         setData(arr)
         setFiltered(arr)
       })
-      .catch(() => toast.error("Erro ao carregar requisiÃ§Ãµes"))
+      .catch(() => toast.error("Erro ao carregar requisições"))
       .finally(() => setLoading(false))
   }, [mounted])
 
@@ -70,7 +70,7 @@ export default function ListaRequisicoesAmostraComercialPage() {
         const err = await res.json().catch(() => ({}))
         throw new Error(err.error || "Erro ao excluir")
       }
-      toast.success("RequisiÃ§Ã£o excluÃ­da com sucesso")
+      toast.success("Requisição excluída com sucesso")
       setDeleteTarget(null)
       setData((prev: any) => prev.filter((item: any) => item.id !== deleteTarget.id))
     } catch (err) {
@@ -96,10 +96,10 @@ export default function ListaRequisicoesAmostraComercialPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
-            RequisiÃ§Ãµes de Amostra Comercial{info && <InfoButton content={info} />}
+            Requisições de Amostra Comercial{info && <InfoButton content={info} />}
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-            {filtered.length} requisiÃ§Ã£o(Ãµes)
+            {filtered.length} requisição(ões)
           </p>
         </div>
         <Link prefetch={false}
@@ -107,7 +107,7 @@ export default function ListaRequisicoesAmostraComercialPage() {
           className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors shadow-sm"
         >
           <Plus size={16} />
-          Nova RequisiÃ§Ã£o
+          Nova Requisição
         </Link>
       </div>
 
@@ -115,7 +115,7 @@ export default function ListaRequisicoesAmostraComercialPage() {
         <Search size={16} className="text-slate-400 shrink-0" />
         <input
           type="text"
-          placeholder="Buscar por ID, tÃ­tulo, cliente ou produto..."
+          placeholder="Buscar por ID, título, cliente ou produto..."
           value={search}
           onChange={e => setSearch(e.target.value)}
           className="flex-1 bg-transparent text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 outline-none"
@@ -126,9 +126,9 @@ export default function ListaRequisicoesAmostraComercialPage() {
         {filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <FlaskConical className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nenhuma requisiÃ§Ã£o encontrada</p>
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nenhuma requisição encontrada</p>
             <Link prefetch={false} href="/comercial/requisicoes-amostra-comercial/novo" className="text-sm text-blue-600 hover:underline mt-2">
-              Criar primeira requisiÃ§Ã£o
+              Criar primeira requisição
             </Link>
           </div>
         ) : (
@@ -137,12 +137,12 @@ export default function ListaRequisicoesAmostraComercialPage() {
               <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">ID</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">TÃ­tulo</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Título</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Cliente</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Produto</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Status</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Data</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">AÃ§Ãµes</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Ações</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -153,11 +153,11 @@ export default function ListaRequisicoesAmostraComercialPage() {
                     onClick={() => router.push(`/comercial/requisicoes-amostra-comercial/${item.id}`)}
                   >
                     <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-slate-200">#{item.id}</td>
-                    <td className="px-4 py-3 text-sm text-slate-700 dark:text-slate-300">{item.titulo || "â€”"}</td>
-                    <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">{item.cliente || "â€”"}</td>
+                    <td className="px-4 py-3 text-sm text-slate-700 dark:text-slate-300">{item.titulo || "�"}</td>
+                    <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">{item.cliente || "�"}</td>
                     <td className="px-4 py-3 text-sm">
                       <span className="text-xs font-mono text-slate-700 dark:text-slate-300">
-                        {item.produtoCodigo || "â€”"}
+                        {item.produtoCodigo || "�"}
                       </span>
                       {item.produtoDescricao && (
                         <p className="text-xs text-slate-400 line-clamp-1">{item.produtoDescricao}</p>
@@ -172,7 +172,7 @@ export default function ListaRequisicoesAmostraComercialPage() {
                       </span>
                     </td>
                     <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">
-                      {item.createdAt ? new Date(item.createdAt).toLocaleDateString("pt-BR") : "â€”"}
+                      {item.createdAt ? new Date(item.createdAt).toLocaleDateString("pt-BR") : "�"}
                     </td>
                     <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
                       <div className="flex items-center gap-2">
@@ -209,8 +209,8 @@ export default function ListaRequisicoesAmostraComercialPage() {
 
       <ConfirmModal
         open={deleteTarget !== null}
-        title="Excluir requisiÃ§Ã£o?"
-        message={`Tem certeza que deseja excluir a requisiÃ§Ã£o #${deleteTarget?.id} â€” ${deleteTarget?.titulo || ""}?`}
+        title="Excluir requisição?"
+        message={`Tem certeza que deseja excluir a requisição #${deleteTarget?.id} � ${deleteTarget?.titulo || ""}?`}
         confirmLabel="Excluir"
         variant="danger"
         loading={deleteLoading}

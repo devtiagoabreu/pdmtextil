@@ -54,18 +54,18 @@ export default function AdminTreinamentoPage() {
     mutationFn: (id: number) => fetch(`/api/crm/treinamento/${id}`, { method: "DELETE" }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["crm-treinamento"] })
-      toast.success("LiÃ§Ã£o removida")
+      toast.success("Lição removida")
     },
-    onError: () => toast.error("Erro ao remover liÃ§Ã£o"),
+    onError: () => toast.error("Erro ao remover lição"),
   })
 
   const deleteModulo = useMutation({
     mutationFn: (id: number) => fetch(`/api/crm/treinamento/modulos/${id}`, { method: "DELETE" }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["crm-treinamento"] })
-      toast.success("MÃ³dulo removido")
+      toast.success("Módulo removido")
     },
-    onError: () => toast.error("Erro ao remover mÃ³dulo"),
+    onError: () => toast.error("Erro ao remover módulo"),
   })
 
   const criarModulo = useMutation({
@@ -79,20 +79,20 @@ export default function AdminTreinamentoPage() {
       queryClient.invalidateQueries({ queryKey: ["crm-treinamento"] })
       setShowNovoModulo(false)
       setNovoModulo({ titulo: "", descricao: "", icone: "BookOpen", cor: "#6366f1" })
-      toast.success("MÃ³dulo criado")
+      toast.success("Módulo criado")
     },
-    onError: () => toast.error("Erro ao criar mÃ³dulo"),
+    onError: () => toast.error("Erro ao criar módulo"),
   })
 
   const handleDeleteLicao = (id: number, titulo: string) => {
-    if (confirm(`Remover a liÃ§Ã£o "${titulo}"?`)) {
+    if (confirm(`Remover a lição "${titulo}"?`)) {
       setDeletingId(id)
       deleteLicao.mutate(id, { onSettled: () => setDeletingId(null) })
     }
   }
 
   const handleDeleteModulo = (id: number, titulo: string) => {
-    if (confirm(`Remover o mÃ³dulo "${titulo}" e todas as suas liÃ§Ãµes?`)) {
+    if (confirm(`Remover o módulo "${titulo}" e todas as suas lições?`)) {
       deleteModulo.mutate(id)
     }
   }
@@ -117,28 +117,28 @@ export default function AdminTreinamentoPage() {
           className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition-colors"
         >
           <Plus size={16} />
-          Novo MÃ³dulo
+          Novo Módulo
         </button>
       </div>
 
       {showNovoModulo && (
         <div className="mb-6 p-4 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800/50">
-          <h3 className="font-medium text-slate-900 dark:text-slate-50 mb-3">Novo MÃ³dulo</h3>
+          <h3 className="font-medium text-slate-900 dark:text-slate-50 mb-3">Novo Módulo</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
             <input
-              placeholder="TÃ­tulo do mÃ³dulo"
+              placeholder="Título do módulo"
               value={novoModulo.titulo}
               onChange={(e) => setNovoModulo({ ...novoModulo, titulo: e.target.value })}
               className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800"
             />
             <input
-              placeholder="DescriÃ§Ã£o (opcional)"
+              placeholder="Descrição (opcional)"
               value={novoModulo.descricao}
               onChange={(e) => setNovoModulo({ ...novoModulo, descricao: e.target.value })}
               className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800"
             />
             <input
-              placeholder="Ãcone (BookOpen, GraduationCap, etc)"
+              placeholder="Ícone (BookOpen, GraduationCap, etc)"
               value={novoModulo.icone}
               onChange={(e) => setNovoModulo({ ...novoModulo, icone: e.target.value })}
               className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800"
@@ -196,14 +196,14 @@ export default function AdminTreinamentoPage() {
                   <Link prefetch={false}
                     href={`/comercial/crm/treinamento/admin/novo?moduloId=${modulo.id}`}
                     className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 rounded-lg transition-colors"
-                    title="Nova liÃ§Ã£o neste mÃ³dulo"
+                    title="Nova lição neste módulo"
                   >
                     <Plus size={16} />
                   </Link>
                   <button
                     onClick={() => handleDeleteModulo(modulo.id, modulo.titulo)}
                     className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/50 rounded-lg transition-colors"
-                    title="Remover mÃ³dulo"
+                    title="Remover módulo"
                   >
                     <Trash2 size={16} />
                   </button>
@@ -211,7 +211,7 @@ export default function AdminTreinamentoPage() {
               </div>
 
               {modulo.licoes.filter((l: any) => l.ativo).length === 0 ? (
-                <p className="p-4 text-sm text-slate-400 text-center">Nenhuma liÃ§Ã£o neste mÃ³dulo</p>
+                <p className="p-4 text-sm text-slate-400 text-center">Nenhuma lição neste módulo</p>
               ) : (
                 <div className="divide-y divide-slate-100 dark:divide-slate-800">
                   {modulo.licoes.filter((l: any) => l.ativo).map((licao: any) => (

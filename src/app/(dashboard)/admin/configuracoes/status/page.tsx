@@ -84,7 +84,7 @@ export default function StatusPage() {
 
   async function salvar(e: React.FormEvent) {
     e.preventDefault()
-    if (!form.nome.trim()) { toast.error("Nome Ã© obrigatÃ³rio"); return }
+    if (!form.nome.trim()) { toast.error("Nome é obrigatório"); return }
     setSaving(true)
     try {
       const method = editId ? "PUT" : "POST"
@@ -116,7 +116,7 @@ export default function StatusPage() {
         body: JSON.stringify({ id }),
       })
       if (!res.ok) throw new Error("Erro ao excluir")
-      toast.success("Status excluÃ­do")
+      toast.success("Status excluído")
       carregar()
     } catch {
       toast.error("Erro ao excluir status")
@@ -133,7 +133,7 @@ export default function StatusPage() {
             </Link>
             <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Status{info && <InfoButton content={info} />}</h1>
           </div>
-          <p className="text-sm text-slate-500 mt-1">Gerencie os status disponÃ­veis para cada mÃ³dulo do sistema</p>
+          <p className="text-sm text-slate-500 mt-1">Gerencie os status disponíveis para cada módulo do sistema</p>
         </div>
         <Button onClick={() => { resetForm(); setShowForm(true) }}>
           <Plus size={16} className="mr-1" /> Novo Status
@@ -148,7 +148,7 @@ export default function StatusPage() {
               <Input value={form.nome} onChange={e => setForm({ ...form, nome: e.target.value })} placeholder="EX: PENDENTE" />
             </div>
             <div className="space-y-2">
-              <Label>RÃ³tulo (exibiÃ§Ã£o)</Label>
+              <Label>Rótulo (exibição)</Label>
               <Input value={form.rotulo} onChange={e => setForm({ ...form, rotulo: e.target.value })} placeholder="Ex: Pendente" />
             </div>
             <div className="space-y-2">
@@ -212,19 +212,19 @@ export default function StatusPage() {
               <thead>
                 <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50">
                   <th className="text-left px-4 py-3 font-medium text-slate-500">Nome</th>
-                  <th className="text-left px-4 py-3 font-medium text-slate-500">RÃ³tulo</th>
+                  <th className="text-left px-4 py-3 font-medium text-slate-500">Rótulo</th>
                   <th className="text-left px-4 py-3 font-medium text-slate-500">Tipo</th>
                   <th className="text-left px-4 py-3 font-medium text-slate-500">Cor</th>
                   <th className="text-center px-4 py-3 font-medium text-slate-500">Ordem</th>
                   <th className="text-center px-4 py-3 font-medium text-slate-500">Ativo</th>
-                  <th className="text-right px-4 py-3 font-medium text-slate-500">AÃ§Ãµes</th>
+                  <th className="text-right px-4 py-3 font-medium text-slate-500">Ações</th>
                 </tr>
               </thead>
               <tbody>
                 {lista.map((item: any) => (
                   <tr key={item.id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-950/50">
                     <td className="px-4 py-3 font-medium">{item.nome}</td>
-                    <td className="px-4 py-3">{item.rotulo || "â€”"}</td>
+                    <td className="px-4 py-3">{item.rotulo || "�"}</td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${TIPO_CORES[item.tipo] || ""}`}>
                         {TIPO_LABELS[item.tipo] || item.tipo}
@@ -236,7 +236,7 @@ export default function StatusPage() {
                           <div className="w-5 h-5 rounded border" style={{ backgroundColor: item.cor }} />
                           <span className="text-xs text-slate-500">{item.cor}</span>
                         </div>
-                      ) : "â€”"}
+                      ) : "�"}
                     </td>
                     <td className="px-4 py-3 text-center">{item.ordem}</td>
                     <td className="px-4 py-3 text-center">

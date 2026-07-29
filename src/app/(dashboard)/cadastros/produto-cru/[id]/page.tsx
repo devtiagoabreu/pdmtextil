@@ -92,7 +92,7 @@ interface AcabamentoAmostra {
 const STATUS_OPTIONS = [
   { value: "DESENVOLVIMENTO", label: "Em Desenvolvimento" },
   { value: "APROVADO", label: "Aprovado" },
-  { value: "EM_PRODUCAO", label: "Em ProduÃ§Ã£o" },
+  { value: "EM_PRODUCAO", label: "Em Produção" },
   { value: "OBSOLETO", label: "Obsoleto" },
 ]
 
@@ -102,8 +102,8 @@ const TIPO_ACABAMENTO = ["TINGIMENTO", "ESTAMPARIA", "TERMOFIXACAO", "LAVAGEM", 
 
 const TABS = [
   { id: "capa", label: "Capa" },
-  { id: "ficha-tecnica", label: "Ficha TÃ©cnica" },
-  { id: "composicao", label: "ComposiÃ§Ã£o/Estrutura" },
+  { id: "ficha-tecnica", label: "Ficha Técnica" },
+  { id: "composicao", label: "Composição/Estrutura" },
   { id: "amostras", label: "Amostras" },
   { id: "links", label: "Links" },
 ]
@@ -160,8 +160,8 @@ export default function ProdutoCruFormPage() {
   const [statusOptionsProd, setStatusOptionsProd] = useState<{ value: string; label: string }[]>([])
   const [statusOptionsAmostra, setStatusOptionsAmostra] = useState<{ value: string; label: string }[]>([])
 
-  const fioLabel = (f: typeof fios[0]) => [f.codigoFio, f.idIntegracao, f.nome].filter(Boolean).join(" â€” ")
-  const baseLabel = (b: typeof basesUrdume[0]) => [b.idIntegracao, b.nome].filter(Boolean).join(" â€” ")
+  const fioLabel = (f: typeof fios[0]) => [f.codigoFio, f.idIntegracao, f.nome].filter(Boolean).join(" � ")
+  const baseLabel = (b: typeof basesUrdume[0]) => [b.idIntegracao, b.nome].filter(Boolean).join(" � ")
   const [solicitacoes, setSolicitacoes] = useState<{ id: number; cliente: string; projeto: string }[]>([])
 
   const [expandedAcabamento, setExpandedAcabamento] = useState<number | null>(null)
@@ -273,7 +273,7 @@ export default function ProdutoCruFormPage() {
     if (newStatus === "APROVADO") {
       const temAmostraCruAprovada = amostras.some((a: any) => a.status.startsWith("APROVADA"))
       if (!temAmostraCruAprovada) {
-        toast.error("Ã‰ necessÃ¡rio pelo menos uma amostra de tecido cru aprovada para aprovar o produto")
+        toast.error("�0 necessário pelo menos uma amostra de tecido cru aprovada para aprovar o produto")
         return
       }
     }
@@ -290,14 +290,14 @@ export default function ProdutoCruFormPage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!produto.codigoPdm || !produto.descricao) {
-      toast.error("CÃ³digo PDM e DescriÃ§Ã£o sÃ£o obrigatÃ³rios")
+      toast.error("Código PDM e Descrição são obrigatórios")
       return
     }
 
     if (produto.status === "APROVADO") {
       const temAmostraCruAprovada = amostras.some((a: any) => a.status.startsWith("APROVADA"))
       if (!temAmostraCruAprovada) {
-        toast.error("Ã‰ necessÃ¡rio pelo menos uma amostra de tecido cru aprovada para aprovar o produto")
+        toast.error("�0 necessário pelo menos uma amostra de tecido cru aprovada para aprovar o produto")
         return
       }
     }
@@ -705,7 +705,7 @@ export default function ProdutoCruFormPage() {
           <EntityChatButton
             entidadeTipo="PRODUTO_CRU"
             entidadeId={id}
-            titulo={produto.codigoPdm ? `Produto ${produto.codigoPdm} â€” ${produto.descricao}` : `Produto #${id}`}
+            titulo={produto.codigoPdm ? `Produto ${produto.codigoPdm} � ${produto.descricao}` : `Produto #${id}`}
           />
         )}
       </div>
@@ -733,7 +733,7 @@ export default function ProdutoCruFormPage() {
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="codigoPdm">CÃ³digo PDM *</Label>
+                  <Label htmlFor="codigoPdm">Código PDM *</Label>
                   <Input
                     id="codigoPdm"
                     value={produto.codigoPdm}
@@ -758,18 +758,18 @@ export default function ProdutoCruFormPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="descricao">DescriÃ§Ã£o *</Label>
+                <Label htmlFor="descricao">Descrição *</Label>
                 <Input
                   id="descricao"
                   value={produto.descricao}
                   onChange={e => handleChange("descricao", e.target.value)}
-                  placeholder="Tecido Sarja AlgodÃ£o 30/1"
+                  placeholder="Tecido Sarja Algodão 30/1"
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="solicitacao">SolicitaÃ§Ã£o de Desenvolvimento</Label>
+                <Label htmlFor="solicitacao">Solicitação de Desenvolvimento</Label>
                 <select
                   id="solicitacao"
                   value={produto.solicitacaoDesenvolvimentoId || ""}
@@ -785,12 +785,12 @@ export default function ProdutoCruFormPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="idIntegracaoErpCru">ID IntegraÃ§Ã£o ERP (Cru)</Label>
+                  <Label htmlFor="idIntegracaoErpCru">ID Integração ERP (Cru)</Label>
                   <Input id="idIntegracaoErpCru" value={produto.idIntegracaoErpCru || ""} onChange={e => handleChange("idIntegracaoErpCru", e.target.value)} placeholder="2.K1820.CRU.000CRU" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="idIntegracao">ID IntegraÃ§Ã£o (Sistema Externo)</Label>
-                  <Input id="idIntegracao" value={produto.idIntegracao || ""} onChange={e => handleChange("idIntegracao", e.target.value)} placeholder="CÃ³digo do sistema externo" />
+                  <Label htmlFor="idIntegracao">ID Integração (Sistema Externo)</Label>
+                  <Input id="idIntegracao" value={produto.idIntegracao || ""} onChange={e => handleChange("idIntegracao", e.target.value)} placeholder="Código do sistema externo" />
                 </div>
               </div>
 
@@ -815,7 +815,7 @@ export default function ProdutoCruFormPage() {
         {activeTab === "ficha-tecnica" && (
           <div className="space-y-6">
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-4">
-              <h2 className="font-semibold text-slate-900 dark:text-slate-50">Ficha TÃ©cnica</h2>
+              <h2 className="font-semibold text-slate-900 dark:text-slate-50">Ficha Técnica</h2>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Gramatura Linear (g/m)</Label>
@@ -826,7 +826,7 @@ export default function ProdutoCruFormPage() {
                   <Input value={produto.fichaTecnica?.largura || ""} onChange={e => handleFichaTecnicaChange("largura", e.target.value)} />
                 </div>
                 <div className="space-y-2">
-                  <Label>Gramatura (g/mÂ²)</Label>
+                  <Label>Gramatura (g/m²)</Label>
                   <Input value={produto.fichaTecnica?.gramatura || ""} onChange={e => handleFichaTecnicaChange("gramatura", e.target.value)} />
                 </div>
                 <div className="space-y-2">
@@ -851,7 +851,7 @@ export default function ProdutoCruFormPage() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>ObservaÃ§Ãµes</Label>
+                <Label>Observações</Label>
                 <Input value={produto.fichaTecnica?.observacoes || ""} onChange={e => handleFichaTecnicaChange("observacoes", e.target.value)} />
               </div>
             </div>
@@ -872,18 +872,18 @@ export default function ProdutoCruFormPage() {
           <div className="space-y-6">
             {!isEditing ? (
               <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 text-center text-slate-500">
-                Salve o produto primeiro para configurar composiÃ§Ã£o e estrutura.
+                Salve o produto primeiro para configurar composição e estrutura.
               </div>
             ) : (
               <>
                 <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-4">
-                  <h2 className="text-lg font-semibold">ComposiÃ§Ã£o</h2>
+                  <h2 className="text-lg font-semibold">Composição</h2>
 
                   {composicao.length > 0 && (
                     <div className="space-y-2">
                       {composicao.map((c: any) => (
                         <div key={c.id} className="flex items-center justify-between p-3 bg-slate-100 dark:bg-slate-800 rounded-lg">
-                          <span>{c.material} â€” {c.percentual}%</span>
+                          <span>{c.material} � {c.percentual}%</span>
                            <Button variant="ghost" size="icon" onClick={() => setDeleteTarget({ type: "composicao", label: `material "${c.material}"`, fn: () => removeComposicao(c.id) })}>
                             <Trash2 size={16} />
                           </Button>
@@ -898,7 +898,7 @@ export default function ProdutoCruFormPage() {
                   <div className="flex gap-2 items-end">
                     <div className="space-y-1 flex-1">
                       <Label>Material</Label>
-                      <Input value={novoMaterial} onChange={e => setNovoMaterial(e.target.value)} placeholder="AlgodÃ£o" />
+                      <Input value={novoMaterial} onChange={e => setNovoMaterial(e.target.value)} placeholder="Algodão" />
                     </div>
                     <div className="space-y-1 w-24">
                       <Label>%</Label>
@@ -916,9 +916,9 @@ export default function ProdutoCruFormPage() {
                       {estrutura.map((e: any) => (
                         <div key={e.id} className="flex items-center justify-between p-3 bg-slate-100 dark:bg-slate-800 rounded-lg">
                           <span>
-                            {e.tipo} â€” {e.tipo === "TRAMA"
-                            ? (fios.find((f: any) => f.id === e.fioId) ? fioLabel(fios.find((f: any) => f.id === e.fioId)!) : `Fio #${e.fioId || "â€”"}`)
-                            : (basesUrdume.find((b: any) => b.id === e.baseUrdumeId) ? baseLabel(basesUrdume.find((b: any) => b.id === e.baseUrdumeId)!) : `Base Urdume #${e.baseUrdumeId || "â€”"}`)
+                            {e.tipo} � {e.tipo === "TRAMA"
+                            ? (fios.find((f: any) => f.id === e.fioId) ? fioLabel(fios.find((f: any) => f.id === e.fioId)!) : `Fio #${e.fioId || "�"}`)
+                            : (basesUrdume.find((b: any) => b.id === e.baseUrdumeId) ? baseLabel(basesUrdume.find((b: any) => b.id === e.baseUrdumeId)!) : `Base Urdume #${e.baseUrdumeId || "�"}`)
                           }
                             {e.ordem ? ` (Ordem: ${e.ordem})` : ""}
                           </span>
@@ -987,7 +987,7 @@ export default function ProdutoCruFormPage() {
                             <div className="flex items-center justify-between p-3 bg-slate-100 dark:bg-slate-800 rounded-lg">
                               <div className="min-w-0">
                                 <div className="flex items-center gap-2 flex-wrap">
-                                  <p className="font-medium truncate">{a.descricao || "Sem descriÃ§Ã£o"}</p>
+                                  <p className="font-medium truncate">{a.descricao || "Sem descrição"}</p>
                                   {a.quantidadeProduzida ? (
                                     <span className="text-xs font-medium text-purple-600 bg-purple-100 dark:bg-purple-900/30 px-2 py-0.5 rounded">Qtd: {a.quantidadeProduzida}</span>
                                   ) : (
@@ -1055,12 +1055,12 @@ export default function ProdutoCruFormPage() {
 
                   <div className="flex gap-2 items-end">
                     <div className="space-y-1 flex-1">
-                      <Label>DescriÃ§Ã£o</Label>
+                      <Label>Descrição</Label>
                       <Input value={novaAmostraDescricao} onChange={e => setNovaAmostraDescricao(e.target.value)} placeholder="AMOSTRA - PILOTAGEM 001" />
                     </div>
                     <div className="space-y-1 flex-1">
-                      <Label>ObservaÃ§Ãµes</Label>
-                      <Input value={novaAmostraObs} onChange={e => setNovaAmostraObs(e.target.value)} placeholder="ObservaÃ§Ãµes" />
+                      <Label>Observações</Label>
+                      <Input value={novaAmostraObs} onChange={e => setNovaAmostraObs(e.target.value)} placeholder="Observações" />
                     </div>
                     <div className="space-y-1 w-28">
                       <Label>Qtd Produzida</Label>
@@ -1115,7 +1115,7 @@ export default function ProdutoCruFormPage() {
                                   <div key={as.id} id={`amostra-acab-${acab.id}-${as.id}`}>
                                     <div className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-800/50 rounded mb-1">
                                       <div className="flex-1 min-w-0">
-                                        <span className="text-sm">{as.descricao || "Sem descriÃ§Ã£o"}</span>
+                                        <span className="text-sm">{as.descricao || "Sem descrição"}</span>
                                         {as.dados?.tear && (
                                           <span className="text-xs font-medium text-amber-600 bg-amber-100 dark:bg-amber-900/30 px-1.5 py-0.5 rounded ml-2">Tear: {as.dados.tear}</span>
                                         )}
@@ -1163,7 +1163,7 @@ export default function ProdutoCruFormPage() {
                                   )})}
                                 {expandedAmostraForm === acab.id && (
                                   <div className="flex gap-2 mt-2">
-                                    <Input value={novaAmostraAcabDescricao} onChange={e => setNovaAmostraAcabDescricao(e.target.value)} placeholder="DescriÃ§Ã£o da amostra" />
+                                    <Input value={novaAmostraAcabDescricao} onChange={e => setNovaAmostraAcabDescricao(e.target.value)} placeholder="Descrição da amostra" />
                                     <Input value={novaAmostraAcabQtd} onChange={e => setNovaAmostraAcabQtd(e.target.value)} placeholder="Qtd produzida" className="w-32" />
                                     <Button size="sm" onClick={() => addAmostraAcabamento(acab.id)}>Adicionar</Button>
                                   </div>
@@ -1210,7 +1210,7 @@ export default function ProdutoCruFormPage() {
                       </select>
                     </div>
                     <div className="space-y-1 flex-1">
-                      <Label>DescriÃ§Ã£o</Label>
+                      <Label>Descrição</Label>
                       <Input value={novoAcabamentoDescricao} onChange={e => setNovoAcabamentoDescricao(e.target.value)} placeholder="Tinto Branco" />
                     </div>
                     <div className="space-y-1 flex-1">
@@ -1255,14 +1255,14 @@ export default function ProdutoCruFormPage() {
             </h3>
             <p className="text-sm text-slate-500">
               {motivoModal.novoStatus.startsWith("APROVADA")
-                ? "Informe o motivo da aprovaÃ§Ã£o"
-                : "Informe o motivo da reprovaÃ§Ã£o"}
+                ? "Informe o motivo da aprovação"
+                : "Informe o motivo da reprovação"}
             </p>
             <textarea
               value={motivoText}
               onChange={e => setMotivoText(e.target.value)}
               className="w-full p-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 min-h-[100px] resize-y"
-              placeholder="Motivo / ObservaÃ§Ã£o *"
+              placeholder="Motivo / Observação *"
               autoFocus
             />
             <div className="flex justify-end gap-2">
@@ -1298,12 +1298,12 @@ export default function ProdutoCruFormPage() {
             <h3 className="text-lg font-semibold">Editar Amostra</h3>
             <div className="space-y-3">
               <div>
-                <Label>DescriÃ§Ã£o</Label>
+                <Label>Descrição</Label>
                 <Input value={editAmostraDescricao} onChange={e => setEditAmostraDescricao(e.target.value)} placeholder="AMOSTRA - PILOTAGEM 001" />
               </div>
               <div>
-                <Label>ObservaÃ§Ãµes</Label>
-                <Input value={editAmostraObs} onChange={e => setEditAmostraObs(e.target.value)} placeholder="ObservaÃ§Ãµes" />
+                <Label>Observações</Label>
+                <Input value={editAmostraObs} onChange={e => setEditAmostraObs(e.target.value)} placeholder="Observações" />
               </div>
               <div>
                 <Label>Qtd Produzida</Label>
@@ -1338,7 +1338,7 @@ export default function ProdutoCruFormPage() {
 
       <ConfirmModal
         open={!!deleteTarget}
-        title="Confirmar exclusÃ£o"
+        title="Confirmar exclusão"
         message={`Deseja remover ${deleteTarget?.label}?`}
         variant="danger"
         confirmLabel="Remover"

@@ -17,7 +17,7 @@ async function fetchProposta(id: string) {
 
 const STATUS_OPCOES = [
   { value: "ENVIADA", label: "Enviada", cor: "text-blue-600 bg-blue-100 dark:bg-blue-950 dark:text-blue-400" },
-  { value: "REVISAO", label: "Em RevisÃ£o", cor: "text-amber-600 bg-amber-100 dark:bg-amber-950 dark:text-amber-400" },
+  { value: "REVISAO", label: "Em Revisão", cor: "text-amber-600 bg-amber-100 dark:bg-amber-950 dark:text-amber-400" },
   { value: "ACEITA", label: "Aceita", cor: "text-green-600 bg-green-100 dark:bg-green-950 dark:text-green-400" },
   { value: "RECUSADA", label: "Recusada", cor: "text-red-600 bg-red-100 dark:bg-red-950 dark:text-red-400" },
 ]
@@ -64,7 +64,7 @@ export default function DetalhePropostaPage() {
   if (!proposta) {
     return (
       <div className="text-center py-20">
-        <p className="text-slate-500">Proposta nÃ£o encontrada</p>
+        <p className="text-slate-500">Proposta não encontrada</p>
         <Link prefetch={false} href="/comercial/crm/propostas" className="text-blue-600 hover:underline text-sm mt-2 inline-block">
           Voltar para propostas
         </Link>
@@ -87,34 +87,34 @@ export default function DetalhePropostaPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-5">
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-5">
-            <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100 uppercase tracking-wider">InformaÃ§Ãµes</h2>
+            <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100 uppercase tracking-wider">Informações</h2>
 
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <span className="text-slate-500 dark:text-slate-400 block text-xs">Pessoa (NegÃ³cio)</span>
-                <span className="text-slate-900 dark:text-slate-200 font-medium">{proposta.empresaId || "â€”"}</span>
+                <span className="text-slate-500 dark:text-slate-400 block text-xs">Pessoa (Negócio)</span>
+                <span className="text-slate-900 dark:text-slate-200 font-medium">{proposta.empresaId || "�"}</span>
               </div>
               <div>
                 <span className="text-slate-500 dark:text-slate-400 block text-xs">Oportunidade</span>
-                <span className="text-slate-900 dark:text-slate-200">{proposta.oportunidadeId || "â€”"}</span>
+                <span className="text-slate-900 dark:text-slate-200">{proposta.oportunidadeId || "�"}</span>
               </div>
               <div>
                 <span className="text-slate-500 dark:text-slate-400 block text-xs">Valor</span>
                 <span className="text-slate-900 dark:text-slate-200 font-semibold">
-                  {proposta.valor ? `R$ ${Number(proposta.valor).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : "â€”"}
+                  {proposta.valor ? `R$ ${Number(proposta.valor).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : "�"}
                 </span>
               </div>
               <div>
                 <span className="text-slate-500 dark:text-slate-400 block text-xs">Prazo de Entrega</span>
-                <span className="text-slate-900 dark:text-slate-200">{proposta.prazoEntrega || "â€”"}</span>
+                <span className="text-slate-900 dark:text-slate-200">{proposta.prazoEntrega || "�"}</span>
               </div>
               <div className="col-span-2">
-                <span className="text-slate-500 dark:text-slate-400 block text-xs">CondiÃ§Ãµes de Pagamento</span>
-                <span className="text-slate-900 dark:text-slate-200">{proposta.condicoesPagamento || "â€”"}</span>
+                <span className="text-slate-500 dark:text-slate-400 block text-xs">Condições de Pagamento</span>
+                <span className="text-slate-900 dark:text-slate-200">{proposta.condicoesPagamento || "�"}</span>
               </div>
               {proposta.descricao && (
                 <div className="col-span-2">
-                  <span className="text-slate-500 dark:text-slate-400 block text-xs">DescriÃ§Ã£o</span>
+                  <span className="text-slate-500 dark:text-slate-400 block text-xs">Descrição</span>
                   <p className="text-slate-900 dark:text-slate-200 mt-1 whitespace-pre-wrap text-sm">{proposta.descricao}</p>
                 </div>
               )}
@@ -206,7 +206,7 @@ export default function DetalhePropostaPage() {
       <ConfirmModal
         open={!!statusToConfirm}
         title="Alterar status para Recusada?"
-        message="A proposta serÃ¡ marcada como RECUSADA. Esta aÃ§Ã£o pode ser revertida alterando o status novamente."
+        message="A proposta será marcada como RECUSADA. Esta ação pode ser revertida alterando o status novamente."
         variant="danger"
         confirmLabel="Confirmar"
         loading={statusMutation.isPending}

@@ -76,7 +76,7 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
           const data = await res.json()
           setCliente(data)
         } else {
-          toast.error("Cliente nÃ£o encontrado")
+          toast.error("Cliente não encontrado")
           router.push("/comercial/clientes")
         }
       } catch (err) {
@@ -251,7 +251,7 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
 
             <div className="space-y-2 md:col-span-2">
               <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                RazÃ£o Social
+                Razão Social
               </label>
               <input
                 type="text"
@@ -348,7 +348,7 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
 
             <div className="space-y-2 md:col-span-2">
               <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                EndereÃ§o
+                Endereço
               </label>
               <input
                 type="text"
@@ -360,14 +360,14 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
 
             <div className="space-y-2 md:col-span-2">
               <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                ID IntegraÃ§Ã£o (ERP/WMS/CRM/OUTROS)
+                ID Integração (ERP/WMS/CRM/OUTROS)
               </label>
               <input
                 type="text"
                 value={cliente.idIntegracao || ""}
                 onChange={(e) => handleChange("idIntegracao", e.target.value)}
                 className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
-                placeholder="CÃ³digo do sistema externo"
+                placeholder="Código do sistema externo"
               />
             </div>
           </div>
@@ -436,14 +436,14 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
                       <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-3">CNPJ</th>
                       <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-3">Contato</th>
                       <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-3">Cidade/UF</th>
-                      <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-3">AÃ§Ãµes</th>
+                      <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-3">Ações</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                     {vinculos.map((v: any) => (
                       <tr key={v.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
                         <td className="p-3 text-sm font-medium text-slate-900 dark:text-slate-200">{v.nome}</td>
-                        <td className="p-3 text-sm text-slate-500 font-mono">{v.cnpj || "â€”"}</td>
+                        <td className="p-3 text-sm text-slate-500 font-mono">{v.cnpj || "�"}</td>
                         <td className="p-3 text-sm text-slate-500">
                           <div className="flex flex-col gap-0.5">
                             {v.email && <span className="flex items-center gap-1"><Mail size={12} />{v.email}</span>}
@@ -451,7 +451,7 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
                           </div>
                         </td>
                         <td className="p-3 text-sm text-slate-500">
-                          {v.cidade ? <span className="flex items-center gap-1"><MapPin size={12} />{v.cidade}/{v.uf}</span> : "â€”"}
+                          {v.cidade ? <span className="flex items-center gap-1"><MapPin size={12} />{v.cidade}/{v.uf}</span> : "�"}
                         </td>
                         <td className="p-3 text-right">
                           <button

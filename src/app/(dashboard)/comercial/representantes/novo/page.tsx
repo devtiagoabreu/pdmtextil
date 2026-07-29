@@ -34,11 +34,11 @@ export default function NovoRepresentantePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!form.nome.trim()) {
-      toast.error("Nome fantasia Ã© obrigatÃ³rio")
+      toast.error("Nome fantasia é obrigatório")
       return
     }
     if (!form.cnpj.trim()) {
-      toast.error("CNPJ Ã© obrigatÃ³rio")
+      toast.error("CNPJ é obrigatório")
       return
     }
 
@@ -93,7 +93,7 @@ export default function NovoRepresentantePage() {
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                   Nome Fantasia <span className="text-red-500">*</span>
                 </label>
-                <input type="text" name="nome" value={form.nome} onChange={handleChange} placeholder="Ex: RepresentaÃ§Ãµes ABC"
+                <input type="text" name="nome" value={form.nome} onChange={handleChange} placeholder="Ex: Representações ABC"
                   className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
               <div>
@@ -104,8 +104,8 @@ export default function NovoRepresentantePage() {
                   className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">RazÃ£o Social</label>
-                <input type="text" name="razaoSocial" value={form.razaoSocial} onChange={handleChange} placeholder="RazÃ£o social completa"
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Razão Social</label>
+                <input type="text" name="razaoSocial" value={form.razaoSocial} onChange={handleChange} placeholder="Razão social completa"
                   className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
             </div>
@@ -133,11 +133,11 @@ export default function NovoRepresentantePage() {
           </div>
 
           <div className="border-t border-slate-200 dark:border-slate-700 pt-6">
-            <h2 className="text-lg font-semibold mb-4">EndereÃ§o</h2>
+            <h2 className="text-lg font-semibold mb-4">Endereço</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">EndereÃ§o</label>
-                <input type="text" name="endereco" value={form.endereco} onChange={handleChange} placeholder="Rua, nÃºmero, complemento"
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Endereço</label>
+                <input type="text" name="endereco" value={form.endereco} onChange={handleChange} placeholder="Rua, número, complemento"
                   className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
               <div>
@@ -157,23 +157,23 @@ export default function NovoRepresentantePage() {
           </div>
 
           <div className="border-t border-slate-200 dark:border-slate-700 pt-6">
-            <h2 className="text-lg font-semibold mb-4">GestÃ£o</h2>
+            <h2 className="text-lg font-semibold mb-4">Gestão</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Gerente ResponsÃ¡vel</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Gerente Responsável</label>
                 <input type="number" name="gerenteId" value={form.gerenteId} onChange={handleChange} placeholder="ID do gerente"
                   className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                <p className="text-xs text-slate-400 mt-1">ID do usuÃ¡rio gerente responsÃ¡vel por este representante</p>
+                <p className="text-xs text-slate-400 mt-1">ID do usuário gerente responsável por este representante</p>
               </div>
             </div>
           </div>
 
           <div className="border-t border-slate-200 dark:border-slate-700 pt-6">
-            <h2 className="text-lg font-semibold mb-4">IntegraÃ§Ã£o</h2>
+            <h2 className="text-lg font-semibold mb-4">Integração</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">ID IntegraÃ§Ã£o (ERP/WMS/CRM/OUTROS)</label>
-                <input type="text" name="idIntegracao" value={form.idIntegracao} onChange={handleChange} placeholder="CÃ³digo do sistema externo"
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">ID Integração (ERP/WMS/CRM/OUTROS)</label>
+                <input type="text" name="idIntegracao" value={form.idIntegracao} onChange={handleChange} placeholder="Código do sistema externo"
                   className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
             </div>

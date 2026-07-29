@@ -96,7 +96,7 @@ export default function CampanhasPage() {
             statusOptions: [
               { value: "ATIVA", label: "Ativa" },
               { value: "PAUSADA", label: "Pausada" },
-              { value: "CONCLUIDA", label: "ConcluÃ­da" },
+              { value: "CONCLUIDA", label: "Concluída" },
             ],
             dateField: "dataInicio",
           }}
@@ -160,7 +160,7 @@ export default function CampanhasPage() {
                   <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
                     {camp.orcamento && (
                       <span className="text-slate-500">
-                        OrÃ§amento:{" "}
+                        Orçamento:{" "}
                         <span className="font-medium text-slate-700 dark:text-slate-300">
                           {Number(camp.orcamento).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
                         </span>

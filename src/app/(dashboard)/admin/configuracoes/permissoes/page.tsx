@@ -40,7 +40,7 @@ export default function PermissoesPage() {
         }
         setRolePerms(map)
       })
-      .catch(() => toast.error("Erro ao carregar permissÃµes"))
+      .catch(() => toast.error("Erro ao carregar permissões"))
       .finally(() => setLoading(false))
   }, [])
 
@@ -79,9 +79,9 @@ export default function PermissoesPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ roleName, permissoes: rolePerms[roleName] }),
         })
-        if (!res.ok) throw new Error(`Erro ao salvar permissÃµes de ${roleName}`)
+        if (!res.ok) throw new Error(`Erro ao salvar permissões de ${roleName}`)
       }
-      toast.success("PermissÃµes salvas!")
+      toast.success("Permissões salvas!")
       setDirty(false)
     } catch (err: any) {
       toast.error(err.message || "Erro ao salvar")
@@ -109,7 +109,7 @@ export default function PermissoesPage() {
         <div>
           <div className="flex items-center gap-2">
             <Shield className="text-blue-600" size={24} />
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">PermissÃµes por Perfil{info && <InfoButton content={info} />}</h1>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Permissões por Perfil{info && <InfoButton content={info} />}</h1>
           </div>
           <p className="text-sm text-slate-500 mt-1">Gerencie o que cada perfil pode acessar no sistema</p>
         </div>
@@ -187,7 +187,7 @@ export default function PermissoesPage() {
           className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium text-sm"
         >
           {saving ? <Loader2 className="animate-spin" size={16} /> : <Save size={16} />}
-          {saving ? "Salvando..." : "Salvar PermissÃµes"}
+          {saving ? "Salvando..." : "Salvar Permissões"}
         </button>
       </div>
     </div>

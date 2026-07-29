@@ -152,7 +152,7 @@ export default function BaseFormPage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!base.codigoBase || !base.codigoCompleto || !base.nome) {
-      toast.error("CÃ³digo, CÃ³digo Completo e Nome sÃ£o obrigatÃ³rios")
+      toast.error("Código, Código Completo e Nome são obrigatórios")
       return
     }
 
@@ -235,7 +235,7 @@ export default function BaseFormPage() {
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="codigoBase">CÃ³digo Curto *</Label>
+            <Label htmlFor="codigoBase">Código Curto *</Label>
             <Input
               id="codigoBase"
               value={base.codigoBase}
@@ -245,7 +245,7 @@ export default function BaseFormPage() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="codigoCompleto">CÃ³digo Completo *</Label>
+            <Label htmlFor="codigoCompleto">Código Completo *</Label>
             <Input
               id="codigoCompleto"
               value={base.codigoCompleto}
@@ -262,23 +262,23 @@ export default function BaseFormPage() {
             id="nome"
             value={base.nome}
             onChange={e => handleChange("nome", e.target.value)}
-            placeholder="Base AlgodÃ£o 30/1"
+            placeholder="Base Algodão 30/1"
             required
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="descricao">DescriÃ§Ã£o</Label>
+          <Label htmlFor="descricao">Descrição</Label>
           <Input
             id="descricao"
             value={base.descricao || ""}
             onChange={e => handleChange("descricao", e.target.value)}
-            placeholder="DescriÃ§Ã£o da base"
+            placeholder="Descrição da base"
           />
         </div>
 
         <div className="space-y-3">
-          <Label>Fios que compÃµem o urdume</Label>
+          <Label>Fios que compõem o urdume</Label>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
             <Input
@@ -359,7 +359,7 @@ export default function BaseFormPage() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="tensaoUrdume">TensÃ£o (kg)</Label>
+            <Label htmlFor="tensaoUrdume">Tensão (kg)</Label>
             <Input
               id="tensaoUrdume"
               value={base.tensaoUrdume || ""}
@@ -370,12 +370,12 @@ export default function BaseFormPage() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="observacoes">ObservaÃ§Ãµes</Label>
+          <Label htmlFor="observacoes">Observações</Label>
           <Input
             id="observacoes"
             value={base.observacoes || ""}
             onChange={e => handleChange("observacoes", e.target.value)}
-            placeholder="ObservaÃ§Ãµes adicionais"
+            placeholder="Observações adicionais"
           />
         </div>
 
@@ -385,8 +385,8 @@ export default function BaseFormPage() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="idIntegracao">ID IntegraÃ§Ã£o (ERP/WMS/CRM/OUTROS)</Label>
-          <Input id="idIntegracao" value={base.idIntegracao || ""} onChange={e => handleChange("idIntegracao", e.target.value)} placeholder="CÃ³digo do sistema externo" />
+          <Label htmlFor="idIntegracao">ID Integração (ERP/WMS/CRM/OUTROS)</Label>
+          <Input id="idIntegracao" value={base.idIntegracao || ""} onChange={e => handleChange("idIntegracao", e.target.value)} placeholder="Código do sistema externo" />
         </div>
 
         <div className="flex gap-4">

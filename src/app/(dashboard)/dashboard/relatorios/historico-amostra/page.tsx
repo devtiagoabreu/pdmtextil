@@ -43,13 +43,13 @@ export default function HistoricoAmostraPage() {
       const res = await fetch(`/api/relatorios/historico-amostra?id=${id}&tipo=${tipo}`)
       if (!res.ok) {
         const err = await res.json()
-        setError(err.error || "Erro ao carregar histÃ³rico")
+        setError(err.error || "Erro ao carregar histórico")
         setData(null)
         return
       }
       setData(await res.json())
     } catch {
-      setError("Erro ao carregar histÃ³rico")
+      setError("Erro ao carregar histórico")
     } finally {
       setLoading(false)
     }
@@ -100,7 +100,7 @@ export default function HistoricoAmostraPage() {
       for (const h of amostra.historico) {
         let desc = ""
         if (h.acao === "CRIACAO") desc = h.status ? `Amostra criada (status: ${h.status})` : "Amostra criada"
-        else if (h.acao === "MUDANCA_STATUS") desc = `Status: ${h.de || "?"} â†’ ${h.para || "?"}${h.motivo ? ` â€” ${h.motivo}` : ""}`
+        else if (h.acao === "MUDANCA_STATUS") desc = `Status: ${h.de || "?"} �  ${h.para || "?"}${h.motivo ? ` � ${h.motivo}` : ""}`
         else desc = h.acao
         entries.push({
           data: h.data,
@@ -130,7 +130,7 @@ export default function HistoricoAmostraPage() {
     if (!data) return
     const a = data.amostra
     const tipoLabel = data.tipo === "tecido_cru" ? "Tecido Cru" : "Acabamento"
-    const statusLabel = a.status || "â€”"
+    const statusLabel = a.status || "�"
 
     const timelineRows: (string | number | null | undefined)[][] = timeline.map((e: any) => [
       new Date(e.data).toLocaleString("pt-BR"),
@@ -141,33 +141,33 @@ export default function HistoricoAmostraPage() {
     const tables: { headers: string[]; rows: (string | number | null | undefined)[][] }[] = []
 
     tables.push({
-      headers: ["#", "DescriÃ§Ã£o", "Tipo", "Status", "Produto"],
-      rows: [[a.id, a.descricao || "â€”", tipoLabel, statusLabel, data.produto?.codigoPdm || "â€”"]]
+      headers: ["#", "Descrição", "Tipo", "Status", "Produto"],
+      rows: [[a.id, a.descricao || "�", tipoLabel, statusLabel, data.produto?.codigoPdm || "�"]]
     })
 
     if (data.solicitacao) {
       tables.push({
-        headers: ["SolicitaÃ§Ã£o", "Cliente", "Projeto", "Status Sol."],
+        headers: ["Solicitação", "Cliente", "Projeto", "Status Sol."],
         rows: [[
           `#${data.solicitacao.id}`,
           data.solicitacao.cliente,
-          data.solicitacao.projeto || "â€”",
+          data.solicitacao.projeto || "�",
           data.solicitacao.status,
         ]]
       })
     }
 
     if (timelineRows.length > 0) {
-      tables.push({ headers: ["Data", "UsuÃ¡rio", "Evento"], rows: timelineRows })
+      tables.push({ headers: ["Data", "Usuário", "Evento"], rows: timelineRows })
     }
 
     await exportPDFRelatorio({
-      title: `HistÃ³rico â€” Amostra #${a.id} (${tipoLabel})`,
+      title: `Histórico � Amostra #${a.id} (${tipoLabel})`,
       stats: {
-        "DescriÃ§Ã£o": a.descricao || "â€”",
+        "Descrição": a.descricao || "�",
         "Status": statusLabel,
         "Tipo": tipoLabel,
-        "Produto": data.produto?.codigoPdm || "â€”",
+        "Produto": data.produto?.codigoPdm || "�",
         "Eventos": timeline.length,
       },
       tables,
@@ -183,10 +183,10 @@ export default function HistoricoAmostraPage() {
     <div className="space-y-6 animate-fade-in">
       <div>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
-          HistÃ³rico de Amostra de Desenvolvimento{info && <InfoButton content={info} />}
+          Histórico de Amostra de Desenvolvimento{info && <InfoButton content={info} />}
         </h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-          Acompanhe todo o histÃ³rico de uma amostra de desenvolvimento: dados, produto, solicitaÃ§Ã£o e timeline
+          Acompanhe todo o histórico de uma amostra de desenvolvimento: dados, produto, solicitação e timeline
         </p>
       </div>
 
@@ -198,7 +198,7 @@ export default function HistoricoAmostraPage() {
               <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
-                placeholder="Digite ID, descriÃ§Ã£o ou cÃ³digo do produto..."
+                placeholder="Digite ID, descrição ou código do produto..."
                 value={searchText}
                 onChange={(e) => { setSearchText(e.target.value); setShowDropdown(true) }}
                 onFocus={() => setShowDropdown(true)}
@@ -214,7 +214,7 @@ export default function HistoricoAmostraPage() {
                     className="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700/50 last:border-0"
                   >
                     <span className="font-medium text-slate-700 dark:text-slate-300">#{a.id}</span>{" "}
-                    <span className="text-slate-600 dark:text-slate-400">{a.descricao || "Sem descriÃ§Ã£o"}</span>
+                    <span className="text-slate-600 dark:text-slate-400">{a.descricao || "Sem descrição"}</span>
                     <span className="text-slate-400 ml-2 text-[10px]">
                       [{a.tipoAmostra === "tecido_cru" ? "CRU" : "ACAB"}]
                     </span>
@@ -319,12 +319,12 @@ export default function HistoricoAmostraPage() {
         <div className="rounded-xl border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/50 p-4 text-sm text-red-600 dark:text-red-400">{error}</div>
       )}
 
-      {loading && <div className="text-center py-16 text-slate-500">Carregando histÃ³rico...</div>}
+      {loading && <div className="text-center py-16 text-slate-500">Carregando histórico...</div>}
 
       {!selectedId && !loading && (
         <div className="flex flex-col items-center justify-center py-24 text-center">
           <Beaker className="w-16 h-16 text-slate-200 dark:text-slate-700 mb-4" />
-          <p className="text-base font-medium text-slate-400 dark:text-slate-500">Selecione uma amostra para ver o histÃ³rico completo</p>
+          <p className="text-base font-medium text-slate-400 dark:text-slate-500">Selecione uma amostra para ver o histórico completo</p>
         </div>
       )}
 
@@ -340,7 +340,7 @@ export default function HistoricoAmostraPage() {
                     ({data.tipo === "tecido_cru" ? "Tecido Cru" : "Acabamento"})
                   </span>
                 </h2>
-                <p className="text-sm text-slate-500 mt-1">{data.amostra.descricao || "Sem descriÃ§Ã£o"}</p>
+                <p className="text-sm text-slate-500 mt-1">{data.amostra.descricao || "Sem descrição"}</p>
               </div>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-y-3 gap-x-6 text-sm">
@@ -355,7 +355,7 @@ export default function HistoricoAmostraPage() {
                     <Link prefetch={false} href={`/cadastros/produto-cru/${data.produto.id}`} className="text-blue-600 hover:text-blue-700">
                       {data.produto.codigoPdm}
                     </Link>
-                  ) : "â€”"}
+                  ) : "�"}
                 </span>
               </div>
               <div>
@@ -368,14 +368,14 @@ export default function HistoricoAmostraPage() {
                 <div>
                   <span className="text-xs text-slate-400 block">Acabamento</span>
                   <span className="font-medium text-slate-700 dark:text-slate-300">
-                    {data.acabamento.tipoAcabamento}{data.acabamento.descricao ? ` â€” ${data.acabamento.descricao}` : ""}
+                    {data.acabamento.tipoAcabamento}{data.acabamento.descricao ? ` � ${data.acabamento.descricao}` : ""}
                   </span>
                 </div>
               )}
               {data.solicitacao && (
                 <>
                   <div>
-                    <span className="text-xs text-slate-400 block">SolicitaÃ§Ã£o</span>
+                    <span className="text-xs text-slate-400 block">Solicitação</span>
                     <span className="font-medium text-slate-700 dark:text-slate-300">
                       <Link prefetch={false} href={`/comercial/solicitacoes/${data.solicitacao.id}`} className="text-blue-600 hover:text-blue-700">
                         #{data.solicitacao.id}
@@ -388,7 +388,7 @@ export default function HistoricoAmostraPage() {
                   </div>
                   <div>
                     <span className="text-xs text-slate-400 block">Projeto</span>
-                    <span className="font-medium text-slate-700 dark:text-slate-300">{data.solicitacao.projeto || "â€”"}</span>
+                    <span className="font-medium text-slate-700 dark:text-slate-300">{data.solicitacao.projeto || "�"}</span>
                   </div>
                   <div>
                     <span className="text-xs text-slate-400 block">Status Solic.</span>
@@ -462,7 +462,7 @@ function TimelineItem({ entry, isLast }: { entry: TimelineEntry; isLast: boolean
         {entry.detalhes && entry.detalhes.length > 0 && (
           <ul className="mt-1 space-y-0.5">
             {entry.detalhes.map((d: any, i: any) => (
-              <li key={i} className="text-xs text-slate-500 dark:text-slate-500">â€¢ {d}</li>
+              <li key={i} className="text-xs text-slate-500 dark:text-slate-500">⬢ {d}</li>
             ))}
           </ul>
         )}

@@ -57,13 +57,13 @@ export default function CrmPessoasPage() {
   )
 
   function nomeExibicao(p: any) {
-    if (p.tipoPessoa === "PF") return p.nome || "â€”"
-    return p.razaoSocial || "â€”"
+    if (p.tipoPessoa === "PF") return p.nome || "�"
+    return p.razaoSocial || "�"
   }
 
   function documento(p: any) {
-    if (p.tipoPessoa === "PF") return p.cpf || "â€”"
-    return p.cnpj || "â€”"
+    if (p.tipoPessoa === "PF") return p.cpf || "�"
+    return p.cnpj || "�"
   }
 
   function mapsUrl(p: any) {
@@ -78,7 +78,7 @@ export default function CrmPessoasPage() {
     try {
       const res = await fetch(`/api/crm/pessoas/${deleteTarget.id}`, { method: "DELETE" })
       if (!res.ok) throw new Error("Erro ao excluir")
-      toast.success("Pessoa excluÃ­da")
+      toast.success("Pessoa excluída")
       setFilteredData(prev => prev.filter((e: any) => e.id !== deleteTarget.id))
     } catch {
       toast.error("Erro ao excluir pessoa")
@@ -92,7 +92,7 @@ export default function CrmPessoasPage() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Pessoas (NegÃ³cios){info && <InfoButton content={info} />}</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Pessoas (Negócios){info && <InfoButton content={info} />}</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             {isLoading ? "Carregando..." : `${filteredData.length} de ${(empresas || []).length} total`}
           </p>
@@ -179,10 +179,10 @@ export default function CrmPessoasPage() {
                   <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">Nome</th>
                   <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden sm:table-cell">Documento</th>
                   <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden lg:table-cell">Segmento</th>
-                  <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden md:table-cell">ResponsÃ¡vel</th>
+                  <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden md:table-cell">Responsável</th>
                   <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">Status</th>
                   <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden sm:table-cell">Data</th>
-                  <th className="px-2 py-2 md:px-4 md:py-3 text-right text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">AÃ§Ãµes</th>
+                  <th className="px-2 py-2 md:px-4 md:py-3 text-right text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">Ações</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -201,19 +201,19 @@ export default function CrmPessoasPage() {
                         }`}>
                           {emp.tipoPessoa === "PF" ? "PF" : "PJ"}
                         </span>
-                      ) : "â€”"}
+                      ) : "�"}
                     </td>
                     <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-medium text-slate-900 dark:text-slate-200 whitespace-nowrap">{nomeExibicao(emp)}</td>
                     <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-mono text-slate-500 hidden sm:table-cell">{documento(emp)}</td>
-                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden lg:table-cell">{emp.segmento || "â€”"}</td>
-                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden md:table-cell">{emp.responsavelNome || "â€”"}</td>
+                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden lg:table-cell">{emp.segmento || "�"}</td>
+                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden md:table-cell">{emp.responsavelNome || "�"}</td>
                     <td className="px-2 py-2 md:px-4 md:py-3">
                       <span className={`inline-flex text-[10px] px-1.5 md:px-2 py-0.5 rounded-full font-medium ${STATUS_CORES[emp.status] || "text-slate-600 bg-slate-100"}`}>
                         {emp.status}
                       </span>
                     </td>
                     <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 whitespace-nowrap hidden sm:table-cell">
-                      {emp.createdAt ? new Date(emp.createdAt).toLocaleDateString("pt-BR") : "â€”"}
+                      {emp.createdAt ? new Date(emp.createdAt).toLocaleDateString("pt-BR") : "�"}
                     </td>
                     <td className="px-2 py-2 md:px-4 md:py-3 text-right" onClick={e => e.stopPropagation()}>
                       <div className="flex items-center justify-end gap-1">
@@ -292,7 +292,7 @@ export default function CrmPessoasPage() {
       <ConfirmModal
         open={!!deleteTarget}
         title="Excluir pessoa?"
-        message={`Tem certeza que deseja excluir "${deleteTarget?.razaoSocial || deleteTarget?.nome || "esta pessoa"}"? Esta aÃ§Ã£o nÃ£o pode ser desfeita.`}
+        message={`Tem certeza que deseja excluir "${deleteTarget?.razaoSocial || deleteTarget?.nome || "esta pessoa"}"? Esta ação não pode ser desfeita.`}
         confirmLabel="Excluir"
         variant="danger"
         loading={deleteLoading}

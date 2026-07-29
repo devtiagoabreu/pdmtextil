@@ -39,7 +39,7 @@ export default function DetalheOportunidadePage() {
     try {
       const res = await fetch(`/api/crm/oportunidades/${params.id}`, { method: "DELETE" })
       if (!res.ok) throw new Error("Erro ao excluir")
-      toast.success("Oportunidade excluÃ­da")
+      toast.success("Oportunidade excluída")
       router.push("/comercial/crm/oportunidades")
     } catch {
       toast.error("Erro ao excluir oportunidade")
@@ -83,7 +83,7 @@ export default function DetalheOportunidadePage() {
   if (!oportunidade) {
     return (
       <div className="text-center py-20">
-        <p className="text-slate-500">Oportunidade nÃ£o encontrada</p>
+        <p className="text-slate-500">Oportunidade não encontrada</p>
         <Link prefetch={false} href="/comercial/crm/oportunidades" className="text-blue-600 hover:underline mt-2 inline-block">Voltar</Link>
       </div>
     )
@@ -139,11 +139,11 @@ export default function DetalheOportunidadePage() {
           <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4">Detalhes</h2>
           <div className="space-y-3 text-sm">
             <Field label="Valor Estimado" value={formatarMoeda(oportunidade.valorEstimado)} />
-            <Field label="Probabilidade" value={oportunidade.probabilidade != null ? `${oportunidade.probabilidade}%` : "â€”"} />
-            <Field label="PrevisÃ£o" value={oportunidade.dataFechamentoPrevista ? new Date(oportunidade.dataFechamentoPrevista).toLocaleDateString("pt-BR") : "â€”"} />
-            <Field label="ResponsÃ¡vel" value={oportunidade.responsavelNome || "â€”"} />
-            <Field label="Pessoa (NegÃ³cio)" value={oportunidade.empresaNome || "â€”"} />
-            <Field label="Criado em" value={oportunidade.createdAt ? new Date(oportunidade.createdAt).toLocaleDateString("pt-BR") : "â€”"} />
+            <Field label="Probabilidade" value={oportunidade.probabilidade != null ? `${oportunidade.probabilidade}%` : "�"} />
+            <Field label="Previsão" value={oportunidade.dataFechamentoPrevista ? new Date(oportunidade.dataFechamentoPrevista).toLocaleDateString("pt-BR") : "�"} />
+            <Field label="Responsável" value={oportunidade.responsavelNome || "�"} />
+            <Field label="Pessoa (Negócio)" value={oportunidade.empresaNome || "�"} />
+            <Field label="Criado em" value={oportunidade.createdAt ? new Date(oportunidade.createdAt).toLocaleDateString("pt-BR") : "�"} />
           </div>
         </div>
 
@@ -164,7 +164,7 @@ export default function DetalheOportunidadePage() {
 
       {oportunidade.descricao && (
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
-          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-2">DescriÃ§Ã£o</h2>
+          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-2">Descrição</h2>
           <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap">{oportunidade.descricao}</p>
         </div>
       )}
@@ -194,7 +194,7 @@ function Field({ label, value }: { label: string; value?: string | null }) {
   return (
     <div className="flex items-center gap-2">
       <span className="text-slate-500 min-w-[100px]">{label}:</span>
-      <span className="text-slate-900 dark:text-slate-200">{value || "â€”"}</span>
+      <span className="text-slate-900 dark:text-slate-200">{value || "�"}</span>
     </div>
   )
 }

@@ -5,10 +5,10 @@ export default function DashboardNotFound() {
     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 p-8 text-center">
       <h1 className="text-6xl font-bold text-slate-200 dark:text-slate-700">404</h1>
       <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
-        PÃ¡gina nÃ£o encontrada
+        Página não encontrada
       </h2>
       <p className="text-sm text-slate-500 dark:text-slate-400 max-w-md">
-        A pÃ¡gina que vocÃª procura nÃ£o existe ou foi movida.
+        A página que você procura não existe ou foi movida.
       </p>
       <Link prefetch={false}
         href="/dashboard"

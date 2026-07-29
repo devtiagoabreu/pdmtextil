@@ -81,7 +81,7 @@ export default function FornecedorFormPage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!fornecedor.nome) {
-      toast.error("Nome Ã© obrigatÃ³rio")
+      toast.error("Nome é obrigatório")
       return
     }
 
@@ -163,12 +163,12 @@ export default function FornecedorFormPage() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="razaoSocial">RazÃ£o Social</Label>
+          <Label htmlFor="razaoSocial">Razão Social</Label>
           <Input
             id="razaoSocial"
             value={fornecedor.razaoSocial || ""}
             onChange={e => handleChange("razaoSocial", e.target.value)}
-            placeholder="RazÃ£o social completa"
+            placeholder="Razão social completa"
           />
         </div>
 
@@ -200,17 +200,17 @@ export default function FornecedorFormPage() {
             id="contato"
             value={fornecedor.contato || ""}
             onChange={e => handleChange("contato", e.target.value)}
-            placeholder="JoÃ£o Silva"
+            placeholder="João Silva"
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="endereco">EndereÃ§o</Label>
+          <Label htmlFor="endereco">Endereço</Label>
           <Input
             id="endereco"
             value={fornecedor.endereco || ""}
             onChange={e => handleChange("endereco", e.target.value)}
-            placeholder="Rua, nÃºmero, bairro"
+            placeholder="Rua, número, bairro"
           />
         </div>
 
@@ -221,7 +221,7 @@ export default function FornecedorFormPage() {
               id="cidade"
               value={fornecedor.cidade || ""}
               onChange={e => handleChange("cidade", e.target.value)}
-              placeholder="SÃ£o Paulo"
+              placeholder="São Paulo"
             />
           </div>
           <div className="space-y-2">
@@ -242,8 +242,8 @@ export default function FornecedorFormPage() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="idIntegracao">ID IntegraÃ§Ã£o (ERP/WMS/CRM/OUTROS)</Label>
-          <Input id="idIntegracao" value={fornecedor.idIntegracao || ""} onChange={e => handleChange("idIntegracao", e.target.value)} placeholder="CÃ³digo do sistema externo" />
+          <Label htmlFor="idIntegracao">ID Integração (ERP/WMS/CRM/OUTROS)</Label>
+          <Input id="idIntegracao" value={fornecedor.idIntegracao || ""} onChange={e => handleChange("idIntegracao", e.target.value)} placeholder="Código do sistema externo" />
         </div>
 
         <div className="flex gap-4">

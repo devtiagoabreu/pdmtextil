@@ -85,7 +85,7 @@ export default function VisitasDashboardPage() {
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Dashboard de Visitas</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-            MÃ©tricas de visitas comerciais, check-in e performance
+            Métricas de visitas comerciais, check-in e performance
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -321,12 +321,12 @@ export default function VisitasDashboardPage() {
             )}
           </div>
 
-          {/* Linha 4: Ãšltimas Visitas */}
+          {/* Linha 4: �altimas Visitas */}
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
             <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800">
               <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 flex items-center gap-2">
                 <Calendar size={16} className="text-amber-500" />
-                Ãšltimas Visitas
+                �altimas Visitas
               </h2>
               <Link prefetch={false} href="/comercial/crm/visitas" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
                 Ver todas <ArrowRight size={12} />
@@ -346,7 +346,7 @@ export default function VisitasDashboardPage() {
                       <span className="text-[10px] md:text-xs text-slate-500 whitespace-nowrap">
                         {visita.dataVisita
                           ? new Date(visita.dataVisita + "T12:00:00").toLocaleDateString("pt-BR")
-                          : "â€”"}{visita.hora ? ` ${visita.hora}` : ""}
+                          : "�"}{visita.hora ? ` ${visita.hora}` : ""}
                       </span>
                     </div>
                     <div className="flex items-center gap-1 md:gap-2 shrink-0">
@@ -373,7 +373,7 @@ export default function VisitasDashboardPage() {
                       <button
                         onClick={() => setSelectedVisita({ id: visita.id, nome: `Visita #${visita.id}` })}
                         className="p-2 md:p-1.5 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-950/50 transition-colors"
-                        title="Gerenciar localizaÃ§Ãµes"
+                        title="Gerenciar localizações"
                       >
                         <MapPin size={12} className="text-blue-500 md:text-blue-500" />
                       </button>
@@ -391,7 +391,7 @@ export default function VisitasDashboardPage() {
 
           {/* Quick Actions */}
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
-            <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">AÃ§Ãµes RÃ¡pidas</h2>
+            <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">Ações Rápidas</h2>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <QuickAction href="/comercial/crm/visitas/novo" icon={<Calendar size={18} />} label="Nova Visita" color="text-amber-600" bg="bg-amber-100 dark:bg-amber-950/50" />
               <QuickAction href="/comercial/crm/visitas" icon={<BarChart3 size={18} />} label="Listar Visitas" color="text-blue-600" bg="bg-blue-100 dark:bg-blue-950/50" />

@@ -113,7 +113,7 @@ const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { on
         {!loading && isAdminOuSudo && (
           <>
             <div className="w-6 border-t border-slate-200 dark:border-slate-700 my-1" />
-            <Link prefetch={false} href="/admin/configuracoes" onClick={onClose} title="ConfiguraÃ§Ãµes"
+            <Link prefetch={false} href="/admin/configuracoes" onClick={onClose} title="Configurações"
               className={`flex items-center justify-center w-10 h-10 rounded-lg transition-all ${isAtiva("/admin/configuracoes") ? "bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400" : "text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"}`}>
               <Settings size={18} />
             </Link>
@@ -208,7 +208,7 @@ const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { on
               }`}
             >
               <Settings size={18} className={isAtiva("/admin/configuracoes") ? "text-blue-600 dark:text-blue-400" : ""} />
-              ConfiguraÃ§Ãµes
+              Configurações
               {isAtiva("/admin/configuracoes") && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />}
             </Link>
             <Link prefetch={false}
@@ -270,8 +270,8 @@ const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { on
       {/* Footer */}
       <div className="border-t border-slate-200 dark:border-slate-800 p-4">
         <div className="rounded-lg bg-slate-50 dark:bg-slate-900 p-3">
-          <p className="text-xs text-slate-500 dark:text-slate-400">VersÃ£o 1.0.0</p>
-          <p className="text-xs text-slate-400 dark:text-slate-500">Â© 2026 PDMÂ·PROÂ·TÃŠXTIL | @devtiagoabreu Â· Todos os direitos reservados</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Versão 1.0.0</p>
+          <p className="text-xs text-slate-400 dark:text-slate-500">© 2026 PDM·PRO·T�`XTIL | @devtiagoabreu · Todos os direitos reservados</p>
         </div>
       </div>
     </div>

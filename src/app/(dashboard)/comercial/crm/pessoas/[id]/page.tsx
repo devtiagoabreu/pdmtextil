@@ -155,7 +155,7 @@ export default function PessoaDetailPage() {
     try {
       const res = await fetch(`/api/crm/pessoas/${params.id}`, { method: "DELETE" })
       if (!res.ok) throw new Error("Erro ao excluir")
-      toast.success("Pessoa excluÃ­da")
+      toast.success("Pessoa excluída")
       router.push("/comercial/crm/pessoas")
     } catch {
       toast.error("Erro ao excluir pessoa")
@@ -208,7 +208,7 @@ export default function PessoaDetailPage() {
   if (!pessoa) {
     return (
       <div className="text-center py-20">
-        <p className="text-slate-500">Pessoa nÃ£o encontrada</p>
+        <p className="text-slate-500">Pessoa não encontrada</p>
         <Link prefetch={false} href="/comercial/crm/pessoas" className="text-blue-600 hover:underline mt-2 inline-block">Voltar</Link>
       </div>
     )
@@ -268,7 +268,7 @@ export default function PessoaDetailPage() {
 
       <div className="grid gap-6 md:grid-cols-2">
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
-          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4">Dados da Pessoa (NegÃ³cio)</h2>
+          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4">Dados da Pessoa (Negócio)</h2>
           {editing ? (
             <div className="space-y-4">
               <div>
@@ -299,7 +299,7 @@ export default function PessoaDetailPage() {
                 ) : (
                   <>
                     <div className="col-span-2">
-                      <label className="block text-xs font-medium text-slate-500 mb-1">RazÃ£o Social</label>
+                      <label className="block text-xs font-medium text-slate-500 mb-1">Razão Social</label>
                       <input type="text" value={form.razaoSocial || ""} onChange={e => setForm((p: any) => ({ ...p, razaoSocial: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
                     </div>
                     <div>
@@ -323,7 +323,7 @@ export default function PessoaDetailPage() {
                     <option value="MEI">MEI</option>
                     <option value="ME">ME</option>
                     <option value="EPP">EPP</option>
-                    <option value="MEDIO">MÃ©dio</option>
+                    <option value="MEDIO">Médio</option>
                     <option value="GRANDE">Grande</option>
                   </select>
                 </div>
@@ -348,14 +348,14 @@ export default function PessoaDetailPage() {
                   <input type="email" value={form.emailNf || ""} onChange={e => setForm((p: any) => ({ ...p, emailNf: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
                 </div>
                 <div className="col-span-2">
-                  <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800 pb-1 mb-1">EndereÃ§o</p>
+                  <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800 pb-1 mb-1">Endereço</p>
                 </div>
                 <div className="col-span-2">
                   <label className="block text-xs font-medium text-slate-500 mb-1">Logradouro</label>
                   <input type="text" value={form.endereco || ""} onChange={e => setForm((p: any) => ({ ...p, endereco: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1">NÃºmero</label>
+                  <label className="block text-xs font-medium text-slate-500 mb-1">Número</label>
                   <input type="text" value={form.numero || ""} onChange={e => setForm((p: any) => ({ ...p, numero: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
                 </div>
                 <div>
@@ -385,7 +385,7 @@ export default function PessoaDetailPage() {
                   </select>
                 </div>
                 <div className="col-span-2">
-                  <label className="block text-xs font-medium text-slate-500 mb-1">ObservaÃ§Ãµes</label>
+                  <label className="block text-xs font-medium text-slate-500 mb-1">Observações</label>
                   <textarea value={form.observacoes || ""} onChange={e => setForm((p: any) => ({ ...p, observacoes: e.target.value }))} rows={3} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
                 </div>
               </div>
@@ -396,95 +396,95 @@ export default function PessoaDetailPage() {
                 <>
                   <div className="col-span-2">
                     <p className="text-xs text-slate-500 mb-0.5">Nome</p>
-                    <p className="text-slate-900 dark:text-slate-200">{pessoa.nome || "â€”"}</p>
+                    <p className="text-slate-900 dark:text-slate-200">{pessoa.nome || "�"}</p>
                   </div>
                   <div>
                     <p className="text-xs text-slate-500 mb-0.5">CPF</p>
-                    <p className="text-slate-900 dark:text-slate-200">{pessoa.cpf || "â€”"}</p>
+                    <p className="text-slate-900 dark:text-slate-200">{pessoa.cpf || "�"}</p>
                   </div>
                 </>
               ) : (
                 <>
                   <div className="col-span-2">
-                    <p className="text-xs text-slate-500 mb-0.5">RazÃ£o Social</p>
-                    <p className="text-slate-900 dark:text-slate-200">{pessoa.razaoSocial || "â€”"}</p>
+                    <p className="text-xs text-slate-500 mb-0.5">Razão Social</p>
+                    <p className="text-slate-900 dark:text-slate-200">{pessoa.razaoSocial || "�"}</p>
                   </div>
                   <div>
                     <p className="text-xs text-slate-500 mb-0.5">Nome Fantasia</p>
-                    <p className="text-slate-900 dark:text-slate-200">{pessoa.nomeFantasia || "â€”"}</p>
+                    <p className="text-slate-900 dark:text-slate-200">{pessoa.nomeFantasia || "�"}</p>
                   </div>
                   <div>
                     <p className="text-xs text-slate-500 mb-0.5">CNPJ</p>
-                    <p className="text-slate-900 dark:text-slate-200">{pessoa.cnpj || "â€”"}</p>
+                    <p className="text-slate-900 dark:text-slate-200">{pessoa.cnpj || "�"}</p>
                   </div>
                 </>
               )}
               <div>
                 <p className="text-xs text-slate-500 mb-0.5">Segmento</p>
-                <p className="text-slate-900 dark:text-slate-200">{pessoa.segmento || "â€”"}</p>
+                <p className="text-slate-900 dark:text-slate-200">{pessoa.segmento || "�"}</p>
               </div>
               <div>
                 <p className="text-xs text-slate-500 mb-0.5">Porte</p>
-                <p className="text-slate-900 dark:text-slate-200">{pessoa.porte || "â€”"}</p>
+                <p className="text-slate-900 dark:text-slate-200">{pessoa.porte || "�"}</p>
               </div>
               <div className="col-span-2">
                 <p className="text-xs text-slate-500 mb-0.5">Site</p>
-                <p className="text-slate-900 dark:text-slate-200">{pessoa.site || "â€”"}</p>
+                <p className="text-slate-900 dark:text-slate-200">{pessoa.site || "�"}</p>
               </div>
               <div>
                 <p className="text-xs text-slate-500 mb-0.5">Telefone</p>
-                <p className="text-slate-900 dark:text-slate-200">{pessoa.telefone || "â€”"}</p>
+                <p className="text-slate-900 dark:text-slate-200">{pessoa.telefone || "�"}</p>
               </div>
               <div>
                 <p className="text-xs text-slate-500 mb-0.5">Celular</p>
-                <p className="text-slate-900 dark:text-slate-200">{pessoa.celular || "â€”"}</p>
+                <p className="text-slate-900 dark:text-slate-200">{pessoa.celular || "�"}</p>
               </div>
               <div className="col-span-2">
                 <p className="text-xs text-slate-500 mb-0.5">E-mail</p>
-                <p className="text-slate-900 dark:text-slate-200">{pessoa.email || "â€”"}</p>
+                <p className="text-slate-900 dark:text-slate-200">{pessoa.email || "�"}</p>
               </div>
               <div className="col-span-2">
                 <p className="text-xs text-slate-500 mb-0.5">E-mail p/ Nota Fiscal</p>
-                <p className="text-slate-900 dark:text-slate-200">{pessoa.emailNf || "â€”"}</p>
+                <p className="text-slate-900 dark:text-slate-200">{pessoa.emailNf || "�"}</p>
               </div>
               <div className="col-span-2">
-                <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800 pb-1 mb-1">EndereÃ§o</p>
+                <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800 pb-1 mb-1">Endereço</p>
               </div>
               <div className="col-span-2">
                 <p className="text-xs text-slate-500 mb-0.5">Logradouro</p>
-                <p className="text-slate-900 dark:text-slate-200">{pessoa.endereco || "â€”"}</p>
+                <p className="text-slate-900 dark:text-slate-200">{pessoa.endereco || "�"}</p>
               </div>
               <div>
-                <p className="text-xs text-slate-500 mb-0.5">NÃºmero</p>
-                <p className="text-slate-900 dark:text-slate-200">{pessoa.numero || "â€”"}</p>
+                <p className="text-xs text-slate-500 mb-0.5">Número</p>
+                <p className="text-slate-900 dark:text-slate-200">{pessoa.numero || "�"}</p>
               </div>
               <div>
                 <p className="text-xs text-slate-500 mb-0.5">Complemento</p>
-                <p className="text-slate-900 dark:text-slate-200">{pessoa.complemento || "â€”"}</p>
+                <p className="text-slate-900 dark:text-slate-200">{pessoa.complemento || "�"}</p>
               </div>
               <div>
                 <p className="text-xs text-slate-500 mb-0.5">Bairro</p>
-                <p className="text-slate-900 dark:text-slate-200">{pessoa.bairro || "â€”"}</p>
+                <p className="text-slate-900 dark:text-slate-200">{pessoa.bairro || "�"}</p>
               </div>
               <div>
                 <p className="text-xs text-slate-500 mb-0.5">CEP</p>
-                <p className="text-slate-900 dark:text-slate-200">{pessoa.cep || "â€”"}</p>
+                <p className="text-slate-900 dark:text-slate-200">{pessoa.cep || "�"}</p>
               </div>
               <div className="col-span-2">
                 <p className="text-xs text-slate-500 mb-0.5">UF</p>
-                <p className="text-slate-900 dark:text-slate-200">{pessoa.uf || "â€”"}</p>
+                <p className="text-slate-900 dark:text-slate-200">{pessoa.uf || "�"}</p>
               </div>
               <div className="col-span-2">
                 <p className="text-xs text-slate-500 mb-0.5">Cidade</p>
-                <p className="text-slate-900 dark:text-slate-200">{pessoa.cidade || "â€”"}</p>
+                <p className="text-slate-900 dark:text-slate-200">{pessoa.cidade || "�"}</p>
               </div>
               <div className="col-span-2">
                 <p className="text-xs text-slate-500 mb-0.5">Status</p>
-                <p className="text-slate-900 dark:text-slate-200">{pessoa.status || "â€”"}</p>
+                <p className="text-slate-900 dark:text-slate-200">{pessoa.status || "�"}</p>
               </div>
               <div className="col-span-2">
-                <p className="text-xs text-slate-500 mb-0.5">ObservaÃ§Ãµes</p>
-                <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap">{pessoa.observacoes || "â€”"}</p>
+                <p className="text-xs text-slate-500 mb-0.5">Observações</p>
+                <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap">{pessoa.observacoes || "�"}</p>
               </div>
             </div>
           )}
@@ -502,7 +502,7 @@ export default function PessoaDetailPage() {
               <p className="text-slate-700 dark:text-slate-300 whitespace-pre-wrap leading-relaxed">{pessoa.resumoIa}</p>
               {pessoa.sugestaoIa && (
                 <div className="rounded-lg bg-amber-50 dark:bg-amber-950/30 p-3 border border-amber-200 dark:border-amber-900">
-                  <p className="text-xs font-medium text-amber-700 dark:text-amber-400 mb-1">SugestÃ£o da IA</p>
+                  <p className="text-xs font-medium text-amber-700 dark:text-amber-400 mb-1">Sugestão da IA</p>
                   <p className="text-sm text-amber-800 dark:text-amber-300">{pessoa.sugestaoIa}</p>
                 </div>
               )}
@@ -513,7 +513,7 @@ export default function PessoaDetailPage() {
               )}
             </div>
           ) : (
-            <p className="text-sm text-slate-400 text-center py-6">Nenhum resumo disponÃ­vel</p>
+            <p className="text-sm text-slate-400 text-center py-6">Nenhum resumo disponível</p>
           )}
         </div>
 
@@ -620,14 +620,14 @@ export default function PessoaDetailPage() {
                   <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-3">CNPJ</th>
                   <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-3">Contato</th>
                   <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-3">Cidade/UF</th>
-                  <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-3">AÃ§Ãµes</th>
+                  <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-3">Ações</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                 {vinculos.map((v: any) => (
                   <tr key={v.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
                     <td className="p-3 text-sm font-medium text-slate-900 dark:text-slate-200">{v.nome}</td>
-                    <td className="p-3 text-sm text-slate-500 font-mono">{v.cnpj || "â€”"}</td>
+                    <td className="p-3 text-sm text-slate-500 font-mono">{v.cnpj || "�"}</td>
                     <td className="p-3 text-sm text-slate-500">
                       <div className="flex flex-col gap-0.5">
                         {v.email && <span className="flex items-center gap-1"><Mail size={12} />{v.email}</span>}
@@ -635,7 +635,7 @@ export default function PessoaDetailPage() {
                       </div>
                     </td>
                     <td className="p-3 text-sm text-slate-500">
-                      {v.cidade ? <span className="flex items-center gap-1"><MapPin size={12} />{v.cidade}/{v.uf}</span> : "â€”"}
+                      {v.cidade ? <span className="flex items-center gap-1"><MapPin size={12} />{v.cidade}/{v.uf}</span> : "�"}
                     </td>
                     <td className="p-3 text-right">
                       <button onClick={() => setRepToRemove(v)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/50 text-slate-400 hover:text-red-600 transition-colors">
@@ -680,7 +680,7 @@ export default function PessoaDetailPage() {
       <ConfirmModal
         open={showDelete}
         title="Excluir pessoa?"
-        message={`Tem certeza que deseja excluir "${pessoa.razaoSocial}"? Todos os contatos vinculados tambÃ©m serÃ£o removidos.`}
+        message={`Tem certeza que deseja excluir "${pessoa.razaoSocial}"? Todos os contatos vinculados também serão removidos.`}
         confirmLabel="Excluir"
         variant="danger"
         loading={deleteLoading}

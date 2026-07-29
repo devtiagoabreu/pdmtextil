@@ -11,10 +11,10 @@ import { toast } from "sonner"
 type FieldMap = { field: string; label: string; apiKey: string; localKey: string; format?: (v: any) => string }
 
 const PESSOA_FIELDS: FieldMap[] = [
-  { field: "razaoSocial", label: "RazÃ£o Social", apiKey: "razao_social", localKey: "razaoSocial" },
+  { field: "razaoSocial", label: "Razão Social", apiKey: "razao_social", localKey: "razaoSocial" },
   { field: "nomeFantasia", label: "Nome Fantasia", apiKey: "nome_fantasia", localKey: "nomeFantasia" },
   { field: "endereco", label: "Logradouro", apiKey: "logradouro", localKey: "endereco" },
-  { field: "numero", label: "NÃºmero", apiKey: "numero", localKey: "numero" },
+  { field: "numero", label: "Número", apiKey: "numero", localKey: "numero" },
   { field: "complemento", label: "Complemento", apiKey: "complemento", localKey: "complemento" },
   { field: "bairro", label: "Bairro", apiKey: "bairro", localKey: "bairro" },
   { field: "cidade", label: "Cidade", apiKey: "municipio", localKey: "cidade" },
@@ -25,11 +25,11 @@ const PESSOA_FIELDS: FieldMap[] = [
 ]
 
 const CLIENTE_FIELDS: FieldMap[] = [
-  { field: "razaoSocial", label: "RazÃ£o Social", apiKey: "razao_social", localKey: "razaoSocial" },
+  { field: "razaoSocial", label: "Razão Social", apiKey: "razao_social", localKey: "razaoSocial" },
   { field: "nome", label: "Nome Fantasia", apiKey: "nome_fantasia", localKey: "nome" },
   {
     field: "endereco",
-    label: "EndereÃ§o",
+    label: "Endereço",
     apiKey: "logradouro",
     localKey: "endereco",
     format: (api: any) => [api.logradouro, api.numero, api.bairro, api.complemento].filter(Boolean).join(", "),
@@ -70,7 +70,7 @@ export default function ConsultaCnpjPage() {
     e.preventDefault()
     const digits = cnpj.replace(/\D/g, "")
     if (digits.length !== 14) {
-      toast.error("CNPJ deve ter 14 dÃ­gitos")
+      toast.error("CNPJ deve ter 14 dígitos")
       return
     }
     setLoading(true)
@@ -240,7 +240,7 @@ export default function ConsultaCnpjPage() {
           type="text"
           value={cnpj}
           onChange={(e) => setCnpj(e.target.value)}
-          placeholder="Digite o CNPJ (com ou sem pontuaÃ§Ã£o)"
+          placeholder="Digite o CNPJ (com ou sem pontuação)"
           className="flex-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
           maxLength={18}
         />
@@ -262,9 +262,9 @@ export default function ConsultaCnpjPage() {
         <div className="rounded-xl border border-amber-200 dark:border-amber-900 bg-amber-50 dark:bg-amber-950/30 p-4 flex items-start gap-3">
           <AlertCircle size={20} className="text-amber-500 mt-0.5 shrink-0" />
           <div>
-            <p className="font-medium text-amber-800 dark:text-amber-300">CNPJ nÃ£o encontrado na Receita Federal</p>
+            <p className="font-medium text-amber-800 dark:text-amber-300">CNPJ não encontrado na Receita Federal</p>
             <p className="text-sm text-amber-600 dark:text-amber-400 mt-1">
-              O CNPJ {formatCnpj(cnpj)} nÃ£o foi localizado na base de dados da Receita Federal do Brasil.
+              O CNPJ {formatCnpj(cnpj)} não foi localizado na base de dados da Receita Federal do Brasil.
             </p>
           </div>
         </div>
@@ -294,39 +294,39 @@ export default function ConsultaCnpjPage() {
                   <p className="text-slate-900 dark:text-slate-200 font-mono">{formatCnpj(apiData.cnpj)}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-slate-500 mb-0.5">SituaÃ§Ã£o</p>
+                  <p className="text-xs text-slate-500 mb-0.5">Situação</p>
                   <p className="text-slate-900 dark:text-slate-200">{apiData.situacao_cadastral}</p>
                 </div>
                 <div>
                   <p className="text-xs text-slate-500 mb-0.5">Abertura</p>
-                  <p className="text-slate-900 dark:text-slate-200">{apiData.data_inicio_atividade || "â€”"}</p>
+                  <p className="text-slate-900 dark:text-slate-200">{apiData.data_inicio_atividade || "�"}</p>
                 </div>
                 <div className="col-span-2 sm:col-span-3">
-                  <p className="text-xs text-slate-500 mb-0.5">RazÃ£o Social</p>
+                  <p className="text-xs text-slate-500 mb-0.5">Razão Social</p>
                   <p className="text-slate-900 dark:text-slate-200 font-medium">{apiData.razao_social}</p>
                 </div>
                 <div className="col-span-2 sm:col-span-3">
                   <p className="text-xs text-slate-500 mb-0.5">Nome Fantasia</p>
-                  <p className="text-slate-900 dark:text-slate-200">{apiData.nome_fantasia || "â€”"}</p>
+                  <p className="text-slate-900 dark:text-slate-200">{apiData.nome_fantasia || "�"}</p>
                 </div>
                 <div>
                   <p className="text-xs text-slate-500 mb-0.5">Porte</p>
-                  <p className="text-slate-900 dark:text-slate-200">{apiData.porte_empresa || "â€”"}</p>
+                  <p className="text-slate-900 dark:text-slate-200">{apiData.porte_empresa || "�"}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-slate-500 mb-0.5">Natureza JurÃ­dica</p>
-                  <p className="text-slate-900 dark:text-slate-200">{apiData.natureza_juridica || "â€”"}</p>
+                  <p className="text-xs text-slate-500 mb-0.5">Natureza Jurídica</p>
+                  <p className="text-slate-900 dark:text-slate-200">{apiData.natureza_juridica || "�"}</p>
                 </div>
                 <div className="col-span-2 sm:col-span-3">
                   <p className="text-xs text-slate-500 mb-0.5">CNAE Principal</p>
-                  <p className="text-slate-900 dark:text-slate-200">{apiData.cnae_principal} â€” {apiData.cnae_principal_descricao || "â€”"}</p>
+                  <p className="text-slate-900 dark:text-slate-200">{apiData.cnae_principal} � {apiData.cnae_principal_descricao || "�"}</p>
                 </div>
                 <div className="col-span-2 sm:col-span-3">
-                  <p className="text-xs text-slate-500 mb-0.5">EndereÃ§o</p>
+                  <p className="text-xs text-slate-500 mb-0.5">Endereço</p>
                   <p className="text-slate-900 dark:text-slate-200">
-                    {[apiData.logradouro, apiData.numero, apiData.bairro, apiData.complemento].filter(Boolean).join(", ") || "â€”"}
-                    {apiData.cep && ` â€” CEP ${apiData.cep}`}
-                    {apiData.municipio && ` â€” ${apiData.municipio}/${apiData.uf}`}
+                    {[apiData.logradouro, apiData.numero, apiData.bairro, apiData.complemento].filter(Boolean).join(", ") || "�"}
+                    {apiData.cep && ` � CEP ${apiData.cep}`}
+                    {apiData.municipio && ` � ${apiData.municipio}/${apiData.uf}`}
                   </p>
                 </div>
                 <div>
@@ -334,12 +334,12 @@ export default function ConsultaCnpjPage() {
                   <p className="text-slate-900 dark:text-slate-200">
                     {apiData.capital_social
                       ? `R$ ${parseFloat(apiData.capital_social.replace(",", ".")).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`
-                      : "â€”"}
+                      : "�"}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-slate-500 mb-0.5">Simples Nacional</p>
-                  <p className="text-slate-900 dark:text-slate-200">{apiData.opcao_simples === "S" ? "Optante" : apiData.opcao_simples === "N" ? "NÃ£o optante" : "â€”"}</p>
+                  <p className="text-slate-900 dark:text-slate-200">{apiData.opcao_simples === "S" ? "Optante" : apiData.opcao_simples === "N" ? "Não optante" : "�"}</p>
                 </div>
                 {apiData.email && (
                   <div>
@@ -386,7 +386,7 @@ export default function ConsultaCnpjPage() {
                                   {local || "vazio"}
                                 </td>
                                 <td className={`py-1.5 ${diff ? "text-emerald-600 dark:text-emerald-400 font-medium" : "text-slate-600 dark:text-slate-300"}`}>
-                                  {api || "â€”"}
+                                  {api || "�"}
                                 </td>
                               </tr>
                             )
@@ -445,7 +445,7 @@ export default function ConsultaCnpjPage() {
                                   {local || "vazio"}
                                 </td>
                                 <td className={`py-1.5 ${diff ? "text-emerald-600 dark:text-emerald-400 font-medium" : "text-slate-600 dark:text-slate-300"}`}>
-                                  {api || "â€”"}
+                                  {api || "�"}
                                 </td>
                               </tr>
                             )
@@ -473,7 +473,7 @@ export default function ConsultaCnpjPage() {
                 <Building2 size={32} className="mx-auto text-slate-300 dark:text-slate-600 mb-3" />
                 <p className="font-medium text-slate-900 dark:text-slate-200">Nenhum registro local encontrado</p>
                 <p className="text-sm text-slate-500 mt-1">
-                  Este CNPJ nÃ£o estÃ¡ cadastrado. Deseja cadastrar?
+                  Este CNPJ não está cadastrado. Deseja cadastrar?
                 </p>
                 <div className="flex items-center justify-center gap-3 mt-4">
                   <button

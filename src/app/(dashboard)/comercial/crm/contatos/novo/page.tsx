@@ -35,7 +35,7 @@ export default function NovoContatoPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!form.nome.trim() || !form.empresaId) {
-      toast.error("Nome e Pessoa (NegÃ³cio) sÃ£o obrigatÃ³rios")
+      toast.error("Nome e Pessoa (Negócio) são obrigatórios")
       return
     }
     setSaving(true)
@@ -73,7 +73,7 @@ export default function NovoContatoPage() {
 
       <form onSubmit={handleSubmit} className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-5">
         <div>
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Pessoa (NegÃ³cio) *</label>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Pessoa (Negócio) *</label>
           <select
             value={form.empresaId}
             onChange={e => setForm(p => ({ ...p, empresaId: e.target.value }))}
@@ -161,7 +161,7 @@ export default function NovoContatoPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">ObservaÃ§Ãµes</label>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Observações</label>
           <textarea
             value={form.observacoes}
             onChange={e => setForm(p => ({ ...p, observacoes: e.target.value }))}

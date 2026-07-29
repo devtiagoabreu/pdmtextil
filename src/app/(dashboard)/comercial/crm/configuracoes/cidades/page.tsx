@@ -79,7 +79,7 @@ export default function CidadesConfigPage() {
         >
           <option value="">Todos os estados</option>
           {(estados || []).map((e: Estado) => (
-            <option key={e.id} value={e.uf}>{e.uf} â€” {e.nome}</option>
+            <option key={e.id} value={e.uf}>{e.uf} — {e.nome}</option>
           ))}
         </select>
       </div>

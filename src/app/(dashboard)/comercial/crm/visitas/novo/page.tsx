@@ -21,7 +21,7 @@ import { RichTextEditor } from "@/components/crm/rich-text-editor"
 
 const TIPO_OPTIONS = [
   { value: "PRESENCIAL", label: "Presencial" },
-  { value: "VIDEO", label: "VÃ­deo" },
+  { value: "VIDEO", label: "Vídeo" },
   { value: "TELEFONE", label: "Telefone" },
 ]
 
@@ -96,7 +96,7 @@ export default function NovaVisitaPage() {
         else console.error("[visitas/novo] clientes failed:", clientesRes.status === "rejected" ? clientesRes.reason : clientesRes.value)
       } catch (e) {
         console.error("[visitas/novo] load error:", e)
-        toast.error("Erro ao carregar dados do formulÃ¡rio")
+        toast.error("Erro ao carregar dados do formulário")
       }
     }
     load()
@@ -263,15 +263,15 @@ export default function NovaVisitaPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (tipoEntidade === "PESSOA" && !form.empresaId) {
-      toast.error("Pessoa Ã© obrigatÃ³ria")
+      toast.error("Pessoa é obrigatória")
       return
     }
     if (tipoEntidade === "CLIENTE" && !form.clienteId) {
-      toast.error("Cliente Ã© obrigatÃ³rio")
+      toast.error("Cliente é obrigatório")
       return
     }
     if (recorrencia !== "nenhuma" && !recorrenciaFim) {
-      toast.error("Informe a data final da recorrÃªncia")
+      toast.error("Informe a data final da recorrência")
       return
     }
     setSaving(true)
@@ -338,7 +338,7 @@ export default function NovaVisitaPage() {
 
       {!tipoEntidade && (
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 space-y-4">
-          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 text-center">Quem vocÃª vai visitar?</h2>
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 text-center">Quem você vai visitar?</h2>
           <p className="text-sm text-slate-500 text-center">Selecione o tipo de entidade para iniciar o agendamento.</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
             <button
@@ -351,7 +351,7 @@ export default function NovaVisitaPage() {
               </div>
               <div className="text-center">
                 <p className="font-semibold text-slate-900 dark:text-slate-100">Cliente</p>
-                <p className="text-xs text-slate-500 mt-1">Empresa jÃ¡ cadastrada no sistema</p>
+                <p className="text-xs text-slate-500 mt-1">Empresa já cadastrada no sistema</p>
               </div>
             </button>
             <button
@@ -364,7 +364,7 @@ export default function NovaVisitaPage() {
               </div>
               <div className="text-center">
                 <p className="font-semibold text-slate-900 dark:text-slate-100">Pessoa</p>
-                <p className="text-xs text-slate-500 mt-1">Futuro cliente (negÃ³cio)</p>
+                <p className="text-xs text-slate-500 mt-1">Futuro cliente (negócio)</p>
               </div>
             </button>
           </div>
@@ -381,7 +381,7 @@ export default function NovaVisitaPage() {
                 <UserCheck size={18} className="text-blue-600" />
               )}
               <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                {tipoEntidade === "CLIENTE" ? "Visitando Cliente" : "Visitando Pessoa (NegÃ³cio)"}
+                {tipoEntidade === "CLIENTE" ? "Visitando Cliente" : "Visitando Pessoa (Negócio)"}
               </span>
             </div>
             <button
@@ -424,7 +424,7 @@ export default function NovaVisitaPage() {
             ) : (
               <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                  Pessoa (NegÃ³cio) *
+                  Pessoa (Negócio) *
                   <QuickCreatePessoa onCreated={handleEmpresaCreated} />
                 </label>
                 <select
@@ -469,7 +469,7 @@ export default function NovaVisitaPage() {
                     <p className="font-medium">{conflictos.length} visita(s) ja agendada(s) neste horario:</p>
                     <ul className="mt-1 space-y-0.5">
                       {conflictos.map((c: any) => (
-                        <li key={c.id}>â€¢ {c.empresaNome || c.clienteNome || "Visita"} ({c.tipo})</li>
+                        <li key={c.id}>⬢ {c.empresaNome || c.clienteNome || "Visita"} ({c.tipo})</li>
                       ))}
                     </ul>
                   </div>
@@ -606,7 +606,7 @@ export default function NovaVisitaPage() {
 
           <div className="border-t border-slate-100 dark:border-slate-800 pt-4">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">EndereÃ§o da Visita</h3>
+              <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Endereço da Visita</h3>
               <button
                 type="button"
                 onClick={() => {
@@ -619,7 +619,7 @@ export default function NovaVisitaPage() {
                 }}
                 className="text-xs text-blue-600 hover:underline flex items-center gap-1"
               >
-                Copiar endereÃ§o {tipoEntidade === "CLIENTE" ? "do cliente" : "do negÃ³cio"}
+                Copiar endereço {tipoEntidade === "CLIENTE" ? "do cliente" : "do negócio"}
               </button>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
@@ -633,7 +633,7 @@ export default function NovaVisitaPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">NÃºmero</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Número</label>
                 <input
                   type="text"
                   value={form.numero}

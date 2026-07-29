@@ -27,20 +27,20 @@ const TIPO_CONFIG: Record<string, string> = {
 
 const SEGMENTOS_LABELS: Record<string, string> = {
   UNIFORME_CORPORATIVO: "Uniforme Corporativo",
-  LENCOL_HOSPITALAR: "LenÃ§ol Hospitalar",
-  LENCOL_CAMA_RESIDENCIAL: "LenÃ§ol de Cama Residencial",
-  ROUPA_INTIMA: "Roupa Ãntima",
+  LENCOL_HOSPITALAR: "Lençol Hospitalar",
+  LENCOL_CAMA_RESIDENCIAL: "Lençol de Cama Residencial",
+  ROUPA_INTIMA: "Roupa Íntima",
   ROUPA_BANHO: "Roupa de Banho",
   ROUPA_MODA: "Roupa Moda",
-  CALCADO: "CalÃ§ado",
+  CALCADO: "Calçado",
   LINHA_MESA: "Linha de Mesa",
-  COLCHAO: "ColchÃ£o",
+  COLCHAO: "Colchão",
   FORRO_MODA: "Forro de Moda",
-  ESTOFADO_MOVEIS: "Estofado de MÃ³veis",
+  ESTOFADO_MOVEIS: "Estofado de Móveis",
   CORTINA: "Cortina",
   BAG: "Bag / Bolsas",
-  ACESSORIOS: "AcessÃ³rios",
-  DECORACAO: "DecoraÃ§Ã£o",
+  ACESSORIOS: "Acessórios",
+  DECORACAO: "Decoração",
   INDUSTRIAL: "Industrial",
   OUTROS: "Outros",
 }
@@ -50,21 +50,21 @@ const TECNOLOGIAS_LABELS: Record<string, string> = {
   ANTIFLAMAS: "Antiflamas",
   ANTIODOR: "Antiodor",
   ANTI_PILLING: "Anti-pilling",
-  PROTECAO_UV: "ProteÃ§Ã£o UV",
+  PROTECAO_UV: "Proteção UV",
   RESPIRABILIDADE: "Respirabilidade",
-  SECAGEM_RAPIDA: "Secagem RÃ¡pida",
-  TERMOREGULACAO: "TermorregulaÃ§Ã£o",
-  IMPERMEAVEL: "ImpermeÃ¡vel",
-  RESISTENTE_ABRASÃƒO: "Resistente Ã  AbrasÃ£o",
+  SECAGEM_RAPIDA: "Secagem Rápida",
+  TERMOREGULACAO: "Termorregulação",
+  IMPERMEAVEL: "Impermeável",
+  RESISTENTE_ABRASÒO: "Resistente à Abrasão",
   SOFT_TOUCH: "Soft Touch",
   HYDRARE: "HydraRe",
   OUTROS: "Outros",
 }
 
 const ABRASAO_LABELS: Record<string, string> = {
-  BAIXA: "Baixa (escritÃ³rio, uso leve)",
-  MEDIA: "MÃ©dia (logÃ­stica, uso moderado)",
-  ALTA: "Alta (indÃºstria, uso intenso)",
+  BAIXA: "Baixa (escritório, uso leve)",
+  MEDIA: "Média (logística, uso moderado)",
+  ALTA: "Alta (indústria, uso intenso)",
   MUITO_ALTA: "Muito Alta (uso extremo)",
 }
 
@@ -76,22 +76,22 @@ const BRILHO_LABELS: Record<string, string> = {
 }
 
 const TOQUE_LABELS: Record<string, string> = {
-  SECO: "Seco / TÃ©cnico",
+  SECO: "Seco / Técnico",
   MACIO: "Macio",
   SUAVE: "Suave",
   ESTRUTURADO: "Estruturado",
 }
 
 const CORES_LABELS: Record<string, string> = {
-  SOLIDAS: "Cores SÃ³lidas",
+  SOLIDAS: "Cores Sólidas",
   ESTAMPADAS: "Estampadas",
   FANTASIA: "Fantasia",
   DESENVOLVIMENTO_EXCLUSIVO: "Desenvolvimento Exclusivo",
 }
 
 const PRECO_LABELS: Record<string, string> = {
-  ECONOMICO: "EconÃ´mico",
-  INTERMEDIARIO: "IntermediÃ¡rio",
+  ECONOMICO: "Econômico",
+  INTERMEDIARIO: "Intermediário",
   PREMIUM: "Premium",
 }
 
@@ -113,15 +113,15 @@ const LIGAMENTO_LABELS: Record<string, string> = {
 }
 
 const TIPO_FIBRA_LABELS: Record<string, string> = {
-  POLIESTER: "PoliÃ©ster",
-  ALGODAO: "AlgodÃ£o",
+  POLIESTER: "Poliéster",
+  ALGODAO: "Algodão",
   LINHO: "Linho",
   VISCOSE: "Viscose",
   MODAL: "Modal",
-  ACRILICO: "AcrÃ­lico",
+  ACRILICO: "Acrílico",
   NYLON: "Nylon",
   LINHA_RECICLADA: "Linha Reciclada",
-  ORGANICO: "OrgÃ¢nico",
+  ORGANICO: "Orgânico",
   OUTROS: "Outros",
 }
 
@@ -141,7 +141,7 @@ const TIPOS_ACABAMENTO_LABELS: Record<string, string> = {
 
 async function fetchSolicitacao(id: string) {
   const res = await fetch(`/api/solicitacoes/${id}?t=${Date.now()}`)
-  if (!res.ok) throw new Error("Falha ao carregar solicitaÃ§Ã£o")
+  if (!res.ok) throw new Error("Falha ao carregar solicitação")
   return res.json()
 }
 
@@ -206,7 +206,7 @@ export default function DetalheSolicitacaoPage() {
         }
         throw new Error(data.error || "Erro ao excluir")
       }
-      toast.success("SolicitaÃ§Ã£o excluÃ­da com sucesso")
+      toast.success("Solicitação excluída com sucesso")
       setDeleteTarget(null)
       router.push("/comercial/solicitacoes")
     } catch (err) {
@@ -255,9 +255,9 @@ export default function DetalheSolicitacaoPage() {
   if (error || !sol) {
     return (
       <div className="text-center py-20">
-        <p className="text-red-500">Erro ao carregar solicitaÃ§Ã£o</p>
+        <p className="text-red-500">Erro ao carregar solicitação</p>
         <Link prefetch={false} href="/comercial/solicitacoes" className="text-blue-600 hover:underline mt-2 inline-block">
-          Voltar Ã  lista
+          Voltar à lista
         </Link>
       </div>
     )
@@ -311,12 +311,12 @@ export default function DetalheSolicitacaoPage() {
   }
 
   const renderSegmentos = (segmentos: string[]) => {
-    if (!segmentos || !Array.isArray(segmentos)) return "â€”"
+    if (!segmentos || !Array.isArray(segmentos)) return "�"
     return segmentos.map((s: string) => SEGMENTOS_LABELS[s] || s).join(", ")
   }
 
   const renderTecnologias = (tecnologias: string[]) => {
-    if (!tecnologias || !Array.isArray(tecnologias)) return "â€”"
+    if (!tecnologias || !Array.isArray(tecnologias)) return "�"
     return tecnologias.map((t: string) => TECNOLOGIAS_LABELS[t] || t).join(", ")
   }
 
@@ -378,8 +378,8 @@ export default function DetalheSolicitacaoPage() {
           <EntityChatButton
             entidadeTipo="SOLICITACAO"
             entidadeId={sol.id}
-            titulo={`SolicitaÃ§Ã£o #${sol.id} - ${sol.cliente}`}
-            mensagem={`Chat vinculado Ã  solicitaÃ§Ã£o #${sol.id} - ${sol.cliente}${sol.projeto ? ` (${sol.projeto})` : ""}`}
+            titulo={`Solicitação #${sol.id} - ${sol.cliente}`}
+            mensagem={`Chat vinculado à solicitação #${sol.id} - ${sol.cliente}${sol.projeto ? ` (${sol.projeto})` : ""}`}
             variant="outline"
             size="sm"
           />
@@ -424,67 +424,67 @@ export default function DetalheSolicitacaoPage() {
                 </div>
                 <div>
                   <p className="text-slate-500 dark:text-slate-400">Cliente</p>
-                  <p className="font-medium">{sol.cliente || "â€”"}</p>
+                  <p className="font-medium">{sol.cliente || "�"}</p>
                 </div>
                 <div>
                   <p className="text-slate-500 dark:text-slate-400">CNPJ</p>
-                  <p className="font-medium">{sol.cnpj || "â€”"}</p>
+                  <p className="font-medium">{sol.cnpj || "�"}</p>
                 </div>
                 <div>
                   <p className="text-slate-500 dark:text-slate-400">Projeto</p>
-                  <p className="font-medium">{sol.projeto || "â€”"}</p>
+                  <p className="font-medium">{sol.projeto || "�"}</p>
                 </div>
                 <div>
                   <p className="text-slate-500 dark:text-slate-400">Prazo Desejado</p>
                   <p className="font-medium">
-                    {sol.prazoDesejado ? new Date(sol.prazoDesejado).toLocaleDateString("pt-BR", { timeZone: "UTC" }) : "â€”"}
+                    {sol.prazoDesejado ? new Date(sol.prazoDesejado).toLocaleDateString("pt-BR", { timeZone: "UTC" }) : "�"}
                   </p>
                 </div>
                 <div>
                   <p className="text-slate-500 dark:text-slate-400">Criado em</p>
                   <p className="font-medium">
-                    {sol.createdAt ? new Date(sol.createdAt).toLocaleDateString("pt-BR") : "â€”"}
+                    {sol.createdAt ? new Date(sol.createdAt).toLocaleDateString("pt-BR") : "�"}
                   </p>
                 </div>
               </div>
             </div>
 
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
-              <h2 className="text-lg font-semibold mb-4">Briefing TÃ©cnico</h2>
+              <h2 className="text-lg font-semibold mb-4">Briefing Técnico</h2>
               
               <div className="space-y-6">
                 <div>
                   <h3 className="font-medium text-slate-700 dark:text-slate-300 border-b pb-1 mb-2">Dados do Produto</h3>
                   <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div><span className="text-slate-500">Produto Base:</span> <span className="font-medium">{briefing.produtoBase || "â€”"}</span></div>
-                    <div><span className="text-slate-500">CÃ³d. Produto:</span> <span className="font-medium">{briefing.codProduto || "â€”"}</span></div>
-                    <div><span className="text-slate-500">Nome da Cor:</span> <span className="font-medium">{briefing.nomeCor || "â€”"}</span></div>
-                    <div><span className="text-slate-500">Pantone:</span> <span className="font-medium">{briefing.pantone || "â€”"}</span></div>
-                    <div><span className="text-slate-500">Amostra a ser Desenvolvida:</span> <span className="font-medium">{briefing.amostraDesenvolver || "â€”"}</span></div>
-                    <div className="col-span-2"><span className="text-slate-500">ObservaÃ§Ãµes:</span> <span className="font-medium">{briefing.observacoes || "â€”"}</span></div>
+                    <div><span className="text-slate-500">Produto Base:</span> <span className="font-medium">{briefing.produtoBase || "�"}</span></div>
+                    <div><span className="text-slate-500">Cód. Produto:</span> <span className="font-medium">{briefing.codProduto || "�"}</span></div>
+                    <div><span className="text-slate-500">Nome da Cor:</span> <span className="font-medium">{briefing.nomeCor || "�"}</span></div>
+                    <div><span className="text-slate-500">Pantone:</span> <span className="font-medium">{briefing.pantone || "�"}</span></div>
+                    <div><span className="text-slate-500">Amostra a ser Desenvolvida:</span> <span className="font-medium">{briefing.amostraDesenvolver || "�"}</span></div>
+                    <div className="col-span-2"><span className="text-slate-500">Observações:</span> <span className="font-medium">{briefing.observacoes || "�"}</span></div>
                   </div>
                 </div>
 
                 <div>
-                  <h3 className="font-medium text-slate-700 dark:text-slate-300 border-b pb-1 mb-2">1. AplicaÃ§Ã£o / Uso Final</h3>
+                  <h3 className="font-medium text-slate-700 dark:text-slate-300 border-b pb-1 mb-2">1. Aplicação / Uso Final</h3>
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <div><span className="text-slate-500">Segmentos:</span> <span className="font-medium">{renderSegmentos(briefing.aplicacao?.segmentos)}</span></div>
-                    {briefing.aplicacao?.descricaoAplicacao && <div><span className="text-slate-500">DescriÃ§Ã£o:</span> <span className="font-medium">{briefing.aplicacao.descricaoAplicacao}</span></div>}
+                    {briefing.aplicacao?.descricaoAplicacao && <div><span className="text-slate-500">Descrição:</span> <span className="font-medium">{briefing.aplicacao.descricaoAplicacao}</span></div>}
                     {briefing.aplicacao?.outrosSegmentos && <div><span className="text-slate-500">Outros Segmentos:</span> <span className="font-medium">{briefing.aplicacao.outrosSegmentos}</span></div>}
                   </div>
                 </div>
 
                 <div>
-                  <h3 className="font-medium text-slate-700 dark:text-slate-300 border-b pb-1 mb-2">2. Requisitos TÃ©cnicos</h3>
+                  <h3 className="font-medium text-slate-700 dark:text-slate-300 border-b pb-1 mb-2">2. Requisitos Técnicos</h3>
                   <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div><span className="text-slate-500">Tipo Tecido:</span> <span className="font-medium">{TIPO_TECIDO_LABELS[briefing.requisitosTecnicos?.tipoTecido] || briefing.requisitosTecnicos?.tipoTecido || "â€”"}</span></div>
-                    <div><span className="text-slate-500">Ligamento:</span> <span className="font-medium">{LIGAMENTO_LABELS[briefing.requisitosTecnicos?.ligamento] || briefing.requisitosTecnicos?.ligamento || "â€”"}</span></div>
-                    <div><span className="text-slate-500">ComposiÃ§Ã£o:</span> <span className="font-medium">{briefing.requisitosTecnicos?.composicao || "â€”"}</span></div>
-                    <div><span className="text-slate-500">Tipo Fibra:</span> <span className="font-medium">{Array.isArray(briefing.requisitosTecnicos?.tipoFibra) ? briefing.requisitosTecnicos.tipoFibra.map((f: string) => TIPO_FIBRA_LABELS[f] || f).join(", ") : "â€”"}</span></div>
-                    <div><span className="text-slate-500">Gramatura:</span> <span className="font-medium">{briefing.requisitosTecnicos?.gramaturaMinima || "â€”"} - {briefing.requisitosTecnicos?.gramaturaMaxima || "â€”"} g/mÂ²</span></div>
-                    <div><span className="text-slate-500">Largura:</span> <span className="font-medium">{briefing.requisitosTecnicos?.larguraMinima || "â€”"} - {briefing.requisitosTecnicos?.larguraMaxima || "â€”"} cm</span></div>
-                    <div><span className="text-slate-500">Densidade Urdume:</span> <span className="font-medium">{briefing.requisitosTecnicos?.densidadeUrdume || "â€”"}</span></div>
-                    <div><span className="text-slate-500">Densidade Trama:</span> <span className="font-medium">{briefing.requisitosTecnicos?.densidadeTrama || "â€”"}</span></div>
+                    <div><span className="text-slate-500">Tipo Tecido:</span> <span className="font-medium">{TIPO_TECIDO_LABELS[briefing.requisitosTecnicos?.tipoTecido] || briefing.requisitosTecnicos?.tipoTecido || "�"}</span></div>
+                    <div><span className="text-slate-500">Ligamento:</span> <span className="font-medium">{LIGAMENTO_LABELS[briefing.requisitosTecnicos?.ligamento] || briefing.requisitosTecnicos?.ligamento || "�"}</span></div>
+                    <div><span className="text-slate-500">Composição:</span> <span className="font-medium">{briefing.requisitosTecnicos?.composicao || "�"}</span></div>
+                    <div><span className="text-slate-500">Tipo Fibra:</span> <span className="font-medium">{Array.isArray(briefing.requisitosTecnicos?.tipoFibra) ? briefing.requisitosTecnicos.tipoFibra.map((f: string) => TIPO_FIBRA_LABELS[f] || f).join(", ") : "�"}</span></div>
+                    <div><span className="text-slate-500">Gramatura:</span> <span className="font-medium">{briefing.requisitosTecnicos?.gramaturaMinima || "�"} - {briefing.requisitosTecnicos?.gramaturaMaxima || "�"} g/m²</span></div>
+                    <div><span className="text-slate-500">Largura:</span> <span className="font-medium">{briefing.requisitosTecnicos?.larguraMinima || "�"} - {briefing.requisitosTecnicos?.larguraMaxima || "�"} cm</span></div>
+                    <div><span className="text-slate-500">Densidade Urdume:</span> <span className="font-medium">{briefing.requisitosTecnicos?.densidadeUrdume || "�"}</span></div>
+                    <div><span className="text-slate-500">Densidade Trama:</span> <span className="font-medium">{briefing.requisitosTecnicos?.densidadeTrama || "�"}</span></div>
                   </div>
                 </div>
 
@@ -499,10 +499,10 @@ export default function DetalheSolicitacaoPage() {
                 <div>
                   <h3 className="font-medium text-slate-700 dark:text-slate-300 border-b pb-1 mb-2">4. Performance</h3>
                   <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div><span className="text-slate-500">ResistÃªncia AbrasÃ£o:</span> <span className="font-medium">{ABRASAO_LABELS[briefing.performance?.resistenciaAbrasao] || briefing.performance?.resistenciaAbrasao || "â€”"}</span></div>
-                    {briefing.performance?.resistenciaLavagem !== undefined && <div><span className="text-slate-500">Resist. Lavagem:</span> <span className="font-medium">{briefing.performance.resistenciaLavagem ? "Sim" : "NÃ£o"}</span></div>}
-                    {briefing.performance?.resistenciaSecagem !== undefined && <div><span className="text-slate-500">Resist. Secagem:</span> <span className="font-medium">{briefing.performance.resistenciaSecagem ? "Sim" : "NÃ£o"}</span></div>}
-                    {briefing.performance?.resistenciaPassagem !== undefined && <div><span className="text-slate-500">Resist. Passagem:</span> <span className="font-medium">{briefing.performance.resistenciaPassagem ? "Sim" : "NÃ£o"}</span></div>}
+                    <div><span className="text-slate-500">Resistência Abrasão:</span> <span className="font-medium">{ABRASAO_LABELS[briefing.performance?.resistenciaAbrasao] || briefing.performance?.resistenciaAbrasao || "�"}</span></div>
+                    {briefing.performance?.resistenciaLavagem !== undefined && <div><span className="text-slate-500">Resist. Lavagem:</span> <span className="font-medium">{briefing.performance.resistenciaLavagem ? "Sim" : "Não"}</span></div>}
+                    {briefing.performance?.resistenciaSecagem !== undefined && <div><span className="text-slate-500">Resist. Secagem:</span> <span className="font-medium">{briefing.performance.resistenciaSecagem ? "Sim" : "Não"}</span></div>}
+                    {briefing.performance?.resistenciaPassagem !== undefined && <div><span className="text-slate-500">Resist. Passagem:</span> <span className="font-medium">{briefing.performance.resistenciaPassagem ? "Sim" : "Não"}</span></div>}
                     {briefing.performance?.outrasPerformances && <div><span className="text-slate-500">Outras:</span> <span className="font-medium">{briefing.performance.outrasPerformances}</span></div>}
                   </div>
                 </div>
@@ -510,9 +510,9 @@ export default function DetalheSolicitacaoPage() {
                 <div>
                   <h3 className="font-medium text-slate-700 dark:text-slate-300 border-b pb-1 mb-2">5. Acabamento</h3>
                   <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div><span className="text-slate-500">Tipos:</span> <span className="font-medium">{Array.isArray(briefing.acabamento?.tipos) ? briefing.acabamento.tipos.map((t: string) => TIPOS_ACABAMENTO_LABELS[t] || t).join(", ") : "â€”"}</span></div>
-                    <div><span className="text-slate-500">Brilho:</span> <span className="font-medium">{BRILHO_LABELS[briefing.acabamento?.nivelBrilho] || briefing.acabamento?.nivelBrilho || "â€”"}</span></div>
-                    <div><span className="text-slate-500">Toque:</span> <span className="font-medium">{TOQUE_LABELS[briefing.acabamento?.toque] || briefing.acabamento?.toque || "â€”"}</span></div>
+                    <div><span className="text-slate-500">Tipos:</span> <span className="font-medium">{Array.isArray(briefing.acabamento?.tipos) ? briefing.acabamento.tipos.map((t: string) => TIPOS_ACABAMENTO_LABELS[t] || t).join(", ") : "�"}</span></div>
+                    <div><span className="text-slate-500">Brilho:</span> <span className="font-medium">{BRILHO_LABELS[briefing.acabamento?.nivelBrilho] || briefing.acabamento?.nivelBrilho || "�"}</span></div>
+                    <div><span className="text-slate-500">Toque:</span> <span className="font-medium">{TOQUE_LABELS[briefing.acabamento?.toque] || briefing.acabamento?.toque || "�"}</span></div>
                     {briefing.acabamento?.textura && <div><span className="text-slate-500">Textura:</span> <span className="font-medium">{briefing.acabamento.textura}</span></div>}
                   </div>
                 </div>
@@ -520,9 +520,9 @@ export default function DetalheSolicitacaoPage() {
                 <div>
                   <h3 className="font-medium text-slate-700 dark:text-slate-300 border-b pb-1 mb-2">6. Cores</h3>
                   <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div><span className="text-slate-500">Tipo:</span> <span className="font-medium">{CORES_LABELS[briefing.cores?.tipo] || briefing.cores?.tipo || "â€”"}</span></div>
+                    <div><span className="text-slate-500">Tipo:</span> <span className="font-medium">{CORES_LABELS[briefing.cores?.tipo] || briefing.cores?.tipo || "�"}</span></div>
                     {briefing.cores?.paletaPreferencial && <div><span className="text-slate-500">Paleta:</span> <span className="font-medium">{briefing.cores.paletaPreferencial}</span></div>}
-                    {briefing.cores?.coresEspecificas && <div><span className="text-slate-500">Cores EspecÃ­ficas:</span> <span className="font-medium">{briefing.cores.coresEspecificas}</span></div>}
+                    {briefing.cores?.coresEspecificas && <div><span className="text-slate-500">Cores Específicas:</span> <span className="font-medium">{briefing.cores.coresEspecificas}</span></div>}
                     {briefing.cores?.lavabilidadeCores && <div><span className="text-slate-500">Lavabilidade:</span> <span className="font-medium">{briefing.cores.lavabilidadeCores}</span></div>}
                   </div>
                 </div>
@@ -530,10 +530,10 @@ export default function DetalheSolicitacaoPage() {
                 <div>
                   <h3 className="font-medium text-slate-700 dark:text-slate-300 border-b pb-1 mb-2">7. Comercial</h3>
                   <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div><span className="text-slate-500">Target PreÃ§o:</span> <span className="font-medium">{PRECO_LABELS[briefing.comercial?.targetPreco] || briefing.comercial?.targetPreco || "â€”"}</span></div>
+                    <div><span className="text-slate-500">Target Preço:</span> <span className="font-medium">{PRECO_LABELS[briefing.comercial?.targetPreco] || briefing.comercial?.targetPreco || "�"}</span></div>
                     {briefing.comercial?.quantidadeEstimada && <div><span className="text-slate-500">Quantidade:</span> <span className="font-medium">{briefing.comercial.quantidadeEstimada}</span></div>}
                     {briefing.comercial?.prazoEntrega && <div><span className="text-slate-500">Prazo Entrega:</span> <span className="font-medium">{briefing.comercial.prazoEntrega}</span></div>}
-                    {briefing.comercial?.observacoes && <div className="col-span-2"><span className="text-slate-500">ObservaÃ§Ãµes:</span> <span className="font-medium">{briefing.comercial.observacoes}</span></div>}
+                    {briefing.comercial?.observacoes && <div className="col-span-2"><span className="text-slate-500">Observações:</span> <span className="font-medium">{briefing.comercial.observacoes}</span></div>}
                   </div>
                 </div>
               </div>
@@ -543,7 +543,7 @@ export default function DetalheSolicitacaoPage() {
               <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
                 <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                   <LinkIcon size={20} className="text-blue-500" />
-                  Links e ReferÃªncias
+                  Links e Referências
                 </h2>
                 <ul className="space-y-3">
                   {sol.anexos.map((anexo: any) => (
@@ -579,7 +579,7 @@ export default function DetalheSolicitacaoPage() {
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-medium text-sm">{p.codigoPdm} â€” {p.descricao}</p>
+                      <p className="font-medium text-sm">{p.codigoPdm} � {p.descricao}</p>
                       <p className="text-xs text-slate-500 mt-0.5">
                         Status: <span className={`font-medium ${
                           p.status === "APROVADO" ? "text-green-600" :
@@ -594,13 +594,13 @@ export default function DetalheSolicitacaoPage() {
               ))}
             </div>
           ) : (
-            <p className="text-sm text-slate-500">Nenhum produto cadastrado para esta solicitaÃ§Ã£o.</p>
+            <p className="text-sm text-slate-500">Nenhum produto cadastrado para esta solicitação.</p>
           )}
         </div>
 
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
         <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-          HistÃ³rico
+          Histórico
         </h2>
         {sol.historicoComunicacao && sol.historicoComunicacao.length > 0 ? (
           <div className="space-y-4 max-h-96 overflow-y-auto">
@@ -610,7 +610,7 @@ export default function DetalheSolicitacaoPage() {
                 {h.mensagens && h.mensagens.length > 0 && (
                   <ul className="text-xs text-slate-600 mt-1">
                     {h.mensagens.map((m: string, i: number) => (
-                      <li key={i}>â€¢ {m}</li>
+                      <li key={i}>⬢ {m}</li>
                     ))}
                   </ul>
                 )}
@@ -621,20 +621,20 @@ export default function DetalheSolicitacaoPage() {
             ))}
           </div>
         ) : (
-          <p className="text-sm text-slate-500">Sem histÃ³rico</p>
+          <p className="text-sm text-slate-500">Sem histórico</p>
         )}
       </div>
 
       <ConfirmModal
         open={deleteTarget !== null}
-        title={deleteBlocked ? "ExclusÃ£o nÃ£o permitida" : "Excluir solicitaÃ§Ã£o?"}
+        title={deleteBlocked ? "Exclusão não permitida" : "Excluir solicitação?"}
         message={deleteBlocked
-          ? "Esta solicitaÃ§Ã£o possui cadastros vinculados e nÃ£o pode ser excluÃ­da."
+          ? "Esta solicitação possui cadastros vinculados e não pode ser excluída."
           : deleteTarget?.anexos?.length > 0
-            ? `Esta solicitaÃ§Ã£o possui ${deleteTarget?.anexos?.length} link(s) anexado(s). Ao excluir, os links tambÃ©m serÃ£o removidos. Continuar?`
-            : `Tem certeza que deseja excluir esta solicitaÃ§Ã£o?`}
+            ? `Esta solicitação possui ${deleteTarget?.anexos?.length} link(s) anexado(s). Ao excluir, os links também serão removidos. Continuar?`
+            : `Tem certeza que deseja excluir esta solicitação?`}
         subMessage={deleteBlocked
-          ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informaÃ§Ãµes."
+          ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informações."
           : undefined}
         confirmLabel={deleteBlocked ? "OK" : "Excluir"}
         variant={deleteBlocked ? "warning" : "danger"}

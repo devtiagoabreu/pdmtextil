@@ -67,9 +67,9 @@ export default function TreinamentoPage() {
       </div>
 
       <p className="text-slate-600 dark:text-slate-400 mb-8 max-w-3xl">
-        DocumentaÃ§Ã£o completa do CRM com explicaÃ§Ãµes campo a campo, prÃ©-cadastros necessÃ¡rios, 
-        links para POPs e vÃ­deos tutoriais. Use este guia para aprender como cada tela funciona 
-        e por que cada campo Ã© importante.
+        Documentação completa do CRM com explicações campo a campo, pré-cadastros necessários, 
+        links para POPs e vídeos tutoriais. Use este guia para aprender como cada tela funciona 
+        e por que cada campo é importante.
       </p>
 
       {isLoading ? (
@@ -98,7 +98,7 @@ export default function TreinamentoPage() {
                   )}
                 </div>
                 <div className="flex items-center gap-2 text-sm text-slate-400">
-                  <span>{modulo.licoes.length} {modulo.licoes.length === 1 ? "liÃ§Ã£o" : "liÃ§Ãµes"}</span>
+                  <span>{modulo.licoes.length} {modulo.licoes.length === 1 ? "lição" : "lições"}</span>
                   <ChevronRight
                     size={18}
                     className={`transition-transform ${moduloAberto === modulo.id ? "rotate-90" : ""}`}
@@ -109,7 +109,7 @@ export default function TreinamentoPage() {
               {moduloAberto === modulo.id && (
                 <div className="border-t border-slate-200 dark:border-slate-700">
                   {modulo.licoes.filter((l: any) => l.ativo).length === 0 ? (
-                    <p className="p-4 text-sm text-slate-400 text-center">Nenhuma liÃ§Ã£o neste mÃ³dulo</p>
+                    <p className="p-4 text-sm text-slate-400 text-center">Nenhuma lição neste módulo</p>
                   ) : (
                     <div className="divide-y divide-slate-100 dark:divide-slate-800">
                       {modulo.licoes.filter((l: any) => l.ativo).map((licao: any) => (

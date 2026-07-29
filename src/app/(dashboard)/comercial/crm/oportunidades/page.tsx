@@ -30,9 +30,9 @@ const STATUS_CORES: Record<string, string> = {
 
 const STATUS_LABELS: Record<string, string> = {
   NOVO: "Novo",
-  QUALIFICACAO: "QualificaÃ§Ã£o",
+  QUALIFICACAO: "Qualificação",
   PROPOSTA: "Proposta",
-  NEGOCIACAO: "NegociaÃ§Ã£o",
+  NEGOCIACAO: "Negociação",
   FECHADO_GANHO: "Ganho",
   FECHADO_PERDIDO: "Perdido",
 }
@@ -143,9 +143,9 @@ export default function OportunidadesPage() {
           searchFields: ["titulo", "empresaNome", "responsavelNome"],
           statusOptions: [
             { value: "NOVO", label: "Novo" },
-            { value: "QUALIFICACAO", label: "QualificaÃ§Ã£o" },
+            { value: "QUALIFICACAO", label: "Qualificação" },
             { value: "PROPOSTA", label: "Proposta" },
-            { value: "NEGOCIACAO", label: "NegociaÃ§Ã£o" },
+            { value: "NEGOCIACAO", label: "Negociação" },
             { value: "FECHADO_GANHO", label: "Fechado Ganho" },
             { value: "FECHADO_PERDIDO", label: "Fechado Perdido" },
           ],
@@ -153,7 +153,7 @@ export default function OportunidadesPage() {
         }}
         data={oportunidades || []}
         onFiltered={setFilteredData}
-        placeholder="Buscar por tÃ­tulo ou pessoa..."
+        placeholder="Buscar por título ou pessoa..."
       />
 
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
@@ -171,11 +171,11 @@ export default function OportunidadesPage() {
             <table className="w-full">
               <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
                 <tr>
-                  <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">TÃ­tulo</th>
+                  <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">Título</th>
                   <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">Pessoa</th>
                   <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden sm:table-cell">Valor Est.</th>
                   <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">Status</th>
-                  <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden md:table-cell">ResponsÃ¡vel</th>
+                  <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden md:table-cell">Responsável</th>
                   <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden sm:table-cell">Prob.</th>
                   <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden sm:table-cell">Data</th>
                 </tr>
@@ -188,17 +188,17 @@ export default function OportunidadesPage() {
                     onClick={() => router.push(`/comercial/crm/oportunidades/${op.id}`)}
                   >
                     <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-medium text-slate-900 dark:text-slate-200 whitespace-nowrap">{op.titulo}</td>
-                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500">{op.empresaNome || "â€”"}</td>
+                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500">{op.empresaNome || "�"}</td>
                     <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden sm:table-cell whitespace-nowrap">{formatarMoeda(op.valorEstimado)}</td>
                     <td className="px-2 py-2 md:px-4 md:py-3">
                       <span className={`inline-flex text-[10px] px-1.5 md:px-2 py-0.5 rounded-full font-medium ${STATUS_CORES[op.status] || ""}`}>
                         {STATUS_LABELS[op.status] || op.status}
                       </span>
                     </td>
-                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden md:table-cell">{op.responsavelNome || "â€”"}</td>
+                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden md:table-cell">{op.responsavelNome || "�"}</td>
                     <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden sm:table-cell">{op.probabilidade ?? 0}%</td>
                     <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 whitespace-nowrap hidden sm:table-cell">
-                      {op.createdAt ? new Date(op.createdAt).toLocaleDateString("pt-BR") : "â€”"}
+                      {op.createdAt ? new Date(op.createdAt).toLocaleDateString("pt-BR") : "�"}
                     </td>
                   </tr>
                 ))}

@@ -83,7 +83,7 @@ export default function LicaoDetailPage() {
   if (!licao) {
     return (
       <div className="p-6 text-center text-slate-400">
-        LiÃ§Ã£o nÃ£o encontrada
+        Lição não encontrada
       </div>
     )
   }
@@ -185,12 +185,12 @@ export default function LicaoDetailPage() {
         </Link>
         <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
           <BookOpen size={14} />
-          <span className="text-slate-400">PDM TÃªxtil</span>
-          <span className="text-slate-300">â€”</span>
+          <span className="text-slate-400">PDM Têxtil</span>
+          <span className="text-slate-300">�</span>
           <Link prefetch={false} href="/comercial/crm/treinamento" className="hover:text-indigo-600">Treinamento CRM</Link>
-          <span className="text-slate-300">â€”</span>
+          <span className="text-slate-300">�</span>
           <span className="text-slate-700 dark:text-slate-300">{licao.moduloTitulo}</span>
-          <span className="text-slate-300">â†’</span>
+          <span className="text-slate-300">� </span>
           <span className="text-slate-700 dark:text-slate-300">{licao.titulo}</span>
         </div>
       </div>
@@ -224,14 +224,14 @@ export default function LicaoDetailPage() {
         </div>
 
         <div className="print-header">
-          <span>PDM TÃªxtil â€” Treinamento CRM</span>
-          <span>{licao.moduloTitulo} â†’ {licao.titulo}</span>
+          <span>PDM Têxtil � Treinamento CRM</span>
+          <span>{licao.moduloTitulo} �  {licao.titulo}</span>
         </div>
 
         <div>
           {licao.preRequisitos && (
             <div className="mb-8 p-4 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl">
-              <h3 className="text-sm font-semibold text-amber-800 dark:text-amber-300 mb-2">PrÃ©-cadastros NecessÃ¡rios</h3>
+              <h3 className="text-sm font-semibold text-amber-800 dark:text-amber-300 mb-2">Pré-cadastros Necessários</h3>
               <p className="text-sm text-amber-700 dark:text-amber-400 whitespace-pre-wrap">{licao.preRequisitos}</p>
             </div>
           )}
@@ -272,7 +272,7 @@ export default function LicaoDetailPage() {
               <div className="p-4 border border-slate-200 dark:border-slate-700 rounded-xl">
                 <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
                   <Video size={16} className="text-red-500" />
-                  VÃ­deos Tutoriais
+                  Vídeos Tutoriais
                 </h3>
                 <ul className="space-y-2">
                   {licao.linksVideo.map((link: any, i: any) => (
@@ -321,7 +321,7 @@ export default function LicaoDetailPage() {
       </div>
 
       <div className="print-footer-text">
-        PDM TÃªxtil - {licao.moduloTitulo} / {licao.titulo} â€” Gerado em {new Date().toLocaleDateString("pt-BR")}
+        PDM Têxtil - {licao.moduloTitulo} / {licao.titulo} � Gerado em {new Date().toLocaleDateString("pt-BR")}
       </div>
     </>
   )

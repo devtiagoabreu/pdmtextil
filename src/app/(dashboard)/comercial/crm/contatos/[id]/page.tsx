@@ -74,7 +74,7 @@ export default function ContatoDetailPage() {
     try {
       const res = await fetch(`/api/crm/contatos/${params.id}`, { method: "DELETE" })
       if (!res.ok) throw new Error("Erro ao excluir")
-      toast.success("Contato excluÃ­do")
+      toast.success("Contato excluído")
       router.push("/comercial/crm/contatos")
     } catch {
       toast.error("Erro ao excluir contato")
@@ -95,7 +95,7 @@ export default function ContatoDetailPage() {
   if (!contato) {
     return (
       <div className="text-center py-20">
-        <p className="text-slate-500">Contato nÃ£o encontrado</p>
+        <p className="text-slate-500">Contato não encontrado</p>
         <Link prefetch={false} href="/comercial/crm/contatos" className="text-blue-600 hover:underline mt-2 inline-block">Voltar</Link>
       </div>
     )
@@ -118,7 +118,7 @@ export default function ContatoDetailPage() {
               <span title="Contato principal"><Star size={16} className="text-amber-400 fill-amber-400" /></span>
             )}
           </div>
-          <p className="text-sm text-slate-500">{contato.cargo || "â€”"}</p>
+          <p className="text-sm text-slate-500">{contato.cargo || "�"}</p>
         </div>
         <div className="flex gap-2">
           {editing ? (
@@ -148,7 +148,7 @@ export default function ContatoDetailPage() {
         {editing ? (
           <div className="space-y-4">
             <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1">Pessoa (NegÃ³cio)</label>
+              <label className="block text-xs font-medium text-slate-500 mb-1">Pessoa (Negócio)</label>
               <select
                 value={form.empresaId || ""}
                 onChange={e => setForm((p: any) => ({ ...p, empresaId: e.target.value }))}
@@ -200,14 +200,14 @@ export default function ContatoDetailPage() {
               <label htmlFor="edit-principal" className="text-xs text-slate-500">Contato principal</label>
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1">ObservaÃ§Ãµes</label>
+              <label className="block text-xs font-medium text-slate-500 mb-1">Observações</label>
               <textarea value={form.observacoes || ""} onChange={e => setForm((p: any) => ({ ...p, observacoes: e.target.value }))} rows={3} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
             </div>
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div className="col-span-2">
-              <p className="text-xs text-slate-500 mb-0.5">{contato.empresaId ? "Pessoa (NegÃ³cio)" : "Cliente"}</p>
+              <p className="text-xs text-slate-500 mb-0.5">{contato.empresaId ? "Pessoa (Negócio)" : "Cliente"}</p>
               {contato.empresaId ? (
                 <Link prefetch={false} href={`/comercial/crm/pessoas/${contato.empresaId}`} className="inline-flex items-center gap-1 text-blue-600 hover:underline font-medium">
                   <Building2 size={14} />
@@ -219,12 +219,12 @@ export default function ContatoDetailPage() {
                   {contato.clienteNome || `Cliente #${contato.clienteId}`}
                 </Link>
               ) : (
-                <span className="text-slate-400">â€”</span>
+                <span className="text-slate-400">�</span>
               )}
             </div>
             <div>
               <p className="text-xs text-slate-500 mb-0.5">Cargo</p>
-              <p className="text-slate-900 dark:text-slate-200">{contato.cargo || "â€”"}</p>
+              <p className="text-slate-900 dark:text-slate-200">{contato.cargo || "�"}</p>
             </div>
             <div>
               <p className="text-xs text-slate-500 mb-0.5">Principal</p>
@@ -233,7 +233,7 @@ export default function ContatoDetailPage() {
                   <span className="inline-flex items-center gap-1 text-amber-600">
                     <Star size={14} className="fill-amber-400" /> Sim
                   </span>
-                ) : "NÃ£o"}
+                ) : "Não"}
               </p>
             </div>
             <div>
@@ -244,7 +244,7 @@ export default function ContatoDetailPage() {
                     <Mail size={12} className="text-slate-400" />
                     {contato.email}
                   </span>
-                ) : "â€”"}
+                ) : "�"}
               </p>
             </div>
             <div>
@@ -255,7 +255,7 @@ export default function ContatoDetailPage() {
                     <Phone size={12} className="text-slate-400" />
                     {contato.telefone}
                   </span>
-                ) : "â€”"}
+                ) : "�"}
               </p>
             </div>
             <div>
@@ -266,16 +266,16 @@ export default function ContatoDetailPage() {
                     <Smartphone size={12} className="text-slate-400" />
                     {contato.celular}
                   </span>
-                ) : "â€”"}
+                ) : "�"}
               </p>
             </div>
             <div>
               <p className="text-xs text-slate-500 mb-0.5">WhatsApp</p>
-              <p className="text-slate-900 dark:text-slate-200">{contato.whatsapp || "â€”"}</p>
+              <p className="text-slate-900 dark:text-slate-200">{contato.whatsapp || "�"}</p>
             </div>
             {contato.observacoes && (
               <div className="col-span-2">
-                <p className="text-xs text-slate-500 mb-0.5">ObservaÃ§Ãµes</p>
+                <p className="text-xs text-slate-500 mb-0.5">Observações</p>
                 <p className="text-slate-700 dark:text-slate-300 whitespace-pre-wrap">{contato.observacoes}</p>
               </div>
             )}

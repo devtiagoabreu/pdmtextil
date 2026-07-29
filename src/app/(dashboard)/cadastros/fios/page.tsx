@@ -70,7 +70,7 @@ export default function FiosPage() {
         }
         throw new Error(data.error || "Erro ao excluir")
       }
-      toast.success("Fio excluÃ­do com sucesso")
+      toast.success("Fio excluído com sucesso")
       setDeleteTarget(null)
       refetch()
     } catch (err) {
@@ -96,8 +96,8 @@ export default function FiosPage() {
         <div className="flex gap-2">
           <ImportarFios onImportado={() => refetch()} />
           <ExportarDados data={filteredFios} columns={[
-            { key: "codigoFio", label: "CÃ³digo" }, { key: "nome", label: "Nome" }, { key: "titulo", label: "TÃ­tulo" },
-            { key: "composicao", label: "ComposiÃ§Ã£o" },
+            { key: "codigoFio", label: "Código" }, { key: "nome", label: "Nome" }, { key: "titulo", label: "Título" },
+            { key: "composicao", label: "Composição" },
           ]} filename="fios" title="Fios" />
           <Button variant="outline" onClick={() => setShowApiImport(true)} className="gap-2">
             <Database size={16} />
@@ -116,7 +116,7 @@ export default function FiosPage() {
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
           <Input
-            placeholder="Buscar por nome, cÃ³digo..."
+            placeholder="Buscar por nome, código..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-10"
@@ -137,14 +137,14 @@ export default function FiosPage() {
           <table className="w-full">
             <thead className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
               <tr>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">CÃ³digo</th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Código</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Nome</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">TÃ­tulo</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">ComposiÃ§Ã£o</th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Título</th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Composição</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Fornecedor</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">ID IntegraÃ§Ã£o</th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">ID Integração</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Status</th>
-                <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">AÃ§Ãµes</th>
+                <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Ações</th>
               </tr>
             </thead>
             <tbody>
@@ -156,10 +156,10 @@ export default function FiosPage() {
                 >
                   <td className="p-4 text-sm font-medium">{fio.codigoFio}</td>
                   <td className="p-4 text-sm">{fio.nome}</td>
-                  <td className="p-4 text-sm text-slate-500">{fio.titulo || "â€”"}</td>
-                  <td className="p-4 text-sm text-slate-500">{fio.composicao || "â€”"}</td>
-                  <td className="p-4 text-sm text-slate-500">{fio.fornecedor || "â€”"}</td>
-                  <td className="p-4 text-sm font-mono text-xs text-slate-500">{fio.idIntegracao || "â€”"}</td>
+                  <td className="p-4 text-sm text-slate-500">{fio.titulo || "�"}</td>
+                  <td className="p-4 text-sm text-slate-500">{fio.composicao || "�"}</td>
+                  <td className="p-4 text-sm text-slate-500">{fio.fornecedor || "�"}</td>
+                  <td className="p-4 text-sm font-mono text-xs text-slate-500">{fio.idIntegracao || "�"}</td>
                   <td className="p-4">
                     <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
                       fio.ativo
@@ -199,12 +199,12 @@ export default function FiosPage() {
 
       <ConfirmModal
         open={deleteTarget !== null}
-        title={deleteBlocked ? "ExclusÃ£o nÃ£o permitida" : "Excluir fio?"}
+        title={deleteBlocked ? "Exclusão não permitida" : "Excluir fio?"}
         message={deleteBlocked
-          ? "Este fio possui cadastros vinculados e nÃ£o pode ser excluÃ­do."
+          ? "Este fio possui cadastros vinculados e não pode ser excluído."
           : `Tem certeza que deseja excluir o fio "${deleteTarget?.codigoFio}"?`}
         subMessage={deleteBlocked
-          ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informaÃ§Ãµes."
+          ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informações."
           : undefined}
         confirmLabel={deleteBlocked ? "OK" : "Excluir"}
         variant={deleteBlocked ? "warning" : "danger"}

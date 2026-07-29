@@ -271,13 +271,13 @@ export function KanbanBoard() {
     const novoStatus = over.id as string
     if (solicitacao.status === novoStatus) return
 
-    // Se arrastou para Pilotagem, abre modal de seleÃ§Ã£o de amostras
+    // Se arrastou para Pilotagem, abre modal de seleção de amostras
     if (novoStatus === "PILOTAGEM") {
       setPilotagemTarget(solicitacao)
       setPilotagemAmostras([])
       setPilotagemSelecionadas(new Set())
       if (!solicitacao.produtoId) {
-        toast.error("SolicitaÃ§Ã£o nÃ£o possui produto vinculado")
+        toast.error("Solicitação não possui produto vinculado")
         return
       }
       setPilotagemLoading(true)
@@ -327,7 +327,7 @@ export function KanbanBoard() {
         const err = await res.json()
         throw new Error(err.error || "Erro ao alterar status")
       }
-      toast.success(`SolicitaÃ§Ã£o #${solicitacao.id} movida para ${statusList.find((s: any) => s.nome === novoStatus)?.rotulo || novoStatus}`)
+      toast.success(`Solicitação #${solicitacao.id} movida para ${statusList.find((s: any) => s.nome === novoStatus)?.rotulo || novoStatus}`)
     } catch (err: any) {
       setSolicitacoes(prev =>
         prev.map((s: any) => s.id === solicitacao.id ? { ...s, status: statusAntigo } : s)
@@ -374,7 +374,7 @@ export function KanbanBoard() {
       setSolicitacoes(prev =>
         prev.map((s: any) => s.id === pilotagemTarget.id ? { ...s, status: "PILOTAGEM" } : s)
       )
-      toast.success(`SolicitaÃ§Ã£o #${pilotagemTarget.id} movida para Pilotagem com ${pilotagemSelecionadas.size} amostra(s)`)
+      toast.success(`Solicitação #${pilotagemTarget.id} movida para Pilotagem com ${pilotagemSelecionadas.size} amostra(s)`)
       setPilotagemTarget(null)
     } catch {
       toast.error("Erro ao iniciar pilotagem")
@@ -395,7 +395,7 @@ export function KanbanBoard() {
       {!podeArrastar && (
         <div className="shrink-0">
           <p className="text-sm text-amber-600 bg-amber-50 dark:bg-amber-950/50 px-3 py-2 rounded-lg">
-            Seu perfil nÃ£o tem permissÃ£o para mover solicitaÃ§Ãµes entre colunas.
+            Seu perfil não tem permissão para mover solicitações entre colunas.
           </p>
         </div>
       )}
@@ -449,9 +449,9 @@ export function KanbanBoard() {
       <Dialog open={!!chatTarget} onOpenChange={(open: boolean) => { if (!open) setChatTarget(null) }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Chat â€” #{chatTarget?.id} {chatTarget?.cliente}</DialogTitle>
+            <DialogTitle>Chat � #{chatTarget?.id} {chatTarget?.cliente}</DialogTitle>
             <DialogDescription>
-              Ãšltimas mensagens do chat da solicitaÃ§Ã£o
+              �altimas mensagens do chat da solicitação
             </DialogDescription>
           </DialogHeader>
           <div className="max-h-60 overflow-y-auto space-y-2">
@@ -486,7 +486,7 @@ export function KanbanBoard() {
       <Dialog open={!!amostrasTarget} onOpenChange={(open: boolean) => { if (!open) setAmostrasTarget(null) }}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>Amostras â€” {amostrasTarget?.produtoCodigoPdm || `#${amostrasTarget?.id}`}</DialogTitle>
+            <DialogTitle>Amostras � {amostrasTarget?.produtoCodigoPdm || `#${amostrasTarget?.id}`}</DialogTitle>
             <DialogDescription>
               {amostrasData.length} amostra{amostrasData.length !== 1 ? "s" : ""} encontrada{amostrasData.length !== 1 ? "s" : ""}
             </DialogDescription>
@@ -510,7 +510,7 @@ export function KanbanBoard() {
                       <span className="text-xs font-medium text-slate-700 dark:text-slate-300">{a.tipo}</span>
                       <span className="text-[10px] uppercase text-slate-400">{a.status}</span>
                     </div>
-                    <p className="text-sm text-slate-600 dark:text-slate-400 truncate">{a.descricao || "Sem descriÃ§Ã£o"}</p>
+                    <p className="text-sm text-slate-600 dark:text-slate-400 truncate">{a.descricao || "Sem descrição"}</p>
                   </div>
                   <ExternalLink size={12} className="text-slate-300 group-hover:text-blue-500 shrink-0" />
                 </Link>
@@ -523,16 +523,16 @@ export function KanbanBoard() {
       <Dialog open={!!pilotagemTarget} onOpenChange={(open: boolean) => { if (!open) setPilotagemTarget(null) }}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>Iniciar Pilotagem â€” #{pilotagemTarget?.id} {pilotagemTarget?.cliente}</DialogTitle>
+            <DialogTitle>Iniciar Pilotagem � #{pilotagemTarget?.id} {pilotagemTarget?.cliente}</DialogTitle>
             <DialogDescription>
-              Selecione as amostras que entrarÃ£o em produÃ§Ã£o
+              Selecione as amostras que entrarão em produção
             </DialogDescription>
           </DialogHeader>
           <div className="max-h-72 overflow-y-auto space-y-2">
             {pilotagemLoading ? (
               <div className="flex justify-center py-4"><Loader2 size={16} className="animate-spin text-slate-400" /></div>
             ) : pilotagemAmostras.length === 0 ? (
-              <p className="text-sm text-slate-400 text-center py-4">Nenhuma amostra disponÃ­vel</p>
+              <p className="text-sm text-slate-400 text-center py-4">Nenhuma amostra disponível</p>
             ) : (
               pilotagemAmostras.map((a: any, i: any) => {
                 const key = `${a.tipo}-${a.id}`
@@ -557,7 +557,7 @@ export function KanbanBoard() {
                         <span className="text-xs font-medium text-slate-700 dark:text-slate-300">{a.rotulo}</span>
                         <span className="text-[10px] uppercase text-slate-400">{a.status}</span>
                       </div>
-                      <p className="text-sm text-slate-600 dark:text-slate-400 truncate">{a.descricao || "Sem descriÃ§Ã£o"}</p>
+                      <p className="text-sm text-slate-600 dark:text-slate-400 truncate">{a.descricao || "Sem descrição"}</p>
                     </div>
                   </label>
                 )

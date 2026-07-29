@@ -60,7 +60,7 @@ export default function CoresPage() {
         }
         throw new Error(data.error || "Erro ao excluir")
       }
-      toast.success("Cor excluÃ­da com sucesso")
+      toast.success("Cor excluída com sucesso")
       setDeleteTarget(null)
       refetch()
     } catch (err) {
@@ -82,19 +82,19 @@ export default function CoresPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
-            Cores SÃ³lidas
+            Cores Sólidas
             {info && <InfoButton content={info} />}
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400">
-            Gerencie as cores sÃ³lidas cadastradas no sistema
+            Gerencie as cores sólidas cadastradas no sistema
           </p>
         </div>
         <div className="flex gap-2">
           <ImportarCores onImportado={() => refetch()} />
           <ExportarDados data={filteredCores} columns={[
-            { key: "codigo", label: "CÃ³digo" }, { key: "nome", label: "Nome" },
-            { key: "pantone", label: "Pantone" }, { key: "familia", label: "FamÃ­lia" },
-          ]} filename="cores-solidas" title="Cores SÃ³lidas" />
+            { key: "codigo", label: "Código" }, { key: "nome", label: "Nome" },
+            { key: "pantone", label: "Pantone" }, { key: "familia", label: "Família" },
+          ]} filename="cores-solidas" title="Cores Sólidas" />
           <Button variant="outline" onClick={() => setShowApiImport(true)} className="gap-2">
             <Database size={16} />
             Importar via API
@@ -112,7 +112,7 @@ export default function CoresPage() {
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
           <Input
-            placeholder="Buscar por nome, cÃ³digo, pantone..."
+            placeholder="Buscar por nome, código, pantone..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-10"
@@ -133,14 +133,14 @@ export default function CoresPage() {
           <table className="w-full">
             <thead className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
               <tr>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">CÃ³digo</th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Código</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Nome</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Cor</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Pantone</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">FamÃ­lia</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">ID IntegraÃ§Ã£o</th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Família</th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">ID Integração</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Status</th>
-                <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">AÃ§Ãµes</th>
+                <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Ações</th>
               </tr>
             </thead>
             <tbody>
@@ -158,9 +158,9 @@ export default function CoresPage() {
                       style={{ backgroundColor: `#${cor.codigo}` }}
                     />
                   </td>
-                  <td className="p-4 text-sm text-slate-500">{cor.pantone || "â€”"}</td>
-                  <td className="p-4 text-sm text-slate-500">{cor.familia || "â€”"}</td>
-                  <td className="p-4 text-sm font-mono text-xs text-slate-500">{cor.idIntegracao || "â€”"}</td>
+                  <td className="p-4 text-sm text-slate-500">{cor.pantone || "�"}</td>
+                  <td className="p-4 text-sm text-slate-500">{cor.familia || "�"}</td>
+                  <td className="p-4 text-sm font-mono text-xs text-slate-500">{cor.idIntegracao || "�"}</td>
                   <td className="p-4">
                     <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
                       cor.ativo 
@@ -200,12 +200,12 @@ export default function CoresPage() {
 
       <ConfirmModal
         open={deleteTarget !== null}
-        title={deleteBlocked ? "ExclusÃ£o nÃ£o permitida" : "Excluir cor?"}
+        title={deleteBlocked ? "Exclusão não permitida" : "Excluir cor?"}
         message={deleteBlocked
-          ? "Esta cor possui cadastros vinculados e nÃ£o pode ser excluÃ­da."
+          ? "Esta cor possui cadastros vinculados e não pode ser excluída."
           : `Tem certeza que deseja excluir?`}
         subMessage={deleteBlocked
-          ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informaÃ§Ãµes."
+          ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informações."
           : undefined}
         confirmLabel={deleteBlocked ? "OK" : "Excluir"}
         variant={deleteBlocked ? "warning" : "danger"}

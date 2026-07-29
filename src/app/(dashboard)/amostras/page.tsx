@@ -175,14 +175,14 @@ export default function AmostrasPage() {
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">ID</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Produto</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">DescriÃ§Ã£o</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Descrição</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Status</th>
                   {aba === "acabamento" && (
                     <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Acabamento</th>
                   )}
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Data</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Motivo</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">AÃ§Ãµes</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Ações</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -208,7 +208,7 @@ export default function AmostrasPage() {
                         <span className="text-xs text-slate-400">{a.produtoCodigo}</span>
                         <p className="text-xs text-slate-500 mt-0.5">{a.produtoDescricao}</p>
                       </td>
-                      <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-300">{a.descricao || "â€”"}</td>
+                      <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-300">{a.descricao || "�"}</td>
                       <td className="px-4 py-3">
                         <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium" style={{
                           backgroundColor: hexToRgba(getStatusColor(a.status), 0.15),
@@ -218,10 +218,10 @@ export default function AmostrasPage() {
                         </span>
                       </td>
                       {aba === "acabamento" && (
-                        <td className="px-4 py-3 text-sm text-slate-500">{a.acabamentoDescricao || "â€”"}</td>
+                        <td className="px-4 py-3 text-sm text-slate-500">{a.acabamentoDescricao || "�"}</td>
                       )}
-                      <td className="px-4 py-3 text-sm text-slate-500">{a.data ? new Date(a.data).toLocaleDateString("pt-BR") : "â€”"}</td>
-                      <td className="px-4 py-3 text-sm text-slate-500 max-w-[200px] truncate">{a.motivoAprovacao || "â€”"}</td>
+                      <td className="px-4 py-3 text-sm text-slate-500">{a.data ? new Date(a.data).toLocaleDateString("pt-BR") : "�"}</td>
+                      <td className="px-4 py-3 text-sm text-slate-500 max-w-[200px] truncate">{a.motivoAprovacao || "�"}</td>
                       <td className="px-4 py-3">
                         <button
                           onClick={(e) => {

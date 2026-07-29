@@ -5,7 +5,7 @@ import { PageInfoButton } from "@/components/ui/page-info-button"
 const modulos = [
   {
     titulo: "Fios",
-    descricao: "Cadastro de fios tÃªxteis",
+    descricao: "Cadastro de fios têxteis",
     href: "/cadastros/fios",
     icon: Package,
   },
@@ -22,8 +22,8 @@ const modulos = [
     icon: Scissors,
   },
   {
-    titulo: "Cores SÃ³lidas",
-    descricao: "Cores sÃ³lidas",
+    titulo: "Cores Sólidas",
+    descricao: "Cores sólidas",
     href: "/cadastros/cores",
     icon: Palette,
   },
@@ -41,13 +41,13 @@ const modulos = [
   },
   {
     titulo: "Produtos",
-    descricao: "Produtos (tecidos) - engenharia tÃªxtil",
+    descricao: "Produtos (tecidos) - engenharia têxtil",
     href: "/cadastros/produto-cru",
     icon: Layers,
   },
   {
-    titulo: "Produtos QuÃ­micos",
-    descricao: "Produtos quÃ­micos para beneficiamento",
+    titulo: "Produtos Químicos",
+    descricao: "Produtos químicos para beneficiamento",
     href: "/cadastros/produtos-quimicos",
     icon: FlaskConical,
   },
@@ -68,7 +68,7 @@ export default function CadastrosPage() {
           <PageInfoButton />
         </h1>
         <p className="text-sm text-slate-500">
-          MÃ³dulos de cadastro do sistema
+          Módulos de cadastro do sistema
         </p>
       </div>
 
