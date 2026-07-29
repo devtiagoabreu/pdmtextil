@@ -174,7 +174,7 @@ const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { on
                       <Link
                         key={item.id}
                         href={item.url}
-                        onClick={(e) => { e.stopPropagation(); onClose?.() }}
+                        onClick={onClose}
                         className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-all ${
                           isAtiva(item.url)
                             ? "text-blue-600 dark:text-blue-400 font-medium bg-blue-50/50 dark:bg-blue-950/30"
