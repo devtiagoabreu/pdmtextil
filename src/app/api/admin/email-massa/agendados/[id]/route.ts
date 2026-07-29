@@ -7,12 +7,13 @@ import { eq } from "drizzle-orm"
 
 export const dynamic = "force-dynamic"
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
-    const id = Number(params.id)
+    const { id: idStr } = await params
+    const id = Number(idStr)
     const body = await req.json()
     const { nome, para, assunto, html, listas, modoEnvio, remetente, agendadoPara, status, preheader } = body
 
@@ -38,12 +39,13 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
-    const id = Number(params.id)
+    const { id: idStr } = await params
+    const id = Number(idStr)
     const [result] = await db.delete(emailAgendados).where(eq(emailAgendados.id, id)).returning()
     if (!result) return NextResponse.json({ error: "Agendamento não encontrado" }, { status: 404 })
 

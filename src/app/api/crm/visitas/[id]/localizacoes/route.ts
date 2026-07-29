@@ -6,13 +6,14 @@ import { eq, desc } from "drizzle-orm"
 
 export async function GET(
   _request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
 
-    const visitaId = Number(params.id)
+    const { id: idStr } = await params
+    const visitaId = Number(idStr)
     if (isNaN(visitaId)) {
       return NextResponse.json({ error: "ID inválido" }, { status: 400 })
     }
@@ -32,13 +33,14 @@ export async function GET(
 
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
 
-    const visitaId = Number(params.id)
+    const { id: idStr } = await params
+    const visitaId = Number(idStr)
     if (isNaN(visitaId)) {
       return NextResponse.json({ error: "ID inválido" }, { status: 400 })
     }
@@ -73,13 +75,14 @@ export async function POST(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
 
-    const visitaId = Number(params.id)
+    const { id: idStr } = await params
+    const visitaId = Number(idStr)
     if (isNaN(visitaId)) {
       return NextResponse.json({ error: "ID inválido" }, { status: 400 })
     }

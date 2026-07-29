@@ -7,10 +7,10 @@ import { eq } from "drizzle-orm"
 
 export async function GET(
   _request: Request,
-  { params }: { params: { token: string } }
+  { params }: { params: Promise<{ token: string }> }
 ) {
   try {
-    const { token } = params
+    const { token } = await params
 
     const [pesquisa] = await db
       .select()
@@ -59,10 +59,10 @@ export async function GET(
 
 export async function POST(
   request: Request,
-  { params }: { params: { token: string } }
+  { params }: { params: Promise<{ token: string }> }
 ) {
   try {
-    const { token } = params
+    const { token } = await params
     const body = await request.json()
     const { respostas } = body
 
