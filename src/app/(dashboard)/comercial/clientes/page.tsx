@@ -94,11 +94,11 @@ export default function ClientesPage() {
         setSolicModal({ cliente, data, loading: false })
       } else {
         setSolicModal(null)
-        toast.error("Erro ao carregar solicitações")
+        toast.error("Erro ao carregar solicitaÃ§Ãµes")
       }
     } catch {
       setSolicModal(null)
-      toast.error("Erro ao carregar solicitações")
+      toast.error("Erro ao carregar solicitaÃ§Ãµes")
     }
   }
 
@@ -143,7 +143,7 @@ export default function ClientesPage() {
             <Database size={16} />
             Importar via API
           </Button>
-          <Link
+          <Link prefetch={false}
           href="/comercial/clientes/novo"
           className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors shadow-sm"
         >
@@ -159,7 +159,7 @@ export default function ClientesPage() {
         }}
         data={clientes}
         onFiltered={setFilteredData}
-        placeholder="Buscar por nome, CNPJ, razão social, contato, email, telefone ou cidade..."
+        placeholder="Buscar por nome, CNPJ, razÃ£o social, contato, email, telefone ou cidade..."
       />
 
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
@@ -218,7 +218,7 @@ export default function ClientesPage() {
                 </div>
 
                 <div className="flex gap-2 mt-4 pt-3 border-t border-slate-100 dark:border-slate-700">
-                  <Link
+                  <Link prefetch={false}
                     href={`/comercial/clientes/${cliente.id}`}
                     className="flex items-center gap-1 text-xs text-blue-600 hover:underline"
                   >
@@ -230,7 +230,7 @@ export default function ClientesPage() {
                     className="flex items-center gap-1 text-xs text-emerald-600 hover:underline"
                   >
                     <FileText size={12} />
-                    Solicitações
+                    SolicitaÃ§Ãµes
                   </button>
                   <button
                     onClick={() => abrirAmostras(cliente)}
@@ -252,7 +252,7 @@ export default function ClientesPage() {
             <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-800">
               <h2 className="text-lg font-semibold flex items-center gap-2">
                 <FileText size={18} className="text-emerald-500" />
-                Solicitações — {solicModal.cliente.nome}
+                SolicitaÃ§Ãµes â€” {solicModal.cliente.nome}
               </h2>
               <button onClick={() => setSolicModal(null)} className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
                 <X size={18} />
@@ -264,11 +264,11 @@ export default function ClientesPage() {
                   <Loader2 className="animate-spin text-slate-400" size={24} />
                 </div>
               ) : solicModal.data.length === 0 ? (
-                <p className="text-center text-sm text-slate-500 py-12">Nenhuma solicitação encontrada</p>
+                <p className="text-center text-sm text-slate-500 py-12">Nenhuma solicitaÃ§Ã£o encontrada</p>
               ) : (
                 <div className="space-y-2">
                   {solicModal.data.map(s => (
-                    <Link
+                    <Link prefetch={false}
                       key={s.id}
                       href={`/comercial/solicitacoes/${s.id}`}
                       className="flex items-center justify-between p-3 rounded-lg border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group"
@@ -291,7 +291,7 @@ export default function ClientesPage() {
                         )}
                         <p className="text-xs text-slate-400 mt-0.5">
                           {s.createdAt ? new Date(s.createdAt).toLocaleDateString("pt-BR") : ""}
-                          {s.solicitanteNome ? ` • ${s.solicitanteNome}` : ""}
+                          {s.solicitanteNome ? ` â€¢ ${s.solicitanteNome}` : ""}
                         </p>
                       </div>
                       <ExternalLink size={14} className="text-slate-300 group-hover:text-slate-500 shrink-0 ml-2" />
@@ -310,7 +310,7 @@ export default function ClientesPage() {
             <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-800">
               <h2 className="text-lg font-semibold flex items-center gap-2">
                 <FlaskConical size={18} className="text-purple-500" />
-                Amostras — {amostraModal.cliente.nome}
+                Amostras â€” {amostraModal.cliente.nome}
               </h2>
               <button onClick={() => setAmostraModal(null)} className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
                 <X size={18} />
@@ -326,7 +326,7 @@ export default function ClientesPage() {
               ) : (
                 <div className="space-y-2">
                   {amostraModal.data.map(a => (
-                    <Link
+                    <Link prefetch={false}
                       key={`${a.tipoAmostra}-${a.id}`}
                       href={`/amostras?focoAmostra=${a.id}&tipo=${a.tipoAmostra}`}
                       className="flex items-center justify-between p-3 rounded-lg border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group"

@@ -92,9 +92,9 @@ export function Header({ onMenuClick, onToggleSidebar, sidebarCollapsed }: Heade
     const diff = Date.now() - new Date(dateStr).getTime()
     const mins = Math.floor(diff / 60000)
     if (mins < 1) return "agora"
-    if (mins < 60) return `${mins} min atrás`
+    if (mins < 60) return `${mins} min atrÃ¡s`
     const hours = Math.floor(mins / 60)
-    if (hours < 24) return `${hours}h atrás`
+    if (hours < 24) return `${hours}h atrÃ¡s`
     return new Date(dateStr).toLocaleDateString("pt-BR")
   }
 
@@ -159,7 +159,7 @@ export function Header({ onMenuClick, onToggleSidebar, sidebarCollapsed }: Heade
           {showNotifications && (
             <div ref={notifRef} className="absolute right-0 mt-2 w-80 rounded-xl border bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900 animate-fade-in z-50">
               <div className="border-b p-3 font-semibold text-sm dark:border-slate-700 flex items-center justify-between">
-                <span>Notificações</span>
+                <span>NotificaÃ§Ãµes</span>
                 <div className="flex items-center gap-2">
                   {unreadCount > 0 && (
                     <>
@@ -178,7 +178,7 @@ export function Header({ onMenuClick, onToggleSidebar, sidebarCollapsed }: Heade
                   <div className="p-6 text-center"><Loader2 size={20} className="animate-spin mx-auto text-slate-400" /></div>
                 )}
                 {!loadingNotif && notificacoes.length === 0 && (
-                  <div className="p-6 text-center text-sm text-slate-500">Nenhuma notificação</div>
+                  <div className="p-6 text-center text-sm text-slate-500">Nenhuma notificaÃ§Ã£o</div>
                 )}
                 {notificacoes.map(n => (
                   <button
@@ -219,14 +219,14 @@ export function Header({ onMenuClick, onToggleSidebar, sidebarCollapsed }: Heade
                 </span>
               </div>
               <div className="p-2">
-                <Link href="/perfil" className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors">
+                <Link prefetch={false} href="/perfil" className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors">
                   <User size={16} />
                   Meu Perfil
                 </Link>
                 {session?.user?.role === "ADMIN" && (
-                  <Link href="/admin/configuracoes" className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors">
+                  <Link prefetch={false} href="/admin/configuracoes" className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors">
                     <Settings size={16} />
-                    Configurações
+                    ConfiguraÃ§Ãµes
                   </Link>
                 )}
                 <hr className="my-1 dark:border-slate-700" />

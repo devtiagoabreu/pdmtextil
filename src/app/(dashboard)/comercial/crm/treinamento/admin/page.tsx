@@ -54,18 +54,18 @@ export default function AdminTreinamentoPage() {
     mutationFn: (id: number) => fetch(`/api/crm/treinamento/${id}`, { method: "DELETE" }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["crm-treinamento"] })
-      toast.success("Lição removida")
+      toast.success("LiÃ§Ã£o removida")
     },
-    onError: () => toast.error("Erro ao remover lição"),
+    onError: () => toast.error("Erro ao remover liÃ§Ã£o"),
   })
 
   const deleteModulo = useMutation({
     mutationFn: (id: number) => fetch(`/api/crm/treinamento/modulos/${id}`, { method: "DELETE" }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["crm-treinamento"] })
-      toast.success("Módulo removido")
+      toast.success("MÃ³dulo removido")
     },
-    onError: () => toast.error("Erro ao remover módulo"),
+    onError: () => toast.error("Erro ao remover mÃ³dulo"),
   })
 
   const criarModulo = useMutation({
@@ -79,20 +79,20 @@ export default function AdminTreinamentoPage() {
       queryClient.invalidateQueries({ queryKey: ["crm-treinamento"] })
       setShowNovoModulo(false)
       setNovoModulo({ titulo: "", descricao: "", icone: "BookOpen", cor: "#6366f1" })
-      toast.success("Módulo criado")
+      toast.success("MÃ³dulo criado")
     },
-    onError: () => toast.error("Erro ao criar módulo"),
+    onError: () => toast.error("Erro ao criar mÃ³dulo"),
   })
 
   const handleDeleteLicao = (id: number, titulo: string) => {
-    if (confirm(`Remover a lição "${titulo}"?`)) {
+    if (confirm(`Remover a liÃ§Ã£o "${titulo}"?`)) {
       setDeletingId(id)
       deleteLicao.mutate(id, { onSettled: () => setDeletingId(null) })
     }
   }
 
   const handleDeleteModulo = (id: number, titulo: string) => {
-    if (confirm(`Remover o módulo "${titulo}" e todas as suas lições?`)) {
+    if (confirm(`Remover o mÃ³dulo "${titulo}" e todas as suas liÃ§Ãµes?`)) {
       deleteModulo.mutate(id)
     }
   }
@@ -100,7 +100,7 @@ export default function AdminTreinamentoPage() {
   return (
     <div className="p-6 max-w-5xl mx-auto">
       <div className="flex items-center gap-4 mb-6">
-        <Link
+        <Link prefetch={false}
           href="/comercial/crm/treinamento"
           className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
         >
@@ -117,28 +117,28 @@ export default function AdminTreinamentoPage() {
           className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition-colors"
         >
           <Plus size={16} />
-          Novo Módulo
+          Novo MÃ³dulo
         </button>
       </div>
 
       {showNovoModulo && (
         <div className="mb-6 p-4 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800/50">
-          <h3 className="font-medium text-slate-900 dark:text-slate-50 mb-3">Novo Módulo</h3>
+          <h3 className="font-medium text-slate-900 dark:text-slate-50 mb-3">Novo MÃ³dulo</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
             <input
-              placeholder="Título do módulo"
+              placeholder="TÃ­tulo do mÃ³dulo"
               value={novoModulo.titulo}
               onChange={(e) => setNovoModulo({ ...novoModulo, titulo: e.target.value })}
               className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800"
             />
             <input
-              placeholder="Descrição (opcional)"
+              placeholder="DescriÃ§Ã£o (opcional)"
               value={novoModulo.descricao}
               onChange={(e) => setNovoModulo({ ...novoModulo, descricao: e.target.value })}
               className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800"
             />
             <input
-              placeholder="Ícone (BookOpen, GraduationCap, etc)"
+              placeholder="Ãcone (BookOpen, GraduationCap, etc)"
               value={novoModulo.icone}
               onChange={(e) => setNovoModulo({ ...novoModulo, icone: e.target.value })}
               className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800"
@@ -193,17 +193,17 @@ export default function AdminTreinamentoPage() {
                   )}
                 </div>
                 <div className="flex items-center gap-2">
-                  <Link
+                  <Link prefetch={false}
                     href={`/comercial/crm/treinamento/admin/novo?moduloId=${modulo.id}`}
                     className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 rounded-lg transition-colors"
-                    title="Nova lição neste módulo"
+                    title="Nova liÃ§Ã£o neste mÃ³dulo"
                   >
                     <Plus size={16} />
                   </Link>
                   <button
                     onClick={() => handleDeleteModulo(modulo.id, modulo.titulo)}
                     className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/50 rounded-lg transition-colors"
-                    title="Remover módulo"
+                    title="Remover mÃ³dulo"
                   >
                     <Trash2 size={16} />
                   </button>
@@ -211,7 +211,7 @@ export default function AdminTreinamentoPage() {
               </div>
 
               {modulo.licoes.filter((l) => l.ativo).length === 0 ? (
-                <p className="p-4 text-sm text-slate-400 text-center">Nenhuma lição neste módulo</p>
+                <p className="p-4 text-sm text-slate-400 text-center">Nenhuma liÃ§Ã£o neste mÃ³dulo</p>
               ) : (
                 <div className="divide-y divide-slate-100 dark:divide-slate-800">
                   {modulo.licoes.filter((l) => l.ativo).map((licao) => (
@@ -222,7 +222,7 @@ export default function AdminTreinamentoPage() {
                         <span className="text-[10px] text-slate-400 hidden sm:inline">{licao.pathnameRelacionado}</span>
                       )}
                       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Link
+                        <Link prefetch={false}
                           href={`/comercial/crm/treinamento/admin/${licao.id}`}
                           className="p-1.5 text-slate-400 hover:text-indigo-600 rounded-lg transition-colors"
                           title="Editar"

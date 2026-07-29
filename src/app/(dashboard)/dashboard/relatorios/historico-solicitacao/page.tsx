@@ -44,7 +44,7 @@ export default function HistoricoSolicitacaoPage() {
       const res = await fetch(`/api/relatorios/historico-solicitacao?id=${id}`)
       if (!res.ok) {
         const err = await res.json()
-        setError(err.error || "Erro ao carregar histórico")
+        setError(err.error || "Erro ao carregar histÃ³rico")
         setSolicitacao(null)
         return
       }
@@ -53,7 +53,7 @@ export default function HistoricoSolicitacaoPage() {
       setProdutos(data.produtos || [])
       setLogs(data.logs || [])
     } catch {
-      setError("Erro ao carregar histórico")
+      setError("Erro ao carregar histÃ³rico")
     } finally {
       setLoading(false)
     }
@@ -99,8 +99,8 @@ export default function HistoricoSolicitacaoPage() {
       for (const h of solicitacao.historicoComunicacao) {
         let desc = ""
         let detalhes: string[] | undefined
-        if (h.acao === "CRIACAO") desc = h.mensagem || "Solicitação criada"
-        else if (h.acao === "MUDANCA_STATUS") desc = h.mensagem || `Status: ${h.de || "?"} → ${h.para || "?"}`
+        if (h.acao === "CRIACAO") desc = h.mensagem || "SolicitaÃ§Ã£o criada"
+        else if (h.acao === "MUDANCA_STATUS") desc = h.mensagem || `Status: ${h.de || "?"} â†’ ${h.para || "?"}`
         else if (h.acao === "ALTERACAO" && h.mensagens?.length > 0) {
           desc = "Campos alterados"
           detalhes = h.mensagens
@@ -169,11 +169,11 @@ export default function HistoricoSolicitacaoPage() {
     }
 
     if (timelineRows.length > 0) {
-      tables.push({ headers: ["Data", "Usuário", "Evento"], rows: timelineRows })
+      tables.push({ headers: ["Data", "UsuÃ¡rio", "Evento"], rows: timelineRows })
     }
 
     await exportPDFRelatorio({
-      title: `Histórico — Solicitação #${solicitacao.id}`,
+      title: `HistÃ³rico â€” SolicitaÃ§Ã£o #${solicitacao.id}`,
       stats: {
         "Cliente": clienteLabel,
         "Status": statusLabel,
@@ -194,17 +194,17 @@ export default function HistoricoSolicitacaoPage() {
     <div className="space-y-6 animate-fade-in">
       <div>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
-          Histórico de Solicitação de Desenvolvimento{info && <InfoButton content={info} />}
+          HistÃ³rico de SolicitaÃ§Ã£o de Desenvolvimento{info && <InfoButton content={info} />}
         </h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-          Acompanhe todo o histórico de uma solicitação de desenvolvimento: dados, produtos, amostras e timeline
+          Acompanhe todo o histÃ³rico de uma solicitaÃ§Ã£o de desenvolvimento: dados, produtos, amostras e timeline
         </p>
       </div>
 
       <div ref={searchRef} className="relative">
         <div className="flex flex-wrap gap-3 items-end">
           <div className="flex-1 min-w-[260px] relative">
-            <label className="block text-xs text-slate-400 mb-1">Buscar solicitação</label>
+            <label className="block text-xs text-slate-400 mb-1">Buscar solicitaÃ§Ã£o</label>
             <div className="relative">
               <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
@@ -310,12 +310,12 @@ export default function HistoricoSolicitacaoPage() {
         <div className="rounded-xl border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/50 p-4 text-sm text-red-600 dark:text-red-400">{error}</div>
       )}
 
-      {loading && <div className="text-center py-16 text-slate-500">Carregando histórico...</div>}
+      {loading && <div className="text-center py-16 text-slate-500">Carregando histÃ³rico...</div>}
 
       {!selectedId && !loading && (
         <div className="flex flex-col items-center justify-center py-24 text-center">
           <BarChart3 className="w-16 h-16 text-slate-200 dark:text-slate-700 mb-4" />
-          <p className="text-base font-medium text-slate-400 dark:text-slate-500">Selecione uma solicitação para ver o histórico completo</p>
+          <p className="text-base font-medium text-slate-400 dark:text-slate-500">Selecione uma solicitaÃ§Ã£o para ver o histÃ³rico completo</p>
         </div>
       )}
 
@@ -326,13 +326,13 @@ export default function HistoricoSolicitacaoPage() {
             <div className="flex items-start justify-between mb-4">
               <div>
                 <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
-                  Solicitação #{solicitacao.id}
+                  SolicitaÃ§Ã£o #{solicitacao.id}
                 </h2>
                 <p className="text-sm text-slate-500 mt-1">
-                  {solicitacao.cliente}{solicitacao.projeto && ` — ${solicitacao.projeto}`}
+                  {solicitacao.cliente}{solicitacao.projeto && ` â€” ${solicitacao.projeto}`}
                 </p>
               </div>
-              <Link href={`/comercial/solicitacoes/${solicitacao.id}`} className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700">
+              <Link prefetch={false} href={`/comercial/solicitacoes/${solicitacao.id}`} className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700">
                 <ExternalLink size={14} /> Abrir
               </Link>
             </div>
@@ -349,33 +349,33 @@ export default function HistoricoSolicitacaoPage() {
               </div>
               <div>
                 <span className="text-xs text-slate-400 block">Solicitante</span>
-                <span className="font-medium text-slate-700 dark:text-slate-300">{solicitacao.solicitanteNome || "—"}</span>
+                <span className="font-medium text-slate-700 dark:text-slate-300">{solicitacao.solicitanteNome || "â€”"}</span>
               </div>
               <div>
-                <span className="text-xs text-slate-400 block">Responsável</span>
-                <span className="font-medium text-slate-700 dark:text-slate-300">{solicitacao.responsavelNome || "—"}</span>
+                <span className="text-xs text-slate-400 block">ResponsÃ¡vel</span>
+                <span className="font-medium text-slate-700 dark:text-slate-300">{solicitacao.responsavelNome || "â€”"}</span>
               </div>
               <div>
                 <span className="text-xs text-slate-400 block">Criado em</span>
                 <span className="font-medium text-slate-700 dark:text-slate-300">
-                  {solicitacao.createdAt ? new Date(solicitacao.createdAt).toLocaleString("pt-BR") : "—"}
+                  {solicitacao.createdAt ? new Date(solicitacao.createdAt).toLocaleString("pt-BR") : "â€”"}
                 </span>
               </div>
               <div>
                 <span className="text-xs text-slate-400 block">Prazo desejado</span>
                 <span className="font-medium text-slate-700 dark:text-slate-300">
-                  {solicitacao.prazoDesejado ? new Date(solicitacao.prazoDesejado).toLocaleDateString("pt-BR") : "—"}
+                  {solicitacao.prazoDesejado ? new Date(solicitacao.prazoDesejado).toLocaleDateString("pt-BR") : "â€”"}
                 </span>
               </div>
               <div>
-                <span className="text-xs text-slate-400 block">Concluído em</span>
+                <span className="text-xs text-slate-400 block">ConcluÃ­do em</span>
                 <span className="font-medium text-slate-700 dark:text-slate-300">
-                  {solicitacao.dataConclusao ? new Date(solicitacao.dataConclusao).toLocaleDateString("pt-BR") : "—"}
+                  {solicitacao.dataConclusao ? new Date(solicitacao.dataConclusao).toLocaleDateString("pt-BR") : "â€”"}
                 </span>
               </div>
               <div>
                 <span className="text-xs text-slate-400 block">CNPJ</span>
-                <span className="font-medium text-slate-700 dark:text-slate-300">{solicitacao.cnpj || "—"}</span>
+                <span className="font-medium text-slate-700 dark:text-slate-300">{solicitacao.cnpj || "â€”"}</span>
               </div>
             </div>
           </div>
@@ -394,7 +394,7 @@ export default function HistoricoSolicitacaoPage() {
                   <div key={prod.id} className="p-6">
                     <div className="flex items-start justify-between mb-3">
                       <div>
-                        <Link href={`/cadastros/produto-cru/${prod.id}`} className="text-sm font-semibold text-blue-600 hover:text-blue-700">
+                        <Link prefetch={false} href={`/cadastros/produto-cru/${prod.id}`} className="text-sm font-semibold text-blue-600 hover:text-blue-700">
                           {prod.codigoPdm}
                         </Link>
                         <p className="text-sm text-slate-600 dark:text-slate-400 mt-0.5">{prod.descricao}</p>
@@ -430,7 +430,7 @@ export default function HistoricoSolicitacaoPage() {
                             <div key={ac.id} className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3">
                               <div className="flex items-center gap-2 text-xs mb-1.5">
                                 <span className="font-medium text-slate-700 dark:text-slate-300">{ac.tipoAcabamento}</span>
-                                {ac.descricao && <span className="text-slate-400">— {ac.descricao}</span>}
+                                {ac.descricao && <span className="text-slate-400">â€” {ac.descricao}</span>}
                               </div>
                               {ac.amostras && ac.amostras.length > 0 ? (
                                 <div className="space-y-1 pl-2">
@@ -529,7 +529,7 @@ function TimelineItem({ entry, isLast }: { entry: TimelineEntry; isLast: boolean
         {entry.detalhes && entry.detalhes.length > 0 && (
           <ul className="mt-1 space-y-0.5">
             {entry.detalhes.map((d, i) => (
-              <li key={i} className="text-xs text-slate-500 dark:text-slate-500">• {d}</li>
+              <li key={i} className="text-xs text-slate-500 dark:text-slate-500">â€¢ {d}</li>
             ))}
           </ul>
         )}

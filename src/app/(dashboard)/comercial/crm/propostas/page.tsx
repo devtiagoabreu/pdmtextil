@@ -22,7 +22,7 @@ const STATUS_LABELS: Record<string, string> = {
   ENVIADA: "Enviada",
   ACEITA: "Aceita",
   RECUSADA: "Recusada",
-  REVISAO: "Em Revisão",
+  REVISAO: "Em RevisÃ£o",
 }
 
 const STATUS_CORES: Record<string, string> = {
@@ -117,7 +117,7 @@ export default function PropostasPage() {
               Kanban
             </button>
           </div>
-          <Link
+          <Link prefetch={false}
             href="/comercial/crm/propostas/novo"
             className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors shadow-sm"
           >
@@ -136,13 +136,13 @@ export default function PropostasPage() {
             { value: "ENVIADA", label: "Enviada" },
             { value: "ACEITA", label: "Aceita" },
             { value: "RECUSADA", label: "Recusada" },
-            { value: "REVISAO", label: "Revisão" },
+            { value: "REVISAO", label: "RevisÃ£o" },
           ],
           dateField: "createdAt",
         }}
         data={propostas || []}
         onFiltered={setFilteredData}
-        placeholder="Buscar por pessoa ou título..."
+        placeholder="Buscar por pessoa ou tÃ­tulo..."
       />
 
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
@@ -160,8 +160,8 @@ export default function PropostasPage() {
             <table className="w-full">
               <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Título</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Pessoa (Negócio)</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">TÃ­tulo</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Pessoa (NegÃ³cio)</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Valor</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Status</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Data</th>
@@ -175,9 +175,9 @@ export default function PropostasPage() {
                     onClick={() => router.push(`/comercial/crm/propostas/${p.id}`)}
                   >
                     <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-slate-200">{p.titulo}</td>
-                    <td className="px-4 py-3 text-sm text-slate-500">{p.empresaNome || "—"}</td>
+                    <td className="px-4 py-3 text-sm text-slate-500">{p.empresaNome || "â€”"}</td>
                     <td className="px-4 py-3 text-sm text-slate-900 dark:text-slate-200">
-                      {p.valor ? `R$ ${Number(p.valor).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : "—"}
+                      {p.valor ? `R$ ${Number(p.valor).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : "â€”"}
                     </td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex text-[10px] px-2 py-0.5 rounded-full font-medium ${STATUS_CORES[p.status] || ""}`}>
@@ -185,7 +185,7 @@ export default function PropostasPage() {
                       </span>
                     </td>
                     <td className="px-4 py-3 text-sm text-slate-500">
-                      {p.createdAt ? new Date(p.createdAt).toLocaleDateString("pt-BR") : "—"}
+                      {p.createdAt ? new Date(p.createdAt).toLocaleDateString("pt-BR") : "â€”"}
                     </td>
                   </tr>
                 ))}

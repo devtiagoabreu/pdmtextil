@@ -17,8 +17,8 @@ const TREND_COLOR = "#06b4d4"
 const MAIN_CARDS = [
   { key: "total", label: "Total", color: "text-slate-700 dark:text-slate-200", bg: "bg-slate-100 dark:bg-slate-800", icon: ClipboardList, statField: "total" },
   { key: "pendentes", label: "Pendentes", color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-50 dark:bg-amber-950/50", icon: FlaskConical, statField: "pendentes" },
-  { key: "em-producao", label: "Em Produção", color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-50 dark:bg-blue-950/50", icon: FlaskConical, statField: "emProducao" },
-  { key: "concluidos", label: "Concluídos", color: "text-green-600 dark:text-green-400", bg: "bg-green-50 dark:bg-green-950/50", icon: FlaskConical, statField: "concluidos" },
+  { key: "em-producao", label: "Em ProduÃ§Ã£o", color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-50 dark:bg-blue-950/50", icon: FlaskConical, statField: "emProducao" },
+  { key: "concluidos", label: "ConcluÃ­dos", color: "text-green-600 dark:text-green-400", bg: "bg-green-50 dark:bg-green-950/50", icon: FlaskConical, statField: "concluidos" },
 ]
 
 export default function DashboardAmostraComercial() {
@@ -79,9 +79,9 @@ export default function DashboardAmostraComercial() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Dashboard — Amostras Comerciais{info && <InfoButton content={info} />}</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Dashboard â€” Amostras Comerciais{info && <InfoButton content={info} />}</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-            Acompanhe as requisições de amostra comercial
+            Acompanhe as requisiÃ§Ãµes de amostra comercial
           </p>
         </div>
       </div>
@@ -135,7 +135,7 @@ export default function DashboardAmostraComercial() {
           )}
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <ChartCard title="Distribuição por Status" delay={0}>
+            <ChartCard title="DistribuiÃ§Ã£o por Status" delay={0}>
               <ResponsiveContainer width="100%" height={220}>
                 <PieChart>
                   <Pie
@@ -160,25 +160,25 @@ export default function DashboardAmostraComercial() {
               </ResponsiveContainer>
             </ChartCard>
 
-            <ChartCard title="Por Mês" delay={300}>
+            <ChartCard title="Por MÃªs" delay={300}>
               <ResponsiveContainer width="100%" height={220}>
                 <BarChart data={stats?.monthlyTrend || []}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                   <XAxis dataKey="mes" tick={{ fontSize: 11 }} stroke="#94a3b8" />
                   <YAxis allowDecimals={false} tick={{ fontSize: 11 }} stroke="#94a3b8" />
-                  <Tooltip content={<ChartTooltip formatter={(v) => `${v || 0} requisições`} />} />
+                  <Tooltip content={<ChartTooltip formatter={(v) => `${v || 0} requisiÃ§Ãµes`} />} />
                   <Bar dataKey="total" radius={[4, 4, 0, 0]} fill={TREND_COLOR} animationDuration={1800} animationEasing="ease-in-out" animationBegin={1100} />
                 </BarChart>
               </ResponsiveContainer>
             </ChartCard>
 
-            <ChartCard title="Tendência" delay={600}>
+            <ChartCard title="TendÃªncia" delay={600}>
               <ResponsiveContainer width="100%" height={220}>
                 <LineChart data={stats?.monthlyTrend || []}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                   <XAxis dataKey="mes" tick={{ fontSize: 11 }} stroke="#94a3b8" />
                   <YAxis allowDecimals={false} tick={{ fontSize: 11 }} stroke="#94a3b8" />
-                  <Tooltip content={<ChartTooltip formatter={(v) => `${v || 0} requisições`} />} />
+                  <Tooltip content={<ChartTooltip formatter={(v) => `${v || 0} requisiÃ§Ãµes`} />} />
                   <AnimatedLine type="monotone" dataKey="total" stroke={TREND_COLOR} strokeWidth={2} dot={{ fill: TREND_COLOR, r: 4 }} activeDot={{ r: 7, stroke: TREND_COLOR, strokeWidth: 2, fill: "#fff" }} drawDuration={2000} drawDelay={1400} />
                 </LineChart>
               </ResponsiveContainer>
@@ -186,20 +186,20 @@ export default function DashboardAmostraComercial() {
           </div>
 
           <div>
-            <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-3">Requisições Recentes</h2>
+            <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-3">RequisiÃ§Ãµes Recentes</h2>
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
               {!stats?.recent || stats.recent.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16 text-center">
                   <ClipboardList className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
-                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nenhuma requisição recente</p>
-                  <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">As requisições aparecerão aqui</p>
+                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nenhuma requisiÃ§Ã£o recente</p>
+                  <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">As requisiÃ§Ãµes aparecerÃ£o aqui</p>
                 </div>
               ) : (
                 <table className="w-full">
                   <thead className="border-b border-slate-200 dark:border-slate-800">
                     <tr>
                       <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">#</th>
-                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Título</th>
+                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">TÃ­tulo</th>
                       <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Cliente</th>
                       <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Produto</th>
                       <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Status</th>
@@ -210,10 +210,10 @@ export default function DashboardAmostraComercial() {
                     {stats.recent.map((a: any, i: number) => (
                       <tr key={`req-${a.id}-${i}`} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
                         <td className="p-4 text-sm font-medium text-slate-700 dark:text-slate-300">#{a.id}</td>
-                        <td className="p-4 text-sm text-slate-600 dark:text-slate-300">{a.titulo || "—"}</td>
-                        <td className="p-4 text-sm text-slate-500">{a.cliente || "—"}</td>
+                        <td className="p-4 text-sm text-slate-600 dark:text-slate-300">{a.titulo || "â€”"}</td>
+                        <td className="p-4 text-sm text-slate-500">{a.cliente || "â€”"}</td>
                         <td className="p-4 text-sm">
-                          <Link href={`/cadastros/produto-cru/${a.produtoCruId}`} className="flex items-center gap-1.5 group">
+                          <Link prefetch={false} href={`/cadastros/produto-cru/${a.produtoCruId}`} className="flex items-center gap-1.5 group">
                             <div>
                               <span className="text-xs text-slate-400">{a.produtoCodigo}</span>
                               <p className="text-xs text-slate-500 mt-0.5">{a.produtoDescricao}</p>
@@ -230,7 +230,7 @@ export default function DashboardAmostraComercial() {
                           </span>
                         </td>
                         <td className="p-4 text-sm text-slate-500">
-                          {a.createdAt ? new Date(a.createdAt).toLocaleDateString("pt-BR") : "—"}
+                          {a.createdAt ? new Date(a.createdAt).toLocaleDateString("pt-BR") : "â€”"}
                         </td>
                       </tr>
                     ))}
@@ -272,7 +272,7 @@ export default function DashboardAmostraComercial() {
                     >
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-medium text-slate-900 dark:text-slate-200 truncate">
-                          #{item.id} — {item.titulo || "Sem título"}
+                          #{item.id} â€” {item.titulo || "Sem tÃ­tulo"}
                         </p>
                         <p className="text-xs text-slate-400 truncate">{item.cliente}</p>
                       </div>

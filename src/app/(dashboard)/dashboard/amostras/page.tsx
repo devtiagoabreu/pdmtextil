@@ -31,7 +31,7 @@ const TIPO_BG: Record<string, string> = {
 const TREND_COLOR = "#06b6d4"
 
 const MAIN_CARDS = [
-  { key: "total-mes", label: "Total Mês", color: "text-slate-700 dark:text-slate-200", bg: "bg-slate-100 dark:bg-slate-800", icon: ClipboardList, statField: "totalMes" },
+  { key: "total-mes", label: "Total MÃªs", color: "text-slate-700 dark:text-slate-200", bg: "bg-slate-100 dark:bg-slate-800", icon: ClipboardList, statField: "totalMes" },
   { key: "tecido-cru", label: "Tecido Cru", color: "text-cyan-600 dark:text-cyan-400", bg: "bg-cyan-50 dark:bg-cyan-950/50", icon: FlaskConical, statField: "totalCru" },
   { key: "acabamento", label: "Acabamento", color: "text-orange-600 dark:text-orange-400", bg: "bg-orange-50 dark:bg-orange-950/50", icon: FlaskConical, statField: "totalAcab" },
 ]
@@ -125,7 +125,7 @@ export default function DashboardAmostras() {
             Acompanhe todas as amostras do sistema
           </p>
         </div>
-        <Link
+        <Link prefetch={false}
           href="/amostras/kanban"
           className="inline-flex items-center gap-2 rounded-lg border border-slate-300 dark:border-slate-600 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
         >
@@ -184,7 +184,7 @@ export default function DashboardAmostras() {
           )}
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <ChartCard title="Distribuição por Status" delay={0}>
+            <ChartCard title="DistribuiÃ§Ã£o por Status" delay={0}>
               <ResponsiveContainer width="100%" height={220}>
                 <PieChart>
                   <Pie
@@ -228,7 +228,7 @@ export default function DashboardAmostras() {
               </ResponsiveContainer>
             </ChartCard>
 
-            <ChartCard title="Amostras por Mês" delay={600}>
+            <ChartCard title="Amostras por MÃªs" delay={600}>
               <ResponsiveContainer width="100%" height={220}>
                 <LineChart data={stats?.monthlyTrend || []}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
@@ -248,27 +248,27 @@ export default function DashboardAmostras() {
                 <div className="flex flex-col items-center justify-center py-16 text-center">
                   <ClipboardList className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
                   <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nenhuma amostra recente</p>
-                  <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">As amostras aparecerão aqui</p>
+                  <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">As amostras aparecerÃ£o aqui</p>
                 </div>
               ) : (
                 <table className="w-full">
                   <thead className="border-b border-slate-200 dark:border-slate-800">
                     <tr>
                       <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Produto</th>
-                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">ID Integração</th>
-                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Solicitação</th>
-                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Descrição</th>
+                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">ID IntegraÃ§Ã£o</th>
+                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">SolicitaÃ§Ã£o</th>
+                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">DescriÃ§Ã£o</th>
                       <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Tipo</th>
                       <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Status</th>
                       <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Data</th>
-                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4 w-28">Ação</th>
+                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4 w-28">AÃ§Ã£o</th>
                     </tr>
                   </thead>
                   <tbody>
                     {stats.recent.map((a: any, i: number) => (
                       <tr key={`${a.tipoAmostra}-${a.id}-${i}`} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
                         <td className="p-4 text-sm">
-                          <Link href={`/cadastros/produto-cru/${a.produtoId}?tab=amostras`} className="flex items-center gap-1.5 group">
+                          <Link prefetch={false} href={`/cadastros/produto-cru/${a.produtoId}?tab=amostras`} className="flex items-center gap-1.5 group">
                             <div>
                               <span className="text-xs text-slate-400">{a.produtoCodigo}</span>
                               <p className="text-xs text-slate-500 mt-0.5">{a.produtoDescricao}</p>
@@ -280,19 +280,19 @@ export default function DashboardAmostras() {
                           {a.idIntegracao ? (
                             <span className="font-mono text-xs">{a.idIntegracao}</span>
                           ) : (
-                            <span className="text-slate-300">—</span>
+                            <span className="text-slate-300">â€”</span>
                           )}
                         </td>
                         <td className="p-4 text-sm">
                           {a.solicitacaoId ? (
-                            <Link href={`/comercial/solicitacoes/${a.solicitacaoId}`} className="text-blue-600 dark:text-blue-400 hover:underline text-xs">
-                              {a.solicitacaoCliente || `#${a.solicitacaoId}`}{a.solicitacaoProjeto ? ` — ${a.solicitacaoProjeto}` : ""}
+                            <Link prefetch={false} href={`/comercial/solicitacoes/${a.solicitacaoId}`} className="text-blue-600 dark:text-blue-400 hover:underline text-xs">
+                              {a.solicitacaoCliente || `#${a.solicitacaoId}`}{a.solicitacaoProjeto ? ` â€” ${a.solicitacaoProjeto}` : ""}
                             </Link>
                           ) : (
-                            <span className="text-slate-300">—</span>
+                            <span className="text-slate-300">â€”</span>
                           )}
                         </td>
-                        <td className="p-4 text-sm text-slate-600 dark:text-slate-300">{a.descricao || "—"}</td>
+                        <td className="p-4 text-sm text-slate-600 dark:text-slate-300">{a.descricao || "â€”"}</td>
                         <td className="p-4 text-sm">
                           <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${TIPO_BG[a.tipoAmostra] || "bg-slate-100 text-slate-600"}`}>
                             {TIPO_LABELS[a.tipoAmostra] || a.tipoAmostra}
@@ -307,7 +307,7 @@ export default function DashboardAmostras() {
                           </span>
                         </td>
                         <td className="p-4 text-sm text-slate-500">
-                          {a.data ? new Date(a.data).toLocaleDateString("pt-BR") : "—"}
+                          {a.data ? new Date(a.data).toLocaleDateString("pt-BR") : "â€”"}
                         </td>
                         <td className="p-4">
                           <button
@@ -363,7 +363,7 @@ export default function DashboardAmostras() {
                     >
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-medium text-slate-900 dark:text-slate-200 truncate">
-                          {item.produtoCodigo || `#${item.produtoId}`} — {item.descricao || "Sem descrição"}
+                          {item.produtoCodigo || `#${item.produtoId}`} â€” {item.descricao || "Sem descriÃ§Ã£o"}
                         </p>
                         <p className="text-xs text-slate-400 truncate">{item.produtoDescricao}</p>
                       </div>

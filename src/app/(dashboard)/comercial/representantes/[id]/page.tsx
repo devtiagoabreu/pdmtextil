@@ -42,7 +42,7 @@ export default function EditarRepresentantePage({ params }: { params: Promise<{ 
           const data = await res.json()
           setRepresentante(data)
         } else {
-          toast.error("Representante não encontrado")
+          toast.error("Representante nÃ£o encontrado")
           router.push("/comercial/representantes")
         }
       } catch (err) {
@@ -101,7 +101,7 @@ export default function EditarRepresentantePage({ params }: { params: Promise<{ 
   return (
     <div className="max-w-2xl mx-auto py-8">
       <div className="mb-6">
-        <Link
+        <Link prefetch={false}
           href="/comercial/representantes"
           className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900"
         >
@@ -151,7 +151,7 @@ export default function EditarRepresentantePage({ params }: { params: Promise<{ 
 
             <div className="space-y-2 md:col-span-2">
               <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                Razão Social
+                RazÃ£o Social
               </label>
               <input
                 type="text"
@@ -224,7 +224,7 @@ export default function EditarRepresentantePage({ params }: { params: Promise<{ 
 
             <div className="space-y-2 md:col-span-2">
               <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                Endereço
+                EndereÃ§o
               </label>
               <input
                 type="text"
@@ -236,27 +236,27 @@ export default function EditarRepresentantePage({ params }: { params: Promise<{ 
 
             <div className="space-y-2">
               <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                Gerente Responsável (ID)
+                Gerente ResponsÃ¡vel (ID)
               </label>
               <input
                 type="number"
                 value={representante.gerenteId || ""}
                 onChange={(e) => handleNumberChange("gerenteId", e.target.value)}
                 className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
-                placeholder="ID do usuário gerente"
+                placeholder="ID do usuÃ¡rio gerente"
               />
             </div>
 
             <div className="space-y-2 md:col-span-2">
               <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                ID Integração (ERP/WMS/CRM/OUTROS)
+                ID IntegraÃ§Ã£o (ERP/WMS/CRM/OUTROS)
               </label>
               <input
                 type="text"
                 value={representante.idIntegracao || ""}
                 onChange={(e) => handleChange("idIntegracao", e.target.value)}
                 className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
-                placeholder="Código do sistema externo"
+                placeholder="CÃ³digo do sistema externo"
               />
             </div>
           </div>
@@ -264,7 +264,7 @@ export default function EditarRepresentantePage({ params }: { params: Promise<{ 
           <div className="flex justify-between pt-6 border-t border-slate-200 dark:border-slate-700">
             <div />
             <div className="flex gap-2">
-              <Link
+              <Link prefetch={false}
                 href="/comercial/representantes"
                 className="px-4 py-2 text-sm text-slate-600 hover:text-slate-900"
               >

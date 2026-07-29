@@ -56,7 +56,7 @@ export default function PaisesConfigPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["crm-paises"] })
       resetForm()
-      toast.success(editId ? "País atualizado" : "País cadastrado")
+      toast.success(editId ? "PaÃ­s atualizado" : "PaÃ­s cadastrado")
     },
     onError: (err: any) => toast.error(err.message),
   })
@@ -68,7 +68,7 @@ export default function PaisesConfigPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["crm-paises"] })
-      toast.success("País excluído")
+      toast.success("PaÃ­s excluÃ­do")
     },
     onError: (err: any) => toast.error(err.message),
   })
@@ -94,13 +94,13 @@ export default function PaisesConfigPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center gap-3">
-        <Link href="/comercial/crm" className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+        <Link prefetch={false} href="/comercial/crm" className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
           <ArrowLeft size={18} className="text-slate-500" />
         </Link>
         <div className="flex-1">
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Países{info && <InfoButton content={info} />}</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">PaÃ­ses{info && <InfoButton content={info} />}</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-            {isLoading ? "Carregando..." : `${filtrados?.length || 0} país(es)`}
+            {isLoading ? "Carregando..." : `${filtrados?.length || 0} paÃ­s(es)`}
           </p>
         </div>
         <button
@@ -108,7 +108,7 @@ export default function PaisesConfigPage() {
           className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors shadow-sm"
         >
           <PlusCircle size={16} />
-          Novo País
+          Novo PaÃ­s
         </button>
       </div>
 
@@ -116,7 +116,7 @@ export default function PaisesConfigPage() {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
         <input
           type="text"
-          placeholder="Buscar país..."
+          placeholder="Buscar paÃ­s..."
           value={busca}
           onChange={(e) => setBusca(e.target.value)}
           className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder:text-slate-400"
@@ -126,7 +126,7 @@ export default function PaisesConfigPage() {
       {showForm && (
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 space-y-4 max-w-lg">
           <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-            {editId ? "Editar País" : "Novo País"}
+            {editId ? "Editar PaÃ­s" : "Novo PaÃ­s"}
           </h3>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
@@ -140,7 +140,7 @@ export default function PaisesConfigPage() {
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Código *</label>
+              <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">CÃ³digo *</label>
               <input
                 type="text"
                 value={formCodigo}
@@ -178,7 +178,7 @@ export default function PaisesConfigPage() {
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <Globe className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
             <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-              {busca ? "Nenhum país encontrado" : "Nenhum país cadastrado"}
+              {busca ? "Nenhum paÃ­s encontrado" : "Nenhum paÃ­s cadastrado"}
             </p>
           </div>
         ) : (
@@ -192,7 +192,7 @@ export default function PaisesConfigPage() {
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-slate-900 dark:text-slate-200">{p.nome}</p>
                     <p className="text-xs text-slate-500 dark:text-slate-400">
-                      Código: {p.codigo}
+                      CÃ³digo: {p.codigo}
                     </p>
                   </div>
                 </div>

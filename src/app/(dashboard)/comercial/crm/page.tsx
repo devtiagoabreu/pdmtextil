@@ -119,7 +119,7 @@ export default function CrmDashboardPage() {
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">CRM{info && <InfoButton content={info} />}</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-            Dashboard comercial com métricas de pipeline, atividades e previsão
+            Dashboard comercial com mÃ©tricas de pipeline, atividades e previsÃ£o
           </p>
         </div>
       </div>
@@ -143,7 +143,7 @@ export default function CrmDashboardPage() {
               icon={<UserPlus size={20} />}
               value={data?.leads.total ?? 0}
               label="Leads"
-              sub={`${data?.leads.esteMes ?? 0} este mês`}
+              sub={`${data?.leads.esteMes ?? 0} este mÃªs`}
               bgColor="bg-emerald-100 dark:bg-emerald-950/50"
               iconColor="text-emerald-600 dark:text-emerald-400"
             />
@@ -151,7 +151,7 @@ export default function CrmDashboardPage() {
               href="/comercial/crm/pessoas"
               icon={<Building2 size={20} />}
               value={data?.pessoas.total ?? 0}
-              label="Pessoas (Negócios)"
+              label="Pessoas (NegÃ³cios)"
               bgColor="bg-blue-100 dark:bg-blue-950/50"
               iconColor="text-blue-600 dark:text-blue-400"
             />
@@ -160,7 +160,7 @@ export default function CrmDashboardPage() {
               icon={<Target size={20} />}
               value={data?.oportunidades.total ?? 0}
               label="Oportunidades"
-              sub={`${data?.oportunidades.esteMes ?? 0} este mês`}
+              sub={`${data?.oportunidades.esteMes ?? 0} este mÃªs`}
               bgColor="bg-purple-100 dark:bg-purple-950/50"
               iconColor="text-purple-600 dark:text-purple-400"
             />
@@ -204,13 +204,13 @@ export default function CrmDashboardPage() {
               icon={<Mail size={20} />}
               value={data?.emailMassa.enviados ?? 0}
               label="Emails Enviados"
-              sub={`${data?.emailMassa.clicados ?? 0} cliques · ${data?.emailMassa.lidos ?? 0} abertos`}
+              sub={`${data?.emailMassa.clicados ?? 0} cliques Â· ${data?.emailMassa.lidos ?? 0} abertos`}
               bgColor="bg-teal-100 dark:bg-teal-950/50"
               iconColor="text-teal-600 dark:text-teal-400"
             />
           </div>
 
-          {/* Linha 2: Pipeline, Forecast, Conversão */}
+          {/* Linha 2: Pipeline, Forecast, ConversÃ£o */}
           <div className="grid gap-6 md:grid-cols-3">
             {/* Funil */}
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
@@ -222,7 +222,7 @@ export default function CrmDashboardPage() {
                 <BarChart data={pipelineData} layout="vertical" margin={{ left: 10, right: 10 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" horizontal={false} />
                   <XAxis type="number" tick={{ fontSize: 11 }} stroke="#94a3b8" />
-                  <YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} stroke="#94a3b8" width={80} interval={0} angle={0} tickFormatter={(v: string) => v.length > 12 ? v.slice(0, 11) + '…' : v} />
+                  <YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} stroke="#94a3b8" width={80} interval={0} angle={0} tickFormatter={(v: string) => v.length > 12 ? v.slice(0, 11) + 'â€¦' : v} />
                   <Tooltip content={<ChartTooltip formatter={(v) => `${v} registros`} />} />
                   <Bar dataKey="value" radius={[0, 4, 4, 0]} animationDuration={1800} animationEasing="ease-in-out" animationBegin={800}>
                     {pipelineData.map((_, i) => (
@@ -233,15 +233,15 @@ export default function CrmDashboardPage() {
               </ResponsiveContainer>
             </div>
 
-            {/* Forecast + Conversão */}
+            {/* Forecast + ConversÃ£o */}
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
               <div className="flex items-center gap-2 mb-4">
                 <TrendingUp size={16} className="text-slate-400" />
-                <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50">Previsão & Conversão</h2>
+                <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50">PrevisÃ£o & ConversÃ£o</h2>
               </div>
               <div className="space-y-4">
                 <div className="rounded-lg bg-indigo-50 dark:bg-indigo-950/30 p-4">
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Previsão de Receita (Pipeline)</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">PrevisÃ£o de Receita (Pipeline)</p>
                   <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
                     {formatCurrency(data?.forecast ?? 0)}
                   </p>
@@ -256,14 +256,14 @@ export default function CrmDashboardPage() {
                   </div>
                   <div className="rounded-lg bg-amber-50 dark:bg-amber-950/30 p-3">
                     <PieChart size={16} className="text-amber-600 dark:text-amber-400 mb-1" />
-                    <p className="text-xs text-slate-500 dark:text-slate-400">Taxa Conversão</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Taxa ConversÃ£o</p>
                     <p className="text-xl font-bold text-amber-600 dark:text-amber-400">{taxaConversao}%</p>
                   </div>
                 </div>
               </div>
               {data?.previsaoVendas && data.previsaoVendas.length > 0 && (
                 <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-                  <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400 mb-2">Histórico de Previsão (últimos meses)</p>
+                  <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400 mb-2">HistÃ³rico de PrevisÃ£o (Ãºltimos meses)</p>
                   <ResponsiveContainer width="100%" height={140}>
                     <LineChart data={[...data.previsaoVendas].reverse()}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
@@ -333,9 +333,9 @@ export default function CrmDashboardPage() {
               <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800">
                 <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 flex items-center gap-2">
                   <Building2 size={16} className="text-blue-500" />
-                  Top Pessoas (Negócios)
+                  Top Pessoas (NegÃ³cios)
                 </h2>
-                <Link href="/comercial/crm/pessoas" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
+                <Link prefetch={false} href="/comercial/crm/pessoas" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
                   Ver todas <ArrowRight size={12} />
                 </Link>
               </div>
@@ -384,7 +384,7 @@ export default function CrmDashboardPage() {
                             ? new Date(ev.dataEvento).toLocaleString("pt-BR", {
                                 day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit",
                               })
-                            : "—"}
+                            : "â€”"}
                         </p>
                       </div>
                     </div>
@@ -401,10 +401,10 @@ export default function CrmDashboardPage() {
 
           {/* Quick Actions */}
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
-            <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">Ações Rápidas</h2>
+            <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">AÃ§Ãµes RÃ¡pidas</h2>
             <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-9 gap-3">
               <QuickAction href="/comercial/crm/leads/novo" icon={<UserPlus size={18} />} label="Novo Lead" color="text-emerald-600" bg="bg-emerald-100 dark:bg-emerald-950/50" />
-              <QuickAction href="/comercial/crm/pessoas/novo" icon={<Building2 size={18} />} label="Nova Pessoa (Negócio)" color="text-blue-600" bg="bg-blue-100 dark:bg-blue-950/50" />
+              <QuickAction href="/comercial/crm/pessoas/novo" icon={<Building2 size={18} />} label="Nova Pessoa (NegÃ³cio)" color="text-blue-600" bg="bg-blue-100 dark:bg-blue-950/50" />
               <QuickAction href="/comercial/crm/oportunidades/novo" icon={<Target size={18} />} label="Nova Oportunidade" color="text-purple-600" bg="bg-purple-100 dark:bg-purple-950/50" />
               <QuickAction href="/comercial/crm/oportunidades/kanban" icon={<BarChart3 size={18} />} label="Kanban" color="text-indigo-600" bg="bg-indigo-100 dark:bg-indigo-950/50" />
               <QuickAction href="/comercial/crm/visitas/novo" icon={<Calendar size={18} />} label="Nova Visita" color="text-amber-600" bg="bg-amber-100 dark:bg-amber-950/50" />
@@ -426,7 +426,7 @@ function SummaryCard({
   href: string; icon: React.ReactNode; value: number; label: string; sub?: string; bgColor: string; iconColor: string
 }) {
   return (
-    <Link
+    <Link prefetch={false}
       href={href}
       className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 hover:shadow-md transition-shadow"
     >
@@ -450,7 +450,7 @@ function QuickAction({
   href: string; icon: React.ReactNode; label: string; color: string; bg: string
 }) {
   return (
-    <Link
+    <Link prefetch={false}
       href={href}
       className="flex items-center gap-2 p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
     >

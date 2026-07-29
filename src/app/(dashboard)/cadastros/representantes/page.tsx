@@ -68,7 +68,7 @@ export default function RepresentantesPage() {
         }
         throw new Error(data.error || "Erro ao excluir")
       }
-      toast.success("Representante excluído com sucesso")
+      toast.success("Representante excluÃ­do com sucesso")
       setDeleteTarget(null)
       refetch()
     } catch (err) {
@@ -96,7 +96,7 @@ export default function RepresentantesPage() {
             { key: "nome", label: "Nome" }, { key: "cnpj", label: "CNPJ" }, { key: "email", label: "Email" },
             { key: "telefone", label: "Telefone" }, { key: "cidade", label: "Cidade" }, { key: "uf", label: "UF" },
           ]} filename="representantes" title="Representantes" />
-          <Link href="/comercial/representantes/novo">
+          <Link prefetch={false} href="/comercial/representantes/novo">
             <Button className="gap-2">
               <PlusCircle size={16} />
               Novo Representante
@@ -135,9 +135,9 @@ export default function RepresentantesPage() {
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Email</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Telefone</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Cidade/UF</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">ID Integração</th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">ID IntegraÃ§Ã£o</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Status</th>
-                <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Ações</th>
+                <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">AÃ§Ãµes</th>
               </tr>
             </thead>
             <tbody>
@@ -148,13 +148,13 @@ export default function RepresentantesPage() {
                   onClick={() => router.push(`/comercial/representantes/${r.id}`)}
                 >
                   <td className="p-4 text-sm font-medium">{r.nome}</td>
-                  <td className="p-4 text-sm text-slate-500">{r.cnpj || "—"}</td>
-                  <td className="p-4 text-sm text-slate-500">{r.email || "—"}</td>
-                  <td className="p-4 text-sm text-slate-500">{r.telefone || "—"}</td>
+                  <td className="p-4 text-sm text-slate-500">{r.cnpj || "â€”"}</td>
+                  <td className="p-4 text-sm text-slate-500">{r.email || "â€”"}</td>
+                  <td className="p-4 text-sm text-slate-500">{r.telefone || "â€”"}</td>
                   <td className="p-4 text-sm text-slate-500">
-                    {r.cidade && r.uf ? `${r.cidade}/${r.uf}` : "—"}
+                    {r.cidade && r.uf ? `${r.cidade}/${r.uf}` : "â€”"}
                   </td>
-                  <td className="p-4 text-sm font-mono text-xs text-slate-500">{r.idIntegracao || "—"}</td>
+                  <td className="p-4 text-sm font-mono text-xs text-slate-500">{r.idIntegracao || "â€”"}</td>
                   <td className="p-4">
                     <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
                       r.ativo
@@ -166,7 +166,7 @@ export default function RepresentantesPage() {
                   </td>
                   <td className="p-4 text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Link href={`/comercial/representantes/${r.id}`} onClick={(e) => e.stopPropagation()}>
+                      <Link prefetch={false} href={`/comercial/representantes/${r.id}`} onClick={(e) => e.stopPropagation()}>
                         <Button variant="ghost" size="icon" className="h-8 w-8">
                           <Pencil size={14} />
                         </Button>
@@ -194,12 +194,12 @@ export default function RepresentantesPage() {
 
       <ConfirmModal
         open={deleteTarget !== null}
-        title={deleteBlocked ? "Exclusão não permitida" : "Excluir representante?"}
+        title={deleteBlocked ? "ExclusÃ£o nÃ£o permitida" : "Excluir representante?"}
         message={deleteBlocked
-          ? "Este representante possui cadastros vinculados e não pode ser excluído."
+          ? "Este representante possui cadastros vinculados e nÃ£o pode ser excluÃ­do."
           : `Tem certeza que deseja excluir?`}
         subMessage={deleteBlocked
-          ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informações."
+          ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informaÃ§Ãµes."
           : undefined}
         confirmLabel={deleteBlocked ? "OK" : "Excluir"}
         variant={deleteBlocked ? "warning" : "danger"}

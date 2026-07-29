@@ -86,7 +86,7 @@ export default function EmpresaPage() {
   }
 
   async function handleSave() {
-    if (!nome) { toast.error("Nome é obrigatório"); return }
+    if (!nome) { toast.error("Nome Ã© obrigatÃ³rio"); return }
     setSaving(true)
     try {
       const body = { nome, documento, endereco, cidade, uf, telefone, email, logoUrl, isDefault }
@@ -128,13 +128,13 @@ export default function EmpresaPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex items-center gap-4">
-        <Link href="/admin/configuracoes" className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"><ArrowLeft size={20} /></Link>
+        <Link prefetch={false} href="/admin/configuracoes" className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"><ArrowLeft size={20} /></Link>
         <div>
           <div className="flex items-center gap-2">
             <Building2 className="text-blue-600" size={24} />
             <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Empresas{info && <InfoButton content={info} />}</h1>
           </div>
-          <p className="text-sm text-slate-500 mt-1">Configure as empresas do sistema (logo, dados) para relatórios e exportações</p>
+          <p className="text-sm text-slate-500 mt-1">Configure as empresas do sistema (logo, dados) para relatÃ³rios e exportaÃ§Ãµes</p>
         </div>
       </div>
 
@@ -155,7 +155,7 @@ export default function EmpresaPage() {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
                       <h3 className="font-semibold text-slate-900 dark:text-slate-100">{item.nome}</h3>
-                      {item.isDefault && <span className="text-[11px] px-1.5 py-0.5 rounded bg-green-100 text-green-700 font-medium">Padrão</span>}
+                      {item.isDefault && <span className="text-[11px] px-1.5 py-0.5 rounded bg-green-100 text-green-700 font-medium">PadrÃ£o</span>}
                     </div>
                     <div className="text-xs text-slate-500 mt-1 space-y-0.5">
                       {item.documento && <p>CNPJ: {item.documento}</p>}
@@ -180,7 +180,7 @@ export default function EmpresaPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2"><Label>Nome *</Label><Input value={nome} onChange={e => setNome(e.target.value)} /></div>
             <div className="space-y-2"><Label>CNPJ</Label><Input value={documento} onChange={e => setDocumento(e.target.value)} /></div>
-            <div className="space-y-2"><Label>Endereço</Label><Input value={endereco} onChange={e => setEndereco(e.target.value)} /></div>
+            <div className="space-y-2"><Label>EndereÃ§o</Label><Input value={endereco} onChange={e => setEndereco(e.target.value)} /></div>
             <div className="space-y-2"><Label>UF</Label><SelectUf value={uf} onChange={setUf} className="w-full" /></div>
             <div className="space-y-2"><Label>Cidade</Label><SelectCidade value={cidade} onChange={setCidade} estadoId={estadoId} className="w-full" /></div>
             <div className="space-y-2"><Label>Telefone</Label><Input value={telefone} onChange={e => setTelefone(e.target.value)} /></div>
@@ -196,7 +196,7 @@ export default function EmpresaPage() {
           )}
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" checked={isDefault} onChange={e => setIsDefault(e.target.checked)} className="rounded" />
-            Empresa padrão (usada nas exportações PDF)
+            Empresa padrÃ£o (usada nas exportaÃ§Ãµes PDF)
           </label>
           <div className="flex gap-2">
             <Button onClick={handleSave} disabled={saving} className="gap-2">

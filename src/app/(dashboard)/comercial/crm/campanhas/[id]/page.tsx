@@ -75,8 +75,8 @@ export default function CampanhaDetailPage() {
   if (!campanha) {
     return (
       <div className="text-center py-20">
-        <p className="text-slate-500">Campanha não encontrada</p>
-        <Link href="/comercial/crm/campanhas" className="text-blue-600 hover:underline mt-2 inline-block">Voltar</Link>
+        <p className="text-slate-500">Campanha nÃ£o encontrada</p>
+        <Link prefetch={false} href="/comercial/crm/campanhas" className="text-blue-600 hover:underline mt-2 inline-block">Voltar</Link>
       </div>
     )
   }
@@ -138,7 +138,7 @@ export default function CampanhaDetailPage() {
           <div className="space-y-3 text-sm">
             {campanha.orcamento && (
               <div>
-                <span className="text-slate-500">Orçamento: </span>
+                <span className="text-slate-500">OrÃ§amento: </span>
                 <span className="font-semibold text-slate-900 dark:text-slate-200">
                   {Number(campanha.orcamento).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
                 </span>
@@ -146,7 +146,7 @@ export default function CampanhaDetailPage() {
             )}
             {campanha.custoAquisicao && (
               <div>
-                <span className="text-slate-500">Custo de Aquisição: </span>
+                <span className="text-slate-500">Custo de AquisiÃ§Ã£o: </span>
                 <span className="font-semibold text-slate-900 dark:text-slate-200">
                   {Number(campanha.custoAquisicao).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
                 </span>
@@ -155,10 +155,10 @@ export default function CampanhaDetailPage() {
             {campanha.dataInicio && (
               <div className="flex items-center gap-2">
                 <Calendar size={14} className="text-slate-400" />
-                <span className="text-slate-500">Período:</span>
+                <span className="text-slate-500">PerÃ­odo:</span>
                 <span className="text-slate-900 dark:text-slate-200">
                   {new Date(campanha.dataInicio).toLocaleDateString("pt-BR")}
-                  {campanha.dataFim && ` — ${new Date(campanha.dataFim).toLocaleDateString("pt-BR")}`}
+                  {campanha.dataFim && ` â€” ${new Date(campanha.dataFim).toLocaleDateString("pt-BR")}`}
                 </span>
               </div>
             )}
@@ -168,7 +168,7 @@ export default function CampanhaDetailPage() {
 
       {campanha.descricao && (
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 mb-6">
-          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-2">Descrição</h2>
+          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-2">DescriÃ§Ã£o</h2>
           <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap">{campanha.descricao}</p>
         </div>
       )}

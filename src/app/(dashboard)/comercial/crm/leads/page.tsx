@@ -29,10 +29,10 @@ const STATUS_CORES: Record<string, string> = {
 
 const ORIGEM_LABELS: Record<string, string> = {
   SITE: "Site",
-  INDICACAO: "Indicação",
+  INDICACAO: "IndicaÃ§Ã£o",
   EVENTO: "Evento",
-  PROSPECCAO: "Prospecção",
-  LIGACAO: "Ligação",
+  PROSPECCAO: "ProspecÃ§Ã£o",
+  LIGACAO: "LigaÃ§Ã£o",
   WHATSAPP: "WhatsApp",
   EMAIL: "E-mail",
   OUTRO: "Outro",
@@ -61,7 +61,7 @@ export default function CrmLeadsPage() {
 
   async function converterParaEmpresa(lead: any) {
     const isPF = lead.tipoPessoa === "PF"
-    const label = isPF ? "Nome completo" : "Razão social"
+    const label = isPF ? "Nome completo" : "RazÃ£o social"
     const valor = prompt(`${label}:`, lead.empresaNome || lead.nome)
     if (!valor) return
 
@@ -106,7 +106,7 @@ export default function CrmLeadsPage() {
   }
 
   function formatDateTime(dateStr: string) {
-    if (!dateStr) return "—"
+    if (!dateStr) return "â€”"
     return new Date(dateStr).toLocaleString("pt-BR", {
       day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit",
     })
@@ -146,7 +146,7 @@ export default function CrmLeadsPage() {
               Kanban
             </button>
           </div>
-          <Link
+          <Link prefetch={false}
             href="/comercial/crm/leads/novo"
             className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 transition-colors shadow-sm"
           >
@@ -196,32 +196,32 @@ export default function CrmLeadsPage() {
                   <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden md:table-cell">Pessoa</th>
                   <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden sm:table-cell">Score</th>
                   <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden lg:table-cell">Origem</th>
-                  <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden lg:table-cell">Responsável</th>
+                  <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden lg:table-cell">ResponsÃ¡vel</th>
                   <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">Status</th>
                   <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden sm:table-cell">Criado</th>
-                  <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">Ações</th>
+                  <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">AÃ§Ãµes</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                 {filteredData.map((lead: any) => (
                   <tr key={lead.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
                     <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-medium whitespace-nowrap">
-                      <Link href={`/comercial/crm/leads/${lead.id}`} className="text-slate-900 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400">
+                      <Link prefetch={false} href={`/comercial/crm/leads/${lead.id}`} className="text-slate-900 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400">
                         {lead.nome}
                       </Link>
                     </td>
                     <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden sm:table-cell">
                       {lead.email && <div className="truncate max-w-[180px]">{lead.email}</div>}
                       {lead.celular && <div className="text-xs">{lead.celular}</div>}
-                      {!lead.email && !lead.celular && "—"}
+                      {!lead.email && !lead.celular && "â€”"}
                     </td>
                     <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden md:table-cell">
                       <div className="flex items-center gap-2">
                         {lead.empresaNome || (lead.empresaRazaoSocial ? (
-                          <Link href={`/comercial/crm/pessoas/${lead.empresaId}`} className="text-blue-600 hover:underline">
+                          <Link prefetch={false} href={`/comercial/crm/pessoas/${lead.empresaId}`} className="text-blue-600 hover:underline">
                             {lead.empresaRazaoSocial}
                           </Link>
-                        ) : "—")}
+                        ) : "â€”")}
                         {lead.tipoPessoa && (
                           <span className={`inline-flex text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
                             lead.tipoPessoa === "PF"
@@ -245,7 +245,7 @@ export default function CrmLeadsPage() {
                           {lead.score}%
                         </span>
                       ) : (
-                        <span className="text-[10px] text-slate-400">—</span>
+                        <span className="text-[10px] text-slate-400">â€”</span>
                       )}
                     </td>
                     <td className="px-2 py-2 md:px-4 md:py-3 hidden lg:table-cell">
@@ -253,7 +253,7 @@ export default function CrmLeadsPage() {
                         {ORIGEM_LABELS[lead.origem] || lead.origem}
                       </span>
                     </td>
-                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden lg:table-cell">{lead.responsavelNome || "—"}</td>
+                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden lg:table-cell">{lead.responsavelNome || "â€”"}</td>
                     <td className="px-2 py-2 md:px-4 md:py-3">
                       <span className={`inline-flex text-[10px] px-1.5 md:px-2 py-0.5 rounded-full font-medium ${STATUS_CORES[lead.status] || ""}`}>
                         {lead.status}
@@ -283,7 +283,7 @@ export default function CrmLeadsPage() {
                         {(lead.status === "QUALIFICADO" || lead.status === "NOVO") && !lead.empresaId && (
                           <button
                             onClick={() => converterParaEmpresa(lead)}
-                            title="Converter para Pessoa (Negócio)"
+                            title="Converter para Pessoa (NegÃ³cio)"
                             className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30"
                           >
                             <Building2 size={15} />
@@ -323,8 +323,8 @@ export default function CrmLeadsPage() {
       <ConfirmModal
         open={!!leadToPerder}
         title="Marcar lead como perdido?"
-        message={`O lead "${leadToPerder?.nome}" será marcado como PERDIDO.`}
-        subMessage="Esta ação não pode ser desfeita facilmente."
+        message={`O lead "${leadToPerder?.nome}" serÃ¡ marcado como PERDIDO.`}
+        subMessage="Esta aÃ§Ã£o nÃ£o pode ser desfeita facilmente."
         variant="danger"
         confirmLabel="Marcar como Perdido"
         onConfirm={() => { if (leadToPerder) { mudarStatus(leadToPerder, "PERDIDO"); setLeadToPerder(null) } }}

@@ -64,7 +64,7 @@ export default function RelatorioSolicitacoesConcluidas() {
 
   function handleExportCSV() {
     setTimeout(() => {
-      exportCSV("concluidas-desenvolvimento", ["#", "Cliente", "Projeto", "Tipo", "Criado em", "Concluído em", "Dias em Dev"], lista.map((r) => [
+      exportCSV("concluidas-desenvolvimento", ["#", "Cliente", "Projeto", "Tipo", "Criado em", "ConcluÃ­do em", "Dias em Dev"], lista.map((r) => [
         r.id,
         r.cliente,
         r.projeto || "-",
@@ -78,15 +78,15 @@ export default function RelatorioSolicitacoesConcluidas() {
 
   async function handleExportPDF() {
     await exportPDFRelatorio({
-      title: "Relatório de Solicitações Concluídas (Desenvolvimento)",
+      title: "RelatÃ³rio de SolicitaÃ§Ãµes ConcluÃ­das (Desenvolvimento)",
       stats: stats ? {
-        "Total Concluídas": stats.total,
+        "Total ConcluÃ­das": stats.total,
         "Tecelagem": stats.tecelagem,
         "Beneficiamento": stats.beneficiamento,
       } : undefined,
       tables: [
-        { headers: ["Mês", "Concluídas"], rows: porMes.map((m) => [m.mes, m.concluidas]) },
-        { headers: ["#", "Cliente", "Projeto", "Tipo", "Criado em", "Concluído em", "Dias"], rows: lista.map((r) => [
+        { headers: ["MÃªs", "ConcluÃ­das"], rows: porMes.map((m) => [m.mes, m.concluidas]) },
+        { headers: ["#", "Cliente", "Projeto", "Tipo", "Criado em", "ConcluÃ­do em", "Dias"], rows: lista.map((r) => [
           r.id,
           r.cliente,
           r.projeto || "-",
@@ -105,9 +105,9 @@ export default function RelatorioSolicitacoesConcluidas() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Relatório: Concluídas Desenvolvimento{info && <InfoButton content={info} />}</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">RelatÃ³rio: ConcluÃ­das Desenvolvimento{info && <InfoButton content={info} />}</h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-          Solicitações de desenvolvimento com status Concluído Desenvolvimento — total, distribuição por tipo e detalhamento
+          SolicitaÃ§Ãµes de desenvolvimento com status ConcluÃ­do Desenvolvimento â€” total, distribuiÃ§Ã£o por tipo e detalhamento
         </p>
       </div>
 
@@ -116,7 +116,7 @@ export default function RelatorioSolicitacoesConcluidas() {
           <Filter size={14} /> Filtros
         </div>
         <div>
-          <label className="block text-xs text-slate-400 mb-1">Data início (conclusão)</label>
+          <label className="block text-xs text-slate-400 mb-1">Data inÃ­cio (conclusÃ£o)</label>
           <input
             type="date"
             value={dataInicio}
@@ -125,7 +125,7 @@ export default function RelatorioSolicitacoesConcluidas() {
           />
         </div>
         <div>
-          <label className="block text-xs text-slate-400 mb-1">Data fim (conclusão)</label>
+          <label className="block text-xs text-slate-400 mb-1">Data fim (conclusÃ£o)</label>
           <input
             type="date"
             value={dataFim}
@@ -151,7 +151,7 @@ export default function RelatorioSolicitacoesConcluidas() {
       {stats && (
         <div className="grid grid-cols-3 gap-4">
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-green-50 dark:bg-green-950/50 p-4">
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Total Concluídas</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Total ConcluÃ­das</p>
             <p className="text-3xl font-bold text-green-600 dark:text-green-400 mt-1">{stats.total}</p>
           </div>
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-blue-50 dark:bg-blue-950/50 p-4">
@@ -168,7 +168,7 @@ export default function RelatorioSolicitacoesConcluidas() {
       {porMes.length > 0 && (
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
           <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">
-            <BarChart3 size={16} className="inline mr-1" /> Concluídas por Mês
+            <BarChart3 size={16} className="inline mr-1" /> ConcluÃ­das por MÃªs
           </h3>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
@@ -178,7 +178,7 @@ export default function RelatorioSolicitacoesConcluidas() {
                 <YAxis tick={{ fontSize: 12 }} />
                 <Tooltip content={<ChartTooltip />} />
                 <Legend />
-                <Bar dataKey="concluidas" name="Concluídas" fill="#22c55e" radius={[4, 4, 0, 0]} animationDuration={1000} animationEasing="ease-out" />
+                <Bar dataKey="concluidas" name="ConcluÃ­das" fill="#22c55e" radius={[4, 4, 0, 0]} animationDuration={1000} animationEasing="ease-out" />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -187,14 +187,14 @@ export default function RelatorioSolicitacoesConcluidas() {
 
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
         <div className="p-4 border-b border-slate-100 dark:border-slate-800">
-          <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300">Solicitações Concluídas</h3>
+          <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300">SolicitaÃ§Ãµes ConcluÃ­das</h3>
         </div>
         {loading ? (
           <div className="text-center py-8 text-slate-500">Carregando...</div>
         ) : lista.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <BarChart3 className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nenhuma solicitação concluída encontrada</p>
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nenhuma solicitaÃ§Ã£o concluÃ­da encontrada</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -205,7 +205,7 @@ export default function RelatorioSolicitacoesConcluidas() {
                   <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">Cliente</th>
                   <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">Tipo</th>
                   <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">Criado em</th>
-                  <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">Concluído em</th>
+                  <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">ConcluÃ­do em</th>
                   <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">Dias</th>
                   <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase"></th>
                 </tr>
@@ -248,7 +248,7 @@ export default function RelatorioSolicitacoesConcluidas() {
                       )}
                     </td>
                     <td className="p-3">
-                      <Link
+                      <Link prefetch={false}
                         href={`/comercial/solicitacoes/${r.id}`}
                         className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700"
                       >

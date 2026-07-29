@@ -171,7 +171,7 @@ export default function FioFormPage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!fio.codigoFio || !fio.nome) {
-      toast.error("Código e Nome são obrigatórios")
+      toast.error("CÃ³digo e Nome sÃ£o obrigatÃ³rios")
       return
     }
 
@@ -259,7 +259,7 @@ export default function FioFormPage() {
 
   const criarFornecedor = async () => {
     if (!novoFornecedor.nome) {
-      toast.error("Nome é obrigatório")
+      toast.error("Nome Ã© obrigatÃ³rio")
       return
     }
 
@@ -331,7 +331,7 @@ export default function FioFormPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center gap-4">
-        <Link href="/cadastros/fios" className="rounded-md p-2 text-slate-500 hover:bg-slate-100">
+        <Link prefetch={false} href="/cadastros/fios" className="rounded-md p-2 text-slate-500 hover:bg-slate-100">
           <ArrowLeft size={20} />
         </Link>
         <div>
@@ -345,12 +345,12 @@ export default function FioFormPage() {
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="codigoFio">Código Curto *</Label>
+            <Label htmlFor="codigoFio">CÃ³digo Curto *</Label>
             <Input id="codigoFio" value={fio.codigoFio} onChange={e => handleChange("codigoFio", e.target.value)} placeholder="AL20" required />
           </div>
           <div className="space-y-2">
             <Label htmlFor="nome">Nome *</Label>
-            <Input id="nome" value={fio.nome} onChange={e => handleChange("nome", e.target.value)} placeholder="Fio de Algodão" required />
+            <Input id="nome" value={fio.nome} onChange={e => handleChange("nome", e.target.value)} placeholder="Fio de AlgodÃ£o" required />
           </div>
         </div>
 
@@ -360,14 +360,14 @@ export default function FioFormPage() {
             <Input id="nomeComercial" value={fio.nomeComercial || ""} onChange={e => handleChange("nomeComercial", e.target.value)} placeholder="Nome comercial" />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="composicao">Composição</Label>
-            <Input id="composicao" value={fio.composicao || ""} onChange={e => handleChange("composicao", e.target.value)} placeholder="100% Algodão" />
+            <Label htmlFor="composicao">ComposiÃ§Ã£o</Label>
+            <Input id="composicao" value={fio.composicao || ""} onChange={e => handleChange("composicao", e.target.value)} placeholder="100% AlgodÃ£o" />
           </div>
         </div>
 
         <div className="grid grid-cols-3 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="titulo">Título</Label>
+            <Label htmlFor="titulo">TÃ­tulo</Label>
             <Input id="titulo" value={fio.titulo || ""} onChange={e => handleChange("titulo", e.target.value)} placeholder="20/1" />
           </div>
           <div className="space-y-2">
@@ -382,18 +382,18 @@ export default function FioFormPage() {
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="torcao">Torção</Label>
+            <Label htmlFor="torcao">TorÃ§Ã£o</Label>
             <Input id="torcao" value={fio.torcao || ""} onChange={e => handleChange("torcao", e.target.value)} placeholder="Z" />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="resistencia">Resistência (kgf)</Label>
+            <Label htmlFor="resistencia">ResistÃªncia (kgf)</Label>
             <Input id="resistencia" value={fio.resistencia || ""} onChange={e => handleChange("resistencia", e.target.value)} placeholder="120" />
           </div>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="observacoes">Observações</Label>
-          <Input id="observacoes" value={fio.observacoes || ""} onChange={e => handleChange("observacoes", e.target.value)} placeholder="Observações" />
+          <Label htmlFor="observacoes">ObservaÃ§Ãµes</Label>
+          <Input id="observacoes" value={fio.observacoes || ""} onChange={e => handleChange("observacoes", e.target.value)} placeholder="ObservaÃ§Ãµes" />
         </div>
 
         <div className="space-y-3">
@@ -415,7 +415,7 @@ export default function FioFormPage() {
           )}
           <div className="flex gap-2">
             <Input placeholder="URL" value={novoLink.url} onChange={e => setNovoLink(prev => ({ ...prev, url: e.target.value }))} />
-            <Input placeholder="Descrição" value={novoLink.descricao} onChange={e => setNovoLink(prev => ({ ...prev, descricao: e.target.value }))} />
+            <Input placeholder="DescriÃ§Ã£o" value={novoLink.descricao} onChange={e => setNovoLink(prev => ({ ...prev, descricao: e.target.value }))} />
             <Button type="button" variant="outline" size="icon" onClick={adicionarLink}>
               <Plus size={16} />
             </Button>
@@ -428,8 +428,8 @@ export default function FioFormPage() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="idIntegracao">ID Integração (ERP/WMS/CRM/OUTROS)</Label>
-          <Input id="idIntegracao" value={fio.idIntegracao || ""} onChange={e => handleChange("idIntegracao", e.target.value)} placeholder="Código do sistema externo" />
+          <Label htmlFor="idIntegracao">ID IntegraÃ§Ã£o (ERP/WMS/CRM/OUTROS)</Label>
+          <Input id="idIntegracao" value={fio.idIntegracao || ""} onChange={e => handleChange("idIntegracao", e.target.value)} placeholder="CÃ³digo do sistema externo" />
         </div>
 
         <div className="flex gap-4">
@@ -437,7 +437,7 @@ export default function FioFormPage() {
             {saving && <Loader2 size={16} className="animate-spin" />}
             {isEditing ? "Atualizar" : "Criar"}
           </Button>
-          <Link href="/cadastros/fios">
+          <Link prefetch={false} href="/cadastros/fios">
             <Button variant="outline" type="button">Cancelar</Button>
           </Link>
         </div>
@@ -459,7 +459,7 @@ export default function FioFormPage() {
                     <div>
                       <p className="font-medium">{ff.fornecedorNome}</p>
                       <p className="text-sm text-slate-500 dark:text-slate-400">
-                        {ff.codigoFornecedor && <span>Código: {ff.codigoFornecedor}</span>}
+                        {ff.codigoFornecedor && <span>CÃ³digo: {ff.codigoFornecedor}</span>}
                         {ff.valorUnitario && <span className="ml-3">R$ {ff.valorUnitario}</span>}
                       </p>
                     </div>
@@ -488,8 +488,8 @@ export default function FioFormPage() {
                   <Plus size={14} /> Novo
                 </Button>
               </div>
-              <Input placeholder="Código do fio (fornecedor)" value={codigoFornecedor} onChange={e => setCodigoFornecedor(e.target.value)} />
-              <Input placeholder="Valor unitário (R$)" value={valorUnitario} onChange={e => setValorUnitario(e.target.value)} />
+              <Input placeholder="CÃ³digo do fio (fornecedor)" value={codigoFornecedor} onChange={e => setCodigoFornecedor(e.target.value)} />
+              <Input placeholder="Valor unitÃ¡rio (R$)" value={valorUnitario} onChange={e => setValorUnitario(e.target.value)} />
               <div className="flex gap-2">
                 <Button onClick={addFornecedor}>Adicionar</Button>
                 <Button variant="outline" onClick={() => setShowFornecedorForm(false)}>Cancelar</Button>
@@ -517,8 +517,8 @@ export default function FioFormPage() {
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="novoRazaoSocial">Razão Social</Label>
-              <Input id="novoRazaoSocial" value={novoFornecedor.razaoSocial} onChange={e => setNovoFornecedor(prev => ({ ...prev, razaoSocial: e.target.value }))} placeholder="Razão social completa" />
+              <Label htmlFor="novoRazaoSocial">RazÃ£o Social</Label>
+              <Input id="novoRazaoSocial" value={novoFornecedor.razaoSocial} onChange={e => setNovoFornecedor(prev => ({ ...prev, razaoSocial: e.target.value }))} placeholder="RazÃ£o social completa" />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -533,7 +533,7 @@ export default function FioFormPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="novoCidade">Cidade</Label>
-                <Input id="novoCidade" value={novoFornecedor.cidade} onChange={e => setNovoFornecedor(prev => ({ ...prev, cidade: e.target.value }))} placeholder="São Paulo" />
+                <Input id="novoCidade" value={novoFornecedor.cidade} onChange={e => setNovoFornecedor(prev => ({ ...prev, cidade: e.target.value }))} placeholder="SÃ£o Paulo" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="novoUf">UF</Label>

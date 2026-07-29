@@ -39,8 +39,8 @@ export default function RegraDeTresPage() {
 
   const infos: Record<TipoRegra, { titulo: string; exemplo: string; preencher: () => void }> = {
     "simples-direta": {
-      titulo: "Regra de Três Simples Direta",
-      exemplo: "3 cadernos custam R$ 15. Quanto custam 5 cadernos?\n\nA: Quantidade de cadernos (3 → 5)\nB: Preço (15 → X)\n\n3/5 = 15/X → X = (15 × 5) / 3 = 25",
+      titulo: "Regra de TrÃªs Simples Direta",
+      exemplo: "3 cadernos custam R$ 15. Quanto custam 5 cadernos?\n\nA: Quantidade de cadernos (3 â†’ 5)\nB: PreÃ§o (15 â†’ X)\n\n3/5 = 15/X â†’ X = (15 Ã— 5) / 3 = 25",
       preencher: () => {
         setGrandezas([{ nome: "A", valor: 3 }, { nome: "B", valor: 5 }, { nome: "C", valor: 15 }])
         setReferencia("")
@@ -48,8 +48,8 @@ export default function RegraDeTresPage() {
       },
     },
     "simples-inversa": {
-      titulo: "Regra de Três Simples Inversa",
-      exemplo: "4 pessoas fazem um trabalho em 6 dias. Em quantos dias 8 pessoas fariam?\n\nA: Pessoas (4 → 8)\nB: Dias (6 → X)\n\n4/8 = X/6 → X = (4 × 6) / 8 = 3",
+      titulo: "Regra de TrÃªs Simples Inversa",
+      exemplo: "4 pessoas fazem um trabalho em 6 dias. Em quantos dias 8 pessoas fariam?\n\nA: Pessoas (4 â†’ 8)\nB: Dias (6 â†’ X)\n\n4/8 = X/6 â†’ X = (4 Ã— 6) / 8 = 3",
       preencher: () => {
         setGrandezas([{ nome: "A", valor: 4 }, { nome: "B", valor: 8 }, { nome: "C", valor: 6 }])
         setReferencia("")
@@ -57,10 +57,10 @@ export default function RegraDeTresPage() {
       },
     },
     "composta": {
-      titulo: "Regra de Três Composta",
-      exemplo: "5 máquinas produzem 100 peças em 2 dias. Quantas peças 8 máquinas produzirão em 3 dias?\n\nA: Máquinas (5 → 8)\nB: Dias (2 → 3)\nReferência: Peças (100 → X)\n\nX = (8 × 3 × 100) / (5 × 2) = 240",
+      titulo: "Regra de TrÃªs Composta",
+      exemplo: "5 mÃ¡quinas produzem 100 peÃ§as em 2 dias. Quantas peÃ§as 8 mÃ¡quinas produzirÃ£o em 3 dias?\n\nA: MÃ¡quinas (5 â†’ 8)\nB: Dias (2 â†’ 3)\nReferÃªncia: PeÃ§as (100 â†’ X)\n\nX = (8 Ã— 3 Ã— 100) / (5 Ã— 2) = 240",
       preencher: () => {
-        setGrandezasComp([{ nome: "Máquinas", valorAntigo: 5, valorNovo: 8 }, { nome: "Dias", valorAntigo: 2, valorNovo: 3 }])
+        setGrandezasComp([{ nome: "MÃ¡quinas", valorAntigo: 5, valorNovo: 8 }, { nome: "Dias", valorAntigo: 2, valorNovo: 3 }])
         setReferencia(100)
         setResultado(null)
       },
@@ -101,7 +101,7 @@ export default function RegraDeTresPage() {
       const gs = grandezasComp.filter(g => g.valorAntigo !== "" && g.valorNovo !== "")
       const ref = Number(referencia)
       if (gs.length < 1 || !ref) {
-        setResultado("Preencha pelo menos 1 grandeza e o valor de referência.")
+        setResultado("Preencha pelo menos 1 grandeza e o valor de referÃªncia.")
         return
       }
       let num = ref
@@ -118,7 +118,7 @@ export default function RegraDeTresPage() {
       const b1 = Number(grandezas[2]?.valor)
 
       if (!a1 || !a2 || !b1) {
-        setResultado("Preencha os 3 valores (A₁, A₂, B₁).")
+        setResultado("Preencha os 3 valores (Aâ‚, Aâ‚‚, Bâ‚).")
         return
       }
 
@@ -135,15 +135,15 @@ export default function RegraDeTresPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
       <div className="flex items-center gap-4">
-        <Link href="/ferramentas" className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+        <Link prefetch={false} href="/ferramentas" className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
           <ArrowLeft size={20} />
         </Link>
         <div>
           <div className="flex items-center gap-2">
             <Calculator className="text-blue-600" size={24} />
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Calculadora de Regra de Três{info && <InfoButton content={info} />}</h1>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Calculadora de Regra de TrÃªs{info && <InfoButton content={info} />}</h1>
           </div>
-          <p className="text-sm text-slate-500 mt-1">Resolve regra de três simples (direta/inversa) e composta</p>
+          <p className="text-sm text-slate-500 mt-1">Resolve regra de trÃªs simples (direta/inversa) e composta</p>
         </div>
       </div>
 
@@ -167,7 +167,7 @@ export default function RegraDeTresPage() {
           <button
             onClick={() => setInfoAberta(infoAberta === tipo ? null : tipo)}
             className="p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/50 transition-all"
-            title="Ver explicação e exemplo"
+            title="Ver explicaÃ§Ã£o e exemplo"
           >
             <Info size={18} />
           </button>
@@ -194,7 +194,7 @@ export default function RegraDeTresPage() {
         {tipo !== "composta" ? (
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-600">A₁ (conhecido)</label>
+              <label className="text-sm font-medium text-slate-600">Aâ‚ (conhecido)</label>
               <input
                 type="number"
                 value={grandezas[0]?.valor ?? ""}
@@ -204,7 +204,7 @@ export default function RegraDeTresPage() {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-600">A₂ (novo valor)</label>
+              <label className="text-sm font-medium text-slate-600">Aâ‚‚ (novo valor)</label>
               <input
                 type="number"
                 value={grandezas[1]?.valor ?? ""}
@@ -214,7 +214,7 @@ export default function RegraDeTresPage() {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-600">B₁ (referência)</label>
+              <label className="text-sm font-medium text-slate-600">Bâ‚ (referÃªncia)</label>
               <input
                 type="number"
                 value={grandezas[2]?.valor ?? ""}
@@ -260,7 +260,7 @@ export default function RegraDeTresPage() {
                     className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg text-xs"
                     title="Remover"
                   >
-                    ✕
+                    âœ•
                   </button>
                 )}
               </div>
@@ -274,7 +274,7 @@ export default function RegraDeTresPage() {
 
             <div className="pt-3 border-t border-slate-200 dark:border-slate-700">
               <div className="flex items-center gap-3">
-                <span className="text-sm font-medium text-slate-600">Valor de referência (X):</span>
+                <span className="text-sm font-medium text-slate-600">Valor de referÃªncia (X):</span>
                 <input
                   type="number"
                   value={referencia}

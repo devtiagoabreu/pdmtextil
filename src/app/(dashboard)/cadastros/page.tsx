@@ -5,7 +5,7 @@ import { PageInfoButton } from "@/components/ui/page-info-button"
 const modulos = [
   {
     titulo: "Fios",
-    descricao: "Cadastro de fios têxteis",
+    descricao: "Cadastro de fios tÃªxteis",
     href: "/cadastros/fios",
     icon: Package,
   },
@@ -22,8 +22,8 @@ const modulos = [
     icon: Scissors,
   },
   {
-    titulo: "Cores Sólidas",
-    descricao: "Cores sólidas",
+    titulo: "Cores SÃ³lidas",
+    descricao: "Cores sÃ³lidas",
     href: "/cadastros/cores",
     icon: Palette,
   },
@@ -41,13 +41,13 @@ const modulos = [
   },
   {
     titulo: "Produtos",
-    descricao: "Produtos (tecidos) - engenharia têxtil",
+    descricao: "Produtos (tecidos) - engenharia tÃªxtil",
     href: "/cadastros/produto-cru",
     icon: Layers,
   },
   {
-    titulo: "Produtos Químicos",
-    descricao: "Produtos químicos para beneficiamento",
+    titulo: "Produtos QuÃ­micos",
+    descricao: "Produtos quÃ­micos para beneficiamento",
     href: "/cadastros/produtos-quimicos",
     icon: FlaskConical,
   },
@@ -68,7 +68,7 @@ export default function CadastrosPage() {
           <PageInfoButton />
         </h1>
         <p className="text-sm text-slate-500">
-          Módulos de cadastro do sistema
+          MÃ³dulos de cadastro do sistema
         </p>
       </div>
 
@@ -76,7 +76,7 @@ export default function CadastrosPage() {
         {modulos.map((modulo) => {
           const Icon = modulo.icon
           return (
-            <Link
+            <Link prefetch={false}
               key={modulo.href}
               href={modulo.href}
               className="flex items-center gap-4 p-6 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-all"

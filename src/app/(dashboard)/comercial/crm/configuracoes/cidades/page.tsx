@@ -50,7 +50,7 @@ export default function CidadesConfigPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center gap-3">
-        <Link href="/comercial/crm" className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+        <Link prefetch={false} href="/comercial/crm" className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
           <ArrowLeft size={18} className="text-slate-500" />
         </Link>
         <div>
@@ -79,7 +79,7 @@ export default function CidadesConfigPage() {
         >
           <option value="">Todos os estados</option>
           {(estados || []).map((e: Estado) => (
-            <option key={e.id} value={e.uf}>{e.uf} — {e.nome}</option>
+            <option key={e.id} value={e.uf}>{e.uf} â€” {e.nome}</option>
           ))}
         </select>
       </div>

@@ -57,13 +57,13 @@ export default function BancoDadosPage() {
     fetch("/api/admin/config/banco-dados")
       .then(res => res.json())
       .then(setLista)
-      .catch(() => toast.error("Erro ao carregar conexões"))
+      .catch(() => toast.error("Erro ao carregar conexÃµes"))
       .finally(() => setLoading(false))
   }, [])
 
   async function handleAdd() {
     if (!nome || !connectionString) {
-      toast.error("Nome e string de conexão são obrigatórios")
+      toast.error("Nome e string de conexÃ£o sÃ£o obrigatÃ³rios")
       return
     }
     setSaving(true)
@@ -79,9 +79,9 @@ export default function BancoDadosPage() {
       setNome("")
       setConnectionString("")
       setShowForm(false)
-      toast.success("Conexão adicionada!")
+      toast.success("ConexÃ£o adicionada!")
     } catch {
-      toast.error("Erro ao adicionar conexão")
+      toast.error("Erro ao adicionar conexÃ£o")
     } finally {
       setSaving(false)
     }
@@ -98,12 +98,12 @@ export default function BancoDadosPage() {
       setLista(prev => prev.map(c => ({ ...c, ativo: c.id === item.id })))
       toast.success(`"${item.nome}" definido como ativo`)
     } catch {
-      toast.error("Erro ao ativar conexão")
+      toast.error("Erro ao ativar conexÃ£o")
     }
   }
 
   async function handleDelete(id: number) {
-    if (!confirm("Remover esta conexão?")) return
+    if (!confirm("Remover esta conexÃ£o?")) return
     try {
       const res = await fetch("/api/admin/config/banco-dados", {
         method: "DELETE",
@@ -112,9 +112,9 @@ export default function BancoDadosPage() {
       })
       if (!res.ok) throw new Error()
       setLista(prev => prev.filter(c => c.id !== id))
-      toast.success("Conexão removida")
+      toast.success("ConexÃ£o removida")
     } catch {
-      toast.error("Erro ao remover conexão")
+      toast.error("Erro ao remover conexÃ£o")
     }
   }
 
@@ -157,7 +157,7 @@ export default function BancoDadosPage() {
     }
     const destino = cloneDestinoId ? lista.find(c => c.id === Number(cloneDestinoId)) : null
     if (!destino) {
-      toast.error("Selecione a conexão de destino")
+      toast.error("Selecione a conexÃ£o de destino")
       return
     }
     setCloneLoading(true)
@@ -226,7 +226,7 @@ export default function BancoDadosPage() {
     }
     const standby = redundStandbyId ? lista.find(c => c.id === Number(redundStandbyId)) : null
     if (!standby) {
-      toast.error("Selecione a conexão standby")
+      toast.error("Selecione a conexÃ£o standby")
       return
     }
     setRedundLoading(true)
@@ -246,7 +246,7 @@ export default function BancoDadosPage() {
       toast.success(data.message)
       setRedundModal(false)
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Erro ao configurar redundância")
+      toast.error(err instanceof Error ? err.message : "Erro ao configurar redundÃ¢ncia")
     } finally {
       setRedundLoading(false)
     }
@@ -259,7 +259,7 @@ export default function BancoDadosPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex items-center gap-4">
-        <Link href="/admin/configuracoes" className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+        <Link prefetch={false} href="/admin/configuracoes" className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
           <ArrowLeft size={20} />
         </Link>
         <div>
@@ -267,14 +267,14 @@ export default function BancoDadosPage() {
             <Database className="text-blue-600" size={24} />
             <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Banco de Dados{info && <InfoButton content={info} />}</h1>
           </div>
-          <p className="text-sm text-slate-500 mt-1">Gerencie as conexões com banco de dados</p>
+          <p className="text-sm text-slate-500 mt-1">Gerencie as conexÃµes com banco de dados</p>
         </div>
       </div>
 
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
         <div className="divide-y divide-slate-100 dark:divide-slate-800">
           {lista.length === 0 ? (
-            <p className="p-6 text-sm text-slate-500 text-center">Nenhuma conexão cadastrada</p>
+            <p className="p-6 text-sm text-slate-500 text-center">Nenhuma conexÃ£o cadastrada</p>
           ) : (
             lista.map(item => (
               <div key={item.id} className="flex items-center justify-between p-4">
@@ -302,7 +302,7 @@ export default function BancoDadosPage() {
                       <Button size="sm" variant="outline" onClick={() => openClone(item)} className="gap-1" aria-label="Clonar banco de dados">
                         <Copy size={14} /> Clonar
                       </Button>
-                      <Button size="sm" variant="outline" onClick={() => openRedund(item)} className="gap-1" aria-label="Configurar redundância">
+                      <Button size="sm" variant="outline" onClick={() => openRedund(item)} className="gap-1" aria-label="Configurar redundÃ¢ncia">
                         <GitBranch size={14} /> Redund.
                       </Button>
                     </>
@@ -312,7 +312,7 @@ export default function BancoDadosPage() {
                       <Check size={14} /> Ativar
                     </Button>
                   )}
-                  <Button size="sm" variant="outline" onClick={() => handleDelete(item.id)} className="gap-1 text-red-600" aria-label="Remover conexão">
+                  <Button size="sm" variant="outline" onClick={() => handleDelete(item.id)} className="gap-1 text-red-600" aria-label="Remover conexÃ£o">
                     <Trash2 size={14} />
                   </Button>
                 </div>
@@ -324,13 +324,13 @@ export default function BancoDadosPage() {
 
       {showForm ? (
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-6 space-y-4 bg-white dark:bg-slate-900">
-          <h2 className="text-lg font-semibold">Nova Conexão</h2>
+          <h2 className="text-lg font-semibold">Nova ConexÃ£o</h2>
           <div className="space-y-2">
             <Label>Nome</Label>
-            <Input value={nome} onChange={e => setNome(e.target.value)} placeholder="Ex: Produção Neon" />
+            <Input value={nome} onChange={e => setNome(e.target.value)} placeholder="Ex: ProduÃ§Ã£o Neon" />
           </div>
           <div className="space-y-2">
-            <Label>String de Conexão</Label>
+            <Label>String de ConexÃ£o</Label>
             <Input value={connectionString} onChange={e => setConnectionString(e.target.value)} placeholder="postgresql://user:pass@host:5432/postgres" />
           </div>
           <div className="flex gap-2">
@@ -345,7 +345,7 @@ export default function BancoDadosPage() {
         </div>
       ) : (
         <Button onClick={() => setShowForm(true)} className="gap-2">
-          <Plus size={16} /> Nova Conexão
+          <Plus size={16} /> Nova ConexÃ£o
         </Button>
       )}
 
@@ -355,7 +355,7 @@ export default function BancoDadosPage() {
           <DialogHeader>
             <DialogTitle>Criar Banco de Dados</DialogTitle>
             <DialogDescription>
-              Cria um novo banco vazio na conexão <strong>{criarModal?.nome}</strong>.
+              Cria um novo banco vazio na conexÃ£o <strong>{criarModal?.nome}</strong>.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2">
@@ -383,7 +383,7 @@ export default function BancoDadosPage() {
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Conexão de origem</Label>
+              <Label>ConexÃ£o de origem</Label>
               <p className="text-sm font-mono text-slate-700 dark:text-slate-300">{cloneOrigem?.nome}</p>
             </div>
             <div className="space-y-2">
@@ -391,7 +391,7 @@ export default function BancoDadosPage() {
               <Input value={cloneSourceDb} onChange={e => setCloneSourceDb(e.target.value)} placeholder="Ex: producao_principal" />
             </div>
             <div className="space-y-2">
-              <Label>Conexão de destino</Label>
+              <Label>ConexÃ£o de destino</Label>
               <select
                 className="w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-sm"
                 value={cloneDestinoId}
@@ -418,22 +418,22 @@ export default function BancoDadosPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Modal: Redundância */}
+      {/* Modal: RedundÃ¢ncia */}
       <Dialog open={redundModal} onOpenChange={(v: boolean) => { if (!v) setRedundModal(false) }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Redundância de Dados</DialogTitle>
+            <DialogTitle>RedundÃ¢ncia de Dados</DialogTitle>
             <DialogDescription>
-              Configura replicação lógica entre dois bancos (publicação + inscrição).
+              Configura replicaÃ§Ã£o lÃ³gica entre dois bancos (publicaÃ§Ã£o + inscriÃ§Ã£o).
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Servidor primário</Label>
+              <Label>Servidor primÃ¡rio</Label>
               <p className="text-sm font-mono text-slate-700 dark:text-slate-300">{redundPrimario?.nome}</p>
             </div>
             <div className="space-y-2">
-              <Label>Banco primário</Label>
+              <Label>Banco primÃ¡rio</Label>
               <Input value={redundPrimaryDb} onChange={e => setRedundPrimaryDb(e.target.value)} placeholder="Ex: producao" />
             </div>
             <div className="space-y-2">
@@ -471,7 +471,7 @@ export default function BancoDadosPage() {
         </div>
         <p className="text-sm text-slate-500">
           Gera um dump SQL completo (estrutura + dados) de todas as tabelas e faz o download
-          para o computador. Usa a conexão ativa cadastrada, ou a variável DATABASE_URL como
+          para o computador. Usa a conexÃ£o ativa cadastrada, ou a variÃ¡vel DATABASE_URL como
           fallback.
         </p>
         <div className="flex flex-wrap gap-2">
@@ -481,14 +481,14 @@ export default function BancoDadosPage() {
           </Button>
           {lista.some(c => c.ativo) && (
             <p className="text-xs text-slate-400 self-center">
-              Usando conexão ativa
+              Usando conexÃ£o ativa
             </p>
           )}
         </div>
       </div>
 
       <p className="text-xs text-slate-400">
-        * A alteração do banco ativo requer reinicialização do servidor para aplicar.
+        * A alteraÃ§Ã£o do banco ativo requer reinicializaÃ§Ã£o do servidor para aplicar.
       </p>
     </div>
   )

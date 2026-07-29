@@ -98,7 +98,7 @@ export default function LeadDetailPage() {
     try {
       const res = await fetch(`/api/crm/leads/${params.id}`, { method: "DELETE" })
       if (!res.ok) throw new Error("Erro ao excluir")
-      toast.success("Lead excluído")
+      toast.success("Lead excluÃ­do")
       router.push("/comercial/crm/leads")
     } catch {
       toast.error("Erro ao excluir lead")
@@ -149,8 +149,8 @@ export default function LeadDetailPage() {
   if (!lead) {
     return (
       <div className="text-center py-20">
-        <p className="text-slate-500">Lead não encontrado</p>
-        <Link href="/comercial/crm/leads" className="text-blue-600 hover:underline mt-2 inline-block">Voltar</Link>
+        <p className="text-slate-500">Lead nÃ£o encontrado</p>
+        <Link prefetch={false} href="/comercial/crm/leads" className="text-blue-600 hover:underline mt-2 inline-block">Voltar</Link>
       </div>
     )
   }
@@ -180,8 +180,8 @@ export default function LeadDetailPage() {
           {(lead.empresaNome || lead.tipoPessoa) && (
             <p className="text-sm text-slate-500">
               {lead.empresaNome}
-              {lead.tipoPessoa && (lead.empresaNome ? " — " : "")}
-              {lead.tipoPessoa === "PF" ? "Pessoa Física" : lead.tipoPessoa === "PJ" ? "Pessoa Jurídica" : ""}
+              {lead.tipoPessoa && (lead.empresaNome ? " â€” " : "")}
+              {lead.tipoPessoa === "PF" ? "Pessoa FÃ­sica" : lead.tipoPessoa === "PJ" ? "Pessoa JurÃ­dica" : ""}
             </p>
           )}
         </div>
@@ -221,7 +221,7 @@ export default function LeadDetailPage() {
                 <div>
                   <label className="block text-xs font-medium text-slate-500 mb-1">Tipo</label>
                   <select value={form.tipoPessoa || ""} onChange={e => { setForm((p: any) => ({ ...p, tipoPessoa: e.target.value, documento: "" })) }} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm">
-                    <option value="">—</option>
+                    <option value="">â€”</option>
                     <option value="PF">PF</option>
                     <option value="PJ">PJ</option>
                   </select>
@@ -243,7 +243,7 @@ export default function LeadDetailPage() {
                   <input type="text" value={form.telefone || ""} onChange={e => setForm((p: any) => ({ ...p, telefone: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1">Pessoa (Negócio)</label>
+                  <label className="block text-xs font-medium text-slate-500 mb-1">Pessoa (NegÃ³cio)</label>
                   <input type="text" value={form.empresaNome || ""} onChange={e => setForm((p: any) => ({ ...p, empresaNome: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
                 </div>
                 <div>
@@ -264,7 +264,7 @@ export default function LeadDetailPage() {
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-500 mb-1">Descrição</label>
+                <label className="block text-xs font-medium text-slate-500 mb-1">DescriÃ§Ã£o</label>
                 <textarea value={form.descricao || ""} onChange={e => setForm((p: any) => ({ ...p, descricao: e.target.value }))} rows={4} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
               </div>
             </div>
@@ -272,47 +272,47 @@ export default function LeadDetailPage() {
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div>
                 <p className="text-xs text-slate-500 mb-0.5">Nome</p>
-                <p className="text-slate-900 dark:text-slate-200">{lead.nome || "—"}</p>
+                <p className="text-slate-900 dark:text-slate-200">{lead.nome || "â€”"}</p>
               </div>
               <div>
                 <p className="text-xs text-slate-500 mb-0.5">Tipo</p>
-                <p className="text-slate-900 dark:text-slate-200">{lead.tipoPessoa === "PF" ? "PF" : lead.tipoPessoa === "PJ" ? "PJ" : "—"}</p>
+                <p className="text-slate-900 dark:text-slate-200">{lead.tipoPessoa === "PF" ? "PF" : lead.tipoPessoa === "PJ" ? "PJ" : "â€”"}</p>
               </div>
               <div>
                 <p className="text-xs text-slate-500 mb-0.5">{lead.tipoPessoa === "PF" ? "CPF" : lead.tipoPessoa === "PJ" ? "CNPJ" : "Documento"}</p>
-                <p className="text-slate-900 dark:text-slate-200">{lead.documento || "—"}</p>
+                <p className="text-slate-900 dark:text-slate-200">{lead.documento || "â€”"}</p>
               </div>
               <div>
                 <p className="text-xs text-slate-500 mb-0.5">Email</p>
-                <p className="text-slate-900 dark:text-slate-200">{lead.email || "—"}</p>
+                <p className="text-slate-900 dark:text-slate-200">{lead.email || "â€”"}</p>
               </div>
               <div>
                 <p className="text-xs text-slate-500 mb-0.5">Celular</p>
-                <p className="text-slate-900 dark:text-slate-200">{lead.celular || "—"}</p>
+                <p className="text-slate-900 dark:text-slate-200">{lead.celular || "â€”"}</p>
               </div>
               <div>
                 <p className="text-xs text-slate-500 mb-0.5">Telefone</p>
-                <p className="text-slate-900 dark:text-slate-200">{lead.telefone || "—"}</p>
+                <p className="text-slate-900 dark:text-slate-200">{lead.telefone || "â€”"}</p>
               </div>
               <div>
-                <p className="text-xs text-slate-500 mb-0.5">Pessoa (Negócio)</p>
-                <p className="text-slate-900 dark:text-slate-200">{lead.empresaNome || "—"}</p>
+                <p className="text-xs text-slate-500 mb-0.5">Pessoa (NegÃ³cio)</p>
+                <p className="text-slate-900 dark:text-slate-200">{lead.empresaNome || "â€”"}</p>
               </div>
               <div>
                 <p className="text-xs text-slate-500 mb-0.5">Cargo</p>
-                <p className="text-slate-900 dark:text-slate-200">{lead.cargo || "—"}</p>
+                <p className="text-slate-900 dark:text-slate-200">{lead.cargo || "â€”"}</p>
               </div>
               <div>
                 <p className="text-xs text-slate-500 mb-0.5">Origem</p>
-                <p className="text-slate-900 dark:text-slate-200">{lead.origem || "—"}</p>
+                <p className="text-slate-900 dark:text-slate-200">{lead.origem || "â€”"}</p>
               </div>
               <div>
                 <p className="text-xs text-slate-500 mb-0.5">Status</p>
-                <p className="text-slate-900 dark:text-slate-200">{lead.status || "—"}</p>
+                <p className="text-slate-900 dark:text-slate-200">{lead.status || "â€”"}</p>
               </div>
               {lead.descricao && (
                 <div className="col-span-2">
-                  <p className="text-xs text-slate-500 mb-0.5">Descrição</p>
+                  <p className="text-xs text-slate-500 mb-0.5">DescriÃ§Ã£o</p>
                   <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap">{lead.descricao}</p>
                 </div>
               )}
@@ -331,8 +331,8 @@ export default function LeadDetailPage() {
               {lead.pessoaId && (
                 <div className="col-span-2 pt-3 border-t border-slate-100 dark:border-slate-800">
                   <p className="text-xs text-slate-500 mb-0.5">Pessoa vinculada</p>
-                  <Link href={`/comercial/crm/pessoas/${lead.pessoaId}`} className="text-sm text-blue-600 hover:underline font-medium">
-                    Ver pessoa #{lead.pessoaId} →
+                  <Link prefetch={false} href={`/comercial/crm/pessoas/${lead.pessoaId}`} className="text-sm text-blue-600 hover:underline font-medium">
+                    Ver pessoa #{lead.pessoaId} â†’
                   </Link>
                 </div>
               )}

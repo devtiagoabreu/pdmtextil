@@ -46,7 +46,7 @@ export default function ListaRequisicoesCortePage() {
     fetch("/api/comercial/requisicoes-corte")
       .then(res => { if (!res.ok) throw new Error(); return res.json() })
       .then(d => setData(Array.isArray(d) ? d : []))
-      .catch(() => toast.error("Erro ao carregar requisições"))
+      .catch(() => toast.error("Erro ao carregar requisiÃ§Ãµes"))
       .finally(() => setLoading(false))
   }, [mounted])
 
@@ -89,7 +89,7 @@ export default function ListaRequisicoesCortePage() {
     setGerandoPdf(true)
     const detalhe = await fetchDetalhe(id)
     if (!detalhe) {
-      toast.error(`Erro ao carregar requisição #${id}`)
+      toast.error(`Erro ao carregar requisiÃ§Ã£o #${id}`)
       setGerandoPdf(false)
       return
     }
@@ -99,7 +99,7 @@ export default function ListaRequisicoesCortePage() {
 
   async function gerarPdfsSelecionados() {
     if (selected.size === 0) {
-      toast.error("Selecione ao menos uma requisição")
+      toast.error("Selecione ao menos uma requisiÃ§Ã£o")
       return
     }
     setGerandoPdf(true)
@@ -112,7 +112,7 @@ export default function ListaRequisicoesCortePage() {
 
   async function gerarConsolidado() {
     if (selected.size === 0) {
-      toast.error("Selecione ao menos uma requisição")
+      toast.error("Selecione ao menos uma requisiÃ§Ã£o")
       return
     }
     setGerandoPdf(true)
@@ -134,7 +134,7 @@ export default function ListaRequisicoesCortePage() {
         const err = await res.json().catch(() => ({}))
         throw new Error(err.error || "Erro ao excluir")
       }
-      toast.success("Requisição excluída com sucesso")
+      toast.success("RequisiÃ§Ã£o excluÃ­da com sucesso")
       setDeleteTarget(null)
       setData(prev => prev.filter(item => item.id !== deleteTarget.id))
       setSelected(prev => { const next = new Set(prev); next.delete(deleteTarget.id); return next })
@@ -161,7 +161,7 @@ export default function ListaRequisicoesCortePage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
-            Requisições de Corte{info && <InfoButton content={info} />}
+            RequisiÃ§Ãµes de Corte{info && <InfoButton content={info} />}
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             {filteredData.length} de {data.length} total
@@ -239,19 +239,19 @@ export default function ListaRequisicoesCortePage() {
               </Button>
             </>
           )}
-          <Link
+          <Link prefetch={false}
             href="/comercial/requisicoes-corte/por-romaneio"
             className="inline-flex items-center gap-2 rounded-lg border border-slate-300 dark:border-slate-600 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
           >
             <Truck size={16} />
-            Requisição por Romaneio
+            RequisiÃ§Ã£o por Romaneio
           </Link>
-          <Link
+          <Link prefetch={false}
             href="/comercial/requisicoes-corte/nova"
             className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors shadow-sm"
           >
             <Plus size={16} />
-            Nova Requisição
+            Nova RequisiÃ§Ã£o
           </Link>
         </div>
       </div>
@@ -282,9 +282,9 @@ export default function ListaRequisicoesCortePage() {
         {filteredData.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <Scissors className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nenhuma requisição encontrada</p>
-            <Link href="/comercial/requisicoes-corte/nova" className="text-sm text-blue-600 hover:underline mt-2">
-              Criar primeira requisição
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nenhuma requisiÃ§Ã£o encontrada</p>
+            <Link prefetch={false} href="/comercial/requisicoes-corte/nova" className="text-sm text-blue-600 hover:underline mt-2">
+              Criar primeira requisiÃ§Ã£o
             </Link>
           </div>
         ) : (
@@ -309,7 +309,7 @@ export default function ListaRequisicoesCortePage() {
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Qtd Total</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Status</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Data</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Ações</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">AÃ§Ãµes</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -331,7 +331,7 @@ export default function ListaRequisicoesCortePage() {
                         />
                       </td>
                       <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-slate-200">#{item.id}</td>
-                      <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">{item.requisitanteNome || "—"}</td>
+                      <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">{item.requisitanteNome || "â€”"}</td>
                       <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">{item.totalCortes ?? 0}</td>
                       <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">{item.quantidadeTotal ?? 0}</td>
                       <td className="px-4 py-3">
@@ -340,7 +340,7 @@ export default function ListaRequisicoesCortePage() {
                         </span>
                       </td>
                       <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">
-                        {item.createdAt ? new Date(item.createdAt).toLocaleDateString("pt-BR") : "—"}
+                        {item.createdAt ? new Date(item.createdAt).toLocaleDateString("pt-BR") : "â€”"}
                       </td>
                       <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
                         <div className="flex items-center gap-2">
@@ -354,7 +354,7 @@ export default function ListaRequisicoesCortePage() {
                             <FileText size={13} />
                             PDF
                           </Button>
-                          <Link
+                          <Link prefetch={false}
                             href={`/comercial/requisicoes-corte/${item.id}`}
                             className="text-blue-600 dark:text-blue-400 hover:underline text-xs font-medium"
                           >
@@ -380,8 +380,8 @@ export default function ListaRequisicoesCortePage() {
 
       <ConfirmModal
         open={deleteTarget !== null}
-        title="Excluir requisição?"
-        message={`Tem certeza que deseja excluir a requisição #${deleteTarget?.id}?`}
+        title="Excluir requisiÃ§Ã£o?"
+        message={`Tem certeza que deseja excluir a requisiÃ§Ã£o #${deleteTarget?.id}?`}
         confirmLabel="Excluir"
         variant="danger"
         loading={deleteLoading}

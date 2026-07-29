@@ -67,7 +67,7 @@ export default function NovaPropostaPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
       <div className="flex items-center gap-3">
-        <Link href="/comercial/crm/propostas" className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+        <Link prefetch={false} href="/comercial/crm/propostas" className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
           <ArrowLeft size={20} />
         </Link>
         <div>
@@ -78,7 +78,7 @@ export default function NovaPropostaPage() {
 
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-5">
         <div>
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Título *</label>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">TÃ­tulo *</label>
           <input
             type="text"
             value={titulo}
@@ -91,7 +91,7 @@ export default function NovaPropostaPage() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Pessoa (Negócio) *
+              Pessoa (NegÃ³cio) *
               <QuickCreatePessoa onCreated={handleEmpresaCreated} />
             </label>
             <select
@@ -148,7 +148,7 @@ export default function NovaPropostaPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Condições de Pagamento</label>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">CondiÃ§Ãµes de Pagamento</label>
           <input
             type="text"
             value={condicoesPagamento}
@@ -159,7 +159,7 @@ export default function NovaPropostaPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Descrição</label>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">DescriÃ§Ã£o</label>
           <textarea
             value={descricao}
             onChange={(e) => setDescricao(e.target.value)}
@@ -182,7 +182,7 @@ export default function NovaPropostaPage() {
         </div>
 
         <div className="flex gap-3 justify-end pt-2">
-          <Link
+          <Link prefetch={false}
             href="/comercial/crm/propostas"
             className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
           >

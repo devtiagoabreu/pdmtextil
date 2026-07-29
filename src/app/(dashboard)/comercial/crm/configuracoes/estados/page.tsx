@@ -23,13 +23,13 @@ async function fetchEstados() {
 
 async function fetchUsuarios() {
   const res = await fetch("/api/usuarios/ativos")
-  if (!res.ok) throw new Error("Falha ao carregar usuários")
+  if (!res.ok) throw new Error("Falha ao carregar usuÃ¡rios")
   return res.json()
 }
 
 async function fetchPaises() {
   const res = await fetch("/api/crm/paises")
-  if (!res.ok) throw new Error("Falha ao carregar países")
+  if (!res.ok) throw new Error("Falha ao carregar paÃ­ses")
   return res.json()
 }
 
@@ -89,7 +89,7 @@ export default function EstadosConfigPage() {
     !busca || e.nome.toLowerCase().includes(busca.toLowerCase()) || e.uf.toLowerCase().includes(busca.toLowerCase())
   )
 
-  const getRegiaoLabel = (sigla: string | null) => sigla ? (REGIAO_LABELS[sigla] || sigla) : "—"
+  const getRegiaoLabel = (sigla: string | null) => sigla ? (REGIAO_LABELS[sigla] || sigla) : "â€”"
   const getGerenteNome = (id: number | null) => {
     if (!id) return null
     const u = (usuarios || []).find((u: Usuario) => u.id === id)
@@ -99,7 +99,7 @@ export default function EstadosConfigPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center gap-3">
-        <Link href="/comercial/crm" className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+        <Link prefetch={false} href="/comercial/crm" className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
           <ArrowLeft size={18} className="text-slate-500" />
         </Link>
         <div>
@@ -140,9 +140,9 @@ export default function EstadosConfigPage() {
                 <tr className="border-b border-slate-100 dark:border-slate-800">
                   <th className="text-left px-4 py-3 font-medium text-slate-500 text-xs uppercase">UF</th>
                   <th className="text-left px-4 py-3 font-medium text-slate-500 text-xs uppercase">Nome</th>
-                  <th className="text-left px-4 py-3 font-medium text-slate-500 text-xs uppercase">Região</th>
+                  <th className="text-left px-4 py-3 font-medium text-slate-500 text-xs uppercase">RegiÃ£o</th>
                   <th className="text-left px-4 py-3 font-medium text-slate-500 text-xs uppercase">Gerente</th>
-                  <th className="text-left px-4 py-3 font-medium text-slate-500 text-xs uppercase">País</th>
+                  <th className="text-left px-4 py-3 font-medium text-slate-500 text-xs uppercase">PaÃ­s</th>
                   <th className="w-20 px-4 py-3" />
                 </tr>
               </thead>
@@ -160,7 +160,7 @@ export default function EstadosConfigPage() {
                         >
                           <option value="">Selecione...</option>
                           {REGIAO_SIGLAS.map(s => (
-                            <option key={s} value={s}>{s} — {REGIAO_LABELS[s]}</option>
+                            <option key={s} value={s}>{s} â€” {REGIAO_LABELS[s]}</option>
                           ))}
                         </select>
                       ) : (
@@ -180,7 +180,7 @@ export default function EstadosConfigPage() {
                           ))}
                         </select>
                       ) : (
-                        <span className="text-slate-700 dark:text-slate-300">{getGerenteNome(e.gerenteId) || "—"}</span>
+                        <span className="text-slate-700 dark:text-slate-300">{getGerenteNome(e.gerenteId) || "â€”"}</span>
                       )}
                     </td>
                     <td className="px-4 py-3">
@@ -196,7 +196,7 @@ export default function EstadosConfigPage() {
                           ))}
                         </select>
                       ) : (
-                        <span className="text-slate-700 dark:text-slate-300">{e.paisNome || "—"}</span>
+                        <span className="text-slate-700 dark:text-slate-300">{e.paisNome || "â€”"}</span>
                       )}
                     </td>
                     <td className="px-4 py-3 text-right">

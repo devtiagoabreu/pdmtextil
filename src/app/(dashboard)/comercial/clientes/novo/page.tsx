@@ -57,11 +57,11 @@ export default function NovoClientePage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!form.nome.trim()) {
-      toast.error("Nome fantasia é obrigatório")
+      toast.error("Nome fantasia Ã© obrigatÃ³rio")
       return
     }
     if (!form.cnpj.trim()) {
-      toast.error("CNPJ é obrigatório")
+      toast.error("CNPJ Ã© obrigatÃ³rio")
       return
     }
 
@@ -91,7 +91,7 @@ export default function NovoClientePage() {
   return (
     <div className="space-y-6 animate-fade-in max-w-2xl">
       <div className="flex items-center gap-3">
-        <Link href="/comercial/clientes" className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+        <Link prefetch={false} href="/comercial/clientes" className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
           <ArrowLeft size={18} className="text-slate-500" />
         </Link>
         <div>
@@ -128,7 +128,7 @@ export default function NovoClientePage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Razão Social</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">RazÃ£o Social</label>
             <input
               type="text"
               value={form.razaoSocial}
@@ -191,10 +191,10 @@ export default function NovoClientePage() {
           </div>
 
           <div className="sm:col-span-2">
-            <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200 border-b border-slate-100 dark:border-slate-800 pb-2">Endereço</h3>
+            <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200 border-b border-slate-100 dark:border-slate-800 pb-2">EndereÃ§o</h3>
           </div>
           <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Endereço</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">EndereÃ§o</label>
             <input
               type="text"
               value={form.endereco}
@@ -212,22 +212,22 @@ export default function NovoClientePage() {
           </div>
 
           <div className="sm:col-span-2">
-            <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200 border-b border-slate-100 dark:border-slate-800 pb-2">Integração</h3>
+            <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200 border-b border-slate-100 dark:border-slate-800 pb-2">IntegraÃ§Ã£o</h3>
           </div>
           <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">ID Integração (ERP/WMS/CRM/OUTROS)</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">ID IntegraÃ§Ã£o (ERP/WMS/CRM/OUTROS)</label>
             <input
               type="text"
               value={form.idIntegracao}
               onChange={e => setField("idIntegracao", e.target.value)}
-              placeholder="Código do sistema externo"
+              placeholder="CÃ³digo do sistema externo"
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
         </div>
 
         <div className="flex justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
-          <Link
+          <Link prefetch={false}
             href="/comercial/clientes"
             className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
           >

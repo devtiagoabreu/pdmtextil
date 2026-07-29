@@ -64,14 +64,14 @@ export default function EditarLicaoPage() {
         setLinksPop(data.linksPop || [])
         setLinksVideo(data.linksVideo || [])
       })
-      .catch(() => toast.error("Erro ao carregar lição"))
+      .catch(() => toast.error("Erro ao carregar liÃ§Ã£o"))
       .finally(() => setLoading(false))
   }, [params.id])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!form.moduloId || !form.titulo) {
-      toast.error("Módulo e título são obrigatórios")
+      toast.error("MÃ³dulo e tÃ­tulo sÃ£o obrigatÃ³rios")
       return
     }
     setSaving(true)
@@ -92,10 +92,10 @@ export default function EditarLicaoPage() {
         }),
       })
       if (!res.ok) throw new Error()
-      toast.success("Lição atualizada!")
+      toast.success("LiÃ§Ã£o atualizada!")
       router.push("/comercial/crm/treinamento/admin")
     } catch {
-      toast.error("Erro ao atualizar lição")
+      toast.error("Erro ao atualizar liÃ§Ã£o")
     } finally {
       setSaving(false)
     }
@@ -112,7 +112,7 @@ export default function EditarLicaoPage() {
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="flex items-center gap-4 mb-6">
-        <Link
+        <Link prefetch={false}
           href="/comercial/crm/treinamento/admin"
           className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
         >
@@ -121,7 +121,7 @@ export default function EditarLicaoPage() {
         <div className="flex items-center gap-3">
           <FileText size={24} className="text-indigo-600" />
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
-            Editar Lição{info && <InfoButton content={info} />}
+            Editar LiÃ§Ã£o{info && <InfoButton content={info} />}
           </h1>
         </div>
       </div>
@@ -129,7 +129,7 @@ export default function EditarLicaoPage() {
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Módulo *</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">MÃ³dulo *</label>
             <select
               value={form.moduloId}
               onChange={(e) => setForm({ ...form, moduloId: e.target.value })}
@@ -142,7 +142,7 @@ export default function EditarLicaoPage() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Título *</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">TÃ­tulo *</label>
             <input
               value={form.titulo}
               onChange={(e) => setForm({ ...form, titulo: e.target.value })}
@@ -181,7 +181,7 @@ export default function EditarLicaoPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Pré-requisitos</label>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">PrÃ©-requisitos</label>
           <textarea
             value={form.preRequisitos}
             onChange={(e) => setForm({ ...form, preRequisitos: e.target.value })}
@@ -191,7 +191,7 @@ export default function EditarLicaoPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Conteúdo (Markdown)</label>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">ConteÃºdo (Markdown)</label>
           <textarea
             value={form.conteudoMd}
             onChange={(e) => setForm({ ...form, conteudoMd: e.target.value })}
@@ -216,7 +216,7 @@ export default function EditarLicaoPage() {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Links Vídeos</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Links VÃ­deos</label>
             {linksVideo.map((link, i) => (
               <div key={i} className="flex items-center gap-2 text-sm bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg mb-2">
                 <span className="flex-1 truncate">{link.label}</span>
@@ -237,7 +237,7 @@ export default function EditarLicaoPage() {
             {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
             {saving ? "Salvando..." : "Salvar"}
           </button>
-          <Link href="/comercial/crm/treinamento/admin" className="text-sm text-slate-600 hover:text-slate-800">Cancelar</Link>
+          <Link prefetch={false} href="/comercial/crm/treinamento/admin" className="text-sm text-slate-600 hover:text-slate-800">Cancelar</Link>
         </div>
       </form>
     </div>

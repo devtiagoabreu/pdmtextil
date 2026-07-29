@@ -38,7 +38,7 @@ async function fetchVisitasAll(mine: boolean) {
 
 const TIPO_LABELS: Record<string, string> = {
   PRESENCIAL: "Presencial",
-  VIDEO: "Vídeo",
+  VIDEO: "VÃ­deo",
   TELEFONE: "Telefone",
 }
 
@@ -217,7 +217,7 @@ export default function VisitasPage() {
               }`}
             >
               <CalendarDays size={14} />
-              Calendário
+              CalendÃ¡rio
             </button>
             <button
               onClick={() => setModo("kanban")}
@@ -231,7 +231,7 @@ export default function VisitasPage() {
               Kanban
             </button>
           </div>
-          <Link
+          <Link prefetch={false}
             href="/comercial/crm/visitas/novo"
             className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 transition-colors shadow-sm"
           >
@@ -256,7 +256,7 @@ export default function VisitasPage() {
           <div className="flex items-center gap-2 flex-wrap">
             <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
               <CalendarRange size={14} />
-              <span>Período:</span>
+              <span>PerÃ­odo:</span>
             </div>
             <input
               type="date"
@@ -264,7 +264,7 @@ export default function VisitasPage() {
               onChange={e => { setDataInicio(e.target.value); setPage(1) }}
               className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <span className="text-xs text-slate-400">até</span>
+            <span className="text-xs text-slate-400">atÃ©</span>
             <input
               type="date"
               value={dataFim}
@@ -275,7 +275,7 @@ export default function VisitasPage() {
               <button
                 onClick={() => { setDataInicio(""); setDataFim(""); setPage(1) }}
                 className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors min-h-[32px] min-w-[32px] flex items-center justify-center"
-                title="Limpar período"
+                title="Limpar perÃ­odo"
               >
                 <X size={14} />
               </button>
@@ -338,7 +338,7 @@ export default function VisitasPage() {
                     <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">Tipo</th>
                     <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">Status</th>
                     <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden md:table-cell">Criado por</th>
-                    <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">Ações</th>
+                    <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">AÃ§Ãµes</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -363,10 +363,10 @@ export default function VisitasPage() {
                         />
                       </td>
                       <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-900 dark:text-slate-200 whitespace-nowrap">
-                        {v.dataVisita ? new Date(v.dataVisita + "T12:00:00").toLocaleDateString("pt-BR") : "—"}{v.hora ? ` ${v.hora}` : ""}
+                        {v.dataVisita ? new Date(v.dataVisita + "T12:00:00").toLocaleDateString("pt-BR") : "â€”"}{v.hora ? ` ${v.hora}` : ""}
                       </td>
-                      <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-medium text-slate-900 dark:text-slate-200">{v.empresaNome || v.clienteNome || "—"}</td>
-                      <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden sm:table-cell">{v.oportunidadeTitulo || "—"}</td>
+                      <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-medium text-slate-900 dark:text-slate-200">{v.empresaNome || v.clienteNome || "â€”"}</td>
+                      <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden sm:table-cell">{v.oportunidadeTitulo || "â€”"}</td>
                       <td className="px-2 py-2 md:px-4 md:py-3">
                         <span className={`inline-flex text-[10px] px-1.5 md:px-2 py-0.5 rounded-full font-medium ${TIPO_CORES[v.tipo] || ""}`}>
                           {TIPO_LABELS[v.tipo] || v.tipo}
@@ -380,7 +380,7 @@ export default function VisitasPage() {
                           {getLabel(v.status)}
                         </span>
                       </td>
-                      <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden md:table-cell">{v.criadoPorNome || "—"}</td>
+                      <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden md:table-cell">{v.criadoPorNome || "â€”"}</td>
                       <td className="px-2 py-2 md:px-4 md:py-3">
                         <div className="flex items-center gap-1">
                           {(v.endereco || v.cidade) && (
@@ -401,7 +401,7 @@ export default function VisitasPage() {
                               setSelectedVisita({ id: v.id, nome: v.empresaNome || v.clienteNome || "Visita" })
                             }}
                             className="p-2 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-950/50 transition-colors"
-                            title="Gerenciar localizações"
+                            title="Gerenciar localizaÃ§Ãµes"
                           >
                             <MapPin size={16} className="text-blue-500" />
                           </button>
@@ -416,7 +416,7 @@ export default function VisitasPage() {
             {totalPages > 1 && (
               <div className="flex items-center justify-between px-4 py-3 border-t border-slate-200 dark:border-slate-700">
                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                  Página {page} de {totalPages}
+                  PÃ¡gina {page} de {totalPages}
                 </p>
                 <div className="flex items-center gap-1">
                   <button

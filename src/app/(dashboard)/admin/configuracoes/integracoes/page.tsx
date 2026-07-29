@@ -40,22 +40,22 @@ const TIPO_AUTH_ICON: Record<TipoAuth, string> = {
 
 const PDM_CAMPOS_POR_TELA: Record<string, { label: string; value: string }[]> = {
   default: [
-    { label: "(não mapear)", value: "" },
+    { label: "(nÃ£o mapear)", value: "" },
     { label: "ID", value: "id" },
     { label: "Nome", value: "nome" },
     { label: "CNPJ", value: "cnpj" },
-    { label: "Razão Social", value: "razaoSocial" },
+    { label: "RazÃ£o Social", value: "razaoSocial" },
     { label: "Email", value: "email" },
     { label: "Telefone", value: "telefone" },
     { label: "Contato", value: "contato" },
-    { label: "Endereço", value: "endereco" },
+    { label: "EndereÃ§o", value: "endereco" },
     { label: "Cidade", value: "cidade" },
     { label: "UF", value: "uf" },
-    { label: "ID Integração", value: "idIntegracao" },
+    { label: "ID IntegraÃ§Ã£o", value: "idIntegracao" },
     { label: "Ativo", value: "ativo" },
   ],
   romaneios: [
-    { label: "(não mapear)", value: "" },
+    { label: "(nÃ£o mapear)", value: "" },
     { label: "Romaneio", value: "romaneio" },
     { label: "Pedido", value: "pedido" },
     { label: "CNPJ", value: "cnpj" },
@@ -64,38 +64,38 @@ const PDM_CAMPOS_POR_TELA: Record<string, { label: string; value: string }[]> = 
     { label: "Cidade", value: "cidade" },
     { label: "UF", value: "uf" },
     { label: "Representante", value: "nomeRepresentante" },
-    { label: "Região", value: "nomeRegiao" },
-    { label: "Situação", value: "situacao" },
-    { label: "Emissão", value: "emissao" },
+    { label: "RegiÃ£o", value: "nomeRegiao" },
+    { label: "SituaÃ§Ã£o", value: "situacao" },
+    { label: "EmissÃ£o", value: "emissao" },
     { label: "Entrega", value: "entrega" },
     { label: "Chegada", value: "chegada" },
-    { label: "Período", value: "periodo" },
+    { label: "PerÃ­odo", value: "periodo" },
     { label: "Linha", value: "linha" },
     { label: "Grupo", value: "grupo" },
     { label: "Sub", value: "sub" },
-    { label: "Cód. Rolo", value: "codigoRolo" },
+    { label: "CÃ³d. Rolo", value: "codigoRolo" },
     { label: "Produto", value: "produto" },
     { label: "Narrativa", value: "narrativa" },
     { label: "Lote", value: "lote" },
     { label: "Lote Produto", value: "loteProduto" },
     { label: "Quantidade (m)", value: "quantidade" },
     { label: "Peso Bruto", value: "pesoBruto" },
-    { label: "Peso Líquido", value: "pesoLiquido" },
+    { label: "Peso LÃ­quido", value: "pesoLiquido" },
     { label: "Data Entrada", value: "dataEntrada" },
     { label: "OP", value: "op" },
     { label: "Operador", value: "nomeOperador" },
     { label: "Largura", value: "largura" },
     { label: "Gramatura", value: "gramatura" },
-    { label: "Endereço Rolo", value: "enderecoRolo" },
+    { label: "EndereÃ§o Rolo", value: "enderecoRolo" },
     { label: "Nuance", value: "nuance" },
     { label: "Qualidade", value: "qualidade" },
-    { label: "Pontuação", value: "pontuacao" },
+    { label: "PontuaÃ§Ã£o", value: "pontuacao" },
     { label: "Cor", value: "cor" },
     { label: "Vendido", value: "vendido" },
     { label: "Saldo", value: "saldo" },
-    { label: "Unitário", value: "unitario" },
+    { label: "UnitÃ¡rio", value: "unitario" },
     { label: "Valor Vendido", value: "valorVendido" },
-    { label: "ID Integração", value: "idIntegracao" },
+    { label: "ID IntegraÃ§Ã£o", value: "idIntegracao" },
   ],
 }
 
@@ -138,7 +138,7 @@ export default function IntegracoesPage() {
     fetch("/api/admin/integracoes")
       .then(res => res.json())
       .then(setLista)
-      .catch(() => toast.error("Erro ao carregar integrações"))
+      .catch(() => toast.error("Erro ao carregar integraÃ§Ãµes"))
       .finally(() => setLoading(false))
   }, [])
 
@@ -185,7 +185,7 @@ export default function IntegracoesPage() {
 
   async function handleSave() {
     if (!nome || !baseUrl) {
-      toast.error("Nome e Base URL são obrigatórios")
+      toast.error("Nome e Base URL sÃ£o obrigatÃ³rios")
       return
     }
 
@@ -193,7 +193,7 @@ export default function IntegracoesPage() {
     try {
       parsedAuth = JSON.parse(authConfigJson)
     } catch {
-      toast.error("JSON de autenticação inválido")
+      toast.error("JSON de autenticaÃ§Ã£o invÃ¡lido")
       return
     }
 
@@ -205,7 +205,7 @@ export default function IntegracoesPage() {
       try {
         mapping = JSON.parse(mappingJson)
       } catch {
-        toast.error("JSON de mapeamento inválido")
+        toast.error("JSON de mapeamento invÃ¡lido")
         return
       }
     }
@@ -224,11 +224,11 @@ export default function IntegracoesPage() {
 
       if (editItem) {
         setLista(prev => prev.map(i => i.id === editItem.id ? { ...i, ...body } : i))
-        toast.success("Integração atualizada!")
+        toast.success("IntegraÃ§Ã£o atualizada!")
       } else {
         const item = await res.json()
         setLista(prev => [...prev, item])
-        toast.success("Integração adicionada!")
+        toast.success("IntegraÃ§Ã£o adicionada!")
       }
       resetForm()
     } catch {
@@ -247,14 +247,14 @@ export default function IntegracoesPage() {
       })
       if (!res.ok) throw new Error()
       setLista(prev => prev.map(i => i.id === item.id ? { ...i, ativo: !i.ativo } : i))
-      toast.success(item.ativo ? "Integração desativada" : "Integração ativada")
+      toast.success(item.ativo ? "IntegraÃ§Ã£o desativada" : "IntegraÃ§Ã£o ativada")
     } catch {
       toast.error("Erro ao alterar status")
     }
   }
 
   async function handleDelete(id: number) {
-    if (!confirm("Remover esta integração?")) return
+    if (!confirm("Remover esta integraÃ§Ã£o?")) return
     try {
       const res = await fetch("/api/admin/integracoes", {
         method: "DELETE",
@@ -263,9 +263,9 @@ export default function IntegracoesPage() {
       })
       if (!res.ok) throw new Error()
       setLista(prev => prev.filter(c => c.id !== id))
-      toast.success("Integração removida")
+      toast.success("IntegraÃ§Ã£o removida")
     } catch {
-      toast.error("Erro ao remover integração")
+      toast.error("Erro ao remover integraÃ§Ã£o")
     }
   }
 
@@ -285,7 +285,7 @@ export default function IntegracoesPage() {
 
   async function handleLoadFields() {
     if (!editItem) {
-      toast.error("Salve a integração primeiro")
+      toast.error("Salve a integraÃ§Ã£o primeiro")
       return
     }
     setLoadingFields(true)
@@ -293,7 +293,7 @@ export default function IntegracoesPage() {
       const res = await fetch(`/api/admin/integracoes/${editItem.id}/testar`)
       const data = await res.json()
       if (!data.success || !data.responseBody) {
-        toast.error("API não respondeu ou retornou erro")
+        toast.error("API nÃ£o respondeu ou retornou erro")
         return
       }
       const body = data.responseBody
@@ -335,15 +335,15 @@ export default function IntegracoesPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex items-center gap-4">
-        <Link href="/admin/configuracoes" className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+        <Link prefetch={false} href="/admin/configuracoes" className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
           <ArrowLeft size={20} />
         </Link>
         <div>
           <div className="flex items-center gap-2">
             <Zap className="text-blue-600" size={24} />
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Integrações{info && <InfoButton content={info} />}</h1>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">IntegraÃ§Ãµes{info && <InfoButton content={info} />}</h1>
           </div>
-          <p className="text-sm text-slate-500 mt-1">Gerencie as conexões com sistemas externos (ERP, API, WMS)</p>
+          <p className="text-sm text-slate-500 mt-1">Gerencie as conexÃµes com sistemas externos (ERP, API, WMS)</p>
         </div>
       </div>
 
@@ -351,7 +351,7 @@ export default function IntegracoesPage() {
         {lista.length === 0 ? (
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-10 text-center">
             <Globe size={40} className="mx-auto text-slate-300 mb-3" />
-            <p className="text-sm text-slate-500">Nenhuma integração cadastrada</p>
+            <p className="text-sm text-slate-500">Nenhuma integraÃ§Ã£o cadastrada</p>
           </div>
         ) : (
           lista.map(item => (
@@ -401,12 +401,12 @@ export default function IntegracoesPage() {
 
       {showForm && (
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-6 space-y-4 bg-white dark:bg-slate-900">
-          <h2 className="text-lg font-semibold">{editItem ? "Editar Integração" : "Nova Integração"}</h2>
+          <h2 className="text-lg font-semibold">{editItem ? "Editar IntegraÃ§Ã£o" : "Nova IntegraÃ§Ã£o"}</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Nome *</Label>
-              <Input value={nome} onChange={e => setNome(e.target.value)} placeholder="Ex: ERP Systêxtil" />
+              <Input value={nome} onChange={e => setNome(e.target.value)} placeholder="Ex: ERP SystÃªxtil" />
             </div>
             <div className="space-y-2">
               <Label>Base URL *</Label>
@@ -415,7 +415,7 @@ export default function IntegracoesPage() {
           </div>
 
           <div className="space-y-2">
-            <Label>Tipo de Autenticação</Label>
+            <Label>Tipo de AutenticaÃ§Ã£o</Label>
             <div className="flex flex-wrap gap-2">
               {(Object.keys(TIPO_AUTH_LABEL) as TipoAuth[]).map(tipo => (
                 <button
@@ -436,7 +436,7 @@ export default function IntegracoesPage() {
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label>Configuração de Autenticação (JSON)</Label>
+              <Label>ConfiguraÃ§Ã£o de AutenticaÃ§Ã£o (JSON)</Label>
               <button
                 type="button"
                 onClick={() => setShowJson(!showJson)}
@@ -461,7 +461,7 @@ export default function IntegracoesPage() {
           </div>
 
           <div className="space-y-2">
-            <Label>Telas (separadas por vírgula)</Label>
+            <Label>Telas (separadas por vÃ­rgula)</Label>
             <Input value={telas} onChange={e => setTelas(e.target.value)} placeholder="clientes, fios, bases-urdume" />
           </div>
 
@@ -510,7 +510,7 @@ export default function IntegracoesPage() {
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <Label className="text-sm">Chave única (dedup):</Label>
+                  <Label className="text-sm">Chave Ãºnica (dedup):</Label>
                   <select
                     value={uniqueKeyField}
                     onChange={e => {
@@ -547,7 +547,7 @@ export default function IntegracoesPage() {
 
       {!showForm && (
         <Button onClick={() => setShowForm(true)} className="gap-2">
-          <Plus size={16} /> Nova Integração
+          <Plus size={16} /> Nova IntegraÃ§Ã£o
         </Button>
       )}
 
@@ -575,7 +575,7 @@ export default function IntegracoesPage() {
                 <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3 text-center">
                   <p className="text-xs text-slate-500 uppercase tracking-wide">Status</p>
                   <p className={`text-lg font-bold mt-1 ${testResult.status >= 200 && testResult.status < 300 ? "text-green-600" : testResult.status === 0 ? "text-red-500" : "text-amber-600"}`}>
-                    {testResult.status || "—"}
+                    {testResult.status || "â€”"}
                   </p>
                 </div>
                 <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3 text-center">

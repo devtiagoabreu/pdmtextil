@@ -34,7 +34,7 @@ async function fetchProdutos(): Promise<ProdutoCru[]> {
 const STATUS_LABELS: Record<string, string> = {
   DESENVOLVIMENTO: "Em Desenvolvimento",
   APROVADO: "Aprovado",
-  EM_PRODCAO: "Em Produção",
+  EM_PRODCAO: "Em ProduÃ§Ã£o",
   OBSOLETO: "Obsoleto",
 }
 
@@ -72,7 +72,7 @@ export default function ProdutoCruPage() {
         }
         throw new Error(data.error || "Erro ao excluir")
       }
-      toast.success("Produto excluído com sucesso")
+      toast.success("Produto excluÃ­do com sucesso")
       setDeleteTarget(null)
       refetch()
     } catch (err) {
@@ -97,14 +97,14 @@ export default function ProdutoCruPage() {
         </div>
         <div className="flex gap-2">
           <ExportarDados data={filtered} columns={[
-            { key: "codigoPdm", label: "Código PDM" }, { key: "descricao", label: "Descrição" },
+            { key: "codigoPdm", label: "CÃ³digo PDM" }, { key: "descricao", label: "DescriÃ§Ã£o" },
             { key: "status", label: "Status" }, { key: "idIntegracaoErpCru", label: "ERP (Cru)" },
           ]} filename="produtos-cru" title="Produtos" />
           <Button variant="outline" onClick={() => setShowApiImport(true)} className="gap-2">
             <Database size={16} />
             Importar via API
           </Button>
-          <Link href="/cadastros/produto-cru/novo">
+          <Link prefetch={false} href="/cadastros/produto-cru/novo">
             <Button className="gap-2">
               <PlusCircle size={16} />
               Novo Produto
@@ -117,7 +117,7 @@ export default function ProdutoCruPage() {
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
           <Input
-            placeholder="Buscar por código, descrição..."
+            placeholder="Buscar por cÃ³digo, descriÃ§Ã£o..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-10"
@@ -138,13 +138,13 @@ export default function ProdutoCruPage() {
           <table className="w-full">
             <thead className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
               <tr>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Código PDM</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Descrição</th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">CÃ³digo PDM</th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">DescriÃ§Ã£o</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Status</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">ERP (Cru)</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Chat</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Ativo</th>
-                <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Ações</th>
+                <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">AÃ§Ãµes</th>
               </tr>
             </thead>
             <tbody>
@@ -157,7 +157,7 @@ export default function ProdutoCruPage() {
                   <td className="p-4 text-sm font-medium">{produto.codigoPdm}</td>
                   <td className="p-4 text-sm">{produto.descricao}</td>
                   <td className="p-4 text-sm text-slate-500">{STATUS_LABELS[produto.status] || produto.status}</td>
-                  <td className="p-4 text-sm text-slate-500">{produto.idIntegracaoErpCru || "—"}</td>
+                  <td className="p-4 text-sm text-slate-500">{produto.idIntegracaoErpCru || "â€”"}</td>
                   <td className="p-4">
                     {produto.chatExists && <MessageSquare size={12} className="text-indigo-500 flex-shrink-0" />}
                   </td>
@@ -172,7 +172,7 @@ export default function ProdutoCruPage() {
                   </td>
                   <td className="p-4 text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Link href={`/cadastros/produto-cru/${produto.id}`} onClick={(e) => e.stopPropagation()}>
+                      <Link prefetch={false} href={`/cadastros/produto-cru/${produto.id}`} onClick={(e) => e.stopPropagation()}>
                         <Button variant="ghost" size="icon" className="h-8 w-8">
                           <Pencil size={14} />
                         </Button>
@@ -200,12 +200,12 @@ export default function ProdutoCruPage() {
 
       <ConfirmModal
         open={deleteTarget !== null}
-        title={deleteBlocked ? "Exclusão não permitida" : "Excluir produto?"}
+        title={deleteBlocked ? "ExclusÃ£o nÃ£o permitida" : "Excluir produto?"}
         message={deleteBlocked
-          ? "Este produto possui cadastros vinculados e não pode ser excluído."
+          ? "Este produto possui cadastros vinculados e nÃ£o pode ser excluÃ­do."
           : `Tem certeza que deseja excluir?`}
         subMessage={deleteBlocked
-          ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informações."
+          ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informaÃ§Ãµes."
           : undefined}
         confirmLabel={deleteBlocked ? "OK" : "Excluir"}
         variant={deleteBlocked ? "warning" : "danger"}

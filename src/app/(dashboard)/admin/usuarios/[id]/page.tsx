@@ -52,7 +52,7 @@ export default function EditarUsuarioPage() {
 
   const handleSave = async () => {
     if (!name || !email) {
-      toast.error("Nome e email são obrigatórios")
+      toast.error("Nome e email sÃ£o obrigatÃ³rios")
       return
     }
     setSaving(true)
@@ -69,7 +69,7 @@ export default function EditarUsuarioPage() {
         const err = await res.json()
         throw new Error(err.error || "Erro ao salvar")
       }
-      toast.success("Usuário atualizado!")
+      toast.success("UsuÃ¡rio atualizado!")
       router.push("/admin/usuarios")
     } catch (err: any) {
       toast.error(err.message)
@@ -85,10 +85,10 @@ export default function EditarUsuarioPage() {
   return (
     <div className="max-w-xl mx-auto space-y-6">
       <div className="flex items-center gap-4">
-        <Link href="/admin/usuarios">
+        <Link prefetch={false} href="/admin/usuarios">
           <Button variant="ghost" size="icon"><ArrowLeft size={20} /></Button>
         </Link>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Editar Usuário{info && <InfoButton content={info} />}</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Editar UsuÃ¡rio{info && <InfoButton content={info} />}</h1>
       </div>
 
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-6 space-y-4 bg-white dark:bg-slate-900">
@@ -109,11 +109,11 @@ export default function EditarUsuarioPage() {
         </div>
         <div className="flex items-center gap-2">
           <input type="checkbox" id="ativo" checked={ativo} onChange={e => setAtivo(e.target.checked)} className="w-4 h-4" />
-          <Label htmlFor="ativo">Usuário Ativo</Label>
+          <Label htmlFor="ativo">UsuÃ¡rio Ativo</Label>
         </div>
         <div className="space-y-2">
           <Label>Nova Senha (deixe em branco para manter)</Label>
-          <Input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Mínimo 6 caracteres" />
+          <Input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="MÃ­nimo 6 caracteres" />
         </div>
 
         <div className="flex gap-2 pt-2">
@@ -121,7 +121,7 @@ export default function EditarUsuarioPage() {
             {saving && <Loader2 size={16} className="animate-spin" />}
             Salvar
           </Button>
-          <Link href="/admin/usuarios">
+          <Link prefetch={false} href="/admin/usuarios">
             <Button variant="outline">Cancelar</Button>
           </Link>
         </div>

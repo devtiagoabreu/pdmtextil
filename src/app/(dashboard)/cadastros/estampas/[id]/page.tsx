@@ -69,7 +69,7 @@ export default function EstampaFormPage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!estampa.codigoDesenho || !estampa.nome) {
-      toast.error("Código do Desenho e Nome são obrigatórios")
+      toast.error("CÃ³digo do Desenho e Nome sÃ£o obrigatÃ³rios")
       return
     }
 
@@ -114,7 +114,7 @@ export default function EstampaFormPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
       <div className="flex items-center gap-4">
-        <Link href="/cadastros/estampas">
+        <Link prefetch={false} href="/cadastros/estampas">
           <Button variant="ghost" size="icon">
             <ArrowLeft size={20} />
           </Button>
@@ -130,7 +130,7 @@ export default function EstampaFormPage() {
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="codigoDesenho">Código do Desenho (4 dígitos) *</Label>
+            <Label htmlFor="codigoDesenho">CÃ³digo do Desenho (4 dÃ­gitos) *</Label>
             <Input
               id="codigoDesenho"
               value={estampa.codigoDesenho}
@@ -158,7 +158,7 @@ export default function EstampaFormPage() {
             id="nome"
             value={estampa.nome}
             onChange={e => handleChange("nome", e.target.value)}
-            placeholder="Floral Botânico"
+            placeholder="Floral BotÃ¢nico"
             required
           />
         </div>
@@ -198,8 +198,8 @@ export default function EstampaFormPage() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="idIntegracao">ID Integração (ERP/WMS/CRM/OUTROS)</Label>
-          <Input id="idIntegracao" value={estampa.idIntegracao || ""} onChange={e => handleChange("idIntegracao", e.target.value)} placeholder="Código do sistema externo" />
+          <Label htmlFor="idIntegracao">ID IntegraÃ§Ã£o (ERP/WMS/CRM/OUTROS)</Label>
+          <Input id="idIntegracao" value={estampa.idIntegracao || ""} onChange={e => handleChange("idIntegracao", e.target.value)} placeholder="CÃ³digo do sistema externo" />
         </div>
 
         <div className="flex gap-4">
@@ -207,7 +207,7 @@ export default function EstampaFormPage() {
             {saving && <Loader2 size={16} className="animate-spin" />}
             {isEditing ? "Atualizar" : "Criar"}
           </Button>
-          <Link href="/cadastros/estampas">
+          <Link prefetch={false} href="/cadastros/estampas">
             <Button variant="outline" type="button">Cancelar</Button>
           </Link>
         </div>

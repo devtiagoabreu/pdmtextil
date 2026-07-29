@@ -34,7 +34,7 @@ export function MobileBottomNav() {
           const isActive = pathname === item.href || pathname?.startsWith(item.href + "/")
           const Icon = item.icon
           return (
-            <Link
+            <Link prefetch={false}
               key={item.href}
               href={item.href}
               className={`flex flex-col items-center gap-1 rounded-xl px-4 py-2 transition-colors ${

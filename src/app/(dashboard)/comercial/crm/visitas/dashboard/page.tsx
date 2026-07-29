@@ -85,7 +85,7 @@ export default function VisitasDashboardPage() {
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Dashboard de Visitas</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-            Métricas de visitas comerciais, check-in e performance
+            MÃ©tricas de visitas comerciais, check-in e performance
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -113,7 +113,7 @@ export default function VisitasDashboardPage() {
               Minhas Visitas
             </button>
           </div>
-          <Link
+          <Link prefetch={false}
             href="/comercial/crm/visitas"
             className="text-sm text-blue-600 hover:underline flex items-center gap-1"
           >
@@ -293,7 +293,7 @@ export default function VisitasDashboardPage() {
                 <Users size={16} className="text-blue-500" />
                 Performance por Representante
               </h2>
-              <Link href="/comercial/crm/visitas" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
+              <Link prefetch={false} href="/comercial/crm/visitas" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
                 Ver todas <ArrowRight size={12} />
               </Link>
             </div>
@@ -321,14 +321,14 @@ export default function VisitasDashboardPage() {
             )}
           </div>
 
-          {/* Linha 4: Últimas Visitas */}
+          {/* Linha 4: Ãšltimas Visitas */}
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
             <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800">
               <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 flex items-center gap-2">
                 <Calendar size={16} className="text-amber-500" />
-                Últimas Visitas
+                Ãšltimas Visitas
               </h2>
-              <Link href="/comercial/crm/visitas" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
+              <Link prefetch={false} href="/comercial/crm/visitas" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
                 Ver todas <ArrowRight size={12} />
               </Link>
             </div>
@@ -337,7 +337,7 @@ export default function VisitasDashboardPage() {
                 {data.ultimasVisitas.map((visita) => (
                   <div key={visita.id} className="flex items-center justify-between gap-2 p-3">
                     <div className="flex items-center gap-2 min-w-0 shrink">
-                      <Link
+                      <Link prefetch={false}
                         href={`/comercial/crm/visitas/${visita.id}`}
                         className="text-xs md:text-sm font-medium text-slate-900 dark:text-slate-100 truncate hover:underline whitespace-nowrap"
                       >
@@ -346,7 +346,7 @@ export default function VisitasDashboardPage() {
                       <span className="text-[10px] md:text-xs text-slate-500 whitespace-nowrap">
                         {visita.dataVisita
                           ? new Date(visita.dataVisita + "T12:00:00").toLocaleDateString("pt-BR")
-                          : "—"}{visita.hora ? ` ${visita.hora}` : ""}
+                          : "â€”"}{visita.hora ? ` ${visita.hora}` : ""}
                       </span>
                     </div>
                     <div className="flex items-center gap-1 md:gap-2 shrink-0">
@@ -373,7 +373,7 @@ export default function VisitasDashboardPage() {
                       <button
                         onClick={() => setSelectedVisita({ id: visita.id, nome: `Visita #${visita.id}` })}
                         className="p-2 md:p-1.5 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-950/50 transition-colors"
-                        title="Gerenciar localizações"
+                        title="Gerenciar localizaÃ§Ãµes"
                       >
                         <MapPin size={12} className="text-blue-500 md:text-blue-500" />
                       </button>
@@ -391,7 +391,7 @@ export default function VisitasDashboardPage() {
 
           {/* Quick Actions */}
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
-            <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">Ações Rápidas</h2>
+            <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">AÃ§Ãµes RÃ¡pidas</h2>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <QuickAction href="/comercial/crm/visitas/novo" icon={<Calendar size={18} />} label="Nova Visita" color="text-amber-600" bg="bg-amber-100 dark:bg-amber-950/50" />
               <QuickAction href="/comercial/crm/visitas" icon={<BarChart3 size={18} />} label="Listar Visitas" color="text-blue-600" bg="bg-blue-100 dark:bg-blue-950/50" />
@@ -420,7 +420,7 @@ function SummaryCard({
   href: string; icon: React.ReactNode; value: number; label: string; sub?: string; bgColor: string; iconColor: string
 }) {
   return (
-    <Link
+    <Link prefetch={false}
       href={href}
       className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 hover:shadow-md transition-shadow"
     >
@@ -444,7 +444,7 @@ function QuickAction({
   href: string; icon: React.ReactNode; label: string; color: string; bg: string
 }) {
   return (
-    <Link
+    <Link prefetch={false}
       href={href}
       className="flex items-center gap-2 p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
     >

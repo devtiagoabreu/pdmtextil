@@ -243,14 +243,14 @@ export default function KanbanOportunidadesPage() {
     <div className="flex flex-col h-screen animate-fade-in">
       <div className="flex items-center justify-between shrink-0 px-4 md:px-6 pt-4 md:pt-6 pb-2">
         <div className="flex items-center gap-2 min-w-0">
-          <h1 className="text-lg md:text-2xl font-bold text-slate-900 dark:text-slate-50 truncate">Kanban — Oportunidades CRM{info && <InfoButton content={info} />}</h1>
+          <h1 className="text-lg md:text-2xl font-bold text-slate-900 dark:text-slate-50 truncate">Kanban â€” Oportunidades CRM{info && <InfoButton content={info} />}</h1>
           <span className="text-[10px] md:text-xs text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 md:px-2 py-0.5 rounded-full whitespace-nowrap hidden sm:inline">Arraste os cards para mover</span>
         </div>
         <div className="flex items-center gap-1.5 md:gap-2 shrink-0">
-          <Link href="/comercial/crm/oportunidades" className="text-xs md:text-sm text-blue-600 hover:underline">
+          <Link prefetch={false} href="/comercial/crm/oportunidades" className="text-xs md:text-sm text-blue-600 hover:underline">
             Lista
           </Link>
-          <Link
+          <Link prefetch={false}
             href="/comercial/crm/oportunidades/novo"
             className="inline-flex items-center gap-1 text-xs md:text-sm bg-blue-600 text-white px-2 md:px-3 py-1 md:py-1.5 rounded-lg hover:bg-blue-700"
           >
@@ -303,7 +303,7 @@ export default function KanbanOportunidadesPage() {
                 value={motivoPerda}
                 onChange={e => setMotivoPerda(e.target.value)}
                 className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 min-h-[100px] resize-none"
-                placeholder="Ex: Cliente optou por concorrente, orçamento acima do esperado..."
+                placeholder="Ex: Cliente optou por concorrente, orÃ§amento acima do esperado..."
                 autoFocus
               />
               <div className="flex gap-2 justify-end mt-4">

@@ -66,7 +66,7 @@ export default function CorFormPage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!cor.codigo || !cor.nome) {
-      toast.error("Código e Nome são obrigatórios")
+      toast.error("CÃ³digo e Nome sÃ£o obrigatÃ³rios")
       return
     }
 
@@ -111,14 +111,14 @@ export default function CorFormPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
       <div className="flex items-center gap-4">
-        <Link href="/cadastros/cores">
+        <Link prefetch={false} href="/cadastros/cores">
           <Button variant="ghost" size="icon">
             <ArrowLeft size={20} />
           </Button>
         </Link>
         <div>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
-          {isEditing ? "Editar Cor" : "Nova Cor Sólida"}
+          {isEditing ? "Editar Cor" : "Nova Cor SÃ³lida"}
           {info && <InfoButton content={info} />}
         </h1>
       </div>
@@ -127,7 +127,7 @@ export default function CorFormPage() {
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="codigo">Código (6 dígitos) *</Label>
+            <Label htmlFor="codigo">CÃ³digo (6 dÃ­gitos) *</Label>
             <Input
               id="codigo"
               value={cor.codigo}
@@ -151,7 +151,7 @@ export default function CorFormPage() {
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="pantone">Referência Pantone</Label>
+            <Label htmlFor="pantone">ReferÃªncia Pantone</Label>
             <Input
               id="pantone"
               value={cor.pantone || ""}
@@ -160,7 +160,7 @@ export default function CorFormPage() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="familia">Família</Label>
+            <Label htmlFor="familia">FamÃ­lia</Label>
             <Input
               id="familia"
               value={cor.familia || ""}
@@ -187,8 +187,8 @@ export default function CorFormPage() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="idIntegracao">ID Integração (ERP/WMS/CRM/OUTROS)</Label>
-          <Input id="idIntegracao" value={cor.idIntegracao || ""} onChange={e => handleChange("idIntegracao", e.target.value)} placeholder="Código do sistema externo" />
+          <Label htmlFor="idIntegracao">ID IntegraÃ§Ã£o (ERP/WMS/CRM/OUTROS)</Label>
+          <Input id="idIntegracao" value={cor.idIntegracao || ""} onChange={e => handleChange("idIntegracao", e.target.value)} placeholder="CÃ³digo do sistema externo" />
         </div>
 
         <div className="flex gap-4">
@@ -196,7 +196,7 @@ export default function CorFormPage() {
             {saving && <Loader2 size={16} className="animate-spin" />}
             {isEditing ? "Atualizar" : "Criar"}
           </Button>
-          <Link href="/cadastros/cores">
+          <Link prefetch={false} href="/cadastros/cores">
             <Button variant="outline" type="button">Cancelar</Button>
           </Link>
         </div>

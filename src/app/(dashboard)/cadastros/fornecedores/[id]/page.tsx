@@ -81,7 +81,7 @@ export default function FornecedorFormPage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!fornecedor.nome) {
-      toast.error("Nome é obrigatório")
+      toast.error("Nome Ã© obrigatÃ³rio")
       return
     }
 
@@ -126,7 +126,7 @@ export default function FornecedorFormPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
       <div className="flex items-center gap-4">
-        <Link href="/cadastros/fornecedores">
+        <Link prefetch={false} href="/cadastros/fornecedores">
           <Button variant="ghost" size="icon">
             <ArrowLeft size={20} />
           </Button>
@@ -163,12 +163,12 @@ export default function FornecedorFormPage() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="razaoSocial">Razão Social</Label>
+          <Label htmlFor="razaoSocial">RazÃ£o Social</Label>
           <Input
             id="razaoSocial"
             value={fornecedor.razaoSocial || ""}
             onChange={e => handleChange("razaoSocial", e.target.value)}
-            placeholder="Razão social completa"
+            placeholder="RazÃ£o social completa"
           />
         </div>
 
@@ -200,17 +200,17 @@ export default function FornecedorFormPage() {
             id="contato"
             value={fornecedor.contato || ""}
             onChange={e => handleChange("contato", e.target.value)}
-            placeholder="João Silva"
+            placeholder="JoÃ£o Silva"
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="endereco">Endereço</Label>
+          <Label htmlFor="endereco">EndereÃ§o</Label>
           <Input
             id="endereco"
             value={fornecedor.endereco || ""}
             onChange={e => handleChange("endereco", e.target.value)}
-            placeholder="Rua, número, bairro"
+            placeholder="Rua, nÃºmero, bairro"
           />
         </div>
 
@@ -221,7 +221,7 @@ export default function FornecedorFormPage() {
               id="cidade"
               value={fornecedor.cidade || ""}
               onChange={e => handleChange("cidade", e.target.value)}
-              placeholder="São Paulo"
+              placeholder="SÃ£o Paulo"
             />
           </div>
           <div className="space-y-2">
@@ -242,8 +242,8 @@ export default function FornecedorFormPage() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="idIntegracao">ID Integração (ERP/WMS/CRM/OUTROS)</Label>
-          <Input id="idIntegracao" value={fornecedor.idIntegracao || ""} onChange={e => handleChange("idIntegracao", e.target.value)} placeholder="Código do sistema externo" />
+          <Label htmlFor="idIntegracao">ID IntegraÃ§Ã£o (ERP/WMS/CRM/OUTROS)</Label>
+          <Input id="idIntegracao" value={fornecedor.idIntegracao || ""} onChange={e => handleChange("idIntegracao", e.target.value)} placeholder="CÃ³digo do sistema externo" />
         </div>
 
         <div className="flex gap-4">
@@ -251,7 +251,7 @@ export default function FornecedorFormPage() {
             {saving && <Loader2 size={16} className="animate-spin" />}
             {isEditing ? "Atualizar" : "Criar"}
           </Button>
-          <Link href="/cadastros/fornecedores">
+          <Link prefetch={false} href="/cadastros/fornecedores">
             <Button variant="outline" type="button">Cancelar</Button>
           </Link>
         </div>

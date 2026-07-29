@@ -45,7 +45,7 @@ export default function NovaLicaoPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!form.moduloId || !form.titulo) {
-      toast.error("Módulo e título são obrigatórios")
+      toast.error("MÃ³dulo e tÃ­tulo sÃ£o obrigatÃ³rios")
       return
     }
     setSaving(true)
@@ -65,10 +65,10 @@ export default function NovaLicaoPage() {
         }),
       })
       if (!res.ok) throw new Error()
-      toast.success("Lição criada com sucesso!")
+      toast.success("LiÃ§Ã£o criada com sucesso!")
       router.push("/comercial/crm/treinamento/admin")
     } catch {
-      toast.error("Erro ao criar lição")
+      toast.error("Erro ao criar liÃ§Ã£o")
     } finally {
       setSaving(false)
     }
@@ -77,7 +77,7 @@ export default function NovaLicaoPage() {
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="flex items-center gap-4 mb-6">
-        <Link
+        <Link prefetch={false}
           href="/comercial/crm/treinamento/admin"
           className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
         >
@@ -86,7 +86,7 @@ export default function NovaLicaoPage() {
         <div className="flex items-center gap-3">
           <FileText size={24} className="text-indigo-600" />
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
-            Nova Lição{info && <InfoButton content={info} />}
+            Nova LiÃ§Ã£o{info && <InfoButton content={info} />}
           </h1>
         </div>
       </div>
@@ -94,7 +94,7 @@ export default function NovaLicaoPage() {
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Módulo *</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">MÃ³dulo *</label>
             <select
               value={form.moduloId}
               onChange={(e) => setForm({ ...form, moduloId: e.target.value })}
@@ -108,7 +108,7 @@ export default function NovaLicaoPage() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Título *</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">TÃ­tulo *</label>
             <input
               value={form.titulo}
               onChange={(e) => setForm({ ...form, titulo: e.target.value })}
@@ -139,7 +139,7 @@ export default function NovaLicaoPage() {
 
         <div>
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-            Pré-requisitos (cadastros indispensáveis)
+            PrÃ©-requisitos (cadastros indispensÃ¡veis)
           </label>
           <textarea
             value={form.preRequisitos}
@@ -152,17 +152,17 @@ export default function NovaLicaoPage() {
 
         <div>
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-            Conteúdo (Markdown)
+            ConteÃºdo (Markdown)
           </label>
           <div className="text-xs text-slate-400 mb-2">
-            Use markdown para formatar: ## Título, **negrito**, - lista, etc.
+            Use markdown para formatar: ## TÃ­tulo, **negrito**, - lista, etc.
           </div>
           <textarea
             value={form.conteudoMd}
             onChange={(e) => setForm({ ...form, conteudoMd: e.target.value })}
             className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 font-mono"
             rows={16}
-            placeholder={`# Nome da Tela\n\n## Visão Geral\n...\n\n## Pré-cadastros Necessários\n...\n\n## Campos do Formulário\n\n### Campo 1 (Obrigatório)\nPor que é obrigatório: ...\n\n### Campo 2 (Opcional)\n...`}
+            placeholder={`# Nome da Tela\n\n## VisÃ£o Geral\n...\n\n## PrÃ©-cadastros NecessÃ¡rios\n...\n\n## Campos do FormulÃ¡rio\n\n### Campo 1 (ObrigatÃ³rio)\nPor que Ã© obrigatÃ³rio: ...\n\n### Campo 2 (Opcional)\n...`}
           />
         </div>
 
@@ -215,7 +215,7 @@ export default function NovaLicaoPage() {
 
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-              Links de Vídeos Tutoriais
+              Links de VÃ­deos Tutoriais
             </label>
             <div className="space-y-2 mb-2">
               {linksVideo.map((link, i) => (
@@ -233,7 +233,7 @@ export default function NovaLicaoPage() {
             </div>
             <div className="flex gap-2">
               <input
-                placeholder="Nome do vídeo"
+                placeholder="Nome do vÃ­deo"
                 value={novoVideo.label}
                 onChange={(e) => setNovoVideo({ ...novoVideo, label: e.target.value })}
                 className="flex-1 px-2 py-1.5 border border-slate-300 dark:border-slate-600 rounded-lg text-xs bg-white dark:bg-slate-800"
@@ -267,9 +267,9 @@ export default function NovaLicaoPage() {
             className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-colors"
           >
             {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-            {saving ? "Salvando..." : "Salvar Lição"}
+            {saving ? "Salvando..." : "Salvar LiÃ§Ã£o"}
           </button>
-          <Link
+          <Link prefetch={false}
             href="/comercial/crm/treinamento/admin"
             className="text-sm text-slate-600 hover:text-slate-800 dark:hover:text-slate-300 transition-colors"
           >

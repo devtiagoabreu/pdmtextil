@@ -42,20 +42,20 @@ export default function KanbanSolicitacoesPage() {
     <div className="flex flex-col h-screen animate-fade-in">
       <div className="flex items-center justify-between shrink-0 px-6 pt-6 pb-2">
         <div className="flex items-center gap-2">
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Kanban — Solicitações de Desenvolvimento{info && <InfoButton content={info} />}</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Kanban â€” SolicitaÃ§Ãµes de Desenvolvimento{info && <InfoButton content={info} />}</h1>
           <span className="text-xs text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">Arraste os cards para mover</span>
         </div>
         <div className="flex items-center gap-2">
-          <Link href="/comercial/solicitacoes" className="text-sm text-blue-600 hover:underline">
+          <Link prefetch={false} href="/comercial/solicitacoes" className="text-sm text-blue-600 hover:underline">
             Lista
           </Link>
-          <Link href="/comercial/solicitacoes/nova" className="inline-flex items-center gap-1 text-sm bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700">
+          <Link prefetch={false} href="/comercial/solicitacoes/nova" className="inline-flex items-center gap-1 text-sm bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700">
             <Plus size={14} /> Nova
           </Link>
           <button
             onClick={isDetached ? handleReattach : handleDetach}
             className="inline-flex items-center gap-1 text-sm border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-            title={isDetached ? "Recolocar kanban na aplicação" : "Descolar kanban em janela flutuante"}
+            title={isDetached ? "Recolocar kanban na aplicaÃ§Ã£o" : "Descolar kanban em janela flutuante"}
           >
             {isDetached ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
             {isDetached ? "Recolocar" : "Flutuar"}
@@ -68,7 +68,7 @@ export default function KanbanSolicitacoesPage() {
           <div className="text-center space-y-3">
             <Maximize2 size={48} className="mx-auto text-slate-300 dark:text-slate-600" />
             <p className="text-lg font-medium">Kanban aberto em janela separada</p>
-            <p className="text-sm text-slate-400">Você pode arrastá-lo para outra tela ou monitor</p>
+            <p className="text-sm text-slate-400">VocÃª pode arrastÃ¡-lo para outra tela ou monitor</p>
             <button
               onClick={handleReattach}
               className="inline-flex items-center gap-1.5 text-sm bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"

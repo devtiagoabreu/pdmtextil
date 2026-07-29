@@ -78,7 +78,7 @@ export default function CampanhasPage() {
               Kanban
             </button>
           </div>
-          <Link
+          <Link prefetch={false}
             href="/comercial/crm/campanhas/nova"
             className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
           >
@@ -96,7 +96,7 @@ export default function CampanhasPage() {
             statusOptions: [
               { value: "ATIVA", label: "Ativa" },
               { value: "PAUSADA", label: "Pausada" },
-              { value: "CONCLUIDA", label: "Concluída" },
+              { value: "CONCLUIDA", label: "ConcluÃ­da" },
             ],
             dateField: "dataInicio",
           }}
@@ -112,14 +112,14 @@ export default function CampanhasPage() {
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <Megaphone className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
             <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nenhuma campanha cadastrada</p>
-            <Link href="/comercial/crm/campanhas/nova" className="text-sm text-blue-600 hover:underline mt-2">
+            <Link prefetch={false} href="/comercial/crm/campanhas/nova" className="text-sm text-blue-600 hover:underline mt-2">
               Criar primeira campanha
             </Link>
           </div>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {filteredData.map((camp: any) => (
-              <Link
+              <Link prefetch={false}
                 key={camp.id}
                 href={`/comercial/crm/campanhas/${camp.id}`}
                 className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 hover:shadow-md transition-shadow"
@@ -160,7 +160,7 @@ export default function CampanhasPage() {
                   <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
                     {camp.orcamento && (
                       <span className="text-slate-500">
-                        Orçamento:{" "}
+                        OrÃ§amento:{" "}
                         <span className="font-medium text-slate-700 dark:text-slate-300">
                           {Number(camp.orcamento).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
                         </span>

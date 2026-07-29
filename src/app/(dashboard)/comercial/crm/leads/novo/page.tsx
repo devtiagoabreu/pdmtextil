@@ -10,10 +10,10 @@ import { toast } from "sonner"
 
 const ORIGEM_OPTIONS = [
   { value: "SITE", label: "Site" },
-  { value: "INDICACAO", label: "Indicação" },
+  { value: "INDICACAO", label: "IndicaÃ§Ã£o" },
   { value: "EVENTO", label: "Evento" },
-  { value: "PROSPECCAO", label: "Prospecção" },
-  { value: "LIGACAO", label: "Ligação" },
+  { value: "PROSPECCAO", label: "ProspecÃ§Ã£o" },
+  { value: "LIGACAO", label: "LigaÃ§Ã£o" },
   { value: "WHATSAPP", label: "WhatsApp" },
   { value: "EMAIL", label: "E-mail" },
   { value: "OUTRO", label: "Outro" },
@@ -44,7 +44,7 @@ export default function NovoLeadPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!form.nome.trim()) {
-      toast.error("Nome é obrigatório")
+      toast.error("Nome Ã© obrigatÃ³rio")
       return
     }
     setSaving(true)
@@ -72,7 +72,7 @@ export default function NovoLeadPage() {
   return (
     <div className="space-y-6 animate-fade-in max-w-2xl">
       <div className="flex items-center gap-3">
-        <Link href="/comercial/crm/leads" className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+        <Link prefetch={false} href="/comercial/crm/leads" className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
           <ArrowLeft size={18} className="text-slate-500" />
         </Link>
         <div>
@@ -100,9 +100,9 @@ export default function NovoLeadPage() {
               onChange={e => { setField("tipoPessoa", e.target.value); setField("documento", "") }}
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="">Sem classificação</option>
-              <option value="PF">Pessoa Física</option>
-              <option value="PJ">Pessoa Jurídica</option>
+              <option value="">Sem classificaÃ§Ã£o</option>
+              <option value="PF">Pessoa FÃ­sica</option>
+              <option value="PJ">Pessoa JurÃ­dica</option>
             </select>
           </div>
           <div>
@@ -145,7 +145,7 @@ export default function NovoLeadPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Pessoa (Negócio)</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Pessoa (NegÃ³cio)</label>
             <input
               type="text"
               value={form.empresaNome}
@@ -175,7 +175,7 @@ export default function NovoLeadPage() {
             </select>
           </div>
           <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Descrição</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">DescriÃ§Ã£o</label>
             <textarea
               value={form.descricao}
               onChange={e => setField("descricao", e.target.value)}
@@ -186,7 +186,7 @@ export default function NovoLeadPage() {
         </div>
 
         <div className="flex justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
-          <Link
+          <Link prefetch={false}
             href="/comercial/crm/leads"
             className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
           >

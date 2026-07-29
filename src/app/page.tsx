@@ -4,14 +4,14 @@ import { useEffect, useRef, useState, useCallback } from "react"
 import Link from "next/link"
 import { ArrowRight, Factory, ShoppingCart, Settings, PenTool, Users } from "lucide-react"
 
-const PDM_TOOLTIP = "PDM·PRO·TÊXTIL — Plataforma completa de gestão para a indústria têxtil. Integra Comercial, CRM, Desenvolvimento (Tecelagem e Beneficiamento), PCP e Admin em um único sistema. Gestão de clientes, leads, propostas, amostras, fichas técnicas, receitas, roteiros de produção, e-mail marketing, notificações inteligentes e exportação para ERP."
+const PDM_TOOLTIP = "PDMÂ·PROÂ·TÃŠXTIL â€” Plataforma completa de gestÃ£o para a indÃºstria tÃªxtil. Integra Comercial, CRM, Desenvolvimento (Tecelagem e Beneficiamento), PCP e Admin em um Ãºnico sistema. GestÃ£o de clientes, leads, propostas, amostras, fichas tÃ©cnicas, receitas, roteiros de produÃ§Ã£o, e-mail marketing, notificaÃ§Ãµes inteligentes e exportaÃ§Ã£o para ERP."
 
 const DEPARTMENTS = [
-  { icon: Factory, abbr: "PCP", label: "Planejamento", phrase: "Controle total da produção — do fio ao tecido acabado" },
-  { icon: ShoppingCart, abbr: "COM", label: "Comercial", phrase: "Gestão de pedidos, clientes e representantes em tempo real" },
+  { icon: Factory, abbr: "PCP", label: "Planejamento", phrase: "Controle total da produÃ§Ã£o â€” do fio ao tecido acabado" },
+  { icon: ShoppingCart, abbr: "COM", label: "Comercial", phrase: "GestÃ£o de pedidos, clientes e representantes em tempo real" },
   { icon: Users, abbr: "CRM", label: "CRM", phrase: "Pipeline de vendas, leads, propostas e visitas integradas" },
-  { icon: PenTool, abbr: "DES", label: "Desenvolvimento", phrase: "Fichas técnicas, receitas e controle de amostras do conceito à aprovação" },
-  { icon: Settings, abbr: "ADM", label: "Admin", phrase: "Usuários, permissões, menus e configurações centralizadas" },
+  { icon: PenTool, abbr: "DES", label: "Desenvolvimento", phrase: "Fichas tÃ©cnicas, receitas e controle de amostras do conceito Ã  aprovaÃ§Ã£o" },
+  { icon: Settings, abbr: "ADM", label: "Admin", phrase: "UsuÃ¡rios, permissÃµes, menus e configuraÃ§Ãµes centralizadas" },
 ]
 
 export default function LandingPage() {
@@ -168,9 +168,9 @@ export default function LandingPage() {
       <div className="relative z-10 min-h-screen flex flex-col">
         <header className="px-8 py-6 flex justify-between items-center">
           <div className="text-xl font-bold text-white tracking-wide">
-            PDM·PRO·TÊXTIL
+            PDMÂ·PROÂ·TÃŠXTIL
           </div>
-          <Link
+          <Link prefetch={false}
             href="/login"
             className="px-5 py-2 text-sm text-slate-300 hover:text-white transition-colors border border-slate-600 hover:border-slate-400 rounded"
           >
@@ -186,7 +186,7 @@ export default function LandingPage() {
                 onMouseEnter={() => setShowTooltip(true)}
                 onMouseLeave={() => setShowTooltip(false)}
               >
-                PDM·PRO·TÊXTIL
+                PDMÂ·PROÂ·TÃŠXTIL
               </h1>
               {showTooltip && (
                 <div
@@ -200,10 +200,10 @@ export default function LandingPage() {
               )}
             </div>
             <p className="text-xl text-slate-400 mb-12 font-light bg-slate-900/50 px-4 py-2 rounded-lg border border-slate-800 inline-block">
-              Sistema de gestão de desenvolvimento de produtos têxteis
+              Sistema de gestÃ£o de desenvolvimento de produtos tÃªxteis
             </p>
 
-            <Link
+            <Link prefetch={false}
               href="/login"
               className="inline-flex items-center gap-2 px-8 py-4 bg-white text-black font-medium rounded-lg hover:bg-slate-200 transition-colors"
             >
@@ -231,7 +231,7 @@ export default function LandingPage() {
 
         <footer className="px-8 py-4 text-center">
           <p className="text-xs text-slate-600">
-            © 2026 PDM·PRO·TÊXTIL | @devtiagoabreu · Todos os direitos reservados
+            Â© 2026 PDMÂ·PROÂ·TÃŠXTIL | @devtiagoabreu Â· Todos os direitos reservados
           </p>
         </footer>
       </div>

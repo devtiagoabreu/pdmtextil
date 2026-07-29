@@ -28,12 +28,12 @@ export default function BuscarCnpjModal({ tipo, onClose, onCreated }: BuscarCnpj
   const [creating, setCreating] = useState(false)
   const [consultado, setConsultado] = useState(false)
 
-  const titulo = tipo === "pessoa" ? "Pessoa (Negócio)" : "Representante"
+  const titulo = tipo === "pessoa" ? "Pessoa (NegÃ³cio)" : "Representante"
 
   async function handleConsultar() {
     const digits = cnpj.replace(/\D/g, "")
     if (digits.length !== 14) {
-      toast.error("CNPJ deve ter 14 dígitos")
+      toast.error("CNPJ deve ter 14 dÃ­gitos")
       return
     }
     setLoading(true)
@@ -54,7 +54,7 @@ export default function BuscarCnpjModal({ tipo, onClose, onCreated }: BuscarCnpj
       })
       setConsultado(true)
       if (!result.apiData) {
-        toast.error("CNPJ não encontrado na Receita Federal")
+        toast.error("CNPJ nÃ£o encontrado na Receita Federal")
       }
     } catch (err: any) {
       toast.error(err.message)
@@ -149,7 +149,7 @@ export default function BuscarCnpjModal({ tipo, onClose, onCreated }: BuscarCnpj
               value={cnpj}
               onChange={(e) => setCnpj(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleConsultar()}
-              placeholder="Digite o CNPJ (com ou sem pontuação)"
+              placeholder="Digite o CNPJ (com ou sem pontuaÃ§Ã£o)"
               className="flex-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
               maxLength={18}
             />
@@ -167,9 +167,9 @@ export default function BuscarCnpjModal({ tipo, onClose, onCreated }: BuscarCnpj
             <div className="rounded-xl border border-amber-200 dark:border-amber-900 bg-amber-50 dark:bg-amber-950/30 p-4 flex items-start gap-3">
               <AlertCircle size={18} className="text-amber-500 mt-0.5 shrink-0" />
               <div>
-                <p className="font-medium text-amber-800 dark:text-amber-300">CNPJ não encontrado</p>
+                <p className="font-medium text-amber-800 dark:text-amber-300">CNPJ nÃ£o encontrado</p>
                 <p className="text-sm text-amber-600 dark:text-amber-400 mt-1">
-                  O CNPJ {formatCnpj(cnpj)} não foi localizado na base da Receita Federal.
+                  O CNPJ {formatCnpj(cnpj)} nÃ£o foi localizado na base da Receita Federal.
                 </p>
               </div>
             </div>
@@ -184,7 +184,7 @@ export default function BuscarCnpjModal({ tipo, onClose, onCreated }: BuscarCnpj
                     {apiData.razao_social}
                   </p>
                   <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-0.5">
-                    {apiData.nome_fantasia} — {apiData.situacao_cadastral}
+                    {apiData.nome_fantasia} â€” {apiData.situacao_cadastral}
                   </p>
                 </div>
               </div>
@@ -199,31 +199,31 @@ export default function BuscarCnpjModal({ tipo, onClose, onCreated }: BuscarCnpj
                   <p className="text-slate-900 dark:text-slate-200 font-mono">{formatCnpj(apiData.cnpj)}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-slate-500">Situação</p>
+                  <p className="text-xs text-slate-500">SituaÃ§Ã£o</p>
                   <p className="text-slate-900 dark:text-slate-200">{apiData.situacao_cadastral}</p>
                 </div>
                 <div className="col-span-2">
-                  <p className="text-xs text-slate-500">Razão Social</p>
+                  <p className="text-xs text-slate-500">RazÃ£o Social</p>
                   <p className="text-slate-900 dark:text-slate-200 font-medium">{apiData.razao_social}</p>
                 </div>
                 <div className="col-span-2">
                   <p className="text-xs text-slate-500">Nome Fantasia</p>
-                  <p className="text-slate-900 dark:text-slate-200">{apiData.nome_fantasia || "—"}</p>
+                  <p className="text-slate-900 dark:text-slate-200">{apiData.nome_fantasia || "â€”"}</p>
                 </div>
                 <div>
                   <p className="text-xs text-slate-500">Porte</p>
-                  <p className="text-slate-900 dark:text-slate-200">{apiData.porte_empresa || "—"}</p>
+                  <p className="text-slate-900 dark:text-slate-200">{apiData.porte_empresa || "â€”"}</p>
                 </div>
                 <div>
                   <p className="text-xs text-slate-500">CNAE</p>
-                  <p className="text-slate-900 dark:text-slate-200">{apiData.cnae_principal_descricao || "—"}</p>
+                  <p className="text-slate-900 dark:text-slate-200">{apiData.cnae_principal_descricao || "â€”"}</p>
                 </div>
                 <div className="col-span-2">
-                  <p className="text-xs text-slate-500">Endereço</p>
+                  <p className="text-xs text-slate-500">EndereÃ§o</p>
                   <p className="text-slate-900 dark:text-slate-200">
-                    {[apiData.logradouro, apiData.numero, apiData.bairro, apiData.complemento].filter(Boolean).join(", ") || "—"}
-                    {apiData.cep && ` — CEP ${apiData.cep}`}
-                    {apiData.municipio && ` — ${apiData.municipio}/${apiData.uf}`}
+                    {[apiData.logradouro, apiData.numero, apiData.bairro, apiData.complemento].filter(Boolean).join(", ") || "â€”"}
+                    {apiData.cep && ` â€” CEP ${apiData.cep}`}
+                    {apiData.municipio && ` â€” ${apiData.municipio}/${apiData.uf}`}
                   </p>
                 </div>
               </div>
@@ -233,11 +233,11 @@ export default function BuscarCnpjModal({ tipo, onClose, onCreated }: BuscarCnpj
           {jaExiste && (
             <div className="rounded-lg border border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-950/30 p-4">
               <p className="text-sm font-medium text-blue-800 dark:text-blue-300 mb-2">
-                {tipo === "pessoa" ? "Pessoa(s)" : "Representante(s)"} já cadastrado(s) com este CNPJ:
+                {tipo === "pessoa" ? "Pessoa(s)" : "Representante(s)"} jÃ¡ cadastrado(s) com este CNPJ:
               </p>
               <div className="space-y-2">
                 {(tipo === "pessoa" ? existentes.crmPessoas : existentes.representantes).map((item: any) => (
-                  <Link
+                  <Link prefetch={false}
                     key={item.id}
                     href={tipo === "pessoa" ? `/comercial/crm/pessoas/${item.id}` : `/comercial/representantes/${item.id}`}
                     target="_blank"
@@ -257,7 +257,7 @@ export default function BuscarCnpjModal({ tipo, onClose, onCreated }: BuscarCnpj
                 Deseja criar {tipo === "pessoa" ? "uma nova Pessoa" : "um novo Representante"}?
               </p>
               <p className="text-xs text-slate-500 mt-1 mb-3">
-                Os dados serão preenchidos automaticamente com as informações da Receita Federal.
+                Os dados serÃ£o preenchidos automaticamente com as informaÃ§Ãµes da Receita Federal.
               </p>
               <Button onClick={handleCriar} disabled={creating} className="gap-2">
                 {creating ? (

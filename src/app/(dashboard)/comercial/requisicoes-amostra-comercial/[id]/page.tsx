@@ -37,7 +37,7 @@ export default function DetalheRequisicaoAmostraComercialPage() {
     fetch(`/api/requisicoes-amostra-comercial/${id}?t=${Date.now()}`)
       .then(res => { if (!res.ok) throw new Error(); return res.json() })
       .then(d => setData(d))
-      .catch(() => toast.error("Erro ao carregar requisição"))
+      .catch(() => toast.error("Erro ao carregar requisiÃ§Ã£o"))
       .finally(() => setLoading(false))
   }, [mounted, id])
 
@@ -54,9 +54,9 @@ export default function DetalheRequisicaoAmostraComercialPage() {
   if (!data) {
     return (
       <div className="text-center py-20">
-        <p className="text-red-500 mb-2">Erro ao carregar requisição</p>
-        <Link href="/comercial/requisicoes-amostra-comercial" className="text-blue-600 hover:underline mt-2 inline-block">
-          Voltar à lista
+        <p className="text-red-500 mb-2">Erro ao carregar requisiÃ§Ã£o</p>
+        <Link prefetch={false} href="/comercial/requisicoes-amostra-comercial" className="text-blue-600 hover:underline mt-2 inline-block">
+          Voltar Ã  lista
         </Link>
       </div>
     )
@@ -67,7 +67,7 @@ export default function DetalheRequisicaoAmostraComercialPage() {
   return (
     <div className="max-w-4xl mx-auto py-8 space-y-6 animate-fade-in">
       <div className="flex items-center gap-4">
-        <Link
+        <Link prefetch={false}
           href="/comercial/requisicoes-amostra-comercial"
           className="flex items-center gap-1 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
         >
@@ -79,7 +79,7 @@ export default function DetalheRequisicaoAmostraComercialPage() {
       <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
-            {data.titulo || `Requisição #${data.id}`}
+            {data.titulo || `RequisiÃ§Ã£o #${data.id}`}
             {info && <InfoButton content={info} />}
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">#{data.id}</p>
@@ -106,59 +106,59 @@ export default function DetalheRequisicaoAmostraComercialPage() {
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
           <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <FileText size={18} />
-            Dados da Requisição
+            Dados da RequisiÃ§Ã£o
           </h2>
           <div className="space-y-4 text-sm">
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-slate-500 dark:text-slate-400">Produto</p>
                 {data.produto ? (
-                  <Link
+                  <Link prefetch={false}
                     href={`/cadastros/produto-cru/${data.produto.id}`}
                     className="font-medium text-blue-600 dark:text-blue-400 hover:underline"
                   >
-                    {data.produto.codigoPdm || data.produtoCodigo} — {data.produto.descricao || data.produtoDescricao}
+                    {data.produto.codigoPdm || data.produtoCodigo} â€” {data.produto.descricao || data.produtoDescricao}
                   </Link>
                 ) : (
                   <p className="font-medium">
-                    {data.produtoCodigo || "—"}{data.produtoDescricao ? ` — ${data.produtoDescricao}` : ""}
+                    {data.produtoCodigo || "â€”"}{data.produtoDescricao ? ` â€” ${data.produtoDescricao}` : ""}
                   </p>
                 )}
               </div>
               <div>
                 <p className="text-slate-500 dark:text-slate-400">Cliente</p>
-                <p className="font-medium">{data.cliente || "—"}</p>
+                <p className="font-medium">{data.cliente || "â€”"}</p>
               </div>
               <div>
                 <p className="text-slate-500 dark:text-slate-400">Quantidade</p>
-                <p className="font-medium">{data.quantidade || "—"}</p>
+                <p className="font-medium">{data.quantidade || "â€”"}</p>
               </div>
               <div>
                 <p className="text-slate-500 dark:text-slate-400">Prazo Desejado</p>
                 <p className="font-medium">
-                  {data.prazoDesejado ? new Date(data.prazoDesejado).toLocaleDateString("pt-BR") : "—"}
+                  {data.prazoDesejado ? new Date(data.prazoDesejado).toLocaleDateString("pt-BR") : "â€”"}
                 </p>
               </div>
               <div>
                 <p className="text-slate-500 dark:text-slate-400">Solic. Desenvolvimento ID</p>
-                <p className="font-medium">{data.solicitacaoDesenvolvimentoId || "—"}</p>
+                <p className="font-medium">{data.solicitacaoDesenvolvimentoId || "â€”"}</p>
               </div>
               <div>
                 <p className="text-slate-500 dark:text-slate-400">Criado em</p>
                 <p className="font-medium">
-                  {data.createdAt ? new Date(data.createdAt).toLocaleDateString("pt-BR") : "—"}
+                  {data.createdAt ? new Date(data.createdAt).toLocaleDateString("pt-BR") : "â€”"}
                 </p>
               </div>
             </div>
 
             <div>
               <p className="text-slate-500 dark:text-slate-400">Motivo</p>
-              <p className="font-medium">{data.motivo || "—"}</p>
+              <p className="font-medium">{data.motivo || "â€”"}</p>
             </div>
 
             <div>
-              <p className="text-slate-500 dark:text-slate-400">Observações</p>
-              <p className="font-medium whitespace-pre-wrap">{data.observacoes || "—"}</p>
+              <p className="text-slate-500 dark:text-slate-400">ObservaÃ§Ãµes</p>
+              <p className="font-medium whitespace-pre-wrap">{data.observacoes || "â€”"}</p>
             </div>
           </div>
         </div>
@@ -166,24 +166,24 @@ export default function DetalheRequisicaoAmostraComercialPage() {
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
           <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <Clock size={18} />
-            Histórico
+            HistÃ³rico
           </h2>
           {historico.length > 0 ? (
             <div className="space-y-4 max-h-96 overflow-y-auto">
               {historico.map((h: any, idx: number) => (
                 <div key={idx} className="border-l-2 border-slate-200 dark:border-slate-700 pl-3">
-                  <p className="text-sm font-medium">{h.acao || h.status || "Atualização"}</p>
+                  <p className="text-sm font-medium">{h.acao || h.status || "AtualizaÃ§Ã£o"}</p>
                   {h.descricao && <p className="text-xs text-slate-600 mt-0.5">{h.descricao}</p>}
                   {h.observacao && <p className="text-xs text-slate-500 mt-0.5 italic">&ldquo;{h.observacao}&rdquo;</p>}
                   <p className="text-xs text-slate-400 mt-1">
-                    {h.usuario && <><User size={10} className="inline mr-0.5" />{h.usuario} — </>}
+                    {h.usuario && <><User size={10} className="inline mr-0.5" />{h.usuario} â€” </>}
                     {h.data ? new Date(h.data).toLocaleString("pt-BR") : ""}
                   </p>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-sm text-slate-500">Sem histórico registrado</p>
+            <p className="text-sm text-slate-500">Sem histÃ³rico registrado</p>
           )}
         </div>
       </div>

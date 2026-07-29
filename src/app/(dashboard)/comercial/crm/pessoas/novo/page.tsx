@@ -112,7 +112,7 @@ export default function NovaPessoaPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!getNomeObrigatorio()) {
-      toast.error(tipoPessoa === "PF" ? "Nome é obrigatório" : "Razão Social é obrigatória")
+      toast.error(tipoPessoa === "PF" ? "Nome Ã© obrigatÃ³rio" : "RazÃ£o Social Ã© obrigatÃ³ria")
       return
     }
     setSaving(true)
@@ -149,12 +149,12 @@ export default function NovaPessoaPage() {
   return (
     <div className="space-y-6 animate-fade-in max-w-2xl">
       <div className="flex items-center gap-3">
-        <Link href="/comercial/crm/pessoas" className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+        <Link prefetch={false} href="/comercial/crm/pessoas" className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
           <ArrowLeft size={18} className="text-slate-500" />
         </Link>
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">Nova Pessoa (Negócio){info && <InfoButton content={info} />}</h1>
-          <p className="text-sm text-slate-500">Cadastrar um negócio (pessoa física ou jurídica) no CRM</p>
+          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">Nova Pessoa (NegÃ³cio){info && <InfoButton content={info} />}</h1>
+          <p className="text-sm text-slate-500">Cadastrar um negÃ³cio (pessoa fÃ­sica ou jurÃ­dica) no CRM</p>
         </div>
       </div>
 
@@ -171,7 +171,7 @@ export default function NovaPessoaPage() {
                   : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
               }`}
             >
-              Pessoa Física
+              Pessoa FÃ­sica
             </button>
             <button
               type="button"
@@ -182,7 +182,7 @@ export default function NovaPessoaPage() {
                   : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
               }`}
             >
-              Pessoa Jurídica
+              Pessoa JurÃ­dica
             </button>
           </div>
         </div>
@@ -214,7 +214,7 @@ export default function NovaPessoaPage() {
           ) : (
             <>
               <div className="sm:col-span-2">
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Razão Social *</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">RazÃ£o Social *</label>
                 <input
                   type="text"
                   value={form.razaoSocial}
@@ -264,7 +264,7 @@ export default function NovaPessoaPage() {
               <option value="MEI">MEI</option>
               <option value="ME">ME</option>
               <option value="EPP">EPP</option>
-              <option value="MEDIO">Médio Porte</option>
+              <option value="MEDIO">MÃ©dio Porte</option>
               <option value="GRANDE">Grande Porte</option>
             </select>
           </div>
@@ -324,7 +324,7 @@ export default function NovaPessoaPage() {
           </div>
 
           <div className="sm:col-span-2">
-            <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200 border-b border-slate-100 dark:border-slate-800 pb-2">Endereço</h3>
+            <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200 border-b border-slate-100 dark:border-slate-800 pb-2">EndereÃ§o</h3>
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Logradouro</label>
@@ -336,7 +336,7 @@ export default function NovaPessoaPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Número</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">NÃºmero</label>
             <input
               type="text"
               value={form.numero}
@@ -382,7 +382,7 @@ export default function NovaPessoaPage() {
           </div>
 
           <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Observações</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">ObservaÃ§Ãµes</label>
             <textarea
               value={form.observacoes}
               onChange={e => setField("observacoes", e.target.value)}
@@ -444,7 +444,7 @@ export default function NovaPessoaPage() {
         </div>
 
         <div className="flex justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
-          <Link
+          <Link prefetch={false}
             href="/comercial/crm/pessoas"
             className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
           >

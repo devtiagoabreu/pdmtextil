@@ -10,34 +10,34 @@ const modulos = [
   {
     href: "/documentos/romaneios",
     label: "Romaneios",
-    desc: "Emissão e consulta de romaneios de carga",
+    desc: "EmissÃ£o e consulta de romaneios de carga",
     icon: Truck,
   },
   {
     href: "/documentos/pre-danfe",
-    label: "Pré-DANFE",
-    desc: "Geração de pré-DANFE para faturamento",
+    label: "PrÃ©-DANFE",
+    desc: "GeraÃ§Ã£o de prÃ©-DANFE para faturamento",
     icon: FileSpreadsheet,
     disabled: true,
   },
   {
     href: "/documentos/pedidos-venda",
     label: "Pedidos de Venda",
-    desc: "Consulta e gestão de pedidos de venda",
+    desc: "Consulta e gestÃ£o de pedidos de venda",
     icon: ShoppingCart,
     disabled: true,
   },
   {
     href: "/documentos/pedidos-compra",
     label: "Pedidos de Compra",
-    desc: "Consulta e gestão de pedidos de compra",
+    desc: "Consulta e gestÃ£o de pedidos de compra",
     icon: FileText,
     disabled: true,
   },
   {
     href: "/documentos/relatorios",
-    label: "Relatórios",
-    desc: "Relatórios e dashbacks operacionais",
+    label: "RelatÃ³rios",
+    desc: "RelatÃ³rios e dashbacks operacionais",
     icon: BarChart3,
     disabled: true,
   },
@@ -54,7 +54,7 @@ export default function DocumentosPage() {
           Documentos{info && <InfoButton content={info} />}
         </h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-          Documentos operacionais, fiscais e logísticos
+          Documentos operacionais, fiscais e logÃ­sticos
         </p>
       </div>
 
@@ -62,7 +62,7 @@ export default function DocumentosPage() {
         {modulos.map((mod) => {
           const Icon = mod.icon
           return (
-            <Link
+            <Link prefetch={false}
               key={mod.href}
               href={mod.disabled ? "#" : mod.href}
               className={`relative rounded-xl border p-5 transition-all ${

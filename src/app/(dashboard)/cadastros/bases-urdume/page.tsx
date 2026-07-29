@@ -64,7 +64,7 @@ export default function BasesUrdumePage() {
         }
         throw new Error(data.error || "Erro ao excluir")
       }
-      toast.success("Base de urdume excluída com sucesso")
+      toast.success("Base de urdume excluÃ­da com sucesso")
       setDeleteTarget(null)
       refetch()
     } catch (err) {
@@ -95,14 +95,14 @@ export default function BasesUrdumePage() {
         <div className="flex gap-2">
           <ImportarBasesUrdume onImportado={() => refetch()} />
           <ExportarDados data={filteredBases} columns={[
-            { key: "codigoBase", label: "Código" }, { key: "nome", label: "Nome" },
+            { key: "codigoBase", label: "CÃ³digo" }, { key: "nome", label: "Nome" },
             { key: "densidade", label: "Densidade" }, { key: "largura", label: "Largura" },
           ]} filename="bases-urdume" title="Bases de Urdume" />
           <Button variant="outline" onClick={() => setShowApiImport(true)} className="gap-2">
             <Database size={16} />
             Importar via API
           </Button>
-          <Link href="/cadastros/bases-urdume/novo">
+          <Link prefetch={false} href="/cadastros/bases-urdume/novo">
             <Button className="gap-2">
               <PlusCircle size={16} />
               Nova Base
@@ -115,7 +115,7 @@ export default function BasesUrdumePage() {
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
           <Input
-            placeholder="Buscar por nome, código..."
+            placeholder="Buscar por nome, cÃ³digo..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-10"
@@ -136,14 +136,14 @@ export default function BasesUrdumePage() {
           <table className="w-full">
             <thead className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
               <tr>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Código</th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">CÃ³digo</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Nome</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Densidade</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Largura</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Tratamento</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">ID Integração</th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">ID IntegraÃ§Ã£o</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Status</th>
-                <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Ações</th>
+                <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">AÃ§Ãµes</th>
               </tr>
             </thead>
             <tbody>
@@ -155,10 +155,10 @@ export default function BasesUrdumePage() {
                 >
                   <td className="p-4 text-sm font-medium">{base.codigoBase}</td>
                   <td className="p-4 text-sm">{base.nome}</td>
-                  <td className="p-4 text-sm text-slate-500">{base.densidade || "—"}</td>
-                  <td className="p-4 text-sm text-slate-500">{base.largura || "—"}</td>
-                  <td className="p-4 text-sm text-slate-500">{base.tratamento || "—"}</td>
-                  <td className="p-4 text-sm text-slate-500">{base.idIntegracao || "—"}</td>
+                  <td className="p-4 text-sm text-slate-500">{base.densidade || "â€”"}</td>
+                  <td className="p-4 text-sm text-slate-500">{base.largura || "â€”"}</td>
+                  <td className="p-4 text-sm text-slate-500">{base.tratamento || "â€”"}</td>
+                  <td className="p-4 text-sm text-slate-500">{base.idIntegracao || "â€”"}</td>
                   <td className="p-4">
                     <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
                       base.ativo 
@@ -170,7 +170,7 @@ export default function BasesUrdumePage() {
                   </td>
                   <td className="p-4 text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Link href={`/cadastros/bases-urdume/${base.id}`} onClick={(e) => e.stopPropagation()}>
+                      <Link prefetch={false} href={`/cadastros/bases-urdume/${base.id}`} onClick={(e) => e.stopPropagation()}>
                         <Button variant="ghost" size="icon" className="h-8 w-8">
                           <Pencil size={14} />
                         </Button>
@@ -198,12 +198,12 @@ export default function BasesUrdumePage() {
 
       <ConfirmModal
         open={deleteTarget !== null}
-        title={deleteBlocked ? "Exclusão não permitida" : "Excluir base de urdume?"}
+        title={deleteBlocked ? "ExclusÃ£o nÃ£o permitida" : "Excluir base de urdume?"}
         message={deleteBlocked
-          ? "Esta base possui cadastros vinculados e não pode ser excluída."
+          ? "Esta base possui cadastros vinculados e nÃ£o pode ser excluÃ­da."
           : `Tem certeza que deseja excluir?`}
         subMessage={deleteBlocked
-          ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informações."
+          ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informaÃ§Ãµes."
           : undefined}
         confirmLabel={deleteBlocked ? "OK" : "Excluir"}
         variant={deleteBlocked ? "warning" : "danger"}
