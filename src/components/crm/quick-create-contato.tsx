@@ -30,7 +30,7 @@ export function QuickCreateContato({ empresaId, clienteId, clienteNome, onClickG
     fetch("/api/crm/pessoas")
       .then(r => r.json())
       .then(data => { if (Array.isArray(data)) setEmpresas(data) })
-      .catch(() => {})
+      .catch(console.error)
   }, [open])
 
   useEffect(() => {

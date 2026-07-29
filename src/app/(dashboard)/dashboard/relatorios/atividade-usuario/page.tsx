@@ -84,7 +84,7 @@ export default function RelatorioAtividadeUsuario() {
         setTiposDisponiveis(data.filtros?.tipos || [])
         setUsuariosDisponiveis(data.filtros?.usuarios || [])
       })
-      .catch(() => {})
+      .catch(console.error)
       .finally(() => setLoading(false))
   }, [dataInicio, dataFim, usuarioFiltro, tipoFiltro])
 

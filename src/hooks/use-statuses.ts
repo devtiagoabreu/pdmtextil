@@ -33,7 +33,7 @@ export function useStatuses(tipo: string) {
           setStatuses(data)
         }
       })
-      .catch(() => {})
+      .catch(console.error)
       .finally(() => setLoading(false))
   }, [tipo])
 

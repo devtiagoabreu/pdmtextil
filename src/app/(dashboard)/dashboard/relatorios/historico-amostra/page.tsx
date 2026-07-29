@@ -66,7 +66,7 @@ export default function HistoricoAmostraPage() {
         ...(res.acabamento || []).map((a: any) => ({ ...a, tipoAmostra: "acabamento" })),
       ]
       setAmostrasList(combined)
-    }).catch(() => {})
+    }).catch(console.error)
   }, [])
 
   useEffect(() => {

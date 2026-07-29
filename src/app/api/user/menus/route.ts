@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { userMenus, userMenuItens } from "@/lib/db/schema/user-menus"
-import { eq, asc, and } from "drizzle-orm"
+import { eq, asc, and, inArray } from "drizzle-orm"
 import { handleApiError } from "@/lib/api-error"
 
 async function carregarMenus(params: { usuarioId?: number; role?: string }) {
@@ -16,15 +16,25 @@ async function carregarMenus(params: { usuarioId?: number; role?: string }) {
     .where(condicoes.length > 0 ? and(...condicoes) : undefined)
     .orderBy(asc(userMenus.ordem))
 
-  const result = []
-  for (const menu of menus) {
-    const itens = await db
-      .select()
-      .from(userMenuItens)
-      .where(eq(userMenuItens.userMenuId, menu.id))
-      .orderBy(asc(userMenuItens.ordem))
-    result.push({ ...menu, itens })
+  if (menus.length === 0) return []
+
+  const menuIds = menus.map(m => m.id)
+  const todosItens = await db
+    .select()
+    .from(userMenuItens)
+    .where(inArray(userMenuItens.userMenuId, menuIds))
+    .orderBy(asc(userMenuItens.ordem))
+
+  const itensPorMenu: Record<number, typeof todosItens> = {}
+  for (const item of todosItens) {
+    if (!itensPorMenu[item.userMenuId]) itensPorMenu[item.userMenuId] = []
+    itensPorMenu[item.userMenuId].push(item)
   }
+
+  const result = menus.map(menu => ({
+    ...menu,
+    itens: itensPorMenu[menu.id] || [],
+  }))
 
   const hasItens = result.some(m => m.itens.length > 0)
   if (!hasItens && result.length > 0) return []

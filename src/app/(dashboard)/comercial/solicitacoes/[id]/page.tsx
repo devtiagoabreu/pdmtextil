@@ -169,7 +169,7 @@ export default function DetalheSolicitacaoPage() {
           setStatusOptions(data.map((s: any) => ({ value: s.nome, label: s.rotulo || s.nome })))
         }
       })
-      .catch(() => {})
+      .catch(console.error)
   }, [])
 
   useEffect(() => {
@@ -181,7 +181,7 @@ export default function DetalheSolicitacaoPage() {
       fetch(`/api/solicitacoes/${id}/produtos-cru`)
         .then(r => r.json())
         .then(data => setProdutos(Array.isArray(data) ? data : []))
-        .catch(() => {})
+        .catch(console.error)
     }
   }, [id])
 

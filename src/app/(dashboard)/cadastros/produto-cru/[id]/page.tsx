@@ -204,21 +204,21 @@ export default function ProdutoCruFormPage() {
       .then(data => {
         if (Array.isArray(data)) setSolicitacoes(data)
       })
-      .catch(() => {})
+      .catch(console.error)
 
     fetch("/api/admin/status?tipo=PRODUTO_CRU")
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) setStatusOptionsProd(data.map((s: any) => ({ value: s.nome, label: s.rotulo || s.nome })))
       })
-      .catch(() => {})
+      .catch(console.error)
 
     fetch("/api/admin/status?tipo=AMOSTRA")
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) setStatusOptionsAmostra(data.map((s: any) => ({ value: s.nome, label: s.rotulo || s.nome })))
       })
-      .catch(() => {})
+      .catch(console.error)
   }, [])
 
   useEffect(() => {

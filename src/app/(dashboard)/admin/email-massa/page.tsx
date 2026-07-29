@@ -481,7 +481,7 @@ export default function EmailMassaPage() {
           setRemetente("usuario")
         }
       })
-      .catch(() => {})
+      .catch(console.error)
   }, [carregarModelos, carregarListas])
 
   useEffect(() => {
@@ -526,7 +526,7 @@ export default function EmailMassaPage() {
   useEffect(() => {
     if (activeTab === "agendar") {
       carregarAgendados()
-      fetch("/api/admin/email-massa/agendados/executar", { method: "POST" }).catch(() => {})
+      fetch("/api/admin/email-massa/agendados/executar", { method: "POST" }).catch(console.error)
     }
   }, [activeTab, carregarAgendados])
 
@@ -1722,7 +1722,7 @@ export default function EmailMassaPage() {
               <div className="mt-3">
                 <p className="text-xs text-slate-400 mb-1">Preview:</p>
                 <div className="border rounded-lg p-3 bg-white dark:bg-slate-800 max-h-40 overflow-auto"
-                  dangerouslySetInnerHTML={{ __html: htmlCodeValue }} />
+                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(htmlCodeValue) }} />
               </div>
             )}
           </div>

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { eq, sql } from "drizzle-orm"
 import { crmLeads } from "@/lib/db/schema/crm-leads"
@@ -11,6 +12,9 @@ function extrairNumero(remoteJid: string): string {
 
 export async function GET(req: NextRequest) {
   try {
+    const auth = await requireAuth()
+    if (auth instanceof NextResponse) return auth
+
     const remoteJid = req.nextUrl.searchParams.get("remoteJid")
     if (!remoteJid) {
       return NextResponse.json({ error: "remoteJid obrigatório" }, { status: 400 })
@@ -73,6 +77,9 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const auth = await requireAuth()
+    if (auth instanceof NextResponse) return auth
+
     const { remoteJid, estado, dados, msg, resposta, pushName } = await req.json()
 
     if (!remoteJid) {

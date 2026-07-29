@@ -46,7 +46,7 @@ function UserSmtpConfig() {
           setHasConfig(true)
         }
       })
-      .catch(() => {})
+      .catch(console.error)
       .finally(() => setLoading(false))
   }, [])
 

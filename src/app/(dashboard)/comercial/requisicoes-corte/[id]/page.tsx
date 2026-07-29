@@ -64,7 +64,7 @@ export default function DetalheRequisicaoCortePage() {
       .then(data => {
         if (Array.isArray(data)) setStatusOptions(data.map((s: any) => ({ value: s.nome, label: s.rotulo || s.nome, cor: s.cor })))
       })
-      .catch(() => {})
+      .catch(console.error)
   }, [])
 
   useEffect(() => {

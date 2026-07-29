@@ -72,7 +72,7 @@ export default function AdminTelasPage() {
           setRoles(prev => [...prev, ...data.filter((r: RoleOption) => r.name !== "DEFAULT")])
         }
       })
-      .catch(() => {})
+      .catch(console.error)
   }, [])
 
   // Carregar dados para o role selecionado

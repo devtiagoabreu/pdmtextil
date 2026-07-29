@@ -41,7 +41,7 @@ export default function CrmEmailConfigPage() {
           setHasConfig(true)
         }
       })
-      .catch(() => {})
+      .catch(console.error)
       .finally(() => setLoading(false))
   }, [])
 

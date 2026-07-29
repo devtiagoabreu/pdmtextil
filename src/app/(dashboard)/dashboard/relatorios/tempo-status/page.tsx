@@ -60,7 +60,7 @@ export default function RelatorioTempoStatus() {
         setResultados(data.resultados || [])
         setStats(data.stats)
       })
-      .catch(() => {})
+      .catch(console.error)
       .finally(() => setLoading(false))
   }, [filtroStatus, filtroDataInicio, filtroDataFim])
 

@@ -42,7 +42,7 @@ export default function SmtpConfigPage() {
           setHasConfig(true)
         }
       })
-      .catch(() => {})
+      .catch(console.error)
       .finally(() => setLoading(false))
   }, [])
 

@@ -55,7 +55,7 @@ export default function RelatorioAmostraComercialPorStatus() {
         setPorMes(data.porMes || [])
         setLista(data.lista || [])
       })
-      .catch(() => {})
+      .catch(console.error)
       .finally(() => setLoading(false))
   }, [selectedStatus, dataInicio, dataFim])
 

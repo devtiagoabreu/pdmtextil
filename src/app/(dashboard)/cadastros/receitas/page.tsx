@@ -51,7 +51,7 @@ export default function ListaReceitasPage() {
         setSimples(data.simples || [])
         setCompletas(data.completas || [])
       })
-      .catch(() => {})
+      .catch(console.error)
       .finally(() => setLoading(false))
   }, [])
 

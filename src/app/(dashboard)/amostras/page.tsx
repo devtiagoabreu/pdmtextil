@@ -54,7 +54,7 @@ export default function AmostrasPage() {
         setTecidoCru(data.tecidoCru || [])
         setAcabamento(data.acabamento || [])
       })
-      .catch(() => {})
+      .catch(console.error)
       .finally(() => setLoading(false))
   }, [])
 

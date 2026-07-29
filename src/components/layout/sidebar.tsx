@@ -49,7 +49,7 @@ const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { on
     fetch("/api/user/pagina-inicial")
       .then(r => r.json())
       .then(data => { if (data?.paginaInicial) setPaginaInicial(data.paginaInicial) })
-      .catch(() => {})
+      .catch(console.error)
     fetch("/api/user/menus")
       .then(r => r.json())
       .then(data => {

@@ -69,7 +69,6 @@ export async function GET(req: NextRequest) {
       headers: {
         "Content-Type": contentType,
         "Cache-Control": "public, max-age=86400",
-        "Access-Control-Allow-Origin": "*",
       },
     })
   } catch (error) {

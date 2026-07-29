@@ -58,7 +58,7 @@ export default function RelatorioAmostrasPorStatus() {
         setPorMes(data.porMes || [])
         setLista(data.lista || [])
       })
-      .catch(() => {})
+      .catch(console.error)
       .finally(() => setLoading(false))
   }, [selectedStatus, dataInicio, dataFim])
 

@@ -38,7 +38,7 @@ export default function CrmPessoaWhatsapp({ pessoaId }: { pessoaId: string }) {
           fetch(`/api/crm/whatsapp/chat?remoteJid=${encodeURIComponent(jid)}`)
             .then((r) => r.json())
             .then((d) => setIsHumano(d.conversa?.estado === "HUMANO_ASSUMINDO"))
-            .catch(() => {})
+            .catch(console.error)
         }
       })
       .catch(() => toast.error("Erro ao carregar mensagens"))

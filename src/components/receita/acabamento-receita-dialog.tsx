@@ -99,7 +99,7 @@ export function ReceitaDialog({
     fetch("/api/cadastros/produtos-quimicos")
       .then(r => r.json())
       .then(setQuimicos)
-      .catch(() => {})
+      .catch(console.error)
     load()
   }, [open, amostraId, load])
 

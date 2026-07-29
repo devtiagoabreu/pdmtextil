@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { userMenus, userMenuItens } from "@/lib/db/schema/user-menus"
-import { eq, and, asc, isNull } from "drizzle-orm"
+import { eq, and, asc, isNull, inArray } from "drizzle-orm"
 import { handleApiError } from "@/lib/api-error"
 
 async function forkRoleMenusToUser(userId: number, roleName: string) {
@@ -45,16 +45,25 @@ async function carregarMenus(usuarioId: number) {
     .where(eq(userMenus.usuarioId, usuarioId))
     .orderBy(asc(userMenus.ordem))
 
-  const result = []
-  for (const menu of menus) {
-    const itens = await db
-      .select()
-      .from(userMenuItens)
-      .where(eq(userMenuItens.userMenuId, menu.id))
-      .orderBy(asc(userMenuItens.ordem))
-    result.push({ ...menu, itens })
+  if (menus.length === 0) return []
+
+  const menuIds = menus.map(m => m.id)
+  const todosItens = await db
+    .select()
+    .from(userMenuItens)
+    .where(inArray(userMenuItens.userMenuId, menuIds))
+    .orderBy(asc(userMenuItens.ordem))
+
+  const itensPorMenu: Record<number, typeof todosItens> = {}
+  for (const item of todosItens) {
+    if (!itensPorMenu[item.userMenuId]) itensPorMenu[item.userMenuId] = []
+    itensPorMenu[item.userMenuId].push(item)
   }
-  return result
+
+  return menus.map(menu => ({
+    ...menu,
+    itens: itensPorMenu[menu.id] || [],
+  }))
 }
 
 export async function PATCH(req: NextRequest) {
@@ -95,7 +104,7 @@ export async function PATCH(req: NextRequest) {
       forkIdMap.forEach((novoId, antigoId) => idMap.set(antigoId, novoId))
     }
 
-    // Atualizar ordem
+    // Atualizar ordem em lote
     for (let i = 0; i < ids.length; i++) {
       const originalId = ids[i]
       const resolvedId = idMap.get(originalId) ?? originalId

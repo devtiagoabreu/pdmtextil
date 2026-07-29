@@ -60,7 +60,7 @@ export default function RelatorioTempoStatusAmostras() {
         setAcabamento(data.acabamento || [])
         setStats(data.stats)
       })
-      .catch(() => {})
+      .catch(console.error)
       .finally(() => setLoading(false))
   }, [])
 

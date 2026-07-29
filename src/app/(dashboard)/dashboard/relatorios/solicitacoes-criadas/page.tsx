@@ -55,7 +55,7 @@ export default function RelatorioSolicitacoesCriadas() {
         setPorMes(data.porMes || [])
         setRecentes(data.recentes || [])
       })
-      .catch(() => {})
+      .catch(console.error)
       .finally(() => setLoading(false))
   }, [dataInicio, dataFim])
 

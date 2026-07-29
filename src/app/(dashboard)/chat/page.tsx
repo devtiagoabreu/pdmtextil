@@ -135,7 +135,7 @@ function NovoChatDialog({ onClose }: { onClose: () => void }) {
     fetch("/api/usuarios/ativos")
       .then((r) => r.json())
       .then((data) => setUsuarios(Array.isArray(data) ? data : []))
-      .catch(() => {})
+      .catch(console.error)
   }, [])
 
   useEffect(() => {
@@ -303,7 +303,7 @@ function ConversationView({ chatId, onBack }: { chatId: number; onBack: () => vo
   }, [mentionQuery])
 
   useEffect(() => {
-    marcarLidas(chatId).catch(() => {})
+    marcarLidas(chatId).catch(console.error)
     queryClient.invalidateQueries({ queryKey: ["chats"] })
   }, [chatId, queryClient])
 

@@ -42,7 +42,7 @@ export default function ContatoDetailPage() {
     fetch("/api/crm/pessoas")
       .then(r => r.json())
       .then(data => { if (Array.isArray(data)) setEmpresas(data) })
-      .catch(() => {})
+      .catch(console.error)
   }, [editing])
 
   async function handleSave() {

@@ -64,7 +64,7 @@ export default function LeadDetailPage() {
       .then(data => {
         setMensagens(Array.isArray(data) ? data.reverse() : [])
       })
-      .catch(() => {})
+      .catch(console.error)
       .finally(() => setLoadingMsgs(false))
   }, [lead?.id])
 

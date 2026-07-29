@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { requireAuth, getServerSession, authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { solicitacoes } from "@/lib/db/schema/solicitacoes"
 import { anexos } from "@/lib/db/schema/anexos"
@@ -14,6 +13,9 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await requireAuth()
+    if (auth instanceof NextResponse) return auth
+
     const { id } = await params
     
     const resultado = await db

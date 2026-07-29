@@ -115,7 +115,7 @@ export default function NovaVisitaPage() {
   }, [form.empresaId, form.clienteId, tipoEntidade])
 
   useEffect(() => {
-    fetch("/api/crm/estados").then(r => r.json()).then(setEstados).catch(() => {})
+    fetch("/api/crm/estados").then(r => r.json()).then(setEstados).catch(console.error)
   }, [])
 
   useEffect(() => {
