@@ -89,7 +89,7 @@ export default function EstadosConfigPage() {
     !busca || e.nome.toLowerCase().includes(busca.toLowerCase()) || e.uf.toLowerCase().includes(busca.toLowerCase())
   )
 
-  const getRegiaoLabel = (sigla: string | null) => sigla ? (REGIAO_LABELS[sigla] || sigla) : "�"
+  const getRegiaoLabel = (sigla: string | null) => sigla ? (REGIAO_LABELS[sigla] || sigla) : "—"
   const getGerenteNome = (id: number | null) => {
     if (!id) return null
     const u = (usuarios || []).find((u: Usuario) => u.id === id)
@@ -160,7 +160,7 @@ export default function EstadosConfigPage() {
                         >
                           <option value="">Selecione...</option>
                           {REGIAO_SIGLAS.map((s: any) => (
-                            <option key={s} value={s}>{s} � {REGIAO_LABELS[s]}</option>
+                            <option key={s} value={s}>{s} — {REGIAO_LABELS[s]}</option>
                           ))}
                         </select>
                       ) : (
@@ -180,7 +180,7 @@ export default function EstadosConfigPage() {
                           ))}
                         </select>
                       ) : (
-                        <span className="text-slate-700 dark:text-slate-300">{getGerenteNome(e.gerenteId) || "�"}</span>
+                        <span className="text-slate-700 dark:text-slate-300">{getGerenteNome(e.gerenteId) || "—"}</span>
                       )}
                     </td>
                     <td className="px-4 py-3">
@@ -196,7 +196,7 @@ export default function EstadosConfigPage() {
                           ))}
                         </select>
                       ) : (
-                        <span className="text-slate-700 dark:text-slate-300">{e.paisNome || "�"}</span>
+                        <span className="text-slate-700 dark:text-slate-300">{e.paisNome || "—"}</span>
                       )}
                     </td>
                     <td className="px-4 py-3 text-right">

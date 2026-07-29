@@ -184,7 +184,7 @@ export default function BuscarCnpjModal({ tipo, onClose, onCreated }: BuscarCnpj
                     {apiData.razao_social}
                   </p>
                   <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-0.5">
-                    {apiData.nome_fantasia} � {apiData.situacao_cadastral}
+                    {apiData.nome_fantasia} — {apiData.situacao_cadastral}
                   </p>
                 </div>
               </div>
@@ -208,22 +208,22 @@ export default function BuscarCnpjModal({ tipo, onClose, onCreated }: BuscarCnpj
                 </div>
                 <div className="col-span-2">
                   <p className="text-xs text-slate-500">Nome Fantasia</p>
-                  <p className="text-slate-900 dark:text-slate-200">{apiData.nome_fantasia || "�"}</p>
+                  <p className="text-slate-900 dark:text-slate-200">{apiData.nome_fantasia || "—"}</p>
                 </div>
                 <div>
                   <p className="text-xs text-slate-500">Porte</p>
-                  <p className="text-slate-900 dark:text-slate-200">{apiData.porte_empresa || "�"}</p>
+                  <p className="text-slate-900 dark:text-slate-200">{apiData.porte_empresa || "—"}</p>
                 </div>
                 <div>
                   <p className="text-xs text-slate-500">CNAE</p>
-                  <p className="text-slate-900 dark:text-slate-200">{apiData.cnae_principal_descricao || "�"}</p>
+                  <p className="text-slate-900 dark:text-slate-200">{apiData.cnae_principal_descricao || "—"}</p>
                 </div>
                 <div className="col-span-2">
                   <p className="text-xs text-slate-500">Endereço</p>
                   <p className="text-slate-900 dark:text-slate-200">
-                    {[apiData.logradouro, apiData.numero, apiData.bairro, apiData.complemento].filter(Boolean).join(", ") || "�"}
-                    {apiData.cep && ` � CEP ${apiData.cep}`}
-                    {apiData.municipio && ` � ${apiData.municipio}/${apiData.uf}`}
+                    {[apiData.logradouro, apiData.numero, apiData.bairro, apiData.complemento].filter(Boolean).join(", ") || "—"}
+                    {apiData.cep && ` — CEP ${apiData.cep}`}
+                    {apiData.municipio && ` — ${apiData.municipio}/${apiData.uf}`}
                   </p>
                 </div>
               </div>

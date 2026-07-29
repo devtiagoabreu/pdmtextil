@@ -92,25 +92,25 @@ export default function DetalhePropostaPage() {
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <span className="text-slate-500 dark:text-slate-400 block text-xs">Pessoa (Negócio)</span>
-                <span className="text-slate-900 dark:text-slate-200 font-medium">{proposta.empresaId || "�"}</span>
+                <span className="text-slate-900 dark:text-slate-200 font-medium">{proposta.empresaId || "—"}</span>
               </div>
               <div>
                 <span className="text-slate-500 dark:text-slate-400 block text-xs">Oportunidade</span>
-                <span className="text-slate-900 dark:text-slate-200">{proposta.oportunidadeId || "�"}</span>
+                <span className="text-slate-900 dark:text-slate-200">{proposta.oportunidadeId || "—"}</span>
               </div>
               <div>
                 <span className="text-slate-500 dark:text-slate-400 block text-xs">Valor</span>
                 <span className="text-slate-900 dark:text-slate-200 font-semibold">
-                  {proposta.valor ? `R$ ${Number(proposta.valor).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : "�"}
+                  {proposta.valor ? `R$ ${Number(proposta.valor).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : "—"}
                 </span>
               </div>
               <div>
                 <span className="text-slate-500 dark:text-slate-400 block text-xs">Prazo de Entrega</span>
-                <span className="text-slate-900 dark:text-slate-200">{proposta.prazoEntrega || "�"}</span>
+                <span className="text-slate-900 dark:text-slate-200">{proposta.prazoEntrega || "—"}</span>
               </div>
               <div className="col-span-2">
                 <span className="text-slate-500 dark:text-slate-400 block text-xs">Condições de Pagamento</span>
-                <span className="text-slate-900 dark:text-slate-200">{proposta.condicoesPagamento || "�"}</span>
+                <span className="text-slate-900 dark:text-slate-200">{proposta.condicoesPagamento || "—"}</span>
               </div>
               {proposta.descricao && (
                 <div className="col-span-2">

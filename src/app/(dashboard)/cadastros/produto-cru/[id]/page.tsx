@@ -160,8 +160,8 @@ export default function ProdutoCruFormPage() {
   const [statusOptionsProd, setStatusOptionsProd] = useState<{ value: string; label: string }[]>([])
   const [statusOptionsAmostra, setStatusOptionsAmostra] = useState<{ value: string; label: string }[]>([])
 
-  const fioLabel = (f: typeof fios[0]) => [f.codigoFio, f.idIntegracao, f.nome].filter(Boolean).join(" � ")
-  const baseLabel = (b: typeof basesUrdume[0]) => [b.idIntegracao, b.nome].filter(Boolean).join(" � ")
+  const fioLabel = (f: typeof fios[0]) => [f.codigoFio, f.idIntegracao, f.nome].filter(Boolean).join(" — ")
+  const baseLabel = (b: typeof basesUrdume[0]) => [b.idIntegracao, b.nome].filter(Boolean).join(" — ")
   const [solicitacoes, setSolicitacoes] = useState<{ id: number; cliente: string; projeto: string }[]>([])
 
   const [expandedAcabamento, setExpandedAcabamento] = useState<number | null>(null)
@@ -273,7 +273,7 @@ export default function ProdutoCruFormPage() {
     if (newStatus === "APROVADO") {
       const temAmostraCruAprovada = amostras.some((a: any) => a.status.startsWith("APROVADA"))
       if (!temAmostraCruAprovada) {
-        toast.error("�0 necessário pelo menos uma amostra de tecido cru aprovada para aprovar o produto")
+        toast.error("—0 necessário pelo menos uma amostra de tecido cru aprovada para aprovar o produto")
         return
       }
     }
@@ -297,7 +297,7 @@ export default function ProdutoCruFormPage() {
     if (produto.status === "APROVADO") {
       const temAmostraCruAprovada = amostras.some((a: any) => a.status.startsWith("APROVADA"))
       if (!temAmostraCruAprovada) {
-        toast.error("�0 necessário pelo menos uma amostra de tecido cru aprovada para aprovar o produto")
+        toast.error("—0 necessário pelo menos uma amostra de tecido cru aprovada para aprovar o produto")
         return
       }
     }
@@ -705,7 +705,7 @@ export default function ProdutoCruFormPage() {
           <EntityChatButton
             entidadeTipo="PRODUTO_CRU"
             entidadeId={id}
-            titulo={produto.codigoPdm ? `Produto ${produto.codigoPdm} � ${produto.descricao}` : `Produto #${id}`}
+            titulo={produto.codigoPdm ? `Produto ${produto.codigoPdm} — ${produto.descricao}` : `Produto #${id}`}
           />
         )}
       </div>
@@ -883,7 +883,7 @@ export default function ProdutoCruFormPage() {
                     <div className="space-y-2">
                       {composicao.map((c: any) => (
                         <div key={c.id} className="flex items-center justify-between p-3 bg-slate-100 dark:bg-slate-800 rounded-lg">
-                          <span>{c.material} � {c.percentual}%</span>
+                          <span>{c.material} — {c.percentual}%</span>
                            <Button variant="ghost" size="icon" onClick={() => setDeleteTarget({ type: "composicao", label: `material "${c.material}"`, fn: () => removeComposicao(c.id) })}>
                             <Trash2 size={16} />
                           </Button>
@@ -916,9 +916,9 @@ export default function ProdutoCruFormPage() {
                       {estrutura.map((e: any) => (
                         <div key={e.id} className="flex items-center justify-between p-3 bg-slate-100 dark:bg-slate-800 rounded-lg">
                           <span>
-                            {e.tipo} � {e.tipo === "TRAMA"
-                            ? (fios.find((f: any) => f.id === e.fioId) ? fioLabel(fios.find((f: any) => f.id === e.fioId)!) : `Fio #${e.fioId || "�"}`)
-                            : (basesUrdume.find((b: any) => b.id === e.baseUrdumeId) ? baseLabel(basesUrdume.find((b: any) => b.id === e.baseUrdumeId)!) : `Base Urdume #${e.baseUrdumeId || "�"}`)
+                            {e.tipo} — {e.tipo === "TRAMA"
+                            ? (fios.find((f: any) => f.id === e.fioId) ? fioLabel(fios.find((f: any) => f.id === e.fioId)!) : `Fio #${e.fioId || "—"}`)
+                            : (basesUrdume.find((b: any) => b.id === e.baseUrdumeId) ? baseLabel(basesUrdume.find((b: any) => b.id === e.baseUrdumeId)!) : `Base Urdume #${e.baseUrdumeId || "—"}`)
                           }
                             {e.ordem ? ` (Ordem: ${e.ordem})` : ""}
                           </span>

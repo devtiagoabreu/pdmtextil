@@ -309,7 +309,7 @@ export default function DetalheVisitaPage() {
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-50 truncate">
-                Visita � {visita.empresaNome || visita.clienteNome || `#${visita.id}`}{info && <InfoButton content={info} />}
+                Visita — {visita.empresaNome || visita.clienteNome || `#${visita.id}`}{info && <InfoButton content={info} />}
               </h1>
               <span
                 className="inline-flex text-[10px] px-2 py-0.5 rounded-full font-medium shrink-0"
@@ -319,7 +319,7 @@ export default function DetalheVisitaPage() {
               </span>
             </div>
             <p className="text-xs sm:text-sm text-slate-500 truncate">
-              {TIPO_LABELS[visita.tipo] || visita.tipo} � {visita.dataVisita ? new Date(visita.dataVisita + "T12:00:00").toLocaleDateString("pt-BR") : "�"}{visita.hora ? ` às ${visita.hora}` : ""}
+              {TIPO_LABELS[visita.tipo] || visita.tipo} — {visita.dataVisita ? new Date(visita.dataVisita + "T12:00:00").toLocaleDateString("pt-BR") : "—"}{visita.hora ? ` às ${visita.hora}` : ""}
             </p>
           </div>
         </div>
@@ -531,7 +531,7 @@ export default function DetalheVisitaPage() {
                 </div>
                 <div>
                   <span className="text-xs text-slate-500 block mb-0.5">Data da Visita</span>
-                  <p className="text-slate-900 dark:text-slate-200">{visita.dataVisita ? new Date(visita.dataVisita + "T12:00:00").toLocaleDateString("pt-BR") : "�"}{visita.hora ? ` às ${visita.hora}` : ""}</p>
+                  <p className="text-slate-900 dark:text-slate-200">{visita.dataVisita ? new Date(visita.dataVisita + "T12:00:00").toLocaleDateString("pt-BR") : "—"}{visita.hora ? ` às ${visita.hora}` : ""}</p>
                 </div>
                 {visita.duracaoEstimada && (
                   <div>
@@ -546,7 +546,7 @@ export default function DetalheVisitaPage() {
                       {visita.empresaNome} <ExternalLink size={12} />
                     </Link>
                   ) : (
-                    <p className="text-slate-900 dark:text-slate-200">{visita.clienteNome || "�"}</p>
+                    <p className="text-slate-900 dark:text-slate-200">{visita.clienteNome || "—"}</p>
                   )}
                 </div>
                 {visita.oportunidadeTitulo && (
@@ -586,32 +586,32 @@ export default function DetalheVisitaPage() {
                 <div className="space-y-3">
                   <div>
                     <span className="text-xs text-slate-500 block mb-0.5">Logradouro</span>
-                    <p className="text-sm text-slate-900 dark:text-slate-200">{visita.endereco || "�"}</p>
+                    <p className="text-sm text-slate-900 dark:text-slate-200">{visita.endereco || "—"}</p>
                   </div>
                 <div className="grid grid-cols-2 sm:grid-cols-2 gap-3">
                     <div>
                       <span className="text-xs text-slate-500 block mb-0.5">Número</span>
-                      <p className="text-sm text-slate-900 dark:text-slate-200">{visita.numero || "�"}</p>
+                      <p className="text-sm text-slate-900 dark:text-slate-200">{visita.numero || "—"}</p>
                     </div>
                     <div>
                       <span className="text-xs text-slate-500 block mb-0.5">Complemento</span>
-                      <p className="text-sm text-slate-900 dark:text-slate-200">{visita.complemento || "�"}</p>
+                      <p className="text-sm text-slate-900 dark:text-slate-200">{visita.complemento || "—"}</p>
                     </div>
                     <div>
                       <span className="text-xs text-slate-500 block mb-0.5">Bairro</span>
-                      <p className="text-sm text-slate-900 dark:text-slate-200">{visita.bairro || "�"}</p>
+                      <p className="text-sm text-slate-900 dark:text-slate-200">{visita.bairro || "—"}</p>
                     </div>
                     <div>
                       <span className="text-xs text-slate-500 block mb-0.5">CEP</span>
-                      <p className="text-sm text-slate-900 dark:text-slate-200">{visita.cep || "�"}</p>
+                      <p className="text-sm text-slate-900 dark:text-slate-200">{visita.cep || "—"}</p>
                     </div>
                     <div>
                       <span className="text-xs text-slate-500 block mb-0.5">UF</span>
-                      <p className="text-sm text-slate-900 dark:text-slate-200">{visita.uf || "�"}</p>
+                      <p className="text-sm text-slate-900 dark:text-slate-200">{visita.uf || "—"}</p>
                     </div>
                     <div className="col-span-2">
                       <span className="text-xs text-slate-500 block mb-0.5">Cidade</span>
-                      <p className="text-sm text-slate-900 dark:text-slate-200">{visita.cidade || "�"}</p>
+                      <p className="text-sm text-slate-900 dark:text-slate-200">{visita.cidade || "—"}</p>
                     </div>
                   </div>
                 </div>

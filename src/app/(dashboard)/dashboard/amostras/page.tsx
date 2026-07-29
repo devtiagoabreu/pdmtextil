@@ -280,19 +280,19 @@ export default function DashboardAmostras() {
                           {a.idIntegracao ? (
                             <span className="font-mono text-xs">{a.idIntegracao}</span>
                           ) : (
-                            <span className="text-slate-300">�</span>
+                            <span className="text-slate-300">—</span>
                           )}
                         </td>
                         <td className="p-4 text-sm">
                           {a.solicitacaoId ? (
                             <Link prefetch={false} href={`/comercial/solicitacoes/${a.solicitacaoId}`} className="text-blue-600 dark:text-blue-400 hover:underline text-xs">
-                              {a.solicitacaoCliente || `#${a.solicitacaoId}`}{a.solicitacaoProjeto ? ` � ${a.solicitacaoProjeto}` : ""}
+                              {a.solicitacaoCliente || `#${a.solicitacaoId}`}{a.solicitacaoProjeto ? ` — ${a.solicitacaoProjeto}` : ""}
                             </Link>
                           ) : (
-                            <span className="text-slate-300">�</span>
+                            <span className="text-slate-300">—</span>
                           )}
                         </td>
-                        <td className="p-4 text-sm text-slate-600 dark:text-slate-300">{a.descricao || "�"}</td>
+                        <td className="p-4 text-sm text-slate-600 dark:text-slate-300">{a.descricao || "—"}</td>
                         <td className="p-4 text-sm">
                           <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${TIPO_BG[a.tipoAmostra] || "bg-slate-100 text-slate-600"}`}>
                             {TIPO_LABELS[a.tipoAmostra] || a.tipoAmostra}
@@ -307,7 +307,7 @@ export default function DashboardAmostras() {
                           </span>
                         </td>
                         <td className="p-4 text-sm text-slate-500">
-                          {a.data ? new Date(a.data).toLocaleDateString("pt-BR") : "�"}
+                          {a.data ? new Date(a.data).toLocaleDateString("pt-BR") : "—"}
                         </td>
                         <td className="p-4">
                           <button
@@ -363,7 +363,7 @@ export default function DashboardAmostras() {
                     >
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-medium text-slate-900 dark:text-slate-200 truncate">
-                          {item.produtoCodigo || `#${item.produtoId}`} � {item.descricao || "Sem descrição"}
+                          {item.produtoCodigo || `#${item.produtoId}`} — {item.descricao || "Sem descrição"}
                         </p>
                         <p className="text-xs text-slate-400 truncate">{item.produtoDescricao}</p>
                       </div>

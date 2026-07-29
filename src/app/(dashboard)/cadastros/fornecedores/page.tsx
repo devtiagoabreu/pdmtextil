@@ -155,13 +155,13 @@ export default function FornecedoresPage() {
                   onClick={() => router.push(`/cadastros/fornecedores/${fornecedor.id}`)}
                 >
                   <td className="p-4 text-sm font-medium">{fornecedor.nome}</td>
-                  <td className="p-4 text-sm text-slate-500">{fornecedor.cnpj || "�"}</td>
-                  <td className="p-4 text-sm text-slate-500">{fornecedor.email || "�"}</td>
-                  <td className="p-4 text-sm text-slate-500">{fornecedor.telefone || "�"}</td>
+                  <td className="p-4 text-sm text-slate-500">{fornecedor.cnpj || "—"}</td>
+                  <td className="p-4 text-sm text-slate-500">{fornecedor.email || "—"}</td>
+                  <td className="p-4 text-sm text-slate-500">{fornecedor.telefone || "—"}</td>
                   <td className="p-4 text-sm text-slate-500">
-                    {fornecedor.cidade && fornecedor.uf ? `${fornecedor.cidade}/${fornecedor.uf}` : "�"}
+                    {fornecedor.cidade && fornecedor.uf ? `${fornecedor.cidade}/${fornecedor.uf}` : "—"}
                   </td>
-                  <td className="p-4 text-sm font-mono text-xs text-slate-500">{fornecedor.idIntegracao || "�"}</td>
+                  <td className="p-4 text-sm font-mono text-xs text-slate-500">{fornecedor.idIntegracao || "—"}</td>
                   <td className="p-4">
                     <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
                       fornecedor.ativo 

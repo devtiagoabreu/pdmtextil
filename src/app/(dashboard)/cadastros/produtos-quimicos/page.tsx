@@ -152,9 +152,9 @@ export default function ProdutosQuimicosPage() {
                 >
                   <td className="p-4 text-sm font-medium">{p.codigo}</td>
                   <td className="p-4 text-sm">{p.nome}</td>
-                  <td className="p-4 text-sm text-slate-500">{p.categoria || "�"}</td>
+                  <td className="p-4 text-sm text-slate-500">{p.categoria || "—"}</td>
                   <td className="p-4 text-sm text-slate-500">{p.unidadePadrao}</td>
-                  <td className="p-4 text-sm font-mono text-xs text-slate-500">{p.idIntegracao || "�"}</td>
+                  <td className="p-4 text-sm font-mono text-xs text-slate-500">{p.idIntegracao || "—"}</td>
                   <td className="p-4">
                     <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
                       p.ativo

@@ -186,11 +186,11 @@ export default function LicaoDetailPage() {
         <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
           <BookOpen size={14} />
           <span className="text-slate-400">PDM Têxtil</span>
-          <span className="text-slate-300">�</span>
+          <span className="text-slate-300">—</span>
           <Link prefetch={false} href="/comercial/crm/treinamento" className="hover:text-indigo-600">Treinamento CRM</Link>
-          <span className="text-slate-300">�</span>
+          <span className="text-slate-300">—</span>
           <span className="text-slate-700 dark:text-slate-300">{licao.moduloTitulo}</span>
-          <span className="text-slate-300">� </span>
+          <span className="text-slate-300">— </span>
           <span className="text-slate-700 dark:text-slate-300">{licao.titulo}</span>
         </div>
       </div>
@@ -224,8 +224,8 @@ export default function LicaoDetailPage() {
         </div>
 
         <div className="print-header">
-          <span>PDM Têxtil � Treinamento CRM</span>
-          <span>{licao.moduloTitulo} �  {licao.titulo}</span>
+          <span>PDM Têxtil — Treinamento CRM</span>
+          <span>{licao.moduloTitulo} —  {licao.titulo}</span>
         </div>
 
         <div>
@@ -321,7 +321,7 @@ export default function LicaoDetailPage() {
       </div>
 
       <div className="print-footer-text">
-        PDM Têxtil - {licao.moduloTitulo} / {licao.titulo} � Gerado em {new Date().toLocaleDateString("pt-BR")}
+        PDM Têxtil - {licao.moduloTitulo} / {licao.titulo} — Gerado em {new Date().toLocaleDateString("pt-BR")}
       </div>
     </>
   )

@@ -188,17 +188,17 @@ export default function OportunidadesPage() {
                     onClick={() => router.push(`/comercial/crm/oportunidades/${op.id}`)}
                   >
                     <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-medium text-slate-900 dark:text-slate-200 whitespace-nowrap">{op.titulo}</td>
-                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500">{op.empresaNome || "�"}</td>
+                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500">{op.empresaNome || "—"}</td>
                     <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden sm:table-cell whitespace-nowrap">{formatarMoeda(op.valorEstimado)}</td>
                     <td className="px-2 py-2 md:px-4 md:py-3">
                       <span className={`inline-flex text-[10px] px-1.5 md:px-2 py-0.5 rounded-full font-medium ${STATUS_CORES[op.status] || ""}`}>
                         {STATUS_LABELS[op.status] || op.status}
                       </span>
                     </td>
-                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden md:table-cell">{op.responsavelNome || "�"}</td>
+                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden md:table-cell">{op.responsavelNome || "—"}</td>
                     <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden sm:table-cell">{op.probabilidade ?? 0}%</td>
                     <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 whitespace-nowrap hidden sm:table-cell">
-                      {op.createdAt ? new Date(op.createdAt).toLocaleDateString("pt-BR") : "�"}
+                      {op.createdAt ? new Date(op.createdAt).toLocaleDateString("pt-BR") : "—"}
                     </td>
                   </tr>
                 ))}

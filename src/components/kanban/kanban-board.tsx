@@ -449,9 +449,9 @@ export function KanbanBoard() {
       <Dialog open={!!chatTarget} onOpenChange={(open: boolean) => { if (!open) setChatTarget(null) }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Chat � #{chatTarget?.id} {chatTarget?.cliente}</DialogTitle>
+            <DialogTitle>Chat — #{chatTarget?.id} {chatTarget?.cliente}</DialogTitle>
             <DialogDescription>
-              �altimas mensagens do chat da solicitação
+              —altimas mensagens do chat da solicitação
             </DialogDescription>
           </DialogHeader>
           <div className="max-h-60 overflow-y-auto space-y-2">
@@ -486,7 +486,7 @@ export function KanbanBoard() {
       <Dialog open={!!amostrasTarget} onOpenChange={(open: boolean) => { if (!open) setAmostrasTarget(null) }}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>Amostras � {amostrasTarget?.produtoCodigoPdm || `#${amostrasTarget?.id}`}</DialogTitle>
+            <DialogTitle>Amostras — {amostrasTarget?.produtoCodigoPdm || `#${amostrasTarget?.id}`}</DialogTitle>
             <DialogDescription>
               {amostrasData.length} amostra{amostrasData.length !== 1 ? "s" : ""} encontrada{amostrasData.length !== 1 ? "s" : ""}
             </DialogDescription>
@@ -523,7 +523,7 @@ export function KanbanBoard() {
       <Dialog open={!!pilotagemTarget} onOpenChange={(open: boolean) => { if (!open) setPilotagemTarget(null) }}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>Iniciar Pilotagem � #{pilotagemTarget?.id} {pilotagemTarget?.cliente}</DialogTitle>
+            <DialogTitle>Iniciar Pilotagem — #{pilotagemTarget?.id} {pilotagemTarget?.cliente}</DialogTitle>
             <DialogDescription>
               Selecione as amostras que entrarão em produção
             </DialogDescription>

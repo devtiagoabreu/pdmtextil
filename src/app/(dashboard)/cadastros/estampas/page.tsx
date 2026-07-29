@@ -152,8 +152,8 @@ export default function EstampasPage() {
                   <td className="p-4 text-sm font-mono">{estampa.codigoDesenho}</td>
                   <td className="p-4 text-sm font-mono">{estampa.variante}</td>
                   <td className="p-4 text-sm">{estampa.nome}</td>
-                  <td className="p-4 text-sm text-slate-500">{estampa.tipo || "�"}</td>
-                  <td className="p-4 text-sm font-mono text-xs text-slate-500">{estampa.idIntegracao || "�"}</td>
+                  <td className="p-4 text-sm text-slate-500">{estampa.tipo || "—"}</td>
+                  <td className="p-4 text-sm font-mono text-xs text-slate-500">{estampa.idIntegracao || "—"}</td>
                   <td className="p-4">
                     <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
                       estampa.ativo 

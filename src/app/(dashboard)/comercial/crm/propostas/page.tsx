@@ -175,9 +175,9 @@ export default function PropostasPage() {
                     onClick={() => router.push(`/comercial/crm/propostas/${p.id}`)}
                   >
                     <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-slate-200">{p.titulo}</td>
-                    <td className="px-4 py-3 text-sm text-slate-500">{p.empresaNome || "�"}</td>
+                    <td className="px-4 py-3 text-sm text-slate-500">{p.empresaNome || "—"}</td>
                     <td className="px-4 py-3 text-sm text-slate-900 dark:text-slate-200">
-                      {p.valor ? `R$ ${Number(p.valor).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : "�"}
+                      {p.valor ? `R$ ${Number(p.valor).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : "—"}
                     </td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex text-[10px] px-2 py-0.5 rounded-full font-medium ${STATUS_CORES[p.status] || ""}`}>
@@ -185,7 +185,7 @@ export default function PropostasPage() {
                       </span>
                     </td>
                     <td className="px-4 py-3 text-sm text-slate-500">
-                      {p.createdAt ? new Date(p.createdAt).toLocaleDateString("pt-BR") : "�"}
+                      {p.createdAt ? new Date(p.createdAt).toLocaleDateString("pt-BR") : "—"}
                     </td>
                   </tr>
                 ))}

@@ -117,48 +117,48 @@ export default function DetalheRequisicaoAmostraComercialPage() {
                     href={`/cadastros/produto-cru/${data.produto.id}`}
                     className="font-medium text-blue-600 dark:text-blue-400 hover:underline"
                   >
-                    {data.produto.codigoPdm || data.produtoCodigo} � {data.produto.descricao || data.produtoDescricao}
+                    {data.produto.codigoPdm || data.produtoCodigo} — {data.produto.descricao || data.produtoDescricao}
                   </Link>
                 ) : (
                   <p className="font-medium">
-                    {data.produtoCodigo || "�"}{data.produtoDescricao ? ` � ${data.produtoDescricao}` : ""}
+                    {data.produtoCodigo || "—"}{data.produtoDescricao ? ` — ${data.produtoDescricao}` : ""}
                   </p>
                 )}
               </div>
               <div>
                 <p className="text-slate-500 dark:text-slate-400">Cliente</p>
-                <p className="font-medium">{data.cliente || "�"}</p>
+                <p className="font-medium">{data.cliente || "—"}</p>
               </div>
               <div>
                 <p className="text-slate-500 dark:text-slate-400">Quantidade</p>
-                <p className="font-medium">{data.quantidade || "�"}</p>
+                <p className="font-medium">{data.quantidade || "—"}</p>
               </div>
               <div>
                 <p className="text-slate-500 dark:text-slate-400">Prazo Desejado</p>
                 <p className="font-medium">
-                  {data.prazoDesejado ? new Date(data.prazoDesejado).toLocaleDateString("pt-BR") : "�"}
+                  {data.prazoDesejado ? new Date(data.prazoDesejado).toLocaleDateString("pt-BR") : "—"}
                 </p>
               </div>
               <div>
                 <p className="text-slate-500 dark:text-slate-400">Solic. Desenvolvimento ID</p>
-                <p className="font-medium">{data.solicitacaoDesenvolvimentoId || "�"}</p>
+                <p className="font-medium">{data.solicitacaoDesenvolvimentoId || "—"}</p>
               </div>
               <div>
                 <p className="text-slate-500 dark:text-slate-400">Criado em</p>
                 <p className="font-medium">
-                  {data.createdAt ? new Date(data.createdAt).toLocaleDateString("pt-BR") : "�"}
+                  {data.createdAt ? new Date(data.createdAt).toLocaleDateString("pt-BR") : "—"}
                 </p>
               </div>
             </div>
 
             <div>
               <p className="text-slate-500 dark:text-slate-400">Motivo</p>
-              <p className="font-medium">{data.motivo || "�"}</p>
+              <p className="font-medium">{data.motivo || "—"}</p>
             </div>
 
             <div>
               <p className="text-slate-500 dark:text-slate-400">Observações</p>
-              <p className="font-medium whitespace-pre-wrap">{data.observacoes || "�"}</p>
+              <p className="font-medium whitespace-pre-wrap">{data.observacoes || "—"}</p>
             </div>
           </div>
         </div>
@@ -176,7 +176,7 @@ export default function DetalheRequisicaoAmostraComercialPage() {
                   {h.descricao && <p className="text-xs text-slate-600 mt-0.5">{h.descricao}</p>}
                   {h.observacao && <p className="text-xs text-slate-500 mt-0.5 italic">&ldquo;{h.observacao}&rdquo;</p>}
                   <p className="text-xs text-slate-400 mt-1">
-                    {h.usuario && <><User size={10} className="inline mr-0.5" />{h.usuario} � </>}
+                    {h.usuario && <><User size={10} className="inline mr-0.5" />{h.usuario} — </>}
                     {h.data ? new Date(h.data).toLocaleString("pt-BR") : ""}
                   </p>
                 </div>

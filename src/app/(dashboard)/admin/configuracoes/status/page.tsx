@@ -224,7 +224,7 @@ export default function StatusPage() {
                 {lista.map((item: any) => (
                   <tr key={item.id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-950/50">
                     <td className="px-4 py-3 font-medium">{item.nome}</td>
-                    <td className="px-4 py-3">{item.rotulo || "�"}</td>
+                    <td className="px-4 py-3">{item.rotulo || "—"}</td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${TIPO_CORES[item.tipo] || ""}`}>
                         {TIPO_LABELS[item.tipo] || item.tipo}
@@ -236,7 +236,7 @@ export default function StatusPage() {
                           <div className="w-5 h-5 rounded border" style={{ backgroundColor: item.cor }} />
                           <span className="text-xs text-slate-500">{item.cor}</span>
                         </div>
-                      ) : "�"}
+                      ) : "—"}
                     </td>
                     <td className="px-4 py-3 text-center">{item.ordem}</td>
                     <td className="px-4 py-3 text-center">

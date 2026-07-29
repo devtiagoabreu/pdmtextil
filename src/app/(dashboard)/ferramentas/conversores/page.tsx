@@ -127,11 +127,11 @@ export default function ConversoresPage() {
           <p>Tex = Dtex / 10</p>
           <p>Tex = Denier / 9</p>
           <p className="pt-2">Nm = 1000 / Tex</p>
-          <p>Nm = Ne � 590.5 / 1000</p>
+          <p>Nm = Ne × 590.5 / 1000</p>
           <p className="pt-2">Ne = 590.5 / Tex</p>
-          <p>Ne = Nm � 1000 / 590.5</p>
-          <p className="pt-2">Dtex = 10 � Tex</p>
-          <p className="pt-2">Denier = 9 � Tex</p>
+          <p>Ne = Nm × 1000 / 590.5</p>
+          <p className="pt-2">Dtex = 10 × Tex</p>
+          <p className="pt-2">Denier = 9 × Tex</p>
         </div>
       </details>
     </div>

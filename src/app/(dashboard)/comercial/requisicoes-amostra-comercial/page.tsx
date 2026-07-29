@@ -153,11 +153,11 @@ export default function ListaRequisicoesAmostraComercialPage() {
                     onClick={() => router.push(`/comercial/requisicoes-amostra-comercial/${item.id}`)}
                   >
                     <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-slate-200">#{item.id}</td>
-                    <td className="px-4 py-3 text-sm text-slate-700 dark:text-slate-300">{item.titulo || "�"}</td>
-                    <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">{item.cliente || "�"}</td>
+                    <td className="px-4 py-3 text-sm text-slate-700 dark:text-slate-300">{item.titulo || "—"}</td>
+                    <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">{item.cliente || "—"}</td>
                     <td className="px-4 py-3 text-sm">
                       <span className="text-xs font-mono text-slate-700 dark:text-slate-300">
-                        {item.produtoCodigo || "�"}
+                        {item.produtoCodigo || "—"}
                       </span>
                       {item.produtoDescricao && (
                         <p className="text-xs text-slate-400 line-clamp-1">{item.produtoDescricao}</p>
@@ -172,7 +172,7 @@ export default function ListaRequisicoesAmostraComercialPage() {
                       </span>
                     </td>
                     <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">
-                      {item.createdAt ? new Date(item.createdAt).toLocaleDateString("pt-BR") : "�"}
+                      {item.createdAt ? new Date(item.createdAt).toLocaleDateString("pt-BR") : "—"}
                     </td>
                     <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
                       <div className="flex items-center gap-2">
@@ -210,7 +210,7 @@ export default function ListaRequisicoesAmostraComercialPage() {
       <ConfirmModal
         open={deleteTarget !== null}
         title="Excluir requisição?"
-        message={`Tem certeza que deseja excluir a requisição #${deleteTarget?.id} � ${deleteTarget?.titulo || ""}?`}
+        message={`Tem certeza que deseja excluir a requisição #${deleteTarget?.id} — ${deleteTarget?.titulo || ""}?`}
         confirmLabel="Excluir"
         variant="danger"
         loading={deleteLoading}

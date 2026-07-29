@@ -163,7 +163,7 @@ export default function DetalheRequisicaoCortePage() {
             <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${statusCfg.classes}`}>
               {statusCfg.label}
             </span>
-            <span className="text-sm text-slate-500">{totalCortes} corte(s) � Qtd total: {totalQtd}</span>
+            <span className="text-sm text-slate-500">{totalCortes} corte(s) — Qtd total: {totalQtd}</span>
           </div>
         </div>
         <div className="flex items-center gap-2">

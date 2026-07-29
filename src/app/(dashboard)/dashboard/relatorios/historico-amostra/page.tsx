@@ -100,7 +100,7 @@ export default function HistoricoAmostraPage() {
       for (const h of amostra.historico) {
         let desc = ""
         if (h.acao === "CRIACAO") desc = h.status ? `Amostra criada (status: ${h.status})` : "Amostra criada"
-        else if (h.acao === "MUDANCA_STATUS") desc = `Status: ${h.de || "?"} �  ${h.para || "?"}${h.motivo ? ` � ${h.motivo}` : ""}`
+        else if (h.acao === "MUDANCA_STATUS") desc = `Status: ${h.de || "?"} —  ${h.para || "?"}${h.motivo ? ` — ${h.motivo}` : ""}`
         else desc = h.acao
         entries.push({
           data: h.data,
@@ -130,7 +130,7 @@ export default function HistoricoAmostraPage() {
     if (!data) return
     const a = data.amostra
     const tipoLabel = data.tipo === "tecido_cru" ? "Tecido Cru" : "Acabamento"
-    const statusLabel = a.status || "�"
+    const statusLabel = a.status || "—"
 
     const timelineRows: (string | number | null | undefined)[][] = timeline.map((e: any) => [
       new Date(e.data).toLocaleString("pt-BR"),
@@ -142,7 +142,7 @@ export default function HistoricoAmostraPage() {
 
     tables.push({
       headers: ["#", "Descrição", "Tipo", "Status", "Produto"],
-      rows: [[a.id, a.descricao || "�", tipoLabel, statusLabel, data.produto?.codigoPdm || "�"]]
+      rows: [[a.id, a.descricao || "—", tipoLabel, statusLabel, data.produto?.codigoPdm || "—"]]
     })
 
     if (data.solicitacao) {
@@ -151,7 +151,7 @@ export default function HistoricoAmostraPage() {
         rows: [[
           `#${data.solicitacao.id}`,
           data.solicitacao.cliente,
-          data.solicitacao.projeto || "�",
+          data.solicitacao.projeto || "—",
           data.solicitacao.status,
         ]]
       })
@@ -162,12 +162,12 @@ export default function HistoricoAmostraPage() {
     }
 
     await exportPDFRelatorio({
-      title: `Histórico � Amostra #${a.id} (${tipoLabel})`,
+      title: `Histórico — Amostra #${a.id} (${tipoLabel})`,
       stats: {
-        "Descrição": a.descricao || "�",
+        "Descrição": a.descricao || "—",
         "Status": statusLabel,
         "Tipo": tipoLabel,
-        "Produto": data.produto?.codigoPdm || "�",
+        "Produto": data.produto?.codigoPdm || "—",
         "Eventos": timeline.length,
       },
       tables,
@@ -355,7 +355,7 @@ export default function HistoricoAmostraPage() {
                     <Link prefetch={false} href={`/cadastros/produto-cru/${data.produto.id}`} className="text-blue-600 hover:text-blue-700">
                       {data.produto.codigoPdm}
                     </Link>
-                  ) : "�"}
+                  ) : "—"}
                 </span>
               </div>
               <div>
@@ -368,7 +368,7 @@ export default function HistoricoAmostraPage() {
                 <div>
                   <span className="text-xs text-slate-400 block">Acabamento</span>
                   <span className="font-medium text-slate-700 dark:text-slate-300">
-                    {data.acabamento.tipoAcabamento}{data.acabamento.descricao ? ` � ${data.acabamento.descricao}` : ""}
+                    {data.acabamento.tipoAcabamento}{data.acabamento.descricao ? ` — ${data.acabamento.descricao}` : ""}
                   </span>
                 </div>
               )}
@@ -388,7 +388,7 @@ export default function HistoricoAmostraPage() {
                   </div>
                   <div>
                     <span className="text-xs text-slate-400 block">Projeto</span>
-                    <span className="font-medium text-slate-700 dark:text-slate-300">{data.solicitacao.projeto || "�"}</span>
+                    <span className="font-medium text-slate-700 dark:text-slate-300">{data.solicitacao.projeto || "—"}</span>
                   </div>
                   <div>
                     <span className="text-xs text-slate-400 block">Status Solic.</span>

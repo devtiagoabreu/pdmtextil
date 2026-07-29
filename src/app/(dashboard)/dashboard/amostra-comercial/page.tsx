@@ -79,7 +79,7 @@ export default function DashboardAmostraComercial() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Dashboard � Amostras Comerciais{info && <InfoButton content={info} />}</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Dashboard — Amostras Comerciais{info && <InfoButton content={info} />}</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             Acompanhe as requisições de amostra comercial
           </p>
@@ -210,8 +210,8 @@ export default function DashboardAmostraComercial() {
                     {stats.recent.map((a: any, i: number) => (
                       <tr key={`req-${a.id}-${i}`} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
                         <td className="p-4 text-sm font-medium text-slate-700 dark:text-slate-300">#{a.id}</td>
-                        <td className="p-4 text-sm text-slate-600 dark:text-slate-300">{a.titulo || "�"}</td>
-                        <td className="p-4 text-sm text-slate-500">{a.cliente || "�"}</td>
+                        <td className="p-4 text-sm text-slate-600 dark:text-slate-300">{a.titulo || "—"}</td>
+                        <td className="p-4 text-sm text-slate-500">{a.cliente || "—"}</td>
                         <td className="p-4 text-sm">
                           <Link prefetch={false} href={`/cadastros/produto-cru/${a.produtoCruId}`} className="flex items-center gap-1.5 group">
                             <div>
@@ -230,7 +230,7 @@ export default function DashboardAmostraComercial() {
                           </span>
                         </td>
                         <td className="p-4 text-sm text-slate-500">
-                          {a.createdAt ? new Date(a.createdAt).toLocaleDateString("pt-BR") : "�"}
+                          {a.createdAt ? new Date(a.createdAt).toLocaleDateString("pt-BR") : "—"}
                         </td>
                       </tr>
                     ))}
@@ -272,7 +272,7 @@ export default function DashboardAmostraComercial() {
                     >
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-medium text-slate-900 dark:text-slate-200 truncate">
-                          #{item.id} � {item.titulo || "Sem título"}
+                          #{item.id} — {item.titulo || "Sem título"}
                         </p>
                         <p className="text-xs text-slate-400 truncate">{item.cliente}</p>
                       </div>

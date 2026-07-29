@@ -158,7 +158,7 @@ export default function CampanhaDetailPage() {
                 <span className="text-slate-500">Período:</span>
                 <span className="text-slate-900 dark:text-slate-200">
                   {new Date(campanha.dataInicio).toLocaleDateString("pt-BR")}
-                  {campanha.dataFim && ` � ${new Date(campanha.dataFim).toLocaleDateString("pt-BR")}`}
+                  {campanha.dataFim && ` — ${new Date(campanha.dataFim).toLocaleDateString("pt-BR")}`}
                 </span>
               </div>
             )}

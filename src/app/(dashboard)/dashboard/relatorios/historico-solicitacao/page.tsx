@@ -100,7 +100,7 @@ export default function HistoricoSolicitacaoPage() {
         let desc = ""
         let detalhes: string[] | undefined
         if (h.acao === "CRIACAO") desc = h.mensagem || "Solicitação criada"
-        else if (h.acao === "MUDANCA_STATUS") desc = h.mensagem || `Status: ${h.de || "?"} �  ${h.para || "?"}`
+        else if (h.acao === "MUDANCA_STATUS") desc = h.mensagem || `Status: ${h.de || "?"} —  ${h.para || "?"}`
         else if (h.acao === "ALTERACAO" && h.mensagens?.length > 0) {
           desc = "Campos alterados"
           detalhes = h.mensagens
@@ -173,7 +173,7 @@ export default function HistoricoSolicitacaoPage() {
     }
 
     await exportPDFRelatorio({
-      title: `Histórico � Solicitação #${solicitacao.id}`,
+      title: `Histórico — Solicitação #${solicitacao.id}`,
       stats: {
         "Cliente": clienteLabel,
         "Status": statusLabel,
@@ -329,7 +329,7 @@ export default function HistoricoSolicitacaoPage() {
                   Solicitação #{solicitacao.id}
                 </h2>
                 <p className="text-sm text-slate-500 mt-1">
-                  {solicitacao.cliente}{solicitacao.projeto && ` � ${solicitacao.projeto}`}
+                  {solicitacao.cliente}{solicitacao.projeto && ` — ${solicitacao.projeto}`}
                 </p>
               </div>
               <Link prefetch={false} href={`/comercial/solicitacoes/${solicitacao.id}`} className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700">
@@ -349,33 +349,33 @@ export default function HistoricoSolicitacaoPage() {
               </div>
               <div>
                 <span className="text-xs text-slate-400 block">Solicitante</span>
-                <span className="font-medium text-slate-700 dark:text-slate-300">{solicitacao.solicitanteNome || "�"}</span>
+                <span className="font-medium text-slate-700 dark:text-slate-300">{solicitacao.solicitanteNome || "—"}</span>
               </div>
               <div>
                 <span className="text-xs text-slate-400 block">Responsável</span>
-                <span className="font-medium text-slate-700 dark:text-slate-300">{solicitacao.responsavelNome || "�"}</span>
+                <span className="font-medium text-slate-700 dark:text-slate-300">{solicitacao.responsavelNome || "—"}</span>
               </div>
               <div>
                 <span className="text-xs text-slate-400 block">Criado em</span>
                 <span className="font-medium text-slate-700 dark:text-slate-300">
-                  {solicitacao.createdAt ? new Date(solicitacao.createdAt).toLocaleString("pt-BR") : "�"}
+                  {solicitacao.createdAt ? new Date(solicitacao.createdAt).toLocaleString("pt-BR") : "—"}
                 </span>
               </div>
               <div>
                 <span className="text-xs text-slate-400 block">Prazo desejado</span>
                 <span className="font-medium text-slate-700 dark:text-slate-300">
-                  {solicitacao.prazoDesejado ? new Date(solicitacao.prazoDesejado).toLocaleDateString("pt-BR") : "�"}
+                  {solicitacao.prazoDesejado ? new Date(solicitacao.prazoDesejado).toLocaleDateString("pt-BR") : "—"}
                 </span>
               </div>
               <div>
                 <span className="text-xs text-slate-400 block">Concluído em</span>
                 <span className="font-medium text-slate-700 dark:text-slate-300">
-                  {solicitacao.dataConclusao ? new Date(solicitacao.dataConclusao).toLocaleDateString("pt-BR") : "�"}
+                  {solicitacao.dataConclusao ? new Date(solicitacao.dataConclusao).toLocaleDateString("pt-BR") : "—"}
                 </span>
               </div>
               <div>
                 <span className="text-xs text-slate-400 block">CNPJ</span>
-                <span className="font-medium text-slate-700 dark:text-slate-300">{solicitacao.cnpj || "�"}</span>
+                <span className="font-medium text-slate-700 dark:text-slate-300">{solicitacao.cnpj || "—"}</span>
               </div>
             </div>
           </div>
@@ -430,7 +430,7 @@ export default function HistoricoSolicitacaoPage() {
                             <div key={ac.id} className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3">
                               <div className="flex items-center gap-2 text-xs mb-1.5">
                                 <span className="font-medium text-slate-700 dark:text-slate-300">{ac.tipoAcabamento}</span>
-                                {ac.descricao && <span className="text-slate-400">� {ac.descricao}</span>}
+                                {ac.descricao && <span className="text-slate-400">— {ac.descricao}</span>}
                               </div>
                               {ac.amostras && ac.amostras.length > 0 ? (
                                 <div className="space-y-1 pl-2">

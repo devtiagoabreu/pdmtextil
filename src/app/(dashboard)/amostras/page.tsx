@@ -208,7 +208,7 @@ export default function AmostrasPage() {
                         <span className="text-xs text-slate-400">{a.produtoCodigo}</span>
                         <p className="text-xs text-slate-500 mt-0.5">{a.produtoDescricao}</p>
                       </td>
-                      <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-300">{a.descricao || "�"}</td>
+                      <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-300">{a.descricao || "—"}</td>
                       <td className="px-4 py-3">
                         <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium" style={{
                           backgroundColor: hexToRgba(getStatusColor(a.status), 0.15),
@@ -218,10 +218,10 @@ export default function AmostrasPage() {
                         </span>
                       </td>
                       {aba === "acabamento" && (
-                        <td className="px-4 py-3 text-sm text-slate-500">{a.acabamentoDescricao || "�"}</td>
+                        <td className="px-4 py-3 text-sm text-slate-500">{a.acabamentoDescricao || "—"}</td>
                       )}
-                      <td className="px-4 py-3 text-sm text-slate-500">{a.data ? new Date(a.data).toLocaleDateString("pt-BR") : "�"}</td>
-                      <td className="px-4 py-3 text-sm text-slate-500 max-w-[200px] truncate">{a.motivoAprovacao || "�"}</td>
+                      <td className="px-4 py-3 text-sm text-slate-500">{a.data ? new Date(a.data).toLocaleDateString("pt-BR") : "—"}</td>
+                      <td className="px-4 py-3 text-sm text-slate-500 max-w-[200px] truncate">{a.motivoAprovacao || "—"}</td>
                       <td className="px-4 py-3">
                         <button
                           onClick={(e) => {

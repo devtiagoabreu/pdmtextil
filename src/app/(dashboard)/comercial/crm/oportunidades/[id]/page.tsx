@@ -139,11 +139,11 @@ export default function DetalheOportunidadePage() {
           <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4">Detalhes</h2>
           <div className="space-y-3 text-sm">
             <Field label="Valor Estimado" value={formatarMoeda(oportunidade.valorEstimado)} />
-            <Field label="Probabilidade" value={oportunidade.probabilidade != null ? `${oportunidade.probabilidade}%` : "�"} />
-            <Field label="Previsão" value={oportunidade.dataFechamentoPrevista ? new Date(oportunidade.dataFechamentoPrevista).toLocaleDateString("pt-BR") : "�"} />
-            <Field label="Responsável" value={oportunidade.responsavelNome || "�"} />
-            <Field label="Pessoa (Negócio)" value={oportunidade.empresaNome || "�"} />
-            <Field label="Criado em" value={oportunidade.createdAt ? new Date(oportunidade.createdAt).toLocaleDateString("pt-BR") : "�"} />
+            <Field label="Probabilidade" value={oportunidade.probabilidade != null ? `${oportunidade.probabilidade}%` : "—"} />
+            <Field label="Previsão" value={oportunidade.dataFechamentoPrevista ? new Date(oportunidade.dataFechamentoPrevista).toLocaleDateString("pt-BR") : "—"} />
+            <Field label="Responsável" value={oportunidade.responsavelNome || "—"} />
+            <Field label="Pessoa (Negócio)" value={oportunidade.empresaNome || "—"} />
+            <Field label="Criado em" value={oportunidade.createdAt ? new Date(oportunidade.createdAt).toLocaleDateString("pt-BR") : "—"} />
           </div>
         </div>
 
@@ -194,7 +194,7 @@ function Field({ label, value }: { label: string; value?: string | null }) {
   return (
     <div className="flex items-center gap-2">
       <span className="text-slate-500 min-w-[100px]">{label}:</span>
-      <span className="text-slate-900 dark:text-slate-200">{value || "�"}</span>
+      <span className="text-slate-900 dark:text-slate-200">{value || "—"}</span>
     </div>
   )
 }

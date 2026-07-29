@@ -299,7 +299,7 @@ export default function ConsultaCnpjPage() {
                 </div>
                 <div>
                   <p className="text-xs text-slate-500 mb-0.5">Abertura</p>
-                  <p className="text-slate-900 dark:text-slate-200">{apiData.data_inicio_atividade || "�"}</p>
+                  <p className="text-slate-900 dark:text-slate-200">{apiData.data_inicio_atividade || "—"}</p>
                 </div>
                 <div className="col-span-2 sm:col-span-3">
                   <p className="text-xs text-slate-500 mb-0.5">Razão Social</p>
@@ -307,26 +307,26 @@ export default function ConsultaCnpjPage() {
                 </div>
                 <div className="col-span-2 sm:col-span-3">
                   <p className="text-xs text-slate-500 mb-0.5">Nome Fantasia</p>
-                  <p className="text-slate-900 dark:text-slate-200">{apiData.nome_fantasia || "�"}</p>
+                  <p className="text-slate-900 dark:text-slate-200">{apiData.nome_fantasia || "—"}</p>
                 </div>
                 <div>
                   <p className="text-xs text-slate-500 mb-0.5">Porte</p>
-                  <p className="text-slate-900 dark:text-slate-200">{apiData.porte_empresa || "�"}</p>
+                  <p className="text-slate-900 dark:text-slate-200">{apiData.porte_empresa || "—"}</p>
                 </div>
                 <div>
                   <p className="text-xs text-slate-500 mb-0.5">Natureza Jurídica</p>
-                  <p className="text-slate-900 dark:text-slate-200">{apiData.natureza_juridica || "�"}</p>
+                  <p className="text-slate-900 dark:text-slate-200">{apiData.natureza_juridica || "—"}</p>
                 </div>
                 <div className="col-span-2 sm:col-span-3">
                   <p className="text-xs text-slate-500 mb-0.5">CNAE Principal</p>
-                  <p className="text-slate-900 dark:text-slate-200">{apiData.cnae_principal} � {apiData.cnae_principal_descricao || "�"}</p>
+                  <p className="text-slate-900 dark:text-slate-200">{apiData.cnae_principal} — {apiData.cnae_principal_descricao || "—"}</p>
                 </div>
                 <div className="col-span-2 sm:col-span-3">
                   <p className="text-xs text-slate-500 mb-0.5">Endereço</p>
                   <p className="text-slate-900 dark:text-slate-200">
-                    {[apiData.logradouro, apiData.numero, apiData.bairro, apiData.complemento].filter(Boolean).join(", ") || "�"}
-                    {apiData.cep && ` � CEP ${apiData.cep}`}
-                    {apiData.municipio && ` � ${apiData.municipio}/${apiData.uf}`}
+                    {[apiData.logradouro, apiData.numero, apiData.bairro, apiData.complemento].filter(Boolean).join(", ") || "—"}
+                    {apiData.cep && ` — CEP ${apiData.cep}`}
+                    {apiData.municipio && ` — ${apiData.municipio}/${apiData.uf}`}
                   </p>
                 </div>
                 <div>
@@ -334,12 +334,12 @@ export default function ConsultaCnpjPage() {
                   <p className="text-slate-900 dark:text-slate-200">
                     {apiData.capital_social
                       ? `R$ ${parseFloat(apiData.capital_social.replace(",", ".")).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`
-                      : "�"}
+                      : "—"}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-slate-500 mb-0.5">Simples Nacional</p>
-                  <p className="text-slate-900 dark:text-slate-200">{apiData.opcao_simples === "S" ? "Optante" : apiData.opcao_simples === "N" ? "Não optante" : "�"}</p>
+                  <p className="text-slate-900 dark:text-slate-200">{apiData.opcao_simples === "S" ? "Optante" : apiData.opcao_simples === "N" ? "Não optante" : "—"}</p>
                 </div>
                 {apiData.email && (
                   <div>
@@ -386,7 +386,7 @@ export default function ConsultaCnpjPage() {
                                   {local || "vazio"}
                                 </td>
                                 <td className={`py-1.5 ${diff ? "text-emerald-600 dark:text-emerald-400 font-medium" : "text-slate-600 dark:text-slate-300"}`}>
-                                  {api || "�"}
+                                  {api || "—"}
                                 </td>
                               </tr>
                             )
@@ -445,7 +445,7 @@ export default function ConsultaCnpjPage() {
                                   {local || "vazio"}
                                 </td>
                                 <td className={`py-1.5 ${diff ? "text-emerald-600 dark:text-emerald-400 font-medium" : "text-slate-600 dark:text-slate-300"}`}>
-                                  {api || "�"}
+                                  {api || "—"}
                                 </td>
                               </tr>
                             )

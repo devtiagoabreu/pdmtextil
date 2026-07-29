@@ -158,9 +158,9 @@ export default function CoresPage() {
                       style={{ backgroundColor: `#${cor.codigo}` }}
                     />
                   </td>
-                  <td className="p-4 text-sm text-slate-500">{cor.pantone || "�"}</td>
-                  <td className="p-4 text-sm text-slate-500">{cor.familia || "�"}</td>
-                  <td className="p-4 text-sm font-mono text-xs text-slate-500">{cor.idIntegracao || "�"}</td>
+                  <td className="p-4 text-sm text-slate-500">{cor.pantone || "—"}</td>
+                  <td className="p-4 text-sm text-slate-500">{cor.familia || "—"}</td>
+                  <td className="p-4 text-sm font-mono text-xs text-slate-500">{cor.idIntegracao || "—"}</td>
                   <td className="p-4">
                     <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
                       cor.ativo 

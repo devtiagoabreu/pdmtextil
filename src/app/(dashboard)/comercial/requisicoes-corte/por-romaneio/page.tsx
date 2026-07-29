@@ -83,7 +83,7 @@ interface GrupoRomaneio {
 type OrientacaoPdf = "portrait" | "landscape"
 
 function formatarData(data: string | null | undefined): string {
-  if (!data) return "�"
+  if (!data) return "—"
   try {
     return new Date(data).toLocaleDateString("pt-BR")
   } catch {
@@ -92,12 +92,12 @@ function formatarData(data: string | null | undefined): string {
 }
 
 function formatarMetragem(valor: number | null | undefined): string {
-  if (valor === null || valor === undefined) return "�"
+  if (valor === null || valor === undefined) return "—"
   return `${Number(valor).toFixed(1)} m`
 }
 
 function formatarPeso(valor: number | null | undefined): string {
-  if (valor === null || valor === undefined) return "�"
+  if (valor === null || valor === undefined) return "—"
   return `${Number(valor).toFixed(4)} kg`
 }
 
@@ -504,9 +504,9 @@ export default function RequisicaoPorRomaneioPage() {
           body.push([
             String(idx + 1),
             String(r.codigo_rolo),
-            r.produto || "�",
-            r.narrativa || "�",
-            r.lote_produto || "�",
+            r.produto || "—",
+            r.narrativa || "—",
+            r.lote_produto || "—",
             formatarMetragem(r.quantidade),
             formatarPeso(r.peso_bruto),
             formatarPeso(r.peso_liquido),
@@ -793,7 +793,7 @@ export default function RequisicaoPorRomaneioPage() {
             <div className="space-y-3">
               {searchTerm && (
                 <p className="text-xs text-slate-500">
-                  Filtrando por &quot;{searchTerm}&quot; � {itensFiltrados.length} de {itens.length} rolo(s)
+                  Filtrando por &quot;{searchTerm}&quot; — {itensFiltrados.length} de {itens.length} rolo(s)
                 </p>
               )}
               <div className="space-y-4">
@@ -995,7 +995,7 @@ export default function RequisicaoPorRomaneioPage() {
           <DialogHeader>
             <DialogTitle>Nova Requisição de Corte</DialogTitle>
             <DialogDescription>
-              Romaneio Nº {dialogRomaneio?.romaneio} � Informe a metragem desejada para cada produto
+              Romaneio Nº {dialogRomaneio?.romaneio} — Informe a metragem desejada para cada produto
             </DialogDescription>
           </DialogHeader>
 
@@ -1012,7 +1012,7 @@ export default function RequisicaoPorRomaneioPage() {
                     </p>
                     <p className="text-[11px] text-slate-500">
                       Disponível: {formatarMetragem(item.metragemDisponivel)}
-                      {item.cor && ` � Cor: ${item.cor}`}
+                      {item.cor && ` — Cor: ${item.cor}`}
                     </p>
                   </div>
                 </div>

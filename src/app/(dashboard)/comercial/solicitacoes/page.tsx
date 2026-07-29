@@ -178,14 +178,14 @@ if (isLoading) {
                       </td>
                       <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">{TIPO_CONFIG[s.tipo] || s.tipo}</td>
                       <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-slate-200">{s.cliente}</td>
-                      <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">{s.solicitanteNome || "�"}</td>
+                      <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">{s.solicitanteNome || "—"}</td>
                       <td className="px-4 py-3 text-sm">
                         {s.produtoCodigoPdm ? (
                           <span className="text-xs font-mono text-slate-700 dark:text-slate-300">
                             {s.produtoCodigoPdm}{s.produtoIdIntegracaoErpCru ? ` (ERP: ${s.produtoIdIntegracaoErpCru})` : ""}
                           </span>
                         ) : (
-                          <span className="text-xs text-slate-400">�</span>
+                          <span className="text-xs text-slate-400">—</span>
                         )}
                       </td>
                       <td className="px-4 py-3">
@@ -197,10 +197,10 @@ if (isLoading) {
                         </span>
                       </td>
                       <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">
-                        {s.createdAt ? new Date(s.createdAt).toLocaleDateString("pt-BR") : "�"}
+                        {s.createdAt ? new Date(s.createdAt).toLocaleDateString("pt-BR") : "—"}
                       </td>
                       <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400 max-w-[200px] truncate" title={s.observacoes || ""}>
-                        {s.observacoes || "�"}
+                        {s.observacoes || "—"}
                       </td>
                       <td className="px-4 py-3">
                           <div className="flex items-center gap-2">

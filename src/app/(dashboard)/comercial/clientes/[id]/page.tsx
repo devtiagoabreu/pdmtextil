@@ -443,7 +443,7 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
                     {vinculos.map((v: any) => (
                       <tr key={v.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
                         <td className="p-3 text-sm font-medium text-slate-900 dark:text-slate-200">{v.nome}</td>
-                        <td className="p-3 text-sm text-slate-500 font-mono">{v.cnpj || "�"}</td>
+                        <td className="p-3 text-sm text-slate-500 font-mono">{v.cnpj || "—"}</td>
                         <td className="p-3 text-sm text-slate-500">
                           <div className="flex flex-col gap-0.5">
                             {v.email && <span className="flex items-center gap-1"><Mail size={12} />{v.email}</span>}
@@ -451,7 +451,7 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
                           </div>
                         </td>
                         <td className="p-3 text-sm text-slate-500">
-                          {v.cidade ? <span className="flex items-center gap-1"><MapPin size={12} />{v.cidade}/{v.uf}</span> : "�"}
+                          {v.cidade ? <span className="flex items-center gap-1"><MapPin size={12} />{v.cidade}/{v.uf}</span> : "—"}
                         </td>
                         <td className="p-3 text-right">
                           <button

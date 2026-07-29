@@ -252,7 +252,7 @@ export default function ClientesPage() {
             <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-800">
               <h2 className="text-lg font-semibold flex items-center gap-2">
                 <FileText size={18} className="text-emerald-500" />
-                Solicitações � {solicModal.cliente.nome}
+                Solicitações — {solicModal.cliente.nome}
               </h2>
               <button onClick={() => setSolicModal(null)} className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
                 <X size={18} />
@@ -310,7 +310,7 @@ export default function ClientesPage() {
             <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-800">
               <h2 className="text-lg font-semibold flex items-center gap-2">
                 <FlaskConical size={18} className="text-purple-500" />
-                Amostras � {amostraModal.cliente.nome}
+                Amostras — {amostraModal.cliente.nome}
               </h2>
               <button onClick={() => setAmostraModal(null)} className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
                 <X size={18} />

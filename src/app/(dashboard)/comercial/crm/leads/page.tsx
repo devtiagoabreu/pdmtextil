@@ -106,7 +106,7 @@ export default function CrmLeadsPage() {
   }
 
   function formatDateTime(dateStr: string) {
-    if (!dateStr) return "�"
+    if (!dateStr) return "—"
     return new Date(dateStr).toLocaleString("pt-BR", {
       day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit",
     })
@@ -213,7 +213,7 @@ export default function CrmLeadsPage() {
                     <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden sm:table-cell">
                       {lead.email && <div className="truncate max-w-[180px]">{lead.email}</div>}
                       {lead.celular && <div className="text-xs">{lead.celular}</div>}
-                      {!lead.email && !lead.celular && "�"}
+                      {!lead.email && !lead.celular && "—"}
                     </td>
                     <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden md:table-cell">
                       <div className="flex items-center gap-2">
@@ -221,7 +221,7 @@ export default function CrmLeadsPage() {
                           <Link prefetch={false} href={`/comercial/crm/pessoas/${lead.empresaId}`} className="text-blue-600 hover:underline">
                             {lead.empresaRazaoSocial}
                           </Link>
-                        ) : "�")}
+                        ) : "—")}
                         {lead.tipoPessoa && (
                           <span className={`inline-flex text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
                             lead.tipoPessoa === "PF"
@@ -245,7 +245,7 @@ export default function CrmLeadsPage() {
                           {lead.score}%
                         </span>
                       ) : (
-                        <span className="text-[10px] text-slate-400">�</span>
+                        <span className="text-[10px] text-slate-400">—</span>
                       )}
                     </td>
                     <td className="px-2 py-2 md:px-4 md:py-3 hidden lg:table-cell">
@@ -253,7 +253,7 @@ export default function CrmLeadsPage() {
                         {ORIGEM_LABELS[lead.origem] || lead.origem}
                       </span>
                     </td>
-                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden lg:table-cell">{lead.responsavelNome || "�"}</td>
+                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden lg:table-cell">{lead.responsavelNome || "—"}</td>
                     <td className="px-2 py-2 md:px-4 md:py-3">
                       <span className={`inline-flex text-[10px] px-1.5 md:px-2 py-0.5 rounded-full font-medium ${STATUS_CORES[lead.status] || ""}`}>
                         {lead.status}

@@ -156,10 +156,10 @@ export default function FiosPage() {
                 >
                   <td className="p-4 text-sm font-medium">{fio.codigoFio}</td>
                   <td className="p-4 text-sm">{fio.nome}</td>
-                  <td className="p-4 text-sm text-slate-500">{fio.titulo || "�"}</td>
-                  <td className="p-4 text-sm text-slate-500">{fio.composicao || "�"}</td>
-                  <td className="p-4 text-sm text-slate-500">{fio.fornecedor || "�"}</td>
-                  <td className="p-4 text-sm font-mono text-xs text-slate-500">{fio.idIntegracao || "�"}</td>
+                  <td className="p-4 text-sm text-slate-500">{fio.titulo || "—"}</td>
+                  <td className="p-4 text-sm text-slate-500">{fio.composicao || "—"}</td>
+                  <td className="p-4 text-sm text-slate-500">{fio.fornecedor || "—"}</td>
+                  <td className="p-4 text-sm font-mono text-xs text-slate-500">{fio.idIntegracao || "—"}</td>
                   <td className="p-4">
                     <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
                       fio.ativo

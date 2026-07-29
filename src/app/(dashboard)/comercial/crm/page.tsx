@@ -384,7 +384,7 @@ export default function CrmDashboardPage() {
                             ? new Date(ev.dataEvento).toLocaleString("pt-BR", {
                                 day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit",
                               })
-                            : "�"}
+                            : "—"}
                         </p>
                       </div>
                     </div>

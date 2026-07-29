@@ -321,12 +321,12 @@ export default function VisitasDashboardPage() {
             )}
           </div>
 
-          {/* Linha 4: �altimas Visitas */}
+          {/* Linha 4: —altimas Visitas */}
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
             <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800">
               <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 flex items-center gap-2">
                 <Calendar size={16} className="text-amber-500" />
-                �altimas Visitas
+                —altimas Visitas
               </h2>
               <Link prefetch={false} href="/comercial/crm/visitas" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
                 Ver todas <ArrowRight size={12} />
@@ -346,7 +346,7 @@ export default function VisitasDashboardPage() {
                       <span className="text-[10px] md:text-xs text-slate-500 whitespace-nowrap">
                         {visita.dataVisita
                           ? new Date(visita.dataVisita + "T12:00:00").toLocaleDateString("pt-BR")
-                          : "�"}{visita.hora ? ` ${visita.hora}` : ""}
+                          : "—"}{visita.hora ? ` ${visita.hora}` : ""}
                       </span>
                     </div>
                     <div className="flex items-center gap-1 md:gap-2 shrink-0">

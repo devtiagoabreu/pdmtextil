@@ -43,7 +43,7 @@ export default function KanbanAmostraComercialPage() {
       <div className="flex items-center justify-between shrink-0 px-6 pt-6 pb-2">
         <div className="flex items-center gap-2">
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
-            Kanban � Amostras Comerciais{info && <InfoButton content={info} />}
+            Kanban — Amostras Comerciais{info && <InfoButton content={info} />}
           </h1>
           <span className="text-xs text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">
             Arraste os cards para mover

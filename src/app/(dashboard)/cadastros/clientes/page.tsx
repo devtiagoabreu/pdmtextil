@@ -155,13 +155,13 @@ export default function ClientesPage() {
                   onClick={() => router.push(`/comercial/clientes/${cliente.id}`)}
                 >
                   <td className="p-4 text-sm font-medium">{cliente.nome}</td>
-                  <td className="p-4 text-sm text-slate-500">{cliente.cnpj || "�"}</td>
-                  <td className="p-4 text-sm text-slate-500">{cliente.email || "�"}</td>
-                  <td className="p-4 text-sm text-slate-500">{cliente.telefone || "�"}</td>
+                  <td className="p-4 text-sm text-slate-500">{cliente.cnpj || "—"}</td>
+                  <td className="p-4 text-sm text-slate-500">{cliente.email || "—"}</td>
+                  <td className="p-4 text-sm text-slate-500">{cliente.telefone || "—"}</td>
                   <td className="p-4 text-sm text-slate-500">
-                    {cliente.cidade && cliente.uf ? `${cliente.cidade}/${cliente.uf}` : "�"}
+                    {cliente.cidade && cliente.uf ? `${cliente.cidade}/${cliente.uf}` : "—"}
                   </td>
-                  <td className="p-4 text-sm font-mono text-xs text-slate-500">{cliente.idIntegracao || "�"}</td>
+                  <td className="p-4 text-sm font-mono text-xs text-slate-500">{cliente.idIntegracao || "—"}</td>
                   <td className="p-4">
                     <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
                       cliente.ativo

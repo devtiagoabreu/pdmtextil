@@ -331,7 +331,7 @@ export default function ListaRequisicoesCortePage() {
                         />
                       </td>
                       <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-slate-200">#{item.id}</td>
-                      <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">{item.requisitanteNome || "�"}</td>
+                      <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">{item.requisitanteNome || "—"}</td>
                       <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">{item.totalCortes ?? 0}</td>
                       <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">{item.quantidadeTotal ?? 0}</td>
                       <td className="px-4 py-3">
@@ -340,7 +340,7 @@ export default function ListaRequisicoesCortePage() {
                         </span>
                       </td>
                       <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">
-                        {item.createdAt ? new Date(item.createdAt).toLocaleDateString("pt-BR") : "�"}
+                        {item.createdAt ? new Date(item.createdAt).toLocaleDateString("pt-BR") : "—"}
                       </td>
                       <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
                         <div className="flex items-center gap-2">

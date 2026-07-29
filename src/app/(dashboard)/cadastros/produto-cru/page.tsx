@@ -157,7 +157,7 @@ export default function ProdutoCruPage() {
                   <td className="p-4 text-sm font-medium">{produto.codigoPdm}</td>
                   <td className="p-4 text-sm">{produto.descricao}</td>
                   <td className="p-4 text-sm text-slate-500">{STATUS_LABELS[produto.status] || produto.status}</td>
-                  <td className="p-4 text-sm text-slate-500">{produto.idIntegracaoErpCru || "�"}</td>
+                  <td className="p-4 text-sm text-slate-500">{produto.idIntegracaoErpCru || "—"}</td>
                   <td className="p-4">
                     {produto.chatExists && <MessageSquare size={12} className="text-indigo-500 flex-shrink-0" />}
                   </td>

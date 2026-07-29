@@ -31,12 +31,12 @@ const TIPO_LABEL: Record<string, string> = {
   ACABAMENTO_CRIADO: "Acabamento Criado",
   ACABAMENTO_EXCLUIDO: "Acabamento Excluído",
   REQUISICAO_CORTE: "Requisição de Corte",
-  REQUISICAO_CORTE_STATUS: "Requisição de Corte � Status Alterado",
+  REQUISICAO_CORTE_STATUS: "Requisição de Corte — Status Alterado",
   LEAD_CRIADO: "Lead Criado",
   LEAD_ATUALIZADO: "Lead Atualizado",
   OPORTUNIDADE_CRIADA: "Oportunidade Criada",
   OPORTUNIDADE_ATUALIZADA: "Oportunidade Atualizada",
-  OPORTUNIDADE_STATUS: "Oportunidade � Status Alterado",
+  OPORTUNIDADE_STATUS: "Oportunidade — Status Alterado",
   PESSOA_CRIADA: "Pessoa Criada",
   PESSOA_ATUALIZADA: "Pessoa Atualizada",
   CONTATO_CRIADO: "Contato Criado",

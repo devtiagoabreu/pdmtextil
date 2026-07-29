@@ -148,13 +148,13 @@ export default function RepresentantesPage() {
                   onClick={() => router.push(`/comercial/representantes/${r.id}`)}
                 >
                   <td className="p-4 text-sm font-medium">{r.nome}</td>
-                  <td className="p-4 text-sm text-slate-500">{r.cnpj || "�"}</td>
-                  <td className="p-4 text-sm text-slate-500">{r.email || "�"}</td>
-                  <td className="p-4 text-sm text-slate-500">{r.telefone || "�"}</td>
+                  <td className="p-4 text-sm text-slate-500">{r.cnpj || "—"}</td>
+                  <td className="p-4 text-sm text-slate-500">{r.email || "—"}</td>
+                  <td className="p-4 text-sm text-slate-500">{r.telefone || "—"}</td>
                   <td className="p-4 text-sm text-slate-500">
-                    {r.cidade && r.uf ? `${r.cidade}/${r.uf}` : "�"}
+                    {r.cidade && r.uf ? `${r.cidade}/${r.uf}` : "—"}
                   </td>
-                  <td className="p-4 text-sm font-mono text-xs text-slate-500">{r.idIntegracao || "�"}</td>
+                  <td className="p-4 text-sm font-mono text-xs text-slate-500">{r.idIntegracao || "—"}</td>
                   <td className="p-4">
                     <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
                       r.ativo

@@ -155,10 +155,10 @@ export default function BasesUrdumePage() {
                 >
                   <td className="p-4 text-sm font-medium">{base.codigoBase}</td>
                   <td className="p-4 text-sm">{base.nome}</td>
-                  <td className="p-4 text-sm text-slate-500">{base.densidade || "�"}</td>
-                  <td className="p-4 text-sm text-slate-500">{base.largura || "�"}</td>
-                  <td className="p-4 text-sm text-slate-500">{base.tratamento || "�"}</td>
-                  <td className="p-4 text-sm text-slate-500">{base.idIntegracao || "�"}</td>
+                  <td className="p-4 text-sm text-slate-500">{base.densidade || "—"}</td>
+                  <td className="p-4 text-sm text-slate-500">{base.largura || "—"}</td>
+                  <td className="p-4 text-sm text-slate-500">{base.tratamento || "—"}</td>
+                  <td className="p-4 text-sm text-slate-500">{base.idIntegracao || "—"}</td>
                   <td className="p-4">
                     <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
                       base.ativo 

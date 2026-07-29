@@ -189,7 +189,7 @@ export default function ListaReceitasPage() {
                       {r.possuiParametros ? (
                         <span className="text-xs text-green-600 dark:text-green-400">Sim</span>
                       ) : (
-                        <span className="text-xs text-slate-400">�</span>
+                        <span className="text-xs text-slate-400">—</span>
                       )}
                     </td>
                     <td className="p-3 text-right">

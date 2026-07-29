@@ -575,7 +575,7 @@ export default function IntegracoesPage() {
                 <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3 text-center">
                   <p className="text-xs text-slate-500 uppercase tracking-wide">Status</p>
                   <p className={`text-lg font-bold mt-1 ${testResult.status >= 200 && testResult.status < 300 ? "text-green-600" : testResult.status === 0 ? "text-red-500" : "text-amber-600"}`}>
-                    {testResult.status || "�"}
+                    {testResult.status || "—"}
                   </p>
                 </div>
                 <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3 text-center">

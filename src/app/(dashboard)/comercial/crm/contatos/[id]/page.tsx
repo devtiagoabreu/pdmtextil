@@ -118,7 +118,7 @@ export default function ContatoDetailPage() {
               <span title="Contato principal"><Star size={16} className="text-amber-400 fill-amber-400" /></span>
             )}
           </div>
-          <p className="text-sm text-slate-500">{contato.cargo || "�"}</p>
+          <p className="text-sm text-slate-500">{contato.cargo || "—"}</p>
         </div>
         <div className="flex gap-2">
           {editing ? (
@@ -219,12 +219,12 @@ export default function ContatoDetailPage() {
                   {contato.clienteNome || `Cliente #${contato.clienteId}`}
                 </Link>
               ) : (
-                <span className="text-slate-400">�</span>
+                <span className="text-slate-400">—</span>
               )}
             </div>
             <div>
               <p className="text-xs text-slate-500 mb-0.5">Cargo</p>
-              <p className="text-slate-900 dark:text-slate-200">{contato.cargo || "�"}</p>
+              <p className="text-slate-900 dark:text-slate-200">{contato.cargo || "—"}</p>
             </div>
             <div>
               <p className="text-xs text-slate-500 mb-0.5">Principal</p>
@@ -244,7 +244,7 @@ export default function ContatoDetailPage() {
                     <Mail size={12} className="text-slate-400" />
                     {contato.email}
                   </span>
-                ) : "�"}
+                ) : "—"}
               </p>
             </div>
             <div>
@@ -255,7 +255,7 @@ export default function ContatoDetailPage() {
                     <Phone size={12} className="text-slate-400" />
                     {contato.telefone}
                   </span>
-                ) : "�"}
+                ) : "—"}
               </p>
             </div>
             <div>
@@ -266,12 +266,12 @@ export default function ContatoDetailPage() {
                     <Smartphone size={12} className="text-slate-400" />
                     {contato.celular}
                   </span>
-                ) : "�"}
+                ) : "—"}
               </p>
             </div>
             <div>
               <p className="text-xs text-slate-500 mb-0.5">WhatsApp</p>
-              <p className="text-slate-900 dark:text-slate-200">{contato.whatsapp || "�"}</p>
+              <p className="text-slate-900 dark:text-slate-200">{contato.whatsapp || "—"}</p>
             </div>
             {contato.observacoes && (
               <div className="col-span-2">

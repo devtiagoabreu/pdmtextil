@@ -115,7 +115,7 @@ export default function DashboardPage() {
             {info && <InfoButton content={info} />}
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5 capitalize">
-            Olá, {firstName}! � {dateStr}
+            Olá, {firstName}! — {dateStr}
           </p>
         </div>
       </div>
@@ -309,7 +309,7 @@ export default function DashboardPage() {
                           </span>
                         </td>
                         <td className="p-4 text-sm text-slate-500">
-                          {item.createdAt ? new Date(item.createdAt).toLocaleDateString("pt-BR") : "�"}
+                          {item.createdAt ? new Date(item.createdAt).toLocaleDateString("pt-BR") : "—"}
                         </td>
                       </tr>
                     ))}
@@ -351,7 +351,7 @@ export default function DashboardPage() {
                     >
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-medium text-slate-900 dark:text-slate-200 truncate">
-                          {item.codigoPdm} � {item.descricao}
+                          {item.codigoPdm} — {item.descricao}
                         </p>
                       </div>
                       <div className="flex items-center gap-3 ml-3 shrink-0">
@@ -374,7 +374,7 @@ export default function DashboardPage() {
                     >
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-medium text-slate-900 dark:text-slate-200 truncate">
-                          #{item.id} � {item.cliente}{item.projeto ? ` (${item.projeto})` : ""}
+                          #{item.id} — {item.cliente}{item.projeto ? ` (${item.projeto})` : ""}
                         </p>
                         <p className="text-xs text-slate-400">{TIPO_LABELS[item.tipo] || item.tipo}</p>
                       </div>
