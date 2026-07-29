@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react"
 import { useRouter, useSearchParams, usePathname } from "next/navigation"
 import { BarChart3, Search, Clock, FileText, FlaskConical, CheckCircle, XCircle, AlertCircle, ExternalLink, Activity, History } from "lucide-react"
 import { InfoButton } from "@/components/ui/info-button"
@@ -504,7 +504,7 @@ function StatusBadge({ status }: { status: string }) {
 
 function TimelineItem({ entry, isLast }: { entry: TimelineEntry; isLast: boolean }) {
   const date = new Date(entry.data)
-  const iconMap: Record<string, JSX.Element> = {
+  const iconMap: Record<string, ReactNode> = {
     CRIACAO: <CheckCircle size={14} className="text-green-500" />,
     MUDANCA_STATUS: <AlertCircle size={14} className="text-blue-500" />,
     ALTERACAO: <FileText size={14} className="text-amber-500" />,
