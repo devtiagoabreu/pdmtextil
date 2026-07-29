@@ -21,8 +21,8 @@ function loadImage(url: string): Promise<HTMLImageElement | null> {
 
 export async function gerarRequisicaoAmostraComercialPdf(id: number | string) {
   const [reqRes, empresaRes] = await Promise.all([
-    fetch(`/api/requisicoes-amostra-comercial/${id}`).then(r => r.json()).catch(() => null),
-    fetch("/api/admin/config/empresa").then(r => r.json()).catch(() => []),
+    fetch(`/api/requisicoes-amostra-comercial/${id}`).then((r: any) => r.json()).catch(() => null),
+    fetch("/api/admin/config/empresa").then((r: any) => r.json()).catch(() => []),
   ])
 
   if (!reqRes) {

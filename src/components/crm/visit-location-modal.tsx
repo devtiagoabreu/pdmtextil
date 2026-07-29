@@ -32,7 +32,7 @@ export default function VisitLocationModal({ visitaId, empresaNome, open, onClos
 
   const { data: localizacoes = [], isLoading } = useQuery<Localizacao[]>({
     queryKey: ["visitas-localizacoes", visitaId],
-    queryFn: () => fetch(`/api/crm/visitas/${visitaId}/localizacoes`).then((r) => r.json()),
+    queryFn: () => fetch(`/api/crm/visitas/${visitaId}/localizacoes`).then((r: any) => r.json()),
     enabled: open && !!visitaId,
   })
 
@@ -138,7 +138,7 @@ export default function VisitLocationModal({ visitaId, empresaNome, open, onClos
             </div>
           ) : (
             <div className="space-y-3">
-              {localizacoes.map((loc) => (
+              {localizacoes.map((loc: any) => (
                 <div
                   key={loc.id}
                   className="flex items-start gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50"

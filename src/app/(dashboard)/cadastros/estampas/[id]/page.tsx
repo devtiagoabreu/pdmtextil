@@ -46,8 +46,8 @@ export default function EstampaFormPage() {
   useEffect(() => {
     if (isEditing && id) {
       fetch(`/api/cadastros/estampas/${id}`)
-        .then(res => res.json())
-        .then(data => {
+        .then((res: any) => res.json())
+        .then((data: any) => {
           setEstampa({
             id: data.id,
             codigoDesenho: data.codigoDesenho || "",
@@ -59,7 +59,7 @@ export default function EstampaFormPage() {
             idIntegracao: data.idIntegracao || "",
           })
         })
-        .catch(err => console.error(err))
+        .catch((err: any) => console.error(err))
         .finally(() => setLoading(false))
     } else {
       setLoading(false)

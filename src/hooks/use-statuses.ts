@@ -26,8 +26,8 @@ export function useStatuses(tipo: string) {
     }
 
     fetch(`/api/admin/status?tipo=${encodeURIComponent(tipo)}`)
-      .then((r) => r.json())
-      .then((data) => {
+      .then((r: any) => r.json())
+      .then((data: any) => {
         if (Array.isArray(data)) {
           cache.set(tipo, data)
           setStatuses(data)
@@ -38,7 +38,7 @@ export function useStatuses(tipo: string) {
   }, [tipo])
 
   const getStatus = (nome: string): StatusConfig | undefined =>
-    statuses.find((s) => s.nome === nome)
+    statuses.find((s: any) => s.nome === nome)
 
   const getLabel = (nome: string): string =>
     getStatus(nome)?.rotulo || nome

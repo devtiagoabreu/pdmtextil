@@ -54,8 +54,8 @@ export default function FornecedorFormPage() {
   useEffect(() => {
     if (isEditing && id) {
       fetch(`/api/cadastros/fornecedores/${id}`)
-        .then(res => res.json())
-        .then(data => {
+        .then((res: any) => res.json())
+        .then((data: any) => {
           setFornecedor({
             id: data.id,
             nome: data.nome || "",
@@ -71,7 +71,7 @@ export default function FornecedorFormPage() {
             idIntegracao: data.idIntegracao || "",
           })
         })
-        .catch(err => console.error(err))
+        .catch((err: any) => console.error(err))
         .finally(() => setLoading(false))
     } else {
       setLoading(false)

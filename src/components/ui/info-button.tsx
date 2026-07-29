@@ -47,7 +47,7 @@ export function InfoButton({ content }: InfoButtonProps) {
                 <div>
                   <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Regras de Negócio</h3>
                   <ul className="space-y-2">
-                    {content.rules.map((rule, i) => (
+                    {content.rules.map((rule: any, i: any) => (
                       <li key={i} className="flex items-start gap-2 text-sm text-slate-600 dark:text-slate-400">
                         <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0" />
                         {rule}
@@ -61,7 +61,7 @@ export function InfoButton({ content }: InfoButtonProps) {
                 <div>
                   <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Campos</h3>
                   <div className="space-y-2">
-                    {content.fields.map((field, i) => (
+                    {content.fields.map((field: any, i: any) => (
                       <div key={i} className="flex items-start gap-2">
                         <span className="text-xs font-medium text-blue-600 dark:text-blue-400 shrink-0 min-w-[100px]">{field.name}</span>
                         <span className="text-sm text-slate-600 dark:text-slate-400">{field.desc}</span>

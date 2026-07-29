@@ -36,7 +36,7 @@ export function ChartTooltip({ active, payload, label, formatter }: CustomToolti
         </p>
       )}
       <div className="space-y-1">
-        {payload.map((entry, i) => (
+        {payload.map((entry: any, i: any) => (
           <p
             key={i}
             className="flex items-center gap-2 text-slate-700 dark:text-slate-200"

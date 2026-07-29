@@ -62,7 +62,7 @@ export async function GET(req: NextRequest) {
       .where(eq(produtosCru.solicitacaoDesenvolvimentoId, solicitacaoId))
       .orderBy(asc(produtosCru.codigoPdm))
 
-    const produtoIds = produtos.map((p) => p.id)
+    const produtoIds = produtos.map((p: any) => p.id)
 
     let amostrasCru: any[] = []
     let acabamentos: any[] = []
@@ -81,7 +81,7 @@ export async function GET(req: NextRequest) {
         .where(inArray(produtoCruAcabamento.produtoCruId, produtoIds))
 
       if (acabamentos.length > 0) {
-        const acIdList = acabamentos.map((a) => a.id)
+        const acIdList = acabamentos.map((a: any) => a.id)
         amostrasAcabamento = await db
           .select()
           .from(produtoCruAcabamentoAmostra)
@@ -106,14 +106,14 @@ export async function GET(req: NextRequest) {
       .where(or(...logsConditions))
       .orderBy(asc(logsTable.createdAt))
 
-    const produtosComAmostras = produtos.map((p) => ({
+    const produtosComAmostras = produtos.map((p: any) => ({
       ...p,
-      amostras: amostrasCru.filter((a) => a.produtoCruId === p.id),
+      amostras: amostrasCru.filter((a: any) => a.produtoCruId === p.id),
       acabamentos: acabamentos
-        .filter((a) => a.produtoCruId === p.id)
-        .map((ac) => ({
+        .filter((a: any) => a.produtoCruId === p.id)
+        .map((ac: any) => ({
           ...ac,
-          amostras: amostrasAcabamento.filter((aa) => aa.acabamentoId === ac.id),
+          amostras: amostrasAcabamento.filter((aa: any) => aa.acabamentoId === ac.id),
         })),
     }))
 

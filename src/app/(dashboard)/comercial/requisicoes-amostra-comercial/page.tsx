@@ -32,8 +32,8 @@ export default function ListaRequisicoesAmostraComercialPage() {
   useEffect(() => {
     if (!mounted) return
     fetch("/api/requisicoes-amostra-comercial")
-      .then(res => { if (!res.ok) throw new Error(); return res.json() })
-      .then(d => {
+      .then((res: any) => { if (!res.ok) throw new Error(); return res.json() })
+      .then((d: any) => {
         const arr = Array.isArray(d) ? d : []
         setData(arr)
         setFiltered(arr)
@@ -45,7 +45,7 @@ export default function ListaRequisicoesAmostraComercialPage() {
   useEffect(() => {
     const q = search.toLowerCase()
     setFiltered(
-      data.filter(item =>
+      data.filter((item: any) =>
         String(item.id).includes(q) ||
         (item.titulo || "").toLowerCase().includes(q) ||
         (item.cliente || "").toLowerCase().includes(q) ||
@@ -72,7 +72,7 @@ export default function ListaRequisicoesAmostraComercialPage() {
       }
       toast.success("RequisiÃ§Ã£o excluÃ­da com sucesso")
       setDeleteTarget(null)
-      setData(prev => prev.filter(item => item.id !== deleteTarget.id))
+      setData((prev: any) => prev.filter((item: any) => item.id !== deleteTarget.id))
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erro ao excluir")
       setDeleteTarget(null)

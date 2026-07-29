@@ -28,8 +28,8 @@ export default function CrmEmailConfigPage() {
 
   useEffect(() => {
     fetch("/api/crm/config/email")
-      .then(res => res.json())
-      .then(data => {
+      .then((res: any) => res.json())
+      .then((data: any) => {
         if (data && data.id) {
           setHost(data.host || "smtp.gmail.com")
           setPort(String(data.port || 587))

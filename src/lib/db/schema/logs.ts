@@ -13,7 +13,7 @@ export const logs = pgTable("logs", {
   usuarioId: integer("usuario_id").references(() => usuarios.id),
   usuarioNome: varchar("usuario_nome", { length: 255 }),
   createdAt: timestamp("created_at").defaultNow(),
-}, (t) => [
+}, (t: any) => [
   index("idx_logs_tipo").on(t.tipo),
   index("idx_logs_created_at").on(t.createdAt),
   index("idx_logs_entidade").on(t.entidade, t.entidadeId),

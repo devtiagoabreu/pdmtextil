@@ -43,13 +43,13 @@ export default function ImportarApiModal({ tela, existingRecords, existingKey = 
   useEffect(() => {
     setLoadingInt(true)
     fetch("/api/admin/integracoes")
-      .then(res => res.json())
-      .then((all: Integracao[]) => setIntegracoes(all.filter(i => i.telas?.includes(tela) && i.ativo)))
+      .then((res: any) => res.json())
+      .then((all: Integracao[]) => setIntegracoes(all.filter((i: any) => i.telas?.includes(tela) && i.ativo)))
       .catch(() => toast.error("Erro ao carregar integrações"))
       .finally(() => setLoadingInt(false))
   }, [tela])
 
-  const integracao = integracoes.find(i => i.id === selectedId) || null
+  const integracao = integracoes.find((i: any) => i.id === selectedId) || null
   const uniqueKey = (integracao?.mapping?.uniqueKey || existingKey) as string
   const fieldMapping = (integracao?.mapping?.fields || {}) as Record<string, string>
 
@@ -116,14 +116,14 @@ export default function ImportarApiModal({ tela, existingRecords, existingKey = 
   }
 
   function toggleAll() {
-    const allFilteredSelected = filteredItems.every(item => selectedRows.has(items.indexOf(item)))
+    const allFilteredSelected = filteredItems.every((item: any) => selectedRows.has(items.indexOf(item)))
     if (allFilteredSelected) {
       const next = new Set(selectedRows)
-      filteredItems.forEach(item => next.delete(items.indexOf(item)))
+      filteredItems.forEach((item: any) => next.delete(items.indexOf(item)))
       setSelectedRows(next)
     } else {
       const next = new Set(selectedRows)
-      filteredItems.forEach(item => next.add(items.indexOf(item)))
+      filteredItems.forEach((item: any) => next.add(items.indexOf(item)))
       setSelectedRows(next)
     }
   }
@@ -142,13 +142,13 @@ export default function ImportarApiModal({ tela, existingRecords, existingKey = 
   }
 
   const columns = items.length > 0 ? Object.keys(items[0]) : []
-  const filteredItems = items.filter(item =>
-    !searchQuery || columns.some(col =>
+  const filteredItems = items.filter((item: any) =>
+    !searchQuery || columns.some((col: any) =>
       String(item[col] ?? "").toLowerCase().includes(searchQuery.toLowerCase())
     )
   )
   const filteredSelectedRows = new Set(
-    [...selectedRows].filter(i => filteredItems.includes(items[i]))
+    [...selectedRows].filter((i: any) => filteredItems.includes(items[i]))
   )
 
   async function handleImport() {
@@ -158,7 +158,7 @@ export default function ImportarApiModal({ tela, existingRecords, existingKey = 
     }
     setImporting(true)
     try {
-      const selectedItems = items.filter((_, i) => selectedRows.has(i) && !hasMissingRequiredField(items[i]))
+      const selectedItems = items.filter((_: any, i: any) => selectedRows.has(i) && !hasMissingRequiredField(items[i]))
       const res = await fetch("/api/integracao/importar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -209,7 +209,7 @@ export default function ImportarApiModal({ tela, existingRecords, existingKey = 
               <div className="flex items-center gap-3 flex-wrap">
                 <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Integração:</span>
                 <div className="flex gap-2 flex-wrap">
-                  {integracoes.map(int => (
+                  {integracoes.map((int: any) => (
                     <button
                       key={int.id}
                       type="button"
@@ -232,9 +232,9 @@ export default function ImportarApiModal({ tela, existingRecords, existingKey = 
 
               {items.length > 0 && (
                 <>
-                  {items.filter(i => hasMissingRequiredField(i)).length > 0 && (
+                  {items.filter((i: any) => hasMissingRequiredField(i)).length > 0 && (
                     <p className="text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 px-3 py-1.5 rounded-lg">
-                      {items.filter(i => hasMissingRequiredField(i)).length} item(s) com &quot;{uniqueKey}&quot; vazio — não serão selecionados para importação.
+                      {items.filter((i: any) => hasMissingRequiredField(i)).length} item(s) com &quot;{uniqueKey}&quot; vazio — não serão selecionados para importação.
                     </p>
                   )}
                   <div className="relative">
@@ -253,13 +253,13 @@ export default function ImportarApiModal({ tela, existingRecords, existingKey = 
                         <th className="p-2 w-10">
                           <input type="checkbox" checked={filteredSelectedRows.size === filteredItems.length && filteredItems.length > 0} onChange={toggleAll} className="rounded" />
                         </th>
-                        {columns.slice(0, 8).map(col => (
+                        {columns.slice(0, 8).map((col: any) => (
                           <th key={col} className="p-2 text-left text-xs font-medium text-slate-500 uppercase whitespace-nowrap">{col}</th>
                         ))}
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                      {filteredItems.map((item) => {
+                      {filteredItems.map((item: any) => {
                         const originalIdx = items.indexOf(item)
                         const dup = isDuplicate(item)
                         const missingField = hasMissingRequiredField(item)
@@ -276,7 +276,7 @@ export default function ImportarApiModal({ tela, existingRecords, existingKey = 
                                 title={missingField ? `Campo obrigatório "${uniqueKey}" vazio` : dup ? "Duplicado" : ""}
                               />
                             </td>
-                            {columns.slice(0, 8).map(col => (
+                            {columns.slice(0, 8).map((col: any) => (
                               <td key={col} className="p-2 text-xs text-slate-700 dark:text-slate-300 whitespace-nowrap overflow-hidden text-ellipsis max-w-[200px]">
                                 {typeof item[col] === "object" ? JSON.stringify(item[col]) : String(item[col] ?? "")}
                               </td>
@@ -291,7 +291,7 @@ export default function ImportarApiModal({ tela, existingRecords, existingKey = 
               )}
 
               <div className="flex items-center justify-between text-xs text-slate-400">
-                <span>{searchQuery ? `Exibindo ${filteredItems.length} de ` : ""}{items.length} itens | {selectedRows.size} selecionados | {existingSet.size} existentes | {items.filter(i => hasMissingRequiredField(i)).length} sem {uniqueKey}</span>
+                <span>{searchQuery ? `Exibindo ${filteredItems.length} de ` : ""}{items.length} itens | {selectedRows.size} selecionados | {existingSet.size} existentes | {items.filter((i: any) => hasMissingRequiredField(i)).length} sem {uniqueKey}</span>
                 {integracao?.mapping?.uniqueKey && (
                   <span className="flex items-center gap-1">
                     <Check size={12} className="text-green-500" />

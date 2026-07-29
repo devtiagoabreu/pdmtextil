@@ -474,8 +474,8 @@ export default function EmailMassaPage() {
     carregarModelos()
     carregarListas()
     fetch("/api/user/email-config")
-      .then(r => r.json())
-      .then(data => {
+      .then((r: any) => r.json())
+      .then((data: any) => {
         if (data.config) {
           setUserEmailConfig(data.config)
           setRemetente("usuario")
@@ -685,7 +685,7 @@ export default function EmailMassaPage() {
           await fetch(`/api/admin/email-massa/listas/${listaId}/contatos`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ contatos: listaContatos.map(c => ({ nome: c.nome, email: c.email })) }),
+            body: JSON.stringify({ contatos: listaContatos.map((c: any) => ({ nome: c.nome, email: c.email })) }),
           })
         }
 
@@ -711,7 +711,7 @@ export default function EmailMassaPage() {
       if (res.ok) {
         toast.success("Lista deletada")
         carregarListas()
-        setSelectedListaIds(prev => prev.filter(lid => lid !== id))
+        setSelectedListaIds((prev: any) => prev.filter((lid: any) => lid !== id))
       }
     } catch {
       toast.error("Erro ao deletar")
@@ -759,7 +759,7 @@ export default function EmailMassaPage() {
       return
     }
     if (editContatoId) {
-      setListaContatos(prev => prev.map(c =>
+      setListaContatos(prev => prev.map((c: any) =>
         c.id === editContatoId ? { ...c, nome: novoContato.nome, email: novoContato.email } : c
       ))
       setEditContatoId(null)
@@ -780,12 +780,12 @@ export default function EmailMassaPage() {
   }
 
   const removerContato = (id: number) => {
-    setListaContatos(prev => prev.filter(c => c.id !== id))
+    setListaContatos(prev => prev.filter((c: any) => c.id !== id))
   }
 
   const toggleListaSelecionada = (id: number) => {
     setSelectedListaIds(prev =>
-      prev.includes(id) ? prev.filter(lid => lid !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((lid: any) => lid !== id) : [...prev, id]
     )
   }
 
@@ -797,7 +797,7 @@ export default function EmailMassaPage() {
     })
   }
 
-  const filteredEnvios = historico?.envios.filter(e =>
+  const filteredEnvios = historico?.envios.filter((e: any) =>
     !historicoSearch ||
     e.email.toLowerCase().includes(historicoSearch.toLowerCase()) ||
     (e.nome?.toLowerCase().includes(historicoSearch.toLowerCase())) ||
@@ -860,7 +860,7 @@ export default function EmailMassaPage() {
                     <div className="border rounded-lg border-slate-200 dark:border-slate-700 max-h-48 overflow-y-auto p-2 space-y-1">
                       {listas.length === 0 ? (
                         <p className="text-sm text-slate-400 p-2">Nenhuma lista cadastrada. Vá na aba Listas para criar.</p>
-                      ) : listas.map(l => (
+                      ) : listas.map((l: any) => (
                         <label key={l.id} className="flex items-center gap-2 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer">
                           <input type="checkbox" checked={selectedListaIds.includes(l.id)}
                             onChange={() => toggleListaSelecionada(l.id)}
@@ -980,13 +980,13 @@ export default function EmailMassaPage() {
                       <div className="flex items-center gap-0.5 px-1 border-r border-slate-200 dark:border-slate-700">
                         <select onChange={e => exec("fontName", e.target.value)} className="text-xs p-1 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 w-28"
                           title="Fonte">
-                          {FONT_FAMILIES.map(f => (
+                          {FONT_FAMILIES.map((f: any) => (
                             <option key={f} value={f} style={{ fontFamily: f }}>{f}</option>
                           ))}
                         </select>
                         <select onChange={e => exec("fontSize", e.target.value)} className="text-xs p-1 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 w-20"
                           title="Tamanho">
-                          {FONT_SIZES.map(s => (
+                          {FONT_SIZES.map((s: any) => (
                             <option key={s.value} value={s.value}>{s.label}</option>
                           ))}
                         </select>
@@ -1078,7 +1078,7 @@ export default function EmailMassaPage() {
                 {modelos.length > 0 && (
                   <div className="flex items-center gap-1 flex-wrap max-w-md">
                     <span className="text-xs text-slate-400 mr-1">Modelos:</span>
-                    {modelos.slice(0, 3).map(m => (
+                    {modelos.slice(0, 3).map((m: any) => (
                       <button key={m.id} type="button" onClick={() => usarModelo(m)}
                         className="text-xs px-2 py-1 rounded bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 hover:bg-blue-100 border border-blue-200 dark:border-blue-800">
                         {m.nome}
@@ -1132,7 +1132,7 @@ export default function EmailMassaPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {modelos.map(m => (
+                      {modelos.map((m: any) => (
                         <tr key={m.id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
                           <td className="p-2 font-medium">{m.nome}</td>
                           <td className="p-2 text-slate-500 truncate max-w-xs">{m.assunto}</td>
@@ -1187,7 +1187,7 @@ export default function EmailMassaPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {listas.map(l => (
+                      {listas.map((l: any) => (
                         <tr key={l.id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
                           <td className="p-2 font-medium">{l.nome}</td>
                           <td className="p-2 text-slate-500 truncate max-w-xs">{l.descricao || "—"}</td>
@@ -1239,7 +1239,7 @@ export default function EmailMassaPage() {
                         },
                         tables: [{
                           headers: ["Status", "Email", "Nome", "Assunto", "Cliques", "Enviado em", "Aberto em"],
-                          rows: filteredEnvios.map(e => [
+                          rows: filteredEnvios.map((e: any) => [
                             e.abertoEm ? "Lido" : e.status === "enviado" ? "Enviado" : "Falhou",
                             e.email,
                             e.nome || "-",
@@ -1319,7 +1319,7 @@ export default function EmailMassaPage() {
                           </tr>
                         </thead>
                         <tbody>
-                          {filteredEnvios.map(e => (
+                          {filteredEnvios.map((e: any) => (
                             <tr key={e.id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
                               <td className="p-2">
                                 <StatusBadge status={e.status} abertoEm={e.abertoEm} />
@@ -1366,7 +1366,7 @@ export default function EmailMassaPage() {
               </div>
 
               <div className="flex gap-2">
-                {["todos", "rascunho", "agendado", "enviado", "cancelado", "erro"].map(f => (
+                {["todos", "rascunho", "agendado", "enviado", "cancelado", "erro"].map((f: any) => (
                   <button key={f} onClick={() => setAgendadoFiltro(f)}
                     className={`px-3 py-1 text-xs rounded-full border transition-colors ${agendadoFiltro === f ? "bg-blue-50 border-blue-300 text-blue-700 dark:bg-blue-900/30 dark:border-blue-700 dark:text-blue-300" : "border-slate-200 dark:border-slate-700 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800"}`}>
                     {f === "todos" ? "Todos" : f === "rascunho" ? "Rascunhos" : f === "agendado" ? "Agendados" : f === "enviado" ? "Enviados" : f === "cancelado" ? "Cancelados" : "Com Erro"}
@@ -1378,7 +1378,7 @@ export default function EmailMassaPage() {
                 <p className="text-sm text-slate-400 py-8 text-center">Carregando...</p>
               ) : (
                 (() => {
-                  const filtered = agendados.filter(a => agendadoFiltro === "todos" || a.status === agendadoFiltro)
+                  const filtered = agendados.filter((a: any) => agendadoFiltro === "todos" || a.status === agendadoFiltro)
                   if (filtered.length === 0) return <p className="text-sm text-slate-400 py-8 text-center">Nenhum disparo encontrado.</p>
                   return (
                     <div className="overflow-x-auto">
@@ -1395,7 +1395,7 @@ export default function EmailMassaPage() {
                           </tr>
                         </thead>
                         <tbody>
-                          {filtered.map(a => (
+                          {filtered.map((a: any) => (
                             <tr key={a.id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
                               <td className="p-2">
                                 <span className={`inline-flex items-center gap-1 text-xs font-medium px-2.5 py-0.5 rounded-full ${
@@ -1543,7 +1543,7 @@ export default function EmailMassaPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {listaContatos.map(c => (
+                      {listaContatos.map((c: any) => (
                         <tr key={c.id} className="border-b border-slate-100 dark:border-slate-800">
                           <td className="p-2">{c.nome}</td>
                           <td className="p-2 text-slate-500 break-all max-w-0">{c.email}</td>
@@ -1585,7 +1585,7 @@ export default function EmailMassaPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {viewLista.contatos.map(c => (
+                  {viewLista.contatos.map((c: any) => (
                     <tr key={c.id} className="border-b border-slate-100 dark:border-slate-800">
                       <td className="p-2">{c.nome}</td>
                       <td className="p-2 text-slate-500">{c.email}</td>
@@ -1749,7 +1749,7 @@ export default function EmailMassaPage() {
               {["#000000","#333333","#666666","#999999","#cccccc","#ffffff",
                 "#ff0000","#ff6600","#ffcc00","#00cc00","#0066ff","#6633cc",
                 "#cc0066","#00cccc","#009966","#990000","#003366","#660066",
-              ].map(c => (
+              ].map((c: any) => (
                 <button key={c} type="button" onClick={() => setColorValue(c)}
                   className="w-8 h-8 rounded border border-slate-300 dark:border-slate-600 hover:scale-110 transition-transform"
                   style={{ backgroundColor: c }} title={c} />

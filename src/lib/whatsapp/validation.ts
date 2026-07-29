@@ -33,11 +33,11 @@ export function confirmou(texto: string): boolean {
 export function parseLinhas(texto: string, maxNumero: number): number[] {
   const nums = texto.match(/\d/g)
   if (!nums) return []
-  return [...new Set(nums.map(Number))].filter((n) => n >= 1 && n <= maxNumero).sort()
+  return [...new Set(nums.map(Number))].filter((n: any) => n >= 1 && n <= maxNumero).sort()
 }
 
 export function linhasNomes(nums: number[], linhaMap: Record<number, string>): string {
-  return nums.map((n) => `${n} - ${linhaMap[n]}`).join(", ")
+  return nums.map((n: any) => `${n} - ${linhaMap[n]}`).join(", ")
 }
 
 export function extrairNomeDaResposta(texto: string): string | null {

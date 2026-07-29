@@ -27,7 +27,7 @@ export default function RelatoriosHubPage() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {relatorios.map(rel => {
+        {relatorios.map((rel: any) => {
           const Icon = rel.icon
           return (
             <Link prefetch={false}

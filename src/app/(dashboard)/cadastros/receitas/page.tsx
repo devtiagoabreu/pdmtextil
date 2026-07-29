@@ -46,8 +46,8 @@ export default function ListaReceitasPage() {
 
   useEffect(() => {
     fetch("/api/receitas")
-      .then((r) => r.json())
-      .then((data) => {
+      .then((r: any) => r.json())
+      .then((data: any) => {
         setSimples(data.simples || [])
         setCompletas(data.completas || [])
       })
@@ -63,7 +63,7 @@ export default function ListaReceitasPage() {
           Receitas de beneficiamento associadas a produtos, acabamentos e amostras
         </p>
       </div>
-      <ExportarDados data={completas.map(r => ({ produto: r.produtoCodigo, descricao: r.descricao, versao: r.versao, itens: r.totalItens, acabamento: r.acabamento }))} columns={[
+      <ExportarDados data={completas.map((r: any) => ({ produto: r.produtoCodigo, descricao: r.descricao, versao: r.versao, itens: r.totalItens, acabamento: r.acabamento }))} columns={[
         { key: "produto", label: "Produto" }, { key: "descricao", label: "DescriÃ§Ã£o" },
         { key: "versao", label: "VersÃ£o" }, { key: "itens", label: "Itens" },
         { key: "acabamento", label: "Acabamento" },
@@ -118,7 +118,7 @@ export default function ListaReceitasPage() {
                 </tr>
               </thead>
               <tbody>
-                {completas.map((r) => (
+                {completas.map((r: any) => (
                   <tr key={`c-${r.id}`} className="border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/30">
                     <td className="p-3">
                       <Link prefetch={false} href={`/cadastros/produto-cru/${r.produtoId}`} className="font-medium text-blue-600 dark:text-blue-400 hover:underline">
@@ -171,7 +171,7 @@ export default function ListaReceitasPage() {
                 </tr>
               </thead>
               <tbody>
-                {simples.map((r) => (
+                {simples.map((r: any) => (
                   <tr key={`s-${r.id}`} className="border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/30">
                     <td className="p-3">
                       <Link prefetch={false} href={`/cadastros/produto-cru/${r.produtoId}`} className="font-medium text-blue-600 dark:text-blue-400 hover:underline">

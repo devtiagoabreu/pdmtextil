@@ -28,16 +28,16 @@ export default function CrmPessoaWhatsapp({ pessoaId }: { pessoaId: string }) {
 
   useEffect(() => {
     fetch(`/api/crm/whatsapp?empresaId=${pessoaId}`)
-      .then((r) => r.json())
-      .then((data) => {
+      .then((r: any) => r.json())
+      .then((data: any) => {
         const lista = Array.isArray(data) ? data.reverse() : []
         setMensagens(lista)
         const jid = lista.find((m: Mensagem) => m.remoteJid)?.remoteJid
         if (jid) {
           setRemoteJid(jid)
           fetch(`/api/crm/whatsapp/chat?remoteJid=${encodeURIComponent(jid)}`)
-            .then((r) => r.json())
-            .then((d) => setIsHumano(d.conversa?.estado === "HUMANO_ASSUMINDO"))
+            .then((r: any) => r.json())
+            .then((d: any) => setIsHumano(d.conversa?.estado === "HUMANO_ASSUMINDO"))
             .catch(console.error)
         }
       })
@@ -160,7 +160,7 @@ export default function CrmPessoaWhatsapp({ pessoaId }: { pessoaId: string }) {
         {mensagens.length === 0 ? (
           <p className="text-sm text-slate-400 text-center py-8">Nenhuma mensagem</p>
         ) : (
-          mensagens.map((msg) => (
+          mensagens.map((msg: any) => (
             <div key={msg.id} className={`flex ${msg.tipo === "ENVIADA" ? "justify-end" : "justify-start"}`}>
               <div
                 className={`max-w-[80%] rounded-lg px-3 py-2 text-sm ${

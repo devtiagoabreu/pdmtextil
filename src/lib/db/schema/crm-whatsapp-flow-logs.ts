@@ -15,7 +15,7 @@ export const crmWhatsappFlowLogs = pgTable(
     durationMs: integer("duration_ms"),
     createdAt: timestamp("created_at").defaultNow(),
   },
-  (t) => [
+  (t: any) => [
     index("idx_flow_logs_execution_id").on(t.executionId),
     index("idx_flow_logs_created_at").on(t.createdAt),
     index("idx_flow_logs_status").on(t.status),

@@ -19,7 +19,7 @@ interface RelatoTemplateSelectorProps {
 export function RelatoTemplateSelector({ onSelect }: RelatoTemplateSelectorProps) {
   return (
     <div className="flex flex-wrap gap-1.5 mb-2">
-      {RELATO_TEMPLATES.map(t => (
+      {RELATO_TEMPLATES.map((t: any) => (
         <button
           key={t.label}
           type="button"

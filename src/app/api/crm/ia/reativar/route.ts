@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
         .select({ nome: crmLeads.nome, empresaId: crmLeads.empresaId })
         .from(crmLeads)
         .where(eq(crmLeads.id, leadId))
-        .then(r => r[0])
+        .then((r: any) => r[0])
       if (lead) {
         nomeEntidade = lead.nome
         entidadeId = leadId
@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
         .select({ razaoSocial: crmPessoas.razaoSocial })
         .from(crmPessoas)
         .where(eq(crmPessoas.id, empresaId))
-        .then(r => r[0])
+        .then((r: any) => r[0])
       if (empresa) {
         nomeEntidade = empresa.razaoSocial || ""
         entidadeId = empresaId

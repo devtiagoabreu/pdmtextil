@@ -49,7 +49,7 @@ export function QuickCreateCliente({ onCreated }: Props) {
 
   useEffect(() => {
     if (uf) {
-      const found = estados.find(e => e.uf === uf)
+      const found = estados.find((e: any) => e.uf === uf)
       setEstadoId(found ? found.id : null)
     } else {
       setEstadoId(null)

@@ -7,6 +7,8 @@ import { usuarios, accounts } from "@/lib/db/schema"
 import { eq, and } from "drizzle-orm"
 import bcrypt from "bcryptjs"
 
+export { getServerSession }
+
 export function getUserId(session: { user?: { id?: string } } | null): number | NextResponse {
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Usuário inválido" }, { status: 401 })
@@ -21,7 +23,7 @@ export function getUserId(session: { user?: { id?: string } } | null): number | 
 export async function requireAuth() {
   const session = await getServerSession(authOptions)
   if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
-  const userId = parseInt(session.user.id)
+  const userId = parseInt(session.user?.id ?? "")
   if (isNaN(userId)) return NextResponse.json({ error: "Usuário inválido" }, { status: 401 })
   return { session, userId }
 }
@@ -34,7 +36,7 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "email" },
         password: { label: "Senha", type: "password" }
       },
-      async authorize(credentials) {
+      async authorize(credentials: any) {
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Credenciais inválidas")
         }
@@ -61,7 +63,7 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async signIn({ user, account }) {
+    async signIn({ user, account }: { user: any; account: any }) {
       if (account?.provider === "google") {
         const existing = await db.select().from(usuarios).where(eq(usuarios.email, user.email!)).limit(1)
         if (!existing[0]) {
@@ -91,7 +93,7 @@ export const authOptions: NextAuthOptions = {
       }
       return true
     },
-    async jwt({ token, user, account }) {
+    async jwt({ token, user, account }: { token: any; user: any; account: any }) {
       if (user) {
         token.id = user.id
         token.role = user.role
@@ -107,7 +109,7 @@ export const authOptions: NextAuthOptions = {
       }
       return token
     },
-    async session({ session, token }) {
+    async session({ session, token }: { session: any; token: any }) {
       if (session.user) {
         session.user.id = token.id as string
         session.user.role = token.role as string

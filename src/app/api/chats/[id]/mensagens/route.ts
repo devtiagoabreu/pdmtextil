@@ -36,7 +36,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
     mensagens.reverse()
 
-    const msgIds = mensagens.map((m) => m.id)
+    const msgIds = mensagens.map((m: any) => m.id)
     const leituras = msgIds.length > 0
       ? await db
           .select({
@@ -106,7 +106,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     let match: RegExpExecArray | null
     while ((match = mentionRegex.exec(body.mensagem)) !== null) {
       const nomeProcurado = match[1].trim().toLowerCase()
-      const matched = todosUsers.find(u =>
+      const matched = todosUsers.find((u: any) =>
         u.id !== userId && u.name.toLowerCase() === nomeProcurado
       )
       if (matched) {
@@ -118,7 +118,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       const chatLink = `/chat?chatId=${chatId}`
       const remetenteNome = remetente?.name || "Alguém"
 
-      const notificacoesData = Array.from(mencionados).map(uid => ({
+      const notificacoesData = Array.from(mencionados).map((uid: any) => ({
         tipo: "CHAT_MENCAO",
         mensagem: `${remetenteNome} mencionou você no chat "${chat.titulo}"`,
         usuarioId: uid,
@@ -134,8 +134,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         .where(and(inArray(usuarios.id, Array.from(mencionados)), eq(usuarios.ativo, true)))
 
       const emailsValidos = usersMencionados
-        .map(u => u.email)
-        .filter((e): e is string => !!e && e.includes("@"))
+        .map((u: any) => u.email)
+        .filter((e: any): e is string => !!e && e.includes("@"))
 
       if (emailsValidos.length > 0) {
         await sendEmail({

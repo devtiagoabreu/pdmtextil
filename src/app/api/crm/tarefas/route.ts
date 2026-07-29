@@ -25,11 +25,11 @@ export async function GET(req: NextRequest) {
     if (responsavelId) conditions.push(eq(crmTarefas.responsavelId, parseInt(responsavelId)))
     if (empresaId) conditions.push(eq(crmTarefas.empresaId, parseInt(empresaId)))
     if (hoje === "true") conditions.push(eq(crmTarefas.dataPrevista, sql`CURRENT_DATE`))
-    if (mine === "true" && auth.session.user.role !== "ADMIN" && auth.session.user.role !== "SUDO") {
+    if (mine === "true" && (auth.session.user?.role ?? "") !== "ADMIN" && (auth.session.user?.role ?? "") !== "SUDO") {
       conditions.push(eq(crmTarefas.criadoPor, auth.userId))
     }
 
-    const where = conditions.length > 0 ? sql`${conditions.reduce((a, b) => sql`${a} AND ${b}`)}` : undefined
+    const where = conditions.length > 0 ? sql`${conditions.reduce((a: any, b: any) => sql`${a} AND ${b}`)}` : undefined
 
     const lista = await db
       .select({

@@ -66,7 +66,7 @@ export default function AdminTelasPage() {
   // Carregar roles do sistema
   useEffect(() => {
     fetch("/api/admin/roles")
-      .then(r => r.json())
+      .then((r: any) => r.json())
       .then((data: RoleOption[]) => {
         if (Array.isArray(data)) {
           setRoles(prev => [...prev, ...data.filter((r: RoleOption) => r.name !== "DEFAULT")])
@@ -86,9 +86,9 @@ export default function AdminTelasPage() {
     setEditForm({})
 
     Promise.all([
-      fetch(`/api/admin/menus?role=${roleSelecionado}`).then(r => r.json()),
-      fetch(`/api/admin/pagina-inicial?role=${roleSelecionado}`).then(r => r.json()),
-      fetch("/api/user/menus/todas-telas").then(r => r.json()),
+      fetch(`/api/admin/menus?role=${roleSelecionado}`).then((r: any) => r.json()),
+      fetch(`/api/admin/pagina-inicial?role=${roleSelecionado}`).then((r: any) => r.json()),
+      fetch("/api/user/menus/todas-telas").then((r: any) => r.json()),
     ]).then(([menusData, paginaData, telasData]) => {
       setMenus(Array.isArray(menusData) ? menusData : [])
       setPaginaInicial(paginaData.paginaInicial || "")
@@ -136,7 +136,7 @@ export default function AdminTelasPage() {
     try {
       const res = await fetch(`/api/admin/menus/${id}`, { method: "DELETE" })
       if (!res.ok) throw new Error()
-      setMenus(prev => prev.filter(m => m.id !== id))
+      setMenus(prev => prev.filter((m: any) => m.id !== id))
       toast.success("Menu excluído")
     } catch {
       toast.error("Erro ao excluir menu")
@@ -154,7 +154,7 @@ export default function AdminTelasPage() {
       })
       if (!res.ok) throw new Error()
       const updated = await res.json()
-      setMenus(prev => prev.map(m => m.id === id ? { ...m, ...updated } : m))
+      setMenus(prev => prev.map((m: any) => m.id === id ? { ...m, ...updated } : m))
       setEditingMenuId(null)
       toast.success("Menu atualizado")
     } catch {
@@ -165,7 +165,7 @@ export default function AdminTelasPage() {
   async function criarItem(menuId: number) {
     const telaId = editForm[`novo-item-${menuId}`]
     if (!telaId) { toast.error("Selecione uma tela"); return }
-    const tela = telas.find(t => t.id === telaId)
+    const tela = telas.find((t: any) => t.id === telaId)
     if (!tela) return
     try {
       const res = await fetch(`/api/admin/menus/${menuId}/itens`, {
@@ -175,7 +175,7 @@ export default function AdminTelasPage() {
       })
       if (!res.ok) throw new Error()
       const item = await res.json()
-      setMenus(prev => prev.map(m => m.id === menuId ? { ...m, itens: [...m.itens, item] } : m))
+      setMenus(prev => prev.map((m: any) => m.id === menuId ? { ...m, itens: [...m.itens, item] } : m))
       setEditForm(prev => ({ ...prev, [`novo-item-${menuId}`]: "" }))
       toast.success("Item adicionado")
     } catch {
@@ -188,7 +188,7 @@ export default function AdminTelasPage() {
     try {
       const res = await fetch(`/api/admin/menus/${menuId}/itens/${itemId}`, { method: "DELETE" })
       if (!res.ok) throw new Error()
-      setMenus(prev => prev.map(m => m.id === menuId ? { ...m, itens: m.itens.filter(i => i.id !== itemId) } : m))
+      setMenus(prev => prev.map((m: any) => m.id === menuId ? { ...m, itens: m.itens.filter((i: any) => i.id !== itemId) } : m))
       toast.success("Item excluído")
     } catch {
       toast.error("Erro ao excluir item")
@@ -206,7 +206,7 @@ export default function AdminTelasPage() {
       })
       if (!res.ok) throw new Error()
       const updated = await res.json()
-      setMenus(prev => prev.map(m => m.id === menuId ? { ...m, itens: m.itens.map(i => i.id === itemId ? { ...i, ...updated } : i) } : m))
+      setMenus(prev => prev.map((m: any) => m.id === menuId ? { ...m, itens: m.itens.map((i: any) => i.id === itemId ? { ...i, ...updated } : i) } : m))
       setEditingItemId(null)
       toast.success("Item atualizado")
     } catch {
@@ -246,7 +246,7 @@ export default function AdminTelasPage() {
                 <SelectValue placeholder="Selecione um perfil" />
               </SelectTrigger>
               <SelectContent>
-                {roles.map(r => (
+                {roles.map((r: any) => (
                   <SelectItem key={r.name} value={r.name}>{r.label}</SelectItem>
                 ))}
               </SelectContent>
@@ -275,7 +275,7 @@ export default function AdminTelasPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">Nenhuma (herda configuração anterior)</SelectItem>
-                {telas.map(t => (
+                {telas.map((t: any) => (
                   <SelectItem key={t.id} value={t.href}>{t.label}</SelectItem>
                 ))}
               </SelectContent>
@@ -304,7 +304,7 @@ export default function AdminTelasPage() {
           </p>
         ) : (
           <div className="space-y-3">
-            {menus.map(menu => (
+            {menus.map((menu: any) => (
               <div key={menu.id} className="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
                 <div className="flex items-center justify-between px-4 py-3 bg-slate-50 dark:bg-slate-800">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -359,7 +359,7 @@ export default function AdminTelasPage() {
 
                 {expandedMenu === menu.id && (
                   <div className="px-4 py-3 space-y-2">
-                    {menu.itens.map(item => (
+                    {menu.itens.map((item: any) => (
                       <div key={item.id} className="flex items-center justify-between gap-3 pl-6 py-1.5">
                         {editingItemId === `item-${item.id}` ? (
                           <div className="flex items-center gap-2 flex-1">
@@ -422,7 +422,7 @@ export default function AdminTelasPage() {
                             <SelectValue placeholder="Selecionar tela..." />
                           </SelectTrigger>
                           <SelectContent>
-                            {telas.map(t => (
+                            {telas.map((t: any) => (
                               <SelectItem key={t.id} value={t.id}>{t.label}</SelectItem>
                             ))}
                           </SelectContent>

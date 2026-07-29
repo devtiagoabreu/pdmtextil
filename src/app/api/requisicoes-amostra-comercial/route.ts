@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
     const [result] = await db
       .insert(requisicoesAmostraComercial)
       .values({
-        solicitanteId: parseInt(session.user.id),
+        solicitanteId: parseInt(session.user?.id ?? ""),
         cliente: cliente || null,
         produtoCruId: parseInt(produtoCruId),
         titulo: titulo || null,

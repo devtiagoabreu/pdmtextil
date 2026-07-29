@@ -65,9 +65,9 @@ export default function NovaOportunidadePage() {
   useEffect(() => {
     async function load() {
       const [empresasRes, leadsRes, usuariosRes] = await Promise.allSettled([
-        fetch("/api/crm/pessoas").then(r => r.json()),
-        fetch("/api/crm/leads").then(r => r.json()),
-        fetch("/api/usuarios").then(r => r.json()),
+        fetch("/api/crm/pessoas").then((r: any) => r.json()),
+        fetch("/api/crm/leads").then((r: any) => r.json()),
+        fetch("/api/usuarios").then((r: any) => r.json()),
       ])
       if (empresasRes.status === "fulfilled" && Array.isArray(empresasRes.value)) setEmpresas(empresasRes.value)
       if (leadsRes.status === "fulfilled" && Array.isArray(leadsRes.value)) setLeads(leadsRes.value)
@@ -154,7 +154,7 @@ export default function NovaOportunidadePage() {
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Selecione...</option>
-              {empresas.map(e => (
+              {empresas.map((e: any) => (
                 <option key={e.id} value={String(e.id)}>{e.razaoSocial || e.nomeFantasia}</option>
               ))}
             </select>
@@ -170,7 +170,7 @@ export default function NovaOportunidadePage() {
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Selecione...</option>
-              {leads.map(l => (
+              {leads.map((l: any) => (
                 <option key={l.id} value={String(l.id)}>{l.nome}</option>
               ))}
             </select>
@@ -183,7 +183,7 @@ export default function NovaOportunidadePage() {
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Selecione...</option>
-              {usuarios.map(u => (
+              {usuarios.map((u: any) => (
                 <option key={u.id} value={String(u.id)}>{u.name}</option>
               ))}
             </select>
@@ -226,7 +226,7 @@ export default function NovaOportunidadePage() {
               onChange={e => setField("status", e.target.value)}
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              {statuses.map(s => (
+              {statuses.map((s: any) => (
                 <option key={s.id} value={s.nome}>{s.nome}</option>
               ))}
             </select>

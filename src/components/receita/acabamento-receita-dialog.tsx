@@ -78,7 +78,7 @@ export function ReceitaDialog({
       const list: Receita[] = await res.json()
       setReceitas(list)
       if (list.length > 0) {
-        const latest = list.reduce((a, b) => a.versao > b.versao ? a : b)
+        const latest = list.reduce((a: any, b: any) => a.versao > b.versao ? a : b)
         selectReceita(latest)
       } else {
         setReceita(null)
@@ -97,7 +97,7 @@ export function ReceitaDialog({
     if (!open) return
     setLoading(true)
     fetch("/api/cadastros/produtos-quimicos")
-      .then(r => r.json())
+      .then((r: any) => r.json())
       .then(setQuimicos)
       .catch(console.error)
     load()
@@ -113,7 +113,7 @@ export function ReceitaDialog({
 
   function isLatest(): boolean {
     if (!receita) return true
-    return !receitas.some(r => r.id !== receita.id && r.versao > receita.versao)
+    return !receitas.some((r: any) => r.id !== receita.id && r.versao > receita.versao)
   }
 
   async function createReceita() {
@@ -229,7 +229,7 @@ export function ReceitaDialog({
     if (!receita) return
     try {
       await fetch(`${baseUrl}/${receita.id}/itens/${itemId}`, { method: "DELETE" })
-      setItens(itens.filter(i => i.id !== itemId))
+      setItens(itens.filter((i: any) => i.id !== itemId))
     } catch {
       toast.error("Erro ao remover item")
     }
@@ -265,14 +265,14 @@ export function ReceitaDialog({
                   <select
                     value={receita?.id || ""}
                     onChange={e => {
-                      const r = receitas.find(r => r.id === parseInt(e.target.value))
+                      const r = receitas.find((r: any) => r.id === parseInt(e.target.value))
                       if (r) selectReceita(r)
                     }}
                     className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-sm"
                   >
                     {[...receitas]
-                      .sort((a, b) => b.versao - a.versao)
-                      .map(r => (
+                      .sort((a: any, b: any) => b.versao - a.versao)
+                      .map((r: any) => (
                         <option key={r.id} value={r.id}>
                           v{r.versao} — {r.descricao.slice(0, 60)}
                         </option>
@@ -317,7 +317,7 @@ export function ReceitaDialog({
                     <h3 className="text-sm font-medium mb-2">Itens da Receita</h3>
                     {itens.length > 0 && (
                       <div className="space-y-1 mb-3">
-                        {itens.map(item => (
+                        {itens.map((item: any) => (
                           <div key={item.id} className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-800/50 rounded text-sm">
                             <span>
                               <span className="font-mono text-xs text-slate-400 mr-1">[{item.estagio}]</span>
@@ -342,7 +342,7 @@ export function ReceitaDialog({
                           <select value={novoQuimicoId} onChange={e => setNovoQuimicoId(e.target.value)}
                             className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-sm">
                             <option value="">Nenhum</option>
-                            {quimicos.map(q => (
+                            {quimicos.map((q: any) => (
                               <option key={q.id} value={q.id}>{q.codigo} - {q.nome}</option>
                             ))}
                           </select>
@@ -355,7 +355,7 @@ export function ReceitaDialog({
                           <Label className="text-xs">Unid.</Label>
                           <select value={novoUnidade} onChange={e => setNovoUnidade(e.target.value)}
                             className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-sm">
-                            {UNIDADES.map(u => <option key={u} value={u}>{u}</option>)}
+                            {UNIDADES.map((u: any) => <option key={u} value={u}>{u}</option>)}
                           </select>
                         </div>
                         <div className="space-y-1">
@@ -366,7 +366,7 @@ export function ReceitaDialog({
                           <Label className="text-xs">Estágio</Label>
                           <select value={novoEstagio} onChange={e => setNovoEstagio(e.target.value)}
                             className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-sm">
-                            {ESTAGIOS.map(s => <option key={s} value={s}>{s}</option>)}
+                            {ESTAGIOS.map((s: any) => <option key={s} value={s}>{s}</option>)}
                           </select>
                         </div>
                       </div>
@@ -402,7 +402,7 @@ export function ReceitaDialog({
               <table>
                 <thead><tr><th>Estágio</th><th>Produto</th><th>Qtd/m</th><th>Unidade</th><th>Ordem</th></tr></thead>
                 <tbody>
-                  {[...itens].sort((a, b) => a.ordem - b.ordem).map(item => (
+                  {[...itens].sort((a: any, b: any) => a.ordem - b.ordem).map((item: any) => (
                     <tr key={item.id}>
                       <td>[{item.estagio}]</td>
                       <td>{item.quimicoNome || item.descricao || "—"}</td>

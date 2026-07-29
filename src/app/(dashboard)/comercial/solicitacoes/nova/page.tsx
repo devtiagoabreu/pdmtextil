@@ -181,7 +181,7 @@ export default function NovaSolicitacaoPage() {
           style={{ width: `${((step - 1) / 2) * 100}%` }}
         />
         
-        {STEPS.map((s) => {
+        {STEPS.map((s: any) => {
           const Icon = s.icon
           const isActive = step === s.id
           const isCompleted = step > s.id

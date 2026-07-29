@@ -9,7 +9,7 @@ import { getInfoContent } from "@/lib/info-content"
 
 type Origem = "ne" | "nm" | "tex" | "dtex" | "denier"
 
-const LABELS: Record<Origem, { nome: string; desc: string }> = {
+const LABELS: Record<string, { nome: string; desc: string }> = {
   ne: { nome: "Ne (Cotton)", desc: "Meadas de 840 yd por libra" },
   nm: { nome: "Nm", desc: "Metros por grama (km/kg)" },
   tex: { nome: "Tex", desc: "g / 1000 m" },
@@ -20,7 +20,7 @@ const LABELS: Record<Origem, { nome: string; desc: string }> = {
 export default function ConversoresPage() {
   const pathname = usePathname()
   const info = getInfoContent(pathname)
-  const [valores, setValores] = useState<Record<Origem, string>>({
+  const [valores, setValores] = useState<Record<string, string>>({
     ne: "", nm: "", tex: "", dtex: "", denier: "",
   })
 
@@ -97,7 +97,7 @@ export default function ConversoresPage() {
       </div>
 
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800">
-        {(Object.keys(LABELS) as Origem[]).map(origem => {
+        {(Object.keys(LABELS) as Origem[]).map((origem: any) => {
           const v = LABELS[origem]
           return (
             <div key={origem} className="flex items-center gap-4 px-5 py-4">

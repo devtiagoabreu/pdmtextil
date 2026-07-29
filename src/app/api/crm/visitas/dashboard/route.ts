@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
 
     const { searchParams } = new URL(req.url)
     const mine = searchParams.get("mine")
-    const isMine = mine === "true" && auth.session.user.role !== "ADMIN" && auth.session.user.role !== "SUDO"
+    const isMine = mine === "true" && (auth.session.user?.role ?? "") !== "ADMIN" && (auth.session.user?.role ?? "") !== "SUDO"
     const mineCondition = isMine ? eq(crmVisitas.criadoPor, auth.userId) : undefined
 
     const now = new Date()
@@ -99,14 +99,14 @@ export async function GET(req: NextRequest) {
       agendadas: getCount(agendadas),
       hoje: getCount(visitasHoje),
       esteMes: getCount(visitasMes),
-      byTipo: byTipo.map((r) => ({ tipo: r.tipo, total: Number(r.total) })),
-      byStatus: byStatus.map((r) => ({ status: r.status, total: Number(r.total) })),
-      porRepresentante: porRepresentante.map((r) => ({
+      byTipo: byTipo.map((r: any) => ({ tipo: r.tipo, total: Number(r.total) })),
+      byStatus: byStatus.map((r: any) => ({ status: r.status, total: Number(r.total) })),
+      porRepresentante: porRepresentante.map((r: any) => ({
         representanteId: r.representanteId,
         representanteNome: r.representanteNome || "Sem nome",
         total: Number(r.total),
       })),
-      ultimasVisitas: ultimasVisitas.map((r) => ({
+      ultimasVisitas: ultimasVisitas.map((r: any) => ({
         id: r.id,
         empresaId: r.empresaId,
         clienteId: r.clienteId,

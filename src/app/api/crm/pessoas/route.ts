@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    const where = conditions.length > 0 ? sql`${conditions.reduce((a, b) => sql`${a} AND ${b}`)}` : undefined
+    const where = conditions.length > 0 ? sql`${conditions.reduce((a: any, b: any) => sql`${a} AND ${b}`)}` : undefined
 
     const lista = await db
       .select({

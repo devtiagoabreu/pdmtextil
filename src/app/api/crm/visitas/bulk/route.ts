@@ -23,7 +23,7 @@ export async function PATCH(req: NextRequest) {
     }
 
     const userId = auth.userId
-    const role = auth.session.user.role
+    const role = auth.session.user?.role ?? ""
     const isAdminOrSudo = role === "ADMIN" || role === "SUDO"
 
     if (!isAdminOrSudo) {
@@ -55,7 +55,7 @@ export async function DELETE(req: NextRequest) {
     }
 
     const userId = auth.userId
-    const role = auth.session.user.role
+    const role = auth.session.user?.role ?? ""
     const isAdminOrSudo = role === "ADMIN" || role === "SUDO"
     const canDelete = isAdminOrSudo || ["COMERCIAL", "CRM"].includes(role)
 
@@ -65,7 +65,7 @@ export async function DELETE(req: NextRequest) {
 
     if (!isAdminOrSudo) {
       const visitas = await db.select({ id: crmVisitas.id, criadoPor: crmVisitas.criadoPor }).from(crmVisitas).where(inArray(crmVisitas.id, ids))
-      const unauthorized = visitas.filter(v => v.criadoPor !== userId)
+      const unauthorized = visitas.filter((v: any) => v.criadoPor !== userId)
       if (unauthorized.length > 0) {
         return NextResponse.json({ error: `${unauthorized.length} visita(s) sem permissao para excluir` }, { status: 403 })
       }

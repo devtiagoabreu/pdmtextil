@@ -59,10 +59,10 @@ export async function gerarSolicitacaoAmostraPdf(params: {
 
   const [solRes, prodRes] = await Promise.all([
     params.solicitacaoDesenvolvimentoId
-      ? fetch(`/api/solicitacoes/${params.solicitacaoDesenvolvimentoId}`).then(r => r.json()).catch(() => null) as Promise<SolicitacaoData | null>
+      ? fetch(`/api/solicitacoes/${params.solicitacaoDesenvolvimentoId}`).then((r: any) => r.json()).catch(() => null) as Promise<SolicitacaoData | null>
       : null,
     params.produtoCruId
-      ? fetch(`/api/cadastros/produto-cru/${params.produtoCruId}`).then(r => r.json()).catch(() => null) as Promise<ProdutoData | null>
+      ? fetch(`/api/cadastros/produto-cru/${params.produtoCruId}`).then((r: any) => r.json()).catch(() => null) as Promise<ProdutoData | null>
       : null,
   ])
 

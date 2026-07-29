@@ -123,8 +123,8 @@ export function KanbanAmostraComercial() {
     setLoading(true)
     try {
       const [statusRes, reqRes] = await Promise.all([
-        fetch("/api/admin/status?tipo=AMOSTRA_COMERCIAL").then(r => r.json()),
-        fetch("/api/requisicoes-amostra-comercial").then(r => r.json()),
+        fetch("/api/admin/status?tipo=AMOSTRA_COMERCIAL").then((r: any) => r.json()),
+        fetch("/api/requisicoes-amostra-comercial").then((r: any) => r.json()),
       ])
       if (Array.isArray(statusRes)) setStatusList(statusRes)
       if (Array.isArray(reqRes)) {
@@ -148,9 +148,9 @@ export function KanbanAmostraComercial() {
   useEffect(() => { carregar() }, [carregar])
 
   const colunas = statusList
-    .map(col => ({
+    .map((col: any) => ({
       ...col,
-      cards: requisicoes.filter(r => r.status === col.nome),
+      cards: requisicoes.filter((r: any) => r.status === col.nome),
     }))
 
   const handleDragStart = (event: any) => {
@@ -186,7 +186,7 @@ export function KanbanAmostraComercial() {
     const statusAntigo = requisicao.status
 
     setRequisicoes(prev =>
-      prev.map(r => r.id === requisicao.id ? { ...r, status: novoStatus } : r)
+      prev.map((r: any) => r.id === requisicao.id ? { ...r, status: novoStatus } : r)
     )
 
     try {
@@ -203,10 +203,10 @@ export function KanbanAmostraComercial() {
         const err = await res.json()
         throw new Error(err.error || "Erro ao alterar status")
       }
-      toast.success(`Requisição #${requisicao.id} movida para ${statusList.find(s => s.nome === novoStatus)?.rotulo || novoStatus}`)
+      toast.success(`Requisição #${requisicao.id} movida para ${statusList.find((s: any) => s.nome === novoStatus)?.rotulo || novoStatus}`)
     } catch (err: any) {
       setRequisicoes(prev =>
-        prev.map(r => r.id === requisicao.id ? { ...r, status: statusAntigo } : r)
+        prev.map((r: any) => r.id === requisicao.id ? { ...r, status: statusAntigo } : r)
       )
       toast.error(err.message)
     }
@@ -232,9 +232,9 @@ export function KanbanAmostraComercial() {
 
       <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div className="flex-1 min-h-0 flex gap-4 overflow-x-auto">
-          {colunas.map(col => (
+          {colunas.map((col: any) => (
             <DroppableColumn key={col.nome} id={col.nome} rotulo={col.rotulo} cor={col.cor} count={col.cards.length}>
-              {col.cards.map(card => (
+              {col.cards.map((card: any) => (
                 <DraggableCard key={`req-${card.id}`} requisicao={card} />
               ))}
             </DroppableColumn>

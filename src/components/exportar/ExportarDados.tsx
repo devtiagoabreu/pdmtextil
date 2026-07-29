@@ -32,9 +32,9 @@ export function ExportarDados({ data, columns, filename, title }: Props) {
   const [exporting, setExporting] = useState(false)
 
   function toCSV() {
-    const header = columns.map(c => `"${c.label}"`).join(",")
-    const rows = data.map(row =>
-      columns.map(c => `"${String(row[c.key] ?? "").replace(/"/g, '""')}"`).join(",")
+    const header = columns.map((c: any) => `"${c.label}"`).join(",")
+    const rows = data.map((row: any) =>
+      columns.map((c: any) => `"${String(row[c.key] ?? "").replace(/"/g, '""')}"`).join(",")
     )
     const csv = [header, ...rows].join("\n")
     const bom = "\uFEFF"
@@ -43,9 +43,9 @@ export function ExportarDados({ data, columns, filename, title }: Props) {
   }
 
   function toJSON() {
-    const rows = data.map(row => {
+    const rows = data.map((row: any) => {
       const obj: Record<string, any> = {}
-      columns.forEach(c => { obj[c.label] = row[c.key] ?? "" })
+      columns.forEach((c: any) => { obj[c.label] = row[c.key] ?? "" })
       return obj
     })
     download(JSON.stringify(rows, null, 2), `${filename}.json`, "application/json")
@@ -62,7 +62,7 @@ export function ExportarDados({ data, columns, filename, title }: Props) {
       try {
         const res = await fetch("/api/admin/config/empresa")
         const list: EmpresaLogo[] = await res.json()
-        empresa = list.find(e => (e as any).isDefault) || list[0]
+        empresa = list.find((e: any) => (e as any).isDefault) || list[0]
       } catch {}
 
       const doc = new jsPDF("landscape")
@@ -94,8 +94,8 @@ export function ExportarDados({ data, columns, filename, title }: Props) {
       const titleY = empresa ? 40 : 15
       doc.text(displayTitle, 10, titleY)
 
-      const head = [columns.map(c => c.label)]
-      const body = data.map(row => columns.map(c => String(row[c.key] ?? "")))
+      const head = [columns.map((c: any) => c.label)]
+      const body = data.map((row: any) => columns.map((c: any) => String(row[c.key] ?? "")))
 
       ;(doc as any).autoTable({
         head,

@@ -92,7 +92,7 @@ export default function ConversasPage() {
             ) : conversas.length === 0 ? (
               <p className="text-sm text-slate-400 text-center py-8">Nenhuma conversa encontrada</p>
             ) : (
-              conversas.map((conv) => (
+              conversas.map((conv: any) => (
                 <button
                   key={conv.remoteJid}
                   onClick={() => {

@@ -200,10 +200,10 @@ export const searchRegistry: SearchItem[] = [
 export function searchItems(query: string): SearchItem[] {
   if (!query || query.length < 2) return []
   const q = query.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-  return searchRegistry.filter((item) => {
+  return searchRegistry.filter((item: any) => {
     const label = item.label.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
     if (label.includes(q)) return true
-    return item.keywords.some((k) =>
+    return item.keywords.some((k: any) =>
       k.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(q)
     )
   }).slice(0, 12)

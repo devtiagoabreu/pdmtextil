@@ -9,13 +9,13 @@ export async function GET() {
     if (auth instanceof NextResponse) return auth
 
     const telas = searchRegistry
-      .map(item => ({
+      .map((item: any) => ({
         id: item.id,
         label: item.label,
         href: item.href,
         module: item.module,
       }))
-      .sort((a, b) => a.label.localeCompare(b.label, "pt-BR"))
+      .sort((a: any, b: any) => a.label.localeCompare(b.label, "pt-BR"))
 
     return NextResponse.json(telas)
   } catch (error) {

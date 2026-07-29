@@ -35,8 +35,8 @@ export default function DetalheRequisicaoAmostraComercialPage() {
   useEffect(() => {
     if (!mounted || !id) return
     fetch(`/api/requisicoes-amostra-comercial/${id}?t=${Date.now()}`)
-      .then(res => { if (!res.ok) throw new Error(); return res.json() })
-      .then(d => setData(d))
+      .then((res: any) => { if (!res.ok) throw new Error(); return res.json() })
+      .then((d: any) => setData(d))
       .catch(() => toast.error("Erro ao carregar requisiÃ§Ã£o"))
       .finally(() => setLoading(false))
   }, [mounted, id])

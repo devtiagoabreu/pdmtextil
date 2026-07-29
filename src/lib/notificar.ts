@@ -47,7 +47,7 @@ export async function notificar(
     return { usuariosNotificados: 0 }
   }
 
-  const notificacoesData: NewNotificacao[] = usuariosFiltrados.map(u => ({
+  const notificacoesData: NewNotificacao[] = usuariosFiltrados.map((u: any) => ({
     tipo,
     mensagem,
     usuarioId: u.id,
@@ -57,7 +57,7 @@ export async function notificar(
 
   await db.insert(notificacoes).values(notificacoesData)
 
-  const emailsValidos = usuariosFiltrados.map(u => u.email).filter((e): e is string => !!e && e.includes("@"))
+  const emailsValidos = usuariosFiltrados.map((u: any) => u.email).filter((e: any): e is string => !!e && e.includes("@"))
   if (emailsValidos.length > 0) {
     const result = await sendEmail({
       to: emailsValidos,

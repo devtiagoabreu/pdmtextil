@@ -73,7 +73,7 @@ export default function CadastrosPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {modulos.map((modulo) => {
+        {modulos.map((modulo: any) => {
           const Icon = modulo.icon
           return (
             <Link prefetch={false}

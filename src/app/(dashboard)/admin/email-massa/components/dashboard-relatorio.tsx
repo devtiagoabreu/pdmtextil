@@ -39,7 +39,7 @@ export function DashboardRelatorio() {
 
   return (
     <div className="space-y-4">
-      {remessas.map((r, idx) => {
+      {remessas.map((r: any, idx: any) => {
         const total = Number(r.total)
         const lidos = Number(r.lidos)
         const naoLidos = total - lidos

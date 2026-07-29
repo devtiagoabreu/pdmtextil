@@ -13,8 +13,8 @@ export function MobileBottomNav() {
 
   useEffect(() => {
     fetch("/api/user/pagina-inicial")
-      .then(r => r.json())
-      .then(data => { if (data?.paginaInicial) setPaginaInicial(data.paginaInicial) })
+      .then((r: any) => r.json())
+      .then((data: any) => { if (data?.paginaInicial) setPaginaInicial(data.paginaInicial) })
       .catch(console.error)
   }, [])
 
@@ -30,7 +30,7 @@ export function MobileBottomNav() {
   return (
     <div className="fixed bottom-0 left-0 right-0 z-40 border-t bg-white/95 backdrop-blur dark:border-slate-800 dark:bg-slate-950/95 lg:hidden">
       <div className="flex justify-around py-2">
-        {mobileNavItems.map((item) => {
+        {mobileNavItems.map((item: any) => {
           const isActive = pathname === item.href || pathname?.startsWith(item.href + "/")
           const Icon = item.icon
           return (

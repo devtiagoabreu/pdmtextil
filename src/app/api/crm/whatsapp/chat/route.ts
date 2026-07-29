@@ -40,14 +40,14 @@ export async function GET(req: NextRequest) {
       .from(crmWhatsappConversas)
       .where(eq(crmWhatsappConversas.remoteJid, remoteJid))
       .limit(1)
-      .then((r) => r[0] || null)
+      .then((r: any) => r[0] || null)
 
     const lead = await db
       .select()
       .from(crmLeads)
       .where(eq(crmLeads.idIntegracao, `whatsapp:${remoteJid}`))
       .limit(1)
-      .then((r) => r[0] || null)
+      .then((r: any) => r[0] || null)
 
     return NextResponse.json({
       mensagens,

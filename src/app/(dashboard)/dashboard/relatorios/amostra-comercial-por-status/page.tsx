@@ -49,8 +49,8 @@ export default function RelatorioAmostraComercialPorStatus() {
     if (dataFim) params.set("dataFim", dataFim)
 
     fetch(`/api/relatorios/amostra-comercial-por-status?${params}`)
-      .then((r) => r.json())
-      .then((data) => {
+      .then((r: any) => r.json())
+      .then((data: any) => {
         setStats(data.stats)
         setPorMes(data.porMes || [])
         setLista(data.lista || [])
@@ -71,7 +71,7 @@ export default function RelatorioAmostraComercialPorStatus() {
 
   function handleExportCSV() {
     setTimeout(() => {
-      exportCSV(`amostra-comercial-${selectedStatus.toLowerCase()}`, ["#", "Título", "Cliente", "Produto", "Criado em"], lista.map((r) => [
+      exportCSV(`amostra-comercial-${selectedStatus.toLowerCase()}`, ["#", "Título", "Cliente", "Produto", "Criado em"], lista.map((r: any) => [
         r.id,
         r.titulo || "-",
         r.cliente || "-",
@@ -89,8 +89,8 @@ export default function RelatorioAmostraComercialPorStatus() {
         "Total": stats.total,
       } : undefined,
       tables: [
-        { headers: ["Mês", "Total"], rows: porMes.map((m) => [m.mes, m.total]) },
-        { headers: ["#", "Título", "Cliente", "Produto", "Criado em"], rows: lista.map((r) => [
+        { headers: ["Mês", "Total"], rows: porMes.map((m: any) => [m.mes, m.total]) },
+        { headers: ["#", "Título", "Cliente", "Produto", "Criado em"], rows: lista.map((r: any) => [
           r.id,
           r.titulo || "-",
           r.cliente || "-",
@@ -125,7 +125,7 @@ export default function RelatorioAmostraComercialPorStatus() {
             onChange={(e) => setSelectedStatus(e.target.value)}
             className="h-9 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 text-sm min-w-[200px]"
           >
-            {statuses.map((s) => (
+            {statuses.map((s: any) => (
               <option key={s.nome} value={s.nome}>{s.rotulo}</option>
             ))}
           </select>
@@ -227,7 +227,7 @@ export default function RelatorioAmostraComercialPorStatus() {
                 </tr>
               </thead>
               <tbody>
-                {lista.map((r) => (
+                {lista.map((r: any) => (
                   <tr key={r.id} className="border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/30">
                     <td className="p-3 font-medium text-slate-700 dark:text-slate-300">#{r.id}</td>
                     <td className="p-3 text-sm text-slate-600 dark:text-slate-400">{r.titulo || "—"}</td>

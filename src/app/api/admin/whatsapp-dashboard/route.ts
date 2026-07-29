@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
       .select({ count: sql<number>`count(*)` })
       .from(crmWhatsappConversas)
       .where(gte(crmWhatsappConversas.createdAt, desde))
-      .then(r => Number(r[0]?.count || 0))
+      .then((r: any) => Number(r[0]?.count || 0))
 
     const porEstado = await db
       .select({
@@ -42,16 +42,16 @@ export async function GET(req: NextRequest) {
           gte(crmLeads.createdAt, desde)
         )
       )
-      .then(r => Number(r[0]?.count || 0))
+      .then((r: any) => Number(r[0]?.count || 0))
 
-    const encerrados = porEstado.find(e => e.estado === "ENCERRADO")
+    const encerrados = porEstado.find((e: any) => e.estado === "ENCERRADO")
     const taxaConclusao = totalConversas > 0
       ? Math.round(((encerrados?.count || 0) / totalConversas) * 100)
       : 0
 
     const dropoff = porEstado
-      .filter(e => e.estado !== "ENCERRADO" && e.estado !== "SAUDACAO")
-      .sort((a, b) => b.count - a.count)
+      .filter((e: any) => e.estado !== "ENCERRADO" && e.estado !== "SAUDACAO")
+      .sort((a: any, b: any) => b.count - a.count)
 
     const tempoMedioResult = await db.execute(sql`
       SELECT AVG(EXTRACT(EPOCH FROM (max_ts - min_ts)) / 60) as avg_minutes
@@ -104,7 +104,7 @@ export async function GET(req: NextRequest) {
           sql`${crmWhatsappConversas.estado} NOT IN ('ENCERRADO', 'SAUDACAO')`
         )
       )
-      .then(r => Number(r[0]?.count || 0))
+      .then((r: any) => Number(r[0]?.count || 0))
 
     return NextResponse.json({
       resumo: {

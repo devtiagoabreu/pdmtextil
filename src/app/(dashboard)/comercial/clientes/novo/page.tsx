@@ -43,7 +43,7 @@ export default function NovoClientePage() {
 
   useEffect(() => {
     if (form.uf) {
-      const found = estados.find(e => e.uf === form.uf)
+      const found = estados.find((e: any) => e.uf === form.uf)
       setEstadoId(found ? found.id : null)
     } else {
       setEstadoId(null)

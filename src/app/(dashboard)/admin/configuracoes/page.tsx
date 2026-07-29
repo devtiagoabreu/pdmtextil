@@ -28,7 +28,7 @@ export default function ConfiguracoesHubPage() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {modulos.map(mod => {
+        {modulos.map((mod: any) => {
           const Icon = mod.icon
           return (
             <Link prefetch={false}

@@ -114,7 +114,7 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
     setSearchingRep(true)
     try {
       const data = await fetchRepresentantes(query)
-      const existentes = new Set(vinculos.map(v => v.representanteId))
+      const existentes = new Set(vinculos.map((v: any) => v.representanteId))
       setRepResults(data.filter((r: any) => !existentes.has(r.id)))
     } catch {
       setRepResults([])
@@ -440,7 +440,7 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                    {vinculos.map((v) => (
+                    {vinculos.map((v: any) => (
                       <tr key={v.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
                         <td className="p-3 text-sm font-medium text-slate-900 dark:text-slate-200">{v.nome}</td>
                         <td className="p-3 text-sm text-slate-500 font-mono">{v.cnpj || "â€”"}</td>

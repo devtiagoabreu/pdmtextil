@@ -356,7 +356,7 @@ export default function VisitasPage() {
                             if (e.target.checked) {
                               setSelectedIds(prev => [...prev, v.id])
                             } else {
-                              setSelectedIds(prev => prev.filter(id => id !== v.id))
+                              setSelectedIds((prev: any) => prev.filter((id: any) => id !== v.id))
                             }
                           }}
                           className="rounded border-slate-300 dark:border-slate-600 text-blue-600 focus:ring-blue-500"

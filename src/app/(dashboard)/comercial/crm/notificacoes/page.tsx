@@ -53,7 +53,7 @@ export default function NotificacoesPage() {
   async function marcarLida(id: number) {
     try {
       await fetch(`/api/crm/notificacoes/${id}/ler`, { method: "PATCH" })
-      setNotificacoes((prev) => prev.map((n) => (n.id === id ? { ...n, lida: true } : n)))
+      setNotificacoes((prev) => prev.map((n: any) => (n.id === id ? { ...n, lida: true } : n)))
       setNaoLidas((prev) => Math.max(0, prev - 1))
     } catch {}
   }
@@ -61,11 +61,11 @@ export default function NotificacoesPage() {
   async function marcarTodasLidas() {
     try {
       await Promise.all(
-        notificacoes.filter((n) => !n.lida).map((n) =>
+        notificacoes.filter((n: any) => !n.lida).map((n: any) =>
           fetch(`/api/crm/notificacoes/${n.id}/ler`, { method: "PATCH" })
         )
       )
-      setNotificacoes((prev) => prev.map((n) => ({ ...n, lida: true })))
+      setNotificacoes((prev) => prev.map((n: any) => ({ ...n, lida: true })))
       setNaoLidas(0)
     } catch {}
   }
@@ -146,7 +146,7 @@ export default function NotificacoesPage() {
             </p>
           </div>
         ) : (
-          notificacoes.map((n) => (
+          notificacoes.map((n: any) => (
             <div
               key={n.id}
               onClick={() => { if (!n.lida) marcarLida(n.id) }}

@@ -6,7 +6,7 @@ export const crmCidades = pgTable("crm_cidades", {
   nome: varchar("nome", { length: 200 }).notNull(),
   estadoId: integer("estado_id").notNull().references(() => crmEstados.id),
   createdAt: timestamp("created_at").defaultNow(),
-}, (table) => ({
+}, (table: any) => ({
   uniqueNomeEstado: unique().on(table.nome, table.estadoId),
 }))
 

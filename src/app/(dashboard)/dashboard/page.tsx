@@ -77,7 +77,7 @@ export default function DashboardPage() {
   }, [])
 
   const openModal = useCallback(async (filtro: string) => {
-    const filtroDef = FILTROS_DASH.find(f => f.key === filtro)
+    const filtroDef = FILTROS_DASH.find((f: any) => f.key === filtro)
     setModalTitle(filtroDef?.label || filtro)
     setModalFiltro(filtro)
     setModalLoading(true)
@@ -134,7 +134,7 @@ export default function DashboardPage() {
               { key: "concluido-dev", label: "ConcluÃ­do Desenvolvimento", value: stats?.concluidoDev ?? 0, color: "text-purple-600 dark:text-purple-400", bg: "bg-purple-50 dark:bg-purple-950/50", delay: 200 },
               { key: "aprovado-cliente", label: "Aprovado pelo Cliente", value: stats?.aprovadoCliente ?? 0, color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-50 dark:bg-emerald-950/50", delay: 250 },
               { key: "produtos-cru", label: "Produtos CAD", value: stats?.totalProdutosCru ?? 0, color: "text-cyan-600 dark:text-cyan-400", bg: "bg-cyan-50 dark:bg-cyan-950/50", delay: 300 },
-            ].map((stat) => (
+            ].map((stat: any) => (
               <button
                 key={stat.key}
                 type="button"
@@ -291,7 +291,7 @@ export default function DashboardPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {atividades.map((item, i) => (
+                    {atividades.map((item: any, i: any) => (
                       <tr
                         key={item.id || i}
                         onClick={() => { if (item.id) router.push(`/comercial/solicitacoes/${item.id}`) }}

@@ -143,7 +143,7 @@ function DraggableAmostraCard({ amostra }: { amostra: AmostraCard }) {
 
       {amostra.links && amostra.links.length > 0 && (
         <div className="flex flex-col gap-0.5 mt-1.5 border-t border-slate-100 dark:border-slate-700 pt-1.5">
-          {amostra.links.map((link, i) => (
+          {amostra.links.map((link: any, i: any) => (
             <a
               key={i}
               href={link.url}
@@ -182,8 +182,8 @@ export function KanbanAmostras() {
     setLoading(true)
     try {
       const [statusRes, amostrasRes] = await Promise.all([
-        fetch("/api/admin/status?tipo=AMOSTRA").then(r => r.json()),
-        fetch("/api/amostras").then(r => r.json()),
+        fetch("/api/admin/status?tipo=AMOSTRA").then((r: any) => r.json()),
+        fetch("/api/amostras").then((r: any) => r.json()),
       ])
       if (Array.isArray(statusRes)) setStatusList(statusRes)
       if (amostrasRes && Array.isArray(amostrasRes.tecidoCru)) {
@@ -213,9 +213,9 @@ export function KanbanAmostras() {
   useEffect(() => { carregar() }, [carregar])
 
   const colunas = statusList
-    .map(col => ({
+    .map((col: any) => ({
       ...col,
-      cards: amostras.filter(a => a.status === col.nome),
+      cards: amostras.filter((a: any) => a.status === col.nome),
     }))
 
   const handleDragStart = (event: any) => {
@@ -251,7 +251,7 @@ export function KanbanAmostras() {
     const statusAntigo = amostra.status
 
     setAmostras(prev =>
-      prev.map(a => a.id === amostra.id && a.tipo === amostra.tipo ? { ...a, status: novoStatus } : a)
+      prev.map((a: any) => a.id === amostra.id && a.tipo === amostra.tipo ? { ...a, status: novoStatus } : a)
     )
 
     try {
@@ -271,10 +271,10 @@ export function KanbanAmostras() {
         const err = await res.json()
         throw new Error(err.error || "Erro ao alterar status")
       }
-      toast.success(`Amostra #${amostra.id} movida para ${statusList.find(s => s.nome === novoStatus)?.rotulo || novoStatus}`)
+      toast.success(`Amostra #${amostra.id} movida para ${statusList.find((s: any) => s.nome === novoStatus)?.rotulo || novoStatus}`)
     } catch (err: any) {
       setAmostras(prev =>
-        prev.map(a => a.id === amostra.id && a.tipo === amostra.tipo ? { ...a, status: statusAntigo } : a)
+        prev.map((a: any) => a.id === amostra.id && a.tipo === amostra.tipo ? { ...a, status: statusAntigo } : a)
       )
       toast.error(err.message)
     }
@@ -300,9 +300,9 @@ export function KanbanAmostras() {
 
       <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div className="flex-1 min-h-0 flex gap-4 overflow-x-auto">
-          {colunas.map(col => (
+          {colunas.map((col: any) => (
             <DroppableColumn key={col.nome} id={col.nome} rotulo={col.rotulo} cor={col.cor} count={col.cards.length}>
-              {col.cards.map(card => (
+              {col.cards.map((card: any) => (
                 <DraggableAmostraCard key={`${card.tipo}-${card.id}`} amostra={card} />
               ))}
             </DroppableColumn>

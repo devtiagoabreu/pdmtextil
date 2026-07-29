@@ -36,8 +36,8 @@ export default function EditarUsuarioPage() {
 
   useEffect(() => {
     Promise.all([
-      fetch(`/api/admin/usuarios/${id}`).then(r => r.json()),
-      fetch("/api/admin/roles").then(r => r.json()),
+      fetch(`/api/admin/usuarios/${id}`).then((r: any) => r.json()),
+      fetch("/api/admin/roles").then((r: any) => r.json()),
     ])
       .then(([userData, rolesData]) => {
         setName(userData.name || "")
@@ -104,7 +104,7 @@ export default function EditarUsuarioPage() {
           <Label>Perfil (Role)</Label>
           <select value={role} onChange={e => setRole(e.target.value)}
             className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600">
-            {roles.filter(r => r.ativo).map(r => <option key={r.name} value={r.name}>{r.label}</option>)}
+            {roles.filter((r: any) => r.ativo).map((r: any) => <option key={r.name} value={r.name}>{r.label}</option>)}
           </select>
         </div>
         <div className="flex items-center gap-2">

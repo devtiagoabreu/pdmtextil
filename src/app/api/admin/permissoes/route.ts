@@ -28,7 +28,7 @@ export async function GET() {
 
     const lista = await db.select().from(roles).where(eq(roles.ativo, true)).orderBy(roles.label)
 
-    const data = lista.map(r => {
+    const data = lista.map((r: any) => {
       const raw = r.permissions as unknown
       // Normaliza: garante que cada módulo seja um array de strings
       const permissoes: PermissoesMap = {}

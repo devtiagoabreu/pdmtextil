@@ -9,7 +9,7 @@ export async function GET() {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
-    if (!["ADMIN", "SUDO"].includes(auth.session.user.role)) {
+    if (!["ADMIN", "SUDO"].includes(auth.session.user?.role ?? "")) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 403 })
     }
 
@@ -27,7 +27,7 @@ export async function PUT(req: NextRequest) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
-    if (!["ADMIN", "SUDO"].includes(auth.session.user.role)) {
+    if (!["ADMIN", "SUDO"].includes(auth.session.user?.role ?? "")) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 403 })
     }
 
@@ -68,7 +68,7 @@ export async function DELETE() {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
-    if (!["ADMIN", "SUDO"].includes(auth.session.user.role)) {
+    if (!["ADMIN", "SUDO"].includes(auth.session.user?.role ?? "")) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 403 })
     }
 

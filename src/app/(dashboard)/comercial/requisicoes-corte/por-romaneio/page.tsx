@@ -140,8 +140,8 @@ export default function RequisicaoPorRomaneioPage() {
     setLoadingInt(true)
     const tela = pathname.replace(/^\//, "").split("/").pop() || ""
     fetch(`/api/integracao/listar?tela=${encodeURIComponent(tela)}`)
-      .then((res) => res.json())
-      .then((data) => {
+      .then((res: any) => res.json())
+      .then((data: any) => {
         setIntegracoes(data)
         if (data.length > 0) setSelectedId(data[0].id)
       })
@@ -168,7 +168,7 @@ export default function RequisicaoPorRomaneioPage() {
     }
     const produtos: ProdutoAgrupado[] = []
     for (const [nome, rolos] of map) {
-      const total = rolos.reduce((acc, r) => acc + (r.quantidade || 0), 0)
+      const total = rolos.reduce((acc: any, r: any) => acc + (r.quantidade || 0), 0)
       produtos.push({
         nome,
         narrativa: rolos[0]?.narrativa || "",
@@ -177,7 +177,7 @@ export default function RequisicaoPorRomaneioPage() {
         rolos,
       })
     }
-    return produtos.sort((a, b) => a.nome.localeCompare(b.nome))
+    return produtos.sort((a: any, b: any) => a.nome.localeCompare(b.nome))
   }
 
   const grupos = useMemo(() => {
@@ -203,7 +203,7 @@ export default function RequisicaoPorRomaneioPage() {
       grupo.totalPesoBruto += item.peso_bruto || 0
       grupo.totalPesoLiquido += item.peso_liquido || 0
     }
-    const result = Array.from(map.values()).sort((a, b) => b.romaneio - a.romaneio)
+    const result = Array.from(map.values()).sort((a: any, b: any) => b.romaneio - a.romaneio)
     for (const g of result) {
       g.produtos = agruparProdutos(g.rolos)
     }
@@ -280,7 +280,7 @@ export default function RequisicaoPorRomaneioPage() {
   function abrirDialog(grupo: GrupoRomaneio) {
     setDialogRomaneio(grupo)
     setDialogItens(
-      grupo.produtos.map((p) => ({
+      grupo.produtos.map((p: any) => ({
         produto: p.nome,
         narrativa: p.narrativa,
         cor: p.cor,
@@ -302,7 +302,7 @@ export default function RequisicaoPorRomaneioPage() {
   async function confirmarCriacao() {
     if (!dialogRomaneio) return
 
-    const itensValidos = dialogItens.filter((item) => {
+    const itensValidos = dialogItens.filter((item: any) => {
       const num = parseFloat(item.metragem.replace(",", "."))
       return !isNaN(num) && num > 0
     })
@@ -314,7 +314,7 @@ export default function RequisicaoPorRomaneioPage() {
 
     setCriando(true)
     try {
-      const itensPayload = itensValidos.map((item) => {
+      const itensPayload = itensValidos.map((item: any) => {
         const partes = item.produto.split(".")
         const bbbbb = partes[1] || ""
         const dddddd = partes[3] || ""
@@ -475,7 +475,7 @@ export default function RequisicaoPorRomaneioPage() {
         if (!lotesMap.has(loteNome)) lotesMap.set(loteNome, [])
         lotesMap.get(loteNome)!.push(r)
       }
-      const lotesOrdenados = Array.from(lotesMap.entries()).sort((a, b) => a[0].localeCompare(b[0]))
+      const lotesOrdenados = Array.from(lotesMap.entries()).sort((a: any, b: any) => a[0].localeCompare(b[0]))
 
       for (const [loteNome, rolos] of lotesOrdenados) {
         const subRolos = rolos.length
@@ -500,7 +500,7 @@ export default function RequisicaoPorRomaneioPage() {
           },
         ])
 
-        rolos.forEach((r, idx) => {
+        rolos.forEach((r: any, idx: any) => {
           body.push([
             String(idx + 1),
             String(r.codigo_rolo),
@@ -566,7 +566,7 @@ export default function RequisicaoPorRomaneioPage() {
   }
 
   async function gerarPdf(numero: number, orientacao?: OrientacaoPdf) {
-    const grupo = grupos.find((g) => g.romaneio === numero)
+    const grupo = grupos.find((g: any) => g.romaneio === numero)
     if (!grupo) return
 
     setGerandoPdf(true)
@@ -628,9 +628,9 @@ export default function RequisicaoPorRomaneioPage() {
         }
       } catch {}
 
-      const nums = Array.from(selectedRomaneios).sort((a, b) => a - b)
+      const nums = Array.from(selectedRomaneios).sort((a: any, b: any) => a - b)
       for (let i = 0; i < nums.length; i++) {
-        const grupo = grupos.find((g) => g.romaneio === nums[i])
+        const grupo = grupos.find((g: any) => g.romaneio === nums[i])
         if (!grupo) continue
         if (i > 0) doc.addPage()
         await renderRomaneioPage(doc, grupo, nums[i], isLandscape, pageWidth, empresa, logoImg)
@@ -703,7 +703,7 @@ export default function RequisicaoPorRomaneioPage() {
               <div>
                 <label className="text-xs font-medium text-slate-500 mb-1 block">IntegraÃ§Ã£o</label>
                 <div className="flex gap-2 flex-wrap">
-                  {integracoes.map((int) => (
+                  {integracoes.map((int: any) => (
                     <button
                       key={int.id}
                       type="button"
@@ -797,7 +797,7 @@ export default function RequisicaoPorRomaneioPage() {
                 </p>
               )}
               <div className="space-y-4">
-                {grupos.map((grupo) => (
+                {grupos.map((grupo: any) => (
                   <div
                     key={grupo.romaneio}
                     className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden"
@@ -883,7 +883,7 @@ export default function RequisicaoPorRomaneioPage() {
                       </div>
 
                       <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
-                        {grupo.produtos.map((prod) => (
+                        {grupo.produtos.map((prod: any) => (
                           <div
                             key={prod.nome}
                             className="rounded-lg border border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-3"
@@ -931,10 +931,10 @@ export default function RequisicaoPorRomaneioPage() {
                                   if (!lm.has(l)) lm.set(l, [])
                                   lm.get(l)!.push(r)
                                 }
-                                const prodsSorted = Array.from(prodsMap.entries()).sort((a, b) => a[0].localeCompare(b[0]))
+                                const prodsSorted = Array.from(prodsMap.entries()).sort((a: any, b: any) => a[0].localeCompare(b[0]))
                                 const trs: React.ReactNode[] = []
                                 for (const [prodNome, lotesMap] of prodsSorted) {
-                                  const lotsSorted = Array.from(lotesMap.entries()).sort((a, b) => a[0].localeCompare(b[0]))
+                                  const lotsSorted = Array.from(lotesMap.entries()).sort((a: any, b: any) => a[0].localeCompare(b[0]))
                                   trs.push(
                                     <tr key={`prod-${prodNome}`} className="bg-purple-50 dark:bg-purple-950/20">
                                       <td colSpan={7} className="px-4 py-2 text-sm font-bold text-purple-700 dark:text-purple-400">
@@ -950,7 +950,7 @@ export default function RequisicaoPorRomaneioPage() {
                                         </td>
                                       </tr>
                                     )
-                                    rolos.forEach((rolo, idx) => {
+                                    rolos.forEach((rolo: any, idx: any) => {
                                       trs.push(
                                         <tr key={rolo.codigo_rolo} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                                           <td className="px-3 py-2 text-sm text-slate-500 text-center font-mono text-[12px]">{idx + 1}</td>
@@ -1000,7 +1000,7 @@ export default function RequisicaoPorRomaneioPage() {
           </DialogHeader>
 
           <div className="space-y-3 max-h-[50vh] overflow-y-auto">
-            {dialogItens.map((item, index) => (
+            {dialogItens.map((item: any, index: any) => (
               <div
                 key={item.produto}
                 className="rounded-lg border border-slate-200 dark:border-slate-700 p-3 space-y-2"

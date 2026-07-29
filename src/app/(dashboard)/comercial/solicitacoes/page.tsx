@@ -37,7 +37,7 @@ export default function ListaSolicitacoesPage() {
   const { statuses, getLabel: getStatusLabel, getColor: getStatusColor } = useStatuses("SOLICITACAO_DESENVOLVIMENTO")
   const [filteredData, setFilteredData] = useState<any[]>([])
 
-  const statusOptions = statuses.filter(s => s.ativo !== false).map(s => ({ value: s.nome, label: s.rotulo || s.nome }))
+  const statusOptions = statuses.filter((s: any) => s.ativo !== false).map((s: any) => ({ value: s.nome, label: s.rotulo || s.nome }))
 
   useEffect(() => {
     setMounted(true)

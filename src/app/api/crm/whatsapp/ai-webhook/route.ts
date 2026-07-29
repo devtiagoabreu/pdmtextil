@@ -126,7 +126,7 @@ export async function POST(req: NextRequest) {
       .from(crmWhatsappConversas)
       .where(eq(crmWhatsappConversas.remoteJid, remoteJid))
       .limit(1)
-      .then((r) => r[0] || null)
+      .then((r: any) => r[0] || null)
 
     let isNew = false
     let leadExistenteData = null
@@ -146,7 +146,7 @@ export async function POST(req: NextRequest) {
           sql`(${eq(crmLeads.idIntegracao, `whatsapp:${remoteJid}`)} OR ${eq(crmLeads.celular, numero)}) AND ${crmLeads.status} != 'CONVERTIDO'`
         )
         .limit(1)
-        .then((r) => r[0] || null)
+        .then((r: any) => r[0] || null)
 
       const dadosIniciais: Record<string, any> = {}
       let estadoInicial = "SAUDACAO"
@@ -292,9 +292,9 @@ export async function POST(req: NextRequest) {
       .where(eq(crmWhatsappMensagens.remoteJid, remoteJid))
       .orderBy(desc(crmWhatsappMensagens.createdAt))
       .limit(30)
-      .then((r) => r.reverse())
+      .then((r: any) => r.reverse())
 
-    const historico: Array<{ role: "user" | "assistant"; content: string }> = historicoRows.map((row) => ({
+    const historico: Array<{ role: "user" | "assistant"; content: string }> = historicoRows.map((row: any) => ({
       role: row.tipo === "RECEBIDA" ? "user" : "assistant",
       content: row.mensagem,
     }))
@@ -333,7 +333,7 @@ export async function POST(req: NextRequest) {
             .from(crmLeads)
             .where(sql`${eq(crmLeads.idIntegracao, `whatsapp:${remoteJid}`)} OR ${eq(crmLeads.celular, numero)}`)
             .limit(1)
-            .then((r) => r[0] || null)
+            .then((r: any) => r[0] || null)
 
           if (!existente) {
             const pfLeadScore = calcularLeadScore({ tipoPessoa: "PF", documento: null })
@@ -435,7 +435,7 @@ export async function POST(req: NextRequest) {
           .from(crmLeads)
           .where(sql`${eq(crmLeads.idIntegracao, `whatsapp:${remoteJid}`)} OR ${eq(crmLeads.celular, numero)}`)
           .limit(1)
-          .then((r) => r[0] || null)
+          .then((r: any) => r[0] || null)
 
         if (!existente) {
           const pfLeadScore = calcularLeadScore({ tipoPessoa: "PF", documento: null })
@@ -522,7 +522,7 @@ export async function POST(req: NextRequest) {
           .from(crmLeads)
           .where(sql`${eq(crmLeads.idIntegracao, `whatsapp:${remoteJid}`)} OR ${eq(crmLeads.celular, numero)}`)
           .limit(1)
-          .then((r) => r[0] || null)
+          .then((r: any) => r[0] || null)
 
         if (!existente) {
           const blockedLeadScore = calcularLeadScore({ tipoPessoa: tipoPessoaFinal, documento: dados.documento || null })
@@ -757,7 +757,7 @@ export async function POST(req: NextRequest) {
             const linhas = [
               `*Catalogo - ${linhaNome}*`,
               "",
-              ...cats.map((c) => `*${c.titulo}*\n${c.descricao || ""}\n${c.linkUrl}`),
+              ...cats.map((c: any) => `*${c.titulo}*\n${c.descricao || ""}\n${c.linkUrl}`),
             ].join("\n")
             const envio = await enviarMensagem(remoteJid, linhas)
             if (!envio.sucesso) {
@@ -765,9 +765,9 @@ export async function POST(req: NextRequest) {
             }
           }
 
-          const linhasSemCatalogo = enviarCatalogo.filter(n => !linhasAgrupadas[n])
+          const linhasSemCatalogo = enviarCatalogo.filter((n: any) => !linhasAgrupadas[n])
           if (linhasSemCatalogo.length > 0) {
-            const nomesSemCatalogo = linhasSemCatalogo.map(n => linhaMap[n] || `Linha ${n}`).join(", ")
+            const nomesSemCatalogo = linhasSemCatalogo.map((n: any) => linhaMap[n] || `Linha ${n}`).join(", ")
             const msgSemCatalogo = `As seguintes linhas ainda nao possuem catalogo disponivel: ${nomesSemCatalogo}. Um representante comercial entrara em contato com mais informacoes.`
             const envio = await enviarMensagem(remoteJid, msgSemCatalogo)
             if (!envio.sucesso) {
@@ -802,7 +802,7 @@ export async function POST(req: NextRequest) {
         .from(crmLeads)
         .where(eq(crmLeads.idIntegracao, `whatsapp:${remoteJid}`))
         .limit(1)
-        .then((r) => r[0] || null)
+        .then((r: any) => r[0] || null)
 
       if (!existing) {
         const tLead = Date.now()

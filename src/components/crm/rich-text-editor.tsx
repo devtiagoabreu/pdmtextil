@@ -134,12 +134,12 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = "300p
 
         <div className="flex items-center gap-1 px-1 border-r border-slate-200 dark:border-slate-700">
           <select onChange={e => exec("fontName", e.target.value)} className="text-xs p-1.5 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 w-20 sm:w-28 min-h-[36px]" title="Fonte">
-            {FONT_FAMILIES.map(f => (
+            {FONT_FAMILIES.map((f: any) => (
               <option key={f} value={f} style={{ fontFamily: f }}>{f}</option>
             ))}
           </select>
           <select onChange={e => exec("fontSize", e.target.value)} className="text-xs p-1.5 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 w-16 sm:w-20 min-h-[36px]" title="Tamanho">
-            {FONT_SIZES.map(s => (
+            {FONT_SIZES.map((s: any) => (
               <option key={s.value} value={s.value}>{s.label}</option>
             ))}
           </select>

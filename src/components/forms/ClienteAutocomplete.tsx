@@ -49,8 +49,8 @@ export function ClienteAutocomplete({
   const [cnpjResults, setCnpjResults] = useState<Cliente[]>([])
   const [isCnpjLoading, setIsCnpjLoading] = useState(false)
   const [isCnpjOpen, setIsCnpjOpen] = useState(false)
-  const debounceRef = useRef<NodeJS.Timeout>()
-  const debounceCnpjRef = useRef<NodeJS.Timeout>()
+  const debounceRef = useRef<NodeJS.Timeout>(null!)
+  const debounceCnpjRef = useRef<NodeJS.Timeout>(null!)
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -188,7 +188,7 @@ export function ClienteAutocomplete({
 
         {isOpen && results.length > 0 && (
           <div className="absolute z-50 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg max-h-60 overflow-auto">
-            {results.map((cliente) => (
+            {results.map((cliente: any) => (
               <button
                 key={cliente.id}
                 onClick={() => handleSelect(cliente)}
@@ -221,7 +221,7 @@ export function ClienteAutocomplete({
 
         {isCnpjOpen && cnpjResults.length > 0 && (
           <div className="absolute z-50 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg max-h-60 overflow-auto">
-            {cnpjResults.map((cliente) => (
+            {cnpjResults.map((cliente: any) => (
               <button
                 key={cliente.id}
                 onClick={() => handleSelect(cliente)}

@@ -143,7 +143,7 @@ export function GoogleDrivePicker({ open, onClose, onSelect }: GoogleDrivePicker
           <button onClick={() => navigateToBreadcrumb(0)} className="hover:text-slate-700 dark:hover:text-slate-300">
             <Home size={14} />
           </button>
-          {breadcrumb.map((crumb, i) => (
+          {breadcrumb.map((crumb: any, i: any) => (
             <span key={crumb.id || "root"} className="flex items-center gap-1">
               <ChevronRight size={12} />
               {i === breadcrumb.length - 1 ? (
@@ -169,7 +169,7 @@ export function GoogleDrivePicker({ open, onClose, onSelect }: GoogleDrivePicker
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-2">
-              {items.map(item => (
+              {items.map((item: any) => (
                 <button
                   key={item.id}
                   onClick={() => isFolder(item) ? openFolder(item) : onSelect(item as DriveFile)}

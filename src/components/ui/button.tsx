@@ -40,12 +40,18 @@ const buttonVariants = cva(
   }
 )
 
+interface ButtonProps
+  extends VariantProps<typeof buttonVariants>,
+    Omit<React.ComponentPropsWithoutRef<"button">, "color"> {
+  focusableWhenDisabled?: boolean
+}
+
 function Button({
   className,
   variant = "default",
   size = "default",
   ...props
-}: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
+}: ButtonProps) {
   return (
     <ButtonPrimitive
       data-slot="button"

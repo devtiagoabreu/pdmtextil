@@ -50,19 +50,19 @@ export default function EmpresaPage() {
 
   useEffect(() => {
     fetch("/api/admin/config/empresa")
-      .then(res => res.json())
+      .then((res: any) => res.json())
       .then(setLista)
       .catch(() => toast.error("Erro ao carregar empresas"))
       .finally(() => setLoading(false))
   }, [])
 
   useEffect(() => {
-    fetch("/api/crm/estados").then(r => r.json()).then(setEstados).catch(console.error)
+    fetch("/api/crm/estados").then((r: any) => r.json()).then(setEstados).catch(console.error)
   }, [])
 
   useEffect(() => {
     if (uf) {
-      const found = estados.find(e => e.uf === uf)
+      const found = estados.find((e: any) => e.uf === uf)
       setEstadoId(found ? found.id : null)
     } else {
       setEstadoId(null)
@@ -98,7 +98,7 @@ export default function EmpresaPage() {
       })
       if (!res.ok) throw new Error()
       if (editItem) {
-        setLista(prev => prev.map(i => i.id === editItem.id ? { ...i, ...body } : i))
+        setLista(prev => prev.map((i: any) => i.id === editItem.id ? { ...i, ...body } : i))
         toast.success("Empresa atualizada!")
       } else {
         const item = await res.json()
@@ -118,7 +118,7 @@ export default function EmpresaPage() {
         method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }),
       })
       if (!res.ok) throw new Error()
-      setLista(prev => prev.filter(c => c.id !== id))
+      setLista(prev => prev.filter((c: any) => c.id !== id))
       toast.success("Empresa removida")
     } catch { toast.error("Erro ao remover") }
   }
@@ -145,7 +145,7 @@ export default function EmpresaPage() {
             <p className="text-sm text-slate-500">Nenhuma empresa cadastrada</p>
           </div>
         ) : (
-          lista.map(item => (
+          lista.map((item: any) => (
             <div key={item.id} className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-start gap-4 min-w-0 flex-1">

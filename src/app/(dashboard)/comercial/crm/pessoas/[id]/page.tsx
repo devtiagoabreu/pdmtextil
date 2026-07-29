@@ -57,7 +57,7 @@ export default function PessoaDetailPage() {
 
   useEffect(() => {
     if (form.uf) {
-      const found = estados.find(e => e.uf === form.uf)
+      const found = estados.find((e: any) => e.uf === form.uf)
       setEstadoId(found ? found.id : null)
     } else {
       setEstadoId(null)
@@ -84,7 +84,7 @@ export default function PessoaDetailPage() {
       const res = await fetch(`/api/representantes?q=${encodeURIComponent(query)}`)
       if (!res.ok) throw new Error()
       const data = await res.json()
-      const existentes = new Set(vinculos.map(v => v.representanteId))
+      const existentes = new Set(vinculos.map((v: any) => v.representanteId))
       setRepResults(data.filter((r: any) => !existentes.has(r.id)))
     } catch {} finally {
       setSearchingRep(false)
@@ -111,7 +111,7 @@ export default function PessoaDetailPage() {
     try {
       const res = await fetch(`/api/crm/pessoas/${params.id}/representantes?id=${vinculo.id}`, { method: "DELETE" })
       if (!res.ok) throw new Error()
-      setVinculos(prev => prev.filter(v => v.id !== vinculo.id))
+      setVinculos(prev => prev.filter((v: any) => v.id !== vinculo.id))
       toast.success("Representante removido")
     } catch { toast.error("Erro ao remover representante") }
     setRepToRemove(null)
@@ -119,8 +119,8 @@ export default function PessoaDetailPage() {
 
   useEffect(() => {
     fetch(`/api/crm/pessoas/${params.id}`)
-      .then(r => r.json())
-      .then(data => {
+      .then((r: any) => r.json())
+      .then((data: any) => {
         setPessoa(data)
         setForm(data)
         setTipoPessoa(data.tipoPessoa || "PJ")
@@ -381,7 +381,7 @@ export default function PessoaDetailPage() {
                 <div className="col-span-2">
                   <label className="block text-xs font-medium text-slate-500 mb-1">Status</label>
                   <select value={form.status || "NOVO"} onChange={e => setForm((p: any) => ({ ...p, status: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm">
-                    {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+                    {STATUS_OPTIONS.map((s: any) => <option key={s} value={s}>{s}</option>)}
                   </select>
                 </div>
                 <div className="col-span-2">

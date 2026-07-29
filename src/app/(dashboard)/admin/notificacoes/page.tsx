@@ -65,17 +65,17 @@ export default function NotificacoesAdminPage() {
 
   useEffect(() => {
     fetch("/api/admin/notificacao-regras")
-      .then(res => { if (!res.ok) throw new Error("Erro HTTP"); return res.json() })
+      .then((res: any) => { if (!res.ok) throw new Error("Erro HTTP"); return res.json() })
       .then((d: { regras: Regra[] }) => setRegras(d.regras ?? []))
       .catch(() => toast.error("Erro ao carregar regras de notificaÃ§Ã£o"))
       .finally(() => setLoading(false))
   }, [])
 
   function toggleRole(tipo: string, role: string) {
-    setRegras(prev => prev.map(r => {
+    setRegras(prev => prev.map((r: any) => {
       if (r.tipo !== tipo) return r
       const next = r.roles.includes(role)
-        ? r.roles.filter(x => x !== role)
+        ? r.roles.filter((x: any) => x !== role)
         : [...r.roles, role]
       return { ...r, roles: next }
     }))
@@ -83,7 +83,7 @@ export default function NotificacoesAdminPage() {
   }
 
   function selectAll(tipo: string, checked: boolean) {
-    setRegras(prev => prev.map(r => {
+    setRegras(prev => prev.map((r: any) => {
       if (r.tipo !== tipo) return r
       return { ...r, roles: checked ? [...ALL_ROLES] : [] }
     }))
@@ -138,7 +138,7 @@ export default function NotificacoesAdminPage() {
           <thead>
             <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
               <th className="p-3 text-left font-semibold text-slate-700 dark:text-slate-300 min-w-[180px]">Tipo de NotificaÃ§Ã£o</th>
-              {ALL_ROLES.map(role => (
+              {ALL_ROLES.map((role: any) => (
                 <th key={role} className="p-3 text-center font-semibold text-slate-700 dark:text-slate-300 text-xs">
                   {role}
                 </th>
@@ -146,7 +146,7 @@ export default function NotificacoesAdminPage() {
             </tr>
           </thead>
           <tbody>
-            {regras.map(regra => (
+            {regras.map((regra: any) => (
               <tr key={regra.tipo} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
                 <td className="p-3 font-medium text-slate-800 dark:text-slate-200">
                   <div className="flex items-center gap-2">
@@ -160,7 +160,7 @@ export default function NotificacoesAdminPage() {
                     />
                   </div>
                 </td>
-                {ALL_ROLES.map(role => (
+                {ALL_ROLES.map((role: any) => (
                   <td key={role} className="p-2 text-center">
                     <label className="flex items-center justify-center w-8 h-8 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors mx-auto">
                       <input

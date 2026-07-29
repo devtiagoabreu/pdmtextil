@@ -53,7 +53,7 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: "id é obrigatório" }, { status: 400 })
     }
 
-    await db.transaction(async (tx) => {
+    await db.transaction(async (tx: any) => {
       if (ativo) {
         await tx.update(bancosDados).set({ ativo: false })
       }

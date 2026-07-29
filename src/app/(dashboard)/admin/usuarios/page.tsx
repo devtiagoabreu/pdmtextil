@@ -108,7 +108,7 @@ export default function UsuariosPage() {
     }
   }
 
-  const filtered = usuarios.filter(u =>
+  const filtered = usuarios.filter((u: any) =>
     u.name.toLowerCase().includes(search.toLowerCase()) ||
     u.email.toLowerCase().includes(search.toLowerCase())
   )
@@ -145,7 +145,7 @@ export default function UsuariosPage() {
               <Label>Perfil</Label>
               <select value={novoRole} onChange={e => setNovoRole(e.target.value)}
                 className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600">
-                {roles.filter(r => r.ativo).map(r => <option key={r.name} value={r.name}>{r.label}</option>)}
+                {roles.filter((r: any) => r.ativo).map((r: any) => <option key={r.name} value={r.name}>{r.label}</option>)}
               </select>
             </div>
           </div>
@@ -187,13 +187,13 @@ export default function UsuariosPage() {
               </tr>
             </thead>
             <tbody className="divide-y dark:divide-slate-800">
-              {filtered.map(u => (
+              {filtered.map((u: any) => (
                 <tr key={u.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
                   <td className="p-3 text-sm font-medium text-slate-900 dark:text-slate-100">{u.name}</td>
                   <td className="p-3 text-sm text-slate-600 dark:text-slate-400">{u.email}</td>
                   <td className="p-3">
                     <span className="inline-block rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 px-2 py-0.5 text-xs font-medium">
-                      {roles.find(r => r.name === u.role)?.label || u.role}
+                      {roles.find((r: any) => r.name === u.role)?.label || u.role}
                     </span>
                   </td>
                   <td className="p-3">

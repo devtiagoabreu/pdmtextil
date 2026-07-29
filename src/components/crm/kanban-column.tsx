@@ -32,7 +32,7 @@ export function DroppableColumn({ id, children, rotulo, cor, count }: { id: stri
 export function KanbanSkeleton() {
   return (
     <div className="flex gap-4 h-[calc(100vh-280px)]">
-      {[1, 2, 3].map((i) => (
+      {[1, 2, 3].map((i: any) => (
         <div key={i} className="w-72 bg-slate-100 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shrink-0 animate-pulse">
           <div className="h-10 border-b border-slate-200 dark:border-slate-800" />
           <div className="p-3 space-y-3">

@@ -66,13 +66,13 @@ export default function PesquisaSatisfacaoPage() {
 
   const { data: pesquisa, isLoading } = useQuery<PesquisaData>({
     queryKey: ["pesquisa-satisfacao", token],
-    queryFn: () => fetch(`/api/crm/pesquisa/${token}`).then((r) => r.json()),
+    queryFn: () => fetch(`/api/crm/pesquisa/${token}`).then((r: any) => r.json()),
     enabled: !!token,
   })
 
   const submitMutation = useMutation({
     mutationFn: async () => {
-      const respostasArray = PERGUNTAS.map((p) => ({
+      const respostasArray = PERGUNTAS.map((p: any) => ({
         pergunta: p.pergunta,
         tipo: p.tipo,
         resposta: respostas[p.id] || "",
@@ -133,7 +133,7 @@ export default function PesquisaSatisfacaoPage() {
     )
   }
 
-  const allAnswered = PERGUNTAS.every((p) => respostas[p.id]?.trim())
+  const allAnswered = PERGUNTAS.every((p: any) => respostas[p.id]?.trim())
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-8 px-4">
@@ -150,7 +150,7 @@ export default function PesquisaSatisfacaoPage() {
           </div>
 
           <div className="p-6 space-y-6">
-            {PERGUNTAS.map((pergunta) => (
+            {PERGUNTAS.map((pergunta: any) => (
               <div key={pergunta.id}>
                 <label className="block text-sm font-medium text-slate-900 dark:text-slate-100 mb-3">
                   {pergunta.id}. {pergunta.pergunta}
@@ -158,7 +158,7 @@ export default function PesquisaSatisfacaoPage() {
 
                 {pergunta.tipo === "ESTRELAS" ? (
                   <div className="flex gap-1">
-                    {[1, 2, 3, 4, 5].map((star) => (
+                    {[1, 2, 3, 4, 5].map((star: any) => (
                       <button
                         key={star}
                         type="button"
@@ -191,7 +191,7 @@ export default function PesquisaSatisfacaoPage() {
                   />
                 ) : (
                   <div className="flex flex-wrap gap-2">
-                    {pergunta.opcoes?.map((opcao) => (
+                    {pergunta.opcoes?.map((opcao: any) => (
                       <button
                         key={opcao}
                         type="button"

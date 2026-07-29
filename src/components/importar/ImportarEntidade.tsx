@@ -244,7 +244,7 @@ export function ImportarEntidade({ config, onImportado, buttonVariant = "default
                       </p>
                       {resultado.erros.length > 0 && (
                         <div className="mt-2 max-h-32 overflow-y-auto text-xs">
-                          {resultado.erros.slice(0, 10).map((erro, i) => (
+                          {resultado.erros.slice(0, 10).map((erro: any, i: any) => (
                             <p key={i} className="text-red-500">Linha {erro.linha}: {erro.erro}</p>
                           ))}
                           {resultado.erros.length > 10 && (

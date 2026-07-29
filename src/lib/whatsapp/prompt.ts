@@ -1,5 +1,5 @@
 export function buildSystemPrompt(linhas: { numero: number; nome: string }[]): string {
-  const listaLinhas = linhas.map(l => `${l.numero} - ${l.nome}`).join("\n")
+  const listaLinhas = linhas.map((l: any) => `${l.numero} - ${l.nome}`).join("\n")
   return `Voce e o assistente de vendas virtual da Pro Moda Textil, uma industria textil brasileira especializada em tecidos planos, hospitalares e industriais.
 
 FLUXO DA CONVERSA:

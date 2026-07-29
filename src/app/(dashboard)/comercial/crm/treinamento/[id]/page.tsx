@@ -47,16 +47,16 @@ export default function LicaoDetailPage() {
 
   const { data: licao, isLoading } = useQuery<Licao>({
     queryKey: ["crm-treinamento", params.id],
-    queryFn: () => fetch(`/api/crm/treinamento/${params.id}`).then((r) => r.json()),
+    queryFn: () => fetch(`/api/crm/treinamento/${params.id}`).then((r: any) => r.json()),
   })
 
   const { data: modulos } = useQuery<Modulo[]>({
     queryKey: ["crm-treinamento"],
-    queryFn: () => fetch("/api/crm/treinamento").then((r) => r.json()),
+    queryFn: () => fetch("/api/crm/treinamento").then((r: any) => r.json()),
   })
 
-  const moduloAtual = modulos?.find((m) => m.id === licao?.moduloId)
-  const licoesModulo = moduloAtual?.licoes?.filter((l) => l.ativo) || []
+  const moduloAtual = modulos?.find((m: any) => m.id === licao?.moduloId)
+  const licoesModulo = moduloAtual?.licoes?.filter((l: any) => l.ativo) || []
   const indexAtual = licoesModulo.findIndex((l) => l.id === licao?.id)
   const moduloIndex = modulos?.findIndex((m) => m.id === moduloAtual?.id) ?? 0
   const licaoAnterior = indexAtual > 0 ? licoesModulo[indexAtual - 1] : null
@@ -252,7 +252,7 @@ export default function LicaoDetailPage() {
                   POPs Relacionados
                 </h3>
                 <ul className="space-y-2">
-                  {licao.linksPop.map((link, i) => (
+                  {licao.linksPop.map((link: any, i: any) => (
                     <li key={i}>
                       <a
                         href={link.url}
@@ -275,7 +275,7 @@ export default function LicaoDetailPage() {
                   VÃ­deos Tutoriais
                 </h3>
                 <ul className="space-y-2">
-                  {licao.linksVideo.map((link, i) => (
+                  {licao.linksVideo.map((link: any, i: any) => (
                     <li key={i}>
                       <a
                         href={link.url}

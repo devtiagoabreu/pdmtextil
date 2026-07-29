@@ -39,7 +39,7 @@ export function SelectUf({ value, onChange, className }: Props) {
         className={`flex-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${className || ""}`}
       >
         <option value="">UF...</option>
-        {estados.map(est => (
+        {estados.map((est: any) => (
           <option key={est.id} value={est.uf}>{est.uf} - {est.nome}</option>
         ))}
       </select>

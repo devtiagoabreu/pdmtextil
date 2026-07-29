@@ -77,7 +77,7 @@ export default function LandingPage() {
 
       time += 0.016
 
-      const activeThreads = threads.filter((t) => {
+      const activeThreads = threads.filter((t: any) => {
         if (t.type === "v") {
           return Math.sin(time * t.speed + t.phase) > 0
         } else {
@@ -85,7 +85,7 @@ export default function LandingPage() {
         }
       })
 
-      activeThreads.forEach((thread) => {
+      activeThreads.forEach((thread: any) => {
         const alpha = 0.15 + Math.sin(time * 2 + thread.phase) * 0.1
         ctx.strokeStyle = `rgba(100, 120, 180, ${alpha})`
         ctx.lineWidth = 1
@@ -120,8 +120,8 @@ export default function LandingPage() {
       })
 
       const intersections: { x: number; y: number }[] = []
-      activeThreads.forEach((t1) => {
-        activeThreads.forEach((t2) => {
+      activeThreads.forEach((t1: any) => {
+        activeThreads.forEach((t2: any) => {
           if (t1.type !== t2.type) {
             let ix: number, iy: number
             if (t1.type === "v" && t2.type === "h") {
@@ -138,7 +138,7 @@ export default function LandingPage() {
         })
       })
 
-      intersections.forEach((point, i) => {
+      intersections.forEach((point: any, i: any) => {
         const pulse = Math.sin(time * 3 + i * 0.1) * 0.5 + 0.5
         ctx.beginPath()
         ctx.arc(point.x, point.y, 2 + pulse * 2, 0, Math.PI * 2)
@@ -212,7 +212,7 @@ export default function LandingPage() {
             </Link>
 
             <div className="mt-16 grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
-              {DEPARTMENTS.map((dept) => (
+              {DEPARTMENTS.map((dept: any) => (
                 <div
                   key={dept.abbr}
                   className="group relative p-4 rounded-lg bg-slate-900/50 border border-slate-800 hover:border-slate-600 transition-all duration-300 cursor-default"

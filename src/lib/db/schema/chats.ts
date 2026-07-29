@@ -10,7 +10,7 @@ export const chats = pgTable("chats", {
   criadoPor: integer("criado_por").references(() => usuarios.id).notNull(),
   updatedAt: timestamp("updated_at").defaultNow(),
   createdAt: timestamp("created_at").defaultNow(),
-}, (t) => [
+}, (t: any) => [
   index("idx_chats_entidade").on(t.entidadeTipo, t.entidadeId),
 ])
 
@@ -20,7 +20,7 @@ export const chatMensagens = pgTable("chat_mensagens", {
   remetenteId: integer("remetente_id").references(() => usuarios.id).notNull(),
   mensagem: text("mensagem").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
-}, (t) => [
+}, (t: any) => [
   index("idx_chat_mensagens_chat").on(t.chatId),
 ])
 
@@ -30,7 +30,7 @@ export const chatParticipantes = pgTable("chat_participantes", {
   usuarioId: integer("usuario_id").references(() => usuarios.id, { onDelete: "cascade" }).notNull(),
   adicionadoEm: timestamp("adicionado_em").defaultNow(),
   ultimaMensagemLidaId: integer("ultima_mensagem_lida_id"),
-}, (t) => [
+}, (t: any) => [
   index("idx_chat_participantes_usuario").on(t.usuarioId),
 ])
 

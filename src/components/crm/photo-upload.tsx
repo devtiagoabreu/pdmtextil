@@ -80,7 +80,7 @@ export default function PhotoUpload({ photos, onPhotosChange, maxPhotos = 20, la
   }
 
   function removePhoto(index: number) {
-    onPhotosChange(photos.filter((_, i) => i !== index))
+    onPhotosChange(photos.filter((_: any, i: any) => i !== index))
   }
 
   return (
@@ -151,7 +151,7 @@ export default function PhotoUpload({ photos, onPhotosChange, maxPhotos = 20, la
 
       {photos.length > 0 ? (
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
-          {photos.map((url, i) => (
+          {photos.map((url: any, i: any) => (
             <div key={i} className="relative group aspect-square rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden bg-slate-100 dark:bg-slate-800">
               <img
                 src={url}

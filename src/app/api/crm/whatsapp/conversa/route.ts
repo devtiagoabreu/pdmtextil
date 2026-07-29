@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
       .from(crmWhatsappConversas)
       .where(eq(crmWhatsappConversas.remoteJid, remoteJid))
       .limit(1)
-      .then((r) => r[0] || null)
+      .then((r: any) => r[0] || null)
 
     if (!conversa) {
       const numero = extrairNumero(remoteJid)
@@ -44,7 +44,7 @@ export async function GET(req: NextRequest) {
           sql`(${eq(crmLeads.idIntegracao, `whatsapp:${remoteJid}`)} OR ${eq(crmLeads.celular, numero)}) AND ${crmLeads.status} != 'CONVERTIDO'`
         )
         .limit(1)
-        .then((r) => r[0] || null)
+        .then((r: any) => r[0] || null)
 
       if (leadExistente) {
         const dados: Record<string, any> = {}
@@ -122,7 +122,7 @@ export async function POST(req: NextRequest) {
         .from(crmLeads)
         .where(eq(crmLeads.idIntegracao, `whatsapp:${remoteJid}`))
         .limit(1)
-        .then((r) => r[0] || null)
+        .then((r: any) => r[0] || null)
 
       if (!existing) {
         const numero = extrairNumero(remoteJid)

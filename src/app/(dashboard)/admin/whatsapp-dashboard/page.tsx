@@ -91,7 +91,7 @@ export default function WhatsAppDashboardPage() {
     return () => clearInterval(interval)
   }, [autoRefresh, fetchData])
 
-  const maxEstado = data ? Math.max(...data.porEstado.map(e => e.count), 1) : 1
+  const maxEstado = data ? Math.max(...data.porEstado.map((e: any) => e.count), 1) : 1
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -105,7 +105,7 @@ export default function WhatsAppDashboardPage() {
         </div>
         <div className="flex items-center gap-2">
           <div className="flex gap-1">
-            {[7, 15, 30].map(d => (
+            {[7, 15, 30].map((d: any) => (
               <Button
                 key={d}
                 variant={dias === d ? "default" : "outline"}
@@ -151,7 +151,7 @@ export default function WhatsAppDashboardPage() {
               <CardContent className="p-4">
                 <h3 className="font-semibold text-slate-900 dark:text-slate-50 mb-4">Conversas por Estado</h3>
                 <div className="space-y-3">
-                  {data.porEstado.map(e => (
+                  {data.porEstado.map((e: any) => (
                     <div key={e.estado} className="flex items-center gap-3">
                       <span className="text-xs font-medium text-slate-600 dark:text-slate-300 w-32 truncate" title={e.estado}>
                         {ESTADO_LABELS[e.estado] || e.estado}
@@ -176,7 +176,7 @@ export default function WhatsAppDashboardPage() {
                   <p className="text-sm text-slate-400">Nenhum drop-off detectado</p>
                 ) : (
                   <div className="space-y-3">
-                    {data.dropoff.map((e, i) => (
+                    {data.dropoff.map((e: any, i: any) => (
                       <div key={e.estado} className="flex items-center gap-3">
                         <span className="text-xs font-bold text-slate-400 w-5">#{i + 1}</span>
                         <span className="text-xs font-medium text-slate-600 dark:text-slate-300 w-32 truncate">
@@ -216,7 +216,7 @@ export default function WhatsAppDashboardPage() {
                         </tr>
                       </thead>
                       <tbody>
-                        {data.msgsPorDia.map(d => (
+                        {data.msgsPorDia.map((d: any) => (
                           <tr key={d.dia} className="border-b border-slate-100 dark:border-slate-800">
                             <td className="py-2 text-slate-700 dark:text-slate-200">{new Date(d.dia + "T12:00:00").toLocaleDateString("pt-BR")}</td>
                             <td className="py-2 text-right text-blue-600 dark:text-blue-400">{d.recebidas}</td>
@@ -241,7 +241,7 @@ export default function WhatsAppDashboardPage() {
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    {data.topErros.map(e => (
+                    {data.topErros.map((e: any) => (
                       <div key={e.step} className="flex items-center gap-3 p-2 rounded-lg bg-red-50 dark:bg-red-950/20">
                         <AlertTriangle size={14} className="text-red-500 shrink-0" />
                         <span className="text-sm font-medium text-slate-700 dark:text-slate-200 flex-1">{ESTADO_LABELS[e.step] || e.step}</span>

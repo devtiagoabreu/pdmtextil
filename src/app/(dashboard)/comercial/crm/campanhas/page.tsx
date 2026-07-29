@@ -39,7 +39,7 @@ export default function CampanhasPage() {
   const [filteredData, setFilteredData] = useState<any[]>([])
   const { data, isLoading } = useQuery({
     queryKey: ["crm-campanhas"],
-    queryFn: () => fetch("/api/crm/campanhas").then((r) => r.json()),
+    queryFn: () => fetch("/api/crm/campanhas").then((r: any) => r.json()),
   })
 
   const campanhas = Array.isArray(data) ? data : []

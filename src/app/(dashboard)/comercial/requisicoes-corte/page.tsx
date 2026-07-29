@@ -44,8 +44,8 @@ export default function ListaRequisicoesCortePage() {
   useEffect(() => {
     if (!mounted) return
     fetch("/api/comercial/requisicoes-corte")
-      .then(res => { if (!res.ok) throw new Error(); return res.json() })
-      .then(d => setData(Array.isArray(d) ? d : []))
+      .then((res: any) => { if (!res.ok) throw new Error(); return res.json() })
+      .then((d: any) => setData(Array.isArray(d) ? d : []))
       .catch(() => toast.error("Erro ao carregar requisiÃ§Ãµes"))
       .finally(() => setLoading(false))
   }, [mounted])
@@ -136,7 +136,7 @@ export default function ListaRequisicoesCortePage() {
       }
       toast.success("RequisiÃ§Ã£o excluÃ­da com sucesso")
       setDeleteTarget(null)
-      setData(prev => prev.filter(item => item.id !== deleteTarget.id))
+      setData((prev: any) => prev.filter((item: any) => item.id !== deleteTarget.id))
       setSelected(prev => { const next = new Set(prev); next.delete(deleteTarget.id); return next })
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erro ao excluir")
@@ -298,7 +298,7 @@ export default function ListaRequisicoesCortePage() {
                       checked=                    {filteredData.length > 0 && selected.size === filteredData.length}
                       onChange={() => {
                         if (selected.size === filteredData.length) setSelected(new Set())
-                        else setSelected(new Set(filteredData.map(d => d.id)))
+                        else setSelected(new Set(filteredData.map((d: any) => d.id)))
                       }}
                       className="rounded"
                     />

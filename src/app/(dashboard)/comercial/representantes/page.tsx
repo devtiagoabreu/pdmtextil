@@ -53,7 +53,7 @@ export default function RepresentantesPage() {
     fetchRepresentantes()
   }, [])
 
-  const filtered = representantes.filter((r) =>
+  const filtered = representantes.filter((r: any) =>
     r.nome.toLowerCase().includes(search.toLowerCase()) ||
     r.cnpj.includes(search) ||
     r.razaoSocial?.toLowerCase().includes(search.toLowerCase()) ||
@@ -116,7 +116,7 @@ export default function RepresentantesPage() {
           </div>
         ) : (
           <div className="grid gap-4 p-4 md:grid-cols-2 lg:grid-cols-3">
-            {filtered.map((r) => (
+            {filtered.map((r: any) => (
               <div
                 key={r.id}
                 className="rounded-lg border border-slate-200 dark:border-slate-700 p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"

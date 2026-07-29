@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server"
-import { SQL, asc, gt, and } from "drizzle-orm"
+import { SQLWrapper, asc, gt, and } from "drizzle-orm"
 
 export interface PaginationParams {
   cursor?: number
@@ -29,7 +29,7 @@ export function getPaginationParams(
   }
 }
 
-export function cursorCondition(table: { id: any }, cursor: number | undefined): SQL | undefined {
+export function cursorCondition(table: { id: any }, cursor: number | undefined): SQLWrapper | undefined {
   if (!cursor) return undefined
   return gt(table.id, cursor)
 }

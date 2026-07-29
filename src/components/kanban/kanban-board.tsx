@@ -186,8 +186,8 @@ export function KanbanBoard() {
     setLoading(true)
     try {
       const [statusRes, solRes] = await Promise.all([
-        fetch("/api/admin/status?tipo=SOLICITACAO_DESENVOLVIMENTO").then(r => r.json()),
-        fetch("/api/solicitacoes").then(r => r.json()),
+        fetch("/api/admin/status?tipo=SOLICITACAO_DESENVOLVIMENTO").then((r: any) => r.json()),
+        fetch("/api/solicitacoes").then((r: any) => r.json()),
       ])
       if (Array.isArray(statusRes)) setStatusList(statusRes)
       if (Array.isArray(solRes)) setSolicitacoes(solRes)
@@ -247,10 +247,10 @@ export function KanbanBoard() {
   }
 
   const colunas = statusList
-    .filter(s => s.nome !== "REPROVADO" || true)
-    .map(col => ({
+    .filter((s: any) => s.nome !== "REPROVADO" || true)
+    .map((col: any) => ({
       ...col,
-      cards: solicitacoes.filter(s => s.status === col.nome),
+      cards: solicitacoes.filter((s: any) => s.status === col.nome),
     }))
 
   const handleDragStart = (event: any) => {
@@ -314,7 +314,7 @@ export function KanbanBoard() {
     const statusAntigo = solicitacao.status
 
     setSolicitacoes(prev =>
-      prev.map(s => s.id === solicitacao.id ? { ...s, status: novoStatus } : s)
+      prev.map((s: any) => s.id === solicitacao.id ? { ...s, status: novoStatus } : s)
     )
 
     try {
@@ -327,10 +327,10 @@ export function KanbanBoard() {
         const err = await res.json()
         throw new Error(err.error || "Erro ao alterar status")
       }
-      toast.success(`SolicitaÃ§Ã£o #${solicitacao.id} movida para ${statusList.find(s => s.nome === novoStatus)?.rotulo || novoStatus}`)
+      toast.success(`SolicitaÃ§Ã£o #${solicitacao.id} movida para ${statusList.find((s: any) => s.nome === novoStatus)?.rotulo || novoStatus}`)
     } catch (err: any) {
       setSolicitacoes(prev =>
-        prev.map(s => s.id === solicitacao.id ? { ...s, status: statusAntigo } : s)
+        prev.map((s: any) => s.id === solicitacao.id ? { ...s, status: statusAntigo } : s)
       )
       toast.error(err.message)
     }
@@ -343,7 +343,7 @@ export function KanbanBoard() {
       const promises: Promise<any>[] = []
       for (const key of pilotagemSelecionadas) {
         const [tipo, amostraId] = key.split("-")
-        const amostra = pilotagemAmostras.find(a => a.id === parseInt(amostraId) && a.tipo === tipo)
+        const amostra = pilotagemAmostras.find((a: any) => a.id === parseInt(amostraId) && a.tipo === tipo)
         if (!amostra) continue
         if (tipo === "tecido_cru") {
           promises.push(
@@ -372,7 +372,7 @@ export function KanbanBoard() {
       )
       await Promise.all(promises)
       setSolicitacoes(prev =>
-        prev.map(s => s.id === pilotagemTarget.id ? { ...s, status: "PILOTAGEM" } : s)
+        prev.map((s: any) => s.id === pilotagemTarget.id ? { ...s, status: "PILOTAGEM" } : s)
       )
       toast.success(`SolicitaÃ§Ã£o #${pilotagemTarget.id} movida para Pilotagem com ${pilotagemSelecionadas.size} amostra(s)`)
       setPilotagemTarget(null)
@@ -402,9 +402,9 @@ export function KanbanBoard() {
 
       <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div className="flex-1 min-h-0 flex gap-4 overflow-x-auto">
-          {colunas.map(col => (
+          {colunas.map((col: any) => (
             <DroppableColumn key={col.nome} id={col.nome} rotulo={col.rotulo} cor={col.cor} count={col.cards.length}>
-              {col.cards.map(card => (
+              {col.cards.map((card: any) => (
                 <DraggableCard
                   key={card.id}
                   solicitacao={card}
@@ -460,7 +460,7 @@ export function KanbanBoard() {
             ) : chatMensagens.length === 0 ? (
               <p className="text-sm text-slate-400 text-center py-4">Nenhuma mensagem encontrada</p>
             ) : (
-              chatMensagens.map((msg, i) => (
+              chatMensagens.map((msg: any, i: any) => (
                 <div key={i} className="bg-slate-50 dark:bg-slate-900 rounded-lg p-2.5">
                   <div className="flex justify-between items-center">
                     <span className="text-xs font-medium text-slate-700 dark:text-slate-300">{msg.remetenteNome}</span>
@@ -497,7 +497,7 @@ export function KanbanBoard() {
             ) : amostrasData.length === 0 ? (
               <p className="text-sm text-slate-400 text-center py-4">Nenhuma amostra encontrada</p>
             ) : (
-              amostrasData.map((a, i) => (
+              amostrasData.map((a: any, i: any) => (
                 <Link prefetch={false}
                   key={i}
                   href={amostrasTarget?.produtoId ? `/cadastros/produto-cru/${amostrasTarget.produtoId}?tab=amostras&amostraId=${encodeURIComponent(a.scrollId)}` : "#"}
@@ -534,7 +534,7 @@ export function KanbanBoard() {
             ) : pilotagemAmostras.length === 0 ? (
               <p className="text-sm text-slate-400 text-center py-4">Nenhuma amostra disponÃ­vel</p>
             ) : (
-              pilotagemAmostras.map((a, i) => {
+              pilotagemAmostras.map((a: any, i: any) => {
                 const key = `${a.tipo}-${a.id}`
                 const checked = pilotagemSelecionadas.has(key)
                 return (

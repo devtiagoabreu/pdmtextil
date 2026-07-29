@@ -375,7 +375,7 @@ export default function ConsultaCnpjPage() {
                           </tr>
                         </thead>
                         <tbody>
-                          {PESSOA_FIELDS.map((f) => {
+                          {PESSOA_FIELDS.map((f: any) => {
                             const api = getApiValue(apiData, f)
                             const local = getLocalValue(pessoa, f)
                             const diff = valDiffers(api, local)
@@ -434,7 +434,7 @@ export default function ConsultaCnpjPage() {
                           </tr>
                         </thead>
                         <tbody>
-                          {CLIENTE_FIELDS.map((f) => {
+                          {CLIENTE_FIELDS.map((f: any) => {
                             const api = getApiValue(apiData, f)
                             const local = getLocalValue(cliente, f)
                             const diff = valDiffers(api, local)

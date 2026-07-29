@@ -162,10 +162,10 @@ export default function VisitasKanban({ visitas }: { visitas: VisitaCard[] }) {
   )
 
   const colunas = statuses
-    .filter(s => s.ativo !== false)
-    .map(col => ({
+    .filter((s: any) => s.ativo !== false)
+    .map((col: any) => ({
       ...col,
-      cards: cards.filter(v => v.status === col.nome),
+      cards: cards.filter((v: any) => v.status === col.nome),
     }))
 
   const handleDragStart = (event: any) => {
@@ -188,7 +188,7 @@ export default function VisitasKanban({ visitas }: { visitas: VisitaCard[] }) {
     const statusAntigo = visita.status
 
     setCards(prev =>
-      prev.map(v => v.id === visita.id ? { ...v, status: novoStatus } : v)
+      prev.map((v: any) => v.id === visita.id ? { ...v, status: novoStatus } : v)
     )
 
     try {
@@ -204,7 +204,7 @@ export default function VisitasKanban({ visitas }: { visitas: VisitaCard[] }) {
       toast.success(`Visita movida para ${getLabel(novoStatus)}`)
     } catch (err: any) {
       setCards(prev =>
-        prev.map(v => v.id === visita.id ? { ...v, status: statusAntigo } : v)
+        prev.map((v: any) => v.id === visita.id ? { ...v, status: statusAntigo } : v)
       )
       toast.error(err.message)
     }
@@ -222,9 +222,9 @@ export default function VisitasKanban({ visitas }: { visitas: VisitaCard[] }) {
     <div className="flex flex-col h-[calc(100vh-280px)]">
       <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div className="flex-1 min-h-0 flex gap-4 overflow-x-auto pb-2">
-          {colunas.map(col => (
+          {colunas.map((col: any) => (
             <DroppableColumn key={col.nome} id={col.nome} rotulo={col.rotulo || col.nome} cor={col.cor} count={col.cards.length}>
-              {col.cards.map(card => (
+              {col.cards.map((card: any) => (
                 <DraggableCard
                   key={`vis-${card.id}`}
                   visita={card}

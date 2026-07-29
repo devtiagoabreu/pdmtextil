@@ -50,7 +50,7 @@ export default function FornecedoresPage() {
     queryFn: fetchFornecedores,
   })
 
-  const filteredFornecedores = fornecedores.filter(f => 
+  const filteredFornecedores = fornecedores.filter((f: any) => 
     f.nome.toLowerCase().includes(search.toLowerCase()) ||
     f.cnpj?.toLowerCase().includes(search.toLowerCase()) ||
     f.email?.toLowerCase().includes(search.toLowerCase())
@@ -148,7 +148,7 @@ export default function FornecedoresPage() {
               </tr>
             </thead>
             <tbody>
-              {filteredFornecedores.map((fornecedor) => (
+              {filteredFornecedores.map((fornecedor: any) => (
                 <tr
                   key={fornecedor.id}
                   className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"

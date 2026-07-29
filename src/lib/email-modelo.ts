@@ -192,7 +192,7 @@ export function modeloToHtml(stored: string): string {
   }
 
   return blocks
-    .map((b) => {
+    .map((b: any) => {
       const style = [b.l ? `text-align:${b.l}` : "", b.f ? `font-family:${b.f}` : "", b.z ? `font-size:${b.z}` : ""]
         .filter(Boolean)
         .join(";")
@@ -212,7 +212,7 @@ export function modeloToHtml(stored: string): string {
 
       if (b.t === "ul" || b.t === "ol") {
         const tag = b.t === "ul" ? "ul" : "ol"
-        const items = (b.i || []).map((li) => `<li>${renderInline(li)}</li>`).join("")
+        const items = (b.i || []).map((li: any) => `<li>${renderInline(li)}</li>`).join("")
         return `<${tag}${sty}>${items}</${tag}>`
       }
 

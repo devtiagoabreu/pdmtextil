@@ -36,7 +36,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       .where(eq(chatParticipantes.chatId, chatId))
 
     const { usuarios } = await import("@/lib/db/schema/usuarios")
-    const usuarioIds = participantes.map((p) => p.usuarioId)
+    const usuarioIds = participantes.map((p: any) => p.usuarioId)
     const users = usuarioIds.length > 0
       ? await db
           .select({ id: usuarios.id, name: usuarios.name, email: usuarios.email })

@@ -77,7 +77,7 @@ export default function BaseFormPage() {
 
         if (fiosRes.ok) {
           const fios: FioOption[] = await fiosRes.json()
-          setFiosDisponiveis(fios.filter(f => f.id))
+          setFiosDisponiveis(fios.filter((f: any) => f.id))
         }
 
         if (isEditing && id) {
@@ -164,7 +164,7 @@ export default function BaseFormPage() {
       const body = {
         ...base,
         densidade: base.densidade ? base.densidade.trim() : "",
-        fiosLista: fiosSelecionados.map(f => ({ fioId: f.fioId })),
+        fiosLista: fiosSelecionados.map((f: any) => ({ fioId: f.fioId })),
       }
 
       const res = await fetch(url, {
@@ -193,17 +193,17 @@ export default function BaseFormPage() {
   }
 
   const adicionarFio = (fio: FioOption) => {
-    if (fiosSelecionados.some(f => f.fioId === fio.id)) return
+    if (fiosSelecionados.some((f: any) => f.fioId === fio.id)) return
     setFiosSelecionados(prev => [...prev, { fioId: fio.id, fioNome: fio.nome, fioCodigo: fio.codigoFio, fioIdIntegracao: fio.idIntegracao || null }])
     setFioSearch("")
   }
 
   const removerFio = (fioId: number) => {
-    setFiosSelecionados(prev => prev.filter(f => f.fioId !== fioId))
+    setFiosSelecionados(prev => prev.filter((f: any) => f.fioId !== fioId))
   }
 
-  const fiosFiltrados = fiosDisponiveis.filter(f =>
-    !fiosSelecionados.some(s => s.fioId === f.id) &&
+  const fiosFiltrados = fiosDisponiveis.filter((f: any) =>
+    !fiosSelecionados.some((s: any) => s.fioId === f.id) &&
     (f.nome.toLowerCase().includes(fioSearch.toLowerCase()) ||
      f.codigoFio.toLowerCase().includes(fioSearch.toLowerCase()))
   ).slice(0, 10)
@@ -293,7 +293,7 @@ export default function BaseFormPage() {
               {fiosFiltrados.length === 0 ? (
                 <p className="p-3 text-sm text-slate-400">Nenhum fio encontrado</p>
               ) : (
-                fiosFiltrados.map(fio => (
+                fiosFiltrados.map((fio: any) => (
                   <button
                     key={fio.id}
                     type="button"
@@ -311,7 +311,7 @@ export default function BaseFormPage() {
           )}
           {fiosSelecionados.length > 0 && (
             <div className="space-y-1">
-              {fiosSelecionados.map(fio => (
+              {fiosSelecionados.map((fio: any) => (
                 <div key={fio.fioId} className="flex items-center justify-between rounded-md border border-slate-200 dark:border-slate-700 px-3 py-2">
                   <div className="text-sm">
                     <span className="font-medium">{fio.fioCodigo}</span>

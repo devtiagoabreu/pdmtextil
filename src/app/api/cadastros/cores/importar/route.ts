@@ -26,12 +26,12 @@ const campoMap: Record<string, keyof CorImport> = {
 
 function parseCSV(texto: string): CorImport[] {
   const textoNormalizado = texto.replace(/\r\n/g, "\n").replace(/\r/g, "\n")
-  const linhas = textoNormalizado.split("\n").filter(l => l.trim())
+  const linhas = textoNormalizado.split("\n").filter((l: any) => l.trim())
   
   if (linhas.length < 2) return []
 
   const separador = texto.includes(";") ? ";" : ","
-  const cabecalho = linhas[0].split(separador).map(c => c.trim().toLowerCase())
+  const cabecalho = linhas[0].split(separador).map((c: any) => c.trim().toLowerCase())
   
   const dados: CorImport[] = []
 
@@ -39,7 +39,7 @@ function parseCSV(texto: string): CorImport[] {
     const linha = linhas[i]
     if (!linha.trim()) continue
     
-    const valores = linha.split(separador).map(v => v.trim())
+    const valores = linha.split(separador).map((v: any) => v.trim())
     
     const item: CorImport = {}
     
@@ -65,7 +65,7 @@ function parseJSON(texto: string): CorImport[] {
   try {
     const dados = JSON.parse(texto)
     if (Array.isArray(dados)) {
-      return dados.filter(item => item.codigo || item.nome)
+      return dados.filter((item: any) => item.codigo || item.nome)
     }
     return []
   } catch {

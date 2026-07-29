@@ -63,7 +63,7 @@ export async function GET() {
     }
 
     // Retorna todos os tipos, preenchendo com [] os que não têm regra
-    const data = TIPOS_NOTIFICACAO.map(tipo => ({
+    const data = TIPOS_NOTIFICACAO.map((tipo: any) => ({
       tipo,
       roles: mapa.get(tipo) ?? [],
     }))

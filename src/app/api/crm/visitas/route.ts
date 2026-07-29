@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
     const conditions = []
     if (empresaId) conditions.push(eq(crmVisitas.empresaId, parseInt(empresaId)))
     if (status) conditions.push(eq(crmVisitas.status, status))
-    if (mine === "true" && auth.session.user.role !== "ADMIN" && auth.session.user.role !== "SUDO") {
+    if (mine === "true" && (auth.session.user?.role ?? "") !== "ADMIN" && (auth.session.user?.role ?? "") !== "SUDO") {
       conditions.push(eq(crmVisitas.criadoPor, auth.userId))
     }
     if (q) {
@@ -160,7 +160,7 @@ export async function POST(req: NextRequest) {
 
     const inserted = await db
       .insert(crmVisitas)
-      .values(datas.map(d => ({ ...baseValues, dataVisita: d })))
+      .values(datas.map((d: any) => ({ ...baseValues, dataVisita: d })))
       .returning()
 
     const primeira = inserted[0]

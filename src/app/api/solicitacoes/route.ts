@@ -98,7 +98,7 @@ export async function POST(req: NextRequest) {
       },
     ]
 
-    const novaSolicitacao = await db.transaction(async (tx) => {
+    const novaSolicitacao = await db.transaction(async (tx: any) => {
       const [solicitacao] = await tx
         .insert(solicitacoes)
         .values({
@@ -115,7 +115,7 @@ export async function POST(req: NextRequest) {
         .returning()
 
       if (anexosList && anexosList.length > 0) {
-        const links = (anexosList as any[]).filter((a) => a.tipo === "LINK")
+        const links = (anexosList as any[]).filter((a: any) => a.tipo === "LINK")
         if (links.length > 0) {
           await tx.insert(anexos).values(
             links.map((a: any) => ({

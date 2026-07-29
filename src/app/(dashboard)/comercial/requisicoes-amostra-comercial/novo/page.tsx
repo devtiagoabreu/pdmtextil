@@ -58,8 +58,8 @@ export default function NovaRequisicaoAmostraComercialPage() {
     setProdutosLoading(true)
     const timer = setTimeout(() => {
       fetch(`/api/cadastros/produtos-cru?search=${encodeURIComponent(produtoSearch)}&limit=10`)
-        .then(r => r.json())
-        .then(data => setProdutos(Array.isArray(data) ? data : []))
+        .then((r: any) => r.json())
+        .then((data: any) => setProdutos(Array.isArray(data) ? data : []))
         .catch(() => setProdutos([]))
         .finally(() => setProdutosLoading(false))
     }, 300)
@@ -163,7 +163,7 @@ export default function NovaRequisicaoAmostraComercialPage() {
             )}
             {showDropdown && produtos.length > 0 && (
               <div className="absolute z-50 mt-1 w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-lg max-h-48 overflow-y-auto">
-                {produtos.map(p => (
+                {produtos.map((p: any) => (
                   <button
                     key={p.id}
                     type="button"

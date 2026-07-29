@@ -11,7 +11,7 @@ export const notificacoes = pgTable("notificacoes", {
   lida: boolean("lida").default(false),
   lidaEm: timestamp("lida_em"),
   createdAt: timestamp("created_at").defaultNow(),
-}, (t) => [
+}, (t: any) => [
   index("idx_notificacoes_usuario_lida").on(t.usuarioId, t.lida),
   index("idx_notificacoes_created_at").on(t.createdAt),
 ])

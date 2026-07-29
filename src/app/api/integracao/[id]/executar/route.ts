@@ -43,7 +43,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     } catch {
       return NextResponse.json({ error: "URL base inválida" }, { status: 400 })
     }
-    reqParams.forEach((value, key) => {
+    reqParams.forEach((value: any, key: any) => {
       if (key !== "tela") {
         url.searchParams.set(key, value)
       }

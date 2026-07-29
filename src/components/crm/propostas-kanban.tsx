@@ -88,25 +88,25 @@ export default function PropostasKanban({ propostas }: { propostas: PropostaCard
 
   const getLabel = useCallback((nome: string) => {
     if (hasStatuses) {
-      const s = statuses.find(s => s.nome === nome)
+      const s = statuses.find((s: any) => s.nome === nome)
       return s?.rotulo || nome
     }
-    return DEFAULT_STATUSES.find(s => s.nome === nome)?.rotulo || nome
+    return DEFAULT_STATUSES.find((s: any) => s.nome === nome)?.rotulo || nome
   }, [hasStatuses, statuses])
 
   const getColor = useCallback((nome: string) => {
     if (hasStatuses) {
-      const s = statuses.find(s => s.nome === nome)
+      const s = statuses.find((s: any) => s.nome === nome)
       return s?.cor || "#94a3b8"
     }
-    return DEFAULT_STATUSES.find(s => s.nome === nome)?.cor || "#94a3b8"
+    return DEFAULT_STATUSES.find((s: any) => s.nome === nome)?.cor || "#94a3b8"
   }, [hasStatuses, statuses])
 
   const colunas = effectiveStatuses
-    .filter(s => s.ativo !== false)
-    .map(col => ({
+    .filter((s: any) => s.ativo !== false)
+    .map((col: any) => ({
       ...col,
-      cards: cards.filter(p => p.status === col.nome),
+      cards: cards.filter((p: any) => p.status === col.nome),
     }))
 
   const handleDragStart = (event: any) => {
@@ -129,7 +129,7 @@ export default function PropostasKanban({ propostas }: { propostas: PropostaCard
     const statusAntigo = proposta.status
 
     setCards(prev =>
-      prev.map(p => p.id === proposta.id ? { ...p, status: novoStatus } : p)
+      prev.map((p: any) => p.id === proposta.id ? { ...p, status: novoStatus } : p)
     )
 
     try {
@@ -145,7 +145,7 @@ export default function PropostasKanban({ propostas }: { propostas: PropostaCard
       toast.success(`Proposta movida para ${getLabel(novoStatus)}`)
     } catch (err: any) {
       setCards(prev =>
-        prev.map(p => p.id === proposta.id ? { ...p, status: statusAntigo } : p)
+        prev.map((p: any) => p.id === proposta.id ? { ...p, status: statusAntigo } : p)
       )
       toast.error(err.message)
     }
@@ -159,9 +159,9 @@ export default function PropostasKanban({ propostas }: { propostas: PropostaCard
     <div className="flex flex-col h-[calc(100vh-280px)]">
       <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div className="flex-1 min-h-0 flex gap-4 overflow-x-auto pb-2">
-          {colunas.map(col => (
+          {colunas.map((col: any) => (
             <DroppableColumn key={col.nome} id={col.nome} rotulo={col.rotulo || col.nome} cor={col.cor} count={col.cards.length}>
-              {col.cards.map(card => (
+              {col.cards.map((card: any) => (
                 <DraggableCard key={`prop-${card.id}`} proposta={card} />
               ))}
             </DroppableColumn>

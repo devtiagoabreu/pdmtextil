@@ -150,7 +150,7 @@ export default function NovoRepresentantePage() {
                 <select name="uf" value={form.uf} onChange={handleChange}
                   className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                   <option value="">Selecione</option>
-                  {estados.map((e) => (<option key={e} value={e}>{e}</option>))}
+                  {estados.map((e: any) => (<option key={e} value={e}>{e}</option>))}
                 </select>
               </div>
             </div>

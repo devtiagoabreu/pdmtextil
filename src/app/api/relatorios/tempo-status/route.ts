@@ -111,7 +111,7 @@ export async function GET(req: NextRequest) {
     const labelsMap = new Map<string, string>()
     for (const [k, v] of statusMap) labelsMap.set(k, v.rotulo || k)
 
-    const resultados = rows.map((r) => {
+    const resultados = rows.map((r: any) => {
       const timeline = processarTimeline(
         r.historico as any[],
         r.status,
@@ -119,7 +119,7 @@ export async function GET(req: NextRequest) {
         labelsMap
       )
 
-      const tempoTotalMs = timeline.reduce((acc, t) => acc + (t.duracaoMs ?? 0), 0)
+      const tempoTotalMs = timeline.reduce((acc: any, t: any) => acc + (t.duracaoMs ?? 0), 0)
       const trocasStatus = timeline.length
 
       return {
@@ -140,12 +140,12 @@ export async function GET(req: NextRequest) {
     // Agregados
     const stats = {
       totalSolicitacoes: resultados.length,
-      concluidas: resultados.filter((r) => r.statusAtual === "CONCLUIDO" || r.statusAtual === "CONCLUIDO_DEV" || r.statusAtual === "APROVADO_CLI").length,
+      concluidas: resultados.filter((r: any) => r.statusAtual === "CONCLUIDO" || r.statusAtual === "CONCLUIDO_DEV" || r.statusAtual === "APROVADO_CLI").length,
       tempoMedioHoras: resultados.length > 0
-        ? Math.round(resultados.reduce((a, r) => a + r.tempoTotalHoras, 0) / resultados.length * 100) / 100
+        ? Math.round(resultados.reduce((a: any, r: any) => a + r.tempoTotalHoras, 0) / resultados.length * 100) / 100
         : 0,
       mediaTrocasStatus: resultados.length > 0
-        ? Math.round(resultados.reduce((a, r) => a + r.trocasStatus, 0) / resultados.length * 100) / 100
+        ? Math.round(resultados.reduce((a: any, r: any) => a + r.trocasStatus, 0) / resultados.length * 100) / 100
         : 0,
     }
 

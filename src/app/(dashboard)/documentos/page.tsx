@@ -59,7 +59,7 @@ export default function DocumentosPage() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {modulos.map((mod) => {
+        {modulos.map((mod: any) => {
           const Icon = mod.icon
           return (
             <Link prefetch={false}

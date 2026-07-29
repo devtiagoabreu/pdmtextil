@@ -83,7 +83,7 @@ export function CommandSearch() {
           ref={dropdownRef}
           className="absolute left-0 top-full mt-1 w-full min-w-[320px] rounded-xl border border-slate-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900 animate-fade-in z-50 overflow-hidden"
         >
-          {results.map((item, index) => (
+          {results.map((item: any, index: any) => (
             <button
               key={item.id}
               onClick={() => navigate(item)}

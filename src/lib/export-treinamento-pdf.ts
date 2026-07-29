@@ -234,7 +234,7 @@ class TreinamentoPdfRenderer {
   }
 
   private renderList(items: string[], ordered: boolean) {
-    const cleaned = items.map((item) => sanitizeText(this.stripMarkdown(item)))
+    const cleaned = items.map((item: any) => sanitizeText(this.stripMarkdown(item)))
     const fs = FONT_SIZE_BODY
     const lh = fs * 0.3528 * 1.5
     const indent = 6
@@ -265,7 +265,7 @@ class TreinamentoPdfRenderer {
 
     const clean = (s: string) => sanitizeText(this.stripMarkdown(s.trim()))
     const headerCells = mdLines[0].split("|").filter(Boolean).map(clean)
-    const dataRows = mdLines.slice(2).map((line) =>
+    const dataRows = mdLines.slice(2).map((line: any) =>
       line.split("|").filter(Boolean).map(clean)
     )
 
@@ -297,7 +297,7 @@ class TreinamentoPdfRenderer {
         fontSize: 9,
       },
       columnStyles: Object.fromEntries(
-        headerCells.map((_, i) => [i, { cellWidth: colWidth }])
+        headerCells.map((_: any, i: any) => [i, { cellWidth: colWidth }])
       ),
       margin: { left: MARGIN_LEFT, right: MARGIN_RIGHT },
       didDrawPage: (data: any) => {
@@ -642,7 +642,7 @@ class TreinamentoPdfRenderer {
       this.doc.setFont("helvetica", "normal")
     }
 
-    const licoesAtivas = modulo.licoes.filter((l) => l.ativo)
+    const licoesAtivas = modulo.licoes.filter((l: any) => l.ativo)
     for (let idx = 0; idx < licoesAtivas.length; idx++) {
       const licao = licoesAtivas[idx]
 
@@ -701,8 +701,8 @@ class TreinamentoPdfRenderer {
 }
 
 export async function exportTreinamentoCompletoPdf(modulos: ModuloData[]) {
-  const modulosAtivos = modulos.filter((m) => m.ativo)
-  const totalLicoes = modulosAtivos.reduce((acc, m) => acc + m.licoes.filter((l) => l.ativo).length, 0)
+  const modulosAtivos = modulos.filter((m: any) => m.ativo)
+  const totalLicoes = modulosAtivos.reduce((acc: any, m: any) => acc + m.licoes.filter((l: any) => l.ativo).length, 0)
 
   const renderer = new TreinamentoPdfRenderer()
 
@@ -711,11 +711,11 @@ export async function exportTreinamentoCompletoPdf(modulos: ModuloData[]) {
   const tocItems: TocItem[] = []
   for (let i = 0; i < modulosAtivos.length; i++) {
     const m = modulosAtivos[i]
-    const licoesAtivas = m.licoes.filter((l) => l.ativo)
+    const licoesAtivas = m.licoes.filter((l: any) => l.ativo)
     tocItems.push({
       titulo: `Módulo ${i + 1}: ${m.titulo}`,
       pageNum: i + 3,
-      subItems: licoesAtivas.map((l, idx) => ({
+      subItems: licoesAtivas.map((l: any, idx: any) => ({
         titulo: `${idx + 1}. ${l.titulo}`,
         pageNum: 0,
       })),

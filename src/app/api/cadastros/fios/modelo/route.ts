@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
         modelo: "Fios",
         versao: "1.0",
         separador: ";",
-        campos: campos.map(c => ({
+        campos: campos.map((c: any) => ({
           nome: c.nome,
           descricao: c.descricao,
           exemplo: c.exemplo,
@@ -53,8 +53,8 @@ export async function GET(req: NextRequest) {
       return NextResponse.json(estrutura)
     }
 
-    const csvCabecalho = campos.map(c => c.nome).join(";")
-    const csvExemplo = campos.map(c => c.exemplo).join(";")
+    const csvCabecalho = campos.map((c: any) => c.nome).join(";")
+    const csvExemplo = campos.map((c: any) => c.exemplo).join(";")
     const csvCompleto = `${csvCabecalho}\n${csvExemplo}\n`
 
     return new NextResponse(csvCompleto, {

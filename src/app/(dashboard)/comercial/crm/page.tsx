@@ -225,7 +225,7 @@ export default function CrmDashboardPage() {
                   <YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} stroke="#94a3b8" width={80} interval={0} angle={0} tickFormatter={(v: string) => v.length > 12 ? v.slice(0, 11) + 'â€¦' : v} />
                   <Tooltip content={<ChartTooltip formatter={(v) => `${v} registros`} />} />
                   <Bar dataKey="value" radius={[0, 4, 4, 0]} animationDuration={1800} animationEasing="ease-in-out" animationBegin={800}>
-                    {pipelineData.map((_, i) => (
+                    {pipelineData.map((_: any, i: any) => (
                       <Cell key={i} fill={PIPELINE_COLORS[i % PIPELINE_COLORS.length]} />
                     ))}
                   </Bar>
@@ -289,7 +289,7 @@ export default function CrmDashboardPage() {
                   <ResponsiveContainer width="100%" height={160}>
                     <RPieChart>
                       <Pie
-                        data={data.oportunidades.byStatus.map((s, i) => ({
+                        data={data.oportunidades.byStatus.map((s: any, i: any) => ({
                           name: s.status,
                           value: s.total,
                           fill: CHART_COLORS[i % CHART_COLORS.length],
@@ -306,7 +306,7 @@ export default function CrmDashboardPage() {
                     </RPieChart>
                   </ResponsiveContainer>
                   <div className="flex flex-wrap gap-1.5 justify-center mt-1">
-                    {data.oportunidades.byStatus.map((s, i) => (
+                    {data.oportunidades.byStatus.map((s: any, i: any) => (
                       <span
                         key={s.status}
                         className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
@@ -341,7 +341,7 @@ export default function CrmDashboardPage() {
               </div>
               {data?.topEmpresas && data.topEmpresas.length > 0 ? (
                 <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                  {data.topEmpresas.map((emp, i) => (
+                  {data.topEmpresas.map((emp: any, i: any) => (
                     <div key={emp.empresaId ?? i} className="flex items-center justify-between p-3">
                       <div className="flex items-center gap-3 min-w-0">
                         <span className="text-xs font-bold text-slate-400 w-5">{i + 1}.</span>
@@ -370,7 +370,7 @@ export default function CrmDashboardPage() {
               </div>
               {data?.recentes && data.recentes.length > 0 ? (
                 <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                  {data.recentes.map((ev) => (
+                  {data.recentes.map((ev: any) => (
                     <div key={ev.id} className="flex items-start gap-3 p-3">
                       <div className={`rounded-lg p-1.5 mt-0.5 ${getTipoBg(ev.tipo)}`}>
                         <span className={getTipoCor(ev.tipo)}>

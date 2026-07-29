@@ -32,5 +32,5 @@ export async function getStatusMap(tipo: string): Promise<Map<string, StatusConf
 
 export async function getValidStatuses(tipo: string): Promise<string[]> {
   const rows = await getStatusesByTipo(tipo)
-  return rows.map((r) => r.nome)
+  return rows.map((r: any) => r.nome)
 }

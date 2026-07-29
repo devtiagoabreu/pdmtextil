@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
 
     let conditions = []
     if (status) conditions.push(eq(crmOportunidades.status, status))
-    if (mine === "true" && auth.session.user.role !== "ADMIN" && auth.session.user.role !== "SUDO") {
+    if (mine === "true" && (auth.session.user?.role ?? "") !== "ADMIN" && (auth.session.user?.role ?? "") !== "SUDO") {
       conditions.push(eq(crmOportunidades.responsavelId, auth.userId))
     }
     if (search) {
@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    const where = conditions.length > 0 ? sql`${conditions.reduce((a, b) => sql`${a} AND ${b}`)}` : undefined
+    const where = conditions.length > 0 ? sql`${conditions.reduce((a: any, b: any) => sql`${a} AND ${b}`)}` : undefined
 
     const lista = await db
       .select({

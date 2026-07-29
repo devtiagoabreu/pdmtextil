@@ -86,7 +86,7 @@ function StatusBadge({ status }: { status: string }) {
 function FlowDiagram({ steps, activeStep, onStepClick }: { steps: StepLog[]; activeStep: string | null; onStepClick: (step: string) => void }) {
   return (
     <div className="flex items-center gap-1 overflow-x-auto pb-2">
-      {steps.map((step, i) => (
+      {steps.map((step: any, i: any) => (
         <div key={step.step} className="flex items-center gap-1">
           <button
             onClick={() => onStepClick(step.step)}
@@ -218,7 +218,7 @@ export default function WhatsAppMonitorPage() {
     })
   }
 
-  const selectedExec = executions.find((e) => e.executionId === selectedExecution)
+  const selectedExec = executions.find((e: any) => e.executionId === selectedExecution)
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -300,7 +300,7 @@ export default function WhatsAppMonitorPage() {
         </div>
       ) : (
         <div className="space-y-3">
-          {executions.map((exec) => (
+          {executions.map((exec: any) => (
             <div key={exec.executionId} className="rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-white dark:bg-slate-900">
               <button
                 onClick={() => {
@@ -327,7 +327,7 @@ export default function WhatsAppMonitorPage() {
                   </p>
                 </div>
                 <div className="flex items-center gap-1">
-                  {exec.steps.slice(0, 8).map((step) => (
+                  {exec.steps.slice(0, 8).map((step: any) => (
                     <div
                       key={step.step}
                       className={`w-2 h-2 rounded-full ${
@@ -346,7 +346,7 @@ export default function WhatsAppMonitorPage() {
 
               {expandedExecutions.has(exec.executionId) && (
                 <div className="px-4 pb-4 space-y-2 border-t border-slate-100 dark:border-slate-800 pt-3">
-                  {exec.steps.map((step) => (
+                  {exec.steps.map((step: any) => (
                     <StepDetail key={step.step} step={step} />
                   ))}
                 </div>

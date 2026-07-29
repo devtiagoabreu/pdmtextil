@@ -18,7 +18,7 @@ async function carregarMenus(params: { usuarioId?: number; role?: string }) {
 
   if (menus.length === 0) return []
 
-  const menuIds = menus.map(m => m.id)
+  const menuIds = menus.map((m: any) => m.id)
   const todosItens = await db
     .select()
     .from(userMenuItens)
@@ -31,12 +31,12 @@ async function carregarMenus(params: { usuarioId?: number; role?: string }) {
     itensPorMenu[item.userMenuId].push(item)
   }
 
-  const result = menus.map(menu => ({
+  const result = menus.map((menu: any) => ({
     ...menu,
     itens: itensPorMenu[menu.id] || [],
   }))
 
-  const hasItens = result.some(m => m.itens.length > 0)
+  const hasItens = result.some((m: any) => m.itens.length > 0)
   if (!hasItens && result.length > 0) return []
   return result
 }

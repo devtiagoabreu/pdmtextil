@@ -45,12 +45,12 @@ export default function EditarLicaoPage() {
 
   const { data: modulos } = useQuery<Modulo[]>({
     queryKey: ["crm-treinamento-modulos"],
-    queryFn: () => fetch("/api/crm/treinamento/modulos").then((r) => r.json()),
+    queryFn: () => fetch("/api/crm/treinamento/modulos").then((r: any) => r.json()),
   })
 
   useEffect(() => {
     fetch(`/api/crm/treinamento/${params.id}`)
-      .then((r) => r.json())
+      .then((r: any) => r.json())
       .then((data: Licao) => {
         setForm({
           moduloId: String(data.moduloId),
@@ -136,7 +136,7 @@ export default function EditarLicaoPage() {
               className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800"
               required
             >
-              {modulos?.map((m) => (
+              {modulos?.map((m: any) => (
                 <option key={m.id} value={m.id}>{m.titulo}</option>
               ))}
             </select>
@@ -203,10 +203,10 @@ export default function EditarLicaoPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Links POP</label>
-            {linksPop.map((link, i) => (
+            {linksPop.map((link: any, i: any) => (
               <div key={i} className="flex items-center gap-2 text-sm bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg mb-2">
                 <span className="flex-1 truncate">{link.label}</span>
-                <button type="button" onClick={() => setLinksPop(linksPop.filter((_, j) => j !== i))} className="text-red-400 hover:text-red-600"><X size={14} /></button>
+                <button type="button" onClick={() => setLinksPop(linksPop.filter((_: any, j: any) => j !== i))} className="text-red-400 hover:text-red-600"><X size={14} /></button>
               </div>
             ))}
             <div className="flex gap-2">
@@ -217,10 +217,10 @@ export default function EditarLicaoPage() {
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Links VÃ­deos</label>
-            {linksVideo.map((link, i) => (
+            {linksVideo.map((link: any, i: any) => (
               <div key={i} className="flex items-center gap-2 text-sm bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg mb-2">
                 <span className="flex-1 truncate">{link.label}</span>
-                <button type="button" onClick={() => setLinksVideo(linksVideo.filter((_, j) => j !== i))} className="text-red-400 hover:text-red-600"><X size={14} /></button>
+                <button type="button" onClick={() => setLinksVideo(linksVideo.filter((_: any, j: any) => j !== i))} className="text-red-400 hover:text-red-600"><X size={14} /></button>
               </div>
             ))}
             <div className="flex gap-2">

@@ -71,7 +71,7 @@ export default function CoresPage() {
     }
   }
 
-  const filteredCores = cores.filter(c => 
+  const filteredCores = cores.filter((c: any) => 
     c.nome.toLowerCase().includes(search.toLowerCase()) ||
     c.codigo.toLowerCase().includes(search.toLowerCase()) ||
     (c.pantone && c.pantone.toLowerCase().includes(search.toLowerCase()))
@@ -144,7 +144,7 @@ export default function CoresPage() {
               </tr>
             </thead>
             <tbody>
-              {filteredCores.map((cor) => (
+              {filteredCores.map((cor: any) => (
                 <tr
                   key={cor.id}
                   className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"

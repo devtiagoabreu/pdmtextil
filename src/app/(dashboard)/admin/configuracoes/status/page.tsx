@@ -155,7 +155,7 @@ export default function StatusPage() {
               <Label>Tipo</Label>
               <select value={form.tipo} onChange={e => setForm({ ...form, tipo: e.target.value })}
                 className="w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 py-2 text-sm">
-                {TIPOS_STATUS.map(t => (
+                {TIPOS_STATUS.map((t: any) => (
                   <option key={t.value} value={t.value}>{t.label}</option>
                 ))}
               </select>
@@ -195,7 +195,7 @@ export default function StatusPage() {
         <select value={filtroTipo} onChange={e => setFiltroTipo(e.target.value)}
           className="rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 py-2 text-sm max-w-xs">
           <option value="">Todos</option>
-          {TIPOS_STATUS.map(t => (
+          {TIPOS_STATUS.map((t: any) => (
             <option key={t.value} value={t.value}>{t.label}</option>
           ))}
         </select>
@@ -221,7 +221,7 @@ export default function StatusPage() {
                 </tr>
               </thead>
               <tbody>
-                {lista.map(item => (
+                {lista.map((item: any) => (
                   <tr key={item.id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-950/50">
                     <td className="px-4 py-3 font-medium">{item.nome}</td>
                     <td className="px-4 py-3">{item.rotulo || "â€”"}</td>

@@ -68,14 +68,14 @@ export default function RegraDeTresPage() {
   }
 
   function handleGrandezaChange(idx: number, field: keyof Grandeza, value: string) {
-    setGrandezas(prev => prev.map((g, i) =>
+    setGrandezas(prev => prev.map((g: any, i: any) =>
       i === idx ? { ...g, [field]: field === "nome" ? value : value === "" ? "" : Number(value) } : g
     ))
     setResultado(null)
   }
 
   function handleGrandezaCompChange(idx: number, field: keyof GrandezaComposta, value: string) {
-    setGrandezasComp(prev => prev.map((g, i) =>
+    setGrandezasComp(prev => prev.map((g: any, i: any) =>
       i === idx ? { ...g, [field]: field === "nome" ? value : value === "" ? "" : Number(value) } : g
     ))
     setResultado(null)
@@ -87,18 +87,18 @@ export default function RegraDeTresPage() {
   }
 
   function remGrandeza(idx: number) {
-    setGrandezas(prev => prev.filter((_, i) => i !== idx))
+    setGrandezas(prev => prev.filter((_: any, i: any) => i !== idx))
     setResultado(null)
   }
 
   function remGrandezaComp(idx: number) {
-    setGrandezasComp(prev => prev.filter((_, i) => i !== idx))
+    setGrandezasComp(prev => prev.filter((_: any, i: any) => i !== idx))
     setResultado(null)
   }
 
   function calcular() {
     if (tipo === "composta") {
-      const gs = grandezasComp.filter(g => g.valorAntigo !== "" && g.valorNovo !== "")
+      const gs = grandezasComp.filter((g: any) => g.valorAntigo !== "" && g.valorNovo !== "")
       const ref = Number(referencia)
       if (gs.length < 1 || !ref) {
         setResultado("Preencha pelo menos 1 grandeza e o valor de referÃªncia.")
@@ -151,7 +151,7 @@ export default function RegraDeTresPage() {
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-6 space-y-4 bg-white dark:bg-slate-900">
         <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Tipo de Regra</label>
         <div className="flex flex-wrap gap-2">
-          {(["simples-direta", "simples-inversa", "composta"] as const).map(t => (
+          {(["simples-direta", "simples-inversa", "composta"] as const).map((t: any) => (
             <button
               key={t}
               onClick={() => { setTipo(t); setResultado(null) }}
@@ -231,7 +231,7 @@ export default function RegraDeTresPage() {
               <span className="text-center">Valor antigo</span>
               <span className="text-center">Valor novo</span>
             </div>
-            {grandezasComp.map((g, idx) => (
+            {grandezasComp.map((g: any, idx: any) => (
               <div key={idx} className="grid grid-cols-[100px_120px_120px_32px] gap-2 items-center">
                 <input
                   type="text"

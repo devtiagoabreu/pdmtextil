@@ -30,8 +30,8 @@ export default function CampanhaDetailPage() {
 
   useEffect(() => {
     fetch(`/api/crm/campanhas/${params.id}`)
-      .then((r) => r.json())
-      .then((data) => {
+      .then((r: any) => r.json())
+      .then((data: any) => {
         setCampanha(data)
         setForm(data)
       })
@@ -111,7 +111,7 @@ export default function CampanhaDetailPage() {
                   onChange={(e) => setForm({ ...form, status: e.target.value })}
                   className="rounded border border-slate-200 dark:border-slate-700 px-2 py-1 text-xs bg-white dark:bg-slate-900"
                 >
-                  {STATUS_OPTIONS.map((s) => (
+                  {STATUS_OPTIONS.map((s: any) => (
                     <option key={s} value={s}>{s}</option>
                   ))}
                 </select>

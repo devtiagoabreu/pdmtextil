@@ -43,8 +43,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       .where(and(eq(chatParticipantes.chatId, chatId), eq(chatParticipantes.usuarioId, userId)))
 
     const idsParaMarcar = mensagens
-      .filter((m) => !body.apenasUltima || m.id === ultimaMensagem.id)
-      .map((m) => m.id)
+      .filter((m: any) => !body.apenasUltima || m.id === ultimaMensagem.id)
+      .map((m: any) => m.id)
 
     if (idsParaMarcar.length > 0) {
       const existentes = await db
@@ -55,10 +55,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
           eq(chatLeituras.usuarioId, userId)
         ))
 
-      const existentesIds = new Set(existentes.map((e) => e.mensagemId))
+      const existentesIds = new Set(existentes.map((e: any) => e.mensagemId))
       const novas = idsParaMarcar
-        .filter((mid) => !existentesIds.has(mid))
-        .map((mensagemId) => ({ mensagemId, usuarioId: userId }))
+        .filter((mid: any) => !existentesIds.has(mid))
+        .map((mensagemId: any) => ({ mensagemId, usuarioId: userId }))
 
       if (novas.length > 0) {
         await db.insert(chatLeituras).values(novas)

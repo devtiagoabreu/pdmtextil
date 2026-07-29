@@ -65,12 +65,12 @@ export function SecaoAplicacao({ control, errors }: { control: Control<BriefingT
         <Label>Segmento de Uso *</Label>
         <Controller name="aplicacao.segmentos" control={control} render={({ field }) => (
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {SEGMENTOS.map((segmento) => (
+            {SEGMENTOS.map((segmento: any) => (
               <div key={segmento} className="flex items-center space-x-2">
                 <Checkbox id={segmento} checked={field.value?.includes(segmento)}
                   onCheckedChange={(checked: boolean) => checked
                     ? field.onChange([...(field.value || []), segmento])
-                    : field.onChange(field.value?.filter((val) => val !== segmento))} />
+                    : field.onChange(field.value?.filter((val: any) => val !== segmento))} />
                 <Label htmlFor={segmento} className="text-sm font-normal cursor-pointer">{SEGMENTOS_LABELS[segmento]}</Label>
               </div>
             ))}
@@ -115,7 +115,7 @@ export function SecaoRequisitosTecnicos({ control, errors }: { control: Control<
           <Controller name="requisitosTecnicos.ligamento" control={control} render={({ field }) => (
             <select className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={field.value || ""} onChange={field.onChange}>
               <option value="">Selecione...</option>
-              {LIGAMENTO.map((l) => <option key={l} value={l}>{LIGAMENTO_LABELS[l]}</option>)}
+              {LIGAMENTO.map((l: any) => <option key={l} value={l}>{LIGAMENTO_LABELS[l]}</option>)}
             </select>
           )} />
         </div>
@@ -129,12 +129,12 @@ export function SecaoRequisitosTecnicos({ control, errors }: { control: Control<
           <Label>Tipo de Fibra</Label>
           <Controller name="requisitosTecnicos.tipoFibra" control={control} render={({ field }) => (
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {TIPO_FIBRA.map((fibra) => (
+              {TIPO_FIBRA.map((fibra: any) => (
                 <div key={fibra} className="flex items-center space-x-2">
                   <Checkbox id={fibra} checked={field.value?.includes(fibra)}
                     onCheckedChange={(checked: boolean) => checked
                       ? field.onChange([...(field.value || []), fibra])
-                      : field.onChange(field.value?.filter((val) => val !== fibra))} />
+                      : field.onChange(field.value?.filter((val: any) => val !== fibra))} />
                   <Label htmlFor={fibra} className="text-sm font-normal cursor-pointer">{TIPO_FIBRA_LABELS[fibra]}</Label>
                 </div>
               ))}
@@ -188,12 +188,12 @@ export function SecaoTecnologias({ control }: { control: Control<BriefingTecelag
         <Label>Tecnologias Requeridas</Label>
         <Controller name="tecnologias.requeridas" control={control} render={({ field }) => (
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {TECNOLOGIAS.map((tec) => (
+            {TECNOLOGIAS.map((tec: any) => (
               <div key={tec} className="flex items-center space-x-2">
                 <Checkbox id={tec} checked={field.value?.includes(tec)}
                   onCheckedChange={(checked: boolean) => checked
                     ? field.onChange([...(field.value || []), tec])
-                    : field.onChange(field.value?.filter((val) => val !== tec))} />
+                    : field.onChange(field.value?.filter((val: any) => val !== tec))} />
                 <Label htmlFor={tec} className="text-sm font-normal cursor-pointer">{TECNOLOGIAS_LABELS[tec]}</Label>
               </div>
             ))}
@@ -270,12 +270,12 @@ export function SecaoAcabamento({ control, errors }: { control: Control<Briefing
           <Label>Tipos de Acabamento *</Label>
           <Controller name="acabamento.tipos" control={control} render={({ field }) => (
             <div className="grid grid-cols-2 gap-3">
-              {TIPOS_ACABAMENTO.map((tipo) => (
+              {TIPOS_ACABAMENTO.map((tipo: any) => (
                 <div key={tipo} className="flex items-center space-x-2">
                   <Checkbox id={`acab_${tipo}`} checked={field.value?.includes(tipo)}
                     onCheckedChange={(checked: boolean) => checked
                       ? field.onChange([...(field.value || []), tipo])
-                      : field.onChange(field.value?.filter((val) => val !== tipo))} />
+                      : field.onChange(field.value?.filter((val: any) => val !== tipo))} />
                   <Label htmlFor={`acab_${tipo}`} className="text-sm font-normal cursor-pointer">{TIPOS_ACABAMENTO_LABELS[tipo]}</Label>
                 </div>
               ))}

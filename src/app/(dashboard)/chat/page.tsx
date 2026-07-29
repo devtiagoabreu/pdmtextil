@@ -73,7 +73,7 @@ function ChatList({
 }) {
   return (
     <div className="divide-y divide-slate-100 dark:divide-slate-800">
-      {chats.map((chat) => (
+      {chats.map((chat: any) => (
         <button
           key={chat.id}
           onClick={() => onSelect(chat.id)}
@@ -133,8 +133,8 @@ function NovoChatDialog({ onClose }: { onClose: () => void }) {
 
   useEffect(() => {
     fetch("/api/usuarios/ativos")
-      .then((r) => r.json())
-      .then((data) => setUsuarios(Array.isArray(data) ? data : []))
+      .then((r: any) => r.json())
+      .then((data: any) => setUsuarios(Array.isArray(data) ? data : []))
       .catch(console.error)
   }, [])
 
@@ -173,7 +173,7 @@ function NovoChatDialog({ onClose }: { onClose: () => void }) {
     ? "Selecione..."
     : destinatarios === "todos"
       ? "Todos os usuários"
-      : usuarios.find((u) => u.id.toString() === destinatarios)?.name || "Selecione..."
+      : usuarios.find((u: any) => u.id.toString() === destinatarios)?.name || "Selecione..."
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose}>
@@ -209,8 +209,8 @@ function NovoChatDialog({ onClose }: { onClose: () => void }) {
                   className={`w-full text-left px-3 py-2 text-sm hover:bg-slate-100 dark:hover:bg-slate-700 ${destinatarios === "todos" ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300" : "text-slate-900 dark:text-slate-200"}`}
                 >Todos os usuários</button>
                 {usuarios
-                  .filter((u) => u.id !== parseInt(session?.user?.id || "0"))
-                  .map((u) => (
+                  .filter((u: any) => u.id !== parseInt(session?.user?.id || "0"))
+                  .map((u: any) => (
                     <button
                       key={u.id}
                       type="button"
@@ -269,7 +269,7 @@ function ConversationView({ chatId, onBack }: { chatId: number; onBack: () => vo
 
   const { data: chat } = useQuery({
     queryKey: ["chat", chatId],
-    queryFn: () => fetch(`/api/chats/${chatId}`).then((r) => r.json()),
+    queryFn: () => fetch(`/api/chats/${chatId}`).then((r: any) => r.json()),
   })
 
   const { data: msgsData, refetch } = useQuery({
@@ -280,12 +280,12 @@ function ConversationView({ chatId, onBack }: { chatId: number; onBack: () => vo
 
   const { data: allUsers = [] } = useQuery<{ id: number; name: string }[]>({
     queryKey: ["all-users"],
-    queryFn: () => fetch("/api/usuarios/ativos").then(r => r.json()),
+    queryFn: () => fetch("/api/usuarios/ativos").then((r: any) => r.json()),
     staleTime: 60000,
   })
 
   const allUsersArr = Array.isArray(allUsers) ? allUsers : []
-  const mentionUsers = allUsersArr.filter(u => u.id !== userId)
+  const mentionUsers = allUsersArr.filter((u: any) => u.id !== userId)
 
   const textoAntesCursor = mensagem.slice(0, cursorPos)
   const mentionMatch = textoAntesCursor.match(/@([\wÀ-ÿ]*)$/)
@@ -293,7 +293,7 @@ function ConversationView({ chatId, onBack }: { chatId: number; onBack: () => vo
   const mentionQuery = mentionMatch?.[1]?.toLowerCase() || ""
 
   const mentionOptions = isMentioning && mentionQuery !== undefined
-    ? mentionUsers.filter(u =>
+    ? mentionUsers.filter((u: any) =>
         u.name.toLowerCase().includes(mentionQuery)
       )
     : []
@@ -425,10 +425,10 @@ function ConversationView({ chatId, onBack }: { chatId: number; onBack: () => vo
 
   function renderMensagem(texto: string) {
     const parts = texto.split(/(@\w[\wÀ-ÿ\s]*\w|\B@\w+)/g)
-    return parts.map((part, i) => {
+    return parts.map((part: any, i: any) => {
       if (part.startsWith("@")) {
         const nome = part.slice(1).trim()
-        const isKnown = allUsersArr.some(u => u.name.toLowerCase() === nome.toLowerCase())
+        const isKnown = allUsersArr.some((u: any) => u.name.toLowerCase() === nome.toLowerCase())
         if (isKnown) {
           return (
             <span key={i} className="font-semibold text-blue-500 dark:text-blue-400">
@@ -467,7 +467,7 @@ function ConversationView({ chatId, onBack }: { chatId: number; onBack: () => vo
             <p className="text-sm">Nenhuma mensagem ainda</p>
           </div>
         )}
-        {mensagens.map((msg) => {
+        {mensagens.map((msg: any) => {
           const isMine = msg.remetenteId === userId
           const podeEditar = isMine && isWithin5Min(msg.createdAt)
           return (
@@ -556,7 +556,7 @@ function ConversationView({ chatId, onBack }: { chatId: number; onBack: () => vo
             <div className="px-3 py-1.5 text-[10px] font-medium text-slate-400 uppercase tracking-wider bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-700">
               Usuários
             </div>
-            {mentionOptions.map((user, i) => (
+            {mentionOptions.map((user: any, i: any) => (
               <button
                 key={user.id}
                 type="button"

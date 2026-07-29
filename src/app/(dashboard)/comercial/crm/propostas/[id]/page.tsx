@@ -163,21 +163,21 @@ export default function DetalhePropostaPage() {
             <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100 uppercase tracking-wider mb-3">Status</h2>
             <span
               className={`inline-flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-full font-medium ${
-                STATUS_OPCOES.find((s) => s.value === proposta.status)?.cor || ""
+                STATUS_OPCOES.find((s: any) => s.value === proposta.status)?.cor || ""
               }`}
             >
               {proposta.status === "ACEITA" ? <CheckCircle2 size={14} /> :
                proposta.status === "RECUSADA" ? <XCircle size={14} /> :
                proposta.status === "REVISAO" ? <RefreshCw size={14} /> :
                <Clock size={14} />}
-              {STATUS_OPCOES.find((s) => s.value === proposta.status)?.label || proposta.status}
+              {STATUS_OPCOES.find((s: any) => s.value === proposta.status)?.label || proposta.status}
             </span>
           </div>
 
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
             <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100 uppercase tracking-wider mb-3">Alterar Status</h2>
             <div className="space-y-2">
-              {STATUS_OPCOES.map((opcao) => (
+              {STATUS_OPCOES.map((opcao: any) => (
                 <button
                   key={opcao.value}
                   onClick={() => {

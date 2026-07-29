@@ -47,13 +47,13 @@ export default function NovaRequisicaoCortePage() {
 
   const removeItem = (index: number) => {
     if (itens.length <= 1) return
-    setItens(prev => prev.filter((_, i) => i !== index))
+    setItens(prev => prev.filter((_: any, i: any) => i !== index))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    const itensValidos = itens.filter(item => item.quantidade.trim())
+    const itensValidos = itens.filter((item: any) => item.quantidade.trim())
     if (itensValidos.length === 0) {
       toast.error("Adicione pelo menos um item com quantidade")
       return
@@ -111,7 +111,7 @@ export default function NovaRequisicaoCortePage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {itens.map((item, index) => (
+                {itens.map((item: any, index: any) => (
                   <tr key={index}>
                     <td className="px-3 py-2">
                       <Input

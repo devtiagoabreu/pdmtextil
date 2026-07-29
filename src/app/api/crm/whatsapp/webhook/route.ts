@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
       .from(crmContatos)
       .where(eq(crmContatos.whatsapp, remoteJid))
       .limit(1)
-      .then((r) => r[0] || null)
+      .then((r: any) => r[0] || null)
 
     let empresaId = contato?.empresaId || null
     let leadCriado = null

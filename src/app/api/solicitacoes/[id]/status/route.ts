@@ -95,7 +95,7 @@ async function sincronizarAmostras(solicitacaoId: number, statusAntigo: string, 
     .where(eq(produtosCru.solicitacaoDesenvolvimentoId, solicitacaoId))
 
   if (produtos.length === 0) return
-  const produtoIds = produtos.map(p => p.id)
+  const produtoIds = produtos.map((p: any) => p.id)
 
   if (statusNovo === "PENDENTE" || statusNovo === "EM_DESENVOLVIMENTO") {
     const tecidoNovoStatus = "PENDENTE"
@@ -113,7 +113,7 @@ async function sincronizarAmostras(solicitacaoId: number, statusAntigo: string, 
         .select({ id: produtoCruAcabamento.id })
         .from(produtoCruAcabamento)
         .where(eq(produtoCruAcabamento.produtoCruId, pid))
-      const acabamentoIds = acabamentos.map(a => a.id)
+      const acabamentoIds = acabamentos.map((a: any) => a.id)
       if (acabamentoIds.length > 0) {
         await db
           .update(produtoCruAcabamentoAmostra)
@@ -137,7 +137,7 @@ async function sincronizarAmostras(solicitacaoId: number, statusAntigo: string, 
         .select({ id: produtoCruAcabamento.id })
         .from(produtoCruAcabamento)
         .where(eq(produtoCruAcabamento.produtoCruId, pid))
-      const acabamentoIds = acabamentos.map(a => a.id)
+      const acabamentoIds = acabamentos.map((a: any) => a.id)
       if (acabamentoIds.length > 0) {
         await db
           .update(produtoCruAcabamentoAmostra)
@@ -161,7 +161,7 @@ async function sincronizarAmostras(solicitacaoId: number, statusAntigo: string, 
         .select({ id: produtoCruAcabamento.id })
         .from(produtoCruAcabamento)
         .where(eq(produtoCruAcabamento.produtoCruId, pid))
-      const acabamentoIds = acabamentos.map(a => a.id)
+      const acabamentoIds = acabamentos.map((a: any) => a.id)
       if (acabamentoIds.length > 0) {
         await db
           .update(produtoCruAcabamentoAmostra)

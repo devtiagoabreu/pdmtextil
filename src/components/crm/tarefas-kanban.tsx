@@ -107,25 +107,25 @@ export default function TarefasKanban({ tarefas }: { tarefas: TarefaCard[] }) {
 
   const getLabel = useCallback((nome: string) => {
     if (hasStatuses) {
-      const s = statuses.find(s => s.nome === nome)
+      const s = statuses.find((s: any) => s.nome === nome)
       return s?.rotulo || nome
     }
-    return DEFAULT_STATUSES.find(s => s.nome === nome)?.rotulo || nome
+    return DEFAULT_STATUSES.find((s: any) => s.nome === nome)?.rotulo || nome
   }, [hasStatuses, statuses])
 
   const getColor = useCallback((nome: string) => {
     if (hasStatuses) {
-      const s = statuses.find(s => s.nome === nome)
+      const s = statuses.find((s: any) => s.nome === nome)
       return s?.cor || "#94a3b8"
     }
-    return DEFAULT_STATUSES.find(s => s.nome === nome)?.cor || "#94a3b8"
+    return DEFAULT_STATUSES.find((s: any) => s.nome === nome)?.cor || "#94a3b8"
   }, [hasStatuses, statuses])
 
   const colunas = effectiveStatuses
-    .filter(s => s.ativo !== false)
-    .map(col => ({
+    .filter((s: any) => s.ativo !== false)
+    .map((col: any) => ({
       ...col,
-      cards: cards.filter(t => t.status === col.nome),
+      cards: cards.filter((t: any) => t.status === col.nome),
     }))
 
   const handleDragStart = (event: any) => {
@@ -148,7 +148,7 @@ export default function TarefasKanban({ tarefas }: { tarefas: TarefaCard[] }) {
     const statusAntigo = tarefa.status
 
     setCards(prev =>
-      prev.map(t => t.id === tarefa.id ? { ...t, status: novoStatus } : t)
+      prev.map((t: any) => t.id === tarefa.id ? { ...t, status: novoStatus } : t)
     )
 
     try {
@@ -164,7 +164,7 @@ export default function TarefasKanban({ tarefas }: { tarefas: TarefaCard[] }) {
       toast.success(`Tarefa movida para ${getLabel(novoStatus)}`)
     } catch (err: any) {
       setCards(prev =>
-        prev.map(t => t.id === tarefa.id ? { ...t, status: statusAntigo } : t)
+        prev.map((t: any) => t.id === tarefa.id ? { ...t, status: statusAntigo } : t)
       )
       toast.error(err.message)
     }
@@ -178,9 +178,9 @@ export default function TarefasKanban({ tarefas }: { tarefas: TarefaCard[] }) {
     <div className="flex flex-col h-[calc(100vh-280px)]">
       <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div className="flex-1 min-h-0 flex gap-4 overflow-x-auto pb-2">
-          {colunas.map(col => (
+          {colunas.map((col: any) => (
             <DroppableColumn key={col.nome} id={col.nome} rotulo={col.rotulo || col.nome} cor={col.cor} count={col.cards.length}>
-              {col.cards.map(card => (
+              {col.cards.map((card: any) => (
                 <DraggableCard key={`tar-${card.id}`} tarefa={card} />
               ))}
             </DroppableColumn>

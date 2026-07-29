@@ -44,8 +44,8 @@ export default function CorFormPage() {
   useEffect(() => {
     if (isEditing && id) {
       fetch(`/api/cadastros/cores/${id}`)
-        .then(res => res.json())
-        .then(data => {
+        .then((res: any) => res.json())
+        .then((data: any) => {
           setCor({
             id: data.id,
             codigo: data.codigo || "",
@@ -56,7 +56,7 @@ export default function CorFormPage() {
             idIntegracao: data.idIntegracao || "",
           })
         })
-        .catch(err => console.error(err))
+        .catch((err: any) => console.error(err))
         .finally(() => setLoading(false))
     } else {
       setLoading(false)

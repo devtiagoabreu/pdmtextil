@@ -52,8 +52,8 @@ export default function RelatorioAmostrasPorStatus() {
     if (dataFim) params.set("dataFim", dataFim)
 
     fetch(`/api/relatorios/amostras-por-status?${params}`)
-      .then((r) => r.json())
-      .then((data) => {
+      .then((r: any) => r.json())
+      .then((data: any) => {
         setStats(data.stats)
         setPorMes(data.porMes || [])
         setLista(data.lista || [])
@@ -74,7 +74,7 @@ export default function RelatorioAmostrasPorStatus() {
 
   function handleExportCSV() {
     setTimeout(() => {
-      exportCSV(`amostras-${selectedStatus.toLowerCase()}`, ["#", "Tipo", "Produto", "Descrição", "Data", "Criado em"], lista.map((r) => [
+      exportCSV(`amostras-${selectedStatus.toLowerCase()}`, ["#", "Tipo", "Produto", "Descrição", "Data", "Criado em"], lista.map((r: any) => [
         r.id,
         r.tipoAmostra === "TECIDO_CRU" ? "Cru" : "Acab.",
         r.produtoCodigo,
@@ -95,8 +95,8 @@ export default function RelatorioAmostrasPorStatus() {
         "Acabamento": stats.acabamento,
       } : undefined,
       tables: [
-        { headers: ["Mês", "Total"], rows: porMes.map((m) => [m.mes, m.total]) },
-        { headers: ["#", "Tipo", "Produto", "Descrição", "Data", "Criado em"], rows: lista.map((r) => [
+        { headers: ["Mês", "Total"], rows: porMes.map((m: any) => [m.mes, m.total]) },
+        { headers: ["#", "Tipo", "Produto", "Descrição", "Data", "Criado em"], rows: lista.map((r: any) => [
           r.id,
           r.tipoAmostra === "TECIDO_CRU" ? "Cru" : "Acab.",
           r.produtoCodigo,
@@ -131,7 +131,7 @@ export default function RelatorioAmostrasPorStatus() {
             onChange={(e) => setSelectedStatus(e.target.value)}
             className="h-9 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 text-sm min-w-[200px]"
           >
-            {statuses.map((s) => (
+            {statuses.map((s: any) => (
               <option key={s.nome} value={s.nome}>{s.rotulo}</option>
             ))}
           </select>
@@ -242,7 +242,7 @@ export default function RelatorioAmostrasPorStatus() {
                 </tr>
               </thead>
               <tbody>
-                {lista.map((r) => (
+                {lista.map((r: any) => (
                   <tr key={`${r.tipoAmostra}-${r.id}`} className="border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/30">
                     <td className="p-3 font-medium text-slate-700 dark:text-slate-300">#{r.id}</td>
                     <td className="p-3">

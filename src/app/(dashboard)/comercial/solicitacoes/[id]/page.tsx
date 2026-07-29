@@ -163,8 +163,8 @@ export default function DetalheSolicitacaoPage() {
 
   useEffect(() => {
     fetch("/api/admin/status?tipo=SOLICITACAO_DESENVOLVIMENTO")
-      .then(r => r.json())
-      .then(data => {
+      .then((r: any) => r.json())
+      .then((data: any) => {
         if (Array.isArray(data)) {
           setStatusOptions(data.map((s: any) => ({ value: s.nome, label: s.rotulo || s.nome })))
         }
@@ -179,8 +179,8 @@ export default function DetalheSolicitacaoPage() {
   useEffect(() => {
     if (id) {
       fetch(`/api/solicitacoes/${id}/produtos-cru`)
-        .then(r => r.json())
-        .then(data => setProdutos(Array.isArray(data) ? data : []))
+        .then((r: any) => r.json())
+        .then((data: any) => setProdutos(Array.isArray(data) ? data : []))
         .catch(console.error)
     }
   }, [id])
@@ -360,8 +360,8 @@ export default function DetalheSolicitacaoPage() {
               </SelectTrigger>
               <SelectContent>
                 {statusOptions
-                  .filter(s => s.value !== sol.status)
-                  .map(s => (
+                  .filter((s: any) => s.value !== sol.status)
+                  .map((s: any) => (
                     <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
                   ))}
               </SelectContent>
@@ -571,7 +571,7 @@ export default function DetalheSolicitacaoPage() {
           </h2>
           {produtos.length > 0 ? (
             <div className="space-y-3">
-              {produtos.map(p => (
+              {produtos.map((p: any) => (
                 <Link prefetch={false}
                   key={p.id}
                   href={`/cadastros/produto-cru/${p.id}`}

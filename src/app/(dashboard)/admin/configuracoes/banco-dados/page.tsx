@@ -55,7 +55,7 @@ export default function BancoDadosPage() {
 
   useEffect(() => {
     fetch("/api/admin/config/banco-dados")
-      .then(res => res.json())
+      .then((res: any) => res.json())
       .then(setLista)
       .catch(() => toast.error("Erro ao carregar conexÃµes"))
       .finally(() => setLoading(false))
@@ -95,7 +95,7 @@ export default function BancoDadosPage() {
         body: JSON.stringify({ id: item.id, ativo: true }),
       })
       if (!res.ok) throw new Error()
-      setLista(prev => prev.map(c => ({ ...c, ativo: c.id === item.id })))
+      setLista(prev => prev.map((c: any) => ({ ...c, ativo: c.id === item.id })))
       toast.success(`"${item.nome}" definido como ativo`)
     } catch {
       toast.error("Erro ao ativar conexÃ£o")
@@ -111,7 +111,7 @@ export default function BancoDadosPage() {
         body: JSON.stringify({ id }),
       })
       if (!res.ok) throw new Error()
-      setLista(prev => prev.filter(c => c.id !== id))
+      setLista(prev => prev.filter((c: any) => c.id !== id))
       toast.success("ConexÃ£o removida")
     } catch {
       toast.error("Erro ao remover conexÃ£o")
@@ -155,7 +155,7 @@ export default function BancoDadosPage() {
       toast.error("Preencha todos os campos")
       return
     }
-    const destino = cloneDestinoId ? lista.find(c => c.id === Number(cloneDestinoId)) : null
+    const destino = cloneDestinoId ? lista.find((c: any) => c.id === Number(cloneDestinoId)) : null
     if (!destino) {
       toast.error("Selecione a conexÃ£o de destino")
       return
@@ -224,7 +224,7 @@ export default function BancoDadosPage() {
       toast.error("Preencha todos os campos")
       return
     }
-    const standby = redundStandbyId ? lista.find(c => c.id === Number(redundStandbyId)) : null
+    const standby = redundStandbyId ? lista.find((c: any) => c.id === Number(redundStandbyId)) : null
     if (!standby) {
       toast.error("Selecione a conexÃ£o standby")
       return
@@ -276,7 +276,7 @@ export default function BancoDadosPage() {
           {lista.length === 0 ? (
             <p className="p-6 text-sm text-slate-500 text-center">Nenhuma conexÃ£o cadastrada</p>
           ) : (
-            lista.map(item => (
+            lista.map((item: any) => (
               <div key={item.id} className="flex items-center justify-between p-4">
                 <div className="flex items-center gap-3 min-w-0">
                   {item.ativo ? (
@@ -398,7 +398,7 @@ export default function BancoDadosPage() {
                 onChange={e => setCloneDestinoId(e.target.value)}
               >
                 <option value="">Selecione...</option>
-                {lista.filter(c => c.id !== cloneOrigem?.id).map(c => (
+                {lista.filter((c: any) => c.id !== cloneOrigem?.id).map((c: any) => (
                   <option key={c.id} value={c.id}>{c.nome}</option>
                 ))}
               </select>
@@ -444,7 +444,7 @@ export default function BancoDadosPage() {
                 onChange={e => setRedundStandbyId(e.target.value)}
               >
                 <option value="">Selecione...</option>
-                {lista.filter(c => c.id !== redundPrimario?.id).map(c => (
+                {lista.filter((c: any) => c.id !== redundPrimario?.id).map((c: any) => (
                   <option key={c.id} value={c.id}>{c.nome}</option>
                 ))}
               </select>
@@ -479,7 +479,7 @@ export default function BancoDadosPage() {
             {baixandoBackup ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
             {baixandoBackup ? "Gerando..." : "Download Backup"}
           </Button>
-          {lista.some(c => c.ativo) && (
+          {lista.some((c: any) => c.ativo) && (
             <p className="text-xs text-slate-400 self-center">
               Usando conexÃ£o ativa
             </p>

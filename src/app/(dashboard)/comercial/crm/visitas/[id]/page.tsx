@@ -25,7 +25,7 @@ const TIPO_OPTIONS = [
   { value: "TELEFONE", label: "Telefone" },
 ]
 
-const TIPO_LABELS: Record<string, string> = Object.fromEntries(TIPO_OPTIONS.map(o => [o.value, o.label]))
+const TIPO_LABELS: Record<string, string> = Object.fromEntries(TIPO_OPTIONS.map((o: any) => [o.value, o.label]))
 
 export default function DetalheVisitaPage() {
   const router = useRouter()
@@ -60,7 +60,7 @@ export default function DetalheVisitaPage() {
 
   useEffect(() => {
     if (form.uf) {
-      const found = estados.find(e => e.uf === form.uf)
+      const found = estados.find((e: any) => e.uf === form.uf)
       setEstadoId(found ? found.id : null)
     } else {
       setEstadoId(null)
@@ -376,7 +376,7 @@ export default function DetalheVisitaPage() {
                     onChange={e => setField("status", e.target.value)}
                     className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
                   >
-                    {STATUS_OPTIONS.map(s => (
+                    {STATUS_OPTIONS.map((s: any) => (
                       <option key={s} value={s}>{getLabel(s)}</option>
                     ))}
                   </select>
@@ -399,7 +399,7 @@ export default function DetalheVisitaPage() {
                     onChange={e => setField("tipo", e.target.value)}
                     className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
                   >
-                    {TIPO_OPTIONS.map(opt => (
+                    {TIPO_OPTIONS.map((opt: any) => (
                       <option key={opt.value} value={opt.value}>{opt.label}</option>
                     ))}
                   </select>

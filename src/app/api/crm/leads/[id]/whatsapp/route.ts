@@ -48,7 +48,7 @@ export async function GET(
           )
         )
         .limit(1)
-        .then((r) => r[0] || null)
+        .then((r: any) => r[0] || null)
 
       if (contato?.whatsapp) {
         remoteJid = contato.whatsapp
@@ -121,7 +121,7 @@ export async function POST(
           )
         )
         .limit(1)
-        .then((r) => r[0] || null)
+        .then((r: any) => r[0] || null)
 
       if (contato?.whatsapp) {
         remoteJid = contato.whatsapp

@@ -175,7 +175,7 @@ export default function ClientesPage() {
           </div>
         ) : (
           <div className="grid gap-4 p-4 md:grid-cols-2 lg:grid-cols-3">
-            {filteredData.map((cliente) => (
+            {filteredData.map((cliente: any) => (
               <div
                 key={cliente.id}
                 className="rounded-lg border border-slate-200 dark:border-slate-700 p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
@@ -267,7 +267,7 @@ export default function ClientesPage() {
                 <p className="text-center text-sm text-slate-500 py-12">Nenhuma solicitaÃ§Ã£o encontrada</p>
               ) : (
                 <div className="space-y-2">
-                  {solicModal.data.map(s => (
+                  {solicModal.data.map((s: any) => (
                     <Link prefetch={false}
                       key={s.id}
                       href={`/comercial/solicitacoes/${s.id}`}
@@ -325,7 +325,7 @@ export default function ClientesPage() {
                 <p className="text-center text-sm text-slate-500 py-12">Nenhuma amostra encontrada</p>
               ) : (
                 <div className="space-y-2">
-                  {amostraModal.data.map(a => (
+                  {amostraModal.data.map((a: any) => (
                     <Link prefetch={false}
                       key={`${a.tipoAmostra}-${a.id}`}
                       href={`/amostras?focoAmostra=${a.id}&tipo=${a.tipoAmostra}`}

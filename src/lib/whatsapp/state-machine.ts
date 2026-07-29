@@ -107,7 +107,7 @@ export function maquinaEstados(
     }
   } else if (curEstado === "COLETANDO_INTERESSE") {
     const linhas = parseLinhas(msgOriginal, maxNumero)
-    const temNomeLinha = linhas.map(n => linhaMap[n]?.toLowerCase() || "").some(nome => msg.includes(nome))
+    const temNomeLinha = linhas.map((n: any) => linhaMap[n]?.toLowerCase() || "").some((nome: any) => msg.includes(nome))
     if (linhas.length > 0 || temNomeLinha) {
       dados.linhasInteresse = linhas
       dados.linhasInteresseNomes = linhasNomes(linhas, linhaMap)

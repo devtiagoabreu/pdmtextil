@@ -72,21 +72,21 @@ export async function GET() {
       totalOportunidades,
       totalVisitas: getCount(visitasTotal),
       totalCampanhas: getCount(campanhasTotal),
-      leadsPorOrigem: leadsPorOrigem.map((r) => ({ origem: r.origem, total: Number(r.total) })),
-      oportunidadesPorStatus: oportunidadesPorStatus.map((r) => ({
+      leadsPorOrigem: leadsPorOrigem.map((r: any) => ({ origem: r.origem, total: Number(r.total) })),
+      oportunidadesPorStatus: oportunidadesPorStatus.map((r: any) => ({
         status: r.status,
         total: Number(r.total),
         valor: Number(r.valor),
       })),
       oportunidadesPorResponsavel: oportunidadesPorResponsavel
-        .filter((r) => r.nome)
-        .map((r) => ({
+        .filter((r: any) => r.nome)
+        .map((r: any) => ({
           nome: r.nome!,
           total: Number(r.total),
           valor: Number(r.valor),
         })),
-      tarefasPorStatus: tarefasPorStatus.map((r) => ({ status: r.status, total: Number(r.total) })),
-      propostasPorStatus: propostasPorStatus.map((r) => ({ status: r.status, total: Number(r.total) })),
+      tarefasPorStatus: tarefasPorStatus.map((r: any) => ({ status: r.status, total: Number(r.total) })),
+      propostasPorStatus: propostasPorStatus.map((r: any) => ({ status: r.status, total: Number(r.total) })),
       taxaConversao: {
         ganhas,
         perdidas,

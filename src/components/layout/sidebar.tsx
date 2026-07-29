@@ -47,12 +47,12 @@ const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { on
 
   useEffect(() => {
     fetch("/api/user/pagina-inicial")
-      .then(r => r.json())
-      .then(data => { if (data?.paginaInicial) setPaginaInicial(data.paginaInicial) })
+      .then((r: any) => r.json())
+      .then((data: any) => { if (data?.paginaInicial) setPaginaInicial(data.paginaInicial) })
       .catch(console.error)
     fetch("/api/user/menus")
-      .then(r => r.json())
-      .then(data => {
+      .then((r: any) => r.json())
+      .then((data: any) => {
         if (Array.isArray(data)) setMenus(data)
       })
       .catch(() => setMenus([]))
@@ -90,7 +90,7 @@ const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { on
         {loading ? (
           <div className="py-4"><Loader2 size={16} className="animate-spin text-slate-400" /></div>
         ) : (
-          menus.map(menu => {
+          menus.map((menu: any) => {
             const menuActive = menu.itens.some((i: MenuItem) => isAtiva(i.url))
             const firstItem = menu.itens[0]
             return (
@@ -151,7 +151,7 @@ const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { on
             <Loader2 size={18} className="animate-spin text-slate-400" />
           </div>
         ) : menus.length > 0 ? (
-          menus.map(menu => {
+          menus.map((menu: any) => {
             const menuActive = menu.itens.some((i: MenuItem) => isAtiva(i.url))
             const isExpanded = expandedMenus.has(menu.id)
             return (
@@ -170,7 +170,7 @@ const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { on
                 </button>
                 {isExpanded && (
                   <div className="ml-4 mt-0.5 space-y-0.5 border-l border-slate-200 dark:border-slate-700 pl-2">
-                    {menu.itens.map(item => (
+                    {menu.itens.map((item: any) => (
                       <Link prefetch={false}
                         key={item.id}
                         href={item.url}

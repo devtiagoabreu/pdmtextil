@@ -52,8 +52,8 @@ export default function RelatorioSolicitacoesPorStatus() {
     if (dataFim) params.set("dataFim", dataFim)
 
     fetch(`/api/relatorios/solicitacoes-por-status?${params}`)
-      .then((r) => r.json())
-      .then((data) => {
+      .then((r: any) => r.json())
+      .then((data: any) => {
         setStats(data.stats)
         setPorMes(data.porMes || [])
         setLista(data.lista || [])
@@ -75,7 +75,7 @@ export default function RelatorioSolicitacoesPorStatus() {
   function handleExportCSV() {
     const rotulo = getStatusLabel(selectedStatus)
     setTimeout(() => {
-      exportCSV(`solicitacoes-${selectedStatus.toLowerCase()}`, ["#", "Cliente", "Projeto", "Tipo", "Criado em", "ConcluÃ­do em", "Prazo"], lista.map((r) => [
+      exportCSV(`solicitacoes-${selectedStatus.toLowerCase()}`, ["#", "Cliente", "Projeto", "Tipo", "Criado em", "ConcluÃ­do em", "Prazo"], lista.map((r: any) => [
         r.id,
         r.cliente,
         r.projeto || "-",
@@ -97,8 +97,8 @@ export default function RelatorioSolicitacoesPorStatus() {
         "Beneficiamento": stats.beneficiamento,
       } : undefined,
       tables: [
-        { headers: ["MÃªs", "Total"], rows: porMes.map((m) => [m.mes, m.total]) },
-        { headers: ["#", "Cliente", "Projeto", "Tipo", "Criado em", "ConcluÃ­do em", "Prazo"], rows: lista.map((r) => [
+        { headers: ["MÃªs", "Total"], rows: porMes.map((m: any) => [m.mes, m.total]) },
+        { headers: ["#", "Cliente", "Projeto", "Tipo", "Criado em", "ConcluÃ­do em", "Prazo"], rows: lista.map((r: any) => [
           r.id,
           r.cliente,
           r.projeto || "-",
@@ -134,7 +134,7 @@ export default function RelatorioSolicitacoesPorStatus() {
             onChange={(e) => setSelectedStatus(e.target.value)}
             className="h-9 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 text-sm min-w-[200px]"
           >
-            {statuses.map((s) => (
+            {statuses.map((s: any) => (
               <option key={s.nome} value={s.nome}>{s.rotulo}</option>
             ))}
           </select>
@@ -246,7 +246,7 @@ export default function RelatorioSolicitacoesPorStatus() {
                 </tr>
               </thead>
               <tbody>
-                {lista.map((r) => {
+                {lista.map((r: any) => {
                   const prazoDate = r.prazoDesejado ? new Date(r.prazoDesejado) : null
                   const hoje = new Date()
                   const vencido = prazoDate && prazoDate < hoje

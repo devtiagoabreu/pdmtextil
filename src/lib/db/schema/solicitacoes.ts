@@ -18,7 +18,7 @@ export const solicitacoes = pgTable("solicitacoes", {
   idIntegracao: varchar("id_integracao", { length: 100 }),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-}, (t) => [
+}, (t: any) => [
   index("idx_solicitacoes_status").on(t.status),
   index("idx_solicitacoes_created_at").on(t.createdAt),
   index("idx_solicitacoes_solicitante").on(t.solicitanteId),

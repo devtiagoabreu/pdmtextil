@@ -5,8 +5,8 @@ export function exportCSV(
 ) {
   const csvContent = [
     headers.join(","),
-    ...rows.map((row) =>
-      row.map((cell) => {
+    ...rows.map((row: any) =>
+      row.map((cell: any) => {
         const val = cell?.toString() ?? ""
         return val.includes(",") || val.includes('"') || val.includes("\n")
           ? `"${val.replace(/"/g, '""')}"`
@@ -178,7 +178,7 @@ export async function exportPDFRelatorio(options: {
       if (table.rows.length === 0) continue
 
       const head = [table.headers]
-      const body = table.rows.map(row => row.map(cell => cell?.toString() ?? "-"))
+      const body = table.rows.map((row: any) => row.map((cell: any) => cell?.toString() ?? "-"))
 
       ;(doc as any).autoTable({
         head,

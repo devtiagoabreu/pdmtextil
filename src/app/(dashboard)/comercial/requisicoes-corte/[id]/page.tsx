@@ -60,8 +60,8 @@ export default function DetalheRequisicaoCortePage() {
   useEffect(() => {
     setMounted(true)
     fetch("/api/admin/status?tipo=REQUISICAO_CORTE")
-      .then(r => r.json())
-      .then(data => {
+      .then((r: any) => r.json())
+      .then((data: any) => {
         if (Array.isArray(data)) setStatusOptions(data.map((s: any) => ({ value: s.nome, label: s.rotulo || s.nome, cor: s.cor })))
       })
       .catch(console.error)
@@ -70,8 +70,8 @@ export default function DetalheRequisicaoCortePage() {
   useEffect(() => {
     if (!mounted || !id) return
     fetch(`/api/comercial/requisicoes-corte/${id}?t=${Date.now()}`)
-      .then(res => { if (!res.ok) throw new Error(); return res.json() })
-      .then(d => {
+      .then((res: any) => { if (!res.ok) throw new Error(); return res.json() })
+      .then((d: any) => {
         setObservacoes(d.observacoes || "")
         setEntreguePor(d.entreguePor || "")
         setStatus(d.status || "")
@@ -96,11 +96,11 @@ export default function DetalheRequisicaoCortePage() {
 
   const removeItem = (index: number) => {
     if (itens.length <= 1) return
-    setItens(prev => prev.filter((_, i) => i !== index))
+    setItens(prev => prev.filter((_: any, i: any) => i !== index))
   }
 
   const handleSave = async () => {
-    const itensValidos = itens.filter(item => item.quantidade.trim())
+    const itensValidos = itens.filter((item: any) => item.quantidade.trim())
     if (itensValidos.length === 0) {
       toast.error("Adicione pelo menos um item com quantidade")
       return
@@ -137,7 +137,7 @@ export default function DetalheRequisicaoCortePage() {
 
   const statusCfg = STATUS_CONFIG[status] ?? { label: status, classes: "bg-slate-100 text-slate-600" }
   const totalCortes = itens.length
-  const totalQtd = itens.reduce((acc, item) => {
+  const totalQtd = itens.reduce((acc: any, item: any) => {
     const num = parseFloat(item.quantidade.replace(/[^0-9.,]/g, "").replace(",", "."))
     return acc + (isNaN(num) ? 0 : num)
   }, 0)
@@ -207,7 +207,7 @@ export default function DetalheRequisicaoCortePage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-              {itens.map((item, index) => (
+              {itens.map((item: any, index: any) => (
                 <tr key={item.id ?? index}>
                   <td className="px-3 py-2">
                     <Input
@@ -302,7 +302,7 @@ export default function DetalheRequisicaoCortePage() {
                 <SelectValue placeholder="Selecione o status" />
               </SelectTrigger>
               <SelectContent>
-                {statusOptions.map(s => (
+                {statusOptions.map((s: any) => (
                   <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
                 ))}
               </SelectContent>

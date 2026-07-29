@@ -48,7 +48,7 @@ export async function PUT(req: NextRequest) {
     if (!id) {
       return NextResponse.json({ error: "id é obrigatório" }, { status: 400 })
     }
-    await db.transaction(async (tx) => {
+    await db.transaction(async (tx: any) => {
       if (data.isDefault) {
         await tx.update(configEmpresa).set({ isDefault: false })
       }

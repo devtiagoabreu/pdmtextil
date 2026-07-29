@@ -111,22 +111,22 @@ export async function GET() {
       return r ? Number(r.total) : 0
     }
 
-    const statusDistribution = statusConfigs.map(c => ({
+    const statusDistribution = statusConfigs.map((c: any) => ({
       status: c.nome,
       rotulo: c.rotulo,
       cor: c.cor,
       total: getCount(cruStatus, c.nome) + getCount(acabStatus, c.nome),
     }))
 
-    const totalGeral = statusDistribution.reduce((acc, s) => acc + s.total, 0)
+    const totalGeral = statusDistribution.reduce((acc: any, s: any) => acc + s.total, 0)
     const totalCru = cruStatus.reduce((acc: number, r: any) => acc + Number(r.total), 0)
     const totalAcab = acabStatus.reduce((acc: number, r: any) => acc + Number(r.total), 0)
 
-    const statusDistribCru = statusConfigs.map(c => ({
+    const statusDistribCru = statusConfigs.map((c: any) => ({
       status: c.nome,
       total: getCount(cruStatus, c.nome),
     }))
-    const statusDistribAcab = statusConfigs.map(c => ({
+    const statusDistribAcab = statusConfigs.map((c: any) => ({
       status: c.nome,
       total: getCount(acabStatus, c.nome),
     }))

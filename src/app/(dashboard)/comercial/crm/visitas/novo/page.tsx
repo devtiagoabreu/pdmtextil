@@ -75,15 +75,15 @@ export default function NovaVisitaPage() {
     async function load() {
       try {
         const [empresasRes, oportunidadesRes, clientesRes] = await Promise.allSettled([
-          fetch("/api/crm/pessoas").then(r => {
+          fetch("/api/crm/pessoas").then((r: any) => {
             if (!r.ok) throw new Error(`pessoas ${r.status}`)
             return r.json()
           }),
-          fetch("/api/crm/oportunidades").then(r => {
+          fetch("/api/crm/oportunidades").then((r: any) => {
             if (!r.ok) throw new Error(`oportunidades ${r.status}`)
             return r.json()
           }),
-          fetch("/api/clientes").then(r => {
+          fetch("/api/clientes").then((r: any) => {
             if (!r.ok) throw new Error(`clientes ${r.status}`)
             return r.json()
           }),
@@ -115,12 +115,12 @@ export default function NovaVisitaPage() {
   }, [form.empresaId, form.clienteId, tipoEntidade])
 
   useEffect(() => {
-    fetch("/api/crm/estados").then(r => r.json()).then(setEstados).catch(console.error)
+    fetch("/api/crm/estados").then((r: any) => r.json()).then(setEstados).catch(console.error)
   }, [])
 
   useEffect(() => {
     if (form.uf) {
-      const found = estados.find(e => e.uf === form.uf)
+      const found = estados.find((e: any) => e.uf === form.uf)
       setEstadoId(found ? found.id : null)
     } else {
       setEstadoId(null)
@@ -416,7 +416,7 @@ export default function NovaVisitaPage() {
                   required
                 >
                   <option value="">Selecione...</option>
-                  {clientesList.map(c => (
+                  {clientesList.map((c: any) => (
                     <option key={c.id} value={String(c.id)}>{c.nome}</option>
                   ))}
                 </select>
@@ -438,7 +438,7 @@ export default function NovaVisitaPage() {
                   required
                 >
                   <option value="">Selecione...</option>
-                  {empresas.map(e => (
+                  {empresas.map((e: any) => (
                     <option key={e.id} value={String(e.id)}>{e.razaoSocial || e.nomeFantasia}</option>
                   ))}
                 </select>
@@ -483,7 +483,7 @@ export default function NovaVisitaPage() {
                 onChange={e => setField("tipo", e.target.value)}
                 className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                {TIPO_OPTIONS.map(opt => (
+                {TIPO_OPTIONS.map((opt: any) => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>
                 ))}
               </select>

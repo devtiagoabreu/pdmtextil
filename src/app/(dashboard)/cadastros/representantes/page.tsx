@@ -48,7 +48,7 @@ export default function RepresentantesPage() {
     queryFn: fetchRepresentantes,
   })
 
-  const filteredRepresentantes = representantes.filter(c =>
+  const filteredRepresentantes = representantes.filter((c: any) =>
     c.nome.toLowerCase().includes(search.toLowerCase()) ||
     c.cnpj?.toLowerCase().includes(search.toLowerCase()) ||
     c.email?.toLowerCase().includes(search.toLowerCase())
@@ -141,7 +141,7 @@ export default function RepresentantesPage() {
               </tr>
             </thead>
             <tbody>
-              {filteredRepresentantes.map((r) => (
+              {filteredRepresentantes.map((r: any) => (
                 <tr
                   key={r.id}
                   className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"

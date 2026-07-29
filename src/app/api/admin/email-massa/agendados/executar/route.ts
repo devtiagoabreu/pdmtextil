@@ -98,7 +98,7 @@ export async function POST(req: NextRequest) {
         if (agendado.modoEnvio === "bcc") {
           const trackingId = crypto.randomUUID()
           const comTracking = aplicarTracking(htmlWithPreheader, trackingId, baseUrl)
-          const result = await enviarEmailFn({ to: destinatarios[0].email, subject: agendado.assunto, html: comTracking, bcc: destinatarios.slice(1).map(d => d.email) })
+          const result = await enviarEmailFn({ to: destinatarios[0].email, subject: agendado.assunto, html: comTracking, bcc: destinatarios.slice(1).map((d: any) => d.email) })
           if (result.sent > 0) {
             enviados = destinatarios.length
             await db.insert(emailEnviados).values({ remessaId, email: destinatarios[0].email, nome: destinatarios[0].nome, assunto: agendado.assunto, status: "enviado", trackingId })

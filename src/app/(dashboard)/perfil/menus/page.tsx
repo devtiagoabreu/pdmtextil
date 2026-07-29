@@ -271,9 +271,9 @@ export default function ConfigurarMenusPage() {
 
   useEffect(() => {
     Promise.all([
-      fetch("/api/user/menus").then(r => r.json()),
-      fetch("/api/user/pagina-inicial").then(r => r.json()),
-      fetch("/api/user/menus/todas-telas").then(r => r.json()),
+      fetch("/api/user/menus").then((r: any) => r.json()),
+      fetch("/api/user/pagina-inicial").then((r: any) => r.json()),
+      fetch("/api/user/menus/todas-telas").then((r: any) => r.json()),
     ]).then(([menusData, paginaData, telasData]) => {
       setMenus(Array.isArray(menusData) ? menusData : [])
       setPaginaInicial(paginaData.paginaInicial || "/dashboard")
@@ -356,7 +356,7 @@ export default function ConfigurarMenusPage() {
     try {
       const res = await fetch(`/api/user/menus/${id}`, { method: "DELETE" })
       if (!res.ok) throw new Error()
-      const data = await fetch("/api/user/menus").then(r => r.json())
+      const data = await fetch("/api/user/menus").then((r: any) => r.json())
       if (Array.isArray(data)) setMenus(data)
       toast.success("Menu excluído")
     } catch {
@@ -374,7 +374,7 @@ export default function ConfigurarMenusPage() {
         body: JSON.stringify(form),
       })
       if (!res.ok) throw new Error()
-      const data = await fetch("/api/user/menus").then(r => r.json())
+      const data = await fetch("/api/user/menus").then((r: any) => r.json())
       if (Array.isArray(data)) setMenus(data)
       setEditingMenuId(null)
       toast.success("Menu atualizado")
@@ -386,7 +386,7 @@ export default function ConfigurarMenusPage() {
   async function criarItem(menuId: number) {
     const telaId = editForm[`novo-item-${menuId}`]
     if (!telaId) { toast.error("Selecione uma tela"); return }
-    const tela = telas.find(t => t.id === telaId)
+    const tela = telas.find((t: any) => t.id === telaId)
     if (!tela) return
     try {
       const res = await fetch(`/api/user/menus/${menuId}/itens`, {
@@ -396,7 +396,7 @@ export default function ConfigurarMenusPage() {
       })
       if (!res.ok) throw new Error()
       const item = await res.json()
-      setMenus(prev => prev.map(m => m.id === menuId ? { ...m, itens: [...m.itens, item] } : m))
+      setMenus(prev => prev.map((m: any) => m.id === menuId ? { ...m, itens: [...m.itens, item] } : m))
       setEditForm(prev => ({ ...prev, [`novo-item-${menuId}`]: "" }))
       toast.success("Item adicionado")
     } catch {
@@ -409,7 +409,7 @@ export default function ConfigurarMenusPage() {
     try {
       const res = await fetch(`/api/user/menus/${menuId}/itens/${itemId}`, { method: "DELETE" })
       if (!res.ok) throw new Error()
-      setMenus(prev => prev.map(m => m.id === menuId ? { ...m, itens: m.itens.filter(i => i.id !== itemId) } : m))
+      setMenus(prev => prev.map((m: any) => m.id === menuId ? { ...m, itens: m.itens.filter((i: any) => i.id !== itemId) } : m))
       toast.success("Item excluído")
     } catch {
       toast.error("Erro ao excluir item")
@@ -427,7 +427,7 @@ export default function ConfigurarMenusPage() {
       })
       if (!res.ok) throw new Error()
       const updated = await res.json()
-      setMenus(prev => prev.map(m => m.id === menuId ? { ...m, itens: m.itens.map(i => i.id === itemId ? { ...i, ...updated } : i) } : m))
+      setMenus(prev => prev.map((m: any) => m.id === menuId ? { ...m, itens: m.itens.map((i: any) => i.id === itemId ? { ...i, ...updated } : i) } : m))
       setEditingItemId(null)
       toast.success("Item atualizado")
     } catch {
@@ -452,7 +452,7 @@ export default function ConfigurarMenusPage() {
       const res = await fetch("/api/user/menus/reorder", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ids: reordered.map(m => m.id) }),
+        body: JSON.stringify({ ids: reordered.map((m: any) => m.id) }),
       })
       if (!res.ok) throw new Error()
       const data = await res.json()
@@ -469,7 +469,7 @@ export default function ConfigurarMenusPage() {
     const { active, over } = event
     if (!over || active.id === over.id) return
 
-    const menu = menus.find(m => m.id === menuId)
+    const menu = menus.find((m: any) => m.id === menuId)
     if (!menu) return
 
     const oldIndex = menu.itens.findIndex(i => i.id === active.id)
@@ -477,22 +477,22 @@ export default function ConfigurarMenusPage() {
     if (oldIndex === -1 || newIndex === -1) return
 
     const reordered = arrayMove(menu.itens, oldIndex, newIndex)
-    setMenus(prev => prev.map(m => m.id === menuId ? { ...m, itens: reordered } : m))
+    setMenus(prev => prev.map((m: any) => m.id === menuId ? { ...m, itens: reordered } : m))
 
     try {
       const res = await fetch(`/api/user/menus/${menuId}/itens/reorder`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ids: reordered.map(i => i.id) }),
+        body: JSON.stringify({ ids: reordered.map((i: any) => i.id) }),
       })
       if (!res.ok) throw new Error()
       const data = await res.json()
       if (Array.isArray(data)) {
-        setMenus(prev => prev.map(m => m.id === menuId ? { ...m, itens: data } : m))
+        setMenus(prev => prev.map((m: any) => m.id === menuId ? { ...m, itens: data } : m))
       }
     } catch {
       toast.error("Erro ao reordenar itens")
-      setMenus(prev => prev.map(m => m.id === menuId ? { ...m, itens: arrayMove(reordered, newIndex, oldIndex) } : m))
+      setMenus(prev => prev.map((m: any) => m.id === menuId ? { ...m, itens: arrayMove(reordered, newIndex, oldIndex) } : m))
     }
   }
 
@@ -526,7 +526,7 @@ export default function ConfigurarMenusPage() {
                 <SelectValue placeholder="Selecione a página inicial" />
               </SelectTrigger>
               <SelectContent>
-                {telas.map(t => (
+                {telas.map((t: any) => (
                   <SelectItem key={t.id} value={t.href}>{t.label}</SelectItem>
                 ))}
               </SelectContent>
@@ -565,9 +565,9 @@ export default function ConfigurarMenusPage() {
             collisionDetection={closestCenter}
             onDragEnd={handleMenuDragEnd}
           >
-            <SortableContext items={menus.map(m => m.id)} strategy={verticalListSortingStrategy}>
+            <SortableContext items={menus.map((m: any) => m.id)} strategy={verticalListSortingStrategy}>
               <div className="space-y-3">
-                {menus.map(menu => (
+                {menus.map((menu: any) => (
                   <SortableMenu
                     key={menu.id}
                     menu={menu}
@@ -592,8 +592,8 @@ export default function ConfigurarMenusPage() {
                           collisionDetection={closestCenter}
                           onDragEnd={(event) => handleItemDragEnd(event, menu.id)}
                         >
-                          <SortableContext items={menu.itens.map(i => i.id)} strategy={verticalListSortingStrategy}>
-                            {menu.itens.map(item => (
+                          <SortableContext items={menu.itens.map((i: any) => i.id)} strategy={verticalListSortingStrategy}>
+                            {menu.itens.map((item: any) => (
                               <SortableItem
                                 key={item.id}
                                 item={item}
@@ -628,7 +628,7 @@ export default function ConfigurarMenusPage() {
                                 <SelectValue placeholder="Selecionar tela..." />
                               </SelectTrigger>
                               <SelectContent>
-                                {telas.map(t => (
+                                {telas.map((t: any) => (
                                   <SelectItem key={t.id} value={t.id}>{t.label}</SelectItem>
                                 ))}
                               </SelectContent>
@@ -669,7 +669,7 @@ export default function ConfigurarMenusPage() {
                 <SelectValue placeholder="Selecione um usuário..." />
               </SelectTrigger>
               <SelectContent>
-                {usuarios.map(u => (
+                {usuarios.map((u: any) => (
                   <SelectItem key={u.id} value={u.id.toString()}>{u.name}</SelectItem>
                 ))}
               </SelectContent>

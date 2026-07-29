@@ -36,7 +36,7 @@ export default function TreinamentoPage() {
 
   const { data: modulos, isLoading } = useQuery<Modulo[]>({
     queryKey: ["crm-treinamento"],
-    queryFn: () => fetch("/api/crm/treinamento").then((r) => r.json()),
+    queryFn: () => fetch("/api/crm/treinamento").then((r: any) => r.json()),
   })
 
   return (
@@ -76,7 +76,7 @@ export default function TreinamentoPage() {
         <div className="text-center py-12 text-slate-400">Carregando...</div>
       ) : (
         <div className="space-y-4">
-          {modulos?.filter((m) => m.ativo).map((modulo) => (
+          {modulos?.filter((m: any) => m.ativo).map((modulo: any) => (
             <div
               key={modulo.id}
               className="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden"
@@ -108,11 +108,11 @@ export default function TreinamentoPage() {
 
               {moduloAberto === modulo.id && (
                 <div className="border-t border-slate-200 dark:border-slate-700">
-                  {modulo.licoes.filter((l) => l.ativo).length === 0 ? (
+                  {modulo.licoes.filter((l: any) => l.ativo).length === 0 ? (
                     <p className="p-4 text-sm text-slate-400 text-center">Nenhuma liÃ§Ã£o neste mÃ³dulo</p>
                   ) : (
                     <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                      {modulo.licoes.filter((l) => l.ativo).map((licao) => (
+                      {modulo.licoes.filter((l: any) => l.ativo).map((licao: any) => (
                         <Link prefetch={false}
                           key={licao.id}
                           href={`/comercial/crm/treinamento/${licao.id}`}

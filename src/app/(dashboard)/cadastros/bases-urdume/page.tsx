@@ -75,7 +75,7 @@ export default function BasesUrdumePage() {
     }
   }
 
-  const filteredBases = bases.filter(b => 
+  const filteredBases = bases.filter((b: any) => 
     b.nome.toLowerCase().includes(search.toLowerCase()) ||
     b.codigoBase.toLowerCase().includes(search.toLowerCase())
   )
@@ -147,7 +147,7 @@ export default function BasesUrdumePage() {
               </tr>
             </thead>
             <tbody>
-              {filteredBases.map((base) => (
+              {filteredBases.map((base: any) => (
                 <tr
                   key={base.id}
                   className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"

@@ -53,7 +53,7 @@ export default function ProdutoCruPage() {
     queryFn: fetchProdutos,
   })
 
-  const filtered = produtos.filter(p =>
+  const filtered = produtos.filter((p: any) =>
     p.codigoPdm.toLowerCase().includes(search.toLowerCase()) ||
     p.descricao.toLowerCase().includes(search.toLowerCase())
   )
@@ -148,7 +148,7 @@ export default function ProdutoCruPage() {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((produto) => (
+              {filtered.map((produto: any) => (
                 <tr
                   key={produto.id}
                   className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"

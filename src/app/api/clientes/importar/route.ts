@@ -34,12 +34,12 @@ const campoMap: Record<string, keyof ClienteImport> = {
 
 function parseCSV(texto: string): ClienteImport[] {
   const textoNormalizado = texto.replace(/\r\n/g, "\n").replace(/\r/g, "\n")
-  const linhas = textoNormalizado.split("\n").filter(l => l.trim())
+  const linhas = textoNormalizado.split("\n").filter((l: any) => l.trim())
   
   if (linhas.length < 2) return []
 
   const separador = texto.includes(";") ? ";" : ","
-  const cabecalho = linhas[0].split(separador).map(c => c.trim().toLowerCase())
+  const cabecalho = linhas[0].split(separador).map((c: any) => c.trim().toLowerCase())
   
   const dados: ClienteImport[] = []
 
@@ -47,7 +47,7 @@ function parseCSV(texto: string): ClienteImport[] {
     const linha = linhas[i]
     if (!linha.trim()) continue
     
-    const valores = linha.split(separador).map(v => v.trim())
+    const valores = linha.split(separador).map((v: any) => v.trim())
     
     const item: ClienteImport = {}
     
@@ -73,7 +73,7 @@ function parseJSON(texto: string): ClienteImport[] {
   try {
     const dados = JSON.parse(texto)
     if (Array.isArray(dados)) {
-      return dados.filter(item => item.nome || item.cnpj)
+      return dados.filter((item: any) => item.nome || item.cnpj)
     }
     return []
   } catch {

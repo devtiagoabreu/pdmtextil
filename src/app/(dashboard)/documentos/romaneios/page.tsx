@@ -119,8 +119,8 @@ export default function RomaneiosPage() {
   useEffect(() => {
     setLoadingInt(true)
     fetch("/api/integracao/listar?tela=romaneios")
-      .then((res) => res.json())
-      .then((data) => {
+      .then((res: any) => res.json())
+      .then((data: any) => {
         setIntegracoes(data)
         if (data.length > 0) setSelectedId(data[0].id)
       })
@@ -160,7 +160,7 @@ export default function RomaneiosPage() {
       grupo.totalPesoBruto += item.peso_bruto || 0
       grupo.totalPesoLiquido += item.peso_liquido || 0
     }
-    return Array.from(map.values()).sort((a, b) => b.romaneio - a.romaneio)
+    return Array.from(map.values()).sort((a: any, b: any) => b.romaneio - a.romaneio)
   }, [itensFiltrados])
 
   const buscar = useCallback(async (search?: string) => {
@@ -349,7 +349,7 @@ export default function RomaneiosPage() {
       if (!lotesMap.has(loteNome)) lotesMap.set(loteNome, [])
       lotesMap.get(loteNome)!.push(r)
     }
-    const produtosOrdenados = Array.from(produtosMap.entries()).sort((a, b) => a[0].localeCompare(b[0]))
+    const produtosOrdenados = Array.from(produtosMap.entries()).sort((a: any, b: any) => a[0].localeCompare(b[0]))
 
     const head = [
       ["#", "Cód. Rolo", "Produto", "Narrativa", "Lote", "Metragem", "P. Bruto", "P. Líquido", "Largura", "Endereço"],
@@ -357,7 +357,7 @@ export default function RomaneiosPage() {
     const body: any[] = []
 
     for (const [prodNome, lotesMap] of produtosOrdenados) {
-      const lotesOrdenados = Array.from(lotesMap.entries()).sort((a, b) => a[0].localeCompare(b[0]))
+      const lotesOrdenados = Array.from(lotesMap.entries()).sort((a: any, b: any) => a[0].localeCompare(b[0]))
 
       let prodRolos = 0
       let prodMetragem = 0
@@ -396,7 +396,7 @@ export default function RomaneiosPage() {
           },
         ])
 
-        rolos.forEach((r, idx) => {
+        rolos.forEach((r: any, idx: any) => {
           body.push([
             String(idx + 1),
             String(r.codigo_rolo),
@@ -468,7 +468,7 @@ export default function RomaneiosPage() {
   }
 
   async function gerarPdf(numero: number, orientacao?: OrientacaoPdf) {
-    const grupo = grupos.find((g) => g.romaneio === numero)
+    const grupo = grupos.find((g: any) => g.romaneio === numero)
     if (!grupo) return
 
     setGerandoPdf(true)
@@ -530,9 +530,9 @@ export default function RomaneiosPage() {
         }
       } catch {}
 
-      const nums = Array.from(selectedRomaneios).sort((a, b) => a - b)
+      const nums = Array.from(selectedRomaneios).sort((a: any, b: any) => a - b)
       for (let i = 0; i < nums.length; i++) {
-        const grupo = grupos.find((g) => g.romaneio === nums[i])
+        const grupo = grupos.find((g: any) => g.romaneio === nums[i])
         if (!grupo) continue
         if (i > 0) doc.addPage()
         await renderRomaneioPage(doc, grupo, nums[i], isLandscape, pageWidth, empresa, logoImg)
@@ -595,7 +595,7 @@ export default function RomaneiosPage() {
               <div>
                 <label className="text-xs font-medium text-slate-500 mb-1 block">Integração</label>
                 <div className="flex gap-2 flex-wrap">
-                  {integracoes.map((int) => (
+                  {integracoes.map((int: any) => (
                     <button
                       key={int.id}
                       type="button"
@@ -689,7 +689,7 @@ export default function RomaneiosPage() {
                 </p>
               )}
               <div className="space-y-6">
-              {grupos.map((grupo) => (
+              {grupos.map((grupo: any) => (
                 <div
                   key={grupo.romaneio}
                   className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden"
@@ -796,10 +796,10 @@ export default function RomaneiosPage() {
                                 if (!lm.has(l)) lm.set(l, [])
                                 lm.get(l)!.push(r)
                               }
-                              const prodsSorted = Array.from(prodsMap.entries()).sort((a, b) => a[0].localeCompare(b[0]))
+                              const prodsSorted = Array.from(prodsMap.entries()).sort((a: any, b: any) => a[0].localeCompare(b[0]))
                               const trs: React.ReactNode[] = []
                               for (const [prodNome, lotesMap] of prodsSorted) {
-                                const lotsSorted = Array.from(lotesMap.entries()).sort((a, b) => a[0].localeCompare(b[0]))
+                                const lotsSorted = Array.from(lotesMap.entries()).sort((a: any, b: any) => a[0].localeCompare(b[0]))
                                 let prodRolos = 0
                                 let prodMetragem = 0
                                 let prodPesoBruto = 0
@@ -831,7 +831,7 @@ export default function RomaneiosPage() {
                                       </td>
                                     </tr>
                                   )
-                                  rolos.forEach((rolo, idx) => {
+                                  rolos.forEach((rolo: any, idx: any) => {
                                     trs.push(
                                       <tr key={rolo.codigo_rolo} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                                         <td className="px-3 py-2 text-sm text-slate-500 text-center font-mono text-[12px]">{idx + 1}</td>

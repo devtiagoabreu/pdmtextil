@@ -172,7 +172,7 @@ export default function TarefasPage() {
       {modo === "tabela" && (
       <>
       <div className="flex gap-2 flex-wrap">
-        {FILTROS.map((f) => (
+        {FILTROS.map((f: any) => (
           <button
             key={f.key}
             onClick={() => setFiltro(f.key)}

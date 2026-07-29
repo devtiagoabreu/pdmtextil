@@ -75,7 +75,7 @@ export default function VisitasDashboardPage() {
 
   const { data, isLoading } = useQuery<VisitasDashboardData>({
     queryKey: ["visitas-dashboard", visitasFilter],
-    queryFn: () => fetch(`/api/crm/visitas/dashboard${visitasFilter === "minhas" ? "?mine=true" : ""}`).then((r) => r.json()),
+    queryFn: () => fetch(`/api/crm/visitas/dashboard${visitasFilter === "minhas" ? "?mine=true" : ""}`).then((r: any) => r.json()),
     retry: 1,
   })
 
@@ -202,7 +202,7 @@ export default function VisitasDashboardPage() {
                   <ResponsiveContainer width="100%" height={200}>
                     <RPieChart>
                       <Pie
-                        data={data.byTipo.map((t) => ({
+                        data={data.byTipo.map((t: any) => ({
                           name: TIPO_LABELS[t.tipo] || t.tipo,
                           value: t.total,
                           fill: TIPO_CORES[t.tipo] || "#6366f1",
@@ -219,7 +219,7 @@ export default function VisitasDashboardPage() {
                     </RPieChart>
                   </ResponsiveContainer>
                   <div className="flex flex-wrap gap-2 justify-center mt-2">
-                    {data.byTipo.map((t) => (
+                    {data.byTipo.map((t: any) => (
                       <span
                         key={t.tipo}
                         className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
@@ -248,7 +248,7 @@ export default function VisitasDashboardPage() {
                 <>
                   <ResponsiveContainer width="100%" height={220}>
                     <BarChart
-                      data={data.byStatus.map((s) => ({
+                      data={data.byStatus.map((s: any) => ({
                         name: STATUS_LABELS[s.status] || s.status,
                         value: s.total,
                       }))}
@@ -259,14 +259,14 @@ export default function VisitasDashboardPage() {
                       <YAxis tick={{ fontSize: 11 }} stroke="#94a3b8" allowDecimals={false} />
                       <Tooltip content={<ChartTooltip formatter={(v) => `${v} visitas`} />} />
                       <Bar dataKey="value" radius={[4, 4, 0, 0]} animationDuration={1800} animationEasing="ease-in-out" animationBegin={800}>
-                        {data.byStatus.map((s, i) => (
+                        {data.byStatus.map((s: any, i: any) => (
                           <Cell key={i} fill={STATUS_CORES[s.status] || CHART_COLORS[i % CHART_COLORS.length]} />
                         ))}
                       </Bar>
                     </BarChart>
                   </ResponsiveContainer>
                   <div className="flex flex-wrap gap-1.5 justify-center mt-1">
-                    {data.byStatus.map((s, i) => (
+                    {data.byStatus.map((s: any, i: any) => (
                       <span
                         key={s.status}
                         className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
@@ -299,7 +299,7 @@ export default function VisitasDashboardPage() {
             </div>
             {data?.porRepresentante && data.porRepresentante.length > 0 ? (
               <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                {data.porRepresentante.map((rep, i) => (
+                {data.porRepresentante.map((rep: any, i: any) => (
                   <div key={rep.representanteId ?? i} className="flex items-center justify-between p-3">
                     <div className="flex items-center gap-3 min-w-0">
                       <span className="text-xs font-bold text-slate-400 w-5">{i + 1}.</span>
@@ -334,7 +334,7 @@ export default function VisitasDashboardPage() {
             </div>
             {data?.ultimasVisitas && data.ultimasVisitas.length > 0 ? (
               <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                {data.ultimasVisitas.map((visita) => (
+                {data.ultimasVisitas.map((visita: any) => (
                   <div key={visita.id} className="flex items-center justify-between gap-2 p-3">
                     <div className="flex items-center gap-2 min-w-0 shrink">
                       <Link prefetch={false}

@@ -27,8 +27,8 @@ export default function NovoContatoPage() {
 
   useEffect(() => {
     fetch("/api/crm/pessoas")
-      .then(r => r.json())
-      .then(data => { if (Array.isArray(data)) setEmpresas(data) })
+      .then((r: any) => r.json())
+      .then((data: any) => { if (Array.isArray(data)) setEmpresas(data) })
       .catch(() => toast.error("Erro ao carregar empresas"))
   }, [])
 

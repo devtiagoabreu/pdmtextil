@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
       .select({ count: sql<number>`COUNT(${crmNotificacoes.id})` })
       .from(crmNotificacoes)
       .where(eq(crmNotificacoes.lida, false))
-      .then((r) => Number(r[0]?.count || 0))
+      .then((r: any) => Number(r[0]?.count || 0))
 
     return NextResponse.json({ lista, naoLidas })
   } catch (error) {

@@ -204,7 +204,7 @@ export default function RolesPage() {
                   </td>
                 </tr>
               ) : (
-                roles.map((r) => (
+                roles.map((r: any) => (
                   <tr key={r.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
                     <td className="p-3 text-sm font-mono font-medium text-slate-900 dark:text-slate-100">
                       {r.name}

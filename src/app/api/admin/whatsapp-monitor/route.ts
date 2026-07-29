@@ -57,7 +57,7 @@ export async function GET(req: NextRequest) {
       .orderBy(desc(sql`MIN(${crmWhatsappFlowLogs.createdAt})`))
       .limit(limit)
 
-    const executionIds = recentExecutions.map((e) => e.executionId)
+    const executionIds = recentExecutions.map((e: any) => e.executionId)
     if (executionIds.length === 0) {
       return NextResponse.json({ executions: [] })
     }
@@ -65,7 +65,7 @@ export async function GET(req: NextRequest) {
     const allSteps = await db
       .select()
       .from(crmWhatsappFlowLogs)
-      .where(sql`${crmWhatsappFlowLogs.executionId} IN (${sql.join(executionIds.map((id) => sql`${id}`), sql`, `)})`)
+      .where(sql`${crmWhatsappFlowLogs.executionId} IN (${sql.join(executionIds.map((id: any) => sql`${id}`), sql`, `)})`)
       .orderBy(crmWhatsappFlowLogs.createdAt)
 
     const stepsByExecution = new Map<string, typeof allSteps>()
@@ -75,10 +75,10 @@ export async function GET(req: NextRequest) {
       stepsByExecution.set(step.executionId, arr)
     }
 
-    const executions = recentExecutions.map((exec) => ({
+    const executions = recentExecutions.map((exec: any) => ({
       ...exec,
-      steps: STEP_ORDER.map((stepName) => {
-        const step = stepsByExecution.get(exec.executionId)?.find((s) => s.step === stepName)
+      steps: STEP_ORDER.map((stepName: any) => {
+        const step = stepsByExecution.get(exec.executionId)?.find((s: any) => s.step === stepName)
         return step
           ? {
               step: step.step,
@@ -89,7 +89,7 @@ export async function GET(req: NextRequest) {
               output: step.output,
             }
           : { step: stepName, status: "skipped", durationMs: 0, error: null, input: null, output: null }
-      }).filter((s) => stepsByExecution.get(exec.executionId)?.some((x) => x.step === s.step)),
+      }).filter((s: any) => stepsByExecution.get(exec.executionId)?.some((x: any) => x.step === s.step)),
     }))
 
     return NextResponse.json({ executions })

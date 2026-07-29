@@ -47,7 +47,7 @@ export default function AdminTreinamentoPage() {
 
   const { data: modulos, isLoading } = useQuery<ModuloComLicoes[]>({
     queryKey: ["crm-treinamento"],
-    queryFn: () => fetch("/api/crm/treinamento").then((r) => r.json()),
+    queryFn: () => fetch("/api/crm/treinamento").then((r: any) => r.json()),
   })
 
   const deleteLicao = useMutation({
@@ -177,7 +177,7 @@ export default function AdminTreinamentoPage() {
         </div>
       ) : (
         <div className="space-y-6">
-          {modulos?.map((modulo) => (
+          {modulos?.map((modulo: any) => (
             <div key={modulo.id} className="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden">
               <div className="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
                 <div
@@ -210,11 +210,11 @@ export default function AdminTreinamentoPage() {
                 </div>
               </div>
 
-              {modulo.licoes.filter((l) => l.ativo).length === 0 ? (
+              {modulo.licoes.filter((l: any) => l.ativo).length === 0 ? (
                 <p className="p-4 text-sm text-slate-400 text-center">Nenhuma liÃ§Ã£o neste mÃ³dulo</p>
               ) : (
                 <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                  {modulo.licoes.filter((l) => l.ativo).map((licao) => (
+                  {modulo.licoes.filter((l: any) => l.ativo).map((licao: any) => (
                     <div key={licao.id} className="flex items-center gap-3 px-4 py-2.5 group">
                       <FileText size={15} className="text-slate-400 shrink-0" />
                       <span className="text-sm text-slate-700 dark:text-slate-300 flex-1">{licao.titulo}</span>

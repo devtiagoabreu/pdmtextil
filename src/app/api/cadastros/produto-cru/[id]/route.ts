@@ -37,7 +37,7 @@ export async function GET(
     const amostras = await db.select().from(produtoCruAmostra).where(eq(produtoCruAmostra.produtoCruId, id))
     const acabamentos = await db.select().from(produtoCruAcabamento).where(eq(produtoCruAcabamento.produtoCruId, id))
 
-    const acabamentoIds = acabamentos.map(a => a.id)
+    const acabamentoIds = acabamentos.map((a: any) => a.id)
     const [todasAmostrasAcab, todasReceitas] = await Promise.all([
       acabamentoIds.length
         ? db.select().from(produtoCruAcabamentoAmostra).where(inArray(produtoCruAcabamentoAmostra.acabamentoId, acabamentoIds))
@@ -59,7 +59,7 @@ export async function GET(
       receitasPorAcab.get(r.acabamentoId)!.push(r)
     }
 
-    const acabamentosCompletos = acabamentos.map(acab => ({
+    const acabamentosCompletos = acabamentos.map((acab: any) => ({
       ...acab,
       amostras: amostrasPorAcab.get(acab.id) || [],
       receitas: receitasPorAcab.get(acab.id) || [],
@@ -91,7 +91,7 @@ export async function PUT(
 
     // Apenas COMERCIAL e ADMIN podem aprovar/reprovar produto
     if (body.status === "APROVADO" || body.status === "REPROVADO") {
-      if (!["COMERCIAL", "ADMIN", "SUDO"].includes(session.user.role)) {
+      if (!["COMERCIAL", "ADMIN", "SUDO"].includes(session.user?.role ?? "")) {
         return NextResponse.json({ error: "Apenas COMERCIAL, ADMIN e SUDO podem aprovar/reprovar produtos" }, { status: 403 })
       }
     }
@@ -121,7 +121,7 @@ export async function PUT(
     }
     if (body.status !== undefined) updateData.status = body.status
 
-    const [atualizado] = await db.transaction(async (tx) => {
+    const [atualizado] = await db.transaction(async (tx: any) => {
       const [updated] = await tx
         .update(produtosCru)
         .set(updateData)

@@ -60,7 +60,7 @@ export default function HistoricoAmostraPage() {
   }, [selectedId, selectedTipo, fetchHistory])
 
   useEffect(() => {
-    fetch("/api/amostras").then(r => r.json()).then((res) => {
+    fetch("/api/amostras").then((r: any) => r.json()).then((res: any) => {
       const combined = [
         ...(res.tecidoCru || []).map((a: any) => ({ ...a, tipoAmostra: "tecido_cru" })),
         ...(res.acabamento || []).map((a: any) => ({ ...a, tipoAmostra: "acabamento" })),
@@ -122,7 +122,7 @@ export default function HistoricoAmostraPage() {
         detalhes: l.dados ? [JSON.stringify(l.dados)] : undefined,
       })
     }
-    entries.sort((a, b) => new Date(a.data).getTime() - new Date(b.data).getTime())
+    entries.sort((a: any, b: any) => new Date(a.data).getTime() - new Date(b.data).getTime())
     return entries
   }, [data])
 
@@ -132,7 +132,7 @@ export default function HistoricoAmostraPage() {
     const tipoLabel = data.tipo === "tecido_cru" ? "Tecido Cru" : "Acabamento"
     const statusLabel = a.status || "â€”"
 
-    const timelineRows: (string | number | null | undefined)[][] = timeline.map((e) => [
+    const timelineRows: (string | number | null | undefined)[][] = timeline.map((e: any) => [
       new Date(e.data).toLocaleString("pt-BR"),
       e.usuario,
       e.descricao,
@@ -407,7 +407,7 @@ export default function HistoricoAmostraPage() {
             </h3>
             {timeline.length > 0 ? (
               <div className="space-y-0 max-h-[600px] overflow-y-auto">
-                {timeline.map((entry, idx) => (
+                {timeline.map((entry: any, idx: any) => (
                   <TimelineItem key={idx} entry={entry} isLast={idx === timeline.length - 1} />
                 ))}
               </div>
@@ -461,7 +461,7 @@ function TimelineItem({ entry, isLast }: { entry: TimelineEntry; isLast: boolean
         <p className="text-sm text-slate-600 dark:text-slate-400 mt-0.5">{entry.descricao}</p>
         {entry.detalhes && entry.detalhes.length > 0 && (
           <ul className="mt-1 space-y-0.5">
-            {entry.detalhes.map((d, i) => (
+            {entry.detalhes.map((d: any, i: any) => (
               <li key={i} className="text-xs text-slate-500 dark:text-slate-500">â€¢ {d}</li>
             ))}
           </ul>

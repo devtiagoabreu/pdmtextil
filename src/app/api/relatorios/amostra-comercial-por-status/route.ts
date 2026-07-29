@@ -81,7 +81,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({
       total,
       porStatus,
-      porMes: porMesRaw.map((r) => ({ mes: r.mes, total: Number(r.total) })),
+      porMes: porMesRaw.map((r: any) => ({ mes: r.mes, total: Number(r.total) })),
       lista,
     })
   } catch (error) {

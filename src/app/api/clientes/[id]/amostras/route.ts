@@ -42,7 +42,7 @@ export async function GET(
       return NextResponse.json({ tecidoCru: [], acabamento: [] })
     }
 
-    const solicitacaoIds = solicitacoesList.map(s => s.id)
+    const solicitacaoIds = solicitacoesList.map((s: any) => s.id)
 
     const produtos = await db
       .select({ id: produtosCru.id, codigoPdm: produtosCru.codigoPdm, descricao: produtosCru.descricao, solicitacaoDesenvolvimentoId: produtosCru.solicitacaoDesenvolvimentoId })
@@ -53,7 +53,7 @@ export async function GET(
       return NextResponse.json({ tecidoCru: [], acabamento: [] })
     }
 
-    const produtoIds = produtos.map(p => p.id)
+    const produtoIds = produtos.map((p: any) => p.id)
 
     const amostrasCru = await db
       .select({
@@ -79,7 +79,7 @@ export async function GET(
     let amostrasAcabamento: any[] = []
 
     if (acabamentoIds.length > 0) {
-      const acIds = acabamentoIds.map(a => a.id)
+      const acIds = acabamentoIds.map((a: any) => a.id)
       amostrasAcabamento = await db
         .select({
           id: produtoCruAcabamentoAmostra.id,
@@ -101,8 +101,8 @@ export async function GET(
     }
 
     return NextResponse.json({
-      tecidoCru: amostrasCru.map(a => ({ ...a, tipoAmostra: "TECIDO_CRU" })),
-      acabamento: amostrasAcabamento.map(a => ({ ...a, tipoAmostra: "ACABAMENTO" })),
+      tecidoCru: amostrasCru.map((a: any) => ({ ...a, tipoAmostra: "TECIDO_CRU" })),
+      acabamento: amostrasAcabamento.map((a: any) => ({ ...a, tipoAmostra: "ACABAMENTO" })),
     })
   } catch (error) {
     console.error("[GET /api/clientes/[id]/amostras]", error)

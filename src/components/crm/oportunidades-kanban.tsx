@@ -98,17 +98,17 @@ export default function OportunidadesKanban({ oportunidades }: { oportunidades: 
 
   const getLabelSafe = useCallback((nome: string) => {
     if (hasStatuses) {
-      const s = statuses.find(s => s.nome === nome)
+      const s = statuses.find((s: any) => s.nome === nome)
       return s?.rotulo || nome
     }
-    return DEFAULT_STATUSES.find(s => s.nome === nome)?.rotulo || nome
+    return DEFAULT_STATUSES.find((s: any) => s.nome === nome)?.rotulo || nome
   }, [hasStatuses, statuses])
 
   const colunas = effectiveStatuses
-    .filter(s => s.ativo !== false)
-    .map(col => ({
+    .filter((s: any) => s.ativo !== false)
+    .map((col: any) => ({
       ...col,
-      cards: (data.length > 0 ? data : oportunidades).filter(o => o.status === col.nome),
+      cards: (data.length > 0 ? data : oportunidades).filter((o: any) => o.status === col.nome),
     }))
 
   const handleDragStart = (event: any) => {
@@ -135,13 +135,13 @@ export default function OportunidadesKanban({ oportunidades }: { oportunidades: 
       setMotivoPerda("")
       setShowMotivoPerda(true)
       setData(prev =>
-        prev.map(o => o.id === oportunidade.id ? { ...o, status: novoStatus } : o)
+        prev.map((o: any) => o.id === oportunidade.id ? { ...o, status: novoStatus } : o)
       )
       return
     }
 
     setData(prev =>
-      prev.map(o => o.id === oportunidade.id ? { ...o, status: novoStatus } : o)
+      prev.map((o: any) => o.id === oportunidade.id ? { ...o, status: novoStatus } : o)
     )
 
     try {
@@ -157,7 +157,7 @@ export default function OportunidadesKanban({ oportunidades }: { oportunidades: 
       toast.success(`Oportunidade movida para ${getLabelSafe(novoStatus)}`)
     } catch (err: any) {
       setData(prev =>
-        prev.map(o => o.id === oportunidade.id ? { ...o, status: statusAntigo } : o)
+        prev.map((o: any) => o.id === oportunidade.id ? { ...o, status: statusAntigo } : o)
       )
       toast.error(err.message)
     }
@@ -176,7 +176,7 @@ export default function OportunidadesKanban({ oportunidades }: { oportunidades: 
       toast.success("Oportunidade marcada como Perdida")
     } catch (err: any) {
       setData(prev =>
-        prev.map(o => o.id === pendingMove.id ? { ...o, status: pendingMove.statusAntigo } : o)
+        prev.map((o: any) => o.id === pendingMove.id ? { ...o, status: pendingMove.statusAntigo } : o)
       )
       toast.error(err.message)
     }
@@ -188,7 +188,7 @@ export default function OportunidadesKanban({ oportunidades }: { oportunidades: 
   function cancelarPerda() {
     if (pendingMove) {
       setData(prev =>
-        prev.map(o => o.id === pendingMove.id ? { ...o, status: pendingMove.statusAntigo } : o)
+        prev.map((o: any) => o.id === pendingMove.id ? { ...o, status: pendingMove.statusAntigo } : o)
       )
     }
     setShowMotivoPerda(false)
@@ -204,9 +204,9 @@ export default function OportunidadesKanban({ oportunidades }: { oportunidades: 
     <div className="flex flex-col h-[calc(100vh-280px)]">
       <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div className="flex-1 min-h-0 flex gap-4 overflow-x-auto pb-2">
-          {colunas.map(col => (
+          {colunas.map((col: any) => (
             <DroppableColumn key={col.nome} id={col.nome} rotulo={col.rotulo || col.nome} cor={col.cor} count={col.cards.length}>
-              {col.cards.map(card => (
+              {col.cards.map((card: any) => (
                 <DraggableCard key={`op-${card.id}`} oportunidade={card} />
               ))}
             </DroppableColumn>

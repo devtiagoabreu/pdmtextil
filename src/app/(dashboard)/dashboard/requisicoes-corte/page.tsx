@@ -49,9 +49,9 @@ export default function DashboardReqCorte() {
 
   useEffect(() => {
     fetch("/api/dashboard/requisicoes-corte-stats")
-      .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json() })
+      .then((r: any) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json() })
       .then(setStats)
-      .catch((e) => setError(e.message))
+      .catch((e: any) => setError(e.message))
       .finally(() => setLoading(false))
   }, [])
 
@@ -102,7 +102,7 @@ export default function DashboardReqCorte() {
       ) : (
         <>
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
-            {CARDS.map((stat) => (
+            {CARDS.map((stat: any) => (
               <button
                 key={stat.key}
                 type="button"
@@ -119,7 +119,7 @@ export default function DashboardReqCorte() {
             {[
               { label: "Total de Cortes", value: stats?.totalCortes ?? 0, color: "text-purple-600 dark:text-purple-400", bg: "bg-purple-50 dark:bg-purple-950/50" },
               { label: "Qtd Total (Itens)", value: stats?.totalItens ?? 0, color: "text-pink-600 dark:text-pink-400", bg: "bg-pink-50 dark:bg-pink-950/50" },
-            ].map((stat) => (
+            ].map((stat: any) => (
               <div key={stat.label} className={`rounded-xl border border-slate-200 dark:border-slate-800 ${stat.bg} p-3 card-hover`}>
                 <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{stat.label}</p>
                 <p className={`text-2xl font-bold mt-1 ${stat.color}`}>{stat.value}</p>

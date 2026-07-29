@@ -55,8 +55,8 @@ export default function RelatorioTempoStatus() {
     if (filtroDataFim) params.set("dataFim", filtroDataFim)
 
     fetch(`/api/relatorios/tempo-status?${params}`)
-      .then((r) => r.json())
-      .then((data) => {
+      .then((r: any) => r.json())
+      .then((data: any) => {
         setResultados(data.resultados || [])
         setStats(data.stats)
       })
@@ -68,7 +68,7 @@ export default function RelatorioTempoStatus() {
 
   function handleExportCSV() {
     const rows = resultados.flatMap((r) =>
-      r.timeline.map((t) => [
+      r.timeline.map((t: any) => [
         `#${r.id}`,
         r.cliente,
         r.statusAtualLabel,
@@ -80,7 +80,7 @@ export default function RelatorioTempoStatus() {
     )
     exportCSV("tempo-status", ["Solicitação", "Cliente", "Status Atual", "Status", "Entrada", "Saída", "Duração"], rows)
     setTimeout(() => {
-      exportCSV("tempo-status-resumo", ["#", "Cliente", "Status", "Tempo Total", "Trocas"], resultados.map((r) => [
+      exportCSV("tempo-status-resumo", ["#", "Cliente", "Status", "Tempo Total", "Trocas"], resultados.map((r: any) => [
         r.id,
         r.cliente,
         r.statusAtualLabel,
@@ -100,11 +100,11 @@ export default function RelatorioTempoStatus() {
         "Média Trocas": stats.mediaTrocasStatus,
       } : undefined,
       tables: [
-        { headers: ["#", "Cliente", "Status", "Tempo Total", "Trocas"], rows: resultados.map((r) => [
+        { headers: ["#", "Cliente", "Status", "Tempo Total", "Trocas"], rows: resultados.map((r: any) => [
           `#${r.id}`, r.cliente, r.statusAtualLabel, r.tempoTotalLabel, r.trocasStatus,
         ])},
         { headers: ["Solicitação", "Status", "Entrada", "Saída", "Duração"], rows: resultados.flatMap((r) =>
-          r.timeline.map((t) => [
+          r.timeline.map((t: any) => [
             `#${r.id} - ${r.cliente}`,
             t.statusLabel,
             t.entrada ? new Date(t.entrada).toLocaleString("pt-BR") : "-",
@@ -141,7 +141,7 @@ export default function RelatorioTempoStatus() {
             className="h-9 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 text-sm"
           >
             <option value="">Todos</option>
-            {statuses.map((st) => (
+            {statuses.map((st: any) => (
               <option key={st.nome} value={st.nome}>{st.rotulo || st.nome}</option>
             ))}
           </select>
@@ -211,7 +211,7 @@ export default function RelatorioTempoStatus() {
             <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nenhum resultado</p>
           </div>
         ) : (
-          resultados.map((r) => (
+          resultados.map((r: any) => (
             <div key={r.id} className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
               {/* Header */}
               <button
@@ -242,10 +242,10 @@ export default function RelatorioTempoStatus() {
                     <p className="text-sm text-slate-500">Nenhum registro de mudança de status</p>
                   ) : (
                     <div className="space-y-3">
-                      {r.timeline.map((t, i) => {
+                      {r.timeline.map((t: any, i: any) => {
                         const cor = getStatusColor(t.status)
-                        const larguraPct = r.timeline.reduce((a, x) => a + x.duracaoMs, 0) > 0
-                          ? (t.duracaoMs / r.timeline.reduce((a, x) => a + x.duracaoMs, 0)) * 100
+                        const larguraPct = r.timeline.reduce((a: any, x: any) => a + x.duracaoMs, 0) > 0
+                          ? (t.duracaoMs / r.timeline.reduce((a: any, x: any) => a + x.duracaoMs, 0)) * 100
                           : 0
                         return (
                           <div key={i} className="flex items-center gap-3">

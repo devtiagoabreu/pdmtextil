@@ -196,7 +196,7 @@ export default function WhatsAppChatPage() {
     }
   }
 
-  const selected = conversas.find((c) => c.remoteJid === selectedJid)
+  const selected = conversas.find((c: any) => c.remoteJid === selectedJid)
   const estadoInfo = conversa?.estado ? ESTADO_LABELS[conversa.estado] : null
   const isHumano = conversa?.estado === "HUMANO_ASSUMINDO"
 
@@ -226,7 +226,7 @@ export default function WhatsAppChatPage() {
           ) : conversas.length === 0 ? (
             <div className="text-center p-8 text-slate-500 text-sm">Nenhuma conversa encontrada</div>
           ) : (
-            conversas.map((c) => (
+            conversas.map((c: any) => (
               <button
                 key={c.remoteJid}
                 onClick={() => handleSelect(c.remoteJid)}
@@ -316,7 +316,7 @@ export default function WhatsAppChatPage() {
               ) : mensagens.length === 0 ? (
                 <div className="text-center p-8 text-slate-400 text-sm">Nenhuma mensagem</div>
               ) : (
-                mensagens.map((msg) => {
+                mensagens.map((msg: any) => {
                   const isFromBot = msg.tipo === "ENVIADA"
                   return (
                     <div key={msg.id} className={`flex ${isFromBot ? "justify-end" : "justify-start"}`}>

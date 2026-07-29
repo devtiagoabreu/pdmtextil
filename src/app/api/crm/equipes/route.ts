@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
     const conditions = []
     if (regiaoId) conditions.push(eq(crmEquipes.regiaoId, parseInt(regiaoId)))
 
-    const where = conditions.length > 0 ? conditions.reduce((a, b) => a && b) : undefined
+    const where = conditions.length > 0 ? conditions.reduce((a: any, b: any) => a && b) : undefined
 
     const lista = await db
       .select({

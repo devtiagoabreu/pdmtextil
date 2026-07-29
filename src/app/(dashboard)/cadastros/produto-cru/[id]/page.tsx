@@ -192,30 +192,30 @@ export default function ProdutoCruFormPage() {
 
   useEffect(() => {
     fetch("/api/cadastros/fios")
-      .then(res => res.json())
-      .then(data => setFios(data))
+      .then((res: any) => res.json())
+      .then((data: any) => setFios(data))
 
     fetch("/api/cadastros/bases-urdume")
-      .then(res => res.json())
-      .then(data => setBasesUrdume(data))
+      .then((res: any) => res.json())
+      .then((data: any) => setBasesUrdume(data))
 
     fetch("/api/solicitacoes")
-      .then(res => res.json())
-      .then(data => {
+      .then((res: any) => res.json())
+      .then((data: any) => {
         if (Array.isArray(data)) setSolicitacoes(data)
       })
       .catch(console.error)
 
     fetch("/api/admin/status?tipo=PRODUTO_CRU")
-      .then(res => res.json())
-      .then(data => {
+      .then((res: any) => res.json())
+      .then((data: any) => {
         if (Array.isArray(data)) setStatusOptionsProd(data.map((s: any) => ({ value: s.nome, label: s.rotulo || s.nome })))
       })
       .catch(console.error)
 
     fetch("/api/admin/status?tipo=AMOSTRA")
-      .then(res => res.json())
-      .then(data => {
+      .then((res: any) => res.json())
+      .then((data: any) => {
         if (Array.isArray(data)) setStatusOptionsAmostra(data.map((s: any) => ({ value: s.nome, label: s.rotulo || s.nome })))
       })
       .catch(console.error)
@@ -224,8 +224,8 @@ export default function ProdutoCruFormPage() {
   useEffect(() => {
     if (isEditing && id) {
       fetch(`/api/cadastros/produto-cru/${id}`)
-        .then(res => res.json())
-        .then(data => {
+        .then((res: any) => res.json())
+        .then((data: any) => {
           setProduto({
             id: data.id,
             codigoPdm: data.codigoPdm || "",
@@ -243,7 +243,7 @@ export default function ProdutoCruFormPage() {
           setAmostras(data.amostras || [])
           setAcabamentos(data.acabamentos?.map((a: any) => ({ ...a, receitas: undefined })) || [])
         })
-        .catch(err => console.error(err))
+        .catch((err: any) => console.error(err))
         .finally(() => setLoading(false))
     } else {
       setLoading(false)
@@ -271,7 +271,7 @@ export default function ProdutoCruFormPage() {
 
   const handleStatusChange = (newStatus: string) => {
     if (newStatus === "APROVADO") {
-      const temAmostraCruAprovada = amostras.some(a => a.status.startsWith("APROVADA"))
+      const temAmostraCruAprovada = amostras.some((a: any) => a.status.startsWith("APROVADA"))
       if (!temAmostraCruAprovada) {
         toast.error("Ã‰ necessÃ¡rio pelo menos uma amostra de tecido cru aprovada para aprovar o produto")
         return
@@ -295,7 +295,7 @@ export default function ProdutoCruFormPage() {
     }
 
     if (produto.status === "APROVADO") {
-      const temAmostraCruAprovada = amostras.some(a => a.status.startsWith("APROVADA"))
+      const temAmostraCruAprovada = amostras.some((a: any) => a.status.startsWith("APROVADA"))
       if (!temAmostraCruAprovada) {
         toast.error("Ã‰ necessÃ¡rio pelo menos uma amostra de tecido cru aprovada para aprovar o produto")
         return
@@ -359,7 +359,7 @@ export default function ProdutoCruFormPage() {
     if (!id) return
     try {
       await fetch(`/api/cadastros/produto-cru/${id}/composicao/${cid}`, { method: "DELETE" })
-      setComposicao(composicao.filter(c => c.id !== cid))
+      setComposicao(composicao.filter((c: any) => c.id !== cid))
     } catch {
       toast.error("Erro ao remover material")
     }
@@ -394,7 +394,7 @@ export default function ProdutoCruFormPage() {
     if (!id) return
     try {
       await fetch(`/api/cadastros/produto-cru/${id}/estrutura/${eid}`, { method: "DELETE" })
-      setEstrutura(estrutura.filter(e => e.id !== eid))
+      setEstrutura(estrutura.filter((e: any) => e.id !== eid))
     } catch {
       toast.error("Erro ao remover estrutura")
     }
@@ -413,9 +413,9 @@ export default function ProdutoCruFormPage() {
         toast.error(err.error || "Erro ao atualizar status")
         return
       }
-      setAcabamentos(acabamentos.map(a =>
+      setAcabamentos(acabamentos.map((a: any) =>
         a.id === acabamentoId
-          ? { ...a, amostras: a.amostras.map(as => as.id === asid ? { ...as, status, motivoAprovacao: motivo } : as) }
+          ? { ...a, amostras: a.amostras.map((as: any) => as.id === asid ? { ...as, status, motivoAprovacao: motivo } : as) }
           : a
       ))
       toast.success("Status atualizado")
@@ -450,7 +450,7 @@ export default function ProdutoCruFormPage() {
     }
   }
 
-  const totalPercentual = composicao.reduce((sum, c) => sum + parseFloat(c.percentual || "0"), 0)
+  const totalPercentual = composicao.reduce((sum: any, c: any) => sum + parseFloat(c.percentual || "0"), 0)
   const percentualValido = Math.abs(totalPercentual - 100) < 0.01
 
   if (loading) {
@@ -493,7 +493,7 @@ export default function ProdutoCruFormPage() {
         return
       }
       const atualizado = await res.json()
-      setAmostras(amostras.map(a => a.id === amostraId ? atualizado : a))
+      setAmostras(amostras.map((a: any) => a.id === amostraId ? atualizado : a))
       toast.success("Status atualizado")
     } catch {
       toast.error("Erro ao atualizar status")
@@ -502,7 +502,7 @@ export default function ProdutoCruFormPage() {
 
   const saveAmostraLinks = async (amostraId: number, links: { url: string; descricao: string }[]) => {
     if (!id) return
-    const anteriores = amostras.find(a => a.id === amostraId)?.links || []
+    const anteriores = amostras.find((a: any) => a.id === amostraId)?.links || []
     try {
       const res = await fetch(`/api/cadastros/produto-cru/${id}/amostras/${amostraId}`, {
         method: "PUT",
@@ -510,13 +510,13 @@ export default function ProdutoCruFormPage() {
         body: JSON.stringify({ links }),
       })
       if (res.ok) {
-        setAmostras(amostras.map(a => a.id === amostraId ? { ...a, links } : a))
+        setAmostras(amostras.map((a: any) => a.id === amostraId ? { ...a, links } : a))
       } else {
-        setAmostras(amostras.map(a => a.id === amostraId ? { ...a, links: anteriores } : a))
+        setAmostras(amostras.map((a: any) => a.id === amostraId ? { ...a, links: anteriores } : a))
         toast.error("Erro ao salvar links")
       }
     } catch {
-      setAmostras(amostras.map(a => a.id === amostraId ? { ...a, links: anteriores } : a))
+      setAmostras(amostras.map((a: any) => a.id === amostraId ? { ...a, links: anteriores } : a))
       toast.error("Erro de rede ao salvar links")
     }
   }
@@ -524,8 +524,8 @@ export default function ProdutoCruFormPage() {
   const saveAcabAmostraLinks = async (acabamentoId: number, amostraId: number, links: { url: string; descricao: string }[]) => {
     if (!id) return
     const anteriores = acabamentos
-      .find(a => a.id === acabamentoId)
-      ?.amostras?.find(as => as.id === amostraId)?.links || []
+      .find((a: any) => a.id === acabamentoId)
+      ?.amostras?.find((as: any) => as.id === amostraId)?.links || []
     try {
       const res = await fetch(`/api/cadastros/produto-cru/${id}/acabamentos/${acabamentoId}/amostras/${amostraId}`, {
         method: "PUT",
@@ -533,23 +533,23 @@ export default function ProdutoCruFormPage() {
         body: JSON.stringify({ links }),
       })
       if (res.ok) {
-        setAcabamentos(acabamentos.map(a =>
+        setAcabamentos(acabamentos.map((a: any) =>
           a.id === acabamentoId
-            ? { ...a, amostras: a.amostras.map(as => as.id === amostraId ? { ...as, links } : as) }
+            ? { ...a, amostras: a.amostras.map((as: any) => as.id === amostraId ? { ...as, links } : as) }
             : a
         ))
       } else {
-        setAcabamentos(acabamentos.map(a =>
+        setAcabamentos(acabamentos.map((a: any) =>
           a.id === acabamentoId
-            ? { ...a, amostras: a.amostras.map(as => as.id === amostraId ? { ...as, links: anteriores } : as) }
+            ? { ...a, amostras: a.amostras.map((as: any) => as.id === amostraId ? { ...as, links: anteriores } : as) }
             : a
         ))
         toast.error("Erro ao salvar links")
       }
     } catch {
-      setAcabamentos(acabamentos.map(a =>
+      setAcabamentos(acabamentos.map((a: any) =>
         a.id === acabamentoId
-          ? { ...a, amostras: a.amostras.map(as => as.id === amostraId ? { ...as, links: anteriores } : as) }
+          ? { ...a, amostras: a.amostras.map((as: any) => as.id === amostraId ? { ...as, links: anteriores } : as) }
           : a
       ))
       toast.error("Erro de rede ao salvar links")
@@ -581,7 +581,7 @@ export default function ProdutoCruFormPage() {
     if (!id) return
     try {
       await fetch(`/api/cadastros/produto-cru/${id}/amostras/${amostraId}`, { method: "DELETE" })
-      setAmostras(amostras.filter(a => a.id !== amostraId))
+      setAmostras(amostras.filter((a: any) => a.id !== amostraId))
     } catch {
       toast.error("Erro ao remover amostra")
     }
@@ -612,7 +612,7 @@ export default function ProdutoCruFormPage() {
       })
       if (!res.ok) throw new Error()
       const atualizado = await res.json()
-      setAmostras(amostras.map(a => a.id === editAmostra.id ? atualizado : a))
+      setAmostras(amostras.map((a: any) => a.id === editAmostra.id ? atualizado : a))
       setEditAmostra(null)
       toast.success("Amostra atualizada")
     } catch {
@@ -647,7 +647,7 @@ export default function ProdutoCruFormPage() {
     if (!id) return
     try {
       await fetch(`/api/cadastros/produto-cru/${id}/acabamentos/${acabamentoId}`, { method: "DELETE" })
-      setAcabamentos(acabamentos.filter(a => a.id !== acabamentoId))
+      setAcabamentos(acabamentos.filter((a: any) => a.id !== acabamentoId))
     } catch {
       toast.error("Erro ao remover acabamento")
     }
@@ -663,7 +663,7 @@ export default function ProdutoCruFormPage() {
       })
       if (!res.ok) throw new Error()
       const item = await res.json()
-      setAcabamentos(acabamentos.map(a =>
+      setAcabamentos(acabamentos.map((a: any) =>
         a.id === acabamentoId ? { ...a, amostras: [...a.amostras, item] } : a
       ))
       setNovaAmostraAcabDescricao("")
@@ -679,8 +679,8 @@ export default function ProdutoCruFormPage() {
     if (!id) return
     try {
       await fetch(`/api/cadastros/produto-cru/${id}/acabamentos/${acabamentoId}/amostras/${asid}`, { method: "DELETE" })
-      setAcabamentos(acabamentos.map(a =>
-        a.id === acabamentoId ? { ...a, amostras: a.amostras.filter(as => as.id !== asid) } : a
+      setAcabamentos(acabamentos.map((a: any) =>
+        a.id === acabamentoId ? { ...a, amostras: a.amostras.filter((as: any) => as.id !== asid) } : a
       ))
     } catch {
       toast.error("Erro ao remover amostra")
@@ -711,7 +711,7 @@ export default function ProdutoCruFormPage() {
       </div>
 
       <div className="flex gap-1 border-b border-slate-200 dark:border-slate-700 overflow-x-auto">
-        {TABS.map(tab => (
+        {TABS.map((tab: any) => (
           <button
             key={tab.id}
             type="button"
@@ -750,7 +750,7 @@ export default function ProdutoCruFormPage() {
                     onChange={e => handleStatusChange(e.target.value)}
                     className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
                   >
-                    {statusOptionsProd.map(opt => (
+                    {statusOptionsProd.map((opt: any) => (
                       <option key={opt.value} value={opt.value}>{opt.label}</option>
                     ))}
                   </select>
@@ -777,7 +777,7 @@ export default function ProdutoCruFormPage() {
                   className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
                 >
                   <option value="">Nenhuma</option>
-                  {solicitacoes.map(s => (
+                  {solicitacoes.map((s: any) => (
                     <option key={s.id} value={s.id}>#{s.id} - {s.cliente}{s.projeto ? ` (${s.projeto})` : ""}</option>
                   ))}
                 </select>
@@ -881,7 +881,7 @@ export default function ProdutoCruFormPage() {
 
                   {composicao.length > 0 && (
                     <div className="space-y-2">
-                      {composicao.map(c => (
+                      {composicao.map((c: any) => (
                         <div key={c.id} className="flex items-center justify-between p-3 bg-slate-100 dark:bg-slate-800 rounded-lg">
                           <span>{c.material} â€” {c.percentual}%</span>
                            <Button variant="ghost" size="icon" onClick={() => setDeleteTarget({ type: "composicao", label: `material "${c.material}"`, fn: () => removeComposicao(c.id) })}>
@@ -913,12 +913,12 @@ export default function ProdutoCruFormPage() {
 
                   {estrutura.length > 0 && (
                     <div className="space-y-2">
-                      {estrutura.map(e => (
+                      {estrutura.map((e: any) => (
                         <div key={e.id} className="flex items-center justify-between p-3 bg-slate-100 dark:bg-slate-800 rounded-lg">
                           <span>
                             {e.tipo} â€” {e.tipo === "TRAMA"
-                            ? (fios.find(f => f.id === e.fioId) ? fioLabel(fios.find(f => f.id === e.fioId)!) : `Fio #${e.fioId || "â€”"}`)
-                            : (basesUrdume.find(b => b.id === e.baseUrdumeId) ? baseLabel(basesUrdume.find(b => b.id === e.baseUrdumeId)!) : `Base Urdume #${e.baseUrdumeId || "â€”"}`)
+                            ? (fios.find((f: any) => f.id === e.fioId) ? fioLabel(fios.find((f: any) => f.id === e.fioId)!) : `Fio #${e.fioId || "â€”"}`)
+                            : (basesUrdume.find((b: any) => b.id === e.baseUrdumeId) ? baseLabel(basesUrdume.find((b: any) => b.id === e.baseUrdumeId)!) : `Base Urdume #${e.baseUrdumeId || "â€”"}`)
                           }
                             {e.ordem ? ` (Ordem: ${e.ordem})` : ""}
                           </span>
@@ -935,7 +935,7 @@ export default function ProdutoCruFormPage() {
                       <Label>Tipo</Label>
                       <select value={novaEstruturaTipo} onChange={e => setNovaEstruturaTipo(e.target.value)}
                         className="p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600">
-                        {TIPO_ESTRUTURA.map(t => <option key={t} value={t}>{t}</option>)}
+                        {TIPO_ESTRUTURA.map((t: any) => <option key={t} value={t}>{t}</option>)}
                       </select>
                     </div>
                     {novaEstruturaTipo === "TRAMA" ? (
@@ -944,7 +944,7 @@ export default function ProdutoCruFormPage() {
                         <select value={novaEstruturaFioId} onChange={e => setNovaEstruturaFioId(e.target.value)}
                           className="p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600">
                           <option value="">Selecione</option>
-                          {fios.map(f => <option key={f.id} value={f.id}>{fioLabel(f)}</option>)}
+                          {fios.map((f: any) => <option key={f.id} value={f.id}>{fioLabel(f)}</option>)}
                         </select>
                       </div>
                     ) : (
@@ -953,7 +953,7 @@ export default function ProdutoCruFormPage() {
                         <select value={novaEstruturaBaseUrdumeId} onChange={e => setNovaEstruturaBaseUrdumeId(e.target.value)}
                           className="p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600">
                           <option value="">Selecione</option>
-                          {basesUrdume.map(b => <option key={b.id} value={b.id}>{baseLabel(b)}</option>)}
+                          {basesUrdume.map((b: any) => <option key={b.id} value={b.id}>{baseLabel(b)}</option>)}
                         </select>
                       </div>
                     )}
@@ -982,7 +982,7 @@ export default function ProdutoCruFormPage() {
 
                       {amostras.length > 0 && (
                     <div className="space-y-2">
-                        {amostras.map(a => (
+                        {amostras.map((a: any) => (
                           <div key={a.id} id={`amostra-${a.id}`}>
                             <div className="flex items-center justify-between p-3 bg-slate-100 dark:bg-slate-800 rounded-lg">
                               <div className="min-w-0">
@@ -1015,7 +1015,7 @@ export default function ProdutoCruFormPage() {
                                       "bg-yellow-100 text-yellow-700"
                                     }`}
                                   >
-                                    {statusOptionsAmostra.map(s => (
+                                    {statusOptionsAmostra.map((s: any) => (
                                       <option key={s.value} value={s.value} className="bg-white text-slate-900">{s.label}</option>
                                     ))}
                                   </select>
@@ -1081,7 +1081,7 @@ export default function ProdutoCruFormPage() {
 
                   {acabamentos.length > 0 && (
                     <div className="space-y-3">
-                      {acabamentos.map(acab => (
+                      {acabamentos.map((acab: any) => (
                         <div key={acab.id} className="rounded-xl border border-slate-200 dark:border-slate-800">
                           <div
                             className="flex items-center justify-between p-3 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50"
@@ -1109,7 +1109,7 @@ export default function ProdutoCruFormPage() {
                                     <Plus size={14} /> Amostra
                                   </Button>
                                 </div>
-                                  {acab.amostras.map(as => {
+                                  {acab.amostras.map((as: any) => {
                                   const key = `${acab.id}-${as.id}`
                                   return (
                                   <div key={as.id} id={`amostra-acab-${acab.id}-${as.id}`}>
@@ -1142,7 +1142,7 @@ export default function ProdutoCruFormPage() {
                                             "bg-yellow-100 text-yellow-700"
                                           }`}
                                         >
-                                          {statusOptionsAmostra.map(s => (
+                                          {statusOptionsAmostra.map((s: any) => (
                                             <option key={s.value} value={s.value} className="bg-white text-slate-900">{s.label}</option>
                                           ))}
                                         </select>
@@ -1173,7 +1173,7 @@ export default function ProdutoCruFormPage() {
                               <div className="mt-3 border-t pt-3">
                                 <h3 className="text-sm font-medium mb-2">Receitas de Beneficiamento</h3>
                                 <div className="space-y-1">
-                                  {acab.amostras.map(as => (
+                                  {acab.amostras.map((as: any) => (
                                     <div key={as.id} className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-800/50 rounded text-sm">
                                       <span className="text-slate-600">
                                         {as.descricao || `Amostra #${as.id}`}
@@ -1206,7 +1206,7 @@ export default function ProdutoCruFormPage() {
                       <Label>Tipo Acabamento</Label>
                       <select value={novoAcabamentoTipo} onChange={e => setNovoAcabamentoTipo(e.target.value)}
                         className="p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600">
-                        {TIPO_ACABAMENTO.map(t => <option key={t} value={t}>{t}</option>)}
+                        {TIPO_ACABAMENTO.map((t: any) => <option key={t} value={t}>{t}</option>)}
                       </select>
                     </div>
                     <div className="space-y-1 flex-1">

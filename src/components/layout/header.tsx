@@ -70,7 +70,7 @@ export function Header({ onMenuClick, onToggleSidebar, sidebarCollapsed }: Heade
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: n.id }),
       })
-      setNotificacoes(prev => prev.filter(p => p.id !== n.id))
+      setNotificacoes(prev => prev.filter((p: any) => p.id !== n.id))
     }
     setShowNotifications(false)
     if (n.link) router.push(n.link)
@@ -180,7 +180,7 @@ export function Header({ onMenuClick, onToggleSidebar, sidebarCollapsed }: Heade
                 {!loadingNotif && notificacoes.length === 0 && (
                   <div className="p-6 text-center text-sm text-slate-500">Nenhuma notificaÃ§Ã£o</div>
                 )}
-                {notificacoes.map(n => (
+                {notificacoes.map((n: any) => (
                   <button
                     key={n.id}
                     onClick={() => handleNotificacaoClick(n)}

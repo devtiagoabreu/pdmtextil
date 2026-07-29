@@ -31,7 +31,7 @@ export default function PermissoesPage() {
 
   useEffect(() => {
     fetch("/api/admin/permissoes")
-      .then(res => res.json())
+      .then((res: any) => res.json())
       .then((d: PermissoesData) => {
         setData(d)
         const map: Record<string, Record<string, string[]>> = {}
@@ -120,7 +120,7 @@ export default function PermissoesPage() {
           <thead>
             <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
               <th className="p-3 text-left font-semibold text-slate-700 dark:text-slate-300 min-w-[140px]">Perfil</th>
-              {data.modulos.map(mod => (
+              {data.modulos.map((mod: any) => (
                 <th key={mod} className="p-3 text-center font-semibold text-slate-700 dark:text-slate-300 min-w-[140px]" colSpan={data.permissoes.length}>
                   {mod.replace(/_/g, " ")}
                 </th>
@@ -128,8 +128,8 @@ export default function PermissoesPage() {
             </tr>
             <tr className="border-b border-slate-200 dark:border-slate-800">
               <th className="p-2" />
-              {data.modulos.map(mod => (
-                data.permissoes.map(perm => (
+              {data.modulos.map((mod: any) => (
+                data.permissoes.map((perm: any) => (
                   <th key={`${mod}-${perm}`} className="p-2 text-center text-xs font-medium text-slate-500 dark:text-slate-400 w-16">
                     {perm}
                   </th>
@@ -138,14 +138,14 @@ export default function PermissoesPage() {
             </tr>
           </thead>
           <tbody>
-            {data.roles.map(role => {
+            {data.roles.map((role: any) => {
               const perms = rolePerms[role.name] || {}
               return (
                 <tr key={role.name} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
                   <td className="p-3 font-medium text-slate-800 dark:text-slate-200">{role.label}</td>
-                    {data.modulos.map(mod => {
+                    {data.modulos.map((mod: any) => {
                       const modPerms = Array.isArray(perms[mod]) ? perms[mod] : []
-                      const allChecked = data.permissoes.every(p => modPerms.includes(p))
+                      const allChecked = data.permissoes.every((p: any) => modPerms.includes(p))
                     return (
                       <td key={mod} className="p-0" colSpan={data.permissoes.length}>
                         <div className="flex items-center justify-center gap-0">
@@ -156,7 +156,7 @@ export default function PermissoesPage() {
                             title="Marcar/desmarcar todas"
                             className="mr-1 h-3.5 w-3.5 accent-blue-600"
                           />
-                          {data.permissoes.map(perm => (
+                          {data.permissoes.map((perm: any) => (
                             <label
                               key={perm}
                               className="flex items-center justify-center w-10 h-10 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"

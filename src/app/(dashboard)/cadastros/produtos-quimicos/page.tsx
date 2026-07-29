@@ -47,7 +47,7 @@ export default function ProdutosQuimicosPage() {
     queryFn: fetchProdutosQuimicos,
   })
 
-  const filtered = produtos.filter(p =>
+  const filtered = produtos.filter((p: any) =>
     p.nome.toLowerCase().includes(search.toLowerCase()) ||
     p.codigo.toLowerCase().includes(search.toLowerCase()) ||
     (p.idIntegracao || "").toLowerCase().includes(search.toLowerCase())
@@ -144,7 +144,7 @@ export default function ProdutosQuimicosPage() {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((p) => (
+              {filtered.map((p: any) => (
                 <tr
                   key={p.id}
                   className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"

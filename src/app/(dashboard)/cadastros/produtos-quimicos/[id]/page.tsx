@@ -38,8 +38,8 @@ export default function ProdutoQuimicoFormPage() {
   useEffect(() => {
     if (!isNew) {
       fetch(`/api/cadastros/produtos-quimicos/${id}`)
-        .then((r) => r.json())
-        .then((data) => {
+        .then((r: any) => r.json())
+        .then((data: any) => {
           setForm({
             codigo: data.codigo || "",
             nome: data.nome || "",

@@ -75,8 +75,8 @@ export default function RelatorioAtividadeUsuario() {
     if (tipoFiltro) params.set("tipo", tipoFiltro)
 
     fetch(`/api/relatorios/atividade-usuario?${params}`)
-      .then((r) => r.json())
-      .then((data) => {
+      .then((r: any) => r.json())
+      .then((data: any) => {
         setStats(data.stats)
         setPorUsuario(data.porUsuario || [])
         setPorTipo(data.porTipo || [])
@@ -91,11 +91,11 @@ export default function RelatorioAtividadeUsuario() {
   useEffect(() => { fetchData() }, [fetchData])
 
   function handleExportCSV() {
-    exportCSV("atividade-usuario", ["Usuário", "Ações"], porUsuario.map((u) => [u.usuario, u.total]))
+    exportCSV("atividade-usuario", ["Usuário", "Ações"], porUsuario.map((u: any) => [u.usuario, u.total]))
     setTimeout(() => {
-      exportCSV("atividade-por-tipo", ["Tipo", "Total"], porTipo.map((t) => [TIPO_LABELS[t.tipo] || t.tipo, t.total]))
+      exportCSV("atividade-por-tipo", ["Tipo", "Total"], porTipo.map((t: any) => [TIPO_LABELS[t.tipo] || t.tipo, t.total]))
       setTimeout(() => {
-        exportCSV("atividades-recentes", ["Data", "Usuário", "Tipo", "Ação", "Descrição"], recentes.map((r) => [
+        exportCSV("atividades-recentes", ["Data", "Usuário", "Tipo", "Ação", "Descrição"], recentes.map((r: any) => [
           r.createdAt ? new Date(r.createdAt).toLocaleString("pt-BR") : "-",
           r.usuario || "-",
           TIPO_LABELS[r.tipo] || r.tipo,
@@ -114,9 +114,9 @@ export default function RelatorioAtividadeUsuario() {
         "Usuários Ativos": stats.totalUsuarios,
       } : undefined,
       tables: [
-        { headers: ["Usuário", "Ações"], rows: porUsuario.map((u) => [u.usuario, u.total]) },
-        { headers: ["Tipo", "Total"], rows: porTipo.map((t) => [TIPO_LABELS[t.tipo] || t.tipo, t.total]) },
-        { headers: ["Data", "Usuário", "Tipo", "Ação", "Descrição"], rows: recentes.map((r) => [
+        { headers: ["Usuário", "Ações"], rows: porUsuario.map((u: any) => [u.usuario, u.total]) },
+        { headers: ["Tipo", "Total"], rows: porTipo.map((t: any) => [TIPO_LABELS[t.tipo] || t.tipo, t.total]) },
+        { headers: ["Data", "Usuário", "Tipo", "Ação", "Descrição"], rows: recentes.map((r: any) => [
           r.createdAt ? new Date(r.createdAt).toLocaleString("pt-BR") : "-",
           r.usuario || "-",
           TIPO_LABELS[r.tipo] || r.tipo,
@@ -170,7 +170,7 @@ export default function RelatorioAtividadeUsuario() {
             className="h-9 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 text-sm min-w-[140px]"
           >
             <option value="">Todos</option>
-            {usuariosDisponiveis.map((u) => (
+            {usuariosDisponiveis.map((u: any) => (
               <option key={u} value={u}>{u}</option>
             ))}
           </select>
@@ -183,7 +183,7 @@ export default function RelatorioAtividadeUsuario() {
             className="h-9 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 text-sm min-w-[140px]"
           >
             <option value="">Todos</option>
-            {tiposDisponiveis.map((t) => (
+            {tiposDisponiveis.map((t: any) => (
               <option key={t} value={t}>{TIPO_LABELS[t] || t}</option>
             ))}
           </select>
@@ -270,7 +270,7 @@ export default function RelatorioAtividadeUsuario() {
                     animationDuration={1000}
                     animationEasing="ease-out"
                   >
-                    {porTipo.map((entry, i) => (
+                    {porTipo.map((entry: any, i: any) => (
                       <Cell key={i} fill={TIPO_CORES[entry.tipo] || "#94a3b8"} />
                     ))}
                   </Pie>
@@ -308,7 +308,7 @@ export default function RelatorioAtividadeUsuario() {
                 </tr>
               </thead>
               <tbody>
-                {recentes.map((r) => (
+                {recentes.map((r: any) => (
                   <tr key={r.id} className="border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/30">
                     <td className="p-3 text-xs text-slate-500 whitespace-nowrap">
                       {r.createdAt ? new Date(r.createdAt).toLocaleString("pt-BR") : "-"}

@@ -34,7 +34,7 @@ export async function GET() {
       .orderBy(desc(sql`min(${emailEnviados.createdAt})`))
 
     const remessasLinks = await Promise.all(
-      remessas.map(async (r) => {
+      remessas.map(async (r: any) => {
         const links = await db
           .select({
             urlOriginal: emailCliques.urlOriginal,

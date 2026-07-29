@@ -28,8 +28,8 @@ export default function ContatoDetailPage() {
   useEffect(() => {
     if (!params.id) return
     fetch(`/api/crm/contatos/${params.id}`)
-      .then(r => r.json())
-      .then(data => {
+      .then((r: any) => r.json())
+      .then((data: any) => {
         setContato(data)
         setForm(data)
       })
@@ -40,8 +40,8 @@ export default function ContatoDetailPage() {
   useEffect(() => {
     if (!editing) return
     fetch("/api/crm/pessoas")
-      .then(r => r.json())
-      .then(data => { if (Array.isArray(data)) setEmpresas(data) })
+      .then((r: any) => r.json())
+      .then((data: any) => { if (Array.isArray(data)) setEmpresas(data) })
       .catch(console.error)
   }, [editing])
 

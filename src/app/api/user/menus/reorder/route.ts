@@ -47,7 +47,7 @@ async function carregarMenus(usuarioId: number) {
 
   if (menus.length === 0) return []
 
-  const menuIds = menus.map(m => m.id)
+  const menuIds = menus.map((m: any) => m.id)
   const todosItens = await db
     .select()
     .from(userMenuItens)
@@ -60,7 +60,7 @@ async function carregarMenus(usuarioId: number) {
     itensPorMenu[item.userMenuId].push(item)
   }
 
-  return menus.map(menu => ({
+  return menus.map((menu: any) => ({
     ...menu,
     itens: itensPorMenu[menu.id] || [],
   }))
@@ -85,8 +85,8 @@ export async function PATCH(req: NextRequest) {
       .from(userMenus)
       .where(and(eq(userMenus.usuarioId, userId)))
 
-    const ownedIds = new Set(menus.map(m => m.id))
-    const needsFork = ids.some(id => !ownedIds.has(id))
+    const ownedIds = new Set(menus.map((m: any) => m.id))
+    const needsFork = ids.some((id: any) => !ownedIds.has(id))
 
     const idMap = new Map<number, number>()
     if (needsFork) {
@@ -101,7 +101,7 @@ export async function PATCH(req: NextRequest) {
       }
 
       const forkIdMap = await forkRoleMenusToUser(userId, roleMenu.role)
-      forkIdMap.forEach((novoId, antigoId) => idMap.set(antigoId, novoId))
+      forkIdMap.forEach((novoId: any, antigoId: any) => idMap.set(antigoId, novoId))
     }
 
     // Atualizar ordem em lote

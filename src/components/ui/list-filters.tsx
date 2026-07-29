@@ -35,9 +35,9 @@ export function useListFilters(config: FilterConfig, data: any[]) {
 
     if (search.trim()) {
       const q = search.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-      result = result.filter((item) =>
-        config.searchFields.some((field) => {
-          const val = field.split(".").reduce((obj: any, key) => obj?.[key], item)
+      result = result.filter((item: any) =>
+        config.searchFields.some((field: any) => {
+          const val = field.split(".").reduce((obj: any, key: any) => obj?.[key], item)
           if (val == null) return false
           return String(val).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(q)
         })
@@ -45,20 +45,20 @@ export function useListFilters(config: FilterConfig, data: any[]) {
     }
 
     if (statusFilter && statusFilter !== "all") {
-      result = result.filter((item) => item.status === statusFilter)
+      result = result.filter((item: any) => item.status === statusFilter)
     }
 
     const dateField = config.dateField || "createdAt"
     if (dateFrom) {
       const from = new Date(dateFrom + "T00:00:00")
-      result = result.filter((item) => {
+      result = result.filter((item: any) => {
         const d = item[dateField] ? new Date(item[dateField]) : null
         return d && d >= from
       })
     }
     if (dateTo) {
       const to = new Date(dateTo + "T23:59:59")
-      result = result.filter((item) => {
+      result = result.filter((item: any) => {
         const d = item[dateField] ? new Date(item[dateField]) : null
         return d && d <= to
       })
@@ -113,7 +113,7 @@ export default function ListFilters({ config, data, onFiltered, placeholder }: P
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos os status</SelectItem>
-              {config.statusOptions.map((opt) => (
+              {config.statusOptions.map((opt: any) => (
                 <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
               ))}
             </SelectContent>

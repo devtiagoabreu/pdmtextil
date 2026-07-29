@@ -13,7 +13,7 @@ export const crmWhatsappRetryQueue = pgTable(
     createdAt: timestamp("created_at").defaultNow(),
     proximoRetryAt: timestamp("proximo_retry_at").defaultNow(),
   },
-  (t) => [
+  (t: any) => [
     index("idx_retry_queue_status").on(t.status),
     index("idx_retry_queue_proximo").on(t.proximoRetryAt),
   ]

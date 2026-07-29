@@ -67,7 +67,7 @@ export async function gerarRequisicaoCortePdf(data: RequisicaoCorteData, orienta
   const corTexto: [number, number, number] = [51, 51, 51]
   const corTextoSec: [number, number, number] = [100, 100, 100]
 
-  const totalQtd = data.itens.reduce((acc, item) => {
+  const totalQtd = data.itens.reduce((acc: any, item: any) => {
     const num = parseFloat(item.quantidade.replace(/[^0-9.,]/g, "").replace(",", "."))
     return acc + (isNaN(num) ? 0 : num)
   }, 0)
@@ -164,9 +164,9 @@ export async function gerarRequisicaoCortePdf(data: RequisicaoCorteData, orienta
   doc.roundedRect(margin, y, pageWidth - margin * 2, infoBoxH, 2, 2, "FD")
 
   const colW = (pageWidth - margin * 2 - 16) / 3
-  infoRows.forEach((row, ri) => {
+  infoRows.forEach((row: any, ri: any) => {
     const rowY = y + 4 + ri * 15
-    row.forEach((cell, ci) => {
+    row.forEach((cell: any, ci: any) => {
       const cx = margin + 8 + ci * (colW + 4)
       doc.setFont("helvetica", "bold").setFontSize(7)
       doc.setTextColor(...corTexto)
@@ -187,7 +187,7 @@ export async function gerarRequisicaoCortePdf(data: RequisicaoCorteData, orienta
   y += 7 + 3
 
   const tableHead = [["Cód. Produto", "Ordem", "Artigo", "Cor", "Desenho", "Quantidade"]]
-  const tableBody = data.itens.map(item => [
+  const tableBody = data.itens.map((item: any) => [
     item.codigoProduto || "—",
     item.ordem || "—",
     item.artigo || "—",
@@ -367,14 +367,14 @@ export async function gerarRequisicaoCortePdfConsolidado(lista: RequisicaoCorteD
     } catch {}
   }
 
-  const totalGeralQtd = lista.reduce((acc, r) => {
-    return acc + r.itens.reduce((s, item) => {
+  const totalGeralQtd = lista.reduce((acc: any, r: any) => {
+    return acc + r.itens.reduce((s: any, item: any) => {
       const num = parseFloat(item.quantidade.replace(/[^0-9.,]/g, "").replace(",", "."))
       return s + (isNaN(num) ? 0 : num)
     }, 0)
   }, 0)
 
-  const totalGeralItens = lista.reduce((acc, r) => acc + r.itens.length, 0)
+  const totalGeralItens = lista.reduce((acc: any, r: any) => acc + r.itens.length, 0)
 
   for (let i = 0; i < lista.length; i++) {
     const data = lista[i]
@@ -391,7 +391,7 @@ export async function gerarRequisicaoCortePdfConsolidado(lista: RequisicaoCorteD
     y += 4
 
     // Info
-    const totalQtd = data.itens.reduce((acc, item) => {
+    const totalQtd = data.itens.reduce((acc: any, item: any) => {
       const num = parseFloat(item.quantidade.replace(/[^0-9.,]/g, "").replace(",", "."))
       return acc + (isNaN(num) ? 0 : num)
     }, 0)
@@ -422,9 +422,9 @@ export async function gerarRequisicaoCortePdfConsolidado(lista: RequisicaoCorteD
       ],
     ]
 
-    infoData.forEach((row, ri) => {
+    infoData.forEach((row: any, ri: any) => {
       const rowY = y + 4 + ri * 15
-      row.forEach((cell, ci) => {
+      row.forEach((cell: any, ci: any) => {
         const cx = margin + 8 + ci * (colW + 4)
         doc.setFont("helvetica", "bold").setFontSize(7)
         doc.setTextColor(...corTexto)
@@ -445,7 +445,7 @@ export async function gerarRequisicaoCortePdfConsolidado(lista: RequisicaoCorteD
     y += 7 + 3
 
     const tableHead = [["Cód. Produto", "Ordem", "Artigo", "Cor", "Desenho", "Quantidade"]]
-    const tableBody = data.itens.map(item => [
+    const tableBody = data.itens.map((item: any) => [
       item.codigoProduto || "—",
       item.ordem || "—",
       item.artigo || "—",
@@ -511,7 +511,7 @@ export async function gerarRequisicaoCortePdfConsolidado(lista: RequisicaoCorteD
     }
   }
 
-  const sufixo = lista.length <= 3 ? lista.map(r => r.id).join("-") : `${lista[0].id}-${lista[lista.length - 1].id}`
+  const sufixo = lista.length <= 3 ? lista.map((r: any) => r.id).join("-") : `${lista[0].id}-${lista[lista.length - 1].id}`
   doc.save(`requisicoes-corte-${sufixo}.pdf`)
   toast.success(`PDF consolidado com ${lista.length} requisição(ões) gerado!`)
 }

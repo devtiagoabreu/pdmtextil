@@ -38,8 +38,8 @@ function UserSmtpConfig() {
 
   useEffect(() => {
     fetch("/api/user/email-config")
-      .then(r => r.json())
-      .then(data => {
+      .then((r: any) => r.json())
+      .then((data: any) => {
         if (data.config) {
           setEmail(data.config.email)
           setSenhaApp(data.config.senhaApp)

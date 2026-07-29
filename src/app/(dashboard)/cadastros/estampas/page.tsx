@@ -72,7 +72,7 @@ export default function EstampasPage() {
     }
   }
 
-  const filteredEstampas = estampas.filter(e => 
+  const filteredEstampas = estampas.filter((e: any) => 
     e.nome.toLowerCase().includes(search.toLowerCase()) ||
     e.codigoDesenho.toLowerCase().includes(search.toLowerCase())
   )
@@ -143,7 +143,7 @@ export default function EstampasPage() {
               </tr>
             </thead>
             <tbody>
-              {filteredEstampas.map((estampa) => (
+              {filteredEstampas.map((estampa: any) => (
                 <tr
                   key={estampa.id}
                   className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"

@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
 
     if (itens.length > 0) {
       await db.insert(requisicoesCorteItens).values(
-        itens.map((item) => ({
+        itens.map((item: any) => ({
           requisicaoCorteId: novaRequisicao.id,
           codigoProduto: item.codigoProduto || null,
           ordem: item.ordem || null,

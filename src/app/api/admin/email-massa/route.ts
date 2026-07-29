@@ -34,7 +34,7 @@ async function buscarDestinatarios(para: string, listas?: number[]): Promise<Des
 
   if (para === "usuarios") {
     const lista = await db.select({ email: usuarios.email, name: usuarios.name }).from(usuarios).where(eq(usuarios.ativo, true))
-    return lista.filter(u => u.email && u.email.includes("@")).map(u => ({ email: u.email!, nome: u.name || "Usuário" }))
+    return lista.filter((u: any) => u.email && u.email.includes("@")).map((u: any) => ({ email: u.email!, nome: u.name || "Usuário" }))
   }
 
   if (para === "todos") {
@@ -240,7 +240,7 @@ export async function POST(req: NextRequest) {
           to: destinatarios[0].email,
           subject: assunto,
           html: comTracking,
-          bcc: destinatarios.slice(1).map(d => d.email),
+          bcc: destinatarios.slice(1).map((d: any) => d.email),
         })
         if (result.sent > 0) {
           enviados = destinatarios.length

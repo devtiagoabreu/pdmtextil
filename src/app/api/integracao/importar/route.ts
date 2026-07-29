@@ -127,7 +127,7 @@ export async function POST(req: NextRequest) {
 
     let existingRecords: Set<string> = new Set()
     if (uniqueValues.length > 0) {
-      const conditions = uniqueValues.map(v => sql`${sql.identifier(dbUniqueFieldName)} = ${v}`)
+      const conditions = uniqueValues.map((v: any) => sql`${sql.identifier(dbUniqueFieldName)} = ${v}`)
       // For email-listas, only check duplicates within the same list
       const listCondition = (entidade === "email-listas" && listaId)
         ? and(or(...conditions), sql`${sql.identifier("lista_id")} = ${Number(listaId)}`)
@@ -170,7 +170,7 @@ export async function POST(req: NextRequest) {
         notNullFields.add(key)
       }
     }
-    const valid = cleaned.filter((row) => {
+    const valid = cleaned.filter((row: any) => {
       for (const field of notNullFields) {
         if (row[field] === undefined || row[field] === null || row[field] === "") return false
       }

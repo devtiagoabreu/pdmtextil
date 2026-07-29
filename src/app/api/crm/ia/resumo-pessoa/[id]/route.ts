@@ -16,7 +16,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       })
       .from(crmPessoas)
       .where(eq(crmPessoas.id, parseInt(id)))
-      .then(rows => rows[0])
+      .then((rows: any) => rows[0])
 
     if (!empresa) {
       return NextResponse.json({ error: "Pessoa não encontrada" }, { status: 404 })

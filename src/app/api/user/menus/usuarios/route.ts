@@ -22,7 +22,7 @@ export async function GET() {
       .where(eq(usuarios.ativo, true))
       .orderBy(asc(usuarios.name))
 
-    return NextResponse.json(lista.filter(u => u.id !== userId))
+    return NextResponse.json(lista.filter((u: any) => u.id !== userId))
   } catch (error) {
     return handleApiError(error, "ListarUsuariosMenus")
   }

@@ -34,8 +34,8 @@ export function parseEmails(emailField: string | null | undefined): string[] {
   if (!emailField || !emailField.trim()) return []
   return emailField
     .split(/[,;\n]/)
-    .map(e => e.trim())
-    .filter(e => e.includes("@"))
+    .map((e: any) => e.trim())
+    .filter((e: any) => e.includes("@"))
 }
 
 export async function sendEmail(params: {

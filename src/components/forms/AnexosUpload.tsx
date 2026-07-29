@@ -52,7 +52,7 @@ export function AnexosUpload({ anexos, onChange }: AnexosUploadProps) {
   }
 
   const handleRemove = (id: string) => {
-    onChange(anexos.filter((a) => a.id !== id))
+    onChange(anexos.filter((a: any) => a.id !== id))
   }
 
   return (
@@ -102,7 +102,7 @@ export function AnexosUpload({ anexos, onChange }: AnexosUploadProps) {
         <div className="space-y-3 mt-6">
           <h3 className="font-medium text-sm text-muted-foreground">Anexos Selecionados</h3>
           <ul className="space-y-2">
-            {anexos.map((anexo) => (
+            {anexos.map((anexo: any) => (
               <li key={anexo.id} className="flex items-center justify-between p-3 bg-background border rounded-md">
                 <div className="flex items-center space-x-3 overflow-hidden">
                   {anexo.tipo === "LINK" ? (

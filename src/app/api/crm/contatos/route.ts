@@ -55,7 +55,7 @@ export async function GET(req: NextRequest) {
       .orderBy(desc(crmContatos.createdAt))
 
     const lista = conditions.length > 0
-      ? await query.where(conditions.reduce((a, b) => sql`${a} AND ${b}`))
+      ? await query.where(conditions.reduce((a: any, b: any) => sql`${a} AND ${b}`))
       : await query
     return NextResponse.json(lista)
   } catch (error) {

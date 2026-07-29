@@ -35,9 +35,9 @@ export default function DashboardAmostraComercial() {
 
   useEffect(() => {
     fetch("/api/dashboard/amostra-comercial-stats")
-      .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json() })
+      .then((r: any) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json() })
       .then(setStats)
-      .catch((e) => setError(e.message))
+      .catch((e: any) => setError(e.message))
       .finally(() => setLoading(false))
   }, [])
 
@@ -99,7 +99,7 @@ export default function DashboardAmostraComercial() {
       ) : (
         <>
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-            {MAIN_CARDS.map((stat) => (
+            {MAIN_CARDS.map((stat: any) => (
               <button
                 key={stat.key}
                 type="button"

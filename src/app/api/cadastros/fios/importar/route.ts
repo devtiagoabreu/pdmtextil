@@ -32,7 +32,7 @@ const campoMap: Record<string, keyof FioImport> = {
 
 function parseCSV(texto: string): FioImport[] {
   const textoNormalizado = texto.replace(/\r\n/g, "\n").replace(/\r/g, "\n")
-  const linhas = textoNormalizado.split("\n").filter(l => l.trim())
+  const linhas = textoNormalizado.split("\n").filter((l: any) => l.trim())
   
   if (linhas.length < 2) {
     return []
@@ -41,7 +41,7 @@ function parseCSV(texto: string): FioImport[] {
   const separador = texto.includes(";") ? ";" : ","
   
   const primeiraLinha = linhas[0]
-  const cabecalhoLower = primeiraLinha.split(separador).map(c => c.trim().toLowerCase())
+  const cabecalhoLower = primeiraLinha.split(separador).map((c: any) => c.trim().toLowerCase())
   
   const dados: FioImport[] = []
 
@@ -49,7 +49,7 @@ function parseCSV(texto: string): FioImport[] {
     const linha = linhas[i]
     if (!linha.trim()) continue
     
-    const valores = linha.split(separador).map(v => v.trim())
+    const valores = linha.split(separador).map((v: any) => v.trim())
     
     const item: FioImport = {}
     
@@ -75,7 +75,7 @@ function parseJSON(texto: string): FioImport[] {
   try {
     const dados = JSON.parse(texto)
     if (Array.isArray(dados)) {
-      return dados.filter(item => item.codigoFio || item.nome)
+      return dados.filter((item: any) => item.codigoFio || item.nome)
     }
     return []
   } catch {

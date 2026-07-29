@@ -114,7 +114,7 @@ export async function PUT(
       return NextResponse.json({ error: "Visita não encontrada" }, { status: 404 })
     }
 
-    const userRole = auth.session.user.role
+    const userRole = auth.session.user?.role ?? ""
     if (userRole !== "ADMIN" && userRole !== "SUDO" && existente.criadoPor !== auth.userId) {
       return NextResponse.json({ error: "Apenas o criador da visita pode editá-la" }, { status: 403 })
     }
@@ -166,7 +166,7 @@ export async function PUT(
       }
 
       if (body.status === "REALIZADA") {
-        enviarPesquisaSatisfacao(atualizada.id, existente.empresaId, existente.clienteId, atualizada.contatoId).catch(err =>
+        enviarPesquisaSatisfacao(atualizada.id, existente.empresaId, existente.clienteId, atualizada.contatoId).catch((err: any) =>
           console.error("[AUTO SURVEY] Erro ao enviar pesquisa:", err.message)
         )
       }
@@ -187,7 +187,7 @@ export async function DELETE(
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
-    const userRole = auth.session.user.role
+    const userRole = auth.session.user?.role ?? ""
     if (userRole !== "ADMIN" && userRole !== "SUDO" && userRole !== "COMERCIAL" && userRole !== "CRM") {
       return NextResponse.json({ error: "Apenas administradores podem excluir" }, { status: 403 })
     }

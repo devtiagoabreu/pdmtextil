@@ -10,7 +10,7 @@ export const status = pgTable("status", {
   ativo: boolean("ativo").default(true),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-}, (t) => ({
+}, (t: any) => ({
   uniqueNomeTipo: unique().on(t.nome, t.tipo),
 }))
 

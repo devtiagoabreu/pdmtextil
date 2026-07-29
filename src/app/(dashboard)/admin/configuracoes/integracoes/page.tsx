@@ -24,14 +24,14 @@ interface Integracao {
   ativo: boolean
 }
 
-const TIPO_AUTH_LABEL: Record<TipoAuth, string> = {
+const TIPO_AUTH_LABEL: Record<string, string> = {
   oauth2: "OAuth2",
   basic: "Basic Auth",
   api_key: "API Key",
   bearer: "Bearer Token",
 }
 
-const TIPO_AUTH_ICON: Record<TipoAuth, string> = {
+const TIPO_AUTH_ICON: Record<string, string> = {
   oauth2: "text-purple-600 bg-purple-50 dark:bg-purple-950/50",
   basic: "text-blue-600 bg-blue-50 dark:bg-blue-950/50",
   api_key: "text-amber-600 bg-amber-50 dark:bg-amber-950/50",
@@ -100,7 +100,7 @@ const PDM_CAMPOS_POR_TELA: Record<string, { label: string; value: string }[]> = 
 }
 
 function getPdmCampos(telas: string): { label: string; value: string }[] {
-  const telasArr = telas.split(",").map(t => t.trim()).filter(Boolean)
+  const telasArr = telas.split(",").map((t: any) => t.trim()).filter(Boolean)
   const campos = new Map<string, { label: string; value: string }>()
   // Default fields always included
   for (const c of PDM_CAMPOS_POR_TELA.default) campos.set(c.value, c)
@@ -136,7 +136,7 @@ export default function IntegracoesPage() {
 
   useEffect(() => {
     fetch("/api/admin/integracoes")
-      .then(res => res.json())
+      .then((res: any) => res.json())
       .then(setLista)
       .catch(() => toast.error("Erro ao carregar integraÃ§Ãµes"))
       .finally(() => setLoading(false))
@@ -212,7 +212,7 @@ export default function IntegracoesPage() {
 
     setSaving(true)
     try {
-      const telasArr = telas.split(",").map(s => s.trim()).filter(Boolean)
+      const telasArr = telas.split(",").map((s: any) => s.trim()).filter(Boolean)
       const body = { nome, baseUrl, tipoAuth, authConfig: parsedAuth, telas: telasArr, mapping }
       const method = editItem ? "PUT" : "POST"
       const res = await fetch("/api/admin/integracoes", {
@@ -223,7 +223,7 @@ export default function IntegracoesPage() {
       if (!res.ok) throw new Error()
 
       if (editItem) {
-        setLista(prev => prev.map(i => i.id === editItem.id ? { ...i, ...body } : i))
+        setLista(prev => prev.map((i: any) => i.id === editItem.id ? { ...i, ...body } : i))
         toast.success("IntegraÃ§Ã£o atualizada!")
       } else {
         const item = await res.json()
@@ -246,7 +246,7 @@ export default function IntegracoesPage() {
         body: JSON.stringify({ id: item.id, ativo: !item.ativo }),
       })
       if (!res.ok) throw new Error()
-      setLista(prev => prev.map(i => i.id === item.id ? { ...i, ativo: !i.ativo } : i))
+      setLista(prev => prev.map((i: any) => i.id === item.id ? { ...i, ativo: !i.ativo } : i))
       toast.success(item.ativo ? "IntegraÃ§Ã£o desativada" : "IntegraÃ§Ã£o ativada")
     } catch {
       toast.error("Erro ao alterar status")
@@ -262,7 +262,7 @@ export default function IntegracoesPage() {
         body: JSON.stringify({ id }),
       })
       if (!res.ok) throw new Error()
-      setLista(prev => prev.filter(c => c.id !== id))
+      setLista(prev => prev.filter((c: any) => c.id !== id))
       toast.success("IntegraÃ§Ã£o removida")
     } catch {
       toast.error("Erro ao remover integraÃ§Ã£o")
@@ -309,7 +309,7 @@ export default function IntegracoesPage() {
       const autoMap: Record<string, string> = {}
       const pdmOptions = getPdmCampos(telas)
       for (const f of fields) {
-        const pdmField = pdmOptions.find(p => p.value.toLowerCase() === f.toLowerCase() || p.label.toLowerCase() === f.toLowerCase())
+        const pdmField = pdmOptions.find((p: any) => p.value.toLowerCase() === f.toLowerCase() || p.label.toLowerCase() === f.toLowerCase())
         if (pdmField) autoMap[f] = pdmField.value
       }
       setFieldMappings(autoMap)
@@ -354,7 +354,7 @@ export default function IntegracoesPage() {
             <p className="text-sm text-slate-500">Nenhuma integraÃ§Ã£o cadastrada</p>
           </div>
         ) : (
-          lista.map(item => (
+          lista.map((item: any) => (
             <div key={item.id} className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 hover:shadow-sm transition-shadow">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-start gap-4 min-w-0 flex-1">
@@ -374,7 +374,7 @@ export default function IntegracoesPage() {
                     <p className="text-sm text-slate-500 font-mono truncate mt-1">{item.baseUrl}</p>
                     {item.telas && item.telas.length > 0 && (
                       <div className="flex gap-1 mt-1.5 flex-wrap">
-                        {item.telas.map(t => <span key={t} className="text-[10px] px-1.5 py-0.5 rounded bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 uppercase">{t}</span>)}
+                        {item.telas.map((t: any) => <span key={t} className="text-[10px] px-1.5 py-0.5 rounded bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 uppercase">{t}</span>)}
                       </div>
                     )}
                   </div>
@@ -417,7 +417,7 @@ export default function IntegracoesPage() {
           <div className="space-y-2">
             <Label>Tipo de AutenticaÃ§Ã£o</Label>
             <div className="flex flex-wrap gap-2">
-              {(Object.keys(TIPO_AUTH_LABEL) as TipoAuth[]).map(tipo => (
+              {(Object.keys(TIPO_AUTH_LABEL) as TipoAuth[]).map((tipo: any) => (
                 <button
                   key={tipo}
                   type="button"
@@ -485,7 +485,7 @@ export default function IntegracoesPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                      {apiFields.map(f => (
+                      {apiFields.map((f: any) => (
                         <tr key={f}>
                           <td className="p-2 text-xs font-mono text-slate-700 dark:text-slate-300">{f}</td>
                           <td className="p-2">
@@ -498,7 +498,7 @@ export default function IntegracoesPage() {
                               }}
                               className="w-full rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-2 py-1 text-xs text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-500"
                             >
-                              {getPdmCampos(telas).map(p => (
+                              {getPdmCampos(telas).map((p: any) => (
                                 <option key={p.value} value={p.value}>{p.label}</option>
                               ))}
                             </select>
@@ -520,7 +520,7 @@ export default function IntegracoesPage() {
                     className="rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-2 py-1 text-sm text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-500"
                   >
                     <option value="">Selecione...</option>
-                    {apiFields.map(f => (
+                    {apiFields.map((f: any) => (
                       <option key={f} value={f}>{f}</option>
                     ))}
                   </select>

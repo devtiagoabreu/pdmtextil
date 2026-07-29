@@ -49,8 +49,8 @@ export default function AmostrasPage() {
   useEffect(() => {
     setLoading(true)
     fetch("/api/amostras")
-      .then(r => r.json())
-      .then(data => {
+      .then((r: any) => r.json())
+      .then((data: any) => {
         setTecidoCru(data.tecidoCru || [])
         setAcabamento(data.acabamento || [])
       })
@@ -186,7 +186,7 @@ export default function AmostrasPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                  {lista.map((a) => {
+                  {lista.map((a: any) => {
                   const isFoco = focoId === a.id
                   const temProduto = !!a.produtoCruId
                   const handleRowClick = () => {

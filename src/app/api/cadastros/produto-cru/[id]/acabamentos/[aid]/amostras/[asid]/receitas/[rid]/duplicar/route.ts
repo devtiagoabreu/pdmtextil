@@ -23,7 +23,7 @@ export async function POST(
     const [original] = await db.select().from(receitas).where(eq(receitas.id, receitaId)).limit(1)
     if (!original) return NextResponse.json({ error: "Receita não encontrada" }, { status: 404 })
 
-    const resultado = await db.transaction(async (tx) => {
+    const resultado = await db.transaction(async (tx: any) => {
       const originalId = original.receitaOriginalId || original.id
 
       const maxVersao = await tx.select({ max: receitas.versao })
@@ -45,7 +45,7 @@ export async function POST(
 
       if (itensOriginais.length > 0) {
         await tx.insert(receitaItens).values(
-          itensOriginais.map(item => ({
+          itensOriginais.map((item: any) => ({
             receitaId: nova.id,
             quimicoId: item.quimicoId,
             descricao: item.descricao,

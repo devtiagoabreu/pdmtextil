@@ -72,10 +72,10 @@ export default function RequisicoesCorteKanban({ data }: { data: RequisicaoCard[
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
   )
 
-  const colunas = ["SOLICITADO", "PROCESSANDO", "ATENDIDO"].map(status => ({
+  const colunas = ["SOLICITADO", "PROCESSANDO", "ATENDIDO"].map((status: any) => ({
     ...STATUS_CONFIG[status],
     nome: status,
-    cards: cards.filter(c => c.status === status),
+    cards: cards.filter((c: any) => c.status === status),
   }))
 
   const handleDragStart = (event: any) => {
@@ -98,7 +98,7 @@ export default function RequisicoesCorteKanban({ data }: { data: RequisicaoCard[
     const statusAntigo = item.status
 
     setCards(prev =>
-      prev.map(c => c.id === item.id ? { ...c, status: novoStatus } : c)
+      prev.map((c: any) => c.id === item.id ? { ...c, status: novoStatus } : c)
     )
 
     try {
@@ -114,7 +114,7 @@ export default function RequisicoesCorteKanban({ data }: { data: RequisicaoCard[
       toast.success(`Requisição #${item.id} movida para ${STATUS_CONFIG[novoStatus]?.rotulo || novoStatus}`)
     } catch (err: any) {
       setCards(prev =>
-        prev.map(c => c.id === item.id ? { ...c, status: statusAntigo } : c)
+        prev.map((c: any) => c.id === item.id ? { ...c, status: statusAntigo } : c)
       )
       toast.error(err.message)
     }
@@ -124,9 +124,9 @@ export default function RequisicoesCorteKanban({ data }: { data: RequisicaoCard[
     <div className="flex flex-col h-[calc(100vh-280px)]">
       <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div className="flex-1 min-h-0 flex gap-4 overflow-x-auto pb-2">
-          {colunas.map(col => (
+          {colunas.map((col: any) => (
             <DroppableColumn key={col.nome} id={col.nome} rotulo={col.rotulo} cor={col.cor} count={col.cards.length}>
-              {col.cards.map(card => (
+              {col.cards.map((card: any) => (
                 <DraggableCard key={`req-${card.id}`} item={card} />
               ))}
             </DroppableColumn>

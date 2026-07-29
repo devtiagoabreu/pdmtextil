@@ -25,8 +25,8 @@ export default function DetalheOportunidadePage() {
 
   useEffect(() => {
     fetch(`/api/crm/oportunidades/${params.id}`)
-      .then(r => r.json())
-      .then(data => {
+      .then((r: any) => r.json())
+      .then((data: any) => {
         setOportunidade(data)
         setStatusValue(data.status)
       })
@@ -70,7 +70,7 @@ export default function DetalheOportunidadePage() {
     return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(Number(valor))
   }
 
-  const currentStatus = statuses.find(s => s.nome === oportunidade?.status)
+  const currentStatus = statuses.find((s: any) => s.nome === oportunidade?.status)
 
   if (loading) {
     return (
@@ -106,7 +106,7 @@ export default function DetalheOportunidadePage() {
                   className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
                   autoFocus
                 >
-                  {statuses.map(s => (
+                  {statuses.map((s: any) => (
                     <option key={s.id} value={s.nome}>{s.nome}</option>
                   ))}
                 </select>

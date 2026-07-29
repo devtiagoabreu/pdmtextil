@@ -50,8 +50,8 @@ export default function RelatorioSolicitacoesConcluidas() {
     if (dataFim) params.set("dataFim", dataFim)
 
     fetch(`/api/relatorios/solicitacoes-concluidas?${params}`)
-      .then((r) => r.json())
-      .then((data) => {
+      .then((r: any) => r.json())
+      .then((data: any) => {
         setStats(data.stats)
         setPorMes(data.porMes || [])
         setLista(data.lista || [])
@@ -64,7 +64,7 @@ export default function RelatorioSolicitacoesConcluidas() {
 
   function handleExportCSV() {
     setTimeout(() => {
-      exportCSV("concluidas-desenvolvimento", ["#", "Cliente", "Projeto", "Tipo", "Criado em", "ConcluÃ­do em", "Dias em Dev"], lista.map((r) => [
+      exportCSV("concluidas-desenvolvimento", ["#", "Cliente", "Projeto", "Tipo", "Criado em", "ConcluÃ­do em", "Dias em Dev"], lista.map((r: any) => [
         r.id,
         r.cliente,
         r.projeto || "-",
@@ -85,8 +85,8 @@ export default function RelatorioSolicitacoesConcluidas() {
         "Beneficiamento": stats.beneficiamento,
       } : undefined,
       tables: [
-        { headers: ["MÃªs", "ConcluÃ­das"], rows: porMes.map((m) => [m.mes, m.concluidas]) },
-        { headers: ["#", "Cliente", "Projeto", "Tipo", "Criado em", "ConcluÃ­do em", "Dias"], rows: lista.map((r) => [
+        { headers: ["MÃªs", "ConcluÃ­das"], rows: porMes.map((m: any) => [m.mes, m.concluidas]) },
+        { headers: ["#", "Cliente", "Projeto", "Tipo", "Criado em", "ConcluÃ­do em", "Dias"], rows: lista.map((r: any) => [
           r.id,
           r.cliente,
           r.projeto || "-",
@@ -211,7 +211,7 @@ export default function RelatorioSolicitacoesConcluidas() {
                 </tr>
               </thead>
               <tbody>
-                {lista.map((r) => (
+                {lista.map((r: any) => (
                   <tr key={r.id} className="border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/30">
                     <td className="p-3 font-medium text-slate-700 dark:text-slate-300">#{r.id}</td>
                     <td className="p-3 text-slate-600 dark:text-slate-400">

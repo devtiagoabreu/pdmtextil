@@ -22,7 +22,7 @@ export async function PUT(
 
     const isAprovacao = body.status ? (body.status.startsWith("APROVADA") || body.status === "REPROVADA") : false
 
-    if (isAprovacao && !["COMERCIAL", "ADMIN", "SUDO", "PCP", "TECELAGEM"].includes(session.user.role)) {
+    if (isAprovacao && !["COMERCIAL", "ADMIN", "SUDO", "PCP", "TECELAGEM"].includes(session.user?.role ?? "")) {
       return NextResponse.json({ error: "Apenas COMERCIAL, ADMIN, SUDO, PCP e TECELAGEM podem aprovar/reprovar amostras" }, { status: 403 })
     }
 

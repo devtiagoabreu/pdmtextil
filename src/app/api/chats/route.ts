@@ -136,7 +136,7 @@ export async function POST(req: NextRequest) {
       }
     } else if (destinatarios === "todos") {
       const todos = await db.select({ id: usuarios.id }).from(usuarios).where(sql`ativo = true`)
-      todos.forEach((u) => { if (u.id !== userId) participantes.push(u.id) })
+      todos.forEach((u: any) => { if (u.id !== userId) participantes.push(u.id) })
     } else if (Array.isArray(destinatarios)) {
       participantes.push(...destinatarios.filter((id: number) => id !== userId))
     }
@@ -155,7 +155,7 @@ export async function POST(req: NextRequest) {
     const todosParticipantes = [userId, ...participantes]
     if (todosParticipantes.length > 0) {
       await db.insert(chatParticipantes).values(
-        todosParticipantes.map((uid) => ({ chatId: chat.id, usuarioId: uid }))
+        todosParticipantes.map((uid: any) => ({ chatId: chat.id, usuarioId: uid }))
       )
     }
 

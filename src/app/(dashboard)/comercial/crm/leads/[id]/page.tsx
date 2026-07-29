@@ -48,8 +48,8 @@ export default function LeadDetailPage() {
 
   useEffect(() => {
     fetch(`/api/crm/leads/${params.id}`)
-      .then(r => r.json())
-      .then(data => {
+      .then((r: any) => r.json())
+      .then((data: any) => {
         setLead(data)
         setForm(data)
       })
@@ -60,8 +60,8 @@ export default function LeadDetailPage() {
   useEffect(() => {
     if (!lead?.id) return
     fetch(`/api/crm/leads/${lead.id}/whatsapp`)
-      .then(r => r.json())
-      .then(data => {
+      .then((r: any) => r.json())
+      .then((data: any) => {
         setMensagens(Array.isArray(data) ? data.reverse() : [])
       })
       .catch(console.error)
@@ -253,13 +253,13 @@ export default function LeadDetailPage() {
                 <div>
                   <label className="block text-xs font-medium text-slate-500 mb-1">Origem</label>
                   <select value={form.origem || "OUTRO"} onChange={e => setForm((p: any) => ({ ...p, origem: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm">
-                    {ORIGEM_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+                    {ORIGEM_OPTIONS.map((s: any) => <option key={s} value={s}>{s}</option>)}
                   </select>
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-slate-500 mb-1">Status</label>
                   <select value={form.status || "NOVO"} onChange={e => setForm((p: any) => ({ ...p, status: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm">
-                    {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+                    {STATUS_OPTIONS.map((s: any) => <option key={s} value={s}>{s}</option>)}
                   </select>
                 </div>
               </div>
@@ -351,7 +351,7 @@ export default function LeadDetailPage() {
               {mensagens.length === 0 && !loadingMsgs ? (
                 <p className="text-sm text-slate-400 text-center py-8">Nenhuma mensagem</p>
               ) : (
-                mensagens.map((msg) => (
+                mensagens.map((msg: any) => (
                   <div key={msg.id} className={`flex ${msg.tipo === "ENVIADA" ? "justify-end" : "justify-start"}`}>
                     <div className={`max-w-[80%] rounded-lg px-3 py-2 text-sm ${
                       msg.tipo === "ENVIADA"

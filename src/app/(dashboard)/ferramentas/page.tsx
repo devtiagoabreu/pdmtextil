@@ -21,7 +21,7 @@ export default function FerramentasHubPage() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {ferramentas.map(f => {
+        {ferramentas.map((f: any) => {
           const Icon = f.icon
           return (
             <Link prefetch={false}

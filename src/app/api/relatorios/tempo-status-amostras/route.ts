@@ -148,9 +148,9 @@ export async function GET(req: NextRequest) {
         total: tecidoCruProcessados.length + acabamentoProcessados.length,
         totalTecidoCru: tecidoCruProcessados.length,
         totalAcabamento: acabamentoProcessados.length,
-        pendentes: [...tecidoCruProcessados, ...acabamentoProcessados].filter((r) => r.statusAtual === "PENDENTE").length,
-        aprovadas: [...tecidoCruProcessados, ...acabamentoProcessados].filter((r) => r.statusAtual === "APROVADO").length,
-        reprovadas: [...tecidoCruProcessados, ...acabamentoProcessados].filter((r) => r.statusAtual === "REPROVADA").length,
+        pendentes: [...tecidoCruProcessados, ...acabamentoProcessados].filter((r: any) => r.statusAtual === "PENDENTE").length,
+        aprovadas: [...tecidoCruProcessados, ...acabamentoProcessados].filter((r: any) => r.statusAtual === "APROVADO").length,
+        reprovadas: [...tecidoCruProcessados, ...acabamentoProcessados].filter((r: any) => r.statusAtual === "REPROVADA").length,
       },
     })
   } catch (error) {

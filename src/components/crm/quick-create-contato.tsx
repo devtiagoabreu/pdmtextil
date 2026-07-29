@@ -28,8 +28,8 @@ export function QuickCreateContato({ empresaId, clienteId, clienteNome, onClickG
   useEffect(() => {
     if (!open) return
     fetch("/api/crm/pessoas")
-      .then(r => r.json())
-      .then(data => { if (Array.isArray(data)) setEmpresas(data) })
+      .then((r: any) => r.json())
+      .then((data: any) => { if (Array.isArray(data)) setEmpresas(data) })
       .catch(console.error)
   }, [open])
 

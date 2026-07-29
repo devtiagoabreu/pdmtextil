@@ -58,7 +58,7 @@ export default function NovaPessoaPage() {
 
   useEffect(() => {
     if (form.uf) {
-      const found = estados.find(e => e.uf === form.uf)
+      const found = estados.find((e: any) => e.uf === form.uf)
       setEstadoId(found ? found.id : null)
     } else {
       setEstadoId(null)
@@ -73,7 +73,7 @@ export default function NovaPessoaPage() {
       const res = await fetch(`/api/representantes?q=${encodeURIComponent(query)}`)
       if (!res.ok) throw new Error()
       const data = await res.json()
-      const existentes = new Set(vinculos.map(v => v.representanteId))
+      const existentes = new Set(vinculos.map((v: any) => v.representanteId))
       setRepResults(data.filter((r: any) => !existentes.has(r.id)))
     } catch {} finally {
       setSearchingRep(false)
@@ -81,7 +81,7 @@ export default function NovaPessoaPage() {
   }
 
   function addRepresentante(representante: any) {
-    if (vinculos.find(v => v.representanteId === representante.id)) return
+    if (vinculos.find((v: any) => v.representanteId === representante.id)) return
     setVinculos(prev => [...prev, {
       id: Date.now(),
       representanteId: representante.id,
@@ -93,7 +93,7 @@ export default function NovaPessoaPage() {
   }
 
   function removeRepresentante(id: number) {
-    setVinculos(prev => prev.filter(v => v.representanteId !== id))
+    setVinculos(prev => prev.filter((v: any) => v.representanteId !== id))
   }
 
   function setField(field: string, value: string) {
@@ -400,7 +400,7 @@ export default function NovaPessoaPage() {
 
           {vinculos.length > 0 && (
             <div className="mb-3 space-y-2">
-              {vinculos.map(v => (
+              {vinculos.map((v: any) => (
                 <div key={v.id || v.representanteId} className="flex items-center justify-between bg-slate-50 dark:bg-slate-800/50 rounded-lg px-3 py-2">
                   <span className="text-sm text-slate-700 dark:text-slate-300">{v.representanteNome}</span>
                   <button type="button" onClick={() => removeRepresentante(v.representanteId)} className="p-1 rounded hover:bg-red-100 dark:hover:bg-red-900/30 text-slate-400 hover:text-red-600">
@@ -427,7 +427,7 @@ export default function NovaPessoaPage() {
             </div>
             {repResults.length > 0 && (
               <div className="absolute z-10 mt-1 w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-lg max-h-48 overflow-y-auto">
-                {repResults.map(r => (
+                {repResults.map((r: any) => (
                   <button
                     key={r.id}
                     type="button"

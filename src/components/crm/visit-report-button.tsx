@@ -247,7 +247,7 @@ export default function VisitReportButton({ visita }: { visita: Visita }) {
         doc.text(`Localizacoes (${locations.length})`, marginX, y)
         y += 6
 
-        const locRows = locations.map((loc) => [
+        const locRows = locations.map((loc: any) => [
           loc.createdAt ? new Date(loc.createdAt).toLocaleString("pt-BR") : "—",
           `${loc.latitude.toFixed(6)}, ${loc.longitude.toFixed(6)}`,
           loc.observacao || "—",

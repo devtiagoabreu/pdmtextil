@@ -54,8 +54,8 @@ export default function RelatorioTempoStatusAmostras() {
 
   useEffect(() => {
     fetch("/api/relatorios/tempo-status-amostras")
-      .then((r) => r.json())
-      .then((data) => {
+      .then((r: any) => r.json())
+      .then((data: any) => {
         setTecidoCru(data.tecidoCru || [])
         setAcabamento(data.acabamento || [])
         setStats(data.stats)
@@ -71,7 +71,7 @@ export default function RelatorioTempoStatusAmostras() {
     const prefix = aba === "tecidoCru" ? "tecido-cru" : "acabamento"
 
     const rows = currentList.flatMap((r) =>
-      r.timeline.map((t) => [
+      r.timeline.map((t: any) => [
         r.produtoCodigo,
         r.descricao || r.produtoDescricao,
         STATUS_LABELS[r.statusAtual] || r.statusAtual,
@@ -83,7 +83,7 @@ export default function RelatorioTempoStatusAmostras() {
     )
     exportCSV(`tempo-status-amostras-${prefix}`, ["Produto", "Descrição", "Status Atual", "Status", "Entrada", "Saída", "Duração"], rows)
     setTimeout(() => {
-      exportCSV(`tempo-status-amostras-${prefix}-resumo`, ["Produto", "Descrição", "Status", "Tempo Total", "Trocas"], currentList.map((r) => [
+      exportCSV(`tempo-status-amostras-${prefix}-resumo`, ["Produto", "Descrição", "Status", "Tempo Total", "Trocas"], currentList.map((r: any) => [
         r.produtoCodigo,
         r.descricao || r.produtoDescricao,
         STATUS_LABELS[r.statusAtual] || r.statusAtual,
@@ -106,11 +106,11 @@ export default function RelatorioTempoStatusAmostras() {
         "Aprovadas": stats.aprovadas,
       } : undefined,
       tables: [
-        { headers: ["Produto", "Descrição", "Status", "Tempo Total", "Trocas"], rows: currentList.map((r) => [
+        { headers: ["Produto", "Descrição", "Status", "Tempo Total", "Trocas"], rows: currentList.map((r: any) => [
           r.produtoCodigo, r.descricao || r.produtoDescricao, STATUS_LABELS[r.statusAtual] || r.statusAtual, r.tempoTotalLabel, r.trocasStatus,
         ])},
         { headers: ["Produto", "Status", "Entrada", "Saída", "Duração"], rows: currentList.flatMap((r) =>
-          r.timeline.map((t) => [
+          r.timeline.map((t: any) => [
             `${r.produtoCodigo} - ${r.descricao || r.produtoDescricao}`,
             t.statusLabel,
             t.entrada ? new Date(t.entrada).toLocaleString("pt-BR") : "-",
@@ -208,7 +208,7 @@ export default function RelatorioTempoStatusAmostras() {
             <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nenhuma amostra encontrada</p>
           </div>
         ) : (
-          lista.map((r, i) => {
+          lista.map((r: any, i: any) => {
             const key = `${r.tipoAmostra}-${r.id}-${i}`
             return (
               <div key={key} className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
@@ -254,9 +254,9 @@ export default function RelatorioTempoStatusAmostras() {
                             <span className="text-sm font-medium">{r.tempoTotalLabel}</span>
                           </div>
                         )}
-                        {r.timeline.map((t, ti) => {
+                        {r.timeline.map((t: any, ti: any) => {
                           const cor = STATUS_COLORS[t.status] || "#94a3b8"
-                          const totalMs = r.timeline.reduce((a, x) => a + x.duracaoMs, 0)
+                          const totalMs = r.timeline.reduce((a: any, x: any) => a + x.duracaoMs, 0)
                           const larguraPct = totalMs > 0 ? (t.duracaoMs / totalMs) * 100 : 0
                           return (
                             <div key={ti} className="flex items-center gap-3">

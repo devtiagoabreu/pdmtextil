@@ -98,7 +98,7 @@ export default function WhatsAppCatalogosPage() {
     }
     setSaving(true)
     try {
-      const linha = linhas.find(l => l.numero === linhaNumero)
+      const linha = linhas.find((l: any) => l.numero === linhaNumero)
       const payload = {
         ...(editId ? { id: editId } : {}),
         linhaNumero,
@@ -224,10 +224,10 @@ export default function WhatsAppCatalogosPage() {
     }
   }
 
-  const linhasAtivas = linhas.filter(l => l.ativo)
-  const grouped = linhas.map(l => ({
+  const linhasAtivas = linhas.filter((l: any) => l.ativo)
+  const grouped = linhas.map((l: any) => ({
     ...l,
-    items: catalogos.filter(c => c.linhaNumero === l.numero),
+    items: catalogos.filter((c: any) => c.linhaNumero === l.numero),
   }))
 
   return (
@@ -253,7 +253,7 @@ export default function WhatsAppCatalogosPage() {
               <Label>Linha de Tecido *</Label>
               <select value={linhaNumero} onChange={e => setLinhaNumero(Number(e.target.value))}
                 className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-sm">
-                {linhasAtivas.map(l => <option key={l.numero} value={l.numero}>{l.numero} - {l.nome}</option>)}
+                {linhasAtivas.map((l: any) => <option key={l.numero} value={l.numero}>{l.numero} - {l.nome}</option>)}
               </select>
             </div>
             <div className="space-y-2">
@@ -340,7 +340,7 @@ export default function WhatsAppCatalogosPage() {
               <p className="text-sm text-slate-400">Nenhuma linha cadastrada</p>
             ) : (
               <div className="divide-y dark:divide-slate-800">
-                {linhas.map(l => (
+                {linhas.map((l: any) => (
                   <div key={l.id} className="flex items-center gap-3 py-2">
                     <button
                       onClick={() => handleToggleLinhaAtivo(l)}
@@ -368,7 +368,7 @@ export default function WhatsAppCatalogosPage() {
       ) : (
         <div className="space-y-4">
           <div className="flex gap-2">
-            {(["TODOS", "PF", "PJ"] as const).map(t => (
+            {(["TODOS", "PF", "PJ"] as const).map((t: any) => (
               <button key={t} onClick={() => setFiltroTipo(t)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                   filtroTipo === t
@@ -380,10 +380,10 @@ export default function WhatsAppCatalogosPage() {
             ))}
           </div>
 
-          {grouped.map(g => {
+          {grouped.map((g: any) => {
             const filteredItems = filtroTipo === "TODOS"
               ? g.items
-              : g.items.filter(c => c.tipoPessoa === filtroTipo || c.tipoPessoa === "AMBOS")
+              : g.items.filter((c: any) => c.tipoPessoa === filtroTipo || c.tipoPessoa === "AMBOS")
             return (
             <div key={g.id} className="rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-white dark:bg-slate-900">
               <div className="px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
@@ -398,7 +398,7 @@ export default function WhatsAppCatalogosPage() {
                 </p>
               ) : (
                 <div className="divide-y dark:divide-slate-800">
-                  {filteredItems.map(c => (
+                  {filteredItems.map((c: any) => (
                     <div key={c.id} className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/30">
                       <button onClick={() => handleToggleAtivo(c)} className={`w-2 h-2 rounded-full shrink-0 ${c.ativo ? "bg-green-400" : "bg-slate-300"}`} title={c.ativo ? "Ativo" : "Inativo"} />
                       <div className="flex-1 min-w-0">

@@ -36,7 +36,7 @@ export default function ExportarPdfPage() {
 
   const { data: modulos, isLoading } = useQuery<ModuloCompleto[]>({
     queryKey: ["crm-treinamento-exportar-pdf"],
-    queryFn: () => fetch("/api/crm/treinamento/exportar-pdf").then((r) => r.json()),
+    queryFn: () => fetch("/api/crm/treinamento/exportar-pdf").then((r: any) => r.json()),
   })
 
   const handleExportPdf = async () => {
@@ -106,7 +106,7 @@ export default function ExportarPdfPage() {
             <div className="no-print mb-8 p-4 bg-indigo-50 border border-indigo-200 rounded-xl">
               <h2 className="font-semibold text-indigo-800 mb-2">📄 Resumo do Documento</h2>
               <p className="text-sm text-indigo-700">
-                {modulos.length} módulos • {modulos.reduce((acc, m) => acc + m.licoes.filter(l => l.ativo).length, 0)} lições
+                {modulos.length} módulos • {modulos.reduce((acc: any, m: any) => acc + m.licoes.filter((l: any) => l.ativo).length, 0)} lições
                 • Gerado em {new Date().toLocaleDateString("pt-BR")}
               </p>
             </div>
@@ -135,11 +135,11 @@ export default function ExportarPdfPage() {
             <div className="mb-8">
               <h2 className="text-xl font-bold text-slate-900 mb-4">Índice</h2>
               <ol className="list-decimal list-inside space-y-2 text-sm text-slate-700">
-                {modulos.filter(m => m.ativo).map((modulo) => (
+                {modulos.filter((m: any) => m.ativo).map((modulo: any) => (
                   <li key={modulo.id} className="font-medium">
                     {modulo.titulo}
                     <span className="text-slate-400 font-normal">
-                      {' '}({modulo.licoes.filter(l => l.ativo).length} lição{modulo.licoes.filter(l => l.ativo).length !== 1 ? "ões" : ""})
+                      {' '}({modulo.licoes.filter((l: any) => l.ativo).length} lição{modulo.licoes.filter((l: any) => l.ativo).length !== 1 ? "ões" : ""})
                     </span>
                   </li>
                 ))}
@@ -147,7 +147,7 @@ export default function ExportarPdfPage() {
             </div>
 
             {/* Módulos */}
-            {modulos.filter(m => m.ativo).map((modulo) => (
+            {modulos.filter((m: any) => m.ativo).map((modulo: any) => (
               <div key={modulo.id} className="modulo-section mb-12">
                 <div
                   className="flex items-center gap-3 mb-4 p-4 rounded-lg"
@@ -169,7 +169,7 @@ export default function ExportarPdfPage() {
                   </div>
                 </div>
 
-                {modulo.licoes.filter(l => l.ativo).map((licao, idx) => (
+                {modulo.licoes.filter((l: any) => l.ativo).map((licao: any, idx: any) => (
                   <div key={licao.id} className="licao-section mb-8 pl-4 border-l-2 border-slate-200">
                     <h3 className="text-lg font-bold text-slate-800 mb-1">
                       {idx + 1}. {licao.titulo}

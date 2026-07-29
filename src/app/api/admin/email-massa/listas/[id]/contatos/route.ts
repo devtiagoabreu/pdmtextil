@@ -40,7 +40,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         return NextResponse.json({ error: "Nenhum contato válido" }, { status: 400 })
       }
 
-      const inseridos = await db.transaction(async (tx) => {
+      const inseridos = await db.transaction(async (tx: any) => {
         await tx.delete(emailListaContatos).where(eq(emailListaContatos.listaId, listaId))
         return tx.insert(emailListaContatos).values(
           contatos.map((c: { nome: string; email: string }) => ({

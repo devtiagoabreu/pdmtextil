@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
         listFolders(token, folderId),
         listFiles(token, folderId),
       ])
-      data = [...folders.map(f => ({ ...f, _type: "folder" })), ...files.map(f => ({ ...f, _type: "file" }))]
+      data = [...folders.map((f: any) => ({ ...f, _type: "folder" })), ...files.map((f: any) => ({ ...f, _type: "file" }))]
     } else if (action === "search" && q) {
       data = await searchFiles(token, q)
     } else if (action === "breadcrumb" && folderId) {
