@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query"
 import { useSession } from "next-auth/react"
 import Link from "next/link"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import {
   Calendar, CheckCircle2, XCircle, Clock, MapPin, Users,
   ArrowRight, BarChart3, PieChart as PieChartIcon, ClipboardCheck, Navigation, User,
@@ -63,15 +63,9 @@ export default function VisitasDashboardPage() {
   const { data: session } = useSession()
   const userRole = (session?.user as any)?.role
   const isComercial = userRole && !["ADMIN", "SUDO", "CRM"].includes(userRole)
-  const [visitasFilter, setVisitasFilter] = useState<"todas" | "minhas">("todas")
-  const [filterReady, setFilterReady] = useState(false)
-
-  useEffect(() => {
-    if (session && !filterReady) {
-      setVisitasFilter(isComercial ? "minhas" : "todas")
-      setFilterReady(true)
-    }
-  }, [session, isComercial, filterReady])
+  const [visitasFilter, setVisitasFilter] = useState<"todas" | "minhas">(
+    isComercial ? "minhas" : "todas"
+  )
 
   const { data, isLoading } = useQuery<VisitasDashboardData>({
     queryKey: ["visitas-dashboard", visitasFilter],

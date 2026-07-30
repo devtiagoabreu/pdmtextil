@@ -1,6 +1,7 @@
 "use client"
 
-import { usePathname, useRouter } from "next/navigation"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { useState, useEffect, useCallback, memo } from "react"
 import {
@@ -35,7 +36,6 @@ interface SidebarProps {
 
 const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { onClose?: () => void; collapsed?: boolean }) {
   const pathname = usePathname()
-  const router = useRouter()
   const { data: session } = useSession()
   const role = session?.user?.role as string | undefined
   const isAdminOuSudo = role === "ADMIN" || role === "SUDO"
@@ -84,9 +84,9 @@ const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { on
   if (collapsed) {
     return (
       <div className="flex h-full flex-col bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 items-center py-3 gap-1 relative">
-        <a href={paginaInicial} onClick={(e) => { e.preventDefault(); onClose?.(); const h = e.currentTarget.getAttribute('href'); if (h && h !== '#') router.push(h) }} className="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-600 shadow-sm mb-3" title="PDM Pro Moda">
+        <Link href={paginaInicial} onClick={onClose} className="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-600 shadow-sm mb-3" title="PDM Pro Moda">
           <span className="text-sm font-bold text-white">PM</span>
-        </a>
+        </Link>
         {loading ? (
           <div className="py-4"><Loader2 size={16} className="animate-spin text-slate-400" /></div>
         ) : (
@@ -94,10 +94,10 @@ const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { on
             const menuActive = menu.itens.some((i: MenuItem) => isAtiva(i.url))
             const firstItem = menu.itens[0]
             return (
-              <a
+              <Link
                 key={menu.id}
                 href={firstItem?.url || "#"}
-                onClick={(e) => { e.preventDefault(); onClose?.(); const h = e.currentTarget.getAttribute('href'); if (h && h !== '#') router.push(h) }}
+                onClick={onClose}
                 title={menu.titulo}
                 className={`flex items-center justify-center w-10 h-10 rounded-lg text-sm transition-all ${
                   menuActive
@@ -106,21 +106,21 @@ const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { on
                 }`}
               >
                 <span className="font-semibold text-xs">{menu.titulo.charAt(0)}</span>
-              </a>
+              </Link>
             )
           })
         )}
         {!loading && isAdminOuSudo && (
           <>
             <div className="w-6 border-t border-slate-200 dark:border-slate-700 my-1" />
-            <a href="/admin/configuracoes" onClick={(e) => { e.preventDefault(); onClose?.(); const h = e.currentTarget.getAttribute('href'); if (h && h !== '#') router.push(h) }} title="Configurações"
+            <Link href="/admin/configuracoes" onClick={onClose} title="Configurações"
               className={`flex items-center justify-center w-10 h-10 rounded-lg transition-all ${isAtiva("/admin/configuracoes") ? "bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400" : "text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"}`}>
               <Settings size={18} />
-            </a>
-            <a href="/admin/whatsapp-chat" onClick={(e) => { e.preventDefault(); onClose?.(); const h = e.currentTarget.getAttribute('href'); if (h && h !== '#') router.push(h) }} title="Chat WhatsApp"
+            </Link>
+            <Link href="/admin/whatsapp-chat" onClick={onClose} title="Chat WhatsApp"
               className={`flex items-center justify-center w-10 h-10 rounded-lg transition-all ${isAtiva("/admin/whatsapp-chat") ? "bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400" : "text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"}`}>
               <MessageSquare size={18} />
-            </a>
+            </Link>
           </>
         )}
       </div>
@@ -131,12 +131,12 @@ const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { on
     <div className="flex h-full flex-col bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 relative">
       {/* Logo */}
       <div className="flex h-16 items-center justify-between border-b border-slate-200 dark:border-slate-800 px-6">
-        <a href={paginaInicial} className="flex items-center gap-2.5" onClick={(e) => { e.preventDefault(); onClose?.(); const h = e.currentTarget.getAttribute('href'); if (h && h !== '#') router.push(h) }}>
+        <Link href={paginaInicial} className="flex items-center gap-2.5" onClick={onClose}>
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 shadow-sm">
             <span className="text-sm font-bold text-white">PM</span>
           </div>
           <span className="text-base font-semibold text-slate-900 dark:text-slate-50">PDM Pro Moda</span>
-        </a>
+        </Link>
         {onClose && (
           <button onClick={onClose} className="p-1 rounded-md text-slate-400 hover:text-slate-600 lg:hidden">
             <X size={18} />
@@ -171,10 +171,10 @@ const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { on
                 {isExpanded && (
                   <div className="ml-4 mt-0.5 space-y-0.5 border-l border-slate-200 dark:border-slate-700 pl-2">
                     {menu.itens.map((item: any) => (
-                      <a
+                      <Link
                         key={item.id}
                         href={item.url}
-                        onClick={(e) => { e.preventDefault(); onClose?.(); const h = e.currentTarget.getAttribute('href'); if (h && h !== '#') router.push(h) }}
+                        onClick={onClose}
                         className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-all ${
                           isAtiva(item.url)
                             ? "text-blue-600 dark:text-blue-400 font-medium bg-blue-50/50 dark:bg-blue-950/30"
@@ -183,7 +183,7 @@ const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { on
                       >
                         <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-600 shrink-0" />
                         {item.titulo}
-                      </a>
+                      </Link>
                     ))}
                   </div>
                 )}
@@ -198,9 +198,9 @@ const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { on
 
         {menus.length > 0 && isAdminOuSudo && (
           <div className="pt-2 mt-2 border-t border-slate-100 dark:border-slate-800">
-            <a
+            <Link
               href="/admin/configuracoes"
-              onClick={(e) => { e.preventDefault(); onClose?.(); const h = e.currentTarget.getAttribute('href'); if (h && h !== '#') router.push(h) }}
+              onClick={onClose}
               className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
                 isAtiva("/admin/configuracoes")
                   ? "bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400 shadow-sm"
@@ -210,10 +210,10 @@ const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { on
               <Settings size={18} className={isAtiva("/admin/configuracoes") ? "text-blue-600 dark:text-blue-400" : ""} />
               Configurações
               {isAtiva("/admin/configuracoes") && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />}
-            </a>
-            <a
+            </Link>
+            <Link
               href="/admin/whatsapp-monitor"
-              onClick={(e) => { e.preventDefault(); onClose?.(); const h = e.currentTarget.getAttribute('href'); if (h && h !== '#') router.push(h) }}
+              onClick={onClose}
               className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
                 isAtiva("/admin/whatsapp-monitor")
                   ? "bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400 shadow-sm"
@@ -223,10 +223,10 @@ const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { on
               <Activity size={18} className={isAtiva("/admin/whatsapp-monitor") ? "text-blue-600 dark:text-blue-400" : ""} />
               Monitor WhatsApp
               {isAtiva("/admin/whatsapp-monitor") && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />}
-            </a>
-              <a
+            </Link>
+              <Link
               href="/admin/whatsapp-catalogos"
-              onClick={(e) => { e.preventDefault(); onClose?.(); const h = e.currentTarget.getAttribute('href'); if (h && h !== '#') router.push(h) }}
+              onClick={onClose}
               className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
                 isAtiva("/admin/whatsapp-catalogos")
                   ? "bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400 shadow-sm"
@@ -236,10 +236,10 @@ const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { on
               <Package size={18} className={isAtiva("/admin/whatsapp-catalogos") ? "text-blue-600 dark:text-blue-400" : ""} />
               Catalogos WhatsApp
               {isAtiva("/admin/whatsapp-catalogos") && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />}
-            </a>
-            <a
+            </Link>
+            <Link
               href="/admin/whatsapp-dashboard"
-              onClick={(e) => { e.preventDefault(); onClose?.(); const h = e.currentTarget.getAttribute('href'); if (h && h !== '#') router.push(h) }}
+              onClick={onClose}
               className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
                 isAtiva("/admin/whatsapp-dashboard")
                   ? "bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400 shadow-sm"
@@ -249,10 +249,10 @@ const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { on
               <BarChart3 size={18} className={isAtiva("/admin/whatsapp-dashboard") ? "text-blue-600 dark:text-blue-400" : ""} />
               Dashboard WhatsApp
               {isAtiva("/admin/whatsapp-dashboard") && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />}
-            </a>
-            <a
+            </Link>
+            <Link
               href="/admin/whatsapp-chat"
-              onClick={(e) => { e.preventDefault(); onClose?.(); const h = e.currentTarget.getAttribute('href'); if (h && h !== '#') router.push(h) }}
+              onClick={onClose}
               className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
                 isAtiva("/admin/whatsapp-chat")
                   ? "bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400 shadow-sm"
@@ -262,7 +262,7 @@ const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { on
               <MessageSquare size={18} className={isAtiva("/admin/whatsapp-chat") ? "text-blue-600 dark:text-blue-400" : ""} />
               Chat WhatsApp
               {isAtiva("/admin/whatsapp-chat") && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />}
-            </a>
+            </Link>
           </div>
         )}
       </nav>

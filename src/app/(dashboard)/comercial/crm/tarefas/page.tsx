@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react"
 import { usePathname, useSearchParams } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { PlusCircle, ListChecks, CheckCircle2, Circle, Loader2, Table, Columns, Users, User } from "lucide-react"
 import CriarTarefaDialog from "./criar-dialog"
 import TarefasKanban from "@/components/crm/tarefas-kanban"
@@ -55,15 +55,9 @@ export default function TarefasPage() {
 
   const userRole = (session?.user as any)?.role
   const isComercial = userRole && !["ADMIN", "SUDO", "CRM"].includes(userRole)
-  const [visitasFilter, setVisitasFilter] = useState<"todas" | "minhas">("todas")
-  const [filterReady, setFilterReady] = useState(false)
-
-  useEffect(() => {
-    if (session && !filterReady) {
-      setVisitasFilter(isComercial ? "minhas" : "todas")
-      setFilterReady(true)
-    }
-  }, [session, isComercial, filterReady])
+  const [visitasFilter, setVisitasFilter] = useState<"todas" | "minhas">(
+    isComercial ? "minhas" : "todas"
+  )
 
   const { data: tarefas, isLoading } = useQuery({
     queryKey: ["crm-tarefas", filtro, visitasFilter],

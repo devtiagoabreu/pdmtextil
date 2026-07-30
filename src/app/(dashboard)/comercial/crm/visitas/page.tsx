@@ -70,15 +70,9 @@ export default function VisitasPage() {
 
   const userRole = (session?.user as any)?.role
   const isComercial = userRole && !["ADMIN", "SUDO", "CRM"].includes(userRole)
-  const [visitasFilter, setVisitasFilter] = useState<"todas" | "minhas">("todas")
-  const [filterReady, setFilterReady] = useState(false)
-
-  useEffect(() => {
-    if (session && !filterReady) {
-      setVisitasFilter(isComercial ? "minhas" : "todas")
-      setFilterReady(true)
-    }
-  }, [session, isComercial, filterReady])
+  const [visitasFilter, setVisitasFilter] = useState<"todas" | "minhas">(
+    isComercial ? "minhas" : "todas"
+  )
 
   const handleSearchChange = useCallback((value: string) => {
     setSearch(value)

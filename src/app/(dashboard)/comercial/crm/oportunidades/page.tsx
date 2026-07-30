@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import Link from "next/link"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { PlusCircle, Target, Search, Table, Columns, Users, User } from "lucide-react"
 import { toast } from "sonner"
@@ -47,15 +47,9 @@ export default function OportunidadesPage() {
 
   const userRole = (session?.user as any)?.role
   const isComercial = userRole && !["ADMIN", "SUDO", "CRM"].includes(userRole)
-  const [visitasFilter, setVisitasFilter] = useState<"todas" | "minhas">("todas")
-  const [filterReady, setFilterReady] = useState(false)
-
-  useEffect(() => {
-    if (session && !filterReady) {
-      setVisitasFilter(isComercial ? "minhas" : "todas")
-      setFilterReady(true)
-    }
-  }, [session, isComercial, filterReady])
+  const [visitasFilter, setVisitasFilter] = useState<"todas" | "minhas">(
+    isComercial ? "minhas" : "todas"
+  )
 
   const { data: oportunidades, isLoading } = useQuery({
     queryKey: ["crm-oportunidades", visitasFilter],
