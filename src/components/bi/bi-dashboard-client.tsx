@@ -1,0 +1,408 @@
+"use client"
+
+import { useState, useEffect, useCallback } from "react"
+import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
+import { Search,Upload, BarChart3, TrendingUp, MapPin, Package, ShoppingCart, Layers } from "lucide-react"
+import { ChartCard } from "@/components/ui/chart-card"
+import { ChartTooltip } from "@/components/ui/chart-tooltip"
+
+// --- Stat Card Component ---
+function StatCard({ label, value, icon: Icon, prefix = "" }: { label: string; value: string | number; icon: any; prefix?: string }) {
+  return (
+    <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 card-hover">
+      <div className="flex items-center gap-3">
+        <div className="p-2 rounded-lg bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400">
+          <Icon className="w-5 h-5" />
+        </div>
+        <div>
+          <p className="text-xs text-slate-500 dark:text-slate-400">{label}</p>
+          <p className="text-lg font-bold text-slate-900 dark:text-slate-100">
+            {prefix}{typeof value === "number" ? value.toLocaleString("pt-BR", { maximumFractionDigits: 2 }) : value}
+          </p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const COLORS = ["#6366f1", "#06b6d4", "#f97316", "#22c55e", "#ef4444", "#a855f7", "#eab308", "#14b8a6", "#f43f5e", "#3b82f6", "#8b5cf6", "#ec4899"]
+
+// --- Main Dashboard Component ---
+export function BiDashboardClient() {
+  const [url, setUrl] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [sheetData, setSheetData] = useState<any>(null)
+  const [error, setError] = useState("")
+  const [activeTab, setActiveTab] = useState<"dashboard" | "produto">("dashboard")
+  const [searchProduto, setSearchProduto] = useState("")
+  const [produtoList, setProdutoList] = useState<string[]>([])
+  const [selectedProduto, setSelectedProduto] = useState("")
+  const [clientesData, setClientesData] = useState<any[]>([])
+  const [loadingClientes, setLoadingClientes] = useState(false)
+  const [sheetId, setSheetId] = useState("")
+
+  // Load cached sheet on mount
+  useEffect(() => {
+    const cached = localStorage.getItem("bi_last_sheet")
+    if (cached) {
+      const parsed = JSON.parse(cached)
+      setSheetId(parsed.id)
+      setUrl(parsed.url)
+      fetchSheetData(parsed.id)
+    }
+  }, [])
+
+  const fetchSheetData = useCallback(async (id: string) => {
+    setLoading(true)
+    setError("")
+    try {
+      const res = await fetch(`/api/bi/${id}`)
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.error || "Erro ao carregar dados")
+      }
+      const data = await res.json()
+      setSheetData(data)
+      setProdutoList(data.produtos || [])
+      setSheetId(id)
+    } catch (e: any) {
+      setError(e.message)
+      setSheetData(null)
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  const handleLoad = async () => {
+    if (!url.trim()) return
+    setLoading(true)
+    setError("")
+    try {
+      const res = await fetch("/api/bi", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: url.trim() }),
+      })
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.error || "Erro ao carregar planilha")
+      }
+      const data = await res.json()
+      localStorage.setItem("bi_last_sheet", JSON.stringify({ id: data.id, url: url.trim() }))
+      await fetchSheetData(data.id)
+    } catch (e: any) {
+      setError(e.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleSelectProduto = async (produto: string) => {
+    setSelectedProduto(produto)
+    if (!produto || !sheetId) return
+    setLoadingClientes(true)
+    try {
+      const res = await fetch(`/api/bi/${sheetId}/produto/${encodeURIComponent(produto)}/clientes`)
+      if (!res.ok) throw new Error("Erro ao buscar clientes")
+      const data = await res.json()
+      setClientesData(data.clientes || [])
+    } catch (e: any) {
+      setError(e.message)
+      setClientesData([])
+    } finally {
+      setLoadingClientes(false)
+    }
+  }
+
+  const filteredProdutos = produtoList.filter(p =>
+    p.toLowerCase().includes(searchProduto.toLowerCase()),
+  )
+
+  // --- Loading State ---
+  if (loading && !sheetData) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="text-center space-y-3">
+          <div className="animate-spin w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full mx-auto" />
+          <p className="text-sm text-slate-500">Carregando dados da planilha...</p>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* URL Input */}
+      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
+        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+          URL da Planilha Google
+        </label>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={url}
+            onChange={e => setUrl(e.target.value)}
+            placeholder="https://docs.google.com/spreadsheets/d/..."
+            className="flex-1 px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            onKeyDown={e => e.key === "Enter" && handleLoad()}
+          />
+          <button
+            onClick={handleLoad}
+            disabled={loading || !url.trim()}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+          >
+            <Upload className="w-4 h-4" />
+            {loading ? "Carregando..." : "Carregar"}
+          </button>
+        </div>
+        {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
+      </div>
+
+      {/* Tabs */}
+      {sheetData && (
+        <>
+          <div className="flex gap-1 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-1">
+            <button
+              onClick={() => setActiveTab("dashboard")}
+              className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                activeTab === "dashboard"
+                  ? "bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400"
+                  : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+              }`}
+            >
+              <BarChart3 className="w-4 h-4 inline mr-2" />
+              Dashboard
+            </button>
+            <button
+              onClick={() => setActiveTab("produto")}
+              className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                activeTab === "produto"
+                  ? "bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400"
+                  : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+              }`}
+            >
+              <Package className="w-4 h-4 inline mr-2" />
+              Consulta por Produto
+            </button>
+          </div>
+
+          {/* Sheet Info */}
+          <div className="text-xs text-slate-400 dark:text-slate-500">
+            {sheetData.title} &middot; {sheetData.tabs?.length || 0} aba(s) &middot;
+            Relacionamentos: {sheetData.relationships?.length || 0}
+          </div>
+
+          {activeTab === "dashboard" && (
+            <>
+              {/* Metric Cards */}
+              {sheetData.metrics && (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <StatCard label="Faturamento Total" value={sheetData.metrics.totalVendas} icon={TrendingUp} prefix="R$ " />
+                  <StatCard label="Representantes" value={sheetData.metrics.totalRepresentantes} icon={Layers} />
+                  <StatCard label="Clientes Atendidos" value={sheetData.metrics.totalClientes} icon={ShoppingCart} />
+                  <StatCard label="Linhas (Itens)" value={sheetData.metrics.totalLinhas} icon={BarChart3} />
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {/* Revenue by Rep */}
+                <ChartCard title="Faturamento por Representante" delay={0}>
+                  <ResponsiveContainer width="100%" height={280}>
+                    <BarChart
+                      data={(sheetData.revenueByRep || []).slice(0, 15)}
+                      layout="vertical"
+                      margin={{ left: 20, right: 20 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                      <XAxis type="number" tick={{ fontSize: 10 }} stroke="#94a3b8" />
+                      <YAxis dataKey="nome" type="category" tick={{ fontSize: 10 }} stroke="#94a3b8" width={180} />
+                      <Tooltip content={<ChartTooltip formatter={(v: number) => `R$ ${v.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}`} />} />
+                      <Bar dataKey="valor" radius={[0, 4, 4, 0]} animationDuration={1800}>
+                        {(sheetData.revenueByRep || []).map((_: any, i: number) => (
+                          <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </ChartCard>
+
+                {/* Monthly Trend */}
+                <ChartCard title="Evolução Mensal do Faturamento" delay={200}>
+                  <ResponsiveContainer width="100%" height={280}>
+                    <LineChart data={sheetData.monthlyTrend || []}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                      <XAxis dataKey="mes" tick={{ fontSize: 10 }} stroke="#94a3b8" />
+                      <YAxis tick={{ fontSize: 10 }} stroke="#94a3b8" />
+                      <Tooltip content={<ChartTooltip formatter={(v: number) => `R$ ${v.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}`} />} />
+                      <Line type="monotone" dataKey="valor" stroke="#6366f1" strokeWidth={2} dot={{ fill: "#6366f1", r: 3 }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </ChartCard>
+
+                {/* ABC Curve */}
+                <ChartCard title="Curva ABC - Grupos" delay={400}>
+                  <ResponsiveContainer width="100%" height={280}>
+                    <BarChart data={(sheetData.abcCurve || []).slice(0, 20)}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                      <XAxis dataKey="grupo" tick={{ fontSize: 10 }} stroke="#94a3b8" />
+                      <YAxis tick={{ fontSize: 10 }} stroke="#94a3b8" />
+                      <Tooltip content={<ChartTooltip formatter={(v: number) => `R$ ${v.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}`} />} />
+                      <Bar dataKey="valorTotal" radius={[4, 4, 0, 0]} animationDuration={1800} animationBegin={600}>
+                        {(sheetData.abcCurve || []).map((item: any) => (
+                          <Cell key={item.grupo} fill={item.classe === "A" ? "#ef4444" : item.classe === "B" ? "#f97316" : "#22c55e"} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </ChartCard>
+
+                {/* Geo Distribution */}
+                <ChartCard title="Distribuição Geográfica (UF)" delay={600}>
+                  <ResponsiveContainer width="100%" height={280}>
+                    <PieChart>
+                      <Pie
+                        data={(sheetData.geoDistribution || []).slice(0, 10)}
+                        dataKey="valor"
+                        nameKey="uf"
+                        cx="50%" cy="50%"
+                        outerRadius={100}
+                        label={({ name, percent }: any) => `${name} (${((percent || 0) * 100).toFixed(0)}%)`}
+                        animationDuration={2500}
+                        animationBegin={800}
+                      >
+                        {(sheetData.geoDistribution || []).slice(0, 10).map((_: any, i: number) => (
+                          <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip content={<ChartTooltip formatter={(v: number) => `R$ ${v.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}`} />} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </ChartCard>
+              </div>
+            </>
+          )}
+
+          {activeTab === "produto" && (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              {/* Product Selector */}
+              <div className="lg:col-span-1">
+                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    <Package className="w-4 h-4 inline mr-1" />
+                    Selecione um Produto
+                  </label>
+                  <div className="relative mb-3">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <input
+                      type="text"
+                      value={searchProduto}
+                      onChange={e => setSearchProduto(e.target.value)}
+                      placeholder="Buscar produto..."
+                      className="w-full pl-9 pr-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+                  <div className="max-h-[400px] overflow-y-auto space-y-1">
+                    {filteredProdutos.slice(0, 200).map(p => (
+                      <button
+                        key={p}
+                        onClick={() => handleSelectProduto(p)}
+                        className={`w-full text-left px-3 py-1.5 rounded-lg text-xs transition-colors ${
+                          selectedProduto === p
+                            ? "bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 font-medium"
+                            : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+                        }`}
+                      >
+                        {p}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-xs text-slate-400 mt-2">{produtoList.length} produtos no total</p>
+                </div>
+              </div>
+
+              {/* Client Results */}
+              <div className="lg:col-span-2">
+                {!selectedProduto && (
+                  <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 text-center">
+                    <Package className="w-12 h-12 mx-auto text-slate-300 dark:text-slate-600 mb-3" />
+                    <p className="text-sm text-slate-500">Selecione um produto ao lado para ver os clientes</p>
+                  </div>
+                )}
+
+                {loadingClientes && (
+                  <div className="flex items-center justify-center py-12">
+                    <div className="animate-spin w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full" />
+                  </div>
+                )}
+
+                {selectedProduto && !loadingClientes && (
+                  <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
+                    <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
+                      Clientes que compraram: <span className="text-indigo-600 dark:text-indigo-400">{selectedProduto}</span>
+                    </h3>
+
+                    {clientesData.length === 0 ? (
+                      <p className="text-sm text-slate-500 py-4 text-center">Nenhum cliente encontrado para este produto.</p>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-xs">
+                          <thead className="border-b border-slate-200 dark:border-slate-700">
+                            <tr>
+                              <th className="text-left py-2 px-2 font-medium text-slate-500">Cliente</th>
+                              <th className="text-left py-2 px-2 font-medium text-slate-500">Cidade/UF</th>
+                              <th className="text-right py-2 px-2 font-medium text-slate-500">Último Faturamento</th>
+                              <th className="text-right py-2 px-2 font-medium text-slate-500">Total Faturado</th>
+                              <th className="text-right py-2 px-2 font-medium text-slate-500">Ticket Médio</th>
+                              <th className="text-right py-2 px-2 font-medium text-slate-500">Quantidade</th>
+                              <th className="text-left py-2 px-2 font-medium text-slate-500">Última NF</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {clientesData.map((c, i) => (
+                              <tr key={i} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                <td className="py-2 px-2 font-medium text-slate-800 dark:text-slate-200">{c.razaoSocial}</td>
+                                <td className="py-2 px-2 text-slate-500">{c.cidade}/{c.uf}</td>
+                                <td className="py-2 px-2 text-right text-slate-700 dark:text-slate-300">
+                                  {new Date(c.ultimaData).toLocaleDateString("pt-BR")}
+                                </td>
+                                <td className="py-2 px-2 text-right font-medium text-slate-800 dark:text-slate-200">
+                                  R$ {c.totalFaturado.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}
+                                </td>
+                                <td className="py-2 px-2 text-right text-slate-500">
+                                  R$ {c.ticketMedio.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}
+                                </td>
+                                <td className="py-2 px-2 text-right text-slate-500">
+                                  {c.quantidadeTotal.toLocaleString("pt-BR")}
+                                </td>
+                                <td className="py-2 px-2 text-slate-500">{c.ultimaNF}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Mini chart for selected product */}
+                {selectedProduto && clientesData.length > 0 && (
+                  <ChartCard title={`Top Clientes - ${selectedProduto}`} delay={100}>
+                    <ResponsiveContainer width="100%" height={200}>
+                      <BarChart data={clientesData.slice(0, 10)} layout="vertical" margin={{ left: 20 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                        <XAxis type="number" tick={{ fontSize: 10 }} stroke="#94a3b8" />
+                        <YAxis dataKey="razaoSocial" type="category" tick={{ fontSize: 9 }} stroke="#94a3b8" width={150} />
+                        <Tooltip content={<ChartTooltip formatter={(v: number) => `R$ ${v.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}`} />} />
+                        <Bar dataKey="totalFaturado" radius={[0, 4, 4, 0]} fill="#6366f1" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </ChartCard>
+                )}
+              </div>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  )
+}
