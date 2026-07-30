@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link"
+import { NavLink } from "@/components/ui/nav-link"
 import { usePathname } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { useState, useEffect, useCallback, memo } from "react"
@@ -84,9 +84,9 @@ const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { on
   if (collapsed) {
     return (
       <div className="flex h-full flex-col bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 items-center py-3 gap-1 relative">
-        <Link prefetch={false} href={paginaInicial} onClick={onClose} className="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-600 shadow-sm mb-3" title="PDM Pro Moda">
+        <NavLink href={paginaInicial} onClick={onClose} className="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-600 shadow-sm mb-3" title="PDM Pro Moda">
           <span className="text-sm font-bold text-white">PM</span>
-        </Link>
+        </NavLink>
         {loading ? (
           <div className="py-4"><Loader2 size={16} className="animate-spin text-slate-400" /></div>
         ) : (
@@ -94,7 +94,7 @@ const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { on
             const menuActive = menu.itens.some((i: MenuItem) => isAtiva(i.url))
             const firstItem = menu.itens[0]
             return (
-              <Link prefetch={false}
+              <NavLink
                 key={menu.id}
                 href={firstItem?.url || "#"}
                 onClick={onClose}
@@ -106,21 +106,21 @@ const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { on
                 }`}
               >
                 <span className="font-semibold text-xs">{menu.titulo.charAt(0)}</span>
-              </Link>
+              </NavLink>
             )
           })
         )}
         {!loading && isAdminOuSudo && (
           <>
             <div className="w-6 border-t border-slate-200 dark:border-slate-700 my-1" />
-            <Link prefetch={false} href="/admin/configuracoes" onClick={onClose} title="Configurações"
+            <NavLink href="/admin/configuracoes" onClick={onClose} title="Configurações"
               className={`flex items-center justify-center w-10 h-10 rounded-lg transition-all ${isAtiva("/admin/configuracoes") ? "bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400" : "text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"}`}>
               <Settings size={18} />
-            </Link>
-            <Link prefetch={false} href="/admin/whatsapp-chat" onClick={onClose} title="Chat WhatsApp"
+            </NavLink>
+            <NavLink href="/admin/whatsapp-chat" onClick={onClose} title="Chat WhatsApp"
               className={`flex items-center justify-center w-10 h-10 rounded-lg transition-all ${isAtiva("/admin/whatsapp-chat") ? "bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400" : "text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"}`}>
               <MessageSquare size={18} />
-            </Link>
+            </NavLink>
           </>
         )}
       </div>
@@ -131,12 +131,12 @@ const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { on
     <div className="flex h-full flex-col bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 relative">
       {/* Logo */}
       <div className="flex h-16 items-center justify-between border-b border-slate-200 dark:border-slate-800 px-6">
-        <Link prefetch={false} href={paginaInicial} className="flex items-center gap-2.5" onClick={onClose}>
+        <NavLink href={paginaInicial} className="flex items-center gap-2.5" onClick={onClose}>
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 shadow-sm">
             <span className="text-sm font-bold text-white">PM</span>
           </div>
           <span className="text-base font-semibold text-slate-900 dark:text-slate-50">PDM Pro Moda</span>
-        </Link>
+        </NavLink>
         {onClose && (
           <button onClick={onClose} className="p-1 rounded-md text-slate-400 hover:text-slate-600 lg:hidden">
             <X size={18} />
@@ -171,7 +171,7 @@ const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { on
                 {isExpanded && (
                   <div className="ml-4 mt-0.5 space-y-0.5 border-l border-slate-200 dark:border-slate-700 pl-2">
                     {menu.itens.map((item: any) => (
-                      <Link prefetch={false}
+                      <NavLink
                         key={item.id}
                         href={item.url}
                         onClick={onClose}
@@ -183,7 +183,7 @@ const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { on
                       >
                         <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-600 shrink-0" />
                         {item.titulo}
-                      </Link>
+                      </NavLink>
                     ))}
                   </div>
                 )}
@@ -198,7 +198,7 @@ const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { on
 
         {menus.length > 0 && isAdminOuSudo && (
           <div className="pt-2 mt-2 border-t border-slate-100 dark:border-slate-800">
-            <Link prefetch={false}
+            <NavLink
               href="/admin/configuracoes"
               onClick={onClose}
               className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
@@ -210,8 +210,8 @@ const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { on
               <Settings size={18} className={isAtiva("/admin/configuracoes") ? "text-blue-600 dark:text-blue-400" : ""} />
               Configurações
               {isAtiva("/admin/configuracoes") && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />}
-            </Link>
-            <Link prefetch={false}
+            </NavLink>
+            <NavLink
               href="/admin/whatsapp-monitor"
               onClick={onClose}
               className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
@@ -223,8 +223,8 @@ const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { on
               <Activity size={18} className={isAtiva("/admin/whatsapp-monitor") ? "text-blue-600 dark:text-blue-400" : ""} />
               Monitor WhatsApp
               {isAtiva("/admin/whatsapp-monitor") && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />}
-            </Link>
-              <Link prefetch={false}
+            </NavLink>
+              <NavLink
               href="/admin/whatsapp-catalogos"
               onClick={onClose}
               className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
@@ -236,8 +236,8 @@ const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { on
               <Package size={18} className={isAtiva("/admin/whatsapp-catalogos") ? "text-blue-600 dark:text-blue-400" : ""} />
               Catalogos WhatsApp
               {isAtiva("/admin/whatsapp-catalogos") && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />}
-            </Link>
-            <Link prefetch={false}
+            </NavLink>
+            <NavLink
               href="/admin/whatsapp-dashboard"
               onClick={onClose}
               className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
@@ -249,8 +249,8 @@ const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { on
               <BarChart3 size={18} className={isAtiva("/admin/whatsapp-dashboard") ? "text-blue-600 dark:text-blue-400" : ""} />
               Dashboard WhatsApp
               {isAtiva("/admin/whatsapp-dashboard") && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />}
-            </Link>
-            <Link prefetch={false}
+            </NavLink>
+            <NavLink
               href="/admin/whatsapp-chat"
               onClick={onClose}
               className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
@@ -262,7 +262,7 @@ const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { on
               <MessageSquare size={18} className={isAtiva("/admin/whatsapp-chat") ? "text-blue-600 dark:text-blue-400" : ""} />
               Chat WhatsApp
               {isAtiva("/admin/whatsapp-chat") && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />}
-            </Link>
+            </NavLink>
           </div>
         )}
       </nav>

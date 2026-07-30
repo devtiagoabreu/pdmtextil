@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link"
+import { NavLink } from "@/components/ui/nav-link"
 import { usePathname } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { useState, useEffect } from "react"
@@ -34,7 +34,7 @@ export function MobileBottomNav() {
           const isActive = pathname === item.href || pathname?.startsWith(item.href + "/")
           const Icon = item.icon
           return (
-            <Link prefetch={false}
+            <NavLink
               key={item.href}
               href={item.href}
               className={`flex flex-col items-center gap-1 rounded-xl px-4 py-2 transition-colors ${
@@ -45,7 +45,7 @@ export function MobileBottomNav() {
             >
               <Icon size={22} />
               <span className="text-xs font-medium">{item.label}</span>
-            </Link>
+            </NavLink>
           )
         })}
       </div>
