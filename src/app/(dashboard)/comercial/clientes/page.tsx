@@ -178,41 +178,41 @@ export default function ClientesPage() {
             {filteredData.map((cliente: any) => (
               <div
                 key={cliente.id}
-                className="rounded-lg border border-slate-200 dark:border-slate-700 p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                className="rounded-lg border border-slate-200 dark:border-slate-700 p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors flex flex-col"
               >
                 <div className="flex items-start justify-between mb-3">
-                  <div>
-                    <h3 className="font-semibold text-slate-900 dark:text-slate-100">{cliente.nome}</h3>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">{cliente.razaoSocial}</p>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-semibold text-slate-900 dark:text-slate-100 truncate">{cliente.nome}</h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{cliente.razaoSocial}</p>
                   </div>
-                  <span className="text-xs font-mono text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">
+                  <span className="text-xs font-mono text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded shrink-0 ml-2">
                     {cliente.cnpj}
                   </span>
                 </div>
 
-                <div className="space-y-2 text-sm">
+                <div className="space-y-2 text-sm flex-1">
                   {cliente.contato && (
                     <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
-                      <Users size={14} className="text-slate-400" />
-                      <span>{cliente.contato}</span>
+                      <Users size={14} className="text-slate-400 shrink-0" />
+                      <span className="truncate">{cliente.contato}</span>
                     </div>
                   )}
                   {cliente.email && (
                     <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
-                      <Mail size={14} className="text-slate-400" />
+                      <Mail size={14} className="text-slate-400 shrink-0" />
                       <span className="truncate">{cliente.email}</span>
                     </div>
                   )}
                   {cliente.telefone && (
                     <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
-                      <Phone size={14} className="text-slate-400" />
+                      <Phone size={14} className="text-slate-400 shrink-0" />
                       <span>{cliente.telefone}</span>
                     </div>
                   )}
                   {cliente.cidade && (
                     <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
-                      <MapPin size={14} className="text-slate-400" />
-                      <span>{cliente.cidade}{cliente.uf ? `, ${cliente.uf}` : ""}</span>
+                      <MapPin size={14} className="text-slate-400 shrink-0" />
+                      <span className="truncate">{cliente.cidade}{cliente.uf ? `, ${cliente.uf}` : ""}</span>
                     </div>
                   )}
                 </div>
@@ -220,21 +220,21 @@ export default function ClientesPage() {
                 <div className="flex gap-2 mt-4 pt-3 border-t border-slate-100 dark:border-slate-700">
                   <Link
                     href={`/comercial/clientes/${cliente.id}`}
-                    className="flex items-center gap-1 text-xs text-blue-600 hover:underline"
+                    className="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline"
                   >
                     <Pencil size={12} />
                     Editar
                   </Link>
                   <button
                     onClick={() => abrirSolicitacoes(cliente)}
-                    className="flex items-center gap-1 text-xs text-emerald-600 hover:underline"
+                    className="inline-flex items-center gap-1 text-xs text-emerald-600 hover:underline"
                   >
                     <FileText size={12} />
                     Solicitações
                   </button>
                   <button
                     onClick={() => abrirAmostras(cliente)}
-                    className="flex items-center gap-1 text-xs text-purple-600 hover:underline"
+                    className="inline-flex items-center gap-1 text-xs text-purple-600 hover:underline"
                   >
                     <FlaskConical size={12} />
                     Amostras
