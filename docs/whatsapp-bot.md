@@ -173,8 +173,8 @@ O bot sempre notifica o representante quando:
 - Cliente redirecionado (recusou corrigir PF/PJ)
 
 A notificacao vai para:
-- **PF:** `WHATSAPP_REPRESENTANTE_PF` (default: 5519999999998)
-- **PJ:** `WHATSAPP_REPRESENTANTE_PJ` (default: 5519999999999)
+- **PF:** `WHATSAPP_REPRESENTANTE_PF` (configurado via .env.local)
+- **PJ:** `WHATSAPP_REPRESENTANTE_PJ` (configurado via .env.local)
 
 A notificacao contem: nome do lead, link WhatsApp, tipo (PF/PJ), documento, linhas de interesse.
 

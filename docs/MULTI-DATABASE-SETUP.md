@@ -12,17 +12,17 @@ O projeto PDM Têxtil utiliza **três bancos de dados PostgreSQL** no mesmo serv
 
 ## Configuração do Servidor
 
-- **Host**: `HOST_REMOVIDO`
-- **Porta**: `21237`
-- **Usuário**: `postgres`
+- **Host**: configurado no `.env.local`
+- **Porta**: configurado no `.env.local`
+- **Usuário**: configurado no `.env.local`
 - **Driver**: PostgreSQL (via `postgres` driver / postgres-js)
 
-## URLs de Conexão
+## URLs de Conexão (exemplo — usar valores reais no .env.local)
 
 ```
-DATABASE_URL="postgresql://postgres:SENHA_REMOVIDA@HOST_REMOVIDO:21237/pdm_textil"
-DATABASE_URL_PDM_PRO_TEXTIL="postgresql://postgres:SENHA_REMOVIDA@HOST_REMOVIDO:21237/pdm_pro_textil"
-DATABASE_URL_PDM_IBIRAPUERA="postgresql://postgres:SENHA_REMOVIDA@HOST_REMOVIDO:21237/pdm_ibirapuera"
+DATABASE_URL="postgresql://usuario:senha@host:5432/pdm_textil"
+DATABASE_URL_PDM_PRO_TEXTIL="postgresql://usuario:senha@host:5432/pdm_pro_textil"
+DATABASE_URL_PDM_IBIRAPUERA="postgresql://usuario:senha@host:5432/pdm_ibirapuera"
 ```
 
 ## Scripts de Migração

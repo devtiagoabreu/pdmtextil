@@ -141,7 +141,7 @@
       "typeVersion": 4,
       "position": [1800, 300],
       "parameters": {
-        "url": "https://evolutionapi.tiagoabreu.dev/message/sendText/maketing_pdm_pro_moda",
+        "url": "https://evolutionapi.tiagoabreu.dev/message/sendText/{{SUA_INSTANCIA}}",
         "method": "POST",
         "authentication": "none",
         "sendBody": true,
@@ -157,7 +157,7 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "TOKEN_REMOVIDO" }
+            { "name": "apikey", "value": "{{SUA_EVOLUTION_API_KEY}}" }
           ]
         }
       }
@@ -186,7 +186,7 @@
       "typeVersion": 4,
       "position": [2000, 400],
       "parameters": {
-        "url": "https://pdmprotextil.vercel.app/api/crm/whatsapp/webhook?createLead=true&secret=WEBHOOK_SECRET_REMOVIDO",
+        "url": "https://pdmprotextil.vercel.app/api/crm/whatsapp/webhook?createLead=true&secret={{SEU_WEBHOOK_SECRET}}",
         "method": "POST",
         "authentication": "none",
         "sendBody": true,

@@ -65,7 +65,7 @@ psql -U postgres -d pdm_textil -c "SELECT COUNT(*) FROM solicitacoes;"
 
 ### Se quiser criar um usuário dedicado (recomendado)
 ```sql
-CREATE USER pdm_user WITH PASSWORD 'SENHA_SEGURA_AQUI';
+CREATE USER pdm_user WITH PASSWORD 'SUA_SENHA_AQUI';
 GRANT ALL PRIVILEGES ON DATABASE pdm_textil TO pdm_user;
 GRANT ALL ON SCHEMA public TO pdm_user;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO pdm_user;
@@ -78,7 +78,7 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO pdm_user;
 
 ### Arquivo a alterar: `.env.local` (e variáveis de ambiente do Vercel)
 ```
-DATABASE_URL="postgresql://pdm_user:SENHA@IP_DO_SERVIDOR:5432/pdm_textil?sslmode=require"
+DATABASE_URL="postgresql://usuario:senha@host:5432/pdm_textil?sslmode=require"
 ```
 
 ### Arquivo a alterar: `src/lib/db/index.ts`

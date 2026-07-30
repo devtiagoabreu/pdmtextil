@@ -25,39 +25,39 @@ Evolution → n8n Webhook → Extrair dados → Filtrar → Enviar para CRM
 
 1. **Importar**: n8n → Workflows → Import from File → selecione o arquivo
 2. **Acessar**: Vá em Settings → Environment Variables no n8n e adicione:
-   - `WHATSAPP_WEBHOOK_SECRET`: `WEBHOOK_SECRET_REMOVIDO` (ou o valor definido na Vercel)
+   - `WHATSAPP_WEBHOOK_SECRET`: `SEU_WEBHOOK_SECRET` (definido na Vercel)
 3. **Ativar e copiar URL**: Abra o workflow, clique no nó **Receber do Evolution** e copie a Webhook URL
 4. **Registrar na Evolution**: Execute o comando abaixo com a URL copiada
 
 > ⚠️ O `byEvents` deve ser **`true`** para evitar que a Evolution envie todos os tipos de evento (conexão, QR code, etc.). Com `byEvents: true`, apenas `MESSAGES_UPSERT` é disparado.
 
 ```bash
-curl -X POST https://evolutionapi.tiagoabreu.dev/webhook/set/maketing_pdm_pro_moda \
-  -H "apikey: API_KEY_REMOVIDA" \
+curl -X POST https://evolutionapi.tiagoabreu.dev/webhook/set/SUA_INSTANCIA \
+  -H "apikey: SUA_EVOLUTION_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"webhook":{"enabled":true,"url":"WEBHOOK_URL_AQUI","byEvents":true,"events":["MESSAGES_UPSERT"]}}'
 ```
 
 ### Gerenciamento do Webhook (Evolution API)
 
-**Servidor:** `https://evolutionapi.tiagoabreu.dev` (Cloudflare, IP `104.21.92.117`)  
-**Instância:** `maketing_pdm_pro_moda`  
-**API Key (global):** `API_KEY_REMOVIDA` (via `.env.local`)  
+**Servidor:** `https://evolutionapi.tiagoabreu.dev` (Cloudflare)  
+**Instância:** configurada no `.env.local` como `EVOLUTION_INSTANCE_NAME`  
+**API Key (global):** configurada no `.env.local` como `EVOLUTION_API_KEY`  
 **API Key (n8n):** salva como credencial `Evolution account` no n8n
 
 #### Endpoints úteis
 
 | Ação | Comando |
 |------|---------|
-| **Ver webhook atual** | `curl -s -X GET "https://evolutionapi.tiagoabreu.dev/webhook/find/maketing_pdm_pro_moda" -H "apikey: API_KEY_REMOVIDA"` |
-| **Alterar webhook** | `curl -s -X POST "https://evolutionapi.tiagoabreu.dev/webhook/set/maketing_pdm_pro_moda" -H "apikey: API_KEY_REMOVIDA" -H "Content-Type: application/json" -d @payload.json` |
-| **Testar envio manual** | `curl -s -X POST "https://evolutionapi.tiagoabreu.dev/message/sendText/maketing_pdm_pro_moda" -H "apikey: API_KEY_REMOVIDA" -H "Content-Type: application/json" -d "{\"number\":\"5519999999999\",\"textMessage\":{\"text\":\"teste\"}}"` |
-| **Listar instâncias** | `curl -s -X GET "https://evolutionapi.tiagoabreu.dev/instance/fetchInstances" -H "apikey: API_KEY_REMOVIDA"` |
+| **Ver webhook atual** | `curl -s -X GET "https://evolutionapi.tiagoabreu.dev/webhook/find/SUA_INSTANCIA" -H "apikey: SUA_EVOLUTION_API_KEY"` |
+| **Alterar webhook** | `curl -s -X POST "https://evolutionapi.tiagoabreu.dev/webhook/set/SUA_INSTANCIA" -H "apikey: SUA_EVOLUTION_API_KEY" -H "Content-Type: application/json" -d @payload.json` |
+| **Testar envio manual** | `curl -s -X POST "https://evolutionapi.tiagoabreu.dev/message/sendText/SUA_INSTANCIA" -H "apikey: SUA_EVOLUTION_API_KEY" -H "Content-Type: application/json" -d "{\"number\":\"5519999999999\",\"textMessage\":{\"text\":\"teste\"}}"` |
+| **Listar instâncias** | `curl -s -X GET "https://evolutionapi.tiagoabreu.dev/instance/fetchInstances" -H "apikey: SUA_EVOLUTION_API_KEY"` |
 
 #### Observações
 - Use `curl.exe` (não `curl`) no PowerShell do Windows para evitar erro `URL rejected: Bad hostname`
 - O header de autenticação é `apikey` (minúsculo, sem `Bearer`)
-- A API key do `.env.local` (`API_KEY_REMOVIDA`) é a global. A `TOKEN_REMOVIDO` (usada em workflows antigos) é token de instância.
+- A API key do `.env.local` é a global. O token de instância (usado em workflows antigos) também deve ser configurado via `.env.local`.
 - Para alterar o webhook, salve o JSON num arquivo (`payload.json`) e use `-d @payload.json` para evitar problemas de escaping:
 
 ---

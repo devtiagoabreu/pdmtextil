@@ -233,8 +233,8 @@ Persiste o estado atual da conversa no banco CRM (estado, dados coletados, últi
 | **Condição** | Executa apenas se `dados.finalizado === true` |
 
 Gera a mensagem de notificação para os representantes:
-- Se **PJ** → envia para `5519999999999@s.whatsapp.net`
-- Se **PF** → envia para `5519999999998@s.whatsapp.net`
+- Se **PJ** → envia para o número configurado em `WHATSAPP_REPRESENTANTE_PJ`
+- Se **PF** → envia para o número configurado em `WHATSAPP_REPRESENTANTE_PF`
 - Monta texto com nome, telefone, tipo, documento
 
 Se `finalizado !== true`, retorna `[null]` e encerra o fluxo.
