@@ -149,10 +149,13 @@ export default function ListaRequisicoesAmostraComercialPage() {
                 {filtered.map((item: any) => (
                   <tr
                     key={item.id}
-                    className="hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"
-                    onClick={() => router.push(`/comercial/requisicoes-amostra-comercial/${item.id}`)}
+                    className="hover:bg-slate-50 dark:hover:bg-slate-800/50"
                   >
-                    <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-slate-200">#{item.id}</td>
+                    <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-slate-200">
+                      <Link href={`/comercial/requisicoes-amostra-comercial/${item.id}`} className="hover:text-blue-600 dark:hover:text-blue-400">
+                        #{item.id}
+                      </Link>
+                    </td>
                     <td className="px-4 py-3 text-sm text-slate-700 dark:text-slate-300">{item.titulo || "—"}</td>
                     <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">{item.cliente || "—"}</td>
                     <td className="px-4 py-3 text-sm">

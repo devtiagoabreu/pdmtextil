@@ -4,7 +4,7 @@ import { useState, type MouseEvent } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { PlusCircle, Search, Pencil, Trash2, Loader2, Database } from "lucide-react"
 import Link from "next/link"
-import { useRouter, usePathname } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
@@ -33,7 +33,6 @@ async function fetchEstampas(): Promise<Estampa[]> {
 }
 
 export default function EstampasPage() {
-  const router = useRouter()
   const pathname = usePathname()
   const info = getInfoContent(pathname)
   const [search, setSearch] = useState("")
@@ -146,10 +145,9 @@ export default function EstampasPage() {
               {filteredEstampas.map((estampa: any) => (
                 <tr
                   key={estampa.id}
-                  className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"
-                  onClick={() => router.push(`/cadastros/estampas/${estampa.id}`)}
+                  className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50"
                 >
-                  <td className="p-4 text-sm font-mono">{estampa.codigoDesenho}</td>
+                  <td className="p-4 text-sm font-mono"><Link href={`/cadastros/estampas/${estampa.id}`}>{estampa.codigoDesenho}</Link></td>
                   <td className="p-4 text-sm font-mono">{estampa.variante}</td>
                   <td className="p-4 text-sm">{estampa.nome}</td>
                   <td className="p-4 text-sm text-slate-500">{estampa.tipo || "—"}</td>

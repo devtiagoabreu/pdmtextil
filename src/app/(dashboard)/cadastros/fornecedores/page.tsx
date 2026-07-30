@@ -4,7 +4,7 @@ import { useState, useEffect, type MouseEvent } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { PlusCircle, Search, Pencil, Trash2, Loader2, Database } from "lucide-react"
 import Link from "next/link"
-import { useRouter, usePathname } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
@@ -36,7 +36,6 @@ async function fetchFornecedores(): Promise<Fornecedor[]> {
 }
 
 export default function FornecedoresPage() {
-  const router = useRouter()
   const pathname = usePathname()
   const info = getInfoContent(pathname)
   const [search, setSearch] = useState("")
@@ -151,10 +150,9 @@ export default function FornecedoresPage() {
               {filteredFornecedores.map((fornecedor: any) => (
                 <tr
                   key={fornecedor.id}
-                  className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"
-                  onClick={() => router.push(`/cadastros/fornecedores/${fornecedor.id}`)}
+                  className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50"
                 >
-                  <td className="p-4 text-sm font-medium">{fornecedor.nome}</td>
+                  <td className="p-4 text-sm font-medium"><Link href={`/cadastros/fornecedores/${fornecedor.id}`}>{fornecedor.nome}</Link></td>
                   <td className="p-4 text-sm text-slate-500">{fornecedor.cnpj || "—"}</td>
                   <td className="p-4 text-sm text-slate-500">{fornecedor.email || "—"}</td>
                   <td className="p-4 text-sm text-slate-500">{fornecedor.telefone || "—"}</td>

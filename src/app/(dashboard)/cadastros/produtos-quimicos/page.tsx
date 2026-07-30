@@ -4,7 +4,7 @@ import { useState, type MouseEvent } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { PlusCircle, Search, Pencil, Trash2, Loader2, Database } from "lucide-react"
 import Link from "next/link"
-import { useRouter, usePathname } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
@@ -33,7 +33,6 @@ async function fetchProdutosQuimicos(): Promise<ProdutoQuimico[]> {
 }
 
 export default function ProdutosQuimicosPage() {
-  const router = useRouter()
   const pathname = usePathname()
   const info = getInfoContent(pathname)
   const [search, setSearch] = useState("")
@@ -147,10 +146,9 @@ export default function ProdutosQuimicosPage() {
               {filtered.map((p: any) => (
                 <tr
                   key={p.id}
-                  className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"
-                  onClick={() => router.push(`/cadastros/produtos-quimicos/${p.id}`)}
+                  className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50"
                 >
-                  <td className="p-4 text-sm font-medium">{p.codigo}</td>
+                  <td className="p-4 text-sm font-medium"><Link href={`/cadastros/produtos-quimicos/${p.id}`}>{p.codigo}</Link></td>
                   <td className="p-4 text-sm">{p.nome}</td>
                   <td className="p-4 text-sm text-slate-500">{p.categoria || "—"}</td>
                   <td className="p-4 text-sm text-slate-500">{p.unidadePadrao}</td>

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { useRouter } from "next/navigation"
+import Link from "next/link"
 import { Bell, BellRing, Check, CheckCheck, ExternalLink, Loader2, MessageSquare, UserPlus, XCircle } from "lucide-react"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
@@ -25,7 +25,6 @@ const TIPO_ICON: Record<string, React.ReactNode> = {
 }
 
 export default function NotificacoesPage() {
-  const router = useRouter()
   const [notificacoes, setNotificacoes] = useState<Notificacao[]>([])
   const [naoLidas, setNaoLidas] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -175,15 +174,12 @@ export default function NotificacoesPage() {
                     </p>
                   )}
                   {n.link && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        router.push(n.link!)
-                      }}
+                    <Link href={n.link!}
+                      onClick={(e) => e.stopPropagation()}
                       className="mt-1.5 text-[10px] text-blue-600 hover:text-blue-700 inline-flex items-center gap-0.5 font-medium"
                     >
                       <ExternalLink size={10} /> Ver detalhes
-                    </button>
+                    </Link>
                   )}
                 </div>
                 {!n.lida && (

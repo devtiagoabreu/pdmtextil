@@ -340,8 +340,7 @@ function VisitasPageContent() {
                   {tableRows.map((v: any) => (
                     <tr
                       key={v.id}
-                      className={`hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer ${selectedIds.includes(v.id) ? "bg-blue-50 dark:bg-blue-950/30" : ""}`}
-                      onClick={() => router.push(`/comercial/crm/visitas/${v.id}`)}
+                      className={`hover:bg-slate-50 dark:hover:bg-slate-800/50 ${selectedIds.includes(v.id) ? "bg-blue-50 dark:bg-blue-950/30" : ""}`}
                     >
                       <td className="px-2 py-2 md:px-4 md:py-3 w-10" onClick={(e) => e.stopPropagation()}>
                         <input
@@ -360,7 +359,7 @@ function VisitasPageContent() {
                       <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-900 dark:text-slate-200 whitespace-nowrap">
                         {v.dataVisita ? new Date(v.dataVisita + "T12:00:00").toLocaleDateString("pt-BR") : "—"}{v.hora ? ` ${v.hora}` : ""}
                       </td>
-                      <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-medium text-slate-900 dark:text-slate-200">{v.empresaNome || v.clienteNome || "—"}</td>
+                      <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-medium text-slate-900 dark:text-slate-200"><Link href={`/comercial/crm/visitas/${v.id}`} className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">{v.empresaNome || v.clienteNome || "—"}</Link></td>
                       <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden sm:table-cell">{v.oportunidadeTitulo || "—"}</td>
                       <td className="px-2 py-2 md:px-4 md:py-3">
                         <span className={`inline-flex text-[10px] px-1.5 md:px-2 py-0.5 rounded-full font-medium ${TIPO_CORES[v.tipo] || ""}`}>

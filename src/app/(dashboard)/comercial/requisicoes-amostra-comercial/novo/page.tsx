@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Search, Loader2 } from "lucide-react"
+import Link from "next/link"
 import { toast } from "sonner"
 
 interface ProdutoCru {
@@ -127,9 +128,12 @@ export default function NovaRequisicaoAmostraComercialPage() {
           </h1>
           <p className="text-sm text-slate-500 mt-1">Preencha os dados da requisição de amostra comercial</p>
         </div>
-        <Button variant="outline" onClick={() => router.push("/comercial/requisicoes-amostra-comercial")}>
+        <Link
+          href="/comercial/requisicoes-amostra-comercial"
+          className="group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 border-border bg-background hover:bg-muted hover:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50 h-8 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2"
+        >
           Cancelar
-        </Button>
+        </Link>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">

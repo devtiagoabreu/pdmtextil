@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react"
 import { useSession } from "next-auth/react"
 import { FileText, PlusCircle, Clock, Package, X, Loader2 } from "lucide-react"
 import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { Button } from "@/components/ui/button"
@@ -43,7 +43,6 @@ const FILTROS_DASH = [
 ] as const
 
 export default function DashboardPage() {
-  const router = useRouter()
   const { data: session } = useSession()
   const firstName = session?.user?.name?.split(" ")[0] || "Usuário"
 
@@ -292,12 +291,10 @@ export default function DashboardPage() {
                   </thead>
                   <tbody>
                     {atividades.map((item: any, i: any) => (
-                      <tr
-                        key={item.id || i}
-                        onClick={() => { if (item.id) router.push(`/comercial/solicitacoes/${item.id}`) }}
-                        className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors"
-                      >
-                        <td className="p-4 text-sm font-medium">#{item.id}</td>
+                      <tr key={item.id || i} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                        <td className="p-4 text-sm font-medium">
+                          <Link href={`/comercial/solicitacoes/${item.id}`} className="hover:underline">#{item.id}</Link>
+                        </td>
                         <td className="p-4 text-sm">{TIPO_LABELS[item.tipo] || item.tipo}</td>
                         <td className="p-4 text-sm">{item.cliente}</td>
                         <td className="p-4 text-sm">
@@ -343,10 +340,10 @@ export default function DashboardPage() {
               ) : modalFiltro === "produtos-cru" ? (
                 <div className="space-y-1">
                   {modalLista.map((item: any) => (
-                    <button
+                    <Link
                       key={item.id}
-                      type="button"
-                      onClick={() => { router.push(`/cadastros/produto-cru/${item.id}`); setModalFiltro(null) }}
+                      href={`/cadastros/produto-cru/${item.id}`}
+                      onClick={() => setModalFiltro(null)}
                       className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/50 text-left"
                     >
                       <div className="min-w-0 flex-1">
@@ -360,16 +357,16 @@ export default function DashboardPage() {
                         </span>
                         <span className="text-xs text-slate-400">{item.createdAt ? new Date(item.createdAt).toLocaleDateString("pt-BR") : ""}</span>
                       </div>
-                    </button>
+                    </Link>
                   ))}
                 </div>
               ) : (
                 <div className="space-y-1">
                   {modalLista.map((item: any) => (
-                    <button
+                    <Link
                       key={item.id}
-                      type="button"
-                      onClick={() => { router.push(`/comercial/solicitacoes/${item.id}`); setModalFiltro(null) }}
+                      href={`/comercial/solicitacoes/${item.id}`}
+                      onClick={() => setModalFiltro(null)}
                       className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/50 text-left"
                     >
                       <div className="min-w-0 flex-1">
@@ -387,7 +384,7 @@ export default function DashboardPage() {
                         </span>
                         <span className="text-xs text-slate-400">{item.createdAt ? new Date(item.createdAt).toLocaleDateString("pt-BR") : ""}</span>
                       </div>
-                    </button>
+                    </Link>
                   ))}
                 </div>
               )}

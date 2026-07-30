@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useSession, signOut } from "next-auth/react"
 import { useRouter, usePathname } from "next/navigation"
+import Link from "next/link"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { User, LogOut, Settings, Key, Loader2, Eye, EyeOff, Shuffle, Menu, ExternalLink, Mail, CheckCircle2, XCircle } from "lucide-react"
@@ -267,10 +268,13 @@ export default function PerfilPage() {
           <p className="text-sm text-muted-foreground mb-4">
             Personalize os menus do nav e escolha sua página inicial.
           </p>
-          <Button variant="outline" size="sm" onClick={() => router.push("/perfil/menus")} className="gap-2">
+          <Link
+            href="/perfil/menus"
+            className="group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 border-border bg-background hover:bg-muted hover:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50 h-7 gap-2 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem] [&_svg:not([class*='size-'])]:size-3.5"
+          >
             <ExternalLink className="w-4 h-4" />
             Configurar Menus
-          </Button>
+          </Link>
         </CardContent>
       </Card>
 

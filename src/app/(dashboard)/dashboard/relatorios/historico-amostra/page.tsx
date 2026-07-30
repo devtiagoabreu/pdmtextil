@@ -308,9 +308,9 @@ function HistoricoAmostraPageContent() {
                   Exportar
                 </button>
               </div>
-              <button onClick={() => router.push(pathname)} className="h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 text-sm hover:bg-slate-50 dark:hover:bg-slate-800">
+              <Link href={pathname} className="h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 text-sm hover:bg-slate-50 dark:hover:bg-slate-800 inline-flex items-center">
                 Limpar
-              </button>
+              </Link>
             </>
           )}
         </div>

@@ -7,6 +7,7 @@ import { getInfoContent } from "@/lib/info-content"
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { FileText, ClipboardList, Paperclip, CheckCircle } from "lucide-react"
+import Link from "next/link"
 
 import { dadosComerciaisSchema, DadosComerciais, BriefingTecelagem } from "@/types/briefing"
 import { BriefingTecelagemForm } from "@/components/forms/BriefingTecelagemForm"
@@ -164,13 +165,12 @@ export default function NovaSolicitacaoPage() {
           <h1 className="text-3xl font-bold tracking-tight">Nova Solicitação{info && <InfoButton content={info} />}</h1>
           <p className="text-muted-foreground mt-2">Crie uma nova solicitação de desenvolvimento têxtil.</p>
         </div>
-        <Button 
-          variant="outline" 
-          onClick={() => router.push("/comercial/solicitacoes")}
-          className="text-sm"
+        <Link
+          href="/comercial/solicitacoes"
+          className="group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 border-border bg-background hover:bg-muted hover:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50 h-8 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2 text-sm"
         >
           Cancelar
-        </Button>
+        </Link>
       </div>
 
       {/* PROGRESS BAR */}

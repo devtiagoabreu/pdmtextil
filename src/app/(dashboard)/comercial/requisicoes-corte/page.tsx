@@ -320,8 +320,7 @@ function ListaRequisicoesCortePageContent() {
                   return (
                     <tr
                       key={item.id}
-                      className={`hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors ${isSel ? "bg-blue-50/50 dark:bg-blue-950/20" : ""}`}
-                      onClick={() => router.push(`/comercial/requisicoes-corte/${item.id}`)}
+                      className={`hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors ${isSel ? "bg-blue-50/50 dark:bg-blue-950/20" : ""}`}
                     >
                       <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
                         <input
@@ -331,7 +330,11 @@ function ListaRequisicoesCortePageContent() {
                           className="rounded"
                         />
                       </td>
-                      <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-slate-200">#{item.id}</td>
+                      <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-slate-200">
+                        <Link href={`/comercial/requisicoes-corte/${item.id}`} className="hover:underline">
+                          #{item.id}
+                        </Link>
+                      </td>
                       <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">{item.requisitanteNome || "—"}</td>
                       <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">{item.totalCortes ?? 0}</td>
                       <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">{item.quantidadeTotal ?? 0}</td>

@@ -191,7 +191,6 @@ function CrmPessoasPageContent() {
                   <tr
                     key={emp.id}
                     className="hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"
-                    onClick={() => router.push(`/comercial/crm/pessoas/${emp.id}`)}
                   >
                     <td className="px-2 py-2 md:px-4 md:py-3">
                       {emp.tipoPessoa ? (
@@ -204,7 +203,7 @@ function CrmPessoasPageContent() {
                         </span>
                       ) : "—"}
                     </td>
-                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-medium text-slate-900 dark:text-slate-200 whitespace-nowrap">{nomeExibicao(emp)}</td>
+                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-medium text-slate-900 dark:text-slate-200 whitespace-nowrap"><Link href={`/comercial/crm/pessoas/${emp.id}`} className="hover:underline">{nomeExibicao(emp)}</Link></td>
                     <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-mono text-slate-500 hidden sm:table-cell">{documento(emp)}</td>
                     <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden lg:table-cell">{emp.segmento || "—"}</td>
                     <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden md:table-cell">{emp.responsavelNome || "—"}</td>
@@ -218,20 +217,20 @@ function CrmPessoasPageContent() {
                     </td>
                     <td className="px-2 py-2 md:px-4 md:py-3 text-right" onClick={e => e.stopPropagation()}>
                       <div className="flex items-center justify-end gap-1">
-                        <button
-                          onClick={() => router.push(`/comercial/crm/pessoas/${emp.id}`)}
+                        <Link
+                          href={`/comercial/crm/pessoas/${emp.id}`}
                           className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/50 transition-colors"
                           title="Ver detalhes"
                         >
                           <Eye size={14} />
-                        </button>
-                        <button
-                          onClick={() => router.push(`/comercial/crm/pessoas/${emp.id}?edit=true`)}
+                        </Link>
+                        <Link
+                          href={`/comercial/crm/pessoas/${emp.id}?edit=true`}
                           className="p-1.5 rounded-lg text-slate-400 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/50 transition-colors"
                           title="Editar"
                         >
                           <Pencil size={14} />
-                        </button>
+                        </Link>
                         {mapsUrl(emp) && (
                           <a
                             href={mapsUrl(emp)!}

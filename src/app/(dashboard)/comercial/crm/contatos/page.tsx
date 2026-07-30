@@ -105,8 +105,7 @@ export default function CrmContatosPage() {
                 {filteredData.map((c: any) => (
                   <tr
                     key={c.id}
-                    className="hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"
-                    onClick={() => router.push(`/comercial/crm/contatos/${c.id}`)}
+                    className="hover:bg-slate-50 dark:hover:bg-slate-800/50"
                   >
                     <td className="px-4 py-3">
                       {c.principal ? (
@@ -115,7 +114,11 @@ export default function CrmContatosPage() {
                         <StarOff size={14} className="text-slate-300 dark:text-slate-600" />
                       )}
                     </td>
-                    <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-slate-200">{c.nome}</td>
+                    <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-slate-200">
+                      <Link href={`/comercial/crm/contatos/${c.id}`} className="hover:underline">
+                        {c.nome}
+                      </Link>
+                    </td>
                     <td className="px-4 py-3 text-sm text-slate-500">{c.cargo || "—"}</td>
                     <td className="px-4 py-3">
                       {c.empresaId ? (

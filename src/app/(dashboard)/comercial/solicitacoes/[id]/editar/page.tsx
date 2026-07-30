@@ -235,13 +235,12 @@ const onStep2Submit = (data: BriefingTecelagem) => {
           <ArrowLeft size={16} />
           Voltar para Detalhes
         </Link>
-        <Button 
-          variant="outline" 
-          onClick={() => router.push("/comercial/solicitacoes")}
-          className="text-sm"
+        <Link
+          href="/comercial/solicitacoes"
+          className="group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 border-border bg-background hover:bg-muted hover:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50 h-8 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2 text-sm"
         >
           Cancelar
-        </Button>
+        </Link>
       </div>
 
       <div className="mb-8">

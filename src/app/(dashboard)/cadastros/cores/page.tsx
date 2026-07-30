@@ -4,7 +4,7 @@ import { useState, type MouseEvent } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { PlusCircle, Search, Pencil, Trash2, Loader2, Database } from "lucide-react"
 import Link from "next/link"
-import { useRouter, usePathname } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
@@ -32,7 +32,6 @@ async function fetchCores(): Promise<CorSolida[]> {
 }
 
 export default function CoresPage() {
-  const router = useRouter()
   const pathname = usePathname()
   const info = getInfoContent(pathname)
   const [search, setSearch] = useState("")
@@ -147,10 +146,9 @@ export default function CoresPage() {
               {filteredCores.map((cor: any) => (
                 <tr
                   key={cor.id}
-                  className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"
-                  onClick={() => router.push(`/cadastros/cores/${cor.id}`)}
+                  className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50"
                 >
-                  <td className="p-4 text-sm font-medium font-mono">{cor.codigo}</td>
+                  <td className="p-4 text-sm font-medium font-mono"><Link href={`/cadastros/cores/${cor.id}`}>{cor.codigo}</Link></td>
                   <td className="p-4 text-sm">{cor.nome}</td>
                   <td className="p-4">
                     <div 

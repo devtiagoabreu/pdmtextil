@@ -178,10 +178,13 @@ export default function OportunidadesPage() {
                 {filteredData.map((op: any) => (
                   <tr
                     key={op.id}
-                    className="hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"
-                    onClick={() => router.push(`/comercial/crm/oportunidades/${op.id}`)}
+                    className="hover:bg-slate-50 dark:hover:bg-slate-800/50"
                   >
-                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-medium text-slate-900 dark:text-slate-200 whitespace-nowrap">{op.titulo}</td>
+                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-medium text-slate-900 dark:text-slate-200 whitespace-nowrap">
+                      <Link href={`/comercial/crm/oportunidades/${op.id}`} className="hover:underline">
+                        {op.titulo}
+                      </Link>
+                    </td>
                     <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500">{op.empresaNome || "—"}</td>
                     <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden sm:table-cell whitespace-nowrap">{formatarMoeda(op.valorEstimado)}</td>
                     <td className="px-2 py-2 md:px-4 md:py-3">

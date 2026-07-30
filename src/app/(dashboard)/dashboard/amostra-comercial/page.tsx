@@ -7,7 +7,7 @@ import { ChartTooltip } from "@/components/ui/chart-tooltip"
 import { AnimatedLine } from "@/components/ui/animated-line"
 import { ClipboardList, FlaskConical, ExternalLink, X, Loader2 } from "lucide-react"
 import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { useStatuses, hexToRgba } from "@/hooks/use-statuses"
@@ -22,7 +22,6 @@ const MAIN_CARDS = [
 ]
 
 export default function DashboardAmostraComercial() {
-  const router = useRouter()
   const [stats, setStats] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
@@ -264,10 +263,9 @@ export default function DashboardAmostraComercial() {
               ) : (
                 <div className="space-y-1">
                   {modalLista.map((item: any, i: number) => (
-                    <button
+                    <Link
+                      href={`/comercial/requisicoes-amostra-comercial/${item.id}`}
                       key={`${item.id}-${i}`}
-                      type="button"
-                      onClick={() => { router.push(`/comercial/requisicoes-amostra-comercial/${item.id}`); setModalFiltro(null) }}
                       className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/50 text-left"
                     >
                       <div className="min-w-0 flex-1">
@@ -285,7 +283,7 @@ export default function DashboardAmostraComercial() {
                         </span>
                         <span className="text-xs text-slate-400">{item.createdAt ? new Date(item.createdAt).toLocaleDateString("pt-BR") : ""}</span>
                       </div>
-                    </button>
+                    </Link>
                   ))}
                 </div>
               )}

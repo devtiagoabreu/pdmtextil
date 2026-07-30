@@ -6,7 +6,8 @@ import { ChartCard } from "@/components/ui/chart-card"
 import { ChartTooltip } from "@/components/ui/chart-tooltip"
 import { AnimatedLine } from "@/components/ui/animated-line"
 import { Scissors, Clock, CheckCircle, Loader2, X, ArrowRight } from "lucide-react"
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname } from "next/navigation"
+import Link from "next/link"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 
@@ -37,7 +38,6 @@ const CARDS = [
 ]
 
 export default function DashboardReqCorte() {
-  const router = useRouter()
   const [stats, setStats] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
@@ -190,10 +190,9 @@ export default function DashboardReqCorte() {
               ) : (
                 <div className="space-y-1">
                   {modalLista.map((item: any) => (
-                    <button
+                    <Link
                       key={item.id}
-                      type="button"
-                      onClick={() => { router.push(`/comercial/requisicoes-corte/${item.id}`); setModalFiltro(null) }}
+                      href={`/comercial/requisicoes-corte/${item.id}`}
                       className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/50 text-left"
                     >
                       <div className="min-w-0 flex-1">
@@ -207,7 +206,7 @@ export default function DashboardReqCorte() {
                         </span>
                         <span className="text-xs text-slate-400">{item.createdAt ? new Date(item.createdAt).toLocaleDateString("pt-BR") : ""}</span>
                       </div>
-                    </button>
+                    </Link>
                   ))}
                 </div>
               )}

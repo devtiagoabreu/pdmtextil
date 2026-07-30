@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { useRouter } from "next/navigation"
+import Link from "next/link"
 import { MessageSquare, Search, Check, CheckCheck, Loader2, ExternalLink } from "lucide-react"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
@@ -20,7 +20,6 @@ type Conversa = {
 }
 
 export default function ConversasPage() {
-  const router = useRouter()
   const [conversas, setConversas] = useState<Conversa[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
@@ -126,10 +125,10 @@ export default function ConversasPage() {
                   </div>
                   {conv.link && (
                     <div className="mt-1">
-                      <span className="text-[10px] text-blue-500 hover:text-blue-700 inline-flex items-center gap-0.5"
-                        onClick={(e) => { e.stopPropagation(); router.push(conv.link!) }}>
+                      <Link href={conv.link!} className="text-[10px] text-blue-500 hover:text-blue-700 inline-flex items-center gap-0.5"
+                        onClick={(e) => e.stopPropagation()}>
                         <ExternalLink size={10} /> Abrir no CRM
-                      </span>
+                      </Link>
                     </div>
                   )}
                 </button>

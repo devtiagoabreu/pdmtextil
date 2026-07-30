@@ -164,12 +164,12 @@ function PropostasPageContent() {
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                 {filteredData.map((p: any) => (
-                  <tr
-                    key={p.id}
-                    className="hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"
-                    onClick={() => router.push(`/comercial/crm/propostas/${p.id}`)}
-                  >
-                    <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-slate-200">{p.titulo}</td>
+                  <tr key={p.id}>
+                    <td className="px-4 py-3 text-sm font-medium">
+                      <Link href={`/comercial/crm/propostas/${p.id}`} className="text-slate-900 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                        {p.titulo}
+                      </Link>
+                    </td>
                     <td className="px-4 py-3 text-sm text-slate-500">{p.empresaNome || "—"}</td>
                     <td className="px-4 py-3 text-sm text-slate-900 dark:text-slate-200">
                       {p.valor ? `R$ ${Number(p.valor).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : "—"}

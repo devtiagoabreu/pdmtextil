@@ -7,7 +7,7 @@ import { ChartTooltip } from "@/components/ui/chart-tooltip"
 import { AnimatedLine } from "@/components/ui/animated-line"
 import { ClipboardList, FlaskConical, ExternalLink, X, Loader2, FileText, LayoutGrid } from "lucide-react"
 import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { gerarSolicitacaoAmostraPdf } from "@/lib/gerar-solicitacao-amostra-pdf"
@@ -37,7 +37,6 @@ const MAIN_CARDS = [
 ]
 
 export default function DashboardAmostras() {
-  const router = useRouter()
   const [stats, setStats] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
@@ -355,10 +354,10 @@ export default function DashboardAmostras() {
               ) : (
                 <div className="space-y-1">
                   {modalLista.map((item: any, i: number) => (
-                    <button
+                    <Link
                       key={`${item.tipoAmostra}-${item.id}-${i}`}
-                      type="button"
-                      onClick={() => { router.push(`/cadastros/produto-cru/${item.produtoId}?tab=amostras`); setModalFiltro(null) }}
+                      href={`/cadastros/produto-cru/${item.produtoId}?tab=amostras`}
+                      onClick={() => setModalFiltro(null)}
                       className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/50 text-left"
                     >
                       <div className="min-w-0 flex-1">
@@ -379,7 +378,7 @@ export default function DashboardAmostras() {
                         </span>
                         <span className="text-xs text-slate-400">{item.createdAt ? new Date(item.createdAt).toLocaleDateString("pt-BR") : ""}</span>
                       </div>
-                    </button>
+                    </Link>
                   ))}
                 </div>
               )}

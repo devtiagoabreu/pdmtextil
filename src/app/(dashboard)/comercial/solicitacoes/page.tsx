@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query"
 import Link from "next/link"
 import { useState, useEffect } from "react"
-import { useRouter, usePathname } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { PlusCircle, FileText, Clock, Pencil, Trash2, MessageSquare } from "lucide-react"
@@ -27,7 +27,6 @@ async function fetchSolicitacoes() {
 }
 
 export default function ListaSolicitacoesPage() {
-  const router = useRouter()
   const pathname = usePathname()
   const info = getInfoContent(pathname)
   const [mounted, setMounted] = useState(false)
@@ -167,14 +166,13 @@ if (isLoading) {
                   return (
                     <tr
                       key={s.id}
-                      className="hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"
-                      onClick={() => router.push(`/comercial/solicitacoes/${s.id}`)}
+                      className="hover:bg-slate-50 dark:hover:bg-slate-800/50"
                     >
                       <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-slate-200">
-                        <span className="flex items-center gap-1">
+                        <Link href={`/comercial/solicitacoes/${s.id}`} className="flex items-center gap-1">
                           #{s.id}
                           {s.chatExists && <MessageSquare size={12} className="text-indigo-500 flex-shrink-0" />}
-                        </span>
+                        </Link>
                       </td>
                       <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">{TIPO_CONFIG[s.tipo] || s.tipo}</td>
                       <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-slate-200">{s.cliente}</td>

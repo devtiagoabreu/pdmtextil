@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useRouter, usePathname } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
@@ -29,7 +29,6 @@ interface Usuario {
 }
 
 export default function UsuariosPage() {
-  const router = useRouter()
   const pathname = usePathname()
   const info = getInfoContent(pathname)
   const [usuarios, setUsuarios] = useState<Usuario[]>([])
@@ -208,9 +207,12 @@ export default function UsuariosPage() {
                   </td>
                   <td className="p-3 text-right">
                     <div className="flex justify-end gap-1">
-                      <Button variant="ghost" size="icon" onClick={() => router.push(`/admin/usuarios/${u.id}`)}>
+                      <Link
+                        href={`/admin/usuarios/${u.id}`}
+                        className="group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 hover:bg-muted hover:text-foreground dark:hover:bg-muted/50 size-8"
+                      >
                         <Pencil size={16} />
-                      </Button>
+                      </Link>
                       <Button variant="ghost" size="icon" onClick={() => handleDelete(u.id, u.name)}>
                         <Trash2 size={16} />
                       </Button>
