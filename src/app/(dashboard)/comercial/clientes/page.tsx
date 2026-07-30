@@ -6,7 +6,7 @@ import { PlusCircle, Building2, Phone, Mail, MapPin, Pencil, Users, Database, Fi
 import { toast } from "sonner"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
-import ListFilters from "@/components/ui/list-filters"
+import ListFilters, { useListFilters } from "@/components/ui/list-filters"
 import { getInfoContent } from "@/lib/info-content"
 import { Button } from "@/components/ui/button"
 import ImportarApiModal from "@/components/integracao/ImportarApiModal"
@@ -61,8 +61,10 @@ export default function ClientesPage() {
   const info = getInfoContent(pathname)
   const { getLabel: getStatusLabel, getColor: getStatusColor } = useStatuses("SOLICITACAO_DESENVOLVIMENTO")
   const [clientes, setClientes] = useState<Cliente[]>([])
-  const [filteredData, setFilteredData] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+
+  const filterState = useListFilters({ searchFields: ["nome", "razaoSocial", "cnpj", "contato", "email", "telefone", "cidade"] }, clientes)
+  const filteredData = filterState.filtered
   const [showApiImport, setShowApiImport] = useState(false)
 
   const [solicModal, setSolicModal] = useState<{ cliente: Cliente; data: SolicitacaoResumo[]; loading: boolean } | null>(null)
@@ -158,7 +160,7 @@ export default function ClientesPage() {
           searchFields: ["nome", "razaoSocial", "cnpj", "contato", "email", "telefone", "cidade"],
         }}
         data={clientes}
-        onFiltered={setFilteredData}
+        filterState={filterState}
         placeholder="Buscar por nome, CNPJ, razão social, contato, email, telefone ou cidade..."
       />
 

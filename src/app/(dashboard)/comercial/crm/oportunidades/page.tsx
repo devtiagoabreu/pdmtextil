@@ -11,7 +11,7 @@ import { PlusCircle, Target, Search, Table, Columns, Users, User } from "lucide-
 import { toast } from "sonner"
 import { FloatableKanban } from "@/components/crm/floatable-kanban"
 import OportunidadesKanban from "@/components/crm/oportunidades-kanban"
-import ListFilters from "@/components/ui/list-filters"
+import ListFilters, { useListFilters } from "@/components/ui/list-filters"
 
 async function fetchOportunidades(mine: boolean) {
   const res = await fetch(`/api/crm/oportunidades${mine ? "?mine=true" : ""}`)
@@ -42,7 +42,6 @@ export default function OportunidadesPage() {
   const pathname = usePathname()
   const info = getInfoContent(pathname)
   const { data: session } = useSession()
-  const [filteredData, setFilteredData] = useState<any[]>([])
   const [modo, setModo] = useState<"tabela" | "kanban">("tabela")
 
   const userRole = (session?.user as any)?.role
@@ -56,6 +55,22 @@ export default function OportunidadesPage() {
     queryFn: () => fetchOportunidades(visitasFilter === "minhas"),
     retry: 1,
   })
+
+  const filterState = useListFilters(
+    { searchFields: ["titulo", "empresaNome", "responsavelNome"],
+      statusOptions: [
+        { value: "NOVO", label: "Novo" },
+        { value: "QUALIFICACAO", label: "Qualificação" },
+        { value: "PROPOSTA", label: "Proposta" },
+        { value: "NEGOCIACAO", label: "Negociação" },
+        { value: "FECHADO_GANHO", label: "Fechado Ganho" },
+        { value: "FECHADO_PERDIDO", label: "Fechado Perdido" },
+      ],
+      dateField: "createdAt",
+    },
+    oportunidades || []
+  )
+  const filteredData = filterState.filtered
 
   function formatarMoeda(valor: string | null | undefined) {
     if (!valor) return "-"
@@ -146,7 +161,7 @@ export default function OportunidadesPage() {
           dateField: "createdAt",
         }}
         data={oportunidades || []}
-        onFiltered={setFilteredData}
+        filterState={filterState}
         placeholder="Buscar por título ou pessoa..."
       />
 

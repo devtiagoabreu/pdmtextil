@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, useEffect } from "react"
+import { useState, useMemo } from "react"
 import { Search, X, Filter } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import {
@@ -17,11 +17,16 @@ export type FilterConfig = {
   dateField?: string
 }
 
-type Props = {
-  config: FilterConfig
-  data: any[]
-  onFiltered: (filtered: any[]) => void
-  placeholder?: string
+export type ListFiltersState = {
+  filtered: any[]
+  search: string
+  setSearch: (v: string) => void
+  statusFilter: string
+  setStatusFilter: (v: string) => void
+  dateFrom: string
+  setDateFrom: (v: string) => void
+  dateTo: string
+  setDateTo: (v: string) => void
 }
 
 const EMPTY: any[] = []
@@ -32,7 +37,7 @@ export function useListFilters(config: FilterConfig, data: any[]) {
   const [dateFrom, setDateFrom] = useState("")
   const [dateTo, setDateTo] = useState("")
 
-  const raw = useMemo(() => {
+  const filtered = useMemo(() => {
     if (!data || data.length === 0) return EMPTY
 
     let result = [...data]
@@ -71,16 +76,18 @@ export function useListFilters(config: FilterConfig, data: any[]) {
     return result.length === 0 ? EMPTY : result
   }, [data, search, statusFilter, dateFrom, dateTo, config])
 
-  return { filtered: raw, search, setSearch, statusFilter, setStatusFilter, dateFrom, setDateFrom, dateTo, setDateTo }
+  return { filtered, search, setSearch, statusFilter, setStatusFilter, dateFrom, setDateFrom, dateTo, setDateTo }
 }
 
-export default function ListFilters({ config, data, onFiltered, placeholder }: Props) {
-  const { filtered, search, setSearch, statusFilter, setStatusFilter, dateFrom, setDateFrom, dateTo, setDateTo } = useListFilters(config, data)
+type Props = {
+  config: FilterConfig
+  data: any[]
+  filterState: ListFiltersState
+  placeholder?: string
+}
 
-  useEffect(() => {
-    onFiltered(filtered)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filtered])
+export default function ListFilters({ config, data, filterState, placeholder }: Props) {
+  const { search, setSearch, statusFilter, setStatusFilter, dateFrom, setDateFrom, dateTo, setDateTo, filtered } = filterState
 
   const hasActiveFilters = search || statusFilter !== "all" || dateFrom || dateTo
 

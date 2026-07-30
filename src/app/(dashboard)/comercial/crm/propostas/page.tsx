@@ -10,7 +10,7 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import { PlusCircle, FileText, Search, Table, Columns, Users, User } from "lucide-react"
 import PropostasKanban from "@/components/crm/propostas-kanban"
 import { FloatableKanban } from "@/components/crm/floatable-kanban"
-import ListFilters from "@/components/ui/list-filters"
+import ListFilters, { useListFilters } from "@/components/ui/list-filters"
 import { PageSkeleton } from "@/components/ui/page-skeleton"
 
 async function fetchPropostas(mine: boolean) {
@@ -39,7 +39,6 @@ function PropostasPageContent() {
   const searchParams = useSearchParams()
   const info = getInfoContent(pathname)
   const { data: session } = useSession()
-  const [filteredData, setFilteredData] = useState<any[]>([])
   const [modo, setModo] = useState<"tabela" | "kanban">(searchParams.get("view") === "kanban" ? "kanban" : "tabela")
 
   const userRole = (session?.user as any)?.role
@@ -53,6 +52,20 @@ function PropostasPageContent() {
     queryFn: () => fetchPropostas(visitasFilter === "minhas"),
     retry: 1,
   })
+
+  const filterState = useListFilters(
+    { searchFields: ["titulo", "empresaNome"],
+      statusOptions: [
+        { value: "ENVIADA", label: "Enviada" },
+        { value: "ACEITA", label: "Aceita" },
+        { value: "RECUSADA", label: "Recusada" },
+        { value: "REVISAO", label: "Revisão" },
+      ],
+      dateField: "createdAt",
+    },
+    propostas || []
+  )
+  const filteredData = filterState.filtered
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -136,7 +149,7 @@ function PropostasPageContent() {
           dateField: "createdAt",
         }}
         data={propostas || []}
-        onFiltered={setFilteredData}
+        filterState={filterState}
         placeholder="Buscar por pessoa ou título..."
       />
 

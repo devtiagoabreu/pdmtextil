@@ -12,7 +12,7 @@ import {
   Building2, User,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import ListFilters from "@/components/ui/list-filters"
+import ListFilters, { useListFilters } from "@/components/ui/list-filters"
 
 async function fetchContatos() {
   const res = await fetch("/api/crm/contatos")
@@ -24,23 +24,19 @@ export default function CrmContatosPage() {
   const router = useRouter()
   const pathname = usePathname()
   const info = getInfoContent(pathname)
-  const [search, setSearch] = useState("")
-  const [filteredData, setFilteredData] = useState<any[]>([])
-
   const { data: contatos, isLoading } = useQuery({
     queryKey: ["crm-contatos"],
     queryFn: fetchContatos,
     retry: 1,
   })
 
-  const filtered = (contatos || []).filter((c: any) =>
-    !search ||
-    c.nome?.toLowerCase().includes(search.toLowerCase()) ||
-    c.email?.toLowerCase().includes(search.toLowerCase()) ||
-    c.empresaRazaoSocial?.toLowerCase().includes(search.toLowerCase()) ||
-    c.empresaNomeFantasia?.toLowerCase().includes(search.toLowerCase()) ||
-    c.cargo?.toLowerCase().includes(search.toLowerCase())
+  const filterState = useListFilters(
+    { searchFields: ["nome", "email", "cargo", "empresaRazaoSocial", "empresaNomeFantasia"],
+      dateField: "createdAt",
+    },
+    contatos || []
   )
+  const filteredData = filterState.filtered
 
   function empresaNome(c: any) {
     return c.empresaRazaoSocial || c.empresaNomeFantasia || c.empresaNome || "—"
@@ -70,7 +66,7 @@ export default function CrmContatosPage() {
           dateField: "createdAt",
         }}
         data={contatos || []}
-        onFiltered={setFilteredData}
+        filterState={filterState}
         placeholder="Buscar contatos..."
       />
 

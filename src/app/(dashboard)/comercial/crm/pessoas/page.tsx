@@ -12,7 +12,7 @@ import { FloatableKanban } from "@/components/crm/floatable-kanban"
 import ImportarApiModal from "@/components/integracao/ImportarApiModal"
 import BuscarCnpjModal from "@/components/crm/buscar-cnpj-modal"
 import { Button } from "@/components/ui/button"
-import ListFilters from "@/components/ui/list-filters"
+import ListFilters, { useListFilters } from "@/components/ui/list-filters"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { toast } from "sonner"
 import { PageSkeleton } from "@/components/ui/page-skeleton"
@@ -36,26 +36,32 @@ function CrmPessoasPageContent() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const info = getInfoContent(pathname)
-  const [search, setSearch] = useState("")
-  const [filteredData, setFilteredData] = useState<any[]>([])
   const [modo, setModo] = useState<"tabela" | "kanban">(searchParams.get("view") === "kanban" ? "kanban" : "tabela")
   const [showApiImport, setShowApiImport] = useState(false)
   const [showCnpjSearch, setShowCnpjSearch] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<any>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
 
-  const { data: empresas, isLoading } = useQuery({
+  const { data: empresas, isLoading, refetch } = useQuery({
     queryKey: ["crm-pessoas"],
     queryFn: fetchEmpresas,
     retry: 1,
   })
 
-  const filtered = (empresas || []).filter((e: any) =>
-    !search || e.nome?.toLowerCase().includes(search.toLowerCase()) ||
-    e.razaoSocial?.toLowerCase().includes(search.toLowerCase()) ||
-    e.cpf?.includes(search) ||
-    e.cnpj?.includes(search)
+  const filterState = useListFilters(
+    { searchFields: ["nome", "razaoSocial", "cpf", "cnpj", "segmento", "responsavelNome"],
+      statusOptions: [
+        { value: "NOVO", label: "Novo" },
+        { value: "QUALIFICADO", label: "Qualificado" },
+        { value: "CONVERTIDO_CLIENTE", label: "Convertido" },
+        { value: "PERDIDO", label: "Perdido" },
+        { value: "INATIVO", label: "Inativo" },
+      ],
+      dateField: "createdAt",
+    },
+    empresas || []
   )
+  const filteredData = filterState.filtered
 
   function nomeExibicao(p: any) {
     if (p.tipoPessoa === "PF") return p.nome || "—"
@@ -80,7 +86,7 @@ function CrmPessoasPageContent() {
       const res = await fetch(`/api/crm/pessoas/${deleteTarget.id}`, { method: "DELETE" })
       if (!res.ok) throw new Error("Erro ao excluir")
       toast.success("Pessoa excluída")
-      setFilteredData(prev => prev.filter((e: any) => e.id !== deleteTarget.id))
+      refetch()
     } catch {
       toast.error("Erro ao excluir pessoa")
     } finally {
@@ -154,7 +160,7 @@ function CrmPessoasPageContent() {
           dateField: "createdAt",
         }}
         data={empresas || []}
-        onFiltered={setFilteredData}
+        filterState={filterState}
         placeholder="Buscar pessoas..."
       />
 

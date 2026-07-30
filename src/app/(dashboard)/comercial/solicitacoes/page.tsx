@@ -10,7 +10,7 @@ import { PlusCircle, FileText, Clock, Pencil, Trash2, MessageSquare } from "luci
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { useStatuses, hexToRgba } from "@/hooks/use-statuses"
-import ListFilters from "@/components/ui/list-filters"
+import ListFilters, { useListFilters } from "@/components/ui/list-filters"
 
 const TIPO_CONFIG: Record<string, string> = {
   DESENVOLVIMENTO_TECELAGEM:      "Tecelagem",
@@ -34,7 +34,6 @@ export default function ListaSolicitacoesPage() {
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [deleteBlocked, setDeleteBlocked] = useState(false)
   const { statuses, getLabel: getStatusLabel, getColor: getStatusColor } = useStatuses("SOLICITACAO_DESENVOLVIMENTO")
-  const [filteredData, setFilteredData] = useState<any[]>([])
 
   const statusOptions = statuses.filter((s: any) => s.ativo !== false).map((s: any) => ({ value: s.nome, label: s.rotulo || s.nome }))
 
@@ -47,6 +46,15 @@ export default function ListaSolicitacoesPage() {
     queryFn: fetchSolicitacoes,
     retry: 1,
   })
+
+  const filterState = useListFilters(
+    { searchFields: ["cliente", "solicitanteNome", "produtoCodigoPdm", "produtoIdIntegracaoErpCru", "tipo", "observacoes"],
+      statusOptions,
+      dateField: "createdAt",
+    },
+    lista || []
+  )
+  const filteredData = filterState.filtered
 
   const handleDelete = async () => {
     if (!deleteTarget) return
@@ -130,7 +138,7 @@ if (isLoading) {
           dateField: "createdAt",
         }}
         data={lista || []}
-        onFiltered={setFilteredData}
+        filterState={filterState}
         placeholder="Buscar por cliente, produto, tipo, criado por..."
       />
 

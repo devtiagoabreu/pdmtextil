@@ -9,7 +9,7 @@ import Link from "next/link"
 import { Plus, Megaphone, Calendar, TrendingUp, Users, DollarSign, ArrowRight, Loader2, Table, Columns } from "lucide-react"
 import CampanhasKanban from "@/components/crm/campanhas-kanban"
 import { FloatableKanban } from "@/components/crm/floatable-kanban"
-import ListFilters from "@/components/ui/list-filters"
+import ListFilters, { useListFilters } from "@/components/ui/list-filters"
 import { PageSkeleton } from "@/components/ui/page-skeleton"
 
 const TIPO_LABELS: Record<string, string> = {
@@ -37,13 +37,25 @@ function CampanhasPageContent() {
   const searchParams = useSearchParams()
   const info = getInfoContent(pathname)
   const [modo, setModo] = useState<"tabela" | "kanban">(searchParams.get("view") === "kanban" ? "kanban" : "tabela")
-  const [filteredData, setFilteredData] = useState<any[]>([])
   const { data, isLoading } = useQuery({
     queryKey: ["crm-campanhas"],
     queryFn: () => fetch("/api/crm/campanhas").then((r: any) => r.json()),
   })
 
   const campanhas = Array.isArray(data) ? data : []
+
+  const filterState = useListFilters(
+    { searchFields: ["nome", "tipo"],
+      statusOptions: [
+        { value: "ATIVA", label: "Ativa" },
+        { value: "PAUSADA", label: "Pausada" },
+        { value: "CONCLUIDA", label: "Concluída" },
+      ],
+      dateField: "dataInicio",
+    },
+    campanhas
+  )
+  const filteredData = filterState.filtered
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -102,7 +114,7 @@ function CampanhasPageContent() {
             dateField: "dataInicio",
           }}
           data={campanhas}
-          onFiltered={setFilteredData}
+          filterState={filterState}
           placeholder="Buscar por nome ou tipo..."
         />
         {isLoading ? (

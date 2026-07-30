@@ -11,7 +11,7 @@ import { toast } from "sonner"
 import { FloatableKanban } from "@/components/crm/floatable-kanban"
 import LeadsKanban from "@/components/crm/leads-kanban"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
-import ListFilters from "@/components/ui/list-filters"
+import ListFilters, { useListFilters } from "@/components/ui/list-filters"
 import { PageSkeleton } from "@/components/ui/page-skeleton"
 
 async function fetchLeads() {
@@ -43,8 +43,6 @@ function CrmLeadsPageContent() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const info = getInfoContent(pathname)
-  const [search, setSearch] = useState("")
-  const [filteredData, setFilteredData] = useState<any[]>([])
   const [modo, setModo] = useState<"tabela" | "kanban">(searchParams.get("view") === "kanban" ? "kanban" : "tabela")
   const [leadToPerder, setLeadToPerder] = useState<any>(null)
 
@@ -54,11 +52,20 @@ function CrmLeadsPageContent() {
     retry: 1,
   })
 
-  const filtered = (leads || []).filter((l: any) =>
-    !search || l.nome?.toLowerCase().includes(search.toLowerCase()) ||
-    l.email?.toLowerCase().includes(search.toLowerCase()) ||
-    l.empresaNome?.toLowerCase().includes(search.toLowerCase())
+  const filterState = useListFilters(
+    { searchFields: ["nome", "email", "empresaNome", "responsavelNome", "origem", "tipoPessoa"],
+      statusOptions: [
+        { value: "NOVO", label: "Novo" },
+        { value: "CONTATADO", label: "Contatado" },
+        { value: "QUALIFICADO", label: "Qualificado" },
+        { value: "CONVERTIDO", label: "Convertido" },
+        { value: "PERDIDO", label: "Perdido" },
+      ],
+      dateField: "createdAt",
+    },
+    leads || []
   )
+  const filteredData = filterState.filtered
 
   async function converterParaEmpresa(lead: any) {
     const isPF = lead.tipoPessoa === "PF"
@@ -170,7 +177,7 @@ function CrmLeadsPageContent() {
           dateField: "createdAt",
         }}
         data={leads || []}
-        onFiltered={setFilteredData}
+        filterState={filterState}
         placeholder="Buscar leads..."
       />
 

@@ -7,7 +7,7 @@ import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { Scissors, Plus, FileText, Loader2, Truck, Columns, Table, RotateCw } from "lucide-react"
 import { toast } from "sonner"
-import ListFilters from "@/components/ui/list-filters"
+import ListFilters, { useListFilters } from "@/components/ui/list-filters"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { Button } from "@/components/ui/button"
 import { gerarRequisicaoCortePdf, gerarRequisicaoCortePdfConsolidado, RequisicaoCorteData } from "@/lib/gerar-requisicao-corte-pdf"
@@ -27,7 +27,6 @@ function ListaRequisicoesCortePageContent() {
   const searchParams = useSearchParams()
   const info = getInfoContent(pathname)
   const [data, setData] = useState<any[]>([])
-  const [filteredData, setFilteredData] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [mounted, setMounted] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<any>(null)
@@ -37,6 +36,19 @@ function ListaRequisicoesCortePageContent() {
   const [gerandoPdf, setGerandoPdf] = useState(false)
   const [modo, setModo] = useState<"tabela" | "kanban">(searchParams.get("view") === "kanban" ? "kanban" : "tabela")
   const [pdfOrientacao, setPdfOrientacao] = useState<"portrait" | "landscape">("portrait")
+
+  const filterState = useListFilters(
+    { searchFields: ["requisitanteNome"],
+      statusOptions: [
+        { value: "SOLICITADO", label: "Solicitado" },
+        { value: "PROCESSANDO", label: "Processando" },
+        { value: "ATENDIDO", label: "Atendido" },
+      ],
+      dateField: "createdAt",
+    },
+    data
+  )
+  const filteredData = filterState.filtered
 
   useEffect(() => {
     setMounted(true)
@@ -268,7 +280,7 @@ function ListaRequisicoesCortePageContent() {
           dateField: "createdAt",
         }}
         data={data}
-        onFiltered={setFilteredData}
+        filterState={filterState}
         placeholder="Buscar por requitante..."
       />
 
