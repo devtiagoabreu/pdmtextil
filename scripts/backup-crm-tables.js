@@ -2,11 +2,13 @@ const { Client } = require("pg")
 const fs = require("fs")
 const path = require("path")
 
+require("dotenv").config({ path: ".env.local" })
+
 const DATABASES = {
-  pdm_textil: "postgresql://postgres:SENHA_REMOVIDA@HOST_REMOVIDO:21237/pdm_textil",
-  pdm_pro_textil: "postgresql://postgres:SENHA_REMOVIDA@HOST_REMOVIDO:21237/pdm_pro_textil",
-  pdm_ibirapuera: "postgresql://postgres:SENHA_REMOVIDA@HOST_REMOVIDO:21237/pdm_ibirapuera",
-  neon: "postgresql://neondb_owner:NEON_PASSWORD_REMOVIDA@ep-delicate-dew-acaz6kqb-pooler.sa-east-1.aws.neon.tech/db_pmtprotextil?sslmode=require",
+  pdm_textil: process.env.DATABASE_URL,
+  pdm_pro_textil: process.env.DATABASE_URL_PDM_PRO_TEXTIL,
+  pdm_ibirapuera: process.env.DATABASE_URL_PDM_IBIRAPUERA,
+  neon: process.env.DATABASE_URL_NEON,
 }
 
 const TABLES = [

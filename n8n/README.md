@@ -98,4 +98,4 @@ Edite o nó **Bot Conversacional** (Function node) no n8n. Os estados estão em 
 ### Requisitos
 
 - A tabela `crm_whatsapp_conversas` precisa existir no banco (já foi criada)
-- Certifique-se de que o secret no n8n e na Vercel sejam `WEBHOOK_SECRET_REMOVIDO`
+- Certifique-se de que o secret no n8n e na Vercel sejam iguais (configurado via variável de ambiente)

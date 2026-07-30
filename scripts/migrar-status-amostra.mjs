@@ -1,6 +1,6 @@
 import { neon } from "@neondatabase/serverless"
 
-const sql = neon("postgresql://neondb_owner:NEON_PASSWORD_REMOVIDA@ep-delicate-dew-acaz6kqb-pooler.sa-east-1.aws.neon.tech/db_pmtprotextil?sslmode=require")
+const sql = neon(process.env.DATABASE_URL_NEON || process.env.DATABASE_URL || "postgresql://usuario:senha@host:5432/db")
 
 async function main() {
   console.log("=== Verificando status antes da migração ===")

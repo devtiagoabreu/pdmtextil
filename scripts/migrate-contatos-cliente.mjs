@@ -1,6 +1,6 @@
 import postgres from "postgres"
 
-const sql = postgres("postgresql://postgres:SENHA_REMOVIDA@HOST_REMOVIDO:21237/pdm_textil", { prepare: false })
+const sql = postgres(process.env.DATABASE_URL || "postgresql://usuario:senha@host:5432/pdm_textil", { prepare: false })
 
 try {
   await sql`ALTER TABLE crm_contatos ALTER COLUMN empresa_id DROP NOT NULL`

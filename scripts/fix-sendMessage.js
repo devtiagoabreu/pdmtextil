@@ -17,7 +17,7 @@ d.connections["Salvar estado"].main[0] = [{
 // Fix Enviar resposta WhatsApp: usar endpoint /message/sendMessage em vez de sendText
 // E enviar o @lid como number (sendMessage pode não ter o exists check)
 const send = d.nodes.find(x => x.id === "send-response");
-send.parameters.url = "https://evolutionapi.tiagoabreu.dev/message/sendMessage/maketing_pdm_pro_moda";
+send.parameters.url = "https://evolutionapi.tiagoabreu.dev/message/sendMessage/{{NOME_DA_INSTANCIA}}";
 send.parameters.bodyParameters = {
   parameters: [
     { name: "number", value: '={{ $items("Bot Conversacional")[0].json.numero }}' },
@@ -31,7 +31,7 @@ send.parameters.bodyParameters = {
 send.parameters.sendHeaders = true;
 send.parameters.headerParameters = {
   parameters: [
-    { name: "apikey", value: "TOKEN_REMOVIDO" }
+    { name: "apikey", value: "{{API_KEY_REMOVIDA}}" }
   ]
 };
 delete send.parameters.options.headers;

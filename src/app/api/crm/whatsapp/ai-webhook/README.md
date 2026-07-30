@@ -200,8 +200,8 @@ Quando `dados.finalizado === true` e `dados.nome` existe:
 Registrar o webhook com `byEvents: true` e apenas `MESSAGES_UPSERT`:
 
 ```bash
-curl -X POST https://evolutionapi.tiagoabreu.dev/webhook/set/maketing_pdm_pro_moda \
-  -H "apikey: API_KEY_REMOVIDA" \
+curl -X POST https://evolutionapi.tiagoabreu.dev/webhook/set/SUA_INSTANCIA \
+  -H "apikey: SUA_EVOLUTION_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"webhook":{"enabled":true,"url":"https://pdmprotextil.vercel.app/api/crm/whatsapp/ai-webhook?secret=SEU_SECRET","byEvents":true,"events":["MESSAGES_UPSERT"]}}'
 ```

@@ -47,7 +47,7 @@
             },
             {
               "name": "secret",
-              "value": "WEBHOOK_SECRET_REMOVIDO"
+              "value": "{{SEU_WEBHOOK_SECRET}}"
             }
           ]
         },

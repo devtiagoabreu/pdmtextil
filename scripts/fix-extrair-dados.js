@@ -154,7 +154,7 @@ const send = d.nodes.find(x => x.id === "send-response");
 send.parameters.sendHeaders = true;
 send.parameters.headerParameters = {
   parameters: [
-    { name: "apikey", value: "TOKEN_REMOVIDO" }
+    { name: "apikey", value: "{{API_KEY_REMOVIDA}}" }
   ]
 };
 delete send.parameters.options.headers;

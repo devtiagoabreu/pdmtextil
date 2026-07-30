@@ -4,10 +4,10 @@ import { config } from 'dotenv';
 
 config({ path: '.env.local' });
 
-const HOST = 'HOST_REMOVIDO';
-const PORT = 21237;
-const USER = 'postgres';
-const PASS = 'SENHA_REMOVIDA';
+const HOST = process.env.DB_HOST || 'host';
+const PORT = process.env.DB_PORT || 5432;
+const USER = process.env.DB_USER || 'usuario';
+const PASS = process.env.DB_PASS || 'senha';
 const DB_NAME = 'pdm_textil';
 const ADMIN_URL = `postgresql://${USER}:${PASS}@${HOST}:${PORT}/postgres`;
 const PDM_URL = `postgresql://${USER}:${PASS}@${HOST}:${PORT}/${DB_NAME}`;

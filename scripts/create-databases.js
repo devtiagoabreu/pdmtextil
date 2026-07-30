@@ -1,6 +1,9 @@
 import postgres from 'postgres';
 
-const BASE_URL = "postgresql://postgres:SENHA_REMOVIDA@HOST_REMOVIDO:21237";
+import { config } from "dotenv"
+config({ path: ".env.local" })
+
+const BASE_URL = process.env.DATABASE_URL || "postgresql://usuario:senha@host:5432/postgres";
 const DATABASES = ["pdm_pro_textil", "pdm_ibirapuera"];
 
 async function createDatabases() {
