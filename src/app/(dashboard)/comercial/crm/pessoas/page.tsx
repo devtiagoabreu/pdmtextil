@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query"
 import Link from "next/link"
-import { useState } from "react"
+import {Suspense, useState} from "react"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button"
 import ListFilters from "@/components/ui/list-filters"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { toast } from "sonner"
+import { PageSkeleton } from "@/components/ui/page-skeleton"
 
 async function fetchEmpresas() {
   const res = await fetch("/api/crm/pessoas")
@@ -30,7 +31,7 @@ const STATUS_CORES: Record<string, string> = {
   INATIVO: "text-slate-400 bg-slate-100 dark:bg-slate-800 dark:text-slate-500",
 }
 
-export default function CrmPessoasPage() {
+function CrmPessoasPageContent() {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -300,5 +301,13 @@ export default function CrmPessoasPage() {
         onCancel={() => setDeleteTarget(null)}
       />
     </div>
+  )
+}
+
+export default function CrmPessoasPage() {
+  return (
+    <Suspense fallback={<PageSkeleton />}>
+      <CrmPessoasPageContent />
+    </Suspense>
   )
 }

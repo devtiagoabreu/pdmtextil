@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import Link from "next/link"
-import { useState, useEffect, useCallback, useRef } from "react"
+import {Suspense, useState, useEffect, useCallback, useRef} from "react"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import { PlusCircle, CalendarDays, Table, Columns, Search, MapPin, Navigation, Users, User, ChevronLeft, ChevronRight, CalendarRange, X, Trash2, CheckSquare } from "lucide-react"
 import { toast } from "sonner"
@@ -14,6 +14,7 @@ import VisitasCalendario from "@/components/crm/visitas-calendario"
 import VisitasKanban from "@/components/crm/visitas-kanban"
 import { FloatableKanban } from "@/components/crm/floatable-kanban"
 import VisitLocationModal from "@/components/crm/visit-location-modal"
+import { PageSkeleton } from "@/components/ui/page-skeleton"
 
 const PAGE_SIZE = 50
 
@@ -50,7 +51,7 @@ const TIPO_CORES: Record<string, string> = {
 
 type ModoVisao = "tabela" | "calendario" | "kanban"
 
-export default function VisitasPage() {
+function VisitasPageContent() {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -512,5 +513,13 @@ export default function VisitasPage() {
         />
       )}
     </div>
+  )
+}
+
+export default function VisitasPage() {
+  return (
+    <Suspense fallback={<PageSkeleton />}>
+      <VisitasPageContent />
+    </Suspense>
   )
 }

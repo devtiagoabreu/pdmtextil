@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import {Suspense, useState, useEffect} from "react"
 import Link from "next/link"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button"
 import { gerarRequisicaoCortePdf, gerarRequisicaoCortePdfConsolidado, RequisicaoCorteData } from "@/lib/gerar-requisicao-corte-pdf"
 import RequisicoesCorteKanban from "@/components/crm/requisicoes-corte-kanban"
 import { FloatableKanban } from "@/components/crm/floatable-kanban"
+import { PageSkeleton } from "@/components/ui/page-skeleton"
 
 const STATUS_CONFIG: Record<string, { label: string; classes: string }> = {
   SOLICITADO: { label: "Solicitado", classes: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400" },
@@ -20,7 +21,7 @@ const STATUS_CONFIG: Record<string, { label: string; classes: string }> = {
   ATENDIDO: { label: "Atendido", classes: "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400" },
 }
 
-export default function ListaRequisicoesCortePage() {
+function ListaRequisicoesCortePageContent() {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -389,5 +390,13 @@ export default function ListaRequisicoesCortePage() {
         onCancel={() => setDeleteTarget(null)}
       />
     </div>
+  )
+}
+
+export default function ListaRequisicoesCortePage() {
+  return (
+    <Suspense fallback={<PageSkeleton />}>
+      <ListaRequisicoesCortePageContent />
+    </Suspense>
   )
 }

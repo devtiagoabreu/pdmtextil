@@ -5,12 +5,13 @@ import { useSession } from "next-auth/react"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import Link from "next/link"
-import { useState } from "react"
+import {Suspense, useState} from "react"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import { PlusCircle, FileText, Search, Table, Columns, Users, User } from "lucide-react"
 import PropostasKanban from "@/components/crm/propostas-kanban"
 import { FloatableKanban } from "@/components/crm/floatable-kanban"
 import ListFilters from "@/components/ui/list-filters"
+import { PageSkeleton } from "@/components/ui/page-skeleton"
 
 async function fetchPropostas(mine: boolean) {
   const res = await fetch(`/api/crm/propostas${mine ? "?mine=true" : ""}`)
@@ -32,7 +33,7 @@ const STATUS_CORES: Record<string, string> = {
   REVISAO: "text-amber-600 bg-amber-50 dark:bg-amber-950/50 dark:text-amber-400",
 }
 
-export default function PropostasPage() {
+function PropostasPageContent() {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -201,5 +202,13 @@ export default function PropostasPage() {
         )
       )}
     </div>
+  )
+}
+
+export default function PropostasPage() {
+  return (
+    <Suspense fallback={<PageSkeleton />}>
+      <PropostasPageContent />
+    </Suspense>
   )
 }

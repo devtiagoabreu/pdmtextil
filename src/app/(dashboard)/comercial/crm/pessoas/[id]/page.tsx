@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import {Suspense, useState, useEffect, useCallback} from "react"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { useRouter, useParams, usePathname, useSearchParams } from "next/navigation"
@@ -12,6 +12,7 @@ import CrmPessoaTimeline from "@/components/crm/crm-pessoa-timeline"
 import CrmPessoaWhatsapp from "@/components/crm/crm-pessoa-whatsapp"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
+import { PageSkeleton } from "@/components/ui/page-skeleton"
 
 const STATUS_OPTIONS = ["NOVO", "QUALIFICADO", "CONVERTIDO_CLIENTE", "PERDIDO", "INATIVO"]
 
@@ -23,7 +24,7 @@ const STATUS_CORES: Record<string, string> = {
   INATIVO: "text-slate-400 bg-slate-100 dark:bg-slate-800 dark:text-slate-500",
 }
 
-export default function PessoaDetailPage() {
+function PessoaDetailPageContent() {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -691,4 +692,10 @@ export default function PessoaDetailPage() {
   )
 }
 
-
+export default function PessoaDetailPage() {
+  return (
+    <Suspense fallback={<PageSkeleton />}>
+      <PessoaDetailPageContent />
+    </Suspense>
+  )
+}

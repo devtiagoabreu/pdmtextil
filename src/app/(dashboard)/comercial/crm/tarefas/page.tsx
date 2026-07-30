@@ -5,11 +5,12 @@ import { useSession } from "next-auth/react"
 import { usePathname, useSearchParams } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
-import { useState } from "react"
+import {Suspense, useState} from "react"
 import { PlusCircle, ListChecks, CheckCircle2, Circle, Loader2, Table, Columns, Users, User } from "lucide-react"
 import CriarTarefaDialog from "./criar-dialog"
 import TarefasKanban from "@/components/crm/tarefas-kanban"
 import { FloatableKanban } from "@/components/crm/floatable-kanban"
+import { PageSkeleton } from "@/components/ui/page-skeleton"
 
 async function fetchTarefas(filtro: string, mine: boolean) {
   const params = new URLSearchParams()
@@ -43,7 +44,7 @@ const FILTROS = [
   { key: "concluidas", label: "Concluídas" },
 ]
 
-export default function TarefasPage() {
+function TarefasPageContent() {
   const queryClient = useQueryClient()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -254,5 +255,13 @@ export default function TarefasPage() {
 
       <CriarTarefaDialog open={dialogOpen} onClose={() => setDialogOpen(false)} />
     </div>
+  )
+}
+
+export default function TarefasPage() {
+  return (
+    <Suspense fallback={<PageSkeleton />}>
+      <TarefasPageContent />
+    </Suspense>
   )
 }

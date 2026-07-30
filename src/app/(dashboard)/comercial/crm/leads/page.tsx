@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query"
 import Link from "next/link"
-import { useState } from "react"
+import {Suspense, useState} from "react"
 import { usePathname, useSearchParams } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
@@ -12,6 +12,7 @@ import { FloatableKanban } from "@/components/crm/floatable-kanban"
 import LeadsKanban from "@/components/crm/leads-kanban"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import ListFilters from "@/components/ui/list-filters"
+import { PageSkeleton } from "@/components/ui/page-skeleton"
 
 async function fetchLeads() {
   const res = await fetch("/api/crm/leads")
@@ -38,7 +39,7 @@ const ORIGEM_LABELS: Record<string, string> = {
   OUTRO: "Outro",
 }
 
-export default function CrmLeadsPage() {
+function CrmLeadsPageContent() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const info = getInfoContent(pathname)
@@ -331,5 +332,13 @@ export default function CrmLeadsPage() {
         onCancel={() => setLeadToPerder(null)}
       />
     </div>
+  )
+}
+
+export default function CrmLeadsPage() {
+  return (
+    <Suspense fallback={<PageSkeleton />}>
+      <CrmLeadsPageContent />
+    </Suspense>
   )
 }

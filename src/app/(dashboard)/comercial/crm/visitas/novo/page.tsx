@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import {Suspense, useState, useEffect, useRef} from "react"
 import { AlertTriangle } from "lucide-react"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
@@ -18,6 +18,7 @@ import { QuickCreateOportunidade } from "@/components/crm/quick-create-oportunid
 import { SelectUf } from "@/components/crm/select-uf"
 import { SelectCidade } from "@/components/crm/select-cidade"
 import { RichTextEditor } from "@/components/crm/rich-text-editor"
+import { PageSkeleton } from "@/components/ui/page-skeleton"
 
 const TIPO_OPTIONS = [
   { value: "PRESENCIAL", label: "Presencial" },
@@ -25,7 +26,7 @@ const TIPO_OPTIONS = [
   { value: "TELEFONE", label: "Telefone" },
 ]
 
-export default function NovaVisitaPage() {
+function NovaVisitaPageContent() {
   const router = useRouter()
   const { data: session } = useSession()
   const isGoogleUser = (session?.user as any)?.provider === "google"
@@ -731,5 +732,13 @@ export default function NovaVisitaPage() {
         </form>
       )}
     </div>
+  )
+}
+
+export default function NovaVisitaPage() {
+  return (
+    <Suspense fallback={<PageSkeleton />}>
+      <NovaVisitaPageContent />
+    </Suspense>
   )
 }

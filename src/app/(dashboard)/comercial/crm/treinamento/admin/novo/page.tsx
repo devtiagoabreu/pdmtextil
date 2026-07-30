@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { useState } from "react"
+import {Suspense, useState} from "react"
 import Link from "next/link"
 import {
   ArrowLeft, Save, Loader2, Plus, X, FileText,
@@ -10,13 +10,14 @@ import {
 import { toast } from "sonner"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
+import { PageSkeleton } from "@/components/ui/page-skeleton"
 
 type Modulo = {
   id: number
   titulo: string
 }
 
-export default function NovaLicaoPage() {
+function NovaLicaoPageContent() {
   const pathname = usePathname()
   const info = getInfoContent(pathname)
   const router = useRouter()
@@ -278,5 +279,13 @@ export default function NovaLicaoPage() {
         </div>
       </form>
     </div>
+  )
+}
+
+export default function NovaLicaoPage() {
+  return (
+    <Suspense fallback={<PageSkeleton />}>
+      <NovaLicaoPageContent />
+    </Suspense>
   )
 }

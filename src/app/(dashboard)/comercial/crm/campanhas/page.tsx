@@ -4,12 +4,13 @@ import { useQuery } from "@tanstack/react-query"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { usePathname, useSearchParams } from "next/navigation"
-import { useState } from "react"
+import {Suspense, useState} from "react"
 import Link from "next/link"
 import { Plus, Megaphone, Calendar, TrendingUp, Users, DollarSign, ArrowRight, Loader2, Table, Columns } from "lucide-react"
 import CampanhasKanban from "@/components/crm/campanhas-kanban"
 import { FloatableKanban } from "@/components/crm/floatable-kanban"
 import ListFilters from "@/components/ui/list-filters"
+import { PageSkeleton } from "@/components/ui/page-skeleton"
 
 const TIPO_LABELS: Record<string, string> = {
   EMAIL: "E-mail",
@@ -31,7 +32,7 @@ const STATUS_CORES: Record<string, string> = {
   CONCLUIDA: "text-slate-600 bg-slate-100 dark:bg-slate-800 dark:text-slate-400",
 }
 
-export default function CampanhasPage() {
+function CampanhasPageContent() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const info = getInfoContent(pathname)
@@ -193,5 +194,13 @@ export default function CampanhasPage() {
         )
       )}
     </div>
+  )
+}
+
+export default function CampanhasPage() {
+  return (
+    <Suspense fallback={<PageSkeleton />}>
+      <CampanhasPageContent />
+    </Suspense>
   )
 }

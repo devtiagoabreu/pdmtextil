@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import {Suspense, useState, useEffect, useRef} from "react"
 import { Loader2, FileText, ArrowUp, LayoutGrid, List } from "lucide-react"
 import { usePathname, useSearchParams, useRouter } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
@@ -8,6 +8,7 @@ import { getInfoContent } from "@/lib/info-content"
 import { gerarSolicitacaoAmostraPdf } from "@/lib/gerar-solicitacao-amostra-pdf"
 import { useStatuses, hexToRgba } from "@/hooks/use-statuses"
 import Link from "next/link"
+import { PageSkeleton } from "@/components/ui/page-skeleton"
 
 type Amostra = {
   id: number
@@ -29,7 +30,7 @@ type Amostra = {
   solicitacaoDesenvolvimentoId?: number | null
 }
 
-export default function AmostrasPage() {
+function AmostrasPageContent() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -248,5 +249,13 @@ export default function AmostrasPage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function AmostrasPage() {
+  return (
+    <Suspense fallback={<PageSkeleton />}>
+      <AmostrasPageContent />
+    </Suspense>
   )
 }

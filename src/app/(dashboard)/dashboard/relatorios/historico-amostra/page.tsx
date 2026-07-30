@@ -1,12 +1,13 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react"
+import {Suspense, useCallback, useEffect, useMemo, useRef, useState, type ReactNode} from "react"
 import { useRouter, useSearchParams, usePathname } from "next/navigation"
 import { BarChart3, Search, Clock, FileText, FlaskConical, CheckCircle, AlertCircle, ExternalLink, Activity, Beaker } from "lucide-react"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { exportPDFRelatorio } from "@/lib/export-utils"
 import Link from "next/link"
+import { PageSkeleton } from "@/components/ui/page-skeleton"
 
 type TimelineEntry = {
   data: string
@@ -17,7 +18,7 @@ type TimelineEntry = {
   acao?: string
 }
 
-export default function HistoricoAmostraPage() {
+function HistoricoAmostraPageContent() {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -468,5 +469,13 @@ function TimelineItem({ entry, isLast }: { entry: TimelineEntry; isLast: boolean
         )}
       </div>
     </div>
+  )
+}
+
+export default function HistoricoAmostraPage() {
+  return (
+    <Suspense fallback={<PageSkeleton />}>
+      <HistoricoAmostraPageContent />
+    </Suspense>
   )
 }

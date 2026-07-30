@@ -1,12 +1,13 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import {Suspense, useState, useEffect} from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft, Loader2 } from "lucide-react"
 import { toast } from "sonner"
+import { PageSkeleton } from "@/components/ui/page-skeleton"
 
-export default function NovoContatoPage() {
+function NovoContatoPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const empresaIdPrefill = searchParams.get("empresaId")
@@ -188,5 +189,13 @@ export default function NovoContatoPage() {
         </div>
       </form>
     </div>
+  )
+}
+
+export default function NovoContatoPage() {
+  return (
+    <Suspense fallback={<PageSkeleton />}>
+      <NovoContatoPageContent />
+    </Suspense>
   )
 }
