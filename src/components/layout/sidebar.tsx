@@ -168,25 +168,23 @@ const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { on
                   <span className="flex-1 text-left">{menu.titulo}</span>
                   {menuActive && <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />}
                 </button>
-                {isExpanded && (
-                  <div className="ml-4 mt-0.5 space-y-0.5 border-l border-slate-200 dark:border-slate-700 pl-2">
-                    {menu.itens.map((item: any) => (
-                      <NavLink
-                        key={item.id}
-                        href={item.url}
-                        onClick={onClose}
-                        className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-all ${
-                          isAtiva(item.url)
-                            ? "text-blue-600 dark:text-blue-400 font-medium bg-blue-50/50 dark:bg-blue-950/30"
-                            : "text-slate-500 hover:text-slate-700 hover:bg-slate-50 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800/50"
-                        }`}
-                      >
-                        <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-600 shrink-0" />
-                        {item.titulo}
-                      </NavLink>
-                    ))}
-                  </div>
-                )}
+                <div className={`ml-4 mt-0.5 space-y-0.5 border-l border-slate-200 dark:border-slate-700 pl-2 ${isExpanded ? "" : "hidden"}`}>
+                  {menu.itens.map((item: any) => (
+                    <NavLink
+                      key={item.id}
+                      href={item.url}
+                      onClick={onClose}
+                      className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-all ${
+                        isAtiva(item.url)
+                          ? "text-blue-600 dark:text-blue-400 font-medium bg-blue-50/50 dark:bg-blue-950/30"
+                          : "text-slate-500 hover:text-slate-700 hover:bg-slate-50 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800/50"
+                      }`}
+                    >
+                      <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-600 shrink-0" />
+                      {item.titulo}
+                    </NavLink>
+                  ))}
+                </div>
               </div>
             )
           })
