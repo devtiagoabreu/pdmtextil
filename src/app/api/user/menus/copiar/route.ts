@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { userMenus, userMenuItens } from "@/lib/db/schema/user-menus"
-import { eq, and, asc } from "drizzle-orm"
+import { eq, and, asc, inArray } from "drizzle-orm"
 import { handleApiError } from "@/lib/api-error"
 
 export async function POST(req: NextRequest) {
@@ -35,49 +35,56 @@ export async function POST(req: NextRequest) {
       .from(userMenus)
       .where(eq(userMenus.usuarioId, userId))
 
-    for (const menu of menusAtuais) {
-      await db.delete(userMenuItens).where(eq(userMenuItens.userMenuId, menu.id))
-      await db.delete(userMenus).where(eq(userMenus.id, menu.id))
+    if (menusAtuais.length > 0) {
+      const idsAtuais = menusAtuais.map((m: typeof menusAtuais[number]) => m.id)
+      await db.delete(userMenuItens).where(inArray(userMenuItens.userMenuId, idsAtuais))
+      await db.delete(userMenus).where(inArray(userMenus.id, idsAtuais))
     }
 
-    const novosMenus = []
-    for (const menu of menusOrigem) {
-      const [novoMenu] = await db
-        .insert(userMenus)
-        .values({
-          usuarioId: userId,
-          titulo: menu.titulo,
-          icone: menu.icone,
-          ordem: menu.ordem,
-          ativo: menu.ativo,
-        })
-        .returning()
+    const novosMenus = await db.insert(userMenus).values(
+      menusOrigem.map((menu: typeof menusOrigem[number]) => ({
+        usuarioId: userId,
+        titulo: menu.titulo,
+        icone: menu.icone,
+        ordem: menu.ordem,
+        ativo: menu.ativo,
+      }))
+    ).returning()
 
-      const itensOrigem = await db
-        .select()
-        .from(userMenuItens)
-        .where(eq(userMenuItens.userMenuId, menu.id))
-        .orderBy(asc(userMenuItens.ordem))
+    const todosItensOrigem = await db
+      .select()
+      .from(userMenuItens)
+      .where(inArray(userMenuItens.userMenuId, menusOrigem.map((m: typeof menusOrigem[number]) => m.id)))
+      .orderBy(asc(userMenuItens.ordem))
 
-      const novosItens = []
-      for (const item of itensOrigem) {
-        const [novoItem] = await db
-          .insert(userMenuItens)
-          .values({
-            userMenuId: novoMenu.id,
-            titulo: item.titulo,
-            url: item.url,
-            ordem: item.ordem,
-            ativo: item.ativo,
-          })
-          .returning()
-        novosItens.push(novoItem)
-      }
-
-      novosMenus.push({ ...novoMenu, itens: novosItens })
+    const itensPorMenuOrigem = new Map<number, typeof todosItensOrigem>()
+    for (const item of todosItensOrigem) {
+      if (!itensPorMenuOrigem.has(item.userMenuId)) itensPorMenuOrigem.set(item.userMenuId, [])
+      itensPorMenuOrigem.get(item.userMenuId)!.push(item)
     }
 
-    return NextResponse.json(novosMenus)
+    const resultado = []
+    for (let i = 0; i < menusOrigem.length; i++) {
+      const menuOrigem = menusOrigem[i]
+      const novoMenu = novosMenus[i]
+      const itensOrigem = itensPorMenuOrigem.get(menuOrigem.id) || []
+
+      const novosItens = itensOrigem.length > 0
+        ? await db.insert(userMenuItens).values(
+            itensOrigem.map((item: typeof itensOrigem[number]) => ({
+              userMenuId: novoMenu.id,
+              titulo: item.titulo,
+              url: item.url,
+              ordem: item.ordem,
+              ativo: item.ativo,
+            }))
+          ).returning()
+        : []
+
+      resultado.push({ ...novoMenu, itens: novosItens })
+    }
+
+    return NextResponse.json(resultado)
   } catch (error) {
     return handleApiError(error, "CopiarMenus")
   }

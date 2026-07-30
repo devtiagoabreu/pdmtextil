@@ -5,8 +5,6 @@ import { usuarios } from "./schema/usuarios"
 import { userMenus, userMenuItens } from "./schema/user-menus"
 import bcrypt from "bcryptjs"
 
-console.log("DB URL:", process.env.DATABASE_URL?.replace(/:([^:@]+)@/, ":***@"))
-
 async function seed() {
   console.log("🌱 Iniciando seed...")
   const seedPassword = process.env.SEED_PASSWORD || "123456"

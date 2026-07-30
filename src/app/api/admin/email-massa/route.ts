@@ -115,32 +115,6 @@ function injectPreheader(html: string, preheader: string): string {
   return tag + html
 }
 
-async function registrarEnvio(params: {
-  listaId?: number
-  remessaId?: string
-  email: string
-  nome?: string
-  assunto: string
-  status: string
-  trackingId?: string
-  error?: string
-}) {
-  try {
-    await db.insert(emailEnviados).values({
-      listaId: params.listaId,
-      remessaId: params.remessaId || null,
-      email: params.email,
-      nome: params.nome || null,
-      assunto: params.assunto,
-      status: params.status,
-      trackingId: params.trackingId || null,
-      error: params.error || null,
-    })
-  } catch (err) {
-    console.error("[EMAIL-MASSA] Erro ao registrar envio:", err)
-  }
-}
-
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
@@ -173,6 +147,7 @@ export async function POST(req: NextRequest) {
     let enviados = 0
     let total = 0
     const erros: string[] = []
+    const enviosRegistro: any[] = []
 
     let userSmtpConfig: { email: string; senhaApp: string; host: string; port: number } | null = null
     if (remetente === "usuario") {
@@ -207,27 +182,19 @@ export async function POST(req: NextRequest) {
         const result = await enviarEmailFn({ to: d.email, subject: assunto, html: comTracking })
         if (result.sent > 0) {
           enviados++
-          await registrarEnvio({
-            email: d.email,
-            nome: d.nome,
-            assunto,
-            status: "enviado",
-            trackingId,
-            remessaId,
-            listaId: para === "lista" ? listas?.[0] : undefined,
-          })
         } else {
-          await registrarEnvio({
-            email: d.email,
-            nome: d.nome,
-            assunto,
-            status: "falhou",
-            error: result.error || undefined,
-            remessaId,
-            listaId: para === "lista" ? listas?.[0] : undefined,
-          })
           erros.push(`${d.email}: ${result.error}`)
         }
+        enviosRegistro.push({
+          listaId: para === "lista" && listas?.[0] ? listas[0] : undefined,
+          remessaId,
+          email: d.email,
+          nome: d.nome || null,
+          assunto,
+          status: result.sent > 0 ? "enviado" : "falhou",
+          trackingId: result.sent > 0 ? trackingId : null,
+          error: result.sent > 0 ? null : (result.error || null),
+        })
       }
     } else {
       const personalizado = htmlWithPreheader.replace(/\[NOME\]/g, "Cliente")
@@ -242,36 +209,20 @@ export async function POST(req: NextRequest) {
           html: comTracking,
           bcc: destinatarios.slice(1).map((d: any) => d.email),
         })
+        for (let i = 0; i < destinatarios.length; i++) {
+          enviosRegistro.push({
+            remessaId,
+            email: destinatarios[i].email,
+            nome: destinatarios[i].nome || null,
+            assunto,
+            status: result.sent > 0 ? "enviado" : "falhou",
+            trackingId: i === 0 && result.sent > 0 ? firstTrackingId : null,
+            error: result.sent > 0 ? null : (result.error || null),
+          })
+        }
         if (result.sent > 0) {
           enviados = destinatarios.length
-          await registrarEnvio({
-            email: destinatarios[0].email,
-            nome: destinatarios[0].nome,
-            assunto,
-            status: "enviado",
-            trackingId: firstTrackingId,
-            remessaId,
-          })
-          for (let i = 1; i < destinatarios.length; i++) {
-            await registrarEnvio({
-              email: destinatarios[i].email,
-              nome: destinatarios[i].nome,
-              assunto,
-              status: "enviado",
-              remessaId,
-            })
-          }
         } else {
-          for (const d of destinatarios) {
-            await registrarEnvio({
-              email: d.email,
-              nome: d.nome,
-              assunto,
-              status: "falhou",
-              error: result.error || undefined,
-              remessaId,
-            })
-          }
           erros.push(result.error || "Erro no envio BCC")
         }
       } else {
@@ -279,30 +230,25 @@ export async function POST(req: NextRequest) {
           const trackingId = crypto.randomUUID()
           const comTracking = aplicarTracking(personalizado, trackingId, baseUrl)
           const result = await enviarEmailFn({ to: d.email, subject: assunto, html: comTracking })
+          enviosRegistro.push({
+            remessaId,
+            email: d.email,
+            nome: d.nome || null,
+            assunto,
+            status: result.sent > 0 ? "enviado" : "falhou",
+            trackingId: result.sent > 0 ? trackingId : null,
+            error: result.sent > 0 ? null : (result.error || null),
+          })
           if (result.sent > 0) {
             enviados++
-            await registrarEnvio({
-              email: d.email,
-              nome: d.nome,
-              assunto,
-              status: "enviado",
-              trackingId,
-              remessaId,
-            })
           } else {
-            await registrarEnvio({
-              email: d.email,
-              nome: d.nome,
-              assunto,
-              status: "falhou",
-              error: result.error || undefined,
-              remessaId,
-            })
             erros.push(`${d.email}: ${result.error}`)
           }
         }
       }
     }
+
+    if (enviosRegistro.length > 0) await db.insert(emailEnviados).values(enviosRegistro)
 
     return NextResponse.json({ success: enviados > 0, total, enviados, erros: erros.slice(0, 10) })
   } catch (error: any) {

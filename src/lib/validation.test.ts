@@ -17,12 +17,7 @@ import {
   solicitacaoSchema,
   requisicaoCorteSchema,
   fornecedorSchema,
-  baseUrdumeSchema,
-  produtoQuimicoSchema,
   usuarioSchema,
-  emailListaSchema,
-  emailModeloSchema,
-  integracaoSchema,
 } from "./validation"
 
 describe("clienteSchema", () => {
@@ -248,74 +243,6 @@ describe("fornecedorSchema", () => {
   })
 })
 
-describe("baseUrdumeSchema", () => {
-  it("accepts valid base urdume", () => {
-    const result = baseUrdumeSchema.safeParse({
-      codigoCompleto: "BASE-001",
-      codigoBase: "B001",
-      nome: "Base Urdume Algodão",
-    })
-    expect(result.success).toBe(true)
-  })
-
-  it("rejects missing required fields", () => {
-    const r1 = baseUrdumeSchema.safeParse({ codigoCompleto: "", codigoBase: "B001", nome: "Teste" })
-    expect(r1.success).toBe(false)
-  })
-
-  it("accepts numeric fields", () => {
-    const result = baseUrdumeSchema.safeParse({
-      codigoCompleto: "BASE-001",
-      codigoBase: "B001",
-      nome: "Base Teste",
-      densidade: 40,
-      tensaoUrdume: 120,
-      largura: 1.6,
-    })
-    expect(result.success).toBe(true)
-  })
-})
-
-describe("produtoQuimicoSchema", () => {
-  it("accepts valid produto quimico", () => {
-    const result = produtoQuimicoSchema.safeParse({
-      codigo: "QUIM-001",
-      nome: "Corante Azul",
-    })
-    expect(result.success).toBe(true)
-  })
-
-  it("rejects missing required fields", () => {
-    const r1 = produtoQuimicoSchema.safeParse({ codigo: "", nome: "Teste" })
-    expect(r1.success).toBe(false)
-    const r2 = produtoQuimicoSchema.safeParse({ codigo: "QUIM-001", nome: "" })
-    expect(r2.success).toBe(false)
-  })
-
-  it("applies default unidadePadrao", () => {
-    const result = produtoQuimicoSchema.safeParse({ codigo: "QUIM-001", nome: "Teste" })
-    expect(result.success).toBe(true)
-    if (result.success) {
-      expect(result.data.unidadePadrao).toBe("kg")
-    }
-  })
-
-  it("accepts ph within range", () => {
-    const r1 = produtoQuimicoSchema.safeParse({
-      codigo: "QUIM-001",
-      nome: "Teste",
-      ph: 7,
-    })
-    expect(r1.success).toBe(true)
-    const r2 = produtoQuimicoSchema.safeParse({
-      codigo: "QUIM-001",
-      nome: "Teste",
-      ph: 15,
-    })
-    expect(r2.success).toBe(false)
-  })
-})
-
 describe("usuarioSchema", () => {
   it("accepts valid usuario", () => {
     const result = usuarioSchema.safeParse({
@@ -345,43 +272,6 @@ describe("usuarioSchema", () => {
       role: "user",
     })
     expect(result.success).toBe(false)
-  })
-})
-
-describe("emailListaSchema", () => {
-  it("accepts valid lista", () => {
-    const result = emailListaSchema.safeParse({ nome: "Newsletter" })
-    expect(result.success).toBe(true)
-  })
-})
-
-describe("emailModeloSchema", () => {
-  it("accepts valid modelo", () => {
-    const result = emailModeloSchema.safeParse({
-      nome: "Boas Vindas",
-      assunto: "Bem-vindo!",
-      corpo: "Olá, seja bem-vindo ao sistema.",
-    })
-    expect(result.success).toBe(true)
-  })
-})
-
-describe("integracaoSchema", () => {
-  it("accepts valid integracao", () => {
-    const result = integracaoSchema.safeParse({
-      nome: "ERP Bling",
-      tipo: "bling",
-    })
-    expect(result.success).toBe(true)
-  })
-
-  it("accepts config object", () => {
-    const result = integracaoSchema.safeParse({
-      nome: "ERP",
-      tipo: "bling",
-      config: { apiKey: "abc", url: "https://api.bling.com.br" },
-    })
-    expect(result.success).toBe(true)
   })
 })
 

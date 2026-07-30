@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { userMenus, userMenuItens } from "@/lib/db/schema/user-menus"
-import { eq, asc, and } from "drizzle-orm"
+import { eq, asc, and, inArray } from "drizzle-orm"
 import { handleApiError } from "@/lib/api-error"
 
 async function requireAdmin() {
@@ -22,16 +22,22 @@ async function carregarMenus(params: { role: string }) {
     .where(eq(userMenus.role, params.role))
     .orderBy(asc(userMenus.ordem))
 
-  const result = []
-  for (const menu of menus) {
-    const itens = await db
-      .select()
-      .from(userMenuItens)
-      .where(eq(userMenuItens.userMenuId, menu.id))
-      .orderBy(asc(userMenuItens.ordem))
-    result.push({ ...menu, itens })
+  if (menus.length === 0) return []
+
+  const menuIds = menus.map((m: typeof menus[number]) => m.id)
+  const todosItens = await db
+    .select()
+    .from(userMenuItens)
+    .where(inArray(userMenuItens.userMenuId, menuIds))
+    .orderBy(asc(userMenuItens.ordem))
+
+  const itensPorMenu = new Map<number, typeof todosItens>()
+  for (const item of todosItens) {
+    if (!itensPorMenu.has(item.userMenuId)) itensPorMenu.set(item.userMenuId, [])
+    itensPorMenu.get(item.userMenuId)!.push(item)
   }
-  return result
+
+  return menus.map((menu: typeof menus[number]) => ({ ...menu, itens: itensPorMenu.get(menu.id) || [] }))
 }
 
 export async function GET(req: NextRequest) {

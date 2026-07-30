@@ -93,6 +93,7 @@ export async function POST(req: NextRequest) {
 
         const remessaId = crypto.randomUUID()
         let enviados = 0
+        const envios: any[] = []
         const htmlWithPreheader = injectPreheader(agendado.html, agendado.preheader || "")
 
         if (agendado.modoEnvio === "bcc") {
@@ -101,10 +102,10 @@ export async function POST(req: NextRequest) {
           const result = await enviarEmailFn({ to: destinatarios[0].email, subject: agendado.assunto, html: comTracking, bcc: destinatarios.slice(1).map((d: any) => d.email) })
           if (result.sent > 0) {
             enviados = destinatarios.length
-            await db.insert(emailEnviados).values({ remessaId, email: destinatarios[0].email, nome: destinatarios[0].nome, assunto: agendado.assunto, status: "enviado", trackingId })
-            for (let i = 1; i < destinatarios.length; i++) {
-              await db.insert(emailEnviados).values({ remessaId, email: destinatarios[i].email, nome: destinatarios[i].nome, assunto: agendado.assunto, status: "enviado" })
-            }
+            envios.push(...destinatarios.map((d: any, i: number) => ({
+              remessaId, email: d.email, nome: d.nome, assunto: agendado.assunto, status: "enviado",
+              trackingId: i === 0 ? trackingId : undefined,
+            })))
           }
         } else {
           for (const d of destinatarios) {
@@ -112,10 +113,12 @@ export async function POST(req: NextRequest) {
             const personalizado = htmlWithPreheader.replace(/\[NOME\]/g, agendado.modoEnvio === "individual" ? d.nome : "Cliente")
             const comTracking = aplicarTracking(personalizado, trackingId, baseUrl)
             const result = await enviarEmailFn({ to: d.email, subject: agendado.assunto, html: comTracking })
-            await db.insert(emailEnviados).values({ remessaId, email: d.email, nome: d.nome, assunto: agendado.assunto, status: result.sent > 0 ? "enviado" : "falhou", trackingId, error: result.sent > 0 ? undefined : result.error })
+            envios.push({ remessaId, email: d.email, nome: d.nome, assunto: agendado.assunto, status: result.sent > 0 ? "enviado" : "falhou", trackingId, error: result.sent > 0 ? undefined : result.error })
             if (result.sent > 0) enviados++
           }
         }
+
+        if (envios.length > 0) await db.insert(emailEnviados).values(envios)
 
         await db.update(emailAgendados).set({ status: "enviado", enviadoEm: now, erro: null }).where(eq(emailAgendados.id, agendado.id))
         executados++

@@ -6,6 +6,7 @@ import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { useRouter, useParams, usePathname } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
 import { ArrowLeft, Trash2, Pencil, Check, X, MapPin, ExternalLink, LogIn, LogOut, Loader2, Navigation, Undo2, AlertTriangle, Calendar, RefreshCw } from "lucide-react"
 import PhotoUpload from "@/components/crm/photo-upload"
 import { RelatoTemplateSelector } from "@/components/crm/relato-templates"
@@ -747,10 +748,13 @@ export default function DetalheVisitaPage() {
                     rel="noopener noreferrer"
                     className="relative group aspect-video rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden bg-slate-100 dark:bg-slate-800 flex items-center justify-center"
                   >
-                    <img
+                    <Image
                       src={url}
                       alt={`Foto ${i + 1}`}
+                      width={400}
+                      height={225}
                       className="object-cover w-full h-full"
+                      unoptimized
                       onError={(e) => {
                         (e.target as HTMLImageElement).style.display = "none"
                         const parent = (e.target as HTMLImageElement).parentElement

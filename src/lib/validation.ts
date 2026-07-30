@@ -125,36 +125,6 @@ export const fornecedorSchema = z.object({
   idIntegracao: idIntegracaoSchema,
 })
 
-export const baseUrdumeSchema = z.object({
-  codigoCompleto: z.string().trim().min(1, "Código completo é obrigatório").max(30),
-  codigoBase: z.string().trim().min(1, "Código da base é obrigatório").max(10),
-  nome: z.string().trim().min(1, "Nome é obrigatório").max(200),
-  descricao: z.string().optional().nullable(),
-  densidade: z.number().positive().optional().nullable(),
-  tratamento: z.string().max(100).optional().nullable(),
-  tensaoUrdume: z.number().positive().optional().nullable(),
-  largura: z.number().positive().optional().nullable(),
-  observacoes: z.string().optional().nullable(),
-  ativo: z.boolean().optional(),
-  idIntegracao: idIntegracaoSchema,
-})
-
-export const produtoQuimicoSchema = z.object({
-  codigo: z.string().trim().min(1, "Código é obrigatório").max(50),
-  nome: z.string().trim().min(1, "Nome é obrigatório").max(200),
-  descricao: z.string().optional().nullable(),
-  categoria: z.string().max(100).optional().nullable(),
-  unidadePadrao: z.string().max(20).optional().default("kg"),
-  tipo: z.string().max(50).optional().nullable(),
-  concentracao: z.string().max(50).optional().nullable(),
-  densidade: z.number().positive().optional().nullable(),
-  ph: z.number().min(0).max(14).optional().nullable(),
-  observacoes: z.string().optional().nullable(),
-  fichaSeguranca: z.string().max(500).optional().nullable(),
-  idIntegracao: idIntegracaoSchema,
-  ativo: z.boolean().optional(),
-})
-
 export const usuarioSchema = z.object({
   name: z.string().trim().min(1, "Nome é obrigatório").max(200),
   email: z.string().trim().email("Email inválido"),
@@ -162,19 +132,4 @@ export const usuarioSchema = z.object({
   role: z.string().min(1, "Role é obrigatória"),
 })
 
-export const emailListaSchema = z.object({
-  nome: z.string().trim().min(1, "Nome é obrigatório").max(200),
-})
 
-export const emailModeloSchema = z.object({
-  nome: z.string().trim().min(1, "Nome é obrigatório").max(200),
-  assunto: z.string().trim().min(1, "Assunto é obrigatório").max(500),
-  corpo: z.string().min(1, "Corpo é obrigatório"),
-})
-
-export const integracaoSchema = z.object({
-  nome: z.string().trim().min(1, "Nome é obrigatório").max(200),
-  tipo: z.string().trim().min(1, "Tipo é obrigatório").max(50),
-  config: z.record(z.unknown()).optional(),
-  ativo: z.boolean().optional(),
-})

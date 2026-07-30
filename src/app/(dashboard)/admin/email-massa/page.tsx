@@ -17,6 +17,7 @@ import {
   RefreshCw, CheckCircle2, XCircle, Clock, Search,
   ChevronUp, ChevronDown, Move3D,
 } from "lucide-react"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import ImportarContatosEmail from "@/components/importar/ImportarContatosEmail"
