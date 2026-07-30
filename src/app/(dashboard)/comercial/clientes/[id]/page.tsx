@@ -201,7 +201,7 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
   return (
     <div className="max-w-2xl mx-auto py-8">
       <div className="mb-6">
-        <Link prefetch={false}
+        <Link
           href="/comercial/clientes"
           className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900"
         >
@@ -477,7 +477,7 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
               Excluir Cliente
             </button>
             <div className="flex gap-2">
-              <Link prefetch={false}
+              <Link
                 href="/comercial/clientes"
                 className="px-4 py-2 text-sm text-slate-600 hover:text-slate-900"
               >

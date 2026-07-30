@@ -150,7 +150,7 @@ export default function LeadDetailPage() {
     return (
       <div className="text-center py-20">
         <p className="text-slate-500">Lead não encontrado</p>
-        <Link prefetch={false} href="/comercial/crm/leads" className="text-blue-600 hover:underline mt-2 inline-block">Voltar</Link>
+        <Link href="/comercial/crm/leads" className="text-blue-600 hover:underline mt-2 inline-block">Voltar</Link>
       </div>
     )
   }
@@ -331,7 +331,7 @@ export default function LeadDetailPage() {
               {lead.pessoaId && (
                 <div className="col-span-2 pt-3 border-t border-slate-100 dark:border-slate-800">
                   <p className="text-xs text-slate-500 mb-0.5">Pessoa vinculada</p>
-                  <Link prefetch={false} href={`/comercial/crm/pessoas/${lead.pessoaId}`} className="text-sm text-blue-600 hover:underline font-medium">
+                  <Link href={`/comercial/crm/pessoas/${lead.pessoaId}`} className="text-sm text-blue-600 hover:underline font-medium">
                     Ver pessoa #{lead.pessoaId} — 
                   </Link>
                 </div>

@@ -237,7 +237,7 @@ export default function BuscarCnpjModal({ tipo, onClose, onCreated }: BuscarCnpj
               </p>
               <div className="space-y-2">
                 {(tipo === "pessoa" ? existentes.crmPessoas : existentes.representantes).map((item: any) => (
-                  <Link prefetch={false}
+                  <Link
                     key={item.id}
                     href={tipo === "pessoa" ? `/comercial/crm/pessoas/${item.id}` : `/comercial/representantes/${item.id}`}
                     target="_blank"

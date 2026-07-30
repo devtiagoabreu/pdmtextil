@@ -333,7 +333,7 @@ function HistoricoSolicitacaoPageContent() {
                   {solicitacao.cliente}{solicitacao.projeto && ` — ${solicitacao.projeto}`}
                 </p>
               </div>
-              <Link prefetch={false} href={`/comercial/solicitacoes/${solicitacao.id}`} className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700">
+              <Link href={`/comercial/solicitacoes/${solicitacao.id}`} className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700">
                 <ExternalLink size={14} /> Abrir
               </Link>
             </div>
@@ -395,7 +395,7 @@ function HistoricoSolicitacaoPageContent() {
                   <div key={prod.id} className="p-6">
                     <div className="flex items-start justify-between mb-3">
                       <div>
-                        <Link prefetch={false} href={`/cadastros/produto-cru/${prod.id}`} className="text-sm font-semibold text-blue-600 hover:text-blue-700">
+                        <Link href={`/cadastros/produto-cru/${prod.id}`} className="text-sm font-semibold text-blue-600 hover:text-blue-700">
                           {prod.codigoPdm}
                         </Link>
                         <p className="text-sm text-slate-600 dark:text-slate-400 mt-0.5">{prod.descricao}</p>

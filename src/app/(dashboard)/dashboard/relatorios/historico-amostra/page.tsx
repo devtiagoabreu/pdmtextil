@@ -353,7 +353,7 @@ function HistoricoAmostraPageContent() {
                 <span className="text-xs text-slate-400 block">Produto</span>
                 <span className="font-medium text-slate-700 dark:text-slate-300">
                   {data.produto ? (
-                    <Link prefetch={false} href={`/cadastros/produto-cru/${data.produto.id}`} className="text-blue-600 hover:text-blue-700">
+                    <Link href={`/cadastros/produto-cru/${data.produto.id}`} className="text-blue-600 hover:text-blue-700">
                       {data.produto.codigoPdm}
                     </Link>
                   ) : "—"}
@@ -378,7 +378,7 @@ function HistoricoAmostraPageContent() {
                   <div>
                     <span className="text-xs text-slate-400 block">Solicitação</span>
                     <span className="font-medium text-slate-700 dark:text-slate-300">
-                      <Link prefetch={false} href={`/comercial/solicitacoes/${data.solicitacao.id}`} className="text-blue-600 hover:text-blue-700">
+                      <Link href={`/comercial/solicitacoes/${data.solicitacao.id}`} className="text-blue-600 hover:text-blue-700">
                         #{data.solicitacao.id}
                       </Link>
                     </span>

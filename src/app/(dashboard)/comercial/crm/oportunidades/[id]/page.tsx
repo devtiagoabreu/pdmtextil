@@ -84,7 +84,7 @@ export default function DetalheOportunidadePage() {
     return (
       <div className="text-center py-20">
         <p className="text-slate-500">Oportunidade não encontrada</p>
-        <Link prefetch={false} href="/comercial/crm/oportunidades" className="text-blue-600 hover:underline mt-2 inline-block">Voltar</Link>
+        <Link href="/comercial/crm/oportunidades" className="text-blue-600 hover:underline mt-2 inline-block">Voltar</Link>
       </div>
     )
   }

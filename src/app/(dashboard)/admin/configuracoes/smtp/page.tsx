@@ -117,7 +117,7 @@ export default function SmtpConfigPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-8">
       <div className="flex items-center gap-4">
-        <Link prefetch={false} href="/admin/configuracoes" className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+        <Link href="/admin/configuracoes" className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
           <ArrowLeft size={20} />
         </Link>
         <div>

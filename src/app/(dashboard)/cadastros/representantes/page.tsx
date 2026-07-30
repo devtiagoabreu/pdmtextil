@@ -96,7 +96,7 @@ export default function RepresentantesPage() {
             { key: "nome", label: "Nome" }, { key: "cnpj", label: "CNPJ" }, { key: "email", label: "Email" },
             { key: "telefone", label: "Telefone" }, { key: "cidade", label: "Cidade" }, { key: "uf", label: "UF" },
           ]} filename="representantes" title="Representantes" />
-          <Link prefetch={false} href="/comercial/representantes/novo">
+          <Link href="/comercial/representantes/novo">
             <Button className="gap-2">
               <PlusCircle size={16} />
               Novo Representante
@@ -166,7 +166,7 @@ export default function RepresentantesPage() {
                   </td>
                   <td className="p-4 text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Link prefetch={false} href={`/comercial/representantes/${r.id}`} onClick={(e) => e.stopPropagation()}>
+                      <Link href={`/comercial/representantes/${r.id}`} onClick={(e) => e.stopPropagation()}>
                         <Button variant="ghost" size="icon" className="h-8 w-8">
                           <Pencil size={14} />
                         </Button>

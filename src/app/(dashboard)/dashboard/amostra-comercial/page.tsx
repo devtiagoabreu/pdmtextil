@@ -213,7 +213,7 @@ export default function DashboardAmostraComercial() {
                         <td className="p-4 text-sm text-slate-600 dark:text-slate-300">{a.titulo || "—"}</td>
                         <td className="p-4 text-sm text-slate-500">{a.cliente || "—"}</td>
                         <td className="p-4 text-sm">
-                          <Link prefetch={false} href={`/cadastros/produto-cru/${a.produtoCruId}`} className="flex items-center gap-1.5 group">
+                          <Link href={`/cadastros/produto-cru/${a.produtoCruId}`} className="flex items-center gap-1.5 group">
                             <div>
                               <span className="text-xs text-slate-400">{a.produtoCodigo}</span>
                               <p className="text-xs text-slate-500 mt-0.5">{a.produtoDescricao}</p>

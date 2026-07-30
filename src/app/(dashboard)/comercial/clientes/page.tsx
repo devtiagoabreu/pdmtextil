@@ -143,7 +143,7 @@ export default function ClientesPage() {
             <Database size={16} />
             Importar via API
           </Button>
-          <Link prefetch={false}
+          <Link
           href="/comercial/clientes/novo"
           className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors shadow-sm"
         >
@@ -218,7 +218,7 @@ export default function ClientesPage() {
                 </div>
 
                 <div className="flex gap-2 mt-4 pt-3 border-t border-slate-100 dark:border-slate-700">
-                  <Link prefetch={false}
+                  <Link
                     href={`/comercial/clientes/${cliente.id}`}
                     className="flex items-center gap-1 text-xs text-blue-600 hover:underline"
                   >
@@ -268,7 +268,7 @@ export default function ClientesPage() {
               ) : (
                 <div className="space-y-2">
                   {solicModal.data.map((s: any) => (
-                    <Link prefetch={false}
+                    <Link
                       key={s.id}
                       href={`/comercial/solicitacoes/${s.id}`}
                       className="flex items-center justify-between p-3 rounded-lg border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group"
@@ -326,7 +326,7 @@ export default function ClientesPage() {
               ) : (
                 <div className="space-y-2">
                   {amostraModal.data.map((a: any) => (
-                    <Link prefetch={false}
+                    <Link
                       key={`${a.tipoAmostra}-${a.id}`}
                       href={`/amostras?focoAmostra=${a.id}&tipo=${a.tipoAmostra}`}
                       className="flex items-center justify-between p-3 rounded-lg border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group"

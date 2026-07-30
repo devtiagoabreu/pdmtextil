@@ -228,7 +228,7 @@ const onStep2Submit = (data: BriefingTecelagem) => {
   return (
     <div className="max-w-4xl mx-auto py-8">
       <div className="mb-6 flex items-center justify-between">
-        <Link prefetch={false}
+        <Link
           href={`/comercial/solicitacoes/${id}`}
           className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900"
         >

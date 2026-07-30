@@ -331,7 +331,7 @@ export default function FioFormPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center gap-4">
-        <Link prefetch={false} href="/cadastros/fios" className="rounded-md p-2 text-slate-500 hover:bg-slate-100">
+        <Link href="/cadastros/fios" className="rounded-md p-2 text-slate-500 hover:bg-slate-100">
           <ArrowLeft size={20} />
         </Link>
         <div>
@@ -437,7 +437,7 @@ export default function FioFormPage() {
             {saving && <Loader2 size={16} className="animate-spin" />}
             {isEditing ? "Atualizar" : "Criar"}
           </Button>
-          <Link prefetch={false} href="/cadastros/fios">
+          <Link href="/cadastros/fios">
             <Button variant="outline" type="button">Cancelar</Button>
           </Link>
         </div>

@@ -170,7 +170,7 @@ export default function LandingPage() {
           <div className="text-xl font-bold text-white tracking-wide">
             PDM·PRO·TÊXTIL
           </div>
-          <Link prefetch={false}
+          <Link
             href="/login"
             className="px-5 py-2 text-sm text-slate-300 hover:text-white transition-colors border border-slate-600 hover:border-slate-400 rounded"
           >
@@ -203,7 +203,7 @@ export default function LandingPage() {
               Sistema de gestão de desenvolvimento de produtos têxteis
             </p>
 
-            <Link prefetch={false}
+            <Link
               href="/login"
               className="inline-flex items-center gap-2 px-8 py-4 bg-white text-black font-medium rounded-lg hover:bg-slate-200 transition-colors"
             >

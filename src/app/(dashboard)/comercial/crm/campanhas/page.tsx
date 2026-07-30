@@ -79,7 +79,7 @@ function CampanhasPageContent() {
               Kanban
             </button>
           </div>
-          <Link prefetch={false}
+          <Link
             href="/comercial/crm/campanhas/nova"
             className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
           >
@@ -113,14 +113,14 @@ function CampanhasPageContent() {
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <Megaphone className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
             <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nenhuma campanha cadastrada</p>
-            <Link prefetch={false} href="/comercial/crm/campanhas/nova" className="text-sm text-blue-600 hover:underline mt-2">
+            <Link href="/comercial/crm/campanhas/nova" className="text-sm text-blue-600 hover:underline mt-2">
               Criar primeira campanha
             </Link>
           </div>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {filteredData.map((camp: any) => (
-              <Link prefetch={false}
+              <Link
                 key={camp.id}
                 href={`/comercial/crm/campanhas/${camp.id}`}
                 className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 hover:shadow-md transition-shadow"

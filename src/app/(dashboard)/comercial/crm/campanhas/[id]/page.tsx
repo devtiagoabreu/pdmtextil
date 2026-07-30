@@ -76,7 +76,7 @@ export default function CampanhaDetailPage() {
     return (
       <div className="text-center py-20">
         <p className="text-slate-500">Campanha não encontrada</p>
-        <Link prefetch={false} href="/comercial/crm/campanhas" className="text-blue-600 hover:underline mt-2 inline-block">Voltar</Link>
+        <Link href="/comercial/crm/campanhas" className="text-blue-600 hover:underline mt-2 inline-block">Voltar</Link>
       </div>
     )
   }

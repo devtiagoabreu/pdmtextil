@@ -49,14 +49,14 @@ export default function TreinamentoPage() {
           </h1>
         </div>
         <div className="flex items-center gap-3">
-          <Link prefetch={false}
+          <Link
             href="/comercial/crm/treinamento/exportar-pdf"
             className="inline-flex items-center gap-1.5 text-sm text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors"
           >
             <Printer size={16} />
             Exportar Treinamento Completo
           </Link>
-          <Link prefetch={false}
+          <Link
             href="/comercial/crm/treinamento/admin"
             className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
           >
@@ -113,7 +113,7 @@ export default function TreinamentoPage() {
                   ) : (
                     <div className="divide-y divide-slate-100 dark:divide-slate-800">
                       {modulo.licoes.filter((l: any) => l.ativo).map((licao: any) => (
-                        <Link prefetch={false}
+                        <Link
                           key={licao.id}
                           href={`/comercial/crm/treinamento/${licao.id}`}
                           className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors group"

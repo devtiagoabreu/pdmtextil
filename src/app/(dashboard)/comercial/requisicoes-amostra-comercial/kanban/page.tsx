@@ -50,10 +50,10 @@ export default function KanbanAmostraComercialPage() {
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <Link prefetch={false} href="/comercial/requisicoes-amostra-comercial" className="text-sm text-blue-600 hover:underline">
+          <Link href="/comercial/requisicoes-amostra-comercial" className="text-sm text-blue-600 hover:underline">
             Lista
           </Link>
-          <Link prefetch={false}
+          <Link
             href="/comercial/requisicoes-amostra-comercial/novo"
             className="inline-flex items-center gap-1 text-sm bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700"
           >

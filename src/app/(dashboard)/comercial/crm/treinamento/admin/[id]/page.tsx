@@ -112,7 +112,7 @@ export default function EditarLicaoPage() {
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="flex items-center gap-4 mb-6">
-        <Link prefetch={false}
+        <Link
           href="/comercial/crm/treinamento/admin"
           className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
         >
@@ -237,7 +237,7 @@ export default function EditarLicaoPage() {
             {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
             {saving ? "Salvando..." : "Salvar"}
           </button>
-          <Link prefetch={false} href="/comercial/crm/treinamento/admin" className="text-sm text-slate-600 hover:text-slate-800">Cancelar</Link>
+          <Link href="/comercial/crm/treinamento/admin" className="text-sm text-slate-600 hover:text-slate-800">Cancelar</Link>
         </div>
       </form>
     </div>

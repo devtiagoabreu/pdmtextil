@@ -62,7 +62,7 @@ export default function DocumentosPage() {
         {modulos.map((mod: any) => {
           const Icon = mod.icon
           return (
-            <Link prefetch={false}
+            <Link
               key={mod.href}
               href={mod.disabled ? "#" : mod.href}
               className={`relative rounded-xl border p-5 transition-all ${

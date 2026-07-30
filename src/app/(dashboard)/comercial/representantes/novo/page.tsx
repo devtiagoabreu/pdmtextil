@@ -73,7 +73,7 @@ export default function NovoRepresentantePage() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center gap-4">
-        <Link prefetch={false} href="/comercial/representantes" className="flex items-center gap-1 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200">
+        <Link href="/comercial/representantes" className="flex items-center gap-1 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200">
           <ArrowLeft size={18} />
           Voltar
         </Link>

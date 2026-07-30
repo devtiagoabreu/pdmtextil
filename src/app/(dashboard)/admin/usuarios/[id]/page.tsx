@@ -85,7 +85,7 @@ export default function EditarUsuarioPage() {
   return (
     <div className="max-w-xl mx-auto space-y-6">
       <div className="flex items-center gap-4">
-        <Link prefetch={false} href="/admin/usuarios">
+        <Link href="/admin/usuarios">
           <Button variant="ghost" size="icon"><ArrowLeft size={20} /></Button>
         </Link>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Editar Usuário{info && <InfoButton content={info} />}</h1>
@@ -121,7 +121,7 @@ export default function EditarUsuarioPage() {
             {saving && <Loader2 size={16} className="animate-spin" />}
             Salvar
           </Button>
-          <Link prefetch={false} href="/admin/usuarios">
+          <Link href="/admin/usuarios">
             <Button variant="outline">Cancelar</Button>
           </Link>
         </div>

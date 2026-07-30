@@ -96,7 +96,7 @@ export default function ContatoDetailPage() {
     return (
       <div className="text-center py-20">
         <p className="text-slate-500">Contato não encontrado</p>
-        <Link prefetch={false} href="/comercial/crm/contatos" className="text-blue-600 hover:underline mt-2 inline-block">Voltar</Link>
+        <Link href="/comercial/crm/contatos" className="text-blue-600 hover:underline mt-2 inline-block">Voltar</Link>
       </div>
     )
   }
@@ -209,12 +209,12 @@ export default function ContatoDetailPage() {
             <div className="col-span-2">
               <p className="text-xs text-slate-500 mb-0.5">{contato.empresaId ? "Pessoa (Negócio)" : "Cliente"}</p>
               {contato.empresaId ? (
-                <Link prefetch={false} href={`/comercial/crm/pessoas/${contato.empresaId}`} className="inline-flex items-center gap-1 text-blue-600 hover:underline font-medium">
+                <Link href={`/comercial/crm/pessoas/${contato.empresaId}`} className="inline-flex items-center gap-1 text-blue-600 hover:underline font-medium">
                   <Building2 size={14} />
                   {empresaNome(contato)}
                 </Link>
               ) : contato.clienteId ? (
-                <Link prefetch={false} href={`/comercial/crm/clientes/${contato.clienteId}`} className="inline-flex items-center gap-1 text-emerald-600 hover:underline font-medium">
+                <Link href={`/comercial/crm/clientes/${contato.clienteId}`} className="inline-flex items-center gap-1 text-emerald-600 hover:underline font-medium">
                   <Building2 size={14} />
                   {contato.clienteNome || `Cliente #${contato.clienteId}`}
                 </Link>

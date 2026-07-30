@@ -145,7 +145,7 @@ export default function DetalheRequisicaoCortePage() {
   return (
     <div className="max-w-4xl mx-auto py-8 space-y-6 animate-fade-in">
       <div className="flex items-center gap-4">
-        <Link prefetch={false}
+        <Link
           href="/comercial/requisicoes-corte"
           className="flex items-center gap-1 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
         >

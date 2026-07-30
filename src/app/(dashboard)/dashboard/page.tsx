@@ -235,7 +235,7 @@ export default function DashboardPage() {
             <ChartCard delay={900}>
                 <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">Ações Rápidas</h3>
                 <div className="grid grid-cols-1 gap-3">
-                  <Link prefetch={false} href="/comercial/solicitacoes/nova"
+                  <Link href="/comercial/solicitacoes/nova"
                     className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
                     <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400">
                       <PlusCircle size={20} />
@@ -245,7 +245,7 @@ export default function DashboardPage() {
                       <p className="text-xs text-slate-500">Criar novo briefing</p>
                     </div>
                   </Link>
-                  <Link prefetch={false} href="/comercial/solicitacoes"
+                  <Link href="/comercial/solicitacoes"
                     className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
                     <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-400">
                       <FileText size={20} />
@@ -255,7 +255,7 @@ export default function DashboardPage() {
                       <p className="text-xs text-slate-500">Todas as solicitações</p>
                     </div>
                   </Link>
-                  <Link prefetch={false} href="/cadastros/produto-cru"
+                  <Link href="/cadastros/produto-cru"
                     className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
                     <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-cyan-100 dark:bg-cyan-900 text-cyan-600 dark:text-cyan-400">
                       <Package size={20} />

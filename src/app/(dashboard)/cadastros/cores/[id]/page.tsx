@@ -111,7 +111,7 @@ export default function CorFormPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
       <div className="flex items-center gap-4">
-        <Link prefetch={false} href="/cadastros/cores">
+        <Link href="/cadastros/cores">
           <Button variant="ghost" size="icon">
             <ArrowLeft size={20} />
           </Button>
@@ -196,7 +196,7 @@ export default function CorFormPage() {
             {saving && <Loader2 size={16} className="animate-spin" />}
             {isEditing ? "Atualizar" : "Criar"}
           </Button>
-          <Link prefetch={false} href="/cadastros/cores">
+          <Link href="/cadastros/cores">
             <Button variant="outline" type="button">Cancelar</Button>
           </Link>
         </div>

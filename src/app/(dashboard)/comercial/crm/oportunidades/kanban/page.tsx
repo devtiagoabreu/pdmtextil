@@ -247,10 +247,10 @@ export default function KanbanOportunidadesPage() {
           <span className="text-[10px] md:text-xs text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 md:px-2 py-0.5 rounded-full whitespace-nowrap hidden sm:inline">Arraste os cards para mover</span>
         </div>
         <div className="flex items-center gap-1.5 md:gap-2 shrink-0">
-          <Link prefetch={false} href="/comercial/crm/oportunidades" className="text-xs md:text-sm text-blue-600 hover:underline">
+          <Link href="/comercial/crm/oportunidades" className="text-xs md:text-sm text-blue-600 hover:underline">
             Lista
           </Link>
-          <Link prefetch={false}
+          <Link
             href="/comercial/crm/oportunidades/novo"
             className="inline-flex items-center gap-1 text-xs md:text-sm bg-blue-600 text-white px-2 md:px-3 py-1 md:py-1.5 rounded-lg hover:bg-blue-700"
           >

@@ -125,7 +125,7 @@ export default function DashboardAmostras() {
             Acompanhe todas as amostras do sistema
           </p>
         </div>
-        <Link prefetch={false}
+        <Link
           href="/amostras/kanban"
           className="inline-flex items-center gap-2 rounded-lg border border-slate-300 dark:border-slate-600 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
         >
@@ -268,7 +268,7 @@ export default function DashboardAmostras() {
                     {stats.recent.map((a: any, i: number) => (
                       <tr key={`${a.tipoAmostra}-${a.id}-${i}`} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
                         <td className="p-4 text-sm">
-                          <Link prefetch={false} href={`/cadastros/produto-cru/${a.produtoId}?tab=amostras`} className="flex items-center gap-1.5 group">
+                          <Link href={`/cadastros/produto-cru/${a.produtoId}?tab=amostras`} className="flex items-center gap-1.5 group">
                             <div>
                               <span className="text-xs text-slate-400">{a.produtoCodigo}</span>
                               <p className="text-xs text-slate-500 mt-0.5">{a.produtoDescricao}</p>
@@ -285,7 +285,7 @@ export default function DashboardAmostras() {
                         </td>
                         <td className="p-4 text-sm">
                           {a.solicitacaoId ? (
-                            <Link prefetch={false} href={`/comercial/solicitacoes/${a.solicitacaoId}`} className="text-blue-600 dark:text-blue-400 hover:underline text-xs">
+                            <Link href={`/comercial/solicitacoes/${a.solicitacaoId}`} className="text-blue-600 dark:text-blue-400 hover:underline text-xs">
                               {a.solicitacaoCliente || `#${a.solicitacaoId}`}{a.solicitacaoProjeto ? ` — ${a.solicitacaoProjeto}` : ""}
                             </Link>
                           ) : (

@@ -101,7 +101,7 @@ export default function EditarRepresentantePage({ params }: { params: Promise<{ 
   return (
     <div className="max-w-2xl mx-auto py-8">
       <div className="mb-6">
-        <Link prefetch={false}
+        <Link
           href="/comercial/representantes"
           className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900"
         >
@@ -264,7 +264,7 @@ export default function EditarRepresentantePage({ params }: { params: Promise<{ 
           <div className="flex justify-between pt-6 border-t border-slate-200 dark:border-slate-700">
             <div />
             <div className="flex gap-2">
-              <Link prefetch={false}
+              <Link
                 href="/comercial/representantes"
                 className="px-4 py-2 text-sm text-slate-600 hover:text-slate-900"
               >

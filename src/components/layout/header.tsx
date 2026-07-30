@@ -219,12 +219,12 @@ export function Header({ onMenuClick, onToggleSidebar, sidebarCollapsed }: Heade
                 </span>
               </div>
               <div className="p-2">
-                <Link prefetch={false} href="/perfil" className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors">
+                <Link href="/perfil" className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors">
                   <User size={16} />
                   Meu Perfil
                 </Link>
                 {session?.user?.role === "ADMIN" && (
-                  <Link prefetch={false} href="/admin/configuracoes" className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors">
+                  <Link href="/admin/configuracoes" className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors">
                     <Settings size={16} />
                     Configurações
                   </Link>

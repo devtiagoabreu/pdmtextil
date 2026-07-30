@@ -46,10 +46,10 @@ export default function KanbanSolicitacoesPage() {
           <span className="text-xs text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">Arraste os cards para mover</span>
         </div>
         <div className="flex items-center gap-2">
-          <Link prefetch={false} href="/comercial/solicitacoes" className="text-sm text-blue-600 hover:underline">
+          <Link href="/comercial/solicitacoes" className="text-sm text-blue-600 hover:underline">
             Lista
           </Link>
-          <Link prefetch={false} href="/comercial/solicitacoes/nova" className="inline-flex items-center gap-1 text-sm bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700">
+          <Link href="/comercial/solicitacoes/nova" className="inline-flex items-center gap-1 text-sm bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700">
             <Plus size={14} /> Nova
           </Link>
           <button

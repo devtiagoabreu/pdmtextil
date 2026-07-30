@@ -55,7 +55,7 @@ export default function DetalheRequisicaoAmostraComercialPage() {
     return (
       <div className="text-center py-20">
         <p className="text-red-500 mb-2">Erro ao carregar requisição</p>
-        <Link prefetch={false} href="/comercial/requisicoes-amostra-comercial" className="text-blue-600 hover:underline mt-2 inline-block">
+        <Link href="/comercial/requisicoes-amostra-comercial" className="text-blue-600 hover:underline mt-2 inline-block">
           Voltar à lista
         </Link>
       </div>
@@ -67,7 +67,7 @@ export default function DetalheRequisicaoAmostraComercialPage() {
   return (
     <div className="max-w-4xl mx-auto py-8 space-y-6 animate-fade-in">
       <div className="flex items-center gap-4">
-        <Link prefetch={false}
+        <Link
           href="/comercial/requisicoes-amostra-comercial"
           className="flex items-center gap-1 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
         >
@@ -113,7 +113,7 @@ export default function DetalheRequisicaoAmostraComercialPage() {
               <div>
                 <p className="text-slate-500 dark:text-slate-400">Produto</p>
                 {data.produto ? (
-                  <Link prefetch={false}
+                  <Link
                     href={`/cadastros/produto-cru/${data.produto.id}`}
                     className="font-medium text-blue-600 dark:text-blue-400 hover:underline"
                   >

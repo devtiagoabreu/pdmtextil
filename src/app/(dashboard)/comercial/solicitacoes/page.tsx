@@ -91,7 +91,7 @@ if (isLoading) {
       <div className="text-center py-20">
         <p className="text-red-500 mb-2">Erro ao carregar solicitações</p>
         <p className="text-sm text-slate-500">Tente fazer login novamente</p>
-        <Link prefetch={false} href="/login" className="text-blue-600 hover:underline mt-2 inline-block">
+        <Link href="/login" className="text-blue-600 hover:underline mt-2 inline-block">
           Ir para login
         </Link>
       </div>
@@ -115,7 +115,7 @@ if (isLoading) {
             {filteredData.length || 0} de {lista?.length || 0} solicitacao(oes)
           </p>
         </div>
-        <Link prefetch={false}
+        <Link
           href="/comercial/solicitacoes/nova"
           className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors shadow-sm"
         >
@@ -142,7 +142,7 @@ if (isLoading) {
             <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
               {(lista && lista.length > 0 && filteredData.length === 0) ? "Nenhum resultado para os filtros aplicados" : "Nenhuma solicitacao encontrada"}
             </p>
-            <Link prefetch={false} href="/comercial/solicitacoes/nova" className="text-sm text-blue-600 hover:underline mt-2">
+            <Link href="/comercial/solicitacoes/nova" className="text-sm text-blue-600 hover:underline mt-2">
               Criar primeira solicitação
             </Link>
           </div>
@@ -204,7 +204,7 @@ if (isLoading) {
                       </td>
                       <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
-                            <Link prefetch={false}
+                            <Link
                               href={`/comercial/solicitacoes/${s.id}`}
                               className="flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline text-xs font-medium"
                               onClick={(e) => e.stopPropagation()}

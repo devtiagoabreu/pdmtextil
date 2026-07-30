@@ -210,7 +210,7 @@ function PessoaDetailPageContent() {
     return (
       <div className="text-center py-20">
         <p className="text-slate-500">Pessoa não encontrada</p>
-        <Link prefetch={false} href="/comercial/crm/pessoas" className="text-blue-600 hover:underline mt-2 inline-block">Voltar</Link>
+        <Link href="/comercial/crm/pessoas" className="text-blue-600 hover:underline mt-2 inline-block">Voltar</Link>
       </div>
     )
   }

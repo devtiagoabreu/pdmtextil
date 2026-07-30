@@ -690,7 +690,7 @@ export default function ProdutoCruFormPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-6 animate-fade-in">
       <div className="flex items-center gap-4">
-        <Link prefetch={false} href="/cadastros/produto-cru">
+        <Link href="/cadastros/produto-cru">
           <Button variant="ghost" size="icon">
             <ArrowLeft size={20} />
           </Button>
@@ -805,7 +805,7 @@ export default function ProdutoCruFormPage() {
                 {saving && <Loader2 size={16} className="animate-spin" />}
                 {isEditing ? "Atualizar" : "Criar"}
               </Button>
-              <Link prefetch={false} href="/cadastros/produto-cru">
+              <Link href="/cadastros/produto-cru">
                 <Button variant="outline" type="button">Cancelar</Button>
               </Link>
             </div>
@@ -861,7 +861,7 @@ export default function ProdutoCruFormPage() {
                 {saving && <Loader2 size={16} className="animate-spin" />}
                 {isEditing ? "Atualizar" : "Salvar"}
               </Button>
-              <Link prefetch={false} href="/cadastros/produto-cru">
+              <Link href="/cadastros/produto-cru">
                 <Button variant="outline" type="button">Cancelar</Button>
               </Link>
             </div>
@@ -1239,7 +1239,7 @@ export default function ProdutoCruFormPage() {
                 {saving && <Loader2 size={16} className="animate-spin" />}
                 {isEditing ? "Atualizar" : "Salvar"}
               </Button>
-              <Link prefetch={false} href="/cadastros/produto-cru">
+              <Link href="/cadastros/produto-cru">
                 <Button variant="outline" type="button">Cancelar</Button>
               </Link>
             </div>

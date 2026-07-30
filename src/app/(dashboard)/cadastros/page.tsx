@@ -76,7 +76,7 @@ export default function CadastrosPage() {
         {modulos.map((modulo: any) => {
           const Icon = modulo.icon
           return (
-            <Link prefetch={false}
+            <Link
               key={modulo.href}
               href={modulo.href}
               className="flex items-center gap-4 p-6 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-all"

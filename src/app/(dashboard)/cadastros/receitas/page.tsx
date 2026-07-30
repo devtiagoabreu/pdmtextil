@@ -121,7 +121,7 @@ export default function ListaReceitasPage() {
                 {completas.map((r: any) => (
                   <tr key={`c-${r.id}`} className="border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/30">
                     <td className="p-3">
-                      <Link prefetch={false} href={`/cadastros/produto-cru/${r.produtoId}`} className="font-medium text-blue-600 dark:text-blue-400 hover:underline">
+                      <Link href={`/cadastros/produto-cru/${r.produtoId}`} className="font-medium text-blue-600 dark:text-blue-400 hover:underline">
                         {r.produtoCodigo}
                       </Link>
                       <p className="text-xs text-slate-500">{r.produtoDescricao}</p>
@@ -138,7 +138,7 @@ export default function ListaReceitasPage() {
                       {r.amostraDescricao || `#${r.contextId}`}
                     </td>
                     <td className="p-3 text-right">
-                      <Link prefetch={false}
+                      <Link
                         href={`/cadastros/produto-cru/${r.produtoId}`}
                         className="inline-flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 hover:underline"
                       >
@@ -174,7 +174,7 @@ export default function ListaReceitasPage() {
                 {simples.map((r: any) => (
                   <tr key={`s-${r.id}`} className="border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/30">
                     <td className="p-3">
-                      <Link prefetch={false} href={`/cadastros/produto-cru/${r.produtoId}`} className="font-medium text-blue-600 dark:text-blue-400 hover:underline">
+                      <Link href={`/cadastros/produto-cru/${r.produtoId}`} className="font-medium text-blue-600 dark:text-blue-400 hover:underline">
                         {r.produtoCodigo}
                       </Link>
                       <p className="text-xs text-slate-500">{r.produtoDescricao}</p>
@@ -193,7 +193,7 @@ export default function ListaReceitasPage() {
                       )}
                     </td>
                     <td className="p-3 text-right">
-                      <Link prefetch={false}
+                      <Link
                         href={`/cadastros/produto-cru/${r.produtoId}`}
                         className="inline-flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 hover:underline"
                       >

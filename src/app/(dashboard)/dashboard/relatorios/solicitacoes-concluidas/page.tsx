@@ -248,7 +248,7 @@ export default function RelatorioSolicitacoesConcluidas() {
                       )}
                     </td>
                     <td className="p-3">
-                      <Link prefetch={false}
+                      <Link
                         href={`/comercial/solicitacoes/${r.id}`}
                         className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700"
                       >

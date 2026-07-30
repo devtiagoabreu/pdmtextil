@@ -335,7 +335,7 @@ export default function CrmDashboardPage() {
                   <Building2 size={16} className="text-blue-500" />
                   Top Pessoas (Negócios)
                 </h2>
-                <Link prefetch={false} href="/comercial/crm/pessoas" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
+                <Link href="/comercial/crm/pessoas" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
                   Ver todas <ArrowRight size={12} />
                 </Link>
               </div>
@@ -426,7 +426,7 @@ function SummaryCard({
   href: string; icon: React.ReactNode; value: number; label: string; sub?: string; bgColor: string; iconColor: string
 }) {
   return (
-    <Link prefetch={false}
+    <Link
       href={href}
       className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 hover:shadow-md transition-shadow"
     >
@@ -450,7 +450,7 @@ function QuickAction({
   href: string; icon: React.ReactNode; label: string; color: string; bg: string
 }) {
   return (
-    <Link prefetch={false}
+    <Link
       href={href}
       className="flex items-center gap-2 p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
     >

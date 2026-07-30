@@ -30,7 +30,7 @@ export default function RelatoriosHubPage() {
         {relatorios.map((rel: any) => {
           const Icon = rel.icon
           return (
-            <Link prefetch={false}
+            <Link
               key={rel.href}
               href={rel.href}
               className="group rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 hover:shadow-md hover:border-blue-200 dark:hover:border-blue-800 transition-all"

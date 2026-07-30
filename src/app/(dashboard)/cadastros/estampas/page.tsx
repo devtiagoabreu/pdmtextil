@@ -99,7 +99,7 @@ export default function EstampasPage() {
             <Database size={16} />
             Importar via API
           </Button>
-          <Link prefetch={false} href="/cadastros/estampas/novo">
+          <Link href="/cadastros/estampas/novo">
             <Button className="gap-2">
               <PlusCircle size={16} />
               Nova Estampa
@@ -165,7 +165,7 @@ export default function EstampasPage() {
                   </td>
                   <td className="p-4 text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Link prefetch={false} href={`/cadastros/estampas/${estampa.id}`} onClick={(e) => e.stopPropagation()}>
+                      <Link href={`/cadastros/estampas/${estampa.id}`} onClick={(e) => e.stopPropagation()}>
                         <Button variant="ghost" size="icon" className="h-8 w-8">
                           <Pencil size={14} />
                         </Button>

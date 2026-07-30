@@ -103,7 +103,7 @@ export default function ClientesPage() {
             <Database size={16} />
             Importar via API
           </Button>
-          <Link prefetch={false} href="/comercial/clientes/novo">
+          <Link href="/comercial/clientes/novo">
             <Button className="gap-2">
               <PlusCircle size={16} />
               Novo Cliente
@@ -173,7 +173,7 @@ export default function ClientesPage() {
                   </td>
                   <td className="p-4 text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Link prefetch={false} href={`/comercial/clientes/${cliente.id}`} onClick={(e) => e.stopPropagation()}>
+                      <Link href={`/comercial/clientes/${cliente.id}`} onClick={(e) => e.stopPropagation()}>
                         <Button variant="ghost" size="icon" className="h-8 w-8">
                           <Pencil size={14} />
                         </Button>

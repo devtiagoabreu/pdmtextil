@@ -128,7 +128,7 @@ export default function StatusPage() {
       <div className="flex items-center justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <Link prefetch={false} href="/admin/configuracoes" className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
+            <Link href="/admin/configuracoes" className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
               <ArrowLeft size={20} />
             </Link>
             <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Status{info && <InfoButton content={info} />}</h1>

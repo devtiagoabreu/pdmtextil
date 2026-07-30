@@ -286,7 +286,7 @@ export default function DetalheVisitaPage() {
     return (
       <div className="text-center py-20">
         <p className="text-slate-500">Visita não encontrada</p>
-        <Link prefetch={false} href="/comercial/crm/visitas" className="text-blue-600 hover:underline mt-2 inline-block">Voltar</Link>
+        <Link href="/comercial/crm/visitas" className="text-blue-600 hover:underline mt-2 inline-block">Voltar</Link>
       </div>
     )
   }
@@ -542,7 +542,7 @@ export default function DetalheVisitaPage() {
                 <div>
                   <span className="text-xs text-slate-500 block mb-0.5">{visita.empresaId ? "Pessoa (Negócio)" : "Cliente"}</span>
                   {visita.empresaId ? (
-                    <Link prefetch={false} href={`/comercial/crm/pessoas/${visita.empresaId}`} className="text-blue-600 hover:underline inline-flex items-center gap-1">
+                    <Link href={`/comercial/crm/pessoas/${visita.empresaId}`} className="text-blue-600 hover:underline inline-flex items-center gap-1">
                       {visita.empresaNome} <ExternalLink size={12} />
                     </Link>
                   ) : (

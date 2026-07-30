@@ -100,7 +100,7 @@ function DraggableCard({
       }`}
     >
       <div className="flex items-start justify-between gap-2">
-        <Link prefetch={false}
+        <Link
           href={`/comercial/solicitacoes/${solicitacao.id}`}
           onClick={(e) => e.stopPropagation()}
           className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
@@ -472,7 +472,7 @@ export function KanbanBoard() {
             )}
           </div>
           <div className="flex justify-end pt-2">
-            <Link prefetch={false}
+            <Link
               href={`/comercial/solicitacoes/${chatTarget?.id}`}
               onClick={() => setChatTarget(null)}
               className="inline-flex items-center gap-1 text-sm bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700"
@@ -498,7 +498,7 @@ export function KanbanBoard() {
               <p className="text-sm text-slate-400 text-center py-4">Nenhuma amostra encontrada</p>
             ) : (
               amostrasData.map((a: any, i: any) => (
-                <Link prefetch={false}
+                <Link
                   key={i}
                   href={amostrasTarget?.produtoId ? `/cadastros/produto-cru/${amostrasTarget.produtoId}?tab=amostras&amostraId=${encodeURIComponent(a.scrollId)}` : "#"}
                   onClick={() => setAmostrasTarget(null)}

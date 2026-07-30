@@ -65,7 +65,7 @@ export default function DetalhePropostaPage() {
     return (
       <div className="text-center py-20">
         <p className="text-slate-500">Proposta não encontrada</p>
-        <Link prefetch={false} href="/comercial/crm/propostas" className="text-blue-600 hover:underline text-sm mt-2 inline-block">
+        <Link href="/comercial/crm/propostas" className="text-blue-600 hover:underline text-sm mt-2 inline-block">
           Voltar para propostas
         </Link>
       </div>

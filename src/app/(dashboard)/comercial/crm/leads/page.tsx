@@ -147,7 +147,7 @@ function CrmLeadsPageContent() {
               Kanban
             </button>
           </div>
-          <Link prefetch={false}
+          <Link
             href="/comercial/crm/leads/novo"
             className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 transition-colors shadow-sm"
           >
@@ -207,7 +207,7 @@ function CrmLeadsPageContent() {
                 {filteredData.map((lead: any) => (
                   <tr key={lead.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
                     <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-medium whitespace-nowrap">
-                      <Link prefetch={false} href={`/comercial/crm/leads/${lead.id}`} className="text-slate-900 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400">
+                      <Link href={`/comercial/crm/leads/${lead.id}`} className="text-slate-900 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400">
                         {lead.nome}
                       </Link>
                     </td>
@@ -219,7 +219,7 @@ function CrmLeadsPageContent() {
                     <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden md:table-cell">
                       <div className="flex items-center gap-2">
                         {lead.empresaNome || (lead.empresaRazaoSocial ? (
-                          <Link prefetch={false} href={`/comercial/crm/pessoas/${lead.empresaId}`} className="text-blue-600 hover:underline">
+                          <Link href={`/comercial/crm/pessoas/${lead.empresaId}`} className="text-blue-600 hover:underline">
                             {lead.empresaRazaoSocial}
                           </Link>
                         ) : "—")}

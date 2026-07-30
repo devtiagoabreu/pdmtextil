@@ -100,7 +100,7 @@ export default function AdminTreinamentoPage() {
   return (
     <div className="p-6 max-w-5xl mx-auto">
       <div className="flex items-center gap-4 mb-6">
-        <Link prefetch={false}
+        <Link
           href="/comercial/crm/treinamento"
           className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
         >
@@ -193,7 +193,7 @@ export default function AdminTreinamentoPage() {
                   )}
                 </div>
                 <div className="flex items-center gap-2">
-                  <Link prefetch={false}
+                  <Link
                     href={`/comercial/crm/treinamento/admin/novo?moduloId=${modulo.id}`}
                     className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 rounded-lg transition-colors"
                     title="Nova lição neste módulo"
@@ -222,7 +222,7 @@ export default function AdminTreinamentoPage() {
                         <span className="text-[10px] text-slate-400 hidden sm:inline">{licao.pathnameRelacionado}</span>
                       )}
                       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Link prefetch={false}
+                        <Link
                           href={`/comercial/crm/treinamento/admin/${licao.id}`}
                           className="p-1.5 text-slate-400 hover:text-indigo-600 rounded-lg transition-colors"
                           title="Editar"

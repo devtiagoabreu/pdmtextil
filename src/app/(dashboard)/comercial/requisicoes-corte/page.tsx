@@ -240,14 +240,14 @@ function ListaRequisicoesCortePageContent() {
               </Button>
             </>
           )}
-          <Link prefetch={false}
+          <Link
             href="/comercial/requisicoes-corte/por-romaneio"
             className="inline-flex items-center gap-2 rounded-lg border border-slate-300 dark:border-slate-600 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
           >
             <Truck size={16} />
             Requisição por Romaneio
           </Link>
-          <Link prefetch={false}
+          <Link
             href="/comercial/requisicoes-corte/nova"
             className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors shadow-sm"
           >
@@ -284,7 +284,7 @@ function ListaRequisicoesCortePageContent() {
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <Scissors className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
             <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nenhuma requisição encontrada</p>
-            <Link prefetch={false} href="/comercial/requisicoes-corte/nova" className="text-sm text-blue-600 hover:underline mt-2">
+            <Link href="/comercial/requisicoes-corte/nova" className="text-sm text-blue-600 hover:underline mt-2">
               Criar primeira requisição
             </Link>
           </div>
@@ -355,7 +355,7 @@ function ListaRequisicoesCortePageContent() {
                             <FileText size={13} />
                             PDF
                           </Button>
-                          <Link prefetch={false}
+                          <Link
                             href={`/comercial/requisicoes-corte/${item.id}`}
                             className="text-blue-600 dark:text-blue-400 hover:underline text-xs font-medium"
                           >

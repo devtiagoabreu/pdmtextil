@@ -256,7 +256,7 @@ export default function DetalheSolicitacaoPage() {
     return (
       <div className="text-center py-20">
         <p className="text-red-500">Erro ao carregar solicitação</p>
-        <Link prefetch={false} href="/comercial/solicitacoes" className="text-blue-600 hover:underline mt-2 inline-block">
+        <Link href="/comercial/solicitacoes" className="text-blue-600 hover:underline mt-2 inline-block">
           Voltar à lista
         </Link>
       </div>
@@ -323,7 +323,7 @@ export default function DetalheSolicitacaoPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center gap-4">
-        <Link prefetch={false}
+        <Link
           href="/comercial/solicitacoes"
           className="flex items-center gap-1 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
         >
@@ -383,7 +383,7 @@ export default function DetalheSolicitacaoPage() {
             variant="outline"
             size="sm"
           />
-          <Link prefetch={false}
+          <Link
             href={`/comercial/solicitacoes/${id}/editar`}
             className="inline-flex items-center gap-1 px-3 py-1.5 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
@@ -572,7 +572,7 @@ export default function DetalheSolicitacaoPage() {
           {produtos.length > 0 ? (
             <div className="space-y-3">
               {produtos.map((p: any) => (
-                <Link prefetch={false}
+                <Link
                   key={p.id}
                   href={`/cadastros/produto-cru/${p.id}`}
                   className="block p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"

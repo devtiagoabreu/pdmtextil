@@ -177,7 +177,7 @@ export default function LicaoDetailPage() {
       `}</style>
 
       <div className="no-print flex items-center gap-4 mb-6">
-        <Link prefetch={false}
+        <Link
           href="/comercial/crm/treinamento"
           className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
         >
@@ -187,7 +187,7 @@ export default function LicaoDetailPage() {
           <BookOpen size={14} />
           <span className="text-slate-400">PDM Têxtil</span>
           <span className="text-slate-300">—</span>
-          <Link prefetch={false} href="/comercial/crm/treinamento" className="hover:text-indigo-600">Treinamento CRM</Link>
+          <Link href="/comercial/crm/treinamento" className="hover:text-indigo-600">Treinamento CRM</Link>
           <span className="text-slate-300">—</span>
           <span className="text-slate-700 dark:text-slate-300">{licao.moduloTitulo}</span>
           <span className="text-slate-300">— </span>
@@ -297,7 +297,7 @@ export default function LicaoDetailPage() {
         <div className="no-print flex items-center justify-between pt-6 border-t border-slate-200 dark:border-slate-700">
           <div>
             {licaoAnterior && (
-              <Link prefetch={false}
+              <Link
                 href={`/comercial/crm/treinamento/${licaoAnterior.id}`}
                 className="inline-flex items-center gap-1.5 text-sm text-slate-600 dark:text-slate-400 hover:text-indigo-600 transition-colors"
               >
@@ -308,7 +308,7 @@ export default function LicaoDetailPage() {
           </div>
           <div>
             {proximaLicao && (
-              <Link prefetch={false}
+              <Link
                 href={`/comercial/crm/treinamento/${proximaLicao.id}`}
                 className="inline-flex items-center gap-1.5 text-sm text-slate-600 dark:text-slate-400 hover:text-indigo-600 transition-colors"
               >

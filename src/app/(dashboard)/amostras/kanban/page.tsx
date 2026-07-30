@@ -46,7 +46,7 @@ export default function KanbanAmostrasPage() {
           <span className="text-xs text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">Arraste os cards para mover</span>
         </div>
         <div className="flex items-center gap-2">
-          <Link prefetch={false} href="/amostras" className="text-sm text-blue-600 hover:underline">
+          <Link href="/amostras" className="text-sm text-blue-600 hover:underline">
             Lista
           </Link>
           <button

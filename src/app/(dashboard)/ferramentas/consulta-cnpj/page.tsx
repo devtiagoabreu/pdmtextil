@@ -226,7 +226,7 @@ export default function ConsultaCnpjPage() {
   return (
     <div className="space-y-6 animate-fade-in max-w-4xl">
       <div className="flex items-center gap-3">
-        <Link prefetch={false} href="/ferramentas" className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+        <Link href="/ferramentas" className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
           <ArrowLeft size={18} className="text-slate-500" />
         </Link>
         <div className="flex items-center gap-2">
@@ -358,7 +358,7 @@ export default function ConsultaCnpjPage() {
                 {result.crmPessoas.map((pessoa: any) => (
                   <div key={pessoa.id} className="border border-slate-200 dark:border-slate-700 rounded-lg p-4 space-y-3">
                     <div className="flex items-center justify-between">
-                      <Link prefetch={false} href={`/comercial/crm/pessoas/${pessoa.id}`} className="text-sm font-medium text-blue-600 hover:underline inline-flex items-center gap-1">
+                      <Link href={`/comercial/crm/pessoas/${pessoa.id}`} className="text-sm font-medium text-blue-600 hover:underline inline-flex items-center gap-1">
                         {pessoa.razaoSocial || pessoa.nome} <ExternalLink size={12} />
                       </Link>
                       <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 font-medium">

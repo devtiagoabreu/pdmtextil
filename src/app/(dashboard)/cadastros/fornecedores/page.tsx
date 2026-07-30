@@ -103,7 +103,7 @@ export default function FornecedoresPage() {
             <Database size={16} />
             Importar via API
           </Button>
-          <Link prefetch={false} href="/cadastros/fornecedores/novo">
+          <Link href="/cadastros/fornecedores/novo">
             <Button className="gap-2">
               <PlusCircle size={16} />
               Novo Fornecedor
@@ -173,7 +173,7 @@ export default function FornecedoresPage() {
                   </td>
                   <td className="p-4 text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Link prefetch={false} href={`/cadastros/fornecedores/${fornecedor.id}`} onClick={(e) => e.stopPropagation()}>
+                      <Link href={`/cadastros/fornecedores/${fornecedor.id}`} onClick={(e) => e.stopPropagation()}>
                         <Button variant="ghost" size="icon" className="h-8 w-8">
                           <Pencil size={14} />
                         </Button>
