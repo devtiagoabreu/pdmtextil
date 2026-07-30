@@ -24,13 +24,17 @@ type Props = {
   placeholder?: string
 }
 
+const EMPTY: any[] = []
+
 export function useListFilters(config: FilterConfig, data: any[]) {
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [dateFrom, setDateFrom] = useState("")
   const [dateTo, setDateTo] = useState("")
 
-  const filtered = useMemo(() => {
+  const raw = useMemo(() => {
+    if (!data || data.length === 0) return EMPTY
+
     let result = [...data]
 
     if (search.trim()) {
@@ -64,10 +68,10 @@ export function useListFilters(config: FilterConfig, data: any[]) {
       })
     }
 
-    return result
+    return result.length === 0 ? EMPTY : result
   }, [data, search, statusFilter, dateFrom, dateTo, config])
 
-  return { filtered, search, setSearch, statusFilter, setStatusFilter, dateFrom, setDateFrom, dateTo, setDateTo }
+  return { filtered: raw, search, setSearch, statusFilter, setStatusFilter, dateFrom, setDateFrom, dateTo, setDateTo }
 }
 
 export default function ListFilters({ config, data, onFiltered, placeholder }: Props) {

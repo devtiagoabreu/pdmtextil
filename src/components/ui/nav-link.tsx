@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { useCallback } from "react"
+import { useRef, useCallback } from "react"
 
 interface NavLinkProps {
   href: string
@@ -14,20 +14,26 @@ interface NavLinkProps {
 
 export function NavLink({ href, children, className, title, onClick, prefetch = true }: NavLinkProps) {
   const router = useRouter()
+  const routerRef = useRef(router)
+  routerRef.current = router
 
-  const handleClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault()
     onClick?.()
-    router.push(href)
-  }, [href, onClick, router])
+    try {
+      routerRef.current.push(href)
+    } catch {
+      window.location.href = href
+    }
+  }
 
   const handleMouseEnter = useCallback(() => {
-    if (prefetch) router.prefetch(href)
-  }, [href, prefetch, router])
+    if (prefetch) routerRef.current.prefetch(href)
+  }, [href, prefetch])
 
   const handleFocus = useCallback(() => {
-    if (prefetch) router.prefetch(href)
-  }, [href, prefetch, router])
+    if (prefetch) routerRef.current.prefetch(href)
+  }, [href, prefetch])
 
   return (
     <a

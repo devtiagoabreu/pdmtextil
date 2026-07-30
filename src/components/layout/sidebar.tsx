@@ -3,7 +3,7 @@
 import { NavLink } from "@/components/ui/nav-link"
 import { usePathname } from "next/navigation"
 import { useSession } from "next-auth/react"
-import { useState, useEffect, useCallback, memo } from "react"
+import { useState, useEffect, useCallback } from "react"
 import {
   Settings,
   X,
@@ -34,7 +34,7 @@ interface SidebarProps {
   collapsed?: boolean
 }
 
-const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { onClose?: () => void; collapsed?: boolean }) {
+function SidebarContent({ onClose, collapsed }: { onClose?: () => void; collapsed?: boolean }) {
   const pathname = usePathname()
   const { data: session } = useSession()
   const role = session?.user?.role as string | undefined
@@ -274,7 +274,7 @@ const SidebarContent = memo(function SidebarContent({ onClose, collapsed }: { on
       </div>
     </div>
   )
-})
+}
 
 export function Sidebar({ isOpen, onClose, collapsed }: SidebarProps) {
   return (
