@@ -269,6 +269,50 @@ function rowGrupo(r: Record<string, string>): string {
   return parts.length >= 2 ? parts[1].trim() : ""
 }
 
+function parseDataMovto(val: string): Date | null {
+  if (!val) return null
+  const iso = new Date(val)
+  if (!Number.isNaN(iso.getTime())) return iso
+  const m = val.match(/(\d{2})\/(\d{2})\/(\d{4})/)
+  if (m) return new Date(Date.UTC(Number(m[3]), Number(m[2]) - 1, Number(m[1])))
+  return null
+}
+
+function filterTabByPeriod(tab: SheetTab, de: Date | null, ate: Date | null): SheetTab {
+  if (!de && !ate) return tab
+  const dateCol = tab.header.find(h => /^DATA_?MOVTO$/i.test(h))
+  if (!dateCol) return tab
+  const rows = tab.rows.filter(r => {
+    const t = parseDataMovto(r[dateCol])
+    if (!t) return false
+    if (de && t < de) return false
+    if (ate && t > ate) return false
+    return true
+  })
+  return { ...tab, rows }
+}
+
+export function sheetNoPeriodo(sheet: BiSheet, de?: string | null, ate?: string | null): BiSheet {
+  let deD: Date | null = null
+  let ateD: Date | null = null
+  if (de) {
+    const d = new Date(`${de}T00:00:00Z`)
+    if (!Number.isNaN(d.getTime())) deD = d
+  }
+  if (ate) {
+    const a = new Date(`${ate}T23:59:59.999Z`)
+    if (!Number.isNaN(a.getTime())) ateD = a
+  }
+  if (!deD && !ateD) return sheet
+  return { ...sheet, tabs: sheet.tabs.map(t => filterTabByPeriod(t, deD, ateD)) }
+}
+
+function getFatTab(sheet: BiSheet): SheetTab | undefined {
+  const candidatos = sheet.tabs.filter(t => t.header.includes("PRODUTO"))
+  const pool = candidatos.length > 0 ? candidatos : sheet.tabs
+  return [...pool].sort((a, b) => b.rows.length - a.rows.length)[0]
+}
+
 function aggregateClientes(rows: Record<string, string>[]): ProductClient[] {
   const clientMap = new Map<string, {
     razaoSocial: string
@@ -320,21 +364,21 @@ function aggregateClientes(rows: Record<string, string>[]): ProductClient[] {
 
 export function listClientesByProduto(sheet: BiSheet, codigoProduto: string): ProductClient[] {
   // Find the main faturamento tab (the one with highest rows count)
-  const fatTab = [...sheet.tabs].sort((a, b) => b.rows.length - a.rows.length)[0]
+  const fatTab = getFatTab(sheet)
   if (!fatTab) return []
 
   return aggregateClientes(fatTab.rows.filter(r => (r["PRODUTO"] ?? "").includes(codigoProduto)))
 }
 
 export function listClientesByGrupo(sheet: BiSheet, grupo: string): ProductClient[] {
-  const fatTab = [...sheet.tabs].sort((a, b) => b.rows.length - a.rows.length)[0]
+  const fatTab = getFatTab(sheet)
   if (!fatTab) return []
 
   return aggregateClientes(fatTab.rows.filter(r => rowGrupo(r) === grupo))
 }
 
 export function listGrupos(sheet: BiSheet): string[] {
-  const fatTab = [...sheet.tabs].sort((a, b) => b.rows.length - a.rows.length)[0]
+  const fatTab = getFatTab(sheet)
   if (!fatTab) return []
 
   const seen = new Set<string>()
@@ -346,7 +390,7 @@ export function listGrupos(sheet: BiSheet): string[] {
 }
 
 export function listProdutos(sheet: BiSheet): string[] {
-  const fatTab = [...sheet.tabs].sort((a, b) => b.rows.length - a.rows.length)[0]
+  const fatTab = getFatTab(sheet)
   if (!fatTab) return []
 
   const seen = new Set<string>()
@@ -373,7 +417,7 @@ export function getAbcCurve(sheet: BiSheet): AbcItem[] {
 }
 
 export function getMetrics(sheet: BiSheet) {
-  const fatTab = [...sheet.tabs].sort((a, b) => b.rows.length - a.rows.length)[0]
+  const fatTab = getFatTab(sheet)
   if (!fatTab) return null
 
   const reps = new Set<string>()
@@ -402,7 +446,7 @@ export function getMetrics(sheet: BiSheet) {
 }
 
 export function getRevenueByRepresentante(sheet: BiSheet) {
-  const fatTab = [...sheet.tabs].sort((a, b) => b.rows.length - a.rows.length)[0]
+  const fatTab = getFatTab(sheet)
   if (!fatTab) return []
 
   const repMap = new Map<string, number>()
@@ -417,7 +461,7 @@ export function getRevenueByRepresentante(sheet: BiSheet) {
 }
 
 export function getMonthlyTrend(sheet: BiSheet) {
-  const fatTab = [...sheet.tabs].sort((a, b) => b.rows.length - a.rows.length)[0]
+  const fatTab = getFatTab(sheet)
   if (!fatTab) return []
 
   const monthMap = new Map<string, { mes: string; valor: number; quantidade: number }>()
@@ -437,7 +481,7 @@ export function getMonthlyTrend(sheet: BiSheet) {
 }
 
 export function getGeoDistribution(sheet: BiSheet) {
-  const fatTab = [...sheet.tabs].sort((a, b) => b.rows.length - a.rows.length)[0]
+  const fatTab = getFatTab(sheet)
   if (!fatTab) return []
 
   const ufMap = new Map<string, number>()

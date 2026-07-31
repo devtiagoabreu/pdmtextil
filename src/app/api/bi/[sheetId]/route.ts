@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
-import { getSheetById } from "@/lib/bi/sheet-loader"
+import { getSheetById, sheetNoPeriodo } from "@/lib/bi/sheet-loader"
 import { getMetrics, getRevenueByRepresentante, getMonthlyTrend, getGeoDistribution, getAbcCurve, listProdutos, listGrupos } from "@/lib/bi/sheet-loader"
 
 export const dynamic = "force-dynamic"
@@ -14,17 +14,22 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ shee
   const sheet = await getSheetById(sheetId)
   if (!sheet) return NextResponse.json({ error: "Planilha não encontrada" }, { status: 404 })
 
-  const metrics = getMetrics(sheet)
-  const revenueByRep = getRevenueByRepresentante(sheet)
-  const monthlyTrend = getMonthlyTrend(sheet)
-  const geoDistribution = getGeoDistribution(sheet)
-  const abcCurve = getAbcCurve(sheet)
-  const produtos = listProdutos(sheet)
-  const grupos = listGrupos(sheet)
+  const de = req.nextUrl.searchParams.get("de")
+  const ate = req.nextUrl.searchParams.get("ate")
+  const filtrada = sheetNoPeriodo(sheet, de, ate)
+
+  const metrics = getMetrics(filtrada)
+  const revenueByRep = getRevenueByRepresentante(filtrada)
+  const monthlyTrend = getMonthlyTrend(filtrada)
+  const geoDistribution = getGeoDistribution(filtrada)
+  const abcCurve = getAbcCurve(filtrada)
+  const produtos = listProdutos(filtrada)
+  const grupos = listGrupos(filtrada)
 
   return NextResponse.json({
     id: sheet.id,
     title: sheet.title,
+    periodo: { de: de || null, ate: ate || null },
     tabs: sheet.tabs.map(t => ({ name: t.name, header: t.header, rows: t.rows.length })),
     produtos,
     grupos,

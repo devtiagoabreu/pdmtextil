@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
-import { getSheetById, listClientesByGrupo } from "@/lib/bi/sheet-loader"
+import { getSheetById, sheetNoPeriodo, listClientesByGrupo } from "@/lib/bi/sheet-loader"
 
 export const dynamic = "force-dynamic"
 
@@ -13,8 +13,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ shee
   const sheet = await getSheetById(sheetId)
   if (!sheet) return NextResponse.json({ error: "Planilha não encontrada" }, { status: 404 })
 
+  const de = req.nextUrl.searchParams.get("de")
+  const ate = req.nextUrl.searchParams.get("ate")
   const codigo = decodeURIComponent(grupo)
-  const clientes = listClientesByGrupo(sheet, codigo)
+  const clientes = listClientesByGrupo(sheetNoPeriodo(sheet, de, ate), codigo)
 
   return NextResponse.json({ grupo: codigo, clientes })
 }

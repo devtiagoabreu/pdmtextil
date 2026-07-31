@@ -90,6 +90,8 @@ export function BiDashboardClient() {
   const [ttlMinutos, setTtlMinutos] = useState<number | null>(null)
   const [ttlLoading, setTtlLoading] = useState(false)
   const [configMsg, setConfigMsg] = useState("")
+  const [dataInicial, setDataInicial] = useState("")
+  const [dataFinal, setDataFinal] = useState("")
 
   // Load cached sheet on mount
   useEffect(() => {
@@ -106,11 +108,15 @@ export function BiDashboardClient() {
       .catch(() => {})
   }, [])
 
-  const fetchSheetData = useCallback(async (id: string) => {
+  const fetchSheetData = useCallback(async (id: string, period?: { de?: string; ate?: string }) => {
     setLoading(true)
     setError("")
     try {
-      const res = await fetch(`/api/bi/${id}`)
+      const qs = new URLSearchParams()
+      if (period?.de) qs.set("de", period.de)
+      if (period?.ate) qs.set("ate", period.ate)
+      const query = qs.toString() ? `?${qs}` : ""
+      const res = await fetch(`/api/bi/${id}${query}`)
       if (!res.ok) {
         const err = await res.json()
         throw new Error(err.error || "Erro ao carregar dados")
@@ -128,6 +134,71 @@ export function BiDashboardClient() {
     }
   }, [])
 
+  const periodQs = () => {
+    const p = new URLSearchParams()
+    if (dataInicial) p.set("de", dataInicial)
+    if (dataFinal) p.set("ate", dataFinal)
+    const s = p.toString()
+    return s ? `?${s}` : ""
+  }
+
+  const toInputDate = (d: Date) => {
+    const y = d.getFullYear()
+    const m = String(d.getMonth() + 1).padStart(2, "0")
+    const day = String(d.getDate()).padStart(2, "0")
+    return `${y}-${m}-${day}`
+  }
+
+  const applyPeriod = (de: string | null, ate: string | null) => {
+    setDataInicial(de || "")
+    setDataFinal(ate || "")
+    if (sheetId) fetchSheetData(sheetId, { de: de || undefined, ate: ate || undefined })
+  }
+
+  const presets = [
+    {
+      label: "Mês atual",
+      range: () => {
+        const now = new Date()
+        const de = new Date(now.getFullYear(), now.getMonth(), 1)
+        return { de: toInputDate(de), ate: toInputDate(now) }
+      },
+    },
+    {
+      label: "Mês passado",
+      range: () => {
+        const now = new Date()
+        const de = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+        const ate = new Date(now.getFullYear(), now.getMonth(), 0)
+        return { de: toInputDate(de), ate: toInputDate(ate) }
+      },
+    },
+    {
+      label: "Trimestre",
+      range: () => {
+        const now = new Date()
+        const de = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate())
+        return { de: toInputDate(de), ate: toInputDate(now) }
+      },
+    },
+    {
+      label: "Semestre",
+      range: () => {
+        const now = new Date()
+        const de = new Date(now.getFullYear(), now.getMonth() - 6, now.getDate())
+        return { de: toInputDate(de), ate: toInputDate(now) }
+      },
+    },
+    {
+      label: "12 meses",
+      range: () => {
+        const now = new Date()
+        const de = new Date(now.getFullYear(), now.getMonth() - 12, now.getDate())
+        return { de: toInputDate(de), ate: toInputDate(now) }
+      },
+    },
+  ]
+
   const handleLoad = async (force = false) => {
     if (!url.trim()) return
     setLoading(true)
@@ -144,7 +215,7 @@ export function BiDashboardClient() {
       }
       const data = await res.json()
       localStorage.setItem("bi_last_sheet", JSON.stringify({ id: data.id, url: url.trim() }))
-      await fetchSheetData(data.id)
+      await fetchSheetData(data.id, { de: dataInicial || undefined, ate: dataFinal || undefined })
     } catch (e: any) {
       setError(e.message)
     } finally {
@@ -181,7 +252,7 @@ export function BiDashboardClient() {
     if (!produto || !sheetId) return
     setLoadingClientes(true)
     try {
-      const res = await fetch(`/api/bi/${sheetId}/produto/${encodeURIComponent(produto)}/clientes`)
+      const res = await fetch(`/api/bi/${sheetId}/produto/${encodeURIComponent(produto)}/clientes${periodQs()}`)
       if (!res.ok) throw new Error("Erro ao buscar clientes")
       const data = await res.json()
       setClientesData(data.clientes || [])
@@ -198,7 +269,7 @@ export function BiDashboardClient() {
     if (!grupo || !sheetId) return
     setLoadingClientes(true)
     try {
-      const res = await fetch(`/api/bi/${sheetId}/grupo/${encodeURIComponent(grupo)}/clientes`)
+      const res = await fetch(`/api/bi/${sheetId}/grupo/${encodeURIComponent(grupo)}/clientes${periodQs()}`)
       if (!res.ok) throw new Error("Erro ao buscar clientes")
       const data = await res.json()
       setClientesData(data.clientes || [])
@@ -288,6 +359,55 @@ export function BiDashboardClient() {
           {configMsg && <span className="text-xs text-slate-500 dark:text-slate-400">{configMsg}</span>}
         </div>
       </div>
+
+      {/* Period Selector */}
+      {sheetData && (
+        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-sm font-medium text-slate-700 dark:text-slate-300 mr-1">Período:</span>
+            <input
+              type="date"
+              value={dataInicial}
+              onChange={e => applyPeriod(e.target.value || null, dataFinal || null)}
+              className="px-2 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+            <span className="text-sm text-slate-500">até</span>
+            <input
+              type="date"
+              value={dataFinal}
+              onChange={e => applyPeriod(dataInicial || null, e.target.value || null)}
+              className="px-2 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+            {(dataInicial || dataFinal) && (
+              <button
+                onClick={() => applyPeriod(null, null)}
+                className="px-3 py-1.5 rounded-lg text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+              >
+                Limpar
+              </button>
+            )}
+          </div>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            {presets.map(p => (
+              <button
+                key={p.label}
+                onClick={() => {
+                  const r = p.range()
+                  applyPeriod(r.de, r.ate)
+                }}
+                className="px-3 py-1 rounded-full border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+              >
+                {p.label}
+              </button>
+            ))}
+            {(dataInicial || dataFinal) && (
+              <span className="text-xs text-slate-400 ml-auto">
+                Análise: {dataInicial || "início"} até {dataFinal || "hoje"}
+              </span>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Tabs */}
       {sheetData && (

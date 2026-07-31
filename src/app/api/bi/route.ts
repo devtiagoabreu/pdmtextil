@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
-import { loadSheet, getSheetById } from "@/lib/bi/sheet-loader"
+import { loadSheet, getSheetById, sheetNoPeriodo } from "@/lib/bi/sheet-loader"
 import { getMetrics, getRevenueByRepresentante, getMonthlyTrend, getGeoDistribution, getAbcCurve } from "@/lib/bi/sheet-loader"
 
 export const dynamic = "force-dynamic"
@@ -38,11 +38,15 @@ export async function GET(req: NextRequest) {
   const sheet = await getSheetById(sheetId)
   if (!sheet) return NextResponse.json({ error: "Planilha não encontrada. Carregue-a primeiro." }, { status: 404 })
 
-  const metrics = getMetrics(sheet)
-  const revenueByRep = getRevenueByRepresentante(sheet)
-  const monthlyTrend = getMonthlyTrend(sheet)
-  const geoDistribution = getGeoDistribution(sheet)
-  const abcCurve = getAbcCurve(sheet)
+  const de = req.nextUrl.searchParams.get("de")
+  const ate = req.nextUrl.searchParams.get("ate")
+  const filtrada = sheetNoPeriodo(sheet, de, ate)
+
+  const metrics = getMetrics(filtrada)
+  const revenueByRep = getRevenueByRepresentante(filtrada)
+  const monthlyTrend = getMonthlyTrend(filtrada)
+  const geoDistribution = getGeoDistribution(filtrada)
+  const abcCurve = getAbcCurve(filtrada)
   const relationships = sheet.relationships
 
   return NextResponse.json({
