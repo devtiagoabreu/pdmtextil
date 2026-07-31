@@ -81,6 +81,25 @@ async function fetchTabCsv(sheetId: string, gid: number): Promise<string | null>
   }
 }
 
+async function discoverTabs(sheetId: string): Promise<{ name: string; gid: number }[] | null> {
+  try {
+    const res = await fetch(`https://docs.google.com/spreadsheets/d/${sheetId}/htmlview`)
+    if (!res.ok) return null
+    const html = await res.text()
+
+    const tabs: { name: string; gid: number }[] = []
+    const re = /name:\s*"([^"]+)",[\s\S]*?gid:\s*"(\d+)"/g
+    let m: RegExpExecArray | null
+    while ((m = re.exec(html))) {
+      const gid = Number(m[2])
+      if (!tabs.some(t => t.gid === gid)) tabs.push({ name: m[1], gid })
+    }
+    return tabs.length > 0 ? tabs : null
+  } catch {
+    return null
+  }
+}
+
 function parseCsv(text: string): { header: string[]; rows: Record<string, string>[] } {
   const lines = text.trim().split("\n")
   if (lines.length < 2) return { header: [], rows: [] }
@@ -127,20 +146,31 @@ async function fetchAndParse(url: string): Promise<BiSheet> {
   const id = extractSheetId(url)
   if (!id) throw new Error("URL de planilha inválida")
 
+  const discovered = await discoverTabs(id)
   const tabs: SheetTab[] = []
-  let gid = 0
-  let emptyCount = 0
 
-  while (emptyCount < 3 && gid < 200) {
-    const csv = await fetchTabCsv(id, gid)
-    if (!csv) { emptyCount++; gid++; continue }
-    emptyCount = 0
+  if (discovered && discovered.length > 0) {
+    for (const c of discovered) {
+      const csv = await fetchTabCsv(id, c.gid)
+      if (!csv) continue
+      const { header, rows } = parseCsv(csv)
+      if (header.length === 0) continue
+      tabs.push({ name: c.name, gid: c.gid, header, rows })
+    }
+  } else {
+    let gid = 0
+    let emptyCount = 0
+    while (emptyCount < 3 && gid < 200) {
+      const csv = await fetchTabCsv(id, gid)
+      if (!csv) { emptyCount++; gid++; continue }
+      emptyCount = 0
 
-    const { header, rows } = parseCsv(csv)
-    if (header.length === 0) { gid++; continue }
+      const { header, rows } = parseCsv(csv)
+      if (header.length === 0) { gid++; continue }
 
-    tabs.push({ name: `aba_${tabs.length + 1}`, gid, header, rows })
-    gid++
+      tabs.push({ name: `aba_${tabs.length + 1}`, gid, header, rows })
+      gid++
+    }
   }
 
   if (tabs.length === 0) throw new Error("Nenhuma aba encontrada na planilha")
@@ -300,7 +330,9 @@ export function listProdutos(sheet: BiSheet): string[] {
 }
 
 export function getAbcCurve(sheet: BiSheet): AbcItem[] {
-  const abcTab = sheet.tabs.find(t => t.name.includes("4"))
+  const abcTab =
+    sheet.tabs.find(t => /abc|curva/i.test(t.name)) ||
+    sheet.tabs.find(t => t.name.includes("4"))
   if (!abcTab) return []
 
   return abcTab.rows.map(r => ({
