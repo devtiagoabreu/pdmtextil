@@ -262,13 +262,14 @@ export function queryTabRows(tab: SheetTab, filters: Record<string, string>): Re
   )
 }
 
-export function listClientesByProduto(sheet: BiSheet, codigoProduto: string): ProductClient[] {
-  // Find the main faturamento tab (the one with highest rows count)
-  const fatTab = [...sheet.tabs].sort((a, b) => b.rows.length - a.rows.length)[0]
-  if (!fatTab) return []
+function rowGrupo(r: Record<string, string>): string {
+  const g = (r["GRUPO"] || "").trim()
+  if (g) return g
+  const parts = (r["PRODUTO"] || "").split(".")
+  return parts.length >= 2 ? parts[1].trim() : ""
+}
 
-  const filtered = fatTab.rows.filter(r => (r["PRODUTO"] ?? "").includes(codigoProduto))
-
+function aggregateClientes(rows: Record<string, string>[]): ProductClient[] {
   const clientMap = new Map<string, {
     razaoSocial: string
     cidade: string
@@ -281,7 +282,7 @@ export function listClientesByProduto(sheet: BiSheet, codigoProduto: string): Pr
     count: number
   }>()
 
-  for (const r of filtered) {
+  for (const r of rows) {
     const key = r["RAZAOSOCIAL"] || r["RAZAO_SOCIAL"] || "unknown"
     const existing = clientMap.get(key) || {
       razaoSocial: key,
@@ -315,6 +316,33 @@ export function listClientesByProduto(sheet: BiSheet, codigoProduto: string): Pr
   result.sort((a, b) => b.ultimaData.localeCompare(a.ultimaData))
 
   return result.map(({ count, ...rest }) => rest)
+}
+
+export function listClientesByProduto(sheet: BiSheet, codigoProduto: string): ProductClient[] {
+  // Find the main faturamento tab (the one with highest rows count)
+  const fatTab = [...sheet.tabs].sort((a, b) => b.rows.length - a.rows.length)[0]
+  if (!fatTab) return []
+
+  return aggregateClientes(fatTab.rows.filter(r => (r["PRODUTO"] ?? "").includes(codigoProduto)))
+}
+
+export function listClientesByGrupo(sheet: BiSheet, grupo: string): ProductClient[] {
+  const fatTab = [...sheet.tabs].sort((a, b) => b.rows.length - a.rows.length)[0]
+  if (!fatTab) return []
+
+  return aggregateClientes(fatTab.rows.filter(r => rowGrupo(r) === grupo))
+}
+
+export function listGrupos(sheet: BiSheet): string[] {
+  const fatTab = [...sheet.tabs].sort((a, b) => b.rows.length - a.rows.length)[0]
+  if (!fatTab) return []
+
+  const seen = new Set<string>()
+  for (const r of fatTab.rows) {
+    const g = rowGrupo(r)
+    if (g) seen.add(g)
+  }
+  return [...seen].sort()
 }
 
 export function listProdutos(sheet: BiSheet): string[] {
