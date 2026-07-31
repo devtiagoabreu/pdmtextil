@@ -1,36 +1,37 @@
 import type { SheetTab, BiSheet, Relationship, ProductClient, AbcItem } from "./types"
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs"
-import { join } from "path"
-import { tmpdir } from "os"
+import { db } from "@/lib/db"
+import { biSheets } from "@/lib/db/schema/bi-sheets"
+import { configGeral } from "@/lib/db/schema/config-geral"
+import { eq } from "drizzle-orm"
 
-function resolveCacheDir(): string {
-  const override = process.env.BI_CACHE_DIR
-  if (override) return override
+const TTL_DEFAULT = 10
 
-  const tmp = join(tmpdir(), ".bi-cache")
+export async function getTtlMinutos(): Promise<number> {
   try {
-    mkdirSync(tmp, { recursive: true })
-    return tmp
+    const [cfg] = await db.select().from(configGeral).where(eq(configGeral.chave, "bi_ttl_minutos"))
+    const n = cfg?.valor ? Number.parseInt(cfg.valor, 10) : NaN
+    if (Number.isFinite(n) && n > 0) return n
   } catch {
-    return join(process.cwd(), ".bi-cache")
+    // usa default
   }
+  return TTL_DEFAULT
 }
 
-let cacheDir: string | null = null
-function getCacheDir(): string | null {
-  if (cacheDir) return cacheDir
-  try {
-    cacheDir = resolveCacheDir()
-    mkdirSync(cacheDir, { recursive: true })
-    return cacheDir
-  } catch {
-    return null
-  }
+export async function setTtlMinutos(minutos: number): Promise<void> {
+  const n = Math.max(1, Math.min(1440, Math.round(minutos)))
+  await db
+    .insert(configGeral)
+    .values({ chave: "bi_ttl_minutos", valor: String(n) })
+    .onConflictDoUpdate({
+      target: configGeral.chave,
+      set: { valor: String(n), updatedAt: new Date() },
+    })
 }
 
-function cachePath(id: string) {
-  const dir = getCacheDir()
-  return dir ? join(dir, `${id}.json`) : null
+function isExpired(loadedAt: Date | string | null | undefined, ttlMin: number): boolean {
+  if (!loadedAt) return true
+  const t = typeof loadedAt === "string" ? new Date(loadedAt).getTime() : loadedAt.getTime()
+  return Date.now() - t > ttlMin * 60 * 1000
 }
 
 function extractSheetId(url: string): string | null {
@@ -122,13 +123,9 @@ function detectRelationships(tabs: SheetTab[]): Relationship[] {
   return rels
 }
 
-export async function loadSheet(url: string): Promise<BiSheet> {
+async function fetchAndParse(url: string): Promise<BiSheet> {
   const id = extractSheetId(url)
   if (!id) throw new Error("URL de planilha inválida")
-
-  // Try cache first
-  const cached = getCachedSheet(id)
-  if (cached) return cached
 
   const tabs: SheetTab[] = []
   let gid = 0
@@ -150,7 +147,7 @@ export async function loadSheet(url: string): Promise<BiSheet> {
 
   const relationships = detectRelationships(tabs)
 
-  const sheet: BiSheet = {
+  return {
     id,
     url,
     title: `Planilha ${id.slice(0, 8)}`,
@@ -158,26 +155,71 @@ export async function loadSheet(url: string): Promise<BiSheet> {
     relationships,
     loadedAt: new Date().toISOString(),
   }
-
-  // Save cache (best effort — read-only filesystems must not break the load)
-  try {
-    const path = cachePath(id)
-    if (path) writeFileSync(path, JSON.stringify(sheet, null, 2))
-  } catch {
-    // cache is optional
-  }
-
-  return sheet
 }
 
-export function getCachedSheet(sheetId: string): BiSheet | null {
+async function persistSheet(sheet: BiSheet): Promise<void> {
   try {
-    const path = cachePath(sheetId)
-    if (!path || !existsSync(path)) return null
-    return JSON.parse(readFileSync(path, "utf-8")) as BiSheet
-  } catch {
-    return null
+    await db
+      .insert(biSheets)
+      .values({
+        id: sheet.id,
+        url: sheet.url,
+        title: sheet.title,
+        data: sheet,
+        loadedAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .onConflictDoUpdate({
+        target: biSheets.id,
+        set: {
+          url: sheet.url,
+          title: sheet.title,
+          data: sheet,
+          loadedAt: new Date(),
+          updatedAt: new Date(),
+        },
+      })
+  } catch (e) {
+    console.error("[BI] Falha ao gravar cache no banco:", e)
   }
+}
+
+export async function getSheetById(
+  sheetId: string,
+  opts: { force?: boolean; url?: string } = {}
+): Promise<BiSheet | null> {
+  let row: any = null
+  try {
+    const [r] = await db.select().from(biSheets).where(eq(biSheets.id, sheetId))
+    row = r
+  } catch (e) {
+    console.error("[BI] Falha ao ler cache do banco:", e)
+  }
+
+  const ttlMin = await getTtlMinutos()
+  const precisaBuscar = opts.force || !row || isExpired(row.loadedAt, ttlMin)
+
+  if (precisaBuscar && (opts.url || row?.url)) {
+    try {
+      const sheet = await fetchAndParse(opts.url || row.url)
+      await persistSheet(sheet)
+      return sheet
+    } catch (e) {
+      if (!row) throw e
+      console.error(`[BI] Falha ao re-buscar planilha ${sheetId}, usando cache:`, e)
+    }
+  }
+
+  return row ? (row.data as BiSheet) : null
+}
+
+export async function loadSheet(url: string, opts: { force?: boolean } = {}): Promise<BiSheet> {
+  const id = extractSheetId(url)
+  if (!id) throw new Error("URL de planilha inválida")
+
+  const sheet = await getSheetById(id, { force: opts.force, url })
+  if (!sheet) throw new Error("Nenhuma aba encontrada na planilha")
+  return sheet
 }
 
 // --- Query helpers ---

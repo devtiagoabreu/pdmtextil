@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
-import { getCachedSheet } from "@/lib/bi/sheet-loader"
+import { getSheetById } from "@/lib/bi/sheet-loader"
 import { getMetrics, getRevenueByRepresentante, getMonthlyTrend, getGeoDistribution, getAbcCurve, listProdutos } from "@/lib/bi/sheet-loader"
 
 export const dynamic = "force-dynamic"
@@ -11,7 +11,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ shee
   if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
   const { sheetId } = await params
-  const sheet = getCachedSheet(sheetId)
+  const sheet = await getSheetById(sheetId)
   if (!sheet) return NextResponse.json({ error: "Planilha não encontrada" }, { status: 404 })
 
   const metrics = getMetrics(sheet)

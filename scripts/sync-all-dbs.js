@@ -288,6 +288,25 @@ CREATE TABLE IF NOT EXISTS ai_chaves (
   created_at timestamp DEFAULT now(),
   updated_at timestamp DEFAULT now()
 );
+
+-- bi_sheets: cache compartilhado de planilhas do BI
+CREATE TABLE IF NOT EXISTS bi_sheets (
+  id varchar(64) PRIMARY KEY,
+  url text NOT NULL,
+  title varchar(255),
+  data jsonb NOT NULL,
+  loaded_at timestamp,
+  updated_at timestamp DEFAULT now()
+);
+
+-- config_geral: configuracoes chave/valor
+CREATE TABLE IF NOT EXISTS config_geral (
+  chave varchar(100) PRIMARY KEY,
+  valor text,
+  updated_at timestamp DEFAULT now()
+);
+INSERT INTO config_geral (chave, valor) VALUES ('bi_ttl_minutos', '10')
+ON CONFLICT (chave) DO NOTHING;
 `
 
 async function migrateDb(name, url) {

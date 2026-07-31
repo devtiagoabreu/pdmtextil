@@ -40,6 +40,9 @@ export function BiDashboardClient() {
   const [clientesData, setClientesData] = useState<any[]>([])
   const [loadingClientes, setLoadingClientes] = useState(false)
   const [sheetId, setSheetId] = useState("")
+  const [ttlMinutos, setTtlMinutos] = useState<number | null>(null)
+  const [ttlLoading, setTtlLoading] = useState(false)
+  const [configMsg, setConfigMsg] = useState("")
 
   // Load cached sheet on mount
   useEffect(() => {
@@ -50,6 +53,10 @@ export function BiDashboardClient() {
       setUrl(parsed.url)
       fetchSheetData(parsed.id)
     }
+    fetch("/api/bi/config")
+      .then(r => (r.ok ? r.json() : null))
+      .then(d => { if (d?.ttlMinutos) setTtlMinutos(d.ttlMinutos) })
+      .catch(() => {})
   }, [])
 
   const fetchSheetData = useCallback(async (id: string) => {
@@ -73,7 +80,7 @@ export function BiDashboardClient() {
     }
   }, [])
 
-  const handleLoad = async () => {
+  const handleLoad = async (force = false) => {
     if (!url.trim()) return
     setLoading(true)
     setError("")
@@ -81,7 +88,7 @@ export function BiDashboardClient() {
       const res = await fetch("/api/bi", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: url.trim() }),
+        body: JSON.stringify({ url: url.trim(), force }),
       })
       if (!res.ok) {
         const err = await res.json()
@@ -94,6 +101,30 @@ export function BiDashboardClient() {
       setError(e.message)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleSaveTtl = async () => {
+    if (ttlMinutos === null || !Number.isFinite(ttlMinutos) || ttlMinutos < 1 || ttlMinutos > 1440) {
+      setConfigMsg("Valor inválido (1–1440 min)")
+      return
+    }
+    setTtlLoading(true)
+    setConfigMsg("")
+    try {
+      const res = await fetch("/api/bi/config", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ttlMinutos }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || "Erro ao salvar configuração")
+      setTtlMinutos(data.ttlMinutos)
+      setConfigMsg("Salvo!")
+    } catch (e: any) {
+      setConfigMsg(e.message)
+    } finally {
+      setTtlLoading(false)
     }
   }
 
@@ -147,15 +178,46 @@ export function BiDashboardClient() {
             onKeyDown={e => e.key === "Enter" && handleLoad()}
           />
           <button
-            onClick={handleLoad}
+            onClick={() => handleLoad()}
             disabled={loading || !url.trim()}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 transition-colors"
           >
             <Upload className="w-4 h-4" />
             {loading ? "Carregando..." : "Carregar"}
           </button>
+          {sheetData && (
+            <button
+              onClick={() => handleLoad(true)}
+              disabled={loading}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50 transition-colors"
+            >
+              {loading ? "Recarregando..." : "Recarregar agora"}
+            </button>
+          )}
         </div>
         {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
+        <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center gap-2">
+          <label className="text-xs text-slate-500 dark:text-slate-400">
+            Atualizar dados a cada
+          </label>
+          <input
+            type="number"
+            min={1}
+            max={1440}
+            value={ttlMinutos ?? ""}
+            onChange={e => setTtlMinutos(e.target.value === "" ? null : Number(e.target.value))}
+            className="w-20 px-2 py-1 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+          <span className="text-xs text-slate-500 dark:text-slate-400">min</span>
+          <button
+            onClick={handleSaveTtl}
+            disabled={ttlLoading}
+            className="px-3 py-1 rounded-lg border border-slate-300 dark:border-slate-700 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50 transition-colors"
+          >
+            {ttlLoading ? "Salvando..." : "Salvar"}
+          </button>
+          {configMsg && <span className="text-xs text-slate-500 dark:text-slate-400">{configMsg}</span>}
+        </div>
       </div>
 
       {/* Tabs */}
