@@ -1,11 +1,36 @@
 import type { SheetTab, BiSheet, Relationship, ProductClient, AbcItem } from "./types"
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs"
 import { join } from "path"
+import { tmpdir } from "os"
 
-const CACHE_DIR = join(process.cwd(), ".bi-cache")
+function resolveCacheDir(): string {
+  const override = process.env.BI_CACHE_DIR
+  if (override) return override
+
+  const tmp = join(tmpdir(), ".bi-cache")
+  try {
+    mkdirSync(tmp, { recursive: true })
+    return tmp
+  } catch {
+    return join(process.cwd(), ".bi-cache")
+  }
+}
+
+let cacheDir: string | null = null
+function getCacheDir(): string | null {
+  if (cacheDir) return cacheDir
+  try {
+    cacheDir = resolveCacheDir()
+    mkdirSync(cacheDir, { recursive: true })
+    return cacheDir
+  } catch {
+    return null
+  }
+}
 
 function cachePath(id: string) {
-  return join(CACHE_DIR, `${id}.json`)
+  const dir = getCacheDir()
+  return dir ? join(dir, `${id}.json`) : null
 }
 
 function extractSheetId(url: string): string | null {
@@ -102,9 +127,8 @@ export async function loadSheet(url: string): Promise<BiSheet> {
   if (!id) throw new Error("URL de planilha inválida")
 
   // Try cache first
-  if (existsSync(cachePath(id))) {
-    return JSON.parse(readFileSync(cachePath(id), "utf-8")) as BiSheet
-  }
+  const cached = getCachedSheet(id)
+  if (cached) return cached
 
   const tabs: SheetTab[] = []
   let gid = 0
@@ -135,17 +159,25 @@ export async function loadSheet(url: string): Promise<BiSheet> {
     loadedAt: new Date().toISOString(),
   }
 
-  // Save cache
-  mkdirSync(CACHE_DIR, { recursive: true })
-  writeFileSync(cachePath(id), JSON.stringify(sheet, null, 2))
+  // Save cache (best effort — read-only filesystems must not break the load)
+  try {
+    const path = cachePath(id)
+    if (path) writeFileSync(path, JSON.stringify(sheet, null, 2))
+  } catch {
+    // cache is optional
+  }
 
   return sheet
 }
 
 export function getCachedSheet(sheetId: string): BiSheet | null {
-  const path = cachePath(sheetId)
-  if (!existsSync(path)) return null
-  return JSON.parse(readFileSync(path, "utf-8")) as BiSheet
+  try {
+    const path = cachePath(sheetId)
+    if (!path || !existsSync(path)) return null
+    return JSON.parse(readFileSync(path, "utf-8")) as BiSheet
+  } catch {
+    return null
+  }
 }
 
 // --- Query helpers ---
