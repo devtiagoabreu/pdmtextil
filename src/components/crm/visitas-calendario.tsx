@@ -49,6 +49,9 @@ type Visita = {
   status: string
   empresaNome: string | null
   clienteNome: string | null
+  nomeAvulso: string | null
+  empresaId: number | null
+  clienteId: number | null
   oportunidadeTitulo: string | null
   criadoPorNome: string | null
   endereco: string | null
@@ -176,11 +179,11 @@ export default function VisitasCalendario({ visitas }: { visitas: Visita[] }) {
                     <div
                       key={v.id}
                       className="flex items-center gap-1"
-                      title={`${v.empresaNome || v.clienteNome || "Sem entidade"} - ${TIPO_LABELS[v.tipo] || v.tipo}${v.hora ? ` às ${v.hora}` : ""}`}
+                      title={`${v.nomeAvulso || v.empresaNome || v.clienteNome || "Sem entidade"} - ${TIPO_LABELS[v.tipo] || v.tipo}${v.hora ? ` às ${v.hora}` : ""}`}
                     >
                       <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${TIPO_CORES[v.tipo] || "bg-slate-400"}`} />
                       <span className="text-[10px] text-slate-600 dark:text-slate-400 truncate leading-tight">
-                        {v.hora && <span className="font-semibold">{v.hora} </span>}{v.empresaNome || v.clienteNome || "—"}
+                        {v.hora && <span className="font-semibold">{v.hora} </span>}{v.nomeAvulso || v.empresaNome || v.clienteNome || "—"}
                       </span>
                     </div>
                   ))}
@@ -252,7 +255,11 @@ export default function VisitasCalendario({ visitas }: { visitas: Visita[] }) {
                       <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${TIPO_CORES[v.tipo] || "bg-slate-400"}`} />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
-                          {v.empresaNome || v.clienteNome || "Sem entidade"}
+                          {!v.empresaId && !v.clienteId ? (
+                            <span><span className="text-orange-500">Avulsa:</span> {v.nomeAvulso || "Sem entidade"}</span>
+                          ) : (
+                            v.empresaNome || v.clienteNome || "Sem entidade"
+                          )}
                         </p>
                         <p className="text-xs text-slate-500 dark:text-slate-400">
                           {TIPO_LABELS[v.tipo] || v.tipo}

@@ -46,6 +46,7 @@ export async function GET(
         contatoId: crmVisitas.contatoId,
         contatoNome: crmContatos.nome,
         contatoEmail: crmContatos.email,
+        nomeAvulso: crmVisitas.nomeAvulso,
         dataVisita: crmVisitas.dataVisita,
         hora: crmVisitas.hora,
         tipo: crmVisitas.tipo,
@@ -120,8 +121,9 @@ export async function PUT(
     }
 
     const values: Record<string, any> = { updatedAt: new Date() }
-    if (body.empresaId !== undefined) values.empresaId = body.empresaId
-    if (body.clienteId !== undefined) values.clienteId = body.clienteId
+    if (body.empresaId !== undefined) { values.empresaId = body.empresaId; values.nomeAvulso = null }
+    if (body.clienteId !== undefined) { values.clienteId = body.clienteId; values.nomeAvulso = null }
+    if (body.nomeAvulso !== undefined) values.nomeAvulso = body.nomeAvulso
     if (body.oportunidadeId !== undefined) values.oportunidadeId = body.oportunidadeId
     if (body.contatoId !== undefined) values.contatoId = body.contatoId
     if (body.dataVisita !== undefined) values.dataVisita = body.dataVisita

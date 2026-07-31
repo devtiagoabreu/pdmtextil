@@ -7,7 +7,7 @@ import { getInfoContent } from "@/lib/info-content"
 import Link from "next/link"
 import {Suspense, useState, useEffect, useCallback, useRef} from "react"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
-import { PlusCircle, CalendarDays, Table, Columns, Search, MapPin, Navigation, Users, User, ChevronLeft, ChevronRight, CalendarRange, X, Trash2, CheckSquare } from "lucide-react"
+import { PlusCircle, CalendarDays, Table, Columns, Search, MapPin, Navigation, Users, User, ChevronLeft, ChevronRight, CalendarRange, X, Trash2, CheckSquare, AlertTriangle, Link as LinkIcon } from "lucide-react"
 import { toast } from "sonner"
 import { useStatuses } from "@/hooks/use-statuses"
 import VisitasCalendario from "@/components/crm/visitas-calendario"
@@ -18,7 +18,7 @@ import { PageSkeleton } from "@/components/ui/page-skeleton"
 
 const PAGE_SIZE = 50
 
-async function fetchVisitasPaginated(params: { mine: boolean; page: number; q: string; dataInicio: string; dataFim: string }) {
+async function fetchVisitasPaginated(params: { mine: boolean; page: number; q: string; dataInicio: string; dataFim: string; avulsas: boolean }) {
   const sp = new URLSearchParams()
   sp.set("page", String(params.page))
   sp.set("limit", String(PAGE_SIZE))
@@ -26,13 +26,17 @@ async function fetchVisitasPaginated(params: { mine: boolean; page: number; q: s
   if (params.q) sp.set("q", params.q)
   if (params.dataInicio) sp.set("dataInicio", params.dataInicio)
   if (params.dataFim) sp.set("dataFim", params.dataFim)
+  if (params.avulsas) sp.set("avulsas", "true")
   const res = await fetch(`/api/crm/visitas?${sp}`)
   if (!res.ok) throw new Error("Falha ao carregar")
   return res.json()
 }
 
-async function fetchVisitasAll(mine: boolean) {
-  const res = await fetch(`/api/crm/visitas?all=true${mine ? "&mine=true" : ""}`)
+async function fetchVisitasAll(mine: boolean, avulsas: boolean) {
+  const sp = new URLSearchParams({ all: "true" })
+  if (mine) sp.set("mine", "true")
+  if (avulsas) sp.set("avulsas", "true")
+  const res = await fetch(`/api/crm/visitas?${sp}`)
   if (!res.ok) throw new Error("Falha ao carregar")
   return res.json()
 }
@@ -74,6 +78,7 @@ function VisitasPageContent() {
   const [visitasFilter, setVisitasFilter] = useState<"todas" | "minhas">(
     isComercial ? "minhas" : "todas"
   )
+  const [filterAvulsas, setFilterAvulsas] = useState(false)
 
   const handleSearchChange = useCallback((value: string) => {
     setSearch(value)
@@ -90,16 +95,28 @@ function VisitasPageContent() {
 
   const isTableMode = modo === "tabela"
 
+  const { data: avulsasCount } = useQuery({
+    queryKey: ["crm-visitas-avulsas-count", visitasFilter],
+    queryFn: async () => {
+      const sp = new URLSearchParams({ all: "true", avulsas: "true" })
+      if (visitasFilter === "minhas") sp.set("mine", "true")
+      const res = await fetch(`/api/crm/visitas?${sp}`)
+      if (!res.ok) throw new Error("Falha ao carregar")
+      return res.json()
+    },
+    retry: 1,
+  })
+
   const { data: tableData, isLoading: tableLoading } = useQuery({
-    queryKey: ["crm-visitas-table", visitasFilter, page, debouncedSearch, dataInicio, dataFim],
-    queryFn: () => fetchVisitasPaginated({ mine: visitasFilter === "minhas", page, q: debouncedSearch, dataInicio, dataFim }),
+    queryKey: ["crm-visitas-table", visitasFilter, page, debouncedSearch, dataInicio, dataFim, filterAvulsas],
+    queryFn: () => fetchVisitasPaginated({ mine: visitasFilter === "minhas", page, q: debouncedSearch, dataInicio, dataFim, avulsas: filterAvulsas }),
     retry: 1,
     enabled: isTableMode,
   })
 
   const { data: allVisitas, isLoading: allLoading } = useQuery({
-    queryKey: ["crm-visitas-all", visitasFilter],
-    queryFn: () => fetchVisitasAll(visitasFilter === "minhas"),
+    queryKey: ["crm-visitas-all", visitasFilter, filterAvulsas],
+    queryFn: () => fetchVisitasAll(visitasFilter === "minhas", filterAvulsas),
     retry: 1,
     enabled: !isTableMode,
   })
@@ -279,6 +296,33 @@ function VisitasPageContent() {
         </div>
       )}
 
+      {(avulsasCount?.length || 0) > 0 && (
+        <div className="rounded-xl border border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-950/30 p-4 flex items-center gap-3">
+          <LinkIcon size={18} className="text-orange-500 shrink-0" />
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-orange-800 dark:text-orange-200">
+              <strong>{avulsasCount.length}</strong> visita(s) avulsa(s) aguardando vínculo
+            </p>
+            <p className="text-xs text-orange-600 dark:text-orange-400">
+              {filterAvulsas
+                ? "Mostrando apenas visitas avulsas"
+                : "Visitas sem cliente ou pessoa vinculada. Vincule para associar a um registro existente."
+              }
+            </p>
+          </div>
+          <button
+            onClick={() => { setFilterAvulsas(!filterAvulsas); setPage(1) }}
+            className={`text-xs font-medium px-3 py-1.5 rounded-lg transition-colors shrink-0 ${
+              filterAvulsas
+                ? "bg-orange-200 dark:bg-orange-800 text-orange-800 dark:text-orange-200 hover:bg-orange-300 dark:hover:bg-orange-700"
+                : "bg-orange-500 text-white hover:bg-orange-600"
+            }`}
+          >
+            {filterAvulsas ? "Mostrar todas" : "Ver visitas avulsas"}
+          </button>
+        </div>
+      )}
+
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
         {modo === "calendario" ? (
           isLoading ? (
@@ -359,7 +403,18 @@ function VisitasPageContent() {
                       <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-900 dark:text-slate-200 whitespace-nowrap">
                         {v.dataVisita ? new Date(v.dataVisita + "T12:00:00").toLocaleDateString("pt-BR") : "—"}{v.hora ? ` ${v.hora}` : ""}
                       </td>
-                      <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-medium text-slate-900 dark:text-slate-200"><Link href={`/comercial/crm/visitas/${v.id}`} className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">{v.empresaNome || v.clienteNome || "—"}</Link></td>
+                      <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-medium text-slate-900 dark:text-slate-200">
+                        <Link href={`/comercial/crm/visitas/${v.id}`} className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                          {!v.empresaId && !v.clienteId ? (
+                            <span className="inline-flex items-center gap-1">
+                              <span className="text-orange-500 font-semibold">Avulsa:</span>
+                              <span>{v.nomeAvulso || "—"}</span>
+                            </span>
+                          ) : (
+                            v.empresaNome || v.clienteNome || "—"
+                          )}
+                        </Link>
+                      </td>
                       <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden sm:table-cell">{v.oportunidadeTitulo || "—"}</td>
                       <td className="px-2 py-2 md:px-4 md:py-3">
                         <span className={`inline-flex text-[10px] px-1.5 md:px-2 py-0.5 rounded-full font-medium ${TIPO_CORES[v.tipo] || ""}`}>
@@ -392,7 +447,7 @@ function VisitasPageContent() {
                           <button
                             onClick={(e) => {
                               e.stopPropagation()
-                              setSelectedVisita({ id: v.id, nome: v.empresaNome || v.clienteNome || "Visita" })
+                              setSelectedVisita({ id: v.id, nome: v.nomeAvulso || v.empresaNome || v.clienteNome || "Visita" })
                             }}
                             className="p-2 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-950/50 transition-colors"
                             title="Gerenciar localizações"

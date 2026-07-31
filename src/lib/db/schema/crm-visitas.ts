@@ -23,6 +23,7 @@ export const crmVisitas = pgTable("crm_visitas", {
   uf: varchar("uf", { length: 2 }),
   cep: varchar("cep", { length: 10 }),
   motivoCancelamento: text("motivo_cancelamento"),
+  nomeAvulso: varchar("nome_avulso", { length: 300 }),
   relato: text("relato"),
   fotos: jsonb("fotos").$type<string[]>().default([]),
   checkInTime: timestamp("check_in_time"),

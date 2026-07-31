@@ -1,7 +1,7 @@
 "use client"
 
 import {Suspense, useState, useEffect, useRef} from "react"
-import { AlertTriangle } from "lucide-react"
+import { AlertTriangle, User } from "lucide-react"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
@@ -34,7 +34,7 @@ function NovaVisitaPageContent() {
   const searchParams = useSearchParams()
   const info = getInfoContent(pathname)
   const dataParam = searchParams.get("data")
-  const [tipoEntidade, setTipoEntidade] = useState<"CLIENTE" | "PESSOA" | "">("")
+  const [tipoEntidade, setTipoEntidade] = useState<"CLIENTE" | "PESSOA" | "AVULSA" | "">("")
   const [empresas, setEmpresas] = useState<any[]>([])
   const [clientesList, setClientesList] = useState<any[]>([])
   const [oportunidades, setOportunidades] = useState<any[]>([])
@@ -52,6 +52,7 @@ function NovaVisitaPageContent() {
   const [form, setForm] = useState({
     empresaId: "",
     clienteId: "",
+    nomeAvulso: "",
     oportunidadeId: "",
     contatoId: "",
     dataVisita: dataParam || new Date().toISOString().split("T")[0],
@@ -271,6 +272,10 @@ function NovaVisitaPageContent() {
       toast.error("Cliente é obrigatório")
       return
     }
+    if (tipoEntidade === "AVULSA" && !form.nomeAvulso.trim()) {
+      toast.error("Nome é obrigatório para visita avulsa")
+      return
+    }
     if (recorrencia !== "nenhuma" && !recorrenciaFim) {
       toast.error("Informe a data final da recorrência")
       return
@@ -283,6 +288,7 @@ function NovaVisitaPageContent() {
         body: JSON.stringify({
           empresaId: tipoEntidade === "PESSOA" ? parseInt(form.empresaId) : null,
           clienteId: tipoEntidade === "CLIENTE" ? parseInt(form.clienteId) : null,
+          nomeAvulso: tipoEntidade === "AVULSA" ? form.nomeAvulso.trim() : null,
           oportunidadeId: form.oportunidadeId ? parseInt(form.oportunidadeId) : null,
           contatoId: form.contatoId ? parseInt(form.contatoId) : null,
           dataVisita: form.dataVisita,
@@ -341,7 +347,7 @@ function NovaVisitaPageContent() {
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 space-y-4">
           <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 text-center">Quem você vai visitar?</h2>
           <p className="text-sm text-slate-500 text-center">Selecione o tipo de entidade para iniciar o agendamento.</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
             <button
               type="button"
               onClick={() => setTipoEntidade("CLIENTE")}
@@ -368,6 +374,19 @@ function NovaVisitaPageContent() {
                 <p className="text-xs text-slate-500 mt-1">Futuro cliente (negócio)</p>
               </div>
             </button>
+            <button
+              type="button"
+              onClick={() => setTipoEntidade("AVULSA")}
+              className="flex flex-col items-center gap-3 p-6 rounded-xl border-2 border-slate-200 dark:border-slate-700 hover:border-orange-400 dark:hover:border-orange-600 hover:bg-orange-50 dark:hover:bg-orange-950/20 transition-all cursor-pointer group"
+            >
+              <div className="p-3 rounded-full bg-orange-100 dark:bg-orange-900/50 group-hover:bg-orange-200 dark:group-hover:bg-orange-800/50 transition-colors">
+                <User size={28} className="text-orange-600 dark:text-orange-400" />
+              </div>
+              <div className="text-center">
+                <p className="font-semibold text-slate-900 dark:text-slate-100">Avulsa</p>
+                <p className="text-xs text-slate-500 mt-1">Visita sem vínculo inicial</p>
+              </div>
+            </button>
           </div>
         </div>
       )}
@@ -378,11 +397,13 @@ function NovaVisitaPageContent() {
             <div className="flex items-center gap-2">
               {tipoEntidade === "CLIENTE" ? (
                 <Building2 size={18} className="text-emerald-600" />
+              ) : tipoEntidade === "AVULSA" ? (
+                <User size={18} className="text-orange-600" />
               ) : (
                 <UserCheck size={18} className="text-blue-600" />
               )}
               <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                {tipoEntidade === "CLIENTE" ? "Visitando Cliente" : "Visitando Pessoa (Negócio)"}
+                {tipoEntidade === "CLIENTE" ? "Visitando Cliente" : tipoEntidade === "AVULSA" ? "Visita Avulsa" : "Visitando Pessoa (Negócio)"}
               </span>
             </div>
             <button
@@ -393,6 +414,7 @@ function NovaVisitaPageContent() {
                 setField("clienteId", "")
                 setField("oportunidadeId", "")
                 setField("contatoId", "")
+                setField("nomeAvulso", "")
               }}
               className="text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:underline"
             >
@@ -401,7 +423,21 @@ function NovaVisitaPageContent() {
           </div>
 
           <div className="grid gap-5 sm:grid-cols-2">
-            {tipoEntidade === "CLIENTE" ? (
+            {tipoEntidade === "AVULSA" ? (
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  Nome da Pessoa Visitada *
+                </label>
+                <input
+                  type="text"
+                  value={form.nomeAvulso}
+                  onChange={e => setField("nomeAvulso", e.target.value)}
+                  placeholder="Ex: João Silva"
+                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  required
+                />
+              </div>
+            ) : tipoEntidade === "CLIENTE" ? (
               <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                   Cliente *
@@ -575,53 +611,57 @@ function NovaVisitaPageContent() {
                 </select>
               </div>
             )}
-            <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                Contato
-                <QuickCreateContato
-                  empresaId={tipoEntidade === "PESSOA" ? form.empresaId : ""}
-                  clienteId={tipoEntidade === "CLIENTE" ? form.clienteId : ""}
-                  clienteNome={tipoEntidade === "CLIENTE" ? clientesList.find((c: any) => String(c.id) === form.clienteId)?.nome || "" : ""}
-                  onClickGuard={() => {
-                    if (!form.empresaId && !form.clienteId) {
-                      toast.error("Selecione uma pessoa ou cliente primeiro")
-                      return false
-                    }
-                    return true
-                  }}
-                  onCreated={handleContatoCreated}
-                />
-              </label>
-              <select
-                value={form.contatoId}
-                onChange={e => setField("contatoId", e.target.value)}
-                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Selecione...</option>
-                {contatos.map((c: any) => (
-                  <option key={c.id} value={String(c.id)}>{c.nome}{c.cargo ? ` (${c.cargo})` : ""}</option>
-                ))}
-              </select>
-            </div>
+            {tipoEntidade !== "AVULSA" && (
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  Contato
+                  <QuickCreateContato
+                    empresaId={tipoEntidade === "PESSOA" ? form.empresaId : ""}
+                    clienteId={tipoEntidade === "CLIENTE" ? form.clienteId : ""}
+                    clienteNome={tipoEntidade === "CLIENTE" ? clientesList.find((c: any) => String(c.id) === form.clienteId)?.nome || "" : ""}
+                    onClickGuard={() => {
+                      if (!form.empresaId && !form.clienteId) {
+                        toast.error("Selecione uma pessoa ou cliente primeiro")
+                        return false
+                      }
+                      return true
+                    }}
+                    onCreated={handleContatoCreated}
+                  />
+                </label>
+                <select
+                  value={form.contatoId}
+                  onChange={e => setField("contatoId", e.target.value)}
+                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Selecione...</option>
+                  {contatos.map((c: any) => (
+                    <option key={c.id} value={String(c.id)}>{c.nome}{c.cargo ? ` (${c.cargo})` : ""}</option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
 
           <div className="border-t border-slate-100 dark:border-slate-800 pt-4">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Endereço da Visita</h3>
-              <button
-                type="button"
-                onClick={() => {
-                  const entidadeId = tipoEntidade === "PESSOA" ? form.empresaId : form.clienteId
-                  if (!entidadeId) {
-                    toast.error(`Selecione um${tipoEntidade === "CLIENTE" ? " cliente" : "a pessoa"} primeiro`)
-                    return
-                  }
-                  copiarEnderecoEmpresa()
-                }}
-                className="text-xs text-blue-600 hover:underline flex items-center gap-1"
-              >
-                Copiar endereço {tipoEntidade === "CLIENTE" ? "do cliente" : "do negócio"}
-              </button>
+              {tipoEntidade !== "AVULSA" && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const entidadeId = tipoEntidade === "PESSOA" ? form.empresaId : form.clienteId
+                    if (!entidadeId) {
+                      toast.error(`Selecione um${tipoEntidade === "CLIENTE" ? " cliente" : "a pessoa"} primeiro`)
+                      return
+                    }
+                    copiarEnderecoEmpresa()
+                  }}
+                  className="text-xs text-blue-600 hover:underline flex items-center gap-1"
+                >
+                  Copiar endereço {tipoEntidade === "CLIENTE" ? "do cliente" : "do negócio"}
+                </button>
+              )}
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="sm:col-span-2">

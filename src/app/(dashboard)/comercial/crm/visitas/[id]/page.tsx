@@ -7,7 +7,7 @@ import { getInfoContent } from "@/lib/info-content"
 import { useRouter, useParams, usePathname } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
-import { ArrowLeft, Trash2, Pencil, Check, X, MapPin, ExternalLink, LogIn, LogOut, Loader2, Navigation, Undo2, AlertTriangle, Calendar, RefreshCw } from "lucide-react"
+import { ArrowLeft, Trash2, Pencil, Check, X, MapPin, ExternalLink, LogIn, LogOut, Loader2, Navigation, Undo2, AlertTriangle, Calendar, RefreshCw, Link as LinkIcon } from "lucide-react"
 import PhotoUpload from "@/components/crm/photo-upload"
 import { RelatoTemplateSelector } from "@/components/crm/relato-templates"
 import { toast } from "sonner"
@@ -19,6 +19,7 @@ import { SelectCidade } from "@/components/crm/select-cidade"
 import { RichTextEditor } from "@/components/crm/rich-text-editor"
 import VisitReportButton from "@/components/crm/visit-report-button"
 import SendSurveyButton from "@/components/crm/send-survey-button"
+import VincularVisitaModal from "@/components/crm/vincular-visita-modal"
 
 const TIPO_OPTIONS = [
   { value: "PRESENCIAL", label: "Presencial" },
@@ -49,6 +50,7 @@ export default function DetalheVisitaPage() {
   const [estados, setEstados] = useState<{ id: number; uf: string }[]>([])
   const [empresaEndereco, setEmpresaEndereco] = useState<Record<string, string>>({})
   const [checkLoading, setCheckLoading] = useState<"in" | "out" | null>(null)
+  const [showVincular, setShowVincular] = useState(false)
 
   const fetchEstados = useCallback(async () => {
     try {
@@ -310,7 +312,7 @@ export default function DetalheVisitaPage() {
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-50 truncate">
-                Visita — {visita.empresaNome || visita.clienteNome || `#${visita.id}`}{info && <InfoButton content={info} />}
+                Visita — {visita.nomeAvulso || visita.empresaNome || visita.clienteNome || `#${visita.id}`}{info && <InfoButton content={info} />}
               </h1>
               <span
                 className="inline-flex text-[10px] px-2 py-0.5 rounded-full font-medium shrink-0"
@@ -351,6 +353,11 @@ export default function DetalheVisitaPage() {
               )}
               {canEdit && (
                 <>
+                  {!visita.empresaId && !visita.clienteId && (
+                    <button onClick={() => setShowVincular(true)} className="flex items-center gap-1 text-xs font-medium text-orange-600 hover:underline px-2 py-1.5 rounded-lg min-h-[36px]">
+                      <LinkIcon size={14} /> Vincular
+                    </button>
+                  )}
                   <button onClick={startEditing} className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:underline px-2 py-1.5 rounded-lg min-h-[36px]">
                     <Pencil size={14} /> Editar
                   </button>
@@ -540,16 +547,23 @@ export default function DetalheVisitaPage() {
                     <p className="text-slate-900 dark:text-slate-200">{visita.duracaoEstimada >= 60 ? `${Math.floor(visita.duracaoEstimada / 60)}h${visita.duracaoEstimada % 60 ? ` ${visita.duracaoEstimada % 60}min` : ""}` : `${visita.duracaoEstimada} min`}</p>
                   </div>
                 )}
-                <div>
-                  <span className="text-xs text-slate-500 block mb-0.5">{visita.empresaId ? "Pessoa (Negócio)" : "Cliente"}</span>
-                  {visita.empresaId ? (
-                    <Link href={`/comercial/crm/pessoas/${visita.empresaId}`} className="text-blue-600 hover:underline inline-flex items-center gap-1">
-                      {visita.empresaNome} <ExternalLink size={12} />
-                    </Link>
-                  ) : (
-                    <p className="text-slate-900 dark:text-slate-200">{visita.clienteNome || "—"}</p>
-                  )}
-                </div>
+                {!visita.empresaId && !visita.clienteId ? (
+                  <div>
+                    <span className="text-xs text-slate-500 block mb-0.5">Visita Avulsa</span>
+                    <p className="text-slate-900 dark:text-slate-200">{visita.nomeAvulso || "—"}</p>
+                  </div>
+                ) : (
+                  <div>
+                    <span className="text-xs text-slate-500 block mb-0.5">{visita.empresaId ? "Pessoa (Negócio)" : "Cliente"}</span>
+                    {visita.empresaId ? (
+                      <Link href={`/comercial/crm/pessoas/${visita.empresaId}`} className="text-blue-600 hover:underline inline-flex items-center gap-1">
+                        {visita.empresaNome} <ExternalLink size={12} />
+                      </Link>
+                    ) : (
+                      <p className="text-slate-900 dark:text-slate-200">{visita.clienteNome || "—"}</p>
+                    )}
+                  </div>
+                )}
                 {visita.oportunidadeTitulo && (
                   <div>
                     <span className="text-xs text-slate-500 block mb-0.5">Oportunidade</span>
@@ -773,6 +787,13 @@ export default function DetalheVisitaPage() {
           )}
         </>
       )}
+
+      <VincularVisitaModal
+        visitaId={visita.id}
+        open={showVincular}
+        onClose={() => setShowVincular(false)}
+        onLinked={loadVisita}
+      />
 
       <ConfirmModal
         open={showDelete}

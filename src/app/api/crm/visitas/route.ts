@@ -38,8 +38,15 @@ export async function GET(req: NextRequest) {
           like(crmPessoas.razaoSocial, searchPattern),
           like(clientes.nome, searchPattern),
           like(crmOportunidades.titulo, searchPattern),
+          like(crmVisitas.nomeAvulso, searchPattern),
         )!
       )
+    }
+    if (searchParams.get("avulsas") === "true") {
+      conditions.push(and(
+        eq(crmVisitas.empresaId, null as any),
+        eq(crmVisitas.clienteId, null as any),
+      )!)
     }
     if (dataInicio) conditions.push(gte(crmVisitas.dataVisita, dataInicio))
     if (dataFim) conditions.push(lte(crmVisitas.dataVisita, dataFim))
@@ -61,6 +68,7 @@ export async function GET(req: NextRequest) {
         uf: crmVisitas.uf,
         cep: crmVisitas.cep,
         relato: crmVisitas.relato,
+        nomeAvulso: crmVisitas.nomeAvulso,
         empresaId: crmVisitas.empresaId,
         empresaNome: crmPessoas.razaoSocial,
         clienteId: crmVisitas.clienteId,
@@ -124,6 +132,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
 
     const baseValues = {
+      nomeAvulso: body.nomeAvulso || null,
       empresaId: body.empresaId || null,
       clienteId: body.clienteId || null,
       oportunidadeId: body.oportunidadeId || null,

@@ -1,0 +1,1 @@
+ALTER TABLE crm_visitas ADD COLUMN IF NOT EXISTS nome_avulso VARCHAR(300);
