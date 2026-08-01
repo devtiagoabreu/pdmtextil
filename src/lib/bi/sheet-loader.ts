@@ -1,4 +1,4 @@
-import type { SheetTab, BiSheet, Relationship, ProductClient, AbcItem } from "./types"
+import type { SheetTab, BiSheet, Relationship, ProductClient, AbcItem, RepResumo, ClienteResumo, Previsao } from "./types"
 import { db } from "@/lib/db"
 import { biSheets } from "@/lib/db/schema/bi-sheets"
 import { configGeral } from "@/lib/db/schema/config-geral"
@@ -493,5 +493,211 @@ export function getGeoDistribution(sheet: BiSheet) {
   return [...ufMap.entries()]
     .map(([uf, valor]) => ({ uf, valor }))
     .sort((a, b) => b.valor - a.valor)
+}
+
+function rowDataMov(r: Record<string, string>): string {
+  return r["DATA_MOVTO"] || r["DATAMOVTO"] || ""
+}
+
+function rowValor(r: Record<string, string>): number {
+  return parseNumber(r["VALOR_SAIDA"] || r["VALORSAIDA"] || "0")
+}
+
+function rowQtd(r: Record<string, string>): number {
+  return parseNumber(r["QTDE_SAIDA"] || r["QTDESAIDA"] || "0")
+}
+
+function aggregateReps(rows: Record<string, string>[]): RepResumo[] {
+  const map = new Map<string, RepResumo>()
+  const clientesPorRep = new Map<string, Set<string>>()
+
+  for (const r of rows) {
+    const nome = (r["NOME_REPRESENANTE"] || r["NOMEREPRESENANTE"] || "").trim() || "Sem representante"
+    let e = map.get(nome)
+    if (!e) {
+      e = { nome, totalVendas: 0, totalQtd: 0, count: 0, ticketMedio: 0, numClientes: 0, ultimaData: "" }
+      map.set(nome, e)
+      clientesPorRep.set(nome, new Set())
+    }
+    e.totalVendas += rowValor(r)
+    e.totalQtd += rowQtd(r)
+    e.count++
+    const d = rowDataMov(r)
+    if (d > e.ultimaData) e.ultimaData = d
+    const cli = (r["RAZAO_SOCIAL"] || r["RAZAOSOCIAL"] || "").trim()
+    if (cli) clientesPorRep.get(nome)!.add(cli)
+  }
+
+  const result = [...map.values()]
+  result.forEach(e => {
+    e.ticketMedio = e.count > 0 ? e.totalVendas / e.count : 0
+    e.numClientes = clientesPorRep.get(e.nome)?.size ?? 0
+  })
+  result.sort((a, b) => b.totalVendas - a.totalVendas)
+  return result
+}
+
+export function getRepResumo(sheet: BiSheet): RepResumo[] {
+  const fatTab = getFatTab(sheet)
+  if (!fatTab) return []
+  return aggregateReps(fatTab.rows)
+}
+
+export function getRepsByGrupo(sheet: BiSheet, grupo: string): RepResumo[] {
+  const fatTab = getFatTab(sheet)
+  if (!fatTab) return []
+  return aggregateReps(fatTab.rows.filter(r => rowGrupo(r) === grupo))
+}
+
+function classificarCurva(intervalo: number | null, nCompras: number): string {
+  if (!intervalo || nCompras < 2) return "Sem curva"
+  if (intervalo < 8) return "Semanal"
+  if (intervalo < 22) return "Quinzenal"
+  if (intervalo < 45) return "Mensal"
+  if (intervalo < 105) return "Bimestral"
+  if (intervalo < 210) return "Semestral"
+  return "Esporádico"
+}
+
+export function getClientesResumo(sheet: BiSheet): ClienteResumo[] {
+  const fatTab = getFatTab(sheet)
+  if (!fatTab) return []
+
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const todayT = today.getTime()
+  const DAY = 86400000
+
+  const map = new Map<string, {
+    razaoSocial: string
+    cidade: string
+    uf: string
+    totalVendas: number
+    totalQtd: number
+    count: number
+    dates: number[]
+  }>()
+
+  for (const r of fatTab.rows) {
+    const nome = (r["RAZAO_SOCIAL"] || r["RAZAOSOCIAL"] || "").trim()
+    if (!nome) continue
+    let e = map.get(nome)
+    if (!e) {
+      e = { razaoSocial: nome, cidade: r["CIDADE"] || "", uf: r["UF"] || "", totalVendas: 0, totalQtd: 0, count: 0, dates: [] }
+      map.set(nome, e)
+    }
+    e.totalVendas += rowValor(r)
+    e.totalQtd += rowQtd(r)
+    e.count++
+    const d = parseDataMovto(rowDataMov(r))
+    if (d) e.dates.push(d.getTime())
+  }
+
+  const result: ClienteResumo[] = []
+  for (const e of map.values()) {
+    const unique = [...new Set(e.dates)].sort((a, b) => a - b)
+    const primeira = unique[0]
+    const ultima = unique[unique.length - 1]
+
+    const intervalos: number[] = []
+    for (let i = 1; i < unique.length; i++) intervalos.push((unique[i] - unique[i - 1]) / DAY)
+    const intervaloMedio = intervalos.length > 0
+      ? intervalos.reduce((s, x) => s + x, 0) / intervalos.length
+      : null
+
+    const diasDesdeUltima = ultima ? Math.floor((todayT - ultima) / DAY) : null
+    const classificacao = classificarCurva(intervaloMedio, unique.length)
+    const alerta = !!intervaloMedio && diasDesdeUltima !== null &&
+      diasDesdeUltima > Math.max(intervaloMedio * 1.5, 14)
+
+    const spanMeses = primeira && ultima ? Math.max(1, (ultima - primeira) / DAY / 30.44) : 1
+    const proximaCompra = ultima && intervaloMedio ? new Date(ultima + intervaloMedio * DAY).toISOString() : null
+
+    result.push({
+      razaoSocial: e.razaoSocial,
+      cidade: e.cidade,
+      uf: e.uf,
+      totalVendas: e.totalVendas,
+      totalQtd: e.totalQtd,
+      count: e.count,
+      compras: unique.length,
+      primeiraData: primeira ? new Date(primeira).toISOString() : "",
+      ultimaData: ultima ? new Date(ultima).toISOString() : "",
+      intervaloMedio,
+      classificacao,
+      comprasPorMes: Math.round((unique.length / spanMeses) * 100) / 100,
+      diasDesdeUltima,
+      proximaCompra,
+      alerta,
+      alertaMotivo: alerta && intervaloMedio && diasDesdeUltima !== null
+        ? `Sem comprar há ${Math.round(diasDesdeUltima)} dias (frequência média de ${Math.round(intervaloMedio)} dias)`
+        : null,
+    })
+  }
+
+  result.sort((a, b) => (b.ultimaData || "").localeCompare(a.ultimaData || ""))
+  return result
+}
+
+export function getPrevisao(sheet: BiSheet): Previsao {
+  const empty: Previsao = {
+    mediaDiaria: 0,
+    diasCobertos: 0,
+    primeiraData: null,
+    ultimaData: null,
+    projecaoMes: 0,
+    projecaoProximos30: 0,
+    mediaMensal3m: 0,
+    projecaoProximoMes: 0,
+  }
+
+  const fatTab = getFatTab(sheet)
+  if (!fatTab) return empty
+
+  let totalVendas = 0
+  let min: number | null = null
+  let max: number | null = null
+  const monthly = new Map<string, number>()
+
+  for (const r of fatTab.rows) {
+    const v = rowValor(r)
+    totalVendas += v
+    const d = parseDataMovto(rowDataMov(r))
+    if (d) {
+      const t = d.getTime()
+      if (min === null || t < min) min = t
+      if (max === null || t > max) max = t
+      const mes = rowDataMov(r).slice(0, 7)
+      if (mes) monthly.set(mes, (monthly.get(mes) || 0) + v)
+    }
+  }
+
+  if (min === null || max === null) return empty
+
+  const diasCobertos = Math.max(1, Math.round((max - min) / 86400000))
+  const mediaDiaria = totalVendas / diasCobertos
+
+  const now = new Date()
+  const diasNoMes = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()
+  const projecaoMes = mediaDiaria * diasNoMes
+  const projecaoProximos30 = mediaDiaria * 30
+
+  const monthsSorted = [...monthly.entries()]
+    .sort((a, b) => a[0].localeCompare(b[0]))
+    .map(([mes, valor]) => ({ mes, valor }))
+  const last3 = monthsSorted.slice(-3)
+  const mediaMensal3m = last3.length > 0 ? last3.reduce((s, m) => s + m.valor, 0) / last3.length : 0
+  const projecaoProximoMes = mediaMensal3m
+
+  return {
+    mediaDiaria,
+    diasCobertos,
+    primeiraData: new Date(min).toISOString(),
+    ultimaData: new Date(max).toISOString(),
+    projecaoMes,
+    projecaoProximos30,
+    mediaMensal3m,
+    projecaoProximoMes,
+  }
 }
 

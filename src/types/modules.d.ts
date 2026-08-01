@@ -286,6 +286,7 @@ declare module "lucide-react" {
   export const Calculator: LucideIcon
   export const Calendar: LucideIcon
   export const CalendarCheck: LucideIcon
+  export const CalendarClock: LucideIcon
   export const CalendarDays: LucideIcon
   export const CalendarRange: LucideIcon
   export const Camera: LucideIcon
@@ -359,6 +360,7 @@ declare module "lucide-react" {
   export const Mail: LucideIcon
   export const MapPin: LucideIcon
   export const Maximize2: LucideIcon
+  export const Medal: LucideIcon
   export const Megaphone: LucideIcon
   export const Menu: LucideIcon
   export const MessageCircle: LucideIcon
@@ -408,6 +410,7 @@ declare module "lucide-react" {
   export const Trash2: LucideIcon
   export const TrendingUp: LucideIcon
   export const TriangleAlertIcon: LucideIcon
+  export const Trophy: LucideIcon
   export const Truck: LucideIcon
   export const Type: LucideIcon
   export const Underline: LucideIcon

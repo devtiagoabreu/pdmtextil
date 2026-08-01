@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { getSheetById, sheetNoPeriodo } from "@/lib/bi/sheet-loader"
-import { getMetrics, getRevenueByRepresentante, getMonthlyTrend, getGeoDistribution, getAbcCurve, listProdutos, listGrupos } from "@/lib/bi/sheet-loader"
+import { getMetrics, getRevenueByRepresentante, getMonthlyTrend, getGeoDistribution, getAbcCurve, listProdutos, listGrupos, getRepResumo, getClientesResumo, getPrevisao } from "@/lib/bi/sheet-loader"
 
 export const dynamic = "force-dynamic"
 
@@ -25,6 +25,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ shee
   const abcCurve = getAbcCurve(filtrada)
   const produtos = listProdutos(filtrada)
   const grupos = listGrupos(filtrada)
+  const repResumo = getRepResumo(filtrada)
+  const clientesResumo = getClientesResumo(sheet)
+  const previsao = getPrevisao(filtrada)
 
   return NextResponse.json({
     id: sheet.id,
@@ -38,6 +41,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ shee
     monthlyTrend,
     geoDistribution,
     abcCurve,
+    repResumo,
+    clientesResumo,
+    previsao,
     relationships: sheet.relationships,
   })
 }

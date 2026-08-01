@@ -47,3 +47,43 @@ export interface AbcItem {
   acumulado: number
   classe: string
 }
+
+export interface RepResumo {
+  nome: string
+  totalVendas: number
+  totalQtd: number
+  count: number
+  ticketMedio: number
+  numClientes: number
+  ultimaData: string
+}
+
+export interface ClienteResumo {
+  razaoSocial: string
+  cidade: string
+  uf: string
+  totalVendas: number
+  totalQtd: number
+  count: number
+  compras: number
+  primeiraData: string
+  ultimaData: string
+  intervaloMedio: number | null
+  classificacao: string
+  comprasPorMes: number
+  diasDesdeUltima: number | null
+  proximaCompra: string | null
+  alerta: boolean
+  alertaMotivo: string | null
+}
+
+export interface Previsao {
+  mediaDiaria: number
+  diasCobertos: number
+  primeiraData: string | null
+  ultimaData: string | null
+  projecaoMes: number
+  projecaoProximos30: number
+  mediaMensal3m: number
+  projecaoProximoMes: number
+}
