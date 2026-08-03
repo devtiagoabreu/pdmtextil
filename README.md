@@ -385,17 +385,6 @@ PDM_WEBHOOK_SECRET="seu-webhook-secret"
 
 ---
 
-## Usuários de Teste (Seed)
-
-| Email | Senha | Perfil |
-|---|---|---|
-| comercial@pdmprotextil.com.br | 123456 | COMERCIAL |
-| tecelagem@pdmprotextil.com.br | 123456 | TECELAGEM |
-| beneficiamento@pdmprotextil.com.br | 123456 | BENEFICIAMENTO |
-| admin@pdmprotextil.com.br | 123456 | ADMIN |
-
----
-
 ## Scripts
 
 | Comando | Descrição |
