@@ -1,6 +1,6 @@
 # PDM Pro Têxtil — Documentação Completa do Sistema
 
-> **PDM** = Product Data Management (Gestão de Dados de Produto)  
+> **PDM** = Product Development Management (Gestão de Desenvolvimento de Produto)  
 > Sistema de gestão de desenvolvimento de produtos têxteis.
 
 ---

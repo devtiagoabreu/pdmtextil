@@ -2,7 +2,7 @@
 
 ![Landing Page](public/landing.png)
 
-Sistema de gestão de desenvolvimento de produtos têxteis (PDM — Product Data Management). Conecta os departamentos **Comercial**, **Desenvolvimento (Tecelagem e Beneficiamento)**, **PCP** e **CRM** em uma plataforma única, eliminando retrabalhos e garantindo rastreabilidade completa do briefing à produção — agora com **Inteligência Artificial**, **BI** e **CRM** integrados.
+Sistema de gestão de desenvolvimento de produtos têxteis (PDM — Product Development Management). Conecta os departamentos **Comercial**, **Desenvolvimento (Tecelagem e Beneficiamento)**, **PCP** e **CRM** em uma plataforma única, eliminando retrabalhos e garantindo rastreabilidade completa do briefing à produção — agora com **Inteligência Artificial**, **BI** e **CRM** integrados.
 
 [![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://www.typescriptlang.org/)
