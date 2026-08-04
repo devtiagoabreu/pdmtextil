@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { Input } from "@/components/ui/input"
+import { matchesSearch } from "@/components/ui/list-filters"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import ImportarCores from "@/components/importar/ImportarCores"
@@ -70,11 +71,7 @@ export default function CoresPage() {
     }
   }
 
-  const filteredCores = cores.filter((c: any) => 
-    c.nome.toLowerCase().includes(search.toLowerCase()) ||
-    c.codigo.toLowerCase().includes(search.toLowerCase()) ||
-    (c.pantone && c.pantone.toLowerCase().includes(search.toLowerCase()))
-  )
+  const filteredCores = cores.filter((c: any) => matchesSearch(c, search))
 
   return (
     <div className="space-y-6 animate-fade-in">

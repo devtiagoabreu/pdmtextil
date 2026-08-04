@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { Input } from "@/components/ui/input"
+import { matchesSearch } from "@/components/ui/list-filters"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 import { Plus, Pencil, Trash2, Loader2, Search } from "lucide-react"
@@ -107,10 +108,7 @@ export default function UsuariosPage() {
     }
   }
 
-  const filtered = usuarios.filter((u: any) =>
-    u.name.toLowerCase().includes(search.toLowerCase()) ||
-    u.email.toLowerCase().includes(search.toLowerCase())
-  )
+  const filtered = usuarios.filter((u: any) => matchesSearch(u, search))
 
   return (
     <div className="space-y-6">

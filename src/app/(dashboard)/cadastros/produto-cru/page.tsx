@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { Input } from "@/components/ui/input"
+import { matchesSearch } from "@/components/ui/list-filters"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import ImportarApiModal from "@/components/integracao/ImportarApiModal"
@@ -52,10 +53,7 @@ export default function ProdutoCruPage() {
     queryFn: fetchProdutos,
   })
 
-  const filtered = produtos.filter((p: any) =>
-    p.codigoPdm.toLowerCase().includes(search.toLowerCase()) ||
-    p.descricao.toLowerCase().includes(search.toLowerCase())
-  )
+  const filtered = produtos.filter((p: any) => matchesSearch(p, search))
 
   const handleDelete = async () => {
     if (!deleteTarget) return

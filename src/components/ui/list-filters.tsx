@@ -31,6 +31,28 @@ export type ListFiltersState = {
 
 const EMPTY: any[] = []
 
+function normalizar(s: string): string {
+  return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+}
+
+function valorBusca(v: unknown, q: string, vistos: Set<object>): boolean {
+  if (v == null) return false
+  if (typeof v === "object") {
+    if (v instanceof Date) return normalizar(v.toISOString()).includes(q)
+    if (vistos.has(v)) return false
+    vistos.add(v)
+    return Object.values(v).some((x) => valorBusca(x, q, vistos))
+  }
+  return normalizar(String(v)).includes(q)
+}
+
+export function matchesSearch(item: any, query: string): boolean {
+  const q = normalizar((query || "").trim())
+  if (!q) return true
+  const vistos = new Set<object>()
+  return Object.values(item || {}).some((v) => valorBusca(v, q, vistos))
+}
+
 export function useListFilters(config: FilterConfig, data: any[]) {
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
@@ -43,14 +65,7 @@ export function useListFilters(config: FilterConfig, data: any[]) {
     let result = [...data]
 
     if (search.trim()) {
-      const q = search.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-      result = result.filter((item: any) =>
-        config.searchFields.some((field: any) => {
-          const val = field.split(".").reduce((obj: any, key: any) => obj?.[key], item)
-          if (val == null) return false
-          return String(val).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(q)
-        })
-      )
+      result = result.filter((item: any) => matchesSearch(item, search))
     }
 
     if (statusFilter && statusFilter !== "all") {

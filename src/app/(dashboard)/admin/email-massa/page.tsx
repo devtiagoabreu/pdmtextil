@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { matchesSearch } from "@/components/ui/list-filters"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
@@ -799,10 +800,7 @@ export default function EmailMassaPage() {
   }
 
   const filteredEnvios = historico?.envios.filter((e: any) =>
-    !historicoSearch ||
-    e.email.toLowerCase().includes(historicoSearch.toLowerCase()) ||
-    (e.nome?.toLowerCase().includes(historicoSearch.toLowerCase())) ||
-    e.assunto.toLowerCase().includes(historicoSearch.toLowerCase())
+    !historicoSearch || matchesSearch(e, historicoSearch)
   ) || []
 
   return (

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { Input } from "@/components/ui/input"
+import { matchesSearch } from "@/components/ui/list-filters"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import ImportarEstampas from "@/components/importar/ImportarEstampas"
@@ -71,10 +72,7 @@ export default function EstampasPage() {
     }
   }
 
-  const filteredEstampas = estampas.filter((e: any) => 
-    e.nome.toLowerCase().includes(search.toLowerCase()) ||
-    e.codigoDesenho.toLowerCase().includes(search.toLowerCase())
-  )
+  const filteredEstampas = estampas.filter((e: any) => matchesSearch(e, search))
 
   return (
     <div className="space-y-6 animate-fade-in">

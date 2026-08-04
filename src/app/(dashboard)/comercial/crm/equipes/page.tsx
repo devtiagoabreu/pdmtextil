@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
+import { matchesSearch } from "@/components/ui/list-filters"
 import { getInfoContent } from "@/lib/info-content"
 import { useState } from "react"
 import { PlusCircle, Users, Pencil, Trash2, Loader2, Search, X, UserPlus, MapPin, Phone, Mail, ChevronLeft } from "lucide-react"
@@ -198,7 +199,7 @@ export default function EquipesPage() {
   }
 
   const filtradas = equipes?.filter((e: any) =>
-    !busca || e.nome.toLowerCase().includes(busca.toLowerCase()) || (e.regiaoNome || "").toLowerCase().includes(busca.toLowerCase()) || (e.responsavelNome || "").toLowerCase().includes(busca.toLowerCase())
+    !busca || matchesSearch(e, busca)
   )
 
   if (selectedEquipe) {

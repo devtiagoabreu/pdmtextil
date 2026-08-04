@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
+import { matchesSearch } from "@/components/ui/list-filters"
 import { getInfoContent } from "@/lib/info-content"
 import { useState } from "react"
 import { Globe, PlusCircle, Pencil, Trash2, Loader2, Search, X, Check } from "lucide-react"
@@ -88,7 +89,7 @@ export default function PaisesConfigPage() {
   }
 
   const filtrados = (paises || []).filter((p: Pais) =>
-    !busca || p.nome.toLowerCase().includes(busca.toLowerCase()) || p.codigo.includes(busca)
+    !busca || matchesSearch(p, busca)
   )
 
   return (

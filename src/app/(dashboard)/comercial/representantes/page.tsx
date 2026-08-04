@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button"
 import ImportarApiModal from "@/components/integracao/ImportarApiModal"
 import BuscarCnpjModal from "@/components/crm/buscar-cnpj-modal"
 import { ExportarDados } from "@/components/exportar/ExportarDados"
+import { matchesSearch } from "@/components/ui/list-filters"
 
 type Representante = {
   id: number
@@ -53,12 +54,7 @@ export default function RepresentantesPage() {
     fetchRepresentantes()
   }, [])
 
-  const filtered = representantes.filter((r: any) =>
-    r.nome.toLowerCase().includes(search.toLowerCase()) ||
-    r.cnpj.includes(search) ||
-    r.razaoSocial?.toLowerCase().includes(search.toLowerCase()) ||
-    r.cidade?.toLowerCase().includes(search.toLowerCase())
-  )
+  const filtered = representantes.filter((r: any) => matchesSearch(r, search))
 
   return (
     <div className="space-y-6 animate-fade-in">

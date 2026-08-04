@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
+import { matchesSearch } from "@/components/ui/list-filters"
 import { getInfoContent } from "@/lib/info-content"
 import { useState } from "react"
 import { Globe, Pencil, Loader2, Search, Check, X, ArrowLeft } from "lucide-react"
@@ -86,7 +87,7 @@ export default function EstadosConfigPage() {
   }
 
   const filtrados = (estados || []).filter((e: Estado) =>
-    !busca || e.nome.toLowerCase().includes(busca.toLowerCase()) || e.uf.toLowerCase().includes(busca.toLowerCase())
+    !busca || matchesSearch(e, busca)
   )
 
   const getRegiaoLabel = (sigla: string | null) => sigla ? (REGIAO_LABELS[sigla] || sigla) : "—"

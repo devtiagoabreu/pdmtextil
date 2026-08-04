@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { Input } from "@/components/ui/input"
+import { matchesSearch } from "@/components/ui/list-filters"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import ImportarFornecedores from "@/components/importar/ImportarFornecedores"
@@ -49,11 +50,7 @@ export default function FornecedoresPage() {
     queryFn: fetchFornecedores,
   })
 
-  const filteredFornecedores = fornecedores.filter((f: any) => 
-    f.nome.toLowerCase().includes(search.toLowerCase()) ||
-    f.cnpj?.toLowerCase().includes(search.toLowerCase()) ||
-    f.email?.toLowerCase().includes(search.toLowerCase())
-  )
+  const filteredFornecedores = fornecedores.filter((f: any) => matchesSearch(f, search))
 
   const handleDelete = async () => {
     if (!deleteTarget) return

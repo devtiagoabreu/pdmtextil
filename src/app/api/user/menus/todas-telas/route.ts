@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { handleApiError } from "@/lib/api-error"
-import { searchRegistry } from "@/lib/search-registry"
+import { todasTelas } from "@/lib/telas-disponiveis"
 
 export async function GET() {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
 
-    const telas = searchRegistry
+    const telas = todasTelas()
       .map((item: any) => ({
         id: item.id,
         label: item.label,

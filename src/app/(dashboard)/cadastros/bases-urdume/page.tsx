@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { Input } from "@/components/ui/input"
+import { matchesSearch } from "@/components/ui/list-filters"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import ImportarBasesUrdume from "@/components/importar/ImportarBasesUrdume"
@@ -74,10 +75,7 @@ export default function BasesUrdumePage() {
     }
   }
 
-  const filteredBases = bases.filter((b: any) => 
-    b.nome.toLowerCase().includes(search.toLowerCase()) ||
-    b.codigoBase.toLowerCase().includes(search.toLowerCase())
-  )
+  const filteredBases = bases.filter((b: any) => matchesSearch(b, search))
 
   return (
     <div className="space-y-6 animate-fade-in">

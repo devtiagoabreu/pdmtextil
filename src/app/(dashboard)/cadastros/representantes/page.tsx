@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { Input } from "@/components/ui/input"
+import { matchesSearch } from "@/components/ui/list-filters"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { ExportarDados } from "@/components/exportar/ExportarDados"
@@ -47,11 +48,7 @@ export default function RepresentantesPage() {
     queryFn: fetchRepresentantes,
   })
 
-  const filteredRepresentantes = representantes.filter((c: any) =>
-    c.nome.toLowerCase().includes(search.toLowerCase()) ||
-    c.cnpj?.toLowerCase().includes(search.toLowerCase()) ||
-    c.email?.toLowerCase().includes(search.toLowerCase())
-  )
+  const filteredRepresentantes = representantes.filter((c: any) => matchesSearch(c, search))
 
   const handleDelete = async () => {
     if (!deleteTarget) return

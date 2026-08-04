@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
+import { matchesSearch } from "@/components/ui/list-filters"
 import { getInfoContent } from "@/lib/info-content"
 import { useState } from "react"
 import { MapPin, Loader2, Search, ArrowLeft } from "lucide-react"
@@ -40,9 +41,7 @@ export default function CidadesConfigPage() {
   })
 
   const filtrados = (cidades || []).filter((c: Cidade) => {
-    const matchBusca = !busca ||
-      c.nome.toLowerCase().includes(busca.toLowerCase()) ||
-      c.estadoNome?.toLowerCase().includes(busca.toLowerCase())
+    const matchBusca = !busca || matchesSearch(c, busca)
     const matchUf = !filtroUf || c.uf === filtroUf
     return matchBusca && matchUf
   })

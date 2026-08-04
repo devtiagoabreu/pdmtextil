@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { Input } from "@/components/ui/input"
+import { matchesSearch } from "@/components/ui/list-filters"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import ImportarFios from "@/components/importar/ImportarFios"
@@ -49,11 +50,7 @@ export default function FiosPage() {
     queryFn: fetchFios,
   })
 
-  const filteredFios = fios.filter((f: any) =>
-    f.nome.toLowerCase().includes(search.toLowerCase()) ||
-    f.codigoFio.toLowerCase().includes(search.toLowerCase()) ||
-    f.codigoCompleto.toLowerCase().includes(search.toLowerCase())
-  )
+  const filteredFios = fios.filter((f: any) => matchesSearch(f, search))
 
   const handleDelete = async () => {
     if (!deleteTarget) return

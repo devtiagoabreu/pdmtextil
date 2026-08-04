@@ -10,6 +10,7 @@ import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { useStatuses, hexToRgba } from "@/hooks/use-statuses"
 import { gerarRequisicaoAmostraComercialPdf } from "@/lib/gerar-requisicao-amostra-comercial-pdf"
+import { matchesSearch } from "@/components/ui/list-filters"
 
 export default function ListaRequisicoesAmostraComercialPage() {
   const router = useRouter()
@@ -43,16 +44,7 @@ export default function ListaRequisicoesAmostraComercialPage() {
   }, [mounted])
 
   useEffect(() => {
-    const q = search.toLowerCase()
-    setFiltered(
-      data.filter((item: any) =>
-        String(item.id).includes(q) ||
-        (item.titulo || "").toLowerCase().includes(q) ||
-        (item.cliente || "").toLowerCase().includes(q) ||
-        (item.produtoCodigo || "").toLowerCase().includes(q) ||
-        (item.produtoDescricao || "").toLowerCase().includes(q)
-      )
-    )
+    setFiltered(data.filter((item: any) => matchesSearch(item, search)))
   }, [search, data])
 
   const handleGerarPdf = useCallback(async (id: number) => {
