@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { Plus, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import {
@@ -18,20 +19,21 @@ type Props = {
 export function QuickCreateContato({ empresaId, clienteId, clienteNome, onClickGuard, onCreated }: Props) {
   const [open, setOpen] = useState(false)
   const [saving, setSaving] = useState(false)
-  const [empresas, setEmpresas] = useState<any[]>([])
   const [nome, setNome] = useState("")
   const [selectedEmpresaId, setSelectedEmpresaId] = useState(empresaId || "")
   const [cargo, setCargo] = useState("")
   const [email, setEmail] = useState("")
   const [celular, setCelular] = useState("")
 
-  useEffect(() => {
-    if (!open) return
-    fetch("/api/crm/pessoas")
-      .then((r: any) => r.json())
-      .then((data: any) => { if (Array.isArray(data)) setEmpresas(data) })
-      .catch(console.error)
-  }, [open])
+  const { data: empresas } = useQuery<any[]>({
+    queryKey: ["crm-pessoas"],
+    queryFn: async () => {
+      const res = await fetch("/api/crm/pessoas")
+      const data = await res.json()
+      return Array.isArray(data) ? data : []
+    },
+    enabled: !!open,
+  })
 
   useEffect(() => {
     if (empresaId) setSelectedEmpresaId(empresaId)
@@ -121,7 +123,7 @@ export function QuickCreateContato({ empresaId, clienteId, clienteNome, onClickG
               required={!isClienteMode}
             >
               <option value="">Selecione...</option>
-              {empresas.map((e: any) => (
+              {(empresas ?? []).map((e: any) => (
                 <option key={e.id} value={String(e.id)}>{e.razaoSocial || e.nomeFantasia}</option>
               ))}
             </select>

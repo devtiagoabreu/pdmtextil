@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { Plus, Loader2, Search, Check, AlertCircle } from "lucide-react"
 import { toast } from "sonner"
 import {
@@ -32,24 +33,22 @@ export function QuickCreateCliente({ onCreated }: Props) {
   const [cidade, setCidade] = useState("")
   const [uf, setUf] = useState("")
   const [estadoId, setEstadoId] = useState<number | null>(null)
-  const [estados, setEstados] = useState<{ id: number; uf: string }[]>([])
 
   const [consulting, setConsulting] = useState(false)
   const [consulted, setConsulted] = useState(false)
   const [apiData, setApiData] = useState<Record<string, any> | null>(null)
 
-  const fetchEstados = useCallback(async () => {
-    try {
+  const { data: estados } = useQuery<{ id: number; uf: string }[]>({
+    queryKey: ["crm-estados"],
+    queryFn: async () => {
       const res = await fetch("/api/crm/estados")
-      if (res.ok) setEstados(await res.json())
-    } catch {}
-  }, [])
-
-  useEffect(() => { fetchEstados() }, [fetchEstados])
+      return res.ok ? res.json() : []
+    },
+  })
 
   useEffect(() => {
     if (uf) {
-      const found = estados.find((e: any) => e.uf === uf)
+      const found = estados?.find((e: any) => e.uf === uf)
       setEstadoId(found ? found.id : null)
     } else {
       setEstadoId(null)

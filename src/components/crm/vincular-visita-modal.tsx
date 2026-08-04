@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { Loader2, Link as LinkIcon } from "lucide-react"
 import { toast } from "sonner"
 import {
@@ -17,10 +18,7 @@ type Props = {
 export default function VincularVisitaModal({ visitaId, open, onClose, onLinked }: Props) {
   const [tipo, setTipo] = useState<"CLIENTE" | "PESSOA" | "">("")
   const [loading, setLoading] = useState(false)
-  const [clientes, setClientes] = useState<any[]>([])
-  const [empresas, setEmpresas] = useState<any[]>([])
   const [selectedId, setSelectedId] = useState("")
-  const [loadingList, setLoadingList] = useState(false)
 
   useEffect(() => {
     if (!open) {
@@ -30,23 +28,27 @@ export default function VincularVisitaModal({ visitaId, open, onClose, onLinked 
     }
   }, [open])
 
-  useEffect(() => {
-    if (!tipo) return
-    setSelectedId("")
-    setLoadingList(true)
-    const fetchList = tipo === "CLIENTE"
-      ? fetch("/api/clientes")
-      : fetch("/api/crm/pessoas")
+  const { data: lista, isLoading: loadingList, isError } = useQuery<any[]>({
+    queryKey: ["vincular-lista", tipo],
+    queryFn: async () => {
+      const url = tipo === "CLIENTE" ? "/api/clientes" : "/api/crm/pessoas"
+      const res = await fetch(url)
+      const data = await res.json()
+      return Array.isArray(data) ? data : []
+    },
+    enabled: !!tipo,
+  })
 
-    fetchList
-      .then(res => res.json())
-      .then(data => {
-        if (tipo === "CLIENTE") setClientes(Array.isArray(data) ? data : [])
-        else setEmpresas(Array.isArray(data) ? data : [])
-      })
-      .catch(() => toast.error("Erro ao carregar lista"))
-      .finally(() => setLoadingList(false))
+  useEffect(() => {
+    if (tipo) setSelectedId("")
   }, [tipo])
+
+  useEffect(() => {
+    if (isError) toast.error("Erro ao carregar lista")
+  }, [isError])
+
+  const clientes = tipo === "CLIENTE" ? (lista ?? []) : []
+  const empresas = tipo === "PESSOA" ? (lista ?? []) : []
 
   async function handleConfirm() {
     if (!selectedId) {

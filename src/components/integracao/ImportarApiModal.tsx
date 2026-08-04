@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { Loader2, Globe, Download, X, Check, Database, Search } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
@@ -31,8 +32,6 @@ interface ImportarApiModalProps {
 }
 
 export default function ImportarApiModal({ tela, existingRecords, existingKey = "idIntegracao", onImportado, onClose, extraImportParams }: ImportarApiModalProps) {
-  const [integracoes, setIntegracoes] = useState<Integracao[]>([])
-  const [loadingInt, setLoadingInt] = useState(true)
   const [selectedId, setSelectedId] = useState<number | null>(null)
   const [items, setItems] = useState<Record<string, any>[]>([])
   const [loadingData, setLoadingData] = useState(false)
@@ -43,16 +42,27 @@ export default function ImportarApiModal({ tela, existingRecords, existingKey = 
 
   useEscapeClose(true, onClose)
 
-  useEffect(() => {
-    setLoadingInt(true)
-    fetch("/api/admin/integracoes")
-      .then((res: any) => res.json())
-      .then((all: Integracao[]) => setIntegracoes(all.filter((i: any) => i.telas?.includes(tela) && i.ativo)))
-      .catch(() => toast.error("Erro ao carregar integrações"))
-      .finally(() => setLoadingInt(false))
-  }, [tela])
+  const { data: integracoes, isLoading: loadingInt, isError: integracoesError } = useQuery<Integracao[]>({
+    queryKey: ["admin-integracoes", tela],
+    queryFn: async () => {
+      const res = await fetch("/api/admin/integracoes")
+      const all = (await res.json()) as Integracao[]
+      return all.filter((i: any) => i.telas?.includes(tela) && i.ativo)
+    },
+    enabled: true,
+  })
 
-  const integracao = integracoes.find((i: any) => i.id === selectedId) || null
+  useEffect(() => {
+    if (integracoes && integracoes.length > 0 && selectedId === null) {
+      setSelectedId(integracoes[0].id)
+    }
+  }, [integracoes, selectedId])
+
+  useEffect(() => {
+    if (integracoesError) toast.error("Erro ao carregar integrações")
+  }, [integracoesError])
+
+  const integracao = (integracoes ?? []).find((i: any) => i.id === selectedId) || null
   const uniqueKey = (integracao?.mapping?.uniqueKey || existingKey) as string
   const fieldMapping = (integracao?.mapping?.fields || {}) as Record<string, string>
 
@@ -205,14 +215,14 @@ export default function ImportarApiModal({ tela, existingRecords, existingKey = 
         <div className="p-5 space-y-4 flex-1 overflow-auto">
           {loadingInt ? (
             <div className="flex justify-center p-8"><Loader2 className="animate-spin text-slate-400" size={24} /></div>
-          ) : integracoes.length === 0 ? (
+          ) : (integracoes ?? []).length === 0 ? (
             <p className="text-sm text-slate-500 text-center py-8">Nenhuma integração configurada para &quot;{tela}&quot;</p>
           ) : (
             <>
               <div className="flex items-center gap-3 flex-wrap">
                 <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Integração:</span>
                 <div className="flex gap-2 flex-wrap">
-                  {integracoes.map((int: any) => (
+                  {(integracoes ?? []).map((int: any) => (
                     <button
                       key={int.id}
                       type="button"

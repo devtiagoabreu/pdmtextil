@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect, useRef, useCallback } from "react"
+import { useState, useEffect, useRef } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { Send, Check, CheckCheck, Loader2, MessageSquare, User, Bot, AlertTriangle } from "lucide-react"
 import { toast } from "sonner"
 
@@ -23,41 +24,47 @@ type Props = {
 
 export default function WhatsAppChat({ remoteJid, empresaId }: Props) {
   const [mensagens, setMensagens] = useState<Mensagem[]>([])
-  const [loading, setLoading] = useState(true)
   const [texto, setTexto] = useState("")
   const [enviando, setEnviando] = useState(false)
   const [isHumano, setIsHumano] = useState(false)
   const [trocandoModo, setTrocandoModo] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
 
-  const carregarEstado = useCallback(async () => {
-    if (!remoteJid) return
-    try {
-      const res = await fetch(`/api/crm/whatsapp/chat?remoteJid=${encodeURIComponent(remoteJid)}`)
+  const hasParams = !!(remoteJid || empresaId)
+
+  const { data: mensagensData, isLoading: loading, isError } = useQuery<Mensagem[]>({
+    queryKey: ["crm-whatsapp", empresaId || "", remoteJid || ""],
+    queryFn: async () => {
+      const params = new URLSearchParams()
+      if (empresaId) params.set("empresaId", empresaId)
+      if (remoteJid) params.set("remoteJid", remoteJid)
+      const res = await fetch(`/api/crm/whatsapp?${params.toString()}`)
       const data = await res.json()
-      setIsHumano(data.conversa?.estado === "HUMANO_ASSUMINDO")
-    } catch {}
-  }, [remoteJid])
+      return Array.isArray(data) ? [...data].reverse() : []
+    },
+    enabled: hasParams,
+  })
+
+  const { data: chatData } = useQuery<any>({
+    queryKey: ["crm-whatsapp-chat", remoteJid || ""],
+    queryFn: async () => {
+      const res = await fetch(`/api/crm/whatsapp/chat?remoteJid=${encodeURIComponent(remoteJid!)}`)
+      return res.json()
+    },
+    enabled: !!remoteJid,
+  })
 
   useEffect(() => {
-    if (!remoteJid && !empresaId) {
-      setLoading(false)
-      return
-    }
-    const params = new URLSearchParams()
-    if (empresaId) params.set("empresaId", empresaId)
-    if (remoteJid) params.set("remoteJid", remoteJid)
+    if (mensagensData) setMensagens(mensagensData)
+  }, [mensagensData])
 
-    fetch(`/api/crm/whatsapp?${params.toString()}`)
-      .then((r: any) => r.json())
-      .then((data: any) => {
-        setMensagens(Array.isArray(data) ? data.reverse() : [])
-      })
-      .catch(() => toast.error("Erro ao carregar mensagens"))
-      .finally(() => setLoading(false))
+  useEffect(() => {
+    if (chatData?.conversa) setIsHumano(chatData.conversa?.estado === "HUMANO_ASSUMINDO")
+  }, [chatData])
 
-    carregarEstado()
-  }, [remoteJid, empresaId, carregarEstado])
+  useEffect(() => {
+    if (isError) toast.error("Erro ao carregar mensagens")
+  }, [isError])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" })

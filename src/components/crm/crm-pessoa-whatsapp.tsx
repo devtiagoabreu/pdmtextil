@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { MessageSquare, Send, Check, CheckCheck, Loader2, User, Bot, AlertTriangle } from "lucide-react"
 import { toast } from "sonner"
 
@@ -18,7 +19,6 @@ type Mensagem = {
 
 export default function CrmPessoaWhatsapp({ pessoaId }: { pessoaId: string }) {
   const [mensagens, setMensagens] = useState<Mensagem[]>([])
-  const [loading, setLoading] = useState(true)
   const [texto, setTexto] = useState("")
   const [enviando, setEnviando] = useState(false)
   const [remoteJid, setRemoteJid] = useState<string | null>(null)
@@ -26,24 +26,40 @@ export default function CrmPessoaWhatsapp({ pessoaId }: { pessoaId: string }) {
   const [trocandoModo, setTrocandoModo] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
 
+  const { data: mensagensData, isLoading: loading, isError } = useQuery<Mensagem[]>({
+    queryKey: ["crm-whatsapp", pessoaId],
+    queryFn: async () => {
+      const res = await fetch(`/api/crm/whatsapp?empresaId=${pessoaId}`)
+      const data = await res.json()
+      return Array.isArray(data) ? [...data].reverse() : []
+    },
+    enabled: !!pessoaId,
+  })
+
+  const { data: chatData } = useQuery<any>({
+    queryKey: ["crm-whatsapp-chat", remoteJid || ""],
+    queryFn: async () => {
+      const res = await fetch(`/api/crm/whatsapp/chat?remoteJid=${encodeURIComponent(remoteJid!)}`)
+      return res.json()
+    },
+    enabled: !!remoteJid,
+  })
+
   useEffect(() => {
-    fetch(`/api/crm/whatsapp?empresaId=${pessoaId}`)
-      .then((r: any) => r.json())
-      .then((data: any) => {
-        const lista = Array.isArray(data) ? data.reverse() : []
-        setMensagens(lista)
-        const jid = lista.find((m: Mensagem) => m.remoteJid)?.remoteJid
-        if (jid) {
-          setRemoteJid(jid)
-          fetch(`/api/crm/whatsapp/chat?remoteJid=${encodeURIComponent(jid)}`)
-            .then((r: any) => r.json())
-            .then((d: any) => setIsHumano(d.conversa?.estado === "HUMANO_ASSUMINDO"))
-            .catch(console.error)
-        }
-      })
-      .catch(() => toast.error("Erro ao carregar mensagens"))
-      .finally(() => setLoading(false))
-  }, [pessoaId])
+    if (mensagensData) {
+      setMensagens(mensagensData)
+      const jid = mensagensData.find((m: Mensagem) => m.remoteJid)?.remoteJid
+      if (jid) setRemoteJid(jid)
+    }
+  }, [mensagensData])
+
+  useEffect(() => {
+    if (chatData?.conversa) setIsHumano(chatData.conversa?.estado === "HUMANO_ASSUMINDO")
+  }, [chatData])
+
+  useEffect(() => {
+    if (isError) toast.error("Erro ao carregar mensagens")
+  }, [isError])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" })

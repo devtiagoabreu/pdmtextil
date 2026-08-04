@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect, useRef, useCallback } from "react"
+import { useState, useEffect, useRef } from "react"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -56,7 +57,6 @@ export function ReceitaDialog({
   const [receitas, setReceitas] = useState<Receita[]>([])
   const [receita, setReceita] = useState<Receita | null>(null)
   const [itens, setItens] = useState<ReceitaItem[]>([])
-  const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [quimicos, setQuimicos] = useState<ProdutoQuimico[]>([])
   const [editDescricao, setEditDescricao] = useState("")
@@ -72,36 +72,44 @@ export function ReceitaDialog({
 
   const baseUrl = `/api/cadastros/produto-cru/${produtoCruId}/acabamentos/${acabamentoId}/amostras/${amostraId}/receitas`
 
-  const load = useCallback(async () => {
-    try {
+  const queryClient = useQueryClient()
+
+  const { data: receitasData, isLoading: loading } = useQuery<Receita[]>({
+    queryKey: ["acabamento-receitas", produtoCruId, acabamentoId, amostraId],
+    queryFn: async () => {
       const res = await fetch(baseUrl)
-      const list: Receita[] = await res.json()
-      setReceitas(list)
-      if (list.length > 0) {
-        const latest = list.reduce((a: any, b: any) => a.versao > b.versao ? a : b)
-        selectReceita(latest)
-      } else {
-        setReceita(null)
-        setEditDescricao("")
-        setEditInstrucoes("")
-        setItens([])
-      }
-    } catch (e) {
-      console.error(e)
-    } finally {
-      setLoading(false)
-    }
-  }, [baseUrl])
+      if (!res.ok) throw new Error()
+      return res.json()
+    },
+    enabled: !!open,
+  })
+
+  const { data: quimicosData } = useQuery<ProdutoQuimico[]>({
+    queryKey: ["produtos-quimicos"],
+    queryFn: async () => {
+      const res = await fetch("/api/cadastros/produtos-quimicos")
+      return res.json()
+    },
+    enabled: !!open,
+  })
 
   useEffect(() => {
-    if (!open) return
-    setLoading(true)
-    fetch("/api/cadastros/produtos-quimicos")
-      .then((r: any) => r.json())
-      .then(setQuimicos)
-      .catch(console.error)
-    load()
-  }, [open, amostraId, load])
+    if (quimicosData) setQuimicos(quimicosData)
+  }, [quimicosData])
+
+  useEffect(() => {
+    if (!receitasData) return
+    setReceitas(receitasData)
+    if (receitasData.length > 0) {
+      const latest = receitasData.reduce((a: any, b: any) => a.versao > b.versao ? a : b)
+      selectReceita(latest)
+    } else {
+      setReceita(null)
+      setEditDescricao("")
+      setEditInstrucoes("")
+      setItens([])
+    }
+  }, [receitasData])
 
   async function selectReceita(r: Receita) {
     setReceita(r)
@@ -162,7 +170,7 @@ export function ReceitaDialog({
       if (!res.ok) throw new Error()
       const nova = await res.json()
       toast.success(`Versão ${nova.versao} criada!`)
-      await load()
+      queryClient.invalidateQueries({ queryKey: ["acabamento-receitas"] })
     } catch {
       toast.error("Erro ao duplicar")
     } finally {
