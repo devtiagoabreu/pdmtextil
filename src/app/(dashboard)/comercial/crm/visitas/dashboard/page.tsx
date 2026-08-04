@@ -15,6 +15,7 @@ import {
 import { ChartTooltip } from "@/components/ui/chart-tooltip"
 import { AnimatedLine } from "@/components/ui/animated-line"
 import VisitLocationModal from "@/components/crm/visit-location-modal"
+import { useEscapeClose } from "@/lib/use-escape-close"
 
 type VisitasDashboardData = {
   total: number
@@ -52,7 +53,7 @@ const STATUS_LABELS: Record<string, string> = {
 
 const TIPO_LABELS: Record<string, string> = {
   PRESENCIAL: "Presencial",
-  VIDEO: "Video",
+  VIDEO: "Vídeo",
   TELEFONE: "Telefone",
 }
 
@@ -75,8 +76,6 @@ const FILTROS_LABELS: Record<string, string> = {
 export default function VisitasDashboardPage() {
   const [selectedVisita, setSelectedVisita] = useState<{ id: number; nome: string } | null>(null)
   const [modalFiltro, setModalFiltro] = useState<string | null>(null)
-  const [modalLista, setModalLista] = useState<any[]>([])
-  const [modalLoading, setModalLoading] = useState(false)
   const [modalTitle, setModalTitle] = useState("")
   const { data: session } = useSession()
   const userRole = (session?.user as any)?.role
@@ -85,29 +84,33 @@ export default function VisitasDashboardPage() {
     isComercial ? "minhas" : "todas"
   )
 
+  useEscapeClose(!!modalFiltro, () => setModalFiltro(null))
+
   const { data, isLoading } = useQuery<VisitasDashboardData>({
     queryKey: ["visitas-dashboard", visitasFilter],
     queryFn: () => fetch(`/api/crm/visitas/dashboard${visitasFilter === "minhas" ? "?mine=true" : ""}`).then((r: any) => r.json()),
     retry: 1,
   })
 
-  const openModal = useCallback(async (filtro: string) => {
+  const modalQuery = useQuery({
+    queryKey: ["visitas-dashboard-lista", modalFiltro, visitasFilter],
+    queryFn: async () => {
+      const res = await fetch(`/api/crm/visitas/dashboard-lista?filtro=${modalFiltro}${visitasFilter === "minhas" ? "&mine=true" : ""}`)
+      if (!res.ok) return []
+      const data = await res.json()
+      return Array.isArray(data) ? data : []
+    },
+    enabled: !!modalFiltro,
+    retry: 1,
+  })
+
+  const openModal = useCallback((filtro: string) => {
     setModalTitle(FILTROS_LABELS[filtro] || filtro)
     setModalFiltro(filtro)
-    setModalLoading(true)
-    setModalLista([])
-    try {
-      const res = await fetch(`/api/crm/visitas/dashboard-lista?filtro=${filtro}${visitasFilter === "minhas" ? "&mine=true" : ""}`)
-      if (res.ok) {
-        const data = await res.json()
-        setModalLista(Array.isArray(data) ? data : [])
-      }
-    } catch {
-      setModalLista([])
-    } finally {
-      setModalLoading(false)
-    }
-  }, [visitasFilter])
+  }, [])
+
+  const modalLista = modalQuery.data ?? []
+  const modalLoading = modalQuery.isFetching
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -446,14 +449,14 @@ export default function VisitasDashboardPage() {
       )}
 
       {modalFiltro && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center pt-12 sm:pt-20 bg-black/50" onClick={() => setModalFiltro(null)}>
+        <div className="fixed inset-0 z-50 flex items-start justify-center pt-12 sm:pt-20 bg-black/50" onClick={() => setModalFiltro(null)} role="dialog" aria-modal="true" aria-label={modalTitle}>
           <div
             className="bg-white dark:bg-slate-900 rounded-xl shadow-xl w-full max-w-2xl mx-4 max-h-[75vh] flex flex-col border border-slate-200 dark:border-slate-700"
             onClick={e => e.stopPropagation()}
           >
             <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
               <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">{modalTitle}</h2>
-              <button type="button" onClick={() => setModalFiltro(null)} className="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800">
+              <button type="button" onClick={() => setModalFiltro(null)} aria-label="Fechar" className="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800">
                 <X size={18} className="text-slate-500" />
               </button>
             </div>
