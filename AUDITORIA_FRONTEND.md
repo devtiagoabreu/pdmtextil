@@ -61,7 +61,7 @@ Regra de trabalho: cada item corrigido = **commit + push** separado, para acompa
 - [x] `comercial/crm/visitas/dashboard/page.tsx` — modal `dashboard-lista` via `useQuery` com `enabled` (+ "Video"→"Vídeo", Escape/role=dialog) `3c449995`
 - [ ] `components/crm/visit-location-modal.tsx` — conferir (já usa useQuery — manter)
 - [x] `components/forms/ClienteAutocomplete.tsx` — busca via useQuery (debounce) + ARIA combobox `3c294a20`
-- [ ] `components/crm/select-uf.tsx` / `select-cidade.tsx` — useQuery
+- [x] `components/crm/select-uf.tsx` / `select-cidade.tsx` — useQuery `44999745`
 - [ ] `components/kanban/kanban-board.tsx` / `kanban-amostras.tsx` — carregamento via useQuery
 - [ ] `components/layout/sidebar.tsx`, `mobile-bottom-nav.tsx`, `header.tsx` (notificações), `ChatButton.tsx` — useQuery
 - [ ] `comercial/crm/visitas/[id]/page.tsx` e `novo/page.tsx` — useQuery
