@@ -64,7 +64,7 @@ Regra de trabalho: cada item corrigido = **commit + push** separado, para acompa
 - [x] `components/crm/select-uf.tsx` / `select-cidade.tsx` — useQuery `44999745`
 - [x] `components/kanban/kanban-board.tsx` / `kanban-amostras.tsx` — carregamento via useQuery `6ac82ef4`
 - [x] `components/layout/sidebar.tsx`, `mobile-bottom-nav.tsx`, `header.tsx` (notificações), `ChatButton.tsx` — useQuery `53839adf`
-- [ ] `comercial/crm/visitas/[id]/page.tsx` e `novo/page.tsx` — useQuery
+- [x] `comercial/crm/visitas/[id]/page.tsx` e `novo/page.tsx` — useQuery `896c517a`
 - [ ] `comercial/solicitacoes/[id]/editar/page.tsx` — useQuery
 - [ ] Cluster `admin/*` (usuarios, roles, notificacoes, whatsapp-*, email-massa, configuracoes/*) — useQuery
 - [ ] Cluster `cadastros/*/[id]` (fios, produto-cru, fornecedores, bases-urdume, cores, estampas, produtos-quimicos) — useQuery
