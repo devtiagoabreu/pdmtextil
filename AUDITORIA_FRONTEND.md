@@ -63,7 +63,7 @@ Regra de trabalho: cada item corrigido = **commit + push** separado, para acompa
 - [x] `components/forms/ClienteAutocomplete.tsx` — busca via useQuery (debounce) + ARIA combobox `3c294a20`
 - [x] `components/crm/select-uf.tsx` / `select-cidade.tsx` — useQuery `44999745`
 - [x] `components/kanban/kanban-board.tsx` / `kanban-amostras.tsx` — carregamento via useQuery `6ac82ef4`
-- [ ] `components/layout/sidebar.tsx`, `mobile-bottom-nav.tsx`, `header.tsx` (notificações), `ChatButton.tsx` — useQuery
+- [x] `components/layout/sidebar.tsx`, `mobile-bottom-nav.tsx`, `header.tsx` (notificações), `ChatButton.tsx` — useQuery `53839adf`
 - [ ] `comercial/crm/visitas/[id]/page.tsx` e `novo/page.tsx` — useQuery
 - [ ] `comercial/solicitacoes/[id]/editar/page.tsx` — useQuery
 - [ ] Cluster `admin/*` (usuarios, roles, notificacoes, whatsapp-*, email-massa, configuracoes/*) — useQuery
