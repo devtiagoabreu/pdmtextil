@@ -21,7 +21,7 @@ export function MobileBottomNav() {
   if (!session) return null
 
   const mobileNavItems = [
-    { href: paginaInicial, icon: LayoutDashboard, label: "Home" },
+    { href: paginaInicial, icon: LayoutDashboard, label: "Início" },
     { href: "/comercial/crm/visitas/novo", icon: Calendar, label: "Nova Visita" },
     { href: "/comercial/crm/visitas", icon: List, label: "Agenda" },
     { href: "/perfil", icon: User, label: "Perfil" },

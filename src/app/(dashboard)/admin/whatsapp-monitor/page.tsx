@@ -28,16 +28,16 @@ interface Execution {
 }
 
 const STEP_LABELS: Record<string, string> = {
-  auth: "Auth",
-  extract: "Extract",
-  filter: "Filter",
-  find_conversation: "Find Conv",
+  auth: "Autenticação",
+  extract: "Extração",
+  filter: "Filtro",
+  find_conversation: "Buscar Conversa",
   groq_call: "Groq IA",
-  state_machine: "Estado",
-  save_messages: "Save DB",
-  send_response: "Send Resp",
-  create_lead: "Create Lead",
-  notify: "Notify",
+  state_machine: "Máquina de Estados",
+  save_messages: "Salvar no Banco",
+  send_response: "Enviar Resposta",
+  create_lead: "Criar Lead",
+  notify: "Notificar",
 }
 
 const STEP_ICONS: Record<string, string> = {

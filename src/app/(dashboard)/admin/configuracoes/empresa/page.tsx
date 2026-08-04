@@ -190,8 +190,8 @@ export default function EmpresaPage() {
           {logoUrl && (
             <div className="border border-slate-200 dark:border-slate-800 rounded-lg p-3 flex items-center gap-3">
               <Globe size={16} className="text-slate-400" />
-              <Image src={logoUrl} alt="Preview" width={40} height={40} unoptimized className="h-10 w-auto object-contain" onError={e => { (e.target as HTMLImageElement).style.display = "none" }} />
-              <span className="text-xs text-slate-400">Preview do logo</span>
+              <Image src={logoUrl} alt="Pré-visualização do logo" width={40} height={40} unoptimized className="h-10 w-auto object-contain" onError={e => { (e.target as HTMLImageElement).style.display = "none" }} />
+              <span className="text-xs text-slate-400">Pré-visualização do logo</span>
             </div>
           )}
           <label className="flex items-center gap-2 text-sm">
