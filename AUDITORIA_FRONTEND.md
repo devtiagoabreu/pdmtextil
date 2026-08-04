@@ -69,7 +69,7 @@ Regra de trabalho: cada item corrigido = **commit + push** separado, para acompa
 - [ ] Cluster `admin/*` (usuarios, roles, notificacoes, whatsapp-*, email-massa, configuracoes/*) — useQuery
 - [ ] Cluster `cadastros/*/[id]` (fios, produto-cru, fornecedores, bases-urdume, cores, estampas, produtos-quimicos) — useQuery
 - [x] `documentos/romaneios/page.tsx` — useQuery `6edaa217`
-- [ ] `components/bi/bi-dashboard-client.tsx` — useQuery
+- [x] `components/bi/bi-dashboard-client.tsx` — useQuery `74f88d1f`
 - [ ] `perfil/page.tsx`, `perfil/menus/page.tsx` — useQuery
 - [ ] `dashboard/amostras/page.tsx`, `dashboard/requisicoes-corte/page.tsx` — useQuery
 - [ ] `components/integracao/ImportarApiModal.tsx` — useQuery
