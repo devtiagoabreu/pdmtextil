@@ -1,6 +1,7 @@
 "use client"
 
 import { X, AlertTriangle, Loader2 } from "lucide-react"
+import { useEscapeClose } from "@/lib/use-escape-close"
 
 interface ConfirmModalProps {
   open: boolean
@@ -27,16 +28,19 @@ export function ConfirmModal({
   onConfirm,
   onCancel,
 }: ConfirmModalProps) {
+  useEscapeClose(open, onCancel)
+
   if (!open) return null
 
   const isDanger = variant === "danger"
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-label={title}>
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onCancel} data-testid="backdrop" />
       <div className="relative bg-white dark:bg-slate-900 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 w-full max-w-md mx-4 animate-fade-in">
         <button
           onClick={onCancel}
+          aria-label="Fechar"
           className="absolute right-3 top-3 p-1 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
         >
           <X size={18} />

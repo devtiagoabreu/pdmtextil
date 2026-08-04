@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 import { X, MapPin, Navigation, Trash2, ExternalLink, Loader2 } from "lucide-react"
+import { useEscapeClose } from "@/lib/use-escape-close"
 
 type Localizacao = {
   id: number
@@ -29,6 +30,8 @@ export default function VisitLocationModal({ visitaId, empresaNome, open, onClos
   const [observacao, setObservacao] = useState("")
   const [capturing, setCapturing] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  useEscapeClose(open, onClose)
 
   const { data: localizacoes = [], isLoading } = useQuery<Localizacao[]>({
     queryKey: ["visitas-localizacoes", visitaId],
@@ -104,7 +107,7 @@ export default function VisitLocationModal({ visitaId, empresaNome, open, onClos
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-label="Localizações da Visita">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
       <div className="relative bg-white dark:bg-slate-900 rounded-xl shadow-xl w-full max-w-lg mx-4 max-h-[80vh] flex flex-col">
         <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
@@ -116,7 +119,7 @@ export default function VisitLocationModal({ visitaId, empresaNome, open, onClos
               <p className="text-sm text-slate-500 dark:text-slate-400">{empresaNome}</p>
             )}
           </div>
-          <button onClick={onClose} className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+          <button onClick={onClose} aria-label="Fechar" className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
             <X size={20} className="text-slate-500" />
           </button>
         </div>
@@ -186,6 +189,7 @@ export default function VisitLocationModal({ visitaId, empresaNome, open, onClos
                       }}
                       className="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-950/50 transition-colors"
                       title="Excluir localização"
+                      aria-label="Excluir localização"
                     >
                       <Trash2 size={14} className="text-red-500" />
                     </button>

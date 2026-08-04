@@ -172,6 +172,7 @@ export default function PhotoUpload({ photos, onPhotosChange, maxPhotos = 20, la
               <button
                 type="button"
                 onClick={() => removePhoto(i)}
+                aria-label={`Remover foto ${i + 1}`}
                 className="absolute top-1 right-1 p-1 rounded-full bg-black/60 text-white opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity hover:bg-red-600 min-h-[28px] min-w-[28px] flex items-center justify-center"
               >
                 <X size={12} />

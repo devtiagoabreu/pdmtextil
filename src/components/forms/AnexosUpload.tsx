@@ -120,7 +120,7 @@ export function AnexosUpload({ anexos, onChange }: AnexosUploadProps) {
                     )}
                   </div>
                 </div>
-                <Button variant="ghost" size="icon" onClick={() => handleRemove(anexo.id)} className="text-destructive">
+                <Button variant="ghost" size="icon" onClick={() => handleRemove(anexo.id)} aria-label="Remover anexo" className="text-destructive">
                   <X className="h-4 w-4" />
                 </Button>
               </li>

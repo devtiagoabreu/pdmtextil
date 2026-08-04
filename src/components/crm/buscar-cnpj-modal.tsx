@@ -5,6 +5,7 @@ import { Search, Building2, Loader2, X, Check, ExternalLink, AlertCircle } from 
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { useEscapeClose } from "@/lib/use-escape-close"
 
 interface BuscarCnpjModalProps {
   tipo: "pessoa" | "representante"
@@ -27,6 +28,8 @@ export default function BuscarCnpjModal({ tipo, onClose, onCreated }: BuscarCnpj
   const [existentes, setExistentes] = useState<{ crmPessoas: any[]; representantes: any[] }>({ crmPessoas: [], representantes: [] })
   const [creating, setCreating] = useState(false)
   const [consultado, setConsultado] = useState(false)
+
+  useEscapeClose(true, onClose)
 
   const titulo = tipo === "pessoa" ? "Pessoa (Negócio)" : "Representante"
 
@@ -128,7 +131,7 @@ export default function BuscarCnpjModal({ tipo, onClose, onCreated }: BuscarCnpj
     : existentes.representantes.length > 0
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" role="dialog" aria-modal="true" aria-label="Buscar CNPJ">
       <div className="bg-white dark:bg-slate-900 rounded-xl shadow-xl max-w-lg w-full mx-4 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-800">
           <div className="flex items-center gap-2">
@@ -137,7 +140,7 @@ export default function BuscarCnpjModal({ tipo, onClose, onCreated }: BuscarCnpj
               Buscar CNPJ
             </h2>
           </div>
-          <button onClick={onClose} className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+          <button onClick={onClose} aria-label="Fechar" className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
             <X size={18} className="text-slate-500" />
           </button>
         </div>

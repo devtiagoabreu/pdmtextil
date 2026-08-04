@@ -4,6 +4,7 @@ import { useState, useRef } from "react"
 import { Upload, FileSpreadsheet, FileJson, X, Loader2, Database } from "lucide-react"
 import { toast } from "sonner"
 import ImportarApiModal from "@/components/integracao/ImportarApiModal"
+import { useEscapeClose } from "@/lib/use-escape-close"
 
 export interface ImportarEntidadeConfig {
   titulo: string
@@ -36,6 +37,8 @@ export function ImportarEntidade({ config, onImportado, buttonVariant = "default
   const [modo, setModo] = useState<"arquivo" | "api">("arquivo")
   const [showApiImport, setShowApiImport] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  useEscapeClose(modalAberto, () => setModalAberto(false))
 
   const { titulo, apiBase, arquivoPrefixo, formDataKey = "arquivo", showModelDownloads = true, colunasHint, normalizeResponse, mensagemSucesso } = config
 
@@ -148,11 +151,11 @@ export function ImportarEntidade({ config, onImportado, buttonVariant = "default
       )}
 
       {modalAberto && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" role="dialog" aria-modal="true" aria-label={`Importar ${titulo}`}>
           <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-xl bg-white dark:bg-slate-900 shadow-xl">
             <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 p-4">
               <h2 className="text-lg font-semibold">Importar {titulo}{titleSuffix ? ` — ${titleSuffix}` : ""}</h2>
-              <button onClick={() => setModalAberto(false)} className="rounded-md p-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+              <button onClick={() => setModalAberto(false)} aria-label="Fechar" className="rounded-md p-1 hover:bg-slate-100 dark:hover:bg-slate-800">
                 <X size={20} />
               </button>
             </div>

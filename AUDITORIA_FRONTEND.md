@@ -41,19 +41,19 @@ Regra de trabalho: cada item corrigido = **commit + push** separado, para acompa
 
 ## 5. `key={index}` → chave estável
 
-- [ ] `components/kanban/kanban-board.tsx` (:464 mensagens chat, :502 amostras, :542 pilotagem)
-- [ ] `components/bi/bi-dashboard-client.tsx` (:50, :158, :873 tabelas)
-- [ ] `components/crm/photo-upload.tsx` (:155 fotos)
-- [ ] `comercial/requisicoes-corte/nova/page.tsx` (:119 itens)
-- [ ] `comercial/requisicoes-corte/[id]/page.tsx` (:211 `id ?? index`)
-- [ ] `dashboard/relatorios/historico-solicitacao/page.tsx` (:472 timeline) e `historico-amostra` (:412)
-- [ ] `ferramentas/regra-de-tres/page.tsx` (:235) e `dashboard/relatorios/tempo-status/page.tsx` (:251)
-- [ ] `comercial/crm/visitas/[id]/page.tsx` (:759)
-- [ ] `cadastros/fios/[id]/page.tsx` (:404)
-- [ ] `comercial/solicitacoes/[id]/page.tsx` (:608,:613)
-- [ ] `requisicoes-amostra-comercial/[id]/page.tsx` (:174)
-- [ ] `treinamento/[id]/page.tsx` (:256,:279), `treinamento/admin/[id]` (:207,:221), `treinamento/admin/novo` (:177,:223)
-- [ ] `components/links/LinksEditor.tsx` (:39)
+- [x] `components/kanban/kanban-board.tsx` (:464 mensagens chat, :502 amostras, :542 pilotagem) `bf5c5905`
+- [x] `components/bi/bi-dashboard-client.tsx` (:50, :158, :873 tabelas) `bf5c5905`
+- [x] `components/crm/photo-upload.tsx` (:155 fotos) `bf5c5905`
+- [x] `comercial/requisicoes-corte/nova/page.tsx` (:119 itens) `bf5c5905`
+- [x] `comercial/requisicoes-corte/[id]/page.tsx` (:211 `id ?? index`) — já usava chave estável
+- [x] `dashboard/relatorios/historico-solicitacao/page.tsx` (:472 timeline) `bf5c5905`/`64c7f7a6` e `historico-amostra` (:412) `bf5c5905`/`64c7f7a6`
+- [x] `ferramentas/regra-de-tres/page.tsx` (:235) `bf5c5905` e `dashboard/relatorios/tempo-status/page.tsx` (:251) `bf5c5905`
+- [x] `comercial/crm/visitas/[id]/page.tsx` (:759) `bf5c5905`
+- [x] `cadastros/fios/[id]/page.tsx` (:404) `bf5c5905`
+- [x] `comercial/solicitacoes/[id]/page.tsx` (:608,:613) `bf5c5905`
+- [x] `requisicoes-amostra-comercial/[id]/page.tsx` (:174) `bf5c5905`
+- [x] `treinamento/[id]/page.tsx` (:256,:279), `treinamento/admin/[id]` (:207,:221), `treinamento/admin/novo` (:177,:223) `bf5c5905`
+- [x] `components/links/LinksEditor.tsx` (:39) `bf5c5905` (+ `ImportarEntidade.tsx`, `chat/page.tsx` extras)
 
 ## 6. Data fetching → TanStack Query (migração `fetch`/`useEffect`/`useState`)
 

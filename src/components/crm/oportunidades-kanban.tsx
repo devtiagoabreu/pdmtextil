@@ -7,6 +7,7 @@ import { DndContext, DragOverlay, useDraggable, PointerSensor, useSensor, useSen
 import { X } from "lucide-react"
 import { useStatuses } from "@/hooks/use-statuses"
 import { DroppableColumn, KanbanSkeleton } from "./kanban-column"
+import { useEscapeClose } from "@/lib/use-escape-close"
 
 interface OportunidadeCard {
   id: number
@@ -87,6 +88,8 @@ export default function OportunidadesKanban({ oportunidades }: { oportunidades: 
   const [showMotivoPerda, setShowMotivoPerda] = useState(false)
   const [motivoPerda, setMotivoPerda] = useState("")
   const [pendingMove, setPendingMove] = useState<{ id: number; status: string; statusAntigo: string } | null>(null)
+
+  useEscapeClose(showMotivoPerda, cancelarPerda)
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
@@ -229,11 +232,11 @@ export default function OportunidadesKanban({ oportunidades }: { oportunidades: 
       </DndContext>
 
       {showMotivoPerda && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={cancelarPerda}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={cancelarPerda} role="dialog" aria-modal="true" aria-label="Motivo da Perda">
           <div className="bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 p-6 w-full max-w-md mx-4" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-50">Motivo da Perda</h3>
-              <button onClick={cancelarPerda} className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+              <button onClick={cancelarPerda} aria-label="Fechar" className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
                 <X size={18} className="text-slate-400" />
               </button>
             </div>

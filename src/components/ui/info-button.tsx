@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { X, Info } from "lucide-react"
 import type { InfoContent } from "@/lib/info-content"
+import { useEscapeClose } from "@/lib/use-escape-close"
 
 interface InfoButtonProps {
   content: InfoContent
@@ -11,10 +12,13 @@ interface InfoButtonProps {
 export function InfoButton({ content }: InfoButtonProps) {
   const [open, setOpen] = useState(false)
 
+  useEscapeClose(open, () => setOpen(false))
+
   return (
     <>
       <button
         onClick={() => setOpen(true)}
+        aria-haspopup="dialog"
         className="inline-flex items-center justify-center w-5 h-5 rounded-full border border-blue-400 text-blue-500 hover:bg-blue-50 dark:border-blue-500 dark:text-blue-400 dark:hover:bg-blue-950/50 transition-colors ml-2"
         title="Informações da tela"
       >
@@ -22,7 +26,7 @@ export function InfoButton({ content }: InfoButtonProps) {
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label={content.title}>
           <div className="fixed inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setOpen(false)} />
           <div className="relative w-full max-w-lg rounded-xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-900 animate-fade-in max-h-[80vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 px-5 py-4">
@@ -32,6 +36,7 @@ export function InfoButton({ content }: InfoButtonProps) {
               </div>
               <button
                 onClick={() => setOpen(false)}
+                aria-label="Fechar informações"
                 className="rounded-md p-1 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
               >
                 <X size={16} />

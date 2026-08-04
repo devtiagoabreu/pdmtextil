@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { ChevronLeft, ChevronRight, CalendarDays, Navigation, Plus, X, MapPin } from "lucide-react"
+import { useEscapeClose } from "@/lib/use-escape-close"
 
 const TIPO_LABELS: Record<string, string> = {
   PRESENCIAL: "Presencial",
@@ -67,6 +68,8 @@ export default function VisitasCalendario({ visitas }: { visitas: Visita[] }) {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [modalDay, setModalDay] = useState<string | null>(null)
 
+  useEscapeClose(!!modalDay, () => setModalDay(null))
+
   const year = currentDate.getFullYear()
   const month = currentDate.getMonth()
 
@@ -113,6 +116,7 @@ export default function VisitasCalendario({ visitas }: { visitas: Visita[] }) {
       <div className="flex items-center justify-between">
         <button
           onClick={prevMonth}
+          aria-label="Mês anterior"
           className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
         >
           <ChevronLeft size={20} className="text-slate-600 dark:text-slate-400" />
@@ -122,6 +126,7 @@ export default function VisitasCalendario({ visitas }: { visitas: Visita[] }) {
         </h3>
         <button
           onClick={nextMonth}
+          aria-label="Próximo mês"
           className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
         >
           <ChevronRight size={20} className="text-slate-600 dark:text-slate-400" />
@@ -201,7 +206,7 @@ export default function VisitasCalendario({ visitas }: { visitas: Visita[] }) {
 
       {/* Modal ao clicar em um dia */}
       {modalDay && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in" onClick={() => setModalDay(null)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in" onClick={() => setModalDay(null)} role="dialog" aria-modal="true" aria-label="Visitas do dia">
           <div
             className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 w-full max-w-md mx-4 overflow-hidden animate-in zoom-in-95"
             onClick={(e) => e.stopPropagation()}
@@ -225,6 +230,7 @@ export default function VisitasCalendario({ visitas }: { visitas: Visita[] }) {
               </div>
               <button
                 onClick={() => setModalDay(null)}
+                aria-label="Fechar"
                 className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
               >
                 <X size={16} className="text-slate-400" />

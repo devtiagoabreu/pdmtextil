@@ -169,6 +169,7 @@ export function ClienteAutocomplete({
             {query && (
               <button
                 onClick={handleClear}
+                aria-label="Limpar seleção"
                 className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
               >
                 <X size={14} />

@@ -326,7 +326,7 @@ export function ReceitaDialog({
                               {item.ordem > 0 && <span className="text-xs text-slate-400 ml-1">(ordem {item.ordem})</span>}
                             </span>
                             {latest && (
-                              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeItem(item.id)}>
+                              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeItem(item.id)} aria-label={`Remover item ${item.descricao || item.id}`}>
                                 <Trash2 size={12} />
                               </Button>
                             )}

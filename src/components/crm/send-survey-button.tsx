@@ -4,6 +4,7 @@ import { useMutation } from "@tanstack/react-query"
 import { useState } from "react"
 import { Mail, Loader2, X } from "lucide-react"
 import { toast } from "sonner"
+import { useEscapeClose } from "@/lib/use-escape-close"
 
 interface SendSurveyButtonProps {
   visitaId: number
@@ -16,6 +17,8 @@ export default function SendSurveyButton({ visitaId, empresaNome, contatoEmail, 
   const [open, setOpen] = useState(false)
   const [email, setEmail] = useState("")
   const [nome, setNome] = useState("")
+
+  useEscapeClose(open, () => setOpen(false))
 
   function handleOpen() {
     setEmail(contatoEmail || "")
@@ -58,14 +61,14 @@ export default function SendSurveyButton({ visitaId, empresaNome, contatoEmail, 
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-label="Enviar Pesquisa de Satisfação">
           <div className="absolute inset-0 bg-black/50" onClick={() => setOpen(false)} />
           <div className="relative bg-white dark:bg-slate-900 rounded-xl shadow-xl w-full max-w-md mx-4">
             <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
               <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">
-                Enviar Pesquisa de Satisfacao
+                Enviar Pesquisa de Satisfação
               </h2>
-              <button onClick={() => setOpen(false)} className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+              <button onClick={() => setOpen(false)} aria-label="Fechar" className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
                 <X size={20} className="text-slate-500" />
               </button>
             </div>

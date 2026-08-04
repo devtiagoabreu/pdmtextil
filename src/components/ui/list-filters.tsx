@@ -125,7 +125,7 @@ export default function ListFilters({ config, data, filterState, placeholder }: 
             className="pl-9 h-9 text-sm"
           />
           {search && (
-            <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+            <button onClick={() => setSearch("")} aria-label="Limpar busca" className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
               <X size={14} />
             </button>
           )}
@@ -155,13 +155,13 @@ export default function ListFilters({ config, data, filterState, placeholder }: 
               className="h-9 text-sm w-[150px]"
               placeholder="De"
             />
-            <span className="text-slate-400 text-xs">ate</span>
+            <span className="text-slate-400 text-xs">até</span>
             <Input
               type="date"
               value={dateTo}
               onChange={(e) => setDateTo(e.target.value)}
               className="h-9 text-sm w-[150px]"
-              placeholder="Ate"
+              placeholder="Até"
             />
           </div>
         )}
