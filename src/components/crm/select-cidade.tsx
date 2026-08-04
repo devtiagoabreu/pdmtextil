@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { QuickCreateCidade } from "./quick-create-cidade"
 
 type Cidade = { id: number; nome: string; estadoId: number }
@@ -13,27 +13,17 @@ type Props = {
 }
 
 export function SelectCidade({ value, onChange, estadoId, className }: Props) {
-  const [cidades, setCidades] = useState<Cidade[]>([])
+  const queryClient = useQueryClient()
 
-  const fetchCidades = useCallback(async () => {
-    if (!estadoId) {
-      setCidades([])
-      return
-    }
-    try {
-      const res = await fetch(`/api/crm/cidades?estadoId=${estadoId}`)
-      if (res.ok) {
-        const data = await res.json()
-        setCidades(data)
-      }
-    } catch {}
-  }, [estadoId])
-
-  useEffect(() => { fetchCidades() }, [fetchCidades])
+  const { data: cidades = [] } = useQuery<Cidade[]>({
+    queryKey: ["crm-cidades", estadoId],
+    queryFn: () => fetch(`/api/crm/cidades?estadoId=${estadoId}`).then((r: any) => r.json()),
+    enabled: !!estadoId,
+  })
 
   function handleCidadeCreated(_id: number, nome: string) {
     onChange(nome)
-    fetchCidades()
+    queryClient.invalidateQueries({ queryKey: ["crm-cidades", estadoId] })
   }
 
   return (

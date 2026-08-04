@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { QuickCreateEstado } from "./quick-create-estado"
 
 type Estado = { id: number; nome: string; uf: string }
@@ -12,23 +12,16 @@ type Props = {
 }
 
 export function SelectUf({ value, onChange, className }: Props) {
-  const [estados, setEstados] = useState<Estado[]>([])
+  const queryClient = useQueryClient()
 
-  const fetchEstados = useCallback(async () => {
-    try {
-      const res = await fetch("/api/crm/estados")
-      if (res.ok) {
-        const data = await res.json()
-        setEstados(data)
-      }
-    } catch {}
-  }, [])
-
-  useEffect(() => { fetchEstados() }, [fetchEstados])
+  const { data: estados = [] } = useQuery<Estado[]>({
+    queryKey: ["crm-estados"],
+    queryFn: () => fetch("/api/crm/estados").then((r: any) => r.json()),
+  })
 
   function handleEstadoCreated(_id: number, uf: string) {
     onChange(uf)
-    fetchEstados()
+    queryClient.invalidateQueries({ queryKey: ["crm-estados"] })
   }
 
   return (
