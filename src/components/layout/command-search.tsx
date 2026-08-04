@@ -48,6 +48,9 @@ export function CommandSearch() {
     router.push(item.href)
   }, [router])
 
+  const listboxId = "command-search-listbox"
+  const expanded = isOpen && results.length > 0
+
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === "ArrowDown") {
       e.preventDefault()
@@ -70,6 +73,12 @@ export function CommandSearch() {
       <input
         ref={inputRef}
         type="search"
+        role="combobox"
+        aria-label="Buscar telas e cadastros"
+        aria-expanded={expanded}
+        aria-controls={listboxId}
+        aria-autocomplete="list"
+        aria-activedescendant={expanded ? `command-search-option-${selectedIndex}` : undefined}
         placeholder="Buscar telas, cadastros..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}
@@ -81,11 +90,17 @@ export function CommandSearch() {
       {isOpen && results.length > 0 && (
         <div
           ref={dropdownRef}
+          id={listboxId}
+          role="listbox"
+          aria-label="Resultados da busca"
           className="absolute left-0 top-full mt-1 w-full min-w-[320px] rounded-xl border border-slate-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900 animate-fade-in z-50 overflow-hidden"
         >
           {results.map((item: any, index: any) => (
             <button
               key={item.id}
+              id={`command-search-option-${index}`}
+              role="option"
+              aria-selected={index === selectedIndex}
               onClick={() => navigate(item)}
               onMouseEnter={() => setSelectedIndex(index)}
               className={`w-full flex items-start gap-3 px-4 py-3 text-left transition-colors ${
