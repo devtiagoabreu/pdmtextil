@@ -44,6 +44,7 @@ export function Header({ onMenuClick, onToggleSidebar, sidebarCollapsed }: Heade
   }, [])
 
   const notifRef = useRef<HTMLDivElement>(null)
+  const userMenuRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -56,6 +57,18 @@ export function Header({ onMenuClick, onToggleSidebar, sidebarCollapsed }: Heade
     }
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [showNotifications])
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setShowUserMenu(false)
+      }
+    }
+    if (showUserMenu) {
+      document.addEventListener("mousedown", handleClickOutside)
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [showUserMenu])
 
   useEffect(() => {
     fetchNotificacoes()
@@ -196,7 +209,7 @@ export function Header({ onMenuClick, onToggleSidebar, sidebarCollapsed }: Heade
         </div>
 
         {/* User Menu */}
-        <div className="relative">
+        <div className="relative" ref={userMenuRef}>
           <button
             onClick={() => { setShowUserMenu(!showUserMenu); setShowNotifications(false) }}
             className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
