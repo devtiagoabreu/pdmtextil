@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { Search, Plus, X, Loader2 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -41,16 +42,12 @@ export function ClienteAutocomplete({
   onCnpjChange,
 }: ClienteAutocompleteProps) {
   const [query, setQuery] = useState(value)
-  const [results, setResults] = useState<Cliente[]>([])
   const [isOpen, setIsOpen] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
   const [showCnpjInput, setShowCnpjInput] = useState(false)
   const [cnpjQuery, setCnpjQuery] = useState(cnpjValue || "")
-  const [cnpjResults, setCnpjResults] = useState<Cliente[]>([])
-  const [isCnpjLoading, setIsCnpjLoading] = useState(false)
+  const [debouncedQuery, setDebouncedQuery] = useState("")
+  const [debouncedCnpj, setDebouncedCnpj] = useState("")
   const [isCnpjOpen, setIsCnpjOpen] = useState(false)
-  const debounceRef = useRef<NodeJS.Timeout>(null!)
-  const debounceCnpjRef = useRef<NodeJS.Timeout>(null!)
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -60,6 +57,16 @@ export function ClienteAutocomplete({
   useEffect(() => {
     if (cnpjValue !== undefined) setCnpjQuery(cnpjValue)
   }, [cnpjValue])
+
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedQuery(query.length >= 2 ? query : ""), 300)
+    return () => clearTimeout(t)
+  }, [query])
+
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedCnpj(cnpjQuery.length >= 2 ? cnpjQuery : ""), 300)
+    return () => clearTimeout(t)
+  }, [cnpjQuery])
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -72,66 +79,35 @@ export function ClienteAutocomplete({
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
-  const searchClientes = async (q: string) => {
-    if (q.length < 2) {
-      setResults([])
-      return
-    }
-    setIsLoading(true)
-    try {
-      const res = await fetch(`/api/clientes?q=${encodeURIComponent(q)}`)
-      if (res.ok) {
-        const data = await res.json()
-        setResults(data)
-        setIsOpen(true)
-      }
-    } catch (err) {
-      console.error("Erro ao buscar clientes:", err)
-    } finally {
-      setIsLoading(false)
-    }
-  }
+  const searchQuery = useQuery({
+    queryKey: ["clientes-autocomplete", debouncedQuery],
+    queryFn: () => fetch(`/api/clientes?q=${encodeURIComponent(debouncedQuery)}`).then((r: any) => r.json()),
+    enabled: !!debouncedQuery,
+  })
 
-  const searchCnpj = async (q: string) => {
-    if (q.length < 2) {
-      setCnpjResults([])
-      return
-    }
-    setIsCnpjLoading(true)
-    try {
-      const res = await fetch(`/api/clientes?q=${encodeURIComponent(q)}`)
-      if (res.ok) {
-        const data = await res.json()
-        setCnpjResults(data)
-        setIsCnpjOpen(true)
-      }
-    } catch (err) {
-      console.error("Erro ao buscar CNPJ:", err)
-    } finally {
-      setIsCnpjLoading(false)
-    }
-  }
+  const cnpjSearchQuery = useQuery({
+    queryKey: ["clientes-autocomplete-cnpj", debouncedCnpj],
+    queryFn: () => fetch(`/api/clientes?q=${encodeURIComponent(debouncedCnpj)}`).then((r: any) => r.json()),
+    enabled: !!debouncedCnpj,
+  })
+
+  const results = debouncedQuery ? (searchQuery.data ?? []) : []
+  const isLoading = searchQuery.isLoading || searchQuery.isFetching
+  const cnpjResults = debouncedCnpj ? (cnpjSearchQuery.data ?? []) : []
+  const isCnpjLoading = cnpjSearchQuery.isLoading || cnpjSearchQuery.isFetching
 
   const handleQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value
     setQuery(val)
     onChange(val)
-
-    if (debounceRef.current) clearTimeout(debounceRef.current)
-    debounceRef.current = setTimeout(() => {
-      searchClientes(val)
-    }, 300)
+    setIsOpen(true)
   }
 
   const handleCnpjChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value.replace(/[^a-zA-Z0-9]/g, "")
     setCnpjQuery(val)
     if (onCnpjChange) onCnpjChange(val)
-
-    if (debounceCnpjRef.current) clearTimeout(debounceCnpjRef.current)
-    debounceCnpjRef.current = setTimeout(() => {
-      searchCnpj(val)
-    }, 300)
+    setIsCnpjOpen(true)
   }
 
   const handleSelect = (cliente: Cliente) => {
@@ -148,7 +124,6 @@ export function ClienteAutocomplete({
   const handleClear = () => {
     setQuery("")
     onChange("")
-    setResults([])
     setIsOpen(false)
     if (onCnpjChange) onCnpjChange("")
   }
@@ -162,8 +137,13 @@ export function ClienteAutocomplete({
             <Input
               value={query}
               onChange={handleQueryChange}
-              onFocus={() => results.length > 0 && setIsOpen(true)}
+              onFocus={() => setIsOpen(true)}
               placeholder="Digite o nome do cliente..."
+              role="combobox"
+              aria-label="Buscar cliente"
+              aria-expanded={isOpen && results.length > 0}
+              aria-controls="cliente-autocomplete-listbox"
+              aria-autocomplete="list"
               className={cn("pl-9 pr-8", error && "border-red-500")}
             />
             {query && (
@@ -188,10 +168,11 @@ export function ClienteAutocomplete({
         </div>
 
         {isOpen && results.length > 0 && (
-          <div className="absolute z-50 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg max-h-60 overflow-auto">
+          <div id="cliente-autocomplete-listbox" role="listbox" aria-label="Clientes encontrados" className="absolute z-50 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg max-h-60 overflow-auto">
             {results.map((cliente: any) => (
               <button
                 key={cliente.id}
+                role="option"
                 onClick={() => handleSelect(cliente)}
                 className="w-full text-left px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 flex justify-between items-center"
               >
@@ -211,8 +192,13 @@ export function ClienteAutocomplete({
           <Input
             value={cnpjQuery}
             onChange={handleCnpjChange}
-            onFocus={() => cnpjResults.length > 0 && setIsCnpjOpen(true)}
+            onFocus={() => setIsCnpjOpen(true)}
             placeholder="Digite o CNPJ..."
+            role="combobox"
+            aria-label="Buscar por CNPJ"
+            aria-expanded={isCnpjOpen && cnpjResults.length > 0}
+            aria-controls="cliente-cnpj-listbox"
+            aria-autocomplete="list"
             className="font-mono"
           />
           {isCnpjLoading && (
@@ -221,10 +207,11 @@ export function ClienteAutocomplete({
         </div>
 
         {isCnpjOpen && cnpjResults.length > 0 && (
-          <div className="absolute z-50 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg max-h-60 overflow-auto">
+          <div id="cliente-cnpj-listbox" role="listbox" aria-label="Clientes encontrados por CNPJ" className="absolute z-50 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg max-h-60 overflow-auto">
             {cnpjResults.map((cliente: any) => (
               <button
                 key={cliente.id}
+                role="option"
                 onClick={() => handleSelect(cliente)}
                 className="w-full text-left px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 flex justify-between items-center"
               >
