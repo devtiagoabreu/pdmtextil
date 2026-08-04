@@ -1,6 +1,7 @@
 "use client"
 
 import {Suspense, useState, useEffect, useRef} from "react"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { AlertTriangle, User } from "lucide-react"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
@@ -28,6 +29,7 @@ const TIPO_OPTIONS = [
 
 function NovaVisitaPageContent() {
   const router = useRouter()
+  const queryClient = useQueryClient()
   const { data: session } = useSession()
   const isGoogleUser = (session?.user as any)?.provider === "google"
   const pathname = usePathname()
@@ -35,10 +37,6 @@ function NovaVisitaPageContent() {
   const info = getInfoContent(pathname)
   const dataParam = searchParams.get("data")
   const [tipoEntidade, setTipoEntidade] = useState<"CLIENTE" | "PESSOA" | "AVULSA" | "">("")
-  const [empresas, setEmpresas] = useState<any[]>([])
-  const [clientesList, setClientesList] = useState<any[]>([])
-  const [oportunidades, setOportunidades] = useState<any[]>([])
-  const [contatos, setContatos] = useState<any[]>([])
   const [saving, setSaving] = useState(false)
   const [fotos, setFotos] = useState<string[]>([])
   const [conflictos, setConflictos] = useState<any[]>([])
@@ -46,9 +44,7 @@ function NovaVisitaPageContent() {
   const [recorrenciaFim, setRecorrenciaFim] = useState("")
   const [syncGoogle, setSyncGoogle] = useState(false)
   const conflictTimerRef = useRef<NodeJS.Timeout | null>(null)
-  const [empresaEndereco, setEmpresaEndereco] = useState<any>({})
   const [estadoId, setEstadoId] = useState<number | null>(null)
-  const [estados, setEstados] = useState<{ id: number; uf: string }[]>([])
   const [form, setForm] = useState({
     empresaId: "",
     clienteId: "",
@@ -69,56 +65,88 @@ function NovaVisitaPageContent() {
     duracaoEstimada: "",
   })
 
+  const { data: empresas = [] } = useQuery<any[]>({
+    queryKey: ["crm-pessoas"],
+    queryFn: () => fetch("/api/crm/pessoas").then((r: any) => r.json()),
+  })
+
+  const { data: oportunidades = [] } = useQuery<any[]>({
+    queryKey: ["crm-oportunidades"],
+    queryFn: () => fetch("/api/crm/oportunidades").then((r: any) => r.json()),
+  })
+
+  const { data: clientesList = [] } = useQuery<any[]>({
+    queryKey: ["clientes"],
+    queryFn: () => fetch("/api/clientes").then((r: any) => r.json()),
+  })
+
+  const { data: estados = [] } = useQuery<{ id: number; uf: string }[]>({
+    queryKey: ["crm-estados"],
+    queryFn: () => fetch("/api/crm/estados").then((r: any) => r.json()),
+  })
+
+  const contatosQuery = useQuery<any[]>({
+    queryKey: ["visita-contatos", tipoEntidade, form.empresaId, form.clienteId],
+    queryFn: async () => {
+      if (tipoEntidade === "PESSOA" && form.empresaId) {
+        const res = await fetch(`/api/crm/pessoas/${form.empresaId}`)
+        const data = await res.json()
+        return Array.isArray(data.contatos) ? data.contatos : []
+      }
+      if (tipoEntidade === "CLIENTE" && form.clienteId) {
+        const res = await fetch(`/api/crm/contatos?clienteId=${form.clienteId}`)
+        const data = await res.json()
+        return Array.isArray(data) ? data : []
+      }
+      return []
+    },
+    enabled: (tipoEntidade === "PESSOA" && !!form.empresaId) || (tipoEntidade === "CLIENTE" && !!form.clienteId),
+  })
+
+  const enderecoQuery = useQuery<any>({
+    queryKey: ["visita-endereco", tipoEntidade, form.empresaId, form.clienteId],
+    queryFn: async () => {
+      if (tipoEntidade === "PESSOA" && form.empresaId) {
+        const res = await fetch(`/api/crm/pessoas/${form.empresaId}`)
+        const data = await res.json()
+        return {
+          endereco: data.endereco || "",
+          numero: data.numero || "",
+          complemento: data.complemento || "",
+          bairro: data.bairro || "",
+          cidade: data.cidade || "",
+          uf: data.uf || "",
+          cep: data.cep || "",
+        }
+      }
+      if (tipoEntidade === "CLIENTE" && form.clienteId) {
+        const res = await fetch(`/api/clientes`)
+        const data = await res.json()
+        const cliente = Array.isArray(data) ? data.find((c: any) => String(c.id) === form.clienteId) : null
+        if (cliente) {
+          return {
+            endereco: cliente.endereco || "",
+            numero: "",
+            complemento: "",
+            bairro: "",
+            cidade: cliente.cidade || "",
+            uf: cliente.uf || "",
+            cep: "",
+          }
+        }
+        return {}
+      }
+      return {}
+    },
+    enabled: (tipoEntidade === "PESSOA" && !!form.empresaId) || (tipoEntidade === "CLIENTE" && !!form.clienteId),
+  })
+
+  const contatos = contatosQuery.data ?? []
+  const empresaEndereco = enderecoQuery.data ?? {}
+
   function setField(field: string, value: string) {
     setForm(prev => ({ ...prev, [field]: value }))
   }
-
-  useEffect(() => {
-    async function load() {
-      try {
-        const [empresasRes, oportunidadesRes, clientesRes] = await Promise.allSettled([
-          fetch("/api/crm/pessoas").then((r: any) => {
-            if (!r.ok) throw new Error(`pessoas ${r.status}`)
-            return r.json()
-          }),
-          fetch("/api/crm/oportunidades").then((r: any) => {
-            if (!r.ok) throw new Error(`oportunidades ${r.status}`)
-            return r.json()
-          }),
-          fetch("/api/clientes").then((r: any) => {
-            if (!r.ok) throw new Error(`clientes ${r.status}`)
-            return r.json()
-          }),
-        ])
-        if (empresasRes.status === "fulfilled" && Array.isArray(empresasRes.value)) setEmpresas(empresasRes.value)
-        else console.error("[visitas/novo] pessoas failed:", empresasRes.status === "rejected" ? empresasRes.reason : empresasRes.value)
-        if (oportunidadesRes.status === "fulfilled" && Array.isArray(oportunidadesRes.value)) setOportunidades(oportunidadesRes.value)
-        else console.error("[visitas/novo] oportunidades failed:", oportunidadesRes.status === "rejected" ? oportunidadesRes.reason : oportunidadesRes.value)
-        if (clientesRes.status === "fulfilled" && Array.isArray(clientesRes.value)) setClientesList(clientesRes.value)
-        else console.error("[visitas/novo] clientes failed:", clientesRes.status === "rejected" ? clientesRes.reason : clientesRes.value)
-      } catch (e) {
-        console.error("[visitas/novo] load error:", e)
-        toast.error("Erro ao carregar dados do formulário")
-      }
-    }
-    load()
-  }, [])
-
-  useEffect(() => {
-    if (tipoEntidade === "PESSOA") {
-      loadContatos(form.empresaId)
-      loadEmpresaEndereco(form.empresaId)
-    } else if (tipoEntidade === "CLIENTE") {
-      loadContatosCliente()
-      loadClienteEndereco(form.clienteId)
-    } else {
-      setContatos([])
-    }
-  }, [form.empresaId, form.clienteId, tipoEntidade])
-
-  useEffect(() => {
-    fetch("/api/crm/estados").then((r: any) => r.json()).then(setEstados).catch(console.error)
-  }, [])
 
   useEffect(() => {
     if (form.uf) {
@@ -144,28 +172,16 @@ function NovaVisitaPageContent() {
     }, 500)
   }, [form.dataVisita, form.hora])
 
-  async function loadEmpresas() {
-    try {
-      const res = await fetch("/api/crm/pessoas")
-      const data = await res.json()
-      if (Array.isArray(data)) setEmpresas(data)
-    } catch {}
+  function loadEmpresas() {
+    queryClient.invalidateQueries({ queryKey: ["crm-pessoas"] })
   }
 
-  async function loadClientes() {
-    try {
-      const res = await fetch("/api/clientes")
-      const data = await res.json()
-      if (Array.isArray(data)) setClientesList(data)
-    } catch {}
+  function loadClientes() {
+    queryClient.invalidateQueries({ queryKey: ["clientes"] })
   }
 
-  async function loadOportunidades() {
-    try {
-      const res = await fetch("/api/crm/oportunidades")
-      const data = await res.json()
-      if (Array.isArray(data)) setOportunidades(data)
-    } catch {}
+  function loadOportunidades() {
+    queryClient.invalidateQueries({ queryKey: ["crm-oportunidades"] })
   }
 
   function handleEmpresaCreated(id: number, razaoSocial: string) {
@@ -182,71 +198,13 @@ function NovaVisitaPageContent() {
   }
 
   function handleContatoCreated(id: number) {
-    if (tipoEntidade === "PESSOA") loadContatos(form.empresaId)
-    else if (tipoEntidade === "CLIENTE") loadContatosCliente()
+    queryClient.invalidateQueries({ queryKey: ["visita-contatos"] })
     setField("contatoId", String(id))
   }
 
   function handleOportunidadeCreated(id: number) {
     loadOportunidades()
     setField("oportunidadeId", String(id))
-  }
-
-  async function loadContatos(empresaId: string) {
-    if (!empresaId) { setContatos([]); return }
-    try {
-      const res = await fetch(`/api/crm/pessoas/${empresaId}`)
-      const data = await res.json()
-      if (Array.isArray(data.contatos)) setContatos(data.contatos)
-      else setContatos([])
-    } catch { setContatos([]) }
-  }
-
-  async function loadContatosCliente() {
-    if (!form.clienteId) { setContatos([]); return }
-    try {
-      const res = await fetch(`/api/crm/contatos?clienteId=${form.clienteId}`)
-      const data = await res.json()
-      if (Array.isArray(data)) setContatos(data)
-      else setContatos([])
-    } catch { setContatos([]) }
-  }
-
-  async function loadEmpresaEndereco(empresaId: string) {
-    if (!empresaId) { setEmpresaEndereco({}); return }
-    try {
-      const res = await fetch(`/api/crm/pessoas/${empresaId}`)
-      const data = await res.json()
-      setEmpresaEndereco({
-        endereco: data.endereco || "",
-        numero: data.numero || "",
-        complemento: data.complemento || "",
-        bairro: data.bairro || "",
-        cidade: data.cidade || "",
-        uf: data.uf || "",
-        cep: data.cep || "",
-      })
-    } catch { setEmpresaEndereco({}) }
-  }
-
-  async function loadClienteEndereco(clienteId: string) {
-    if (!clienteId) { setEmpresaEndereco({}); return }
-    try {
-      const res = await fetch(`/api/clientes`)
-      const data = await res.json()
-      const cliente = Array.isArray(data) ? data.find((c: any) => String(c.id) === clienteId) : null
-      if (cliente) {
-        setEmpresaEndereco({
-          endereco: cliente.endereco || "",
-          numero: "",
-          complemento: "",
-          bairro: "",
-          cidade: cliente.cidade || "",
-          uf: cliente.uf || "",
-          cep: "",
-        })
-      }
-    } catch { setEmpresaEndereco({}) }
   }
 
   function copiarEnderecoEmpresa() {

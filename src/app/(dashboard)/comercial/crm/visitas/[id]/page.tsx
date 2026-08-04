@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect, useCallback, useRef } from "react"
+import { useState, useEffect, useRef } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { useSession } from "next-auth/react"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
@@ -37,8 +38,6 @@ export default function DetalheVisitaPage() {
   const info = getInfoContent(pathname)
   const params = useParams()
   const { getLabel, getColor } = useStatuses("VISITA")
-  const [visita, setVisita] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
   const [showDelete, setShowDelete] = useState(false)
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [editing, setEditing] = useState(false)
@@ -47,19 +46,33 @@ export default function DetalheVisitaPage() {
   const [conflictos, setConflictos] = useState<any[]>([])
   const conflictTimerRef = useRef<NodeJS.Timeout | null>(null)
   const [estadoId, setEstadoId] = useState<number | null>(null)
-  const [estados, setEstados] = useState<{ id: number; uf: string }[]>([])
   const [empresaEndereco, setEmpresaEndereco] = useState<Record<string, string>>({})
   const [checkLoading, setCheckLoading] = useState<"in" | "out" | null>(null)
   const [showVincular, setShowVincular] = useState(false)
 
-  const fetchEstados = useCallback(async () => {
-    try {
-      const res = await fetch("/api/crm/estados")
-      if (res.ok) setEstados(await res.json())
-    } catch {}
-  }, [])
+  const { data: estados = [] } = useQuery<{ id: number; uf: string }[]>({
+    queryKey: ["crm-estados"],
+    queryFn: () => fetch("/api/crm/estados").then((r: any) => r.json()),
+  })
 
-  useEffect(() => { fetchEstados() }, [fetchEstados])
+  const visitaQuery = useQuery<any>({
+    queryKey: ["visita", params.id],
+    queryFn: async () => {
+      const res = await fetch(`/api/crm/visitas/${params.id}`)
+      if (!res.ok) throw new Error("Erro ao carregar visita")
+      return res.json()
+    },
+  })
+
+  const visita = visitaQuery.data ?? null
+  const loading = visitaQuery.isLoading && !visita
+
+  useEffect(() => {
+    if (visitaQuery.data) {
+      setForm(visitaQuery.data)
+      setFotos(visitaQuery.data.fotos || [])
+    }
+  }, [visitaQuery.data])
 
   useEffect(() => {
     if (form.uf) {
@@ -86,20 +99,8 @@ export default function DetalheVisitaPage() {
   }, [form.dataVisita, form.hora, editing, params.id])
 
   async function loadVisita() {
-    try {
-      const res = await fetch(`/api/crm/visitas/${params.id}`)
-      const data = await res.json()
-      setVisita(data)
-      setForm(data)
-      setFotos(data.fotos || [])
-    } catch {
-      toast.error("Erro ao carregar visita")
-    } finally {
-      setLoading(false)
-    }
+    visitaQuery.refetch()
   }
-
-  useEffect(() => { loadVisita() }, [params.id])
 
   function setField(field: string, value: any) {
     setForm((prev: any) => ({ ...prev, [field]: value }))
