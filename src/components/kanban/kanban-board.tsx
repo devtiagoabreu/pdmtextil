@@ -1,7 +1,8 @@
 "use client"
 
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState } from "react"
 import { useSession } from "next-auth/react"
+import { useQuery } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { DndContext, DragOverlay, useDraggable, useDroppable, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
 import { Loader2, Calendar, MessageSquare, FileText, ExternalLink } from "lucide-react"
@@ -161,7 +162,6 @@ export function KanbanBoard() {
 
   const [statusList, setStatusList] = useState<StatusCol[]>([])
   const [solicitacoes, setSolicitacoes] = useState<Solicitacao[]>([])
-  const [loading, setLoading] = useState(true)
   const [activeCard, setActiveCard] = useState<Solicitacao | null>(null)
 
   const [chatTarget, setChatTarget] = useState<Solicitacao | null>(null)
@@ -182,23 +182,32 @@ export function KanbanBoard() {
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
   )
 
-  const carregar = useCallback(async () => {
-    setLoading(true)
-    try {
+  const { data, isLoading, error } = useQuery<{ statusList: StatusCol[]; solicitacoes: Solicitacao[] }>({
+    queryKey: ["kanban-board"],
+    queryFn: async () => {
       const [statusRes, solRes] = await Promise.all([
         fetch("/api/admin/status?tipo=SOLICITACAO_DESENVOLVIMENTO").then((r: any) => r.json()),
         fetch("/api/solicitacoes").then((r: any) => r.json()),
       ])
-      if (Array.isArray(statusRes)) setStatusList(statusRes)
-      if (Array.isArray(solRes)) setSolicitacoes(solRes)
-    } catch {
-      toast.error("Erro ao carregar dados")
-    } finally {
-      setLoading(false)
-    }
-  }, [])
+      return {
+        statusList: Array.isArray(statusRes) ? statusRes : [],
+        solicitacoes: Array.isArray(solRes) ? solRes : [],
+      }
+    },
+  })
 
-  useEffect(() => { carregar() }, [carregar])
+  useEffect(() => {
+    if (error) toast.error("Erro ao carregar dados")
+  }, [error])
+
+  useEffect(() => {
+    if (data) {
+      setStatusList(data.statusList)
+      setSolicitacoes(data.solicitacoes)
+    }
+  }, [data])
+
+  const loading = isLoading && !data
 
   async function abrirChat(s: Solicitacao) {
     setChatTarget(s)

@@ -1,8 +1,9 @@
 "use client"
 
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
+import { useQuery } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { DndContext, DragOverlay, useDraggable, useDroppable, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
 import { Loader2, Calendar, ExternalLink, Package, AlertTriangle } from "lucide-react"
@@ -169,7 +170,6 @@ export function KanbanAmostras() {
 
   const [statusList, setStatusList] = useState<StatusCol[]>([])
   const [amostras, setAmostras] = useState<AmostraCard[]>([])
-  const [loading, setLoading] = useState(true)
   const [activeCard, setActiveCard] = useState<AmostraCard | null>(null)
   const [motivoModal, setMotivoModal] = useState<{ amostra: AmostraCard; novoStatus: string } | null>(null)
   const [motivoText, setMotivoText] = useState("")
@@ -178,16 +178,16 @@ export function KanbanAmostras() {
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
   )
 
-  const carregar = useCallback(async () => {
-    setLoading(true)
-    try {
+  const { data, isLoading, error } = useQuery<{ statusList: StatusCol[]; amostras: AmostraCard[] }>({
+    queryKey: ["kanban-amostras"],
+    queryFn: async () => {
       const [statusRes, amostrasRes] = await Promise.all([
         fetch("/api/admin/status?tipo=AMOSTRA").then((r: any) => r.json()),
         fetch("/api/amostras").then((r: any) => r.json()),
       ])
-      if (Array.isArray(statusRes)) setStatusList(statusRes)
+      let flat: AmostraCard[] = []
       if (amostrasRes && Array.isArray(amostrasRes.tecidoCru)) {
-        const flat: AmostraCard[] = [
+        flat = [
           ...amostrasRes.tecidoCru.map((a: any) => ({
             ...a,
             tipo: "tecido_cru" as const,
@@ -199,18 +199,28 @@ export function KanbanAmostras() {
             data: a.data || a.createdAt,
           })) : []),
         ]
-        setAmostras(flat)
       } else if (Array.isArray(amostrasRes)) {
-        setAmostras(amostrasRes)
+        flat = amostrasRes
       }
-    } catch {
-      toast.error("Erro ao carregar dados")
-    } finally {
-      setLoading(false)
-    }
-  }, [])
+      return {
+        statusList: Array.isArray(statusRes) ? statusRes : [],
+        amostras: flat,
+      }
+    },
+  })
 
-  useEffect(() => { carregar() }, [carregar])
+  useEffect(() => {
+    if (error) toast.error("Erro ao carregar dados")
+  }, [error])
+
+  useEffect(() => {
+    if (data) {
+      setStatusList(data.statusList)
+      setAmostras(data.amostras)
+    }
+  }, [data])
+
+  const loading = isLoading && !data
 
   const colunas = statusList
     .map((col: any) => ({
