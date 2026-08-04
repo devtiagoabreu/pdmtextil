@@ -604,13 +604,13 @@ export default function DetalheSolicitacaoPage() {
         </h2>
         {sol.historicoComunicacao && sol.historicoComunicacao.length > 0 ? (
           <div className="space-y-4 max-h-96 overflow-y-auto">
-            {sol.historicoComunicacao.map((h: any, idx: number) => (
-              <div key={idx} className="border-l-2 border-slate-200 dark:border-slate-700 pl-3">
+            {sol.historicoComunicacao.map((h: any) => (
+              <div key={h.id} className="border-l-2 border-slate-200 dark:border-slate-700 pl-3">
                 <p className="text-sm font-medium">{h.acao}</p>
                 {h.mensagens && h.mensagens.length > 0 && (
                   <ul className="text-xs text-slate-600 mt-1">
-                    {h.mensagens.map((m: string, i: number) => (
-                      <li key={i}>⬢ {m}</li>
+                    {h.mensagens.map((m: string) => (
+                      <li key={m}>⬢ {m}</li>
                     ))}
                   </ul>
                 )}

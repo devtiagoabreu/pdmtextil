@@ -143,9 +143,9 @@ function DraggableAmostraCard({ amostra }: { amostra: AmostraCard }) {
 
       {amostra.links && amostra.links.length > 0 && (
         <div className="flex flex-col gap-0.5 mt-1.5 border-t border-slate-100 dark:border-slate-700 pt-1.5">
-          {amostra.links.map((link: any, i: any) => (
+          {amostra.links.map((link: any) => (
             <a
-              key={i}
+              key={link.url}
               href={link.url}
               target="_blank"
               rel="noopener noreferrer"

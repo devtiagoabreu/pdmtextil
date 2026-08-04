@@ -248,7 +248,7 @@ export default function RelatorioTempoStatus() {
                           ? (t.duracaoMs / r.timeline.reduce((a: any, x: any) => a + x.duracaoMs, 0)) * 100
                           : 0
                         return (
-                          <div key={i} className="flex items-center gap-3">
+                          <div key={`${t.entrada}-${t.status}`} className="flex items-center gap-3">
                             <div className="w-36 shrink-0 text-right">
                               <span className="text-xs font-medium" style={{ color: cor }}>{t.statusLabel}</span>
                             </div>

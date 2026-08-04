@@ -401,7 +401,7 @@ export default function FioFormPage() {
           {fio.links && fio.links.length > 0 && (
             <div className="space-y-1">
               {fio.links.map((link: any, idx: any) => (
-                <div key={idx} className="flex items-center justify-between rounded-md border border-slate-200 dark:border-slate-700 px-3 py-2">
+                <div key={link.url} className="flex items-center justify-between rounded-md border border-slate-200 dark:border-slate-700 px-3 py-2">
                   <div className="text-sm truncate">
                     <span className="font-medium">{link.descricao || "Link"}</span>
                     <span className="text-slate-500 ml-2">{link.url}</span>

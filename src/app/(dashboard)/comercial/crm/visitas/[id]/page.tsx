@@ -756,7 +756,7 @@ export default function DetalheVisitaPage() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {visita.fotos.map((url: string, i: number) => (
                   <a
-                    key={i}
+                    key={url}
                     href={url}
                     target="_blank"
                     rel="noopener noreferrer"

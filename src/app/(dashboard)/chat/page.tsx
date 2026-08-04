@@ -431,7 +431,7 @@ function ConversationView({ chatId, onBack }: { chatId: number; onBack: () => vo
         const isKnown = allUsersArr.some((u: any) => u.name.toLowerCase() === nome.toLowerCase())
         if (isKnown) {
           return (
-            <span key={i} className="font-semibold text-blue-500 dark:text-blue-400">
+            <span key={`${i}-${part}`} className="font-semibold text-blue-500 dark:text-blue-400">
               {part}
             </span>
           )

@@ -170,8 +170,8 @@ export default function DetalheRequisicaoAmostraComercialPage() {
           </h2>
           {historico.length > 0 ? (
             <div className="space-y-4 max-h-96 overflow-y-auto">
-              {historico.map((h: any, idx: number) => (
-                <div key={idx} className="border-l-2 border-slate-200 dark:border-slate-700 pl-3">
+              {historico.map((h: any) => (
+                <div key={h.id ?? `${h.data}-${h.acao || h.status}`} className="border-l-2 border-slate-200 dark:border-slate-700 pl-3">
                   <p className="text-sm font-medium">{h.acao || h.status || "Atualização"}</p>
                   {h.descricao && <p className="text-xs text-slate-600 mt-0.5">{h.descricao}</p>}
                   {h.observacao && <p className="text-xs text-slate-500 mt-0.5 italic">&ldquo;{h.observacao}&rdquo;</p>}

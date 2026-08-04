@@ -204,7 +204,7 @@ export default function EditarLicaoPage() {
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Links POP</label>
             {linksPop.map((link: any, i: any) => (
-              <div key={i} className="flex items-center gap-2 text-sm bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg mb-2">
+              <div key={link.url} className="flex items-center gap-2 text-sm bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg mb-2">
                 <span className="flex-1 truncate">{link.label}</span>
                 <button type="button" onClick={() => setLinksPop(linksPop.filter((_: any, j: any) => j !== i))} className="text-red-400 hover:text-red-600"><X size={14} /></button>
               </div>
@@ -218,7 +218,7 @@ export default function EditarLicaoPage() {
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Links Vídeos</label>
             {linksVideo.map((link: any, i: any) => (
-              <div key={i} className="flex items-center gap-2 text-sm bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg mb-2">
+              <div key={link.url} className="flex items-center gap-2 text-sm bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg mb-2">
                 <span className="flex-1 truncate">{link.label}</span>
                 <button type="button" onClick={() => setLinksVideo(linksVideo.filter((_: any, j: any) => j !== i))} className="text-red-400 hover:text-red-600"><X size={14} /></button>
               </div>

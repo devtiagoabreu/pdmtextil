@@ -252,8 +252,8 @@ export default function LicaoDetailPage() {
                   POPs Relacionados
                 </h3>
                 <ul className="space-y-2">
-                  {licao.linksPop.map((link: any, i: any) => (
-                    <li key={i}>
+                  {licao.linksPop.map((link: any) => (
+                    <li key={link.url}>
                       <a
                         href={link.url}
                         target="_blank"
@@ -275,8 +275,8 @@ export default function LicaoDetailPage() {
                   Vídeos Tutoriais
                 </h3>
                 <ul className="space-y-2">
-                  {licao.linksVideo.map((link: any, i: any) => (
-                    <li key={i}>
+                  {licao.linksVideo.map((link: any) => (
+                    <li key={link.url}>
                       <a
                         href={link.url}
                         target="_blank"

@@ -13,6 +13,7 @@ import Link from "next/link"
 import { toast } from "sonner"
 
 interface ItemLinha {
+  id: string
   codigoProduto: string
   ordem: string
   artigo: string
@@ -22,7 +23,15 @@ interface ItemLinha {
 }
 
 function itemVazio(): ItemLinha {
-  return { codigoProduto: "", ordem: "", artigo: "", cor: "", desenho: "", quantidade: "" }
+  return {
+    id: typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : String(Date.now() + Math.random()),
+    codigoProduto: "",
+    ordem: "",
+    artigo: "",
+    cor: "",
+    desenho: "",
+    quantidade: "",
+  }
 }
 
 export default function NovaRequisicaoCortePage() {
@@ -116,7 +125,7 @@ export default function NovaRequisicaoCortePage() {
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                 {itens.map((item: any, index: any) => (
-                  <tr key={index}>
+                  <tr key={item.id}>
                     <td className="px-3 py-2">
                       <Input
                         value={item.codigoProduto}

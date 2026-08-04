@@ -460,8 +460,8 @@ export function KanbanBoard() {
             ) : chatMensagens.length === 0 ? (
               <p className="text-sm text-slate-400 text-center py-4">Nenhuma mensagem encontrada</p>
             ) : (
-              chatMensagens.map((msg: any, i: any) => (
-                <div key={i} className="bg-slate-50 dark:bg-slate-900 rounded-lg p-2.5">
+              chatMensagens.map((msg: any) => (
+                <div key={msg.id} className="bg-slate-50 dark:bg-slate-900 rounded-lg p-2.5">
                   <div className="flex justify-between items-center">
                     <span className="text-xs font-medium text-slate-700 dark:text-slate-300">{msg.remetenteNome}</span>
                     <span className="text-[10px] text-slate-400">{new Date(msg.createdAt).toLocaleString("pt-BR")}</span>
@@ -497,9 +497,9 @@ export function KanbanBoard() {
             ) : amostrasData.length === 0 ? (
               <p className="text-sm text-slate-400 text-center py-4">Nenhuma amostra encontrada</p>
             ) : (
-              amostrasData.map((a: any, i: any) => (
+              amostrasData.map((a: any) => (
                 <Link
-                  key={i}
+                  key={a.scrollId ?? a.id ?? a.tipo}
                   href={amostrasTarget?.produtoId ? `/cadastros/produto-cru/${amostrasTarget.produtoId}?tab=amostras&amostraId=${encodeURIComponent(a.scrollId)}` : "#"}
                   onClick={() => setAmostrasTarget(null)}
                   className="flex items-center gap-3 bg-slate-50 dark:bg-slate-900 rounded-lg p-2.5 hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-colors group"
@@ -534,12 +534,12 @@ export function KanbanBoard() {
             ) : pilotagemAmostras.length === 0 ? (
               <p className="text-sm text-slate-400 text-center py-4">Nenhuma amostra disponível</p>
             ) : (
-              pilotagemAmostras.map((a: any, i: any) => {
+              pilotagemAmostras.map((a: any) => {
                 const key = `${a.tipo}-${a.id}`
                 const checked = pilotagemSelecionadas.has(key)
                 return (
                   <label
-                    key={i}
+                    key={key}
                     className="flex items-start gap-3 bg-slate-50 dark:bg-slate-900 rounded-lg p-2.5 hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-colors cursor-pointer"
                   >
                     <Checkbox

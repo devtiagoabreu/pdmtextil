@@ -174,7 +174,7 @@ function NovaLicaoPageContent() {
             </label>
             <div className="space-y-2 mb-2">
               {linksPop.map((link: any, i: any) => (
-                <div key={i} className="flex items-center gap-2 text-sm bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg">
+                <div key={link.url} className="flex items-center gap-2 text-sm bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg">
                   <span className="flex-1 truncate">{link.label}</span>
                   <button
                     type="button"
@@ -220,7 +220,7 @@ function NovaLicaoPageContent() {
             </label>
             <div className="space-y-2 mb-2">
               {linksVideo.map((link: any, i: any) => (
-                <div key={i} className="flex items-center gap-2 text-sm bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg">
+                <div key={link.url} className="flex items-center gap-2 text-sm bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg">
                   <span className="flex-1 truncate">{link.label}</span>
                   <button
                     type="button"

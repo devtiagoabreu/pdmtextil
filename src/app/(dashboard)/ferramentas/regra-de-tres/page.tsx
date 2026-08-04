@@ -15,9 +15,19 @@ interface Grandeza {
 }
 
 interface GrandezaComposta {
+  id: string
   nome: string
   valorAntigo: number | ""
   valorNovo: number | ""
+}
+
+function novaGrandezaComp(nome: string): GrandezaComposta {
+  return {
+    id: typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : String(Date.now() + Math.random()),
+    nome,
+    valorAntigo: "",
+    valorNovo: "",
+  }
 }
 
 export default function RegraDeTresPage() {
@@ -30,8 +40,8 @@ export default function RegraDeTresPage() {
     { nome: "C", valor: "" },
   ])
   const [grandezasComp, setGrandezasComp] = useState<GrandezaComposta[]>([
-    { nome: "A", valorAntigo: "", valorNovo: "" },
-    { nome: "B", valorAntigo: "", valorNovo: "" },
+    novaGrandezaComp("A"),
+    novaGrandezaComp("B"),
   ])
   const [referencia, setReferencia] = useState<number | "">("")
   const [resultado, setResultado] = useState<string | null>(null)
@@ -60,7 +70,13 @@ export default function RegraDeTresPage() {
       titulo: "Regra de Três Composta",
       exemplo: "5 máquinas produzem 100 peças em 2 dias. Quantas peças 8 máquinas produzirão em 3 dias?\n\nA: Máquinas (5  → 8)\nB: Dias (2  → 3)\nReferência: Peças (100  → X)\n\nX = (8 × 3 × 100) / (5 × 2) = 240",
       preencher: () => {
-        setGrandezasComp([{ nome: "Máquinas", valorAntigo: 5, valorNovo: 8 }, { nome: "Dias", valorAntigo: 2, valorNovo: 3 }])
+        const a = novaGrandezaComp("Máquinas")
+        a.valorAntigo = 5
+        a.valorNovo = 8
+        const b = novaGrandezaComp("Dias")
+        b.valorAntigo = 2
+        b.valorNovo = 3
+        setGrandezasComp([a, b])
         setReferencia(100)
         setResultado(null)
       },
@@ -83,7 +99,7 @@ export default function RegraDeTresPage() {
 
   function addGrandezaComp() {
     const next = String.fromCharCode(65 + grandezasComp.length)
-    setGrandezasComp(prev => [...prev, { nome: next, valorAntigo: "", valorNovo: "" }])
+    setGrandezasComp(prev => [...prev, novaGrandezaComp(next)])
   }
 
   function remGrandeza(idx: number) {
@@ -232,7 +248,7 @@ export default function RegraDeTresPage() {
               <span className="text-center">Valor novo</span>
             </div>
             {grandezasComp.map((g: any, idx: any) => (
-              <div key={idx} className="grid grid-cols-[100px_120px_120px_32px] gap-2 items-center">
+              <div key={g.id} className="grid grid-cols-[100px_120px_120px_32px] gap-2 items-center">
                 <input
                   type="text"
                   value={g.nome}

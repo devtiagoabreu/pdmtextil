@@ -10,6 +10,7 @@ import Link from "next/link"
 import { PageSkeleton } from "@/components/ui/page-skeleton"
 
 type TimelineEntry = {
+  id: string
   data: string
   tipo: "historico" | "log"
   usuario: string
@@ -106,11 +107,12 @@ function HistoricoSolicitacaoPageContent() {
           desc = "Campos alterados"
           detalhes = h.mensagens
         } else desc = h.mensagens?.[0] || h.acao
-        entries.push({ data: h.data, tipo: "historico", usuario: h.usuario || "Sistema", descricao: desc, detalhes, acao: h.acao })
+        entries.push({ id: `h-${h.id ?? (h.data + "-" + h.acao + "-" + h.usuario)}`, data: h.data, tipo: "historico", usuario: h.usuario || "Sistema", descricao: desc, detalhes, acao: h.acao })
       }
     }
     for (const l of logs) {
       entries.push({
+        id: `l-${l.id ?? (l.createdAt + "-" + l.acao + "-" + l.usuarioNome)}`,
         data: l.createdAt, tipo: "log", usuario: l.usuarioNome || "Sistema",
         descricao: l.descricao || `${l.acao} (${l.tipo})`, acao: l.acao,
         detalhes: l.dados ? [JSON.stringify(l.dados)] : undefined
@@ -468,8 +470,8 @@ function HistoricoSolicitacaoPageContent() {
             </h3>
             {timeline.length > 0 ? (
               <div className="space-y-0 max-h-[600px] overflow-y-auto">
-                {timeline.map((entry: any, idx: any) => (
-                  <TimelineItem key={idx} entry={entry} isLast={idx === timeline.length - 1} />
+                {timeline.map((entry: any) => (
+                  <TimelineItem key={entry.id} entry={entry} isLast={timeline[timeline.length - 1]?.id === entry.id} />
                 ))}
               </div>
             ) : (

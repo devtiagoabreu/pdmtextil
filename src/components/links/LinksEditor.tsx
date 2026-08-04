@@ -36,7 +36,7 @@ export function LinksEditor({
       {links.length > 0 && (
         <div className="space-y-1 mb-2">
           {links.map((link: any, i: any) => (
-            <div key={i} className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-800/50 rounded text-sm">
+            <div key={link.url || i} className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-800/50 rounded text-sm">
               <a href={link.url} target="_blank" rel="noopener noreferrer"
                 className="flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline truncate">
                 <ExternalLink size={12} />

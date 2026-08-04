@@ -19,12 +19,12 @@ Regra de trabalho: cada item corrigido = **commit + push** separado, para acompa
 
 ## 2. Acessibilidade — header e dropdowns
 
-- [ ] `header.tsx` — aria-label nos botões só-ícone (hamburger, busca mobile, sino, menu do perfil, chat)
-- [ ] `header.tsx` — `aria-expanded`/`aria-haspopup` no sino de notificações e no menu do perfil
-- [ ] `header.tsx` — fechar dropdowns com tecla `Escape`
-- [ ] `sidebar.tsx` — `aria-label` no botão fechar (drawer mobile)
-- [ ] `sidebar.tsx` — `aria-expanded` no accordion do submenu
-- [ ] `components/layout/chat/ChatButton.tsx` — aria-label/title no botão do chat
+- [x] `header.tsx` — aria-label nos botões só-ícone (hamburger, busca mobile, sino, menu do perfil, chat) `4eede119`
+- [x] `header.tsx` — `aria-expanded`/`aria-haspopup` no sino de notificações e no menu do perfil `4eede119`
+- [x] `header.tsx` — fechar dropdowns com tecla `Escape` `4eede119`
+- [x] `sidebar.tsx` — `aria-label` no botão fechar (drawer mobile) `4eede119`
+- [x] `sidebar.tsx` — `aria-expanded` no accordion do submenu `4eede119`
+- [x] `components/layout/chat/ChatButton.tsx` — aria-label/title no botão do chat `4eede119`
 
 ## 3. Acessibilidade — modais e botões só-ícone
 
