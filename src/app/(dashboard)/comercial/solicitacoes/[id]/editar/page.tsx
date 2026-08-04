@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useRouter, useParams, usePathname } from "next/navigation"
+import { useQuery } from "@tanstack/react-query"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { useForm, Controller } from "react-hook-form"
@@ -42,8 +43,6 @@ export default function EditarSolicitacaoPage() {
   const id = params.id as string
   
   const [step, setStep] = useState(1)
-  const [loading, setLoading] = useState(true)
-  const [isLoaded, setIsLoaded] = useState(false)
   
   const [comercialData, setComercialData] = useState<DadosComerciais>({
     tipo: undefined,
@@ -71,6 +70,16 @@ export default function EditarSolicitacaoPage() {
     defaultValues: comercialData as any,
   })
 
+  const { data: solicitacao, isLoading, isError } = useQuery<any>({
+    queryKey: ["solicitacao", id],
+    queryFn: async () => {
+      const res = await fetch(`/api/solicitacoes/${id}`)
+      if (!res.ok) throw new Error("Não encontrado")
+      return res.json()
+    },
+    enabled: !!id,
+  })
+
   // Sincroniza RHF -> comercialData em tempo real
   useEffect(() => {
     const subscription = watch((value) => {
@@ -79,66 +88,46 @@ export default function EditarSolicitacaoPage() {
     return () => subscription.unsubscribe()
   }, [watch])
 
+  // Hidrata estados locais a partir da query da solicitação
   useEffect(() => {
-    let isMounted = true
-    
-    async function loadSolicitacao() {
-      try {
-        const res = await fetch(`/api/solicitacoes/${id}`)
-        if (!res.ok) throw new Error("Não encontrado")
-        
-        const data = await res.json()
-        
-        if (!isMounted) return
-        
-        const tipoValue = data.tipo || "DESENVOLVIMENTO_TECELAGEM"
-        
-        setComercialData({
-          tipo: tipoValue,
-          cliente: data.cliente || "",
-          cnpj: data.cnpj || "",
-          projeto: data.projeto || "",
-          prazoDesejado: data.prazoDesejado ? data.prazoDesejado.split('T')[0] : "",
-        })
+    if (!solicitacao) return
 
-        setValue("tipo", tipoValue, { shouldValidate: false })
-        setValue("cliente", data.cliente || "", { shouldValidate: false })
-        setValue("cnpj", data.cnpj || "", { shouldValidate: false })
-        setValue("projeto", data.projeto || "", { shouldValidate: false })
-        setValue("prazoDesejado", data.prazoDesejado ? data.prazoDesejado.split('T')[0] : "", { shouldValidate: false })
-        
-        if (data.briefing) {
-          setBriefingData(data.briefing)
-        }
-        
-        if (data.anexos && data.anexos.length > 0) {
-          setAnexosData(data.anexos.map((a: any) => ({
-            id: String(a.id),
-            link: a.url,
-            tipo: "LINK",
-            nome: a.titulo,
-          })))
-        }
-      } catch (err) {
-        if (isMounted) {
-          toast.error("Erro ao carregar solicitação")
-          router.push("/comercial/solicitacoes")
-        }
-      } finally {
-        if (isMounted) {
-          setLoading(false)
-          setIsLoaded(true)
-        }
-      }
+    const tipoValue = solicitacao.tipo || "DESENVOLVIMENTO_TECELAGEM"
+
+    setComercialData({
+      tipo: tipoValue,
+      cliente: solicitacao.cliente || "",
+      cnpj: solicitacao.cnpj || "",
+      projeto: solicitacao.projeto || "",
+      prazoDesejado: solicitacao.prazoDesejado ? solicitacao.prazoDesejado.split('T')[0] : "",
+    })
+
+    setValue("tipo", tipoValue, { shouldValidate: false })
+    setValue("cliente", solicitacao.cliente || "", { shouldValidate: false })
+    setValue("cnpj", solicitacao.cnpj || "", { shouldValidate: false })
+    setValue("projeto", solicitacao.projeto || "", { shouldValidate: false })
+    setValue("prazoDesejado", solicitacao.prazoDesejado ? solicitacao.prazoDesejado.split('T')[0] : "", { shouldValidate: false })
+
+    if (solicitacao.briefing) {
+      setBriefingData(solicitacao.briefing)
     }
-    
-    if (id) {
-      loadSolicitacao()
+
+    if (solicitacao.anexos && solicitacao.anexos.length > 0) {
+      setAnexosData(solicitacao.anexos.map((a: any) => ({
+        id: String(a.id),
+        link: a.url,
+        tipo: "LINK",
+        nome: a.titulo,
+      })))
     }
-    
-    return () => { isMounted = false }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id])
+  }, [solicitacao, setValue])
+
+  useEffect(() => {
+    if (isError) {
+      toast.error("Erro ao carregar solicitação")
+      router.push("/comercial/solicitacoes")
+    }
+  }, [isError, router])
 
   const onStep1Submit = (data: DadosComerciais) => {
     setComercialData(data)
@@ -217,7 +206,7 @@ const onStep2Submit = (data: BriefingTecelagem) => {
     }
   }
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
