@@ -12,10 +12,10 @@ Regra de trabalho: cada item corrigido = **commit + push** separado, para acompa
 
 ## 1. Strings em inglês → pt-BR
 
-- [ ] `src/components/ui/dialog.tsx` — sr-only "Close" e botão "Close" → "Fechar"
-- [ ] `src/components/layout/mobile-bottom-nav.tsx` — label "Home" → "Início"
-- [ ] `src/app/(dashboard)/admin/whatsapp-monitor/page.tsx` — STEP_LABELS ("Auth", "Extract"...) → pt-BR
-- [ ] `src/app/(dashboard)/admin/configuracoes/empresa/page.tsx` — `alt="Preview"` → "Pré-visualização"
+- [x] `src/components/ui/dialog.tsx` — sr-only "Close" e botão "Close" → "Fechar" `210fb5ad`
+- [x] `src/components/layout/mobile-bottom-nav.tsx` — label "Home" → "Início" `210fb5ad`
+- [x] `src/app/(dashboard)/admin/whatsapp-monitor/page.tsx` — STEP_LABELS ("Auth", "Extract"...) → pt-BR `210fb5ad`
+- [x] `src/app/(dashboard)/admin/configuracoes/empresa/page.tsx` — `alt="Preview"` → "Pré-visualização" `210fb5ad`
 
 ## 2. Acessibilidade — header e dropdowns
 

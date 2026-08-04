@@ -25,6 +25,8 @@ export function ChatButton() {
   return (
     <Link
       href="/chat"
+      aria-label={`Chat${naoLidas > 0 ? ` (${naoLidas} mensagens não lidas)` : ""}`}
+      title="Chat"
       className="relative rounded-md p-2 text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition-colors"
     >
       <MessageSquare size={20} />

@@ -131,7 +131,7 @@ function SidebarContent({ onClose, collapsed }: { onClose?: () => void; collapse
           <span className="text-base font-semibold text-slate-900 dark:text-slate-50">PDM Pro Moda</span>
         </NavLink>
         {onClose && (
-          <button onClick={onClose} className="p-1 rounded-md text-slate-400 hover:text-slate-600 lg:hidden">
+          <button onClick={onClose} aria-label="Fechar menu" className="p-1 rounded-md text-slate-400 hover:text-slate-600 lg:hidden">
             <X size={18} />
           </button>
         )}
@@ -152,6 +152,8 @@ function SidebarContent({ onClose, collapsed }: { onClose?: () => void; collapse
               <div key={menu.id}>
                 <button
                   onClick={() => toggleMenu(menu.id)}
+                  aria-expanded={isExpanded}
+                  aria-controls={`menu-${menu.id}`}
                   className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
                     menuActive
                       ? "bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400"
@@ -163,7 +165,7 @@ function SidebarContent({ onClose, collapsed }: { onClose?: () => void; collapse
                   <span className="flex-1 text-left truncate">{menu.titulo}</span>
                   {menuActive && <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />}
                 </button>
-                <div className={`ml-4 mt-0.5 space-y-0.5 border-l border-slate-200 dark:border-slate-700 pl-2 ${isExpanded ? "" : "hidden"}`}>
+                <div id={`menu-${menu.id}`} className={`ml-4 mt-0.5 space-y-0.5 border-l border-slate-200 dark:border-slate-700 pl-2 ${isExpanded ? "" : "hidden"}`}>
                   {menu.itens.map((item: any) => (
                     <NavLink
                       key={item.id}

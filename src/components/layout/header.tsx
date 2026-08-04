@@ -71,6 +71,18 @@ export function Header({ onMenuClick, onToggleSidebar, sidebarCollapsed }: Heade
   }, [showUserMenu])
 
   useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        setShowNotifications(false)
+        setShowUserMenu(false)
+        setShowMobileSearch(false)
+      }
+    }
+    document.addEventListener("keydown", handleKeyDown)
+    return () => document.removeEventListener("keydown", handleKeyDown)
+  }, [])
+
+  useEffect(() => {
     fetchNotificacoes()
     const interval = setInterval(fetchNotificacoes, 120000)
     return () => clearInterval(interval)
@@ -117,6 +129,7 @@ export function Header({ onMenuClick, onToggleSidebar, sidebarCollapsed }: Heade
       <div className="flex items-center gap-2">
         <button
           onClick={onMenuClick}
+          aria-label="Abrir menu"
           className="rounded-md p-2 text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 lg:hidden"
         >
           <Menu size={20} />
@@ -124,6 +137,7 @@ export function Header({ onMenuClick, onToggleSidebar, sidebarCollapsed }: Heade
         {onToggleSidebar && (
           <button
             onClick={onToggleSidebar}
+            aria-label={sidebarCollapsed ? "Expandir menu" : "Recolher menu"}
             className="rounded-md p-2 text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 hidden lg:flex"
             title={sidebarCollapsed ? "Expandir menu" : "Recolher menu"}
           >
@@ -132,6 +146,8 @@ export function Header({ onMenuClick, onToggleSidebar, sidebarCollapsed }: Heade
         )}
         <button
           onClick={() => setShowMobileSearch(!showMobileSearch)}
+          aria-label={showMobileSearch ? "Fechar busca" : "Abrir busca"}
+          aria-expanded={showMobileSearch}
           className="rounded-md p-2 text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 md:hidden"
         >
           {showMobileSearch ? <X size={20} /> : <Search size={20} />}
@@ -159,6 +175,9 @@ export function Header({ onMenuClick, onToggleSidebar, sidebarCollapsed }: Heade
         <div className="relative">
           <button
             onClick={() => { setShowNotifications(!showNotifications); setShowUserMenu(false); if (!showNotifications) fetchNotificacoes() }}
+            aria-label={`Notificações${unreadCount > 0 ? ` (${unreadCount} não lidas)` : ""}`}
+            aria-haspopup="true"
+            aria-expanded={showNotifications}
             className="relative rounded-md p-2 text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition-colors"
           >
             <Bell size={20} />
@@ -212,6 +231,9 @@ export function Header({ onMenuClick, onToggleSidebar, sidebarCollapsed }: Heade
         <div className="relative" ref={userMenuRef}>
           <button
             onClick={() => { setShowUserMenu(!showUserMenu); setShowNotifications(false) }}
+            aria-label="Menu do usuário"
+            aria-haspopup="true"
+            aria-expanded={showUserMenu}
             className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300 font-semibold text-sm">
