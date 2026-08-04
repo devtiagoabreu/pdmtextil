@@ -1,6 +1,7 @@
 "use client"
 
-import { useEffect, useState, useCallback } from "react"
+import { useState, useCallback } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 import { ChartCard } from "@/components/ui/chart-card"
 import { ChartTooltip } from "@/components/ui/chart-tooltip"
@@ -38,22 +39,20 @@ const CARDS = [
 ]
 
 export default function DashboardReqCorte() {
-  const [stats, setStats] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState("")
-
   const [modalFiltro, setModalFiltro] = useState<string | null>(null)
   const [modalLista, setModalLista] = useState<any[]>([])
   const [modalLoading, setModalLoading] = useState(false)
   const [modalTitle, setModalTitle] = useState("")
 
-  useEffect(() => {
-    fetch("/api/dashboard/requisicoes-corte-stats")
-      .then((r: any) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json() })
-      .then(setStats)
-      .catch((e: any) => setError(e.message))
-      .finally(() => setLoading(false))
-  }, [])
+  const { data: stats, isLoading: loading, error } = useQuery<any>({
+    queryKey: ["dashboard", "requisicoes-corte-stats"],
+    queryFn: async () => {
+      const res = await fetch("/api/dashboard/requisicoes-corte-stats")
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      return res.json()
+    },
+  })
+  const errorMsg = (error as any)?.message || ""
 
   const openModal = useCallback(async (filtro: string, label: string) => {
     setModalTitle(label)
@@ -91,10 +90,10 @@ export default function DashboardReqCorte() {
 
       {loading ? (
         <div className="text-center py-8 text-slate-500">Carregando...</div>
-      ) : error ? (
+      ) : errorMsg ? (
         <div className="rounded-xl border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/50 p-6 text-center">
           <p className="text-red-600 dark:text-red-400 font-medium">Erro ao carregar dados</p>
-          <p className="text-sm text-red-500 dark:text-red-500 mt-1">{error}</p>
+          <p className="text-sm text-red-500 dark:text-red-500 mt-1">{errorMsg}</p>
           <button onClick={() => window.location.reload()} className="mt-4 text-sm text-blue-600 dark:text-blue-400 hover:underline">
             Tentar novamente
           </button>

@@ -1,6 +1,7 @@
 "use client"
 
-import { useEffect, useState, useCallback } from "react"
+import { useState, useCallback } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { PieChart, Pie, BarChart, Bar, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 import { ChartCard } from "@/components/ui/chart-card"
 import { ChartTooltip } from "@/components/ui/chart-tooltip"
@@ -37,9 +38,6 @@ const MAIN_CARDS = [
 ]
 
 export default function DashboardAmostras() {
-  const [stats, setStats] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState("")
   const { getLabel, getColor } = useStatuses("AMOSTRA")
 
   const [modalFiltro, setModalFiltro] = useState<string | null>(null)
@@ -48,13 +46,15 @@ export default function DashboardAmostras() {
   const [modalTitle, setModalTitle] = useState("")
   const [gerandoPdf, setGerandoPdf] = useState<string | null>(null)
 
-  useEffect(() => {
-    fetch("/api/dashboard/amostras-stats")
-      .then((r: any) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json() })
-      .then(setStats)
-      .catch((e: any) => setError(e.message))
-      .finally(() => setLoading(false))
-  }, [])
+  const { data: stats, isLoading: loading, error } = useQuery<any>({
+    queryKey: ["dashboard", "amostras-stats"],
+    queryFn: async () => {
+      const res = await fetch("/api/dashboard/amostras-stats")
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      return res.json()
+    },
+  })
+  const errorMsg = (error as any)?.message || ""
 
   const handleGerarPdf = async (a: any) => {
     const key = `${a.tipoAmostra}-${a.id}`
@@ -135,10 +135,10 @@ export default function DashboardAmostras() {
 
       {loading ? (
         <div className="text-center py-8 text-slate-500">Carregando...</div>
-      ) : error ? (
+      ) : errorMsg ? (
         <div className="rounded-xl border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/50 p-6 text-center">
           <p className="text-red-600 dark:text-red-400 font-medium">Erro ao carregar dados</p>
-          <p className="text-sm text-red-500 dark:text-red-500 mt-1">{error}</p>
+          <p className="text-sm text-red-500 dark:text-red-500 mt-1">{errorMsg}</p>
           <button onClick={() => window.location.reload()} className="mt-4 text-sm text-blue-600 dark:text-blue-400 hover:underline">
             Tentar novamente
           </button>
