@@ -37,7 +37,7 @@ Regra de trabalho: cada item corrigido = **commit + push** separado, para acompa
 
 ## 4. Acessibilidade — combobox de busca
 
-- [ ] `command-search.tsx` — `role="combobox"`/`aria-expanded`/`aria-controls` no input de busca
+- [x] `command-search.tsx` — `role="combobox"`/`aria-expanded`/`aria-controls` no input de busca + `role="listbox"`/`role="option"`/`aria-activedescendant` no dropdown `2ad2a236`
 
 ## 5. `key={index}` → chave estável
 
