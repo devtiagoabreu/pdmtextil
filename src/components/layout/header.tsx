@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect, useCallback, useRef } from "react"
+import { useState, useEffect, useRef } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { signOut, useSession } from "next-auth/react"
 import { Bell, Menu, Search, X, User, LogOut, Settings, CheckCheck, Loader2, PanelLeftClose, PanelLeftOpen } from "lucide-react"
 import Link from "next/link"
@@ -31,17 +32,22 @@ export function Header({ onMenuClick, onToggleSidebar, sidebarCollapsed }: Heade
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [showMobileSearch, setShowMobileSearch] = useState(false)
   const [notificacoes, setNotificacoes] = useState<Notificacao[]>([])
-  const [loadingNotif, setLoadingNotif] = useState(false)
 
-  const fetchNotificacoes = useCallback(async () => {
-    setLoadingNotif(true)
-    try {
+  const notificacoesQuery = useQuery<Notificacao[]>({
+    queryKey: ["notificacoes"],
+    queryFn: async () => {
       const res = await fetch("/api/notificacoes?naoLidas=true&limit=10")
-      if (res.ok) setNotificacoes(await res.json())
-    } catch {} finally {
-      setLoadingNotif(false)
-    }
-  }, [])
+      if (!res.ok) throw new Error("Erro ao buscar notificações")
+      return res.json()
+    },
+    refetchInterval: 120000,
+  })
+
+  useEffect(() => {
+    if (notificacoesQuery.data) setNotificacoes(notificacoesQuery.data)
+  }, [notificacoesQuery.data])
+
+  const loadingNotif = notificacoesQuery.isLoading
 
   const notifRef = useRef<HTMLDivElement>(null)
   const userMenuRef = useRef<HTMLDivElement>(null)
@@ -81,12 +87,6 @@ export function Header({ onMenuClick, onToggleSidebar, sidebarCollapsed }: Heade
     document.addEventListener("keydown", handleKeyDown)
     return () => document.removeEventListener("keydown", handleKeyDown)
   }, [])
-
-  useEffect(() => {
-    fetchNotificacoes()
-    const interval = setInterval(fetchNotificacoes, 120000)
-    return () => clearInterval(interval)
-  }, [fetchNotificacoes])
 
   const handleNotificacaoClick = async (n: Notificacao) => {
     if (!n.lida) {
@@ -174,7 +174,7 @@ export function Header({ onMenuClick, onToggleSidebar, sidebarCollapsed }: Heade
         {/* Notifications */}
         <div className="relative">
           <button
-            onClick={() => { setShowNotifications(!showNotifications); setShowUserMenu(false); if (!showNotifications) fetchNotificacoes() }}
+            onClick={() => { setShowNotifications(!showNotifications); setShowUserMenu(false); if (!showNotifications) notificacoesQuery.refetch() }}
             aria-label={`Notificações${unreadCount > 0 ? ` (${unreadCount} não lidas)` : ""}`}
             aria-haspopup="true"
             aria-expanded={showNotifications}

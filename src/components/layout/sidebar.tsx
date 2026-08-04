@@ -5,6 +5,7 @@ import { MenuIcone } from "@/lib/menu-icones"
 import { usePathname } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { useState, useEffect, useCallback } from "react"
+import { useQuery } from "@tanstack/react-query"
 import {
   Settings,
   X,
@@ -43,23 +44,32 @@ function SidebarContent({ onClose, collapsed }: { onClose?: () => void; collapse
   const isAdminOuSudo = role === "ADMIN" || role === "SUDO"
 
   const [menus, setMenus] = useState<UserMenu[]>([])
-  const [loading, setLoading] = useState(true)
   const [expandedMenus, setExpandedMenus] = useState<Set<number>>(new Set())
   const [paginaInicial, setPaginaInicial] = useState("/dashboard")
 
+  const { data: menusData, isLoading: menusLoading } = useQuery<UserMenu[]>({
+    queryKey: ["user-menus"],
+    queryFn: async () => {
+      const res = await fetch("/api/user/menus")
+      const data = await res.json()
+      return Array.isArray(data) ? data : []
+    },
+  })
+
+  const { data: paginaInicialData } = useQuery<{ paginaInicial: string }>({
+    queryKey: ["user-pagina-inicial"],
+    queryFn: () => fetch("/api/user/pagina-inicial").then((r: any) => r.json()),
+  })
+
   useEffect(() => {
-    fetch("/api/user/pagina-inicial")
-      .then((r: any) => r.json())
-      .then((data: any) => { if (data?.paginaInicial) setPaginaInicial(data.paginaInicial) })
-      .catch(console.error)
-    fetch("/api/user/menus")
-      .then((r: any) => r.json())
-      .then((data: any) => {
-        if (Array.isArray(data)) setMenus(data)
-      })
-      .catch(() => setMenus([]))
-      .finally(() => setLoading(false))
-  }, [])
+    if (menusData) setMenus(menusData)
+  }, [menusData])
+
+  useEffect(() => {
+    if (paginaInicialData?.paginaInicial) setPaginaInicial(paginaInicialData.paginaInicial)
+  }, [paginaInicialData])
+
+  const loading = menusLoading && menus.length === 0
 
   const toggleMenu = useCallback((id: number) => {
     setExpandedMenus(prev => {

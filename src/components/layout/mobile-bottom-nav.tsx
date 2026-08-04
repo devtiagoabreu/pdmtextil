@@ -3,20 +3,19 @@
 import { NavLink } from "@/components/ui/nav-link"
 import { usePathname } from "next/navigation"
 import { useSession } from "next-auth/react"
-import { useState, useEffect } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { LayoutDashboard, Calendar, List, User, Loader2 } from "lucide-react"
 
 export function MobileBottomNav() {
   const pathname = usePathname()
   const { data: session } = useSession()
-  const [paginaInicial, setPaginaInicial] = useState("/dashboard")
 
-  useEffect(() => {
-    fetch("/api/user/pagina-inicial")
-      .then((r: any) => r.json())
-      .then((data: any) => { if (data?.paginaInicial) setPaginaInicial(data.paginaInicial) })
-      .catch(console.error)
-  }, [])
+  const { data: paginaInicialData } = useQuery<{ paginaInicial: string }>({
+    queryKey: ["user-pagina-inicial"],
+    queryFn: () => fetch("/api/user/pagina-inicial").then((r: any) => r.json()),
+  })
+
+  const paginaInicial = paginaInicialData?.paginaInicial || "/dashboard"
 
   if (!session) return null
 

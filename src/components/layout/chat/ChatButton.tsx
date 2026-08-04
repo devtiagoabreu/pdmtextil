@@ -1,26 +1,21 @@
 "use client"
 
-import { useState, useEffect } from "react"
 import Link from "next/link"
+import { useQuery } from "@tanstack/react-query"
 import { MessageSquare } from "lucide-react"
 
 export function ChatButton() {
-  const [naoLidas, setNaoLidas] = useState(0)
+  const { data } = useQuery<{ naoLidas: number }>({
+    queryKey: ["chats-nao-lidas"],
+    queryFn: async () => {
+      const res = await fetch("/api/chats/nao-lidas")
+      if (!res.ok) throw new Error("Erro ao buscar não lidas")
+      return res.json()
+    },
+    refetchInterval: 120000,
+  })
 
-  useEffect(() => {
-    async function fetchNaoLidas() {
-      try {
-        const res = await fetch("/api/chats/nao-lidas")
-        if (res.ok) {
-          const data = await res.json()
-          setNaoLidas(data.naoLidas)
-        }
-      } catch {}
-    }
-    fetchNaoLidas()
-    const interval = setInterval(fetchNaoLidas, 120000)
-    return () => clearInterval(interval)
-  }, [])
+  const naoLidas = data?.naoLidas ?? 0
 
   return (
     <Link
