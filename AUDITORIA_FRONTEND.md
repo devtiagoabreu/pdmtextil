@@ -57,7 +57,7 @@ Regra de trabalho: cada item corrigido = **commit + push** separado, para acompa
 
 ## 6. Data fetching → TanStack Query (migração `fetch`/`useEffect`/`useState`)
 
-- [ ] `dashboard/page.tsx` — stats/atividades via `useQuery`; modal `solicitacoes-lista` via `useQuery` com `enabled`
+- [x] `dashboard/page.tsx` — stats/atividades via `useQuery`; modal `solicitacoes-lista` via `useQuery` com `enabled` (+ Escape/role=dialog no modal) `1bd1d113`
 - [ ] `comercial/crm/visitas/dashboard/page.tsx` — modal `dashboard-lista` via `useQuery` com `enabled` (item novo)
 - [ ] `components/crm/visit-location-modal.tsx` — conferir (já usa useQuery — manter)
 - [ ] `components/forms/ClienteAutocomplete.tsx` — busca via useQuery (debounce)
