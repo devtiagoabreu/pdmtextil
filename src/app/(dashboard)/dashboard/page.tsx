@@ -1,7 +1,8 @@
 "use client"
 
-import { useEffect, useState, useCallback } from "react"
+import { useState, useCallback } from "react"
 import { useSession } from "next-auth/react"
+import { useQuery } from "@tanstack/react-query"
 import { Clock, X, Loader2 } from "lucide-react"
 import Link from "next/link"
 import dynamic from "next/dynamic"
@@ -11,6 +12,7 @@ import { getInfoContent } from "@/lib/info-content"
 import { useStatuses, hexToRgba } from "@/hooks/use-statuses"
 import { ChartCard } from "@/components/ui/chart-card"
 import { AnimatedNumber } from "@/components/ui/animated-number"
+import { useEscapeClose } from "@/lib/use-escape-close"
 
 const DashboardCharts = dynamic(() => import("./dashboard-charts"), { ssr: false })
 
@@ -45,52 +47,52 @@ export default function DashboardPage() {
   const { data: session } = useSession()
   const firstName = session?.user?.name?.split(" ")[0] || "Usuário"
 
-  const [stats, setStats] = useState<any>(null)
-  const [atividades, setAtividades] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-
   const { getLabel: getStatusLabel, getColor: getStatusColor } = useStatuses("SOLICITACAO_DESENVOLVIMENTO")
 
   const [modalFiltro, setModalFiltro] = useState<string | null>(null)
-  const [modalLista, setModalLista] = useState<any[]>([])
-  const [modalLoading, setModalLoading] = useState(false)
   const [modalTitle, setModalTitle] = useState("")
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const [statsRes, atividadesRes] = await Promise.all([
-          fetch("/api/dashboard/stats"),
-          fetch("/api/dashboard/atividades"),
-        ])
-        if (statsRes.ok) setStats(await statsRes.json())
-        if (atividadesRes.ok) setAtividades(await atividadesRes.json())
-      } catch (error) {
-        console.error("Erro ao buscar dados do dashboard:", error)
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchData()
-  }, [])
+  useEscapeClose(!!modalFiltro, () => setModalFiltro(null))
 
-  const openModal = useCallback(async (filtro: string) => {
+  const statsQuery = useQuery({
+    queryKey: ["dashboard-stats"],
+    queryFn: async () => {
+      const res = await fetch("/api/dashboard/stats")
+      if (!res.ok) throw new Error("Erro ao buscar stats")
+      return res.json()
+    },
+  })
+
+  const atividadesQuery = useQuery({
+    queryKey: ["dashboard-atividades"],
+    queryFn: async () => {
+      const res = await fetch("/api/dashboard/atividades")
+      if (!res.ok) throw new Error("Erro ao buscar atividades")
+      return res.json()
+    },
+  })
+
+  const modalQuery = useQuery({
+    queryKey: ["dashboard-solicitacoes-lista", modalFiltro],
+    queryFn: async () => {
+      const res = await fetch(`/api/dashboard/solicitacoes-lista?filtro=${modalFiltro}`)
+      if (!res.ok) return []
+      const data = await res.json()
+      return Array.isArray(data) ? data : []
+    },
+    enabled: !!modalFiltro,
+  })
+
+  const stats = statsQuery.data ?? null
+  const atividades = atividadesQuery.data ?? []
+  const loading = statsQuery.isLoading || atividadesQuery.isLoading
+  const modalLista = modalQuery.data ?? []
+  const modalLoading = modalQuery.isFetching
+
+  const openModal = useCallback((filtro: string) => {
     const filtroDef = FILTROS_DASH.find((f: any) => f.key === filtro)
     setModalTitle(filtroDef?.label || filtro)
     setModalFiltro(filtro)
-    setModalLoading(true)
-    setModalLista([])
-    try {
-      const res = await fetch(`/api/dashboard/solicitacoes-lista?filtro=${filtro}`)
-      if (res.ok) {
-        const data = await res.json()
-        setModalLista(Array.isArray(data) ? data : [])
-      }
-    } catch {
-      setModalLista([])
-    } finally {
-      setModalLoading(false)
-    }
   }, [])
 
   const now = new Date()
@@ -205,14 +207,14 @@ export default function DashboardPage() {
       )}
 
       {modalFiltro && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center pt-12 sm:pt-20 bg-black/50" onClick={() => setModalFiltro(null)}>
+        <div className="fixed inset-0 z-50 flex items-start justify-center pt-12 sm:pt-20 bg-black/50" onClick={() => setModalFiltro(null)} role="dialog" aria-modal="true" aria-label={modalTitle}>
           <div
             className="bg-white dark:bg-slate-900 rounded-xl shadow-xl w-full max-w-2xl mx-4 max-h-[75vh] flex flex-col border border-slate-200 dark:border-slate-700"
             onClick={e => e.stopPropagation()}
           >
             <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
               <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">{modalTitle}</h2>
-              <button type="button" onClick={() => setModalFiltro(null)} className="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800">
+              <button type="button" onClick={() => setModalFiltro(null)} aria-label="Fechar" className="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800">
                 <X size={18} className="text-slate-500" />
               </button>
             </div>
