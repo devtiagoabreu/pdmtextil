@@ -532,7 +532,7 @@ function TimelineItem({ entry, isLast }: { entry: TimelineEntry; isLast: boolean
         {entry.detalhes && entry.detalhes.length > 0 && (
           <ul className="mt-1 space-y-0.5">
             {entry.detalhes.map((d: any, i: any) => (
-              <li key={i} className="text-xs text-slate-500 dark:text-slate-500">⬢ {d}</li>
+              <li key={d} className="text-xs text-slate-500 dark:text-slate-500">⬢ {d}</li>
             ))}
           </ul>
         )}
