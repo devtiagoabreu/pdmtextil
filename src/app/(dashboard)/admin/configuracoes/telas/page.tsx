@@ -8,7 +8,8 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Loader2, Plus, Trash2, Edit3, ChevronDown, ChevronRight, Save, Layout } from "lucide-react"
+import { Loader2, Plus, Trash2, Edit3, Minus, Save, Layout } from "lucide-react"
+import { ICONE_OPCOES, MenuIcone } from "@/lib/menu-icones"
 import {
   Select,
   SelectContent,
@@ -312,16 +313,37 @@ export default function AdminTelasPage() {
                       onClick={() => setExpandedMenu(expandedMenu === menu.id ? null : menu.id!)}
                       className="text-slate-400 hover:text-slate-600"
                     >
-                      {expandedMenu === menu.id ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                      {expandedMenu === menu.id ? <Minus size={16} /> : <Plus size={16} />}
                     </button>
+                    <MenuIcone icone={menu.icone} titulo={menu.titulo} url={menu.itens?.[0]?.url} size={16} className="text-slate-500" />
                     {editingMenuId === menu.id ? (
                       <div className="flex items-center gap-2 flex-1">
                         <Input
                           value={editForm[`menu-${menu.id}`]?.titulo || ""}
                           onChange={e => setEditForm(prev => ({ ...prev, [`menu-${menu.id}`]: { ...prev[`menu-${menu.id}`], titulo: e.target.value } }))}
-                          className="h-8 text-sm max-w-xs"
+                          className="h-8 text-sm max-w-[180px]"
                           placeholder="Título do menu"
                         />
+                        <Select
+                          value={editForm[`menu-${menu.id}`]?.icone || ""}
+                          onValueChange={(v: string | null) => {
+                            if (v) setEditForm(prev => ({ ...prev, [`menu-${menu.id}`]: { ...prev[`menu-${menu.id}`], icone: v } }))
+                          }}
+                        >
+                          <SelectTrigger className="h-8 text-sm w-[200px]">
+                            <SelectValue placeholder="Ícone do menu" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {ICONE_OPCOES.map(op => (
+                              <SelectItem key={op.valor} value={op.valor}>
+                                <span className="inline-flex items-center gap-2">
+                                  <op.Icone size={14} />
+                                  {op.nome}
+                                </span>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                         <Button size="sm" variant="ghost" onClick={() => salvarMenu(menu.id!)} className="h-8">
                           <Save size={14} />
                         </Button>

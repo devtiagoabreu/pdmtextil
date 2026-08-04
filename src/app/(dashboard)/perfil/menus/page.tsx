@@ -8,7 +8,8 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Loader2, Plus, Trash2, Edit3, ChevronDown, ChevronRight, Save, GripVertical, Copy } from "lucide-react"
+import { Loader2, Plus, Trash2, Edit3, Minus, Save, GripVertical, Copy } from "lucide-react"
+import { ICONE_OPCOES, MenuIcone } from "@/lib/menu-icones"
 import {
   Dialog,
   DialogContent,
@@ -54,10 +55,12 @@ function SortableMenu({
   isExpanded,
   isEditing,
   editValue,
+  editIcone,
+  onChangeEdit,
+  onChangeIcone,
   onToggle,
   onStartEdit,
   onDelete,
-  onChangeEdit,
   onSave,
   onCancelEdit,
   children,
@@ -66,10 +69,12 @@ function SortableMenu({
   isExpanded: boolean
   isEditing: boolean
   editValue: string
+  editIcone: string
+  onChangeEdit: (v: string) => void
+  onChangeIcone: (v: string) => void
   onToggle: () => void
   onStartEdit: () => void
   onDelete: () => void
-  onChangeEdit: (v: string) => void
   onSave: () => void
   onCancelEdit: () => void
   children: React.ReactNode
@@ -104,17 +109,38 @@ function SortableMenu({
             onClick={onToggle}
             className="text-slate-400 hover:text-slate-600"
           >
-            {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+            {isExpanded ? <Minus size={16} /> : <Plus size={16} />}
           </button>
+          <MenuIcone icone={menu.icone} titulo={menu.titulo} url={menu.itens?.[0]?.url} size={16} className="text-slate-500" />
           {isEditing ? (
             <div className="flex items-center gap-2 flex-1">
               <Input
                 value={editValue}
                 onChange={e => onChangeEdit(e.target.value)}
-                className="h-8 text-sm max-w-xs"
+                className="h-8 text-sm max-w-[180px]"
                 placeholder="Título do menu"
                 autoFocus
               />
+              <Select
+                value={editIcone || ""}
+                onValueChange={(v: string | null) => {
+                  if (v) onChangeIcone(v)
+                }}
+              >
+                <SelectTrigger className="h-8 text-sm w-[200px]">
+                  <SelectValue placeholder="Ícone do menu" />
+                </SelectTrigger>
+                <SelectContent>
+                  {ICONE_OPCOES.map(op => (
+                    <SelectItem key={op.valor} value={op.valor}>
+                      <span className="inline-flex items-center gap-2">
+                        <op.Icone size={14} />
+                        {op.nome}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <Button size="sm" variant="ghost" onClick={onSave} className="h-8">
                 <Save size={14} />
               </Button>
@@ -574,6 +600,8 @@ export default function ConfigurarMenusPage() {
                     isExpanded={expandedMenu === menu.id}
                     isEditing={editingMenuId === menu.id}
                     editValue={editForm[`menu-${menu.id}`]?.titulo || ""}
+                    editIcone={editForm[`menu-${menu.id}`]?.icone || ""}
+                    onChangeIcone={v => setEditForm(prev => ({ ...prev, [`menu-${menu.id}`]: { ...prev[`menu-${menu.id}`], icone: v } }))}
                     onToggle={() => setExpandedMenu(expandedMenu === menu.id ? null : menu.id)}
                     onStartEdit={() => {
                       setEditingMenuId(menu.id)

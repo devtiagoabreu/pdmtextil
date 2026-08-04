@@ -1,14 +1,15 @@
 "use client"
 
 import { NavLink } from "@/components/ui/nav-link"
+import { MenuIcone } from "@/lib/menu-icones"
 import { usePathname } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { useState, useEffect, useCallback } from "react"
 import {
   Settings,
   X,
-  ChevronDown,
-  ChevronRight,
+  Plus,
+  Minus,
   Loader2,
   Activity,
   Package,
@@ -25,6 +26,7 @@ interface MenuItem {
 interface UserMenu {
   id: number
   titulo: string
+  icone?: string | null
   itens: MenuItem[]
 }
 
@@ -58,15 +60,6 @@ function SidebarContent({ onClose, collapsed }: { onClose?: () => void; collapse
       .catch(() => setMenus([]))
       .finally(() => setLoading(false))
   }, [])
-
-  useEffect(() => {
-    if (menus.length === 0) return
-    for (const menu of menus) {
-      if (menu.itens.some((i: MenuItem) => pathname === i.url || pathname?.startsWith(i.url + "/"))) {
-        setExpandedMenus(prev => new Set(prev).add(menu.id))
-      }
-    }
-  }, [pathname, menus])
 
   const toggleMenu = useCallback((id: number) => {
     setExpandedMenus(prev => {
@@ -105,7 +98,7 @@ function SidebarContent({ onClose, collapsed }: { onClose?: () => void; collapse
                     : "text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
                 }`}
               >
-                <span className="font-semibold text-xs">{menu.titulo.charAt(0)}</span>
+                <MenuIcone icone={menu.icone} titulo={menu.titulo} url={firstItem?.url} size={18} />
               </NavLink>
             )
           })
@@ -154,6 +147,7 @@ function SidebarContent({ onClose, collapsed }: { onClose?: () => void; collapse
           menus.map((menu: any) => {
             const menuActive = menu.itens.some((i: MenuItem) => isAtiva(i.url))
             const isExpanded = expandedMenus.has(menu.id)
+            const firstItem = menu.itens[0]
             return (
               <div key={menu.id}>
                 <button
@@ -164,8 +158,9 @@ function SidebarContent({ onClose, collapsed }: { onClose?: () => void; collapse
                       : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
                   }`}
                 >
-                  {isExpanded ? <ChevronDown size={16} className="shrink-0" /> : <ChevronRight size={16} className="shrink-0" />}
-                  <span className="flex-1 text-left">{menu.titulo}</span>
+                  {isExpanded ? <Minus size={16} className="shrink-0 text-slate-400" /> : <Plus size={16} className="shrink-0 text-slate-400" />}
+                  <MenuIcone icone={menu.icone} titulo={menu.titulo} url={firstItem?.url} size={18} className="shrink-0" />
+                  <span className="flex-1 text-left truncate">{menu.titulo}</span>
                   {menuActive && <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />}
                 </button>
                 <div className={`ml-4 mt-0.5 space-y-0.5 border-l border-slate-200 dark:border-slate-700 pl-2 ${isExpanded ? "" : "hidden"}`}>
@@ -180,8 +175,8 @@ function SidebarContent({ onClose, collapsed }: { onClose?: () => void; collapse
                           : "text-slate-500 hover:text-slate-700 hover:bg-slate-50 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800/50"
                       }`}
                     >
-                      <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-600 shrink-0" />
-                      {item.titulo}
+                      <MenuIcone url={item.url} titulo={item.titulo} size={14} className="shrink-0" />
+                      <span className="truncate">{item.titulo}</span>
                     </NavLink>
                   ))}
                 </div>
