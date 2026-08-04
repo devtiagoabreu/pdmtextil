@@ -28,12 +28,12 @@ Regra de trabalho: cada item corrigido = **commit + push** separado, para acompa
 
 ## 3. Acessibilidade — modais e botões só-ícone
 
-- [ ] Botões `<X>` de fechar modais sem label (confirm-modal, info-button, list-filters, ClienteAutocomplete, ImportarApiModal, buscar-cnpj, google-drive-picker, oportunidades-kanban, photo-upload, visit-location-modal, visitas-calendario, send-survey-button, ImportarEntidade, acabamento-receita-dialog)
-- [ ] `visitas-calendario.tsx` — aria-label nos chevrons de mês
-- [ ] `photo-upload.tsx` — aria-label no botão remover foto
-- [ ] `visit-location-modal.tsx` — aria-label no botão remover localização
-- [ ] `acabamento-receita-dialog.tsx` — aria-label no botão remover item
-- [ ] Modais custom: fechar com `Escape` + `role="dialog"`/`aria-modal` (10+ modais)
+- [x] Botões `<X>` de fechar modais sem label (confirm-modal, info-button, list-filters, ClienteAutocomplete, ImportarApiModal, buscar-cnpj, google-drive-picker, oportunidades-kanban, photo-upload, visit-location-modal, visitas-calendario, send-survey-button, ImportarEntidade, acabamento-receita-dialog) `790c051f`
+- [x] `visitas-calendario.tsx` — aria-label nos chevrons de mês `790c051f`
+- [x] `photo-upload.tsx` — aria-label no botão remover foto `790c051f`
+- [x] `visit-location-modal.tsx` — aria-label no botão remover localização `790c051f`
+- [x] `acabamento-receita-dialog.tsx` — aria-label no botão remover item `790c051f`
+- [x] Modais custom: fechar com `Escape` + `role="dialog"`/`aria-modal` — hook `useEscapeClose` (`src/lib/use-escape-close.ts`) aplicado em confirm-modal, info-button, google-drive-picker, oportunidades-kanban, send-survey-button, visit-location-modal, visitas-calendario, buscar-cnpj-modal, ImportarApiModal, ImportarEntidade `790c051f`
 
 ## 4. Acessibilidade — combobox de busca
 
