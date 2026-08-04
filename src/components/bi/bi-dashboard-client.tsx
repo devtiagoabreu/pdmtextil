@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 import { Search,Upload, BarChart3, TrendingUp, MapPin, Package, ShoppingCart, Layers, Users, AlertTriangle, Trophy, Medal, UserCheck, CalendarClock } from "lucide-react"
 import { ChartCard } from "@/components/ui/chart-card"
@@ -200,7 +201,6 @@ function ClienteCurvaTable({ clientes }: { clientes: any[] }) {
 export function BiDashboardClient() {
   const [url, setUrl] = useState("")
   const [loading, setLoading] = useState(false)
-  const [sheetData, setSheetData] = useState<any>(null)
   const [error, setError] = useState("")
   const [activeTab, setActiveTab] = useState<"dashboard" | "produto" | "grupo" | "representantes" | "clientes">("dashboard")
   const [searchProduto, setSearchProduto] = useState("")
@@ -220,46 +220,68 @@ export function BiDashboardClient() {
   const [dataInicial, setDataInicial] = useState("")
   const [dataFinal, setDataFinal] = useState("")
 
-  // Load cached sheet on mount
-  useEffect(() => {
-    const cached = localStorage.getItem("bi_last_sheet")
-    if (cached) {
-      const parsed = JSON.parse(cached)
-      setSheetId(parsed.id)
-      setUrl(parsed.url)
-      fetchSheetData(parsed.id)
-    }
-    fetch("/api/bi/config")
-      .then(r => (r.ok ? r.json() : null))
-      .then(d => { if (d?.ttlMinutos) setTtlMinutos(d.ttlMinutos) })
-      .catch(() => {})
-  }, [])
+  const queryClient = useQueryClient()
 
-  const fetchSheetData = useCallback(async (id: string, period?: { de?: string; ate?: string }) => {
-    setLoading(true)
-    setError("")
-    try {
+  const { data: sheetData, isLoading: sheetLoading, error: sheetError } = useQuery<any>({
+    queryKey: ["bi-sheet", sheetId, dataInicial, dataFinal],
+    queryFn: async ({ queryKey }) => {
+      const [, id, de, ate] = queryKey as [string, string, string, string]
       const qs = new URLSearchParams()
-      if (period?.de) qs.set("de", period.de)
-      if (period?.ate) qs.set("ate", period.ate)
+      if (de) qs.set("de", de)
+      if (ate) qs.set("ate", ate)
       const query = qs.toString() ? `?${qs}` : ""
       const res = await fetch(`/api/bi/${id}${query}`)
       if (!res.ok) {
         const err = await res.json()
         throw new Error(err.error || "Erro ao carregar dados")
       }
-      const data = await res.json()
-      setSheetData(data)
-      setProdutoList(data.produtos || [])
-      setGrupoList(data.grupos || [])
-      setSheetId(id)
-    } catch (e: any) {
-      setError(e.message)
-      setSheetData(null)
-    } finally {
-      setLoading(false)
+      return res.json()
+    },
+    enabled: !!sheetId,
+    retry: false,
+  })
+
+  const { data: biConfig } = useQuery<any>({
+    queryKey: ["bi-config"],
+    queryFn: async () => {
+      const r = await fetch("/api/bi/config")
+      return r.ok ? r.json() : null
+    },
+    staleTime: 5 * 60 * 1000,
+  })
+
+  useEffect(() => {
+    if (biConfig?.ttlMinutos) setTtlMinutos(biConfig.ttlMinutos)
+  }, [biConfig])
+
+  // Restaura a última planilha carregada
+  useEffect(() => {
+    const cached = localStorage.getItem("bi_last_sheet")
+    if (cached) {
+      const parsed = JSON.parse(cached)
+      setSheetId(parsed.id)
+      setUrl(parsed.url)
     }
   }, [])
+
+  useEffect(() => {
+    if (sheetError) setError((sheetError as any)?.message || "Erro ao carregar dados")
+  }, [sheetError])
+
+  useEffect(() => {
+    if (sheetData) {
+      setProdutoList(sheetData.produtos || [])
+      setGrupoList(sheetData.grupos || [])
+    }
+  }, [sheetData])
+
+  const fetchSheetData = useCallback((id: string, period?: { de?: string; ate?: string }) => {
+    setDataInicial(period?.de || "")
+    setDataFinal(period?.ate || "")
+    setSheetId(id)
+    setError("")
+    queryClient.refetchQueries({ queryKey: ["bi-sheet"] })
+  }, [queryClient])
 
   const periodQs = () => {
     const p = new URLSearchParams()
@@ -450,7 +472,7 @@ export function BiDashboardClient() {
   )
 
   // --- Loading State ---
-  if (loading && !sheetData) {
+  if ((loading || sheetLoading) && !sheetData) {
     return (
       <div className="flex items-center justify-center py-20">
         <div className="text-center space-y-3">
@@ -479,19 +501,19 @@ export function BiDashboardClient() {
           />
           <button
             onClick={() => handleLoad()}
-            disabled={loading || !url.trim()}
+            disabled={loading || sheetLoading || !url.trim()}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 transition-colors"
           >
             <Upload className="w-4 h-4" />
-            {loading ? "Carregando..." : "Carregar"}
+            {loading || sheetLoading ? "Carregando..." : "Carregar"}
           </button>
           {sheetData && (
             <button
               onClick={() => handleLoad(true)}
-              disabled={loading}
+              disabled={loading || sheetLoading}
               className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50 transition-colors"
             >
-              {loading ? "Recarregando..." : "Recarregar agora"}
+              {loading || sheetLoading ? "Recarregando..." : "Recarregar agora"}
             </button>
           )}
         </div>
