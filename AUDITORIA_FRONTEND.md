@@ -72,10 +72,10 @@ Regra de trabalho: cada item corrigido = **commit + push** separado, para acompa
 - [x] `components/bi/bi-dashboard-client.tsx` — useQuery `74f88d1f`
 - [x] `perfil/page.tsx`, `perfil/menus/page.tsx` — useQuery `1362a9a2`
 - [x] `dashboard/amostras/page.tsx`, `dashboard/requisicoes-corte/page.tsx` — useQuery `104acec0`
-- [ ] `components/integracao/ImportarApiModal.tsx` — useQuery
-- [ ] `components/crm/*` (crm-pessoa-whatsapp, whatsapp-chat, vincular-visita-modal, visit-report-button, google-drive-picker, quick-create-*) — useQuery
-- [ ] `components/receita/acabamento-receita-dialog.tsx` — useQuery
-- [ ] `components/exportar/ExportarDados.tsx` — useQuery
+- [x] `components/integracao/ImportarApiModal.tsx` — useQuery `1f784b4d`
+- [x] `components/crm/*` (crm-pessoa-whatsapp, whatsapp-chat, vincular-visita-modal, quick-create-cliente/pessoa/contato) — useQuery `1f784b4d`; `google-drive-picker`, `visit-report-button`, kanbans e demais `quick-create-*` só fazem fetch em ações/navegação (mantidos)
+- [x] `components/receita/acabamento-receita-dialog.tsx` — useQuery `1f784b4d`
+- [x] `components/exportar/ExportarDados.tsx` — conferir (fetch só em ação de exportar — manter)
 
 ## 7. `useMemo`/`useCallback` preventivos
 
