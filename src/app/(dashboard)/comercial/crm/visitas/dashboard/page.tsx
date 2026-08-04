@@ -3,10 +3,10 @@
 import { useQuery } from "@tanstack/react-query"
 import { useSession } from "next-auth/react"
 import Link from "next/link"
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import {
   Calendar, CheckCircle2, XCircle, Clock, MapPin, Users,
-  ArrowRight, BarChart3, PieChart as PieChartIcon, ClipboardCheck, Navigation, User,
+  ArrowRight, BarChart3, PieChart as PieChartIcon, ClipboardCheck, Navigation, User, X, Loader2,
 } from "lucide-react"
 import {
   BarChart, Bar, PieChart as RPieChart, Pie, Cell,
@@ -58,8 +58,26 @@ const TIPO_LABELS: Record<string, string> = {
 
 const CHART_COLORS = ["#6366f1", "#06b6d4", "#f97316", "#22c55e", "#ef4444", "#8b5cf6"]
 
+const FILTROS_LABELS: Record<string, string> = {
+  total: "Total de Visitas",
+  realizadas: "Visitas Realizadas",
+  canceladas: "Visitas Canceladas",
+  agendadas: "Visitas Agendadas",
+  hoje: "Visitas de Hoje",
+  "este-mes": "Visitas deste Mês",
+  "pesquisas-respondidas": "Visitas com Pesquisa Respondida",
+  "tipo-PRESENCIAL": "Visitas Presenciais",
+  "tipo-VIDEO": "Visitas por Vídeo",
+  "tipo-TELEFONE": "Visitas por Telefone",
+  "status-EM_ANDAMENTO": "Visitas Em Andamento",
+}
+
 export default function VisitasDashboardPage() {
   const [selectedVisita, setSelectedVisita] = useState<{ id: number; nome: string } | null>(null)
+  const [modalFiltro, setModalFiltro] = useState<string | null>(null)
+  const [modalLista, setModalLista] = useState<any[]>([])
+  const [modalLoading, setModalLoading] = useState(false)
+  const [modalTitle, setModalTitle] = useState("")
   const { data: session } = useSession()
   const userRole = (session?.user as any)?.role
   const isComercial = userRole && !["ADMIN", "SUDO", "CRM"].includes(userRole)
@@ -72,6 +90,24 @@ export default function VisitasDashboardPage() {
     queryFn: () => fetch(`/api/crm/visitas/dashboard${visitasFilter === "minhas" ? "?mine=true" : ""}`).then((r: any) => r.json()),
     retry: 1,
   })
+
+  const openModal = useCallback(async (filtro: string) => {
+    setModalTitle(FILTROS_LABELS[filtro] || filtro)
+    setModalFiltro(filtro)
+    setModalLoading(true)
+    setModalLista([])
+    try {
+      const res = await fetch(`/api/crm/visitas/dashboard-lista?filtro=${filtro}${visitasFilter === "minhas" ? "&mine=true" : ""}`)
+      if (res.ok) {
+        const data = await res.json()
+        setModalLista(Array.isArray(data) ? data : [])
+      }
+    } catch {
+      setModalLista([])
+    } finally {
+      setModalLoading(false)
+    }
+  }, [visitasFilter])
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -125,7 +161,7 @@ export default function VisitasDashboardPage() {
           {/* Linha 1: Cards de resumo */}
            <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
             <SummaryCard
-              href="/comercial/crm/visitas"
+              onClick={() => openModal("total")}
               icon={<Calendar size={20} />}
               value={data?.total ?? 0}
               label="Total Visitas"
@@ -133,7 +169,7 @@ export default function VisitasDashboardPage() {
               iconColor="text-blue-600 dark:text-blue-400"
             />
             <SummaryCard
-              href="/comercial/crm/visitas"
+              onClick={() => openModal("realizadas")}
               icon={<CheckCircle2 size={20} />}
               value={data?.realizadas ?? 0}
               label="Realizadas"
@@ -141,7 +177,7 @@ export default function VisitasDashboardPage() {
               iconColor="text-green-600 dark:text-green-400"
             />
             <SummaryCard
-              href="/comercial/crm/visitas"
+              onClick={() => openModal("canceladas")}
               icon={<XCircle size={20} />}
               value={data?.canceladas ?? 0}
               label="Canceladas"
@@ -149,7 +185,7 @@ export default function VisitasDashboardPage() {
               iconColor="text-red-600 dark:text-red-400"
             />
             <SummaryCard
-              href="/comercial/crm/visitas"
+              onClick={() => openModal("agendadas")}
               icon={<Clock size={20} />}
               value={data?.agendadas ?? 0}
               label="Agendadas"
@@ -157,7 +193,7 @@ export default function VisitasDashboardPage() {
               iconColor="text-indigo-600 dark:text-indigo-400"
             />
             <SummaryCard
-              href="/comercial/crm/visitas"
+              onClick={() => openModal("hoje")}
               icon={<MapPin size={20} />}
               value={data?.hoje ?? 0}
               label="Visitas Hoje"
@@ -165,7 +201,7 @@ export default function VisitasDashboardPage() {
               iconColor="text-amber-600 dark:text-amber-400"
             />
             <SummaryCard
-              href="/comercial/crm/visitas"
+              onClick={() => openModal("este-mes")}
               icon={<Calendar size={20} />}
               value={data?.esteMes ?? 0}
               label="Este Mes"
@@ -173,7 +209,7 @@ export default function VisitasDashboardPage() {
               iconColor="text-teal-600 dark:text-teal-400"
             />
             <SummaryCard
-              href="/comercial/crm/visitas"
+              onClick={() => openModal("pesquisas-respondidas")}
               icon={<ClipboardCheck size={20} />}
               value={data?.pesquisas?.respondidas ?? 0}
               label="Pesquisas Respondidas"
@@ -214,16 +250,18 @@ export default function VisitasDashboardPage() {
                   </ResponsiveContainer>
                   <div className="flex flex-wrap gap-2 justify-center mt-2">
                     {data.byTipo.map((t: any) => (
-                      <span
+                      <button
                         key={t.tipo}
-                        className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
+                        type="button"
+                        onClick={() => openModal(`tipo-${t.tipo}`)}
+                        className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                       >
                         <span
                           className="w-2.5 h-2.5 rounded-full"
                           style={{ backgroundColor: TIPO_CORES[t.tipo] || "#6366f1" }}
                         />
                         {TIPO_LABELS[t.tipo] || t.tipo}: {t.total}
-                      </span>
+                      </button>
                     ))}
                   </div>
                 </>
@@ -261,16 +299,18 @@ export default function VisitasDashboardPage() {
                   </ResponsiveContainer>
                   <div className="flex flex-wrap gap-1.5 justify-center mt-1">
                     {data.byStatus.map((s: any, i: any) => (
-                      <span
+                      <button
                         key={s.status}
-                        className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
+                        type="button"
+                        onClick={() => openModal(`status-${s.status}`)}
+                        className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                       >
                         <span
                           className="w-2 h-2 rounded-full"
                           style={{ backgroundColor: STATUS_CORES[s.status] || CHART_COLORS[i % CHART_COLORS.length] }}
                         />
                         {STATUS_LABELS[s.status] || s.status}: {s.total}
-                      </span>
+                      </button>
                     ))}
                   </div>
                 </>
@@ -404,19 +444,82 @@ export default function VisitasDashboardPage() {
           onClose={() => setSelectedVisita(null)}
         />
       )}
+
+      {modalFiltro && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center pt-12 sm:pt-20 bg-black/50" onClick={() => setModalFiltro(null)}>
+          <div
+            className="bg-white dark:bg-slate-900 rounded-xl shadow-xl w-full max-w-2xl mx-4 max-h-[75vh] flex flex-col border border-slate-200 dark:border-slate-700"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">{modalTitle}</h2>
+              <button type="button" onClick={() => setModalFiltro(null)} className="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800">
+                <X size={18} className="text-slate-500" />
+              </button>
+            </div>
+            <div className="overflow-y-auto p-4 flex-1">
+              {modalLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="animate-spin text-slate-400" size={24} />
+                </div>
+              ) : modalLista.length === 0 ? (
+                <p className="text-center text-slate-500 py-12">Nenhuma visita encontrada</p>
+              ) : (
+                <div className="space-y-1">
+                  {modalLista.map((v: any) => (
+                    <Link
+                      key={v.id}
+                      href={`/comercial/crm/visitas/${v.id}`}
+                      onClick={() => setModalFiltro(null)}
+                      className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/50 text-left"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium text-slate-900 dark:text-slate-200 truncate">
+                          {v.empresaNome || v.clienteNome || v.nomeAvulso || `Visita #${v.id}`}
+                        </p>
+                        <p className="text-xs text-slate-400">
+                          {v.dataVisita
+                            ? new Date(v.dataVisita + "T12:00:00").toLocaleDateString("pt-BR")
+                            : ""}
+                          {v.hora ? ` ${v.hora}` : ""}
+                          {` · ${TIPO_LABELS[v.tipo] || v.tipo}`}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-3 ml-3 shrink-0">
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${
+                          v.status === "REALIZADA"
+                            ? "bg-green-100 text-green-700 dark:bg-green-950/50 dark:text-green-400"
+                            : v.status === "CANCELADA"
+                            ? "bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-400"
+                            : v.status === "EM_ANDAMENTO"
+                            ? "bg-orange-100 text-orange-700 dark:bg-orange-950/50 dark:text-orange-400"
+                            : "bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
+                        }`}>
+                          {STATUS_LABELS[v.status] || v.status}
+                        </span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
 
 function SummaryCard({
-  href, icon, value, label, sub, bgColor, iconColor,
+  onClick, icon, value, label, sub, bgColor, iconColor,
 }: {
-  href: string; icon: React.ReactNode; value: number; label: string; sub?: string; bgColor: string; iconColor: string
+  onClick: () => void; icon: React.ReactNode; value: number; label: string; sub?: string; bgColor: string; iconColor: string
 }) {
   return (
-    <Link
-      href={href}
-      className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 hover:shadow-md transition-shadow"
+    <button
+      type="button"
+      onClick={onClick}
+      className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 hover:shadow-md transition-shadow text-left w-full"
     >
       <div className="flex items-center gap-3">
         <div className={`rounded-lg ${bgColor} p-2.5`}>
@@ -428,7 +531,7 @@ function SummaryCard({
         </div>
       </div>
       {sub && <p className="text-[10px] text-slate-400 mt-1.5">{sub}</p>}
-    </Link>
+    </button>
   )
 }
 
