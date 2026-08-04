@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { toast } from "sonner"
 import {
   Loader2,
@@ -104,8 +105,6 @@ export default function RomaneiosPage() {
   const pathname = usePathname()
   const info = getInfoContent(pathname)
 
-  const [integracoes, setIntegracoes] = useState<Integracao[]>([])
-  const [loadingInt, setLoadingInt] = useState(true)
   const [selectedId, setSelectedId] = useState<number | null>(null)
   const [searchInput, setSearchInput] = useState("")
   const [searchTerm, setSearchTerm] = useState("")
@@ -116,17 +115,26 @@ export default function RomaneiosPage() {
   const [gerandoPdf, setGerandoPdf] = useState(false)
   const [orientacaoPdf, setOrientacaoPdf] = useState<OrientacaoPdf>("portrait")
 
+  const { data: integracoesData, isLoading: loadingInt, isError: integracoesError } = useQuery<Integracao[]>({
+    queryKey: ["integracao-listar", "romaneios"],
+    queryFn: async () => {
+      const res = await fetch("/api/integracao/listar?tela=romaneios")
+      if (!res.ok) throw new Error("Erro ao carregar integrações")
+      const data = await res.json()
+      return Array.isArray(data) ? data : []
+    },
+  })
+  const integracoes = integracoesData ?? []
+
   useEffect(() => {
-    setLoadingInt(true)
-    fetch("/api/integracao/listar?tela=romaneios")
-      .then((res: any) => res.json())
-      .then((data: any) => {
-        setIntegracoes(data)
-        if (data.length > 0) setSelectedId(data[0].id)
-      })
-      .catch(() => toast.error("Erro ao carregar integrações"))
-      .finally(() => setLoadingInt(false))
-  }, [])
+    if (integracoes && integracoes.length > 0 && selectedId === null) {
+      setSelectedId(integracoes[0].id)
+    }
+  }, [integracoes, selectedId])
+
+  useEffect(() => {
+    if (integracoesError) toast.error("Erro ao carregar integrações")
+  }, [integracoesError])
 
   const itensFiltrados = useMemo(() => {
     if (!searchTerm) return itens
