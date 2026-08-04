@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
@@ -278,7 +279,6 @@ export default function ConfigurarMenusPage() {
   const info = getInfoContent(pathname)
   const [telas, setTelas] = useState<Tela[]>([])
   const [menus, setMenus] = useState<Menu[]>([])
-  const [loading, setLoading] = useState(true)
   const [paginaInicial, setPaginaInicial] = useState("")
   const [expandedMenu, setExpandedMenu] = useState<number | null>(null)
   const [editingMenuId, setEditingMenuId] = useState<number | null>(null)
@@ -295,18 +295,47 @@ export default function ConfigurarMenusPage() {
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
   )
 
+  const { data: menusData, isLoading: loading, isError: menusError } = useQuery<Menu[]>({
+    queryKey: ["user-menus"],
+    queryFn: async () => {
+      const res = await fetch("/api/user/menus")
+      const data = await res.json()
+      return Array.isArray(data) ? data : []
+    },
+  })
+
+  const { data: telasData } = useQuery<Tela[]>({
+    queryKey: ["user-menus-telas"],
+    queryFn: async () => {
+      const res = await fetch("/api/user/menus/todas-telas")
+      const data = await res.json()
+      return Array.isArray(data) ? data : []
+    },
+  })
+
+  const { data: paginaInicialData } = useQuery<any>({
+    queryKey: ["user-pagina-inicial"],
+    queryFn: async () => {
+      const res = await fetch("/api/user/pagina-inicial")
+      return res.json()
+    },
+  })
+
   useEffect(() => {
-    Promise.all([
-      fetch("/api/user/menus").then((r: any) => r.json()),
-      fetch("/api/user/pagina-inicial").then((r: any) => r.json()),
-      fetch("/api/user/menus/todas-telas").then((r: any) => r.json()),
-    ]).then(([menusData, paginaData, telasData]) => {
-      setMenus(Array.isArray(menusData) ? menusData : [])
-      setPaginaInicial(paginaData.paginaInicial || "/dashboard")
-      setTelas(Array.isArray(telasData) ? telasData : [])
-    }).catch(() => toast.error("Erro ao carregar dados"))
-      .finally(() => setLoading(false))
-  }, [])
+    if (menusData) setMenus(menusData)
+  }, [menusData])
+
+  useEffect(() => {
+    if (telasData) setTelas(telasData)
+  }, [telasData])
+
+  useEffect(() => {
+    if (paginaInicialData?.paginaInicial) setPaginaInicial(paginaInicialData.paginaInicial || "/dashboard")
+  }, [paginaInicialData])
+
+  useEffect(() => {
+    if (menusError) toast.error("Erro ao carregar dados")
+  }, [menusError])
 
   async function salvarPaginaInicial() {
     setSaving(true)

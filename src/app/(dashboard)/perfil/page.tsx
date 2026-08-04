@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { useSession, signOut } from "next-auth/react"
 import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
@@ -34,22 +35,23 @@ function UserSmtpConfig() {
   const [senhaApp, setSenhaApp] = useState("")
   const [showSenha, setShowSenha] = useState(false)
   const [saving, setSaving] = useState(false)
-  const [loading, setLoading] = useState(true)
   const [hasConfig, setHasConfig] = useState(false)
 
+  const { data: emailConfig, isLoading: loading } = useQuery<any>({
+    queryKey: ["user-email-config"],
+    queryFn: async () => {
+      const res = await fetch("/api/user/email-config")
+      return res.json()
+    },
+  })
+
   useEffect(() => {
-    fetch("/api/user/email-config")
-      .then((r: any) => r.json())
-      .then((data: any) => {
-        if (data.config) {
-          setEmail(data.config.email)
-          setSenhaApp(data.config.senhaApp)
-          setHasConfig(true)
-        }
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false))
-  }, [])
+    if (emailConfig?.config) {
+      setEmail(emailConfig.config.email)
+      setSenhaApp(emailConfig.config.senhaApp)
+      setHasConfig(true)
+    }
+  }, [emailConfig])
 
   const handleSalvar = async (e: React.FormEvent) => {
     e.preventDefault()
