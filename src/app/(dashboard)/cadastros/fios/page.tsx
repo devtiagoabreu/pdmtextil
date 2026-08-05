@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input"
 import { matchesSearch } from "@/components/ui/list-filters"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
-import ImportarFios from "@/components/importar/ImportarFios"
+import { ImportarEntidade } from "@/components/importar/ImportarEntidade"
 import ImportarApiModal from "@/components/integracao/ImportarApiModal"
 import { ExportarDados } from "@/components/exportar/ExportarDados"
 
@@ -90,7 +90,7 @@ export default function FiosPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <ImportarFios onImportado={() => refetch()} />
+          <ImportarEntidade config={{ titulo: "Fios", apiBase: "cadastros/fios", arquivoPrefixo: "fios" }} onImportado={() => refetch()} />
           <ExportarDados data={filteredFios} columns={[
             { key: "codigoFio", label: "Código" }, { key: "nome", label: "Nome" }, { key: "titulo", label: "Título" },
             { key: "composicao", label: "Composição" },

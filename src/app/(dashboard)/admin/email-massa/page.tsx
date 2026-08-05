@@ -23,7 +23,7 @@ import {
 import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
-import ImportarContatosEmail from "@/components/importar/ImportarContatosEmail"
+import { ImportarEntidade } from "@/components/importar/ImportarEntidade"
 import { exportPDF, exportPDFRelatorio } from "@/lib/export-utils"
 import { getInfoContent } from "@/lib/info-content"
 import { Separator } from "@/components/ui/separator"
@@ -1186,7 +1186,13 @@ export default function EmailMassaPage() {
                           <td className="p-2 text-center"><span className="text-xs bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded-full">{l.totalContatos}</span></td>
                           <td className="p-2 text-right whitespace-nowrap">
                             <div className="flex gap-1 justify-end items-center">
-                              <ImportarContatosEmail listaId={l.id} listaNome={l.nome} onImportado={() => queryClient.invalidateQueries({ queryKey: ["email-massa-listas"] })} />
+                              <ImportarEntidade
+                                config={{ titulo: "Contatos", apiBase: `admin/email-massa/listas/${l.id}`, arquivoPrefixo: "contatos_email" }}
+                                onImportado={() => queryClient.invalidateQueries({ queryKey: ["email-massa-listas"] })}
+                                buttonVariant="compact"
+                                titleSuffix={l.nome}
+                                apiImportConfig={{ tela: "email-listas", existingKey: "email", extraImportParams: { listaId: l.id } }}
+                              />
                               <Button variant="ghost" size="xs" onClick={() => abrirEditarLista(l)} className="gap-1"><Pencil size={12} /></Button>
                               <Button variant="ghost" size="xs" onClick={() => abrirVerLista(l)} className="gap-1"><Eye size={12} /></Button>
                               <Button variant="ghost" size="xs" onClick={() => deletarLista(l.id)} className="gap-1 text-red-500 hover:text-red-700"><Trash2 size={12} /></Button>

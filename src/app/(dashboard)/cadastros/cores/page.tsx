@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input"
 import { matchesSearch } from "@/components/ui/list-filters"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
-import ImportarCores from "@/components/importar/ImportarCores"
+import { ImportarEntidade } from "@/components/importar/ImportarEntidade"
 import ImportarApiModal from "@/components/integracao/ImportarApiModal"
 import { ExportarDados } from "@/components/exportar/ExportarDados"
 
@@ -86,7 +86,7 @@ export default function CoresPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <ImportarCores onImportado={() => refetch()} />
+          <ImportarEntidade config={{ titulo: "Cores", apiBase: "cadastros/cores", arquivoPrefixo: "cores" }} onImportado={() => refetch()} />
           <ExportarDados data={filteredCores} columns={[
             { key: "codigo", label: "Código" }, { key: "nome", label: "Nome" },
             { key: "pantone", label: "Pantone" }, { key: "familia", label: "Família" },

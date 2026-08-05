@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input"
 import { matchesSearch } from "@/components/ui/list-filters"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
-import ImportarEstampas from "@/components/importar/ImportarEstampas"
+import { ImportarEntidade } from "@/components/importar/ImportarEntidade"
 import ImportarApiModal from "@/components/integracao/ImportarApiModal"
 import { ExportarDados } from "@/components/exportar/ExportarDados"
 
@@ -87,7 +87,7 @@ export default function EstampasPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <ImportarEstampas onImportado={() => refetch()} />
+          <ImportarEntidade config={{ titulo: "Estampas", apiBase: "cadastros/estampas", arquivoPrefixo: "estampas" }} onImportado={() => refetch()} />
           <ExportarDados data={filteredEstampas} columns={[
             { key: "codigoDesenho", label: "Desenho" }, { key: "variante", label: "Variante" },
             { key: "nome", label: "Nome" }, { key: "tipo", label: "Tipo" },

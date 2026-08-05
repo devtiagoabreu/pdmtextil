@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input"
 import { matchesSearch } from "@/components/ui/list-filters"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
-import ImportarBasesUrdume from "@/components/importar/ImportarBasesUrdume"
+import { ImportarEntidade } from "@/components/importar/ImportarEntidade"
 import ImportarApiModal from "@/components/integracao/ImportarApiModal"
 import { ExportarDados } from "@/components/exportar/ExportarDados"
 
@@ -90,7 +90,7 @@ export default function BasesUrdumePage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <ImportarBasesUrdume onImportado={() => refetch()} />
+          <ImportarEntidade config={{ titulo: "Bases Urdume", apiBase: "cadastros/bases-urdume", arquivoPrefixo: "bases_urdume" }} onImportado={() => refetch()} />
           <ExportarDados data={filteredBases} columns={[
             { key: "codigoBase", label: "Código" }, { key: "nome", label: "Nome" },
             { key: "densidade", label: "Densidade" }, { key: "largura", label: "Largura" },

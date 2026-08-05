@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input"
 import { matchesSearch } from "@/components/ui/list-filters"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
-import ImportarProdutosQuimicos from "@/components/importar/ImportarProdutosQuimicos"
+import { ImportarEntidade } from "@/components/importar/ImportarEntidade"
 import ImportarApiModal from "@/components/integracao/ImportarApiModal"
 import { ExportarDados } from "@/components/exportar/ExportarDados"
 
@@ -87,7 +87,23 @@ export default function ProdutosQuimicosPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <ImportarProdutosQuimicos onImportado={() => refetch()} />
+          <ImportarEntidade
+            config={{
+              titulo: "Produtos Químicos",
+              apiBase: "cadastros/produtos-quimicos",
+              arquivoPrefixo: "produtos_quimicos",
+              formDataKey: "file",
+              showModelDownloads: false,
+              colunasHint: "Colunas: código, nome, descricao, categoria, unidadePadrao, tipo, concentracao, idIntegracao",
+              normalizeResponse: (data) => ({
+                total: data.imported + (data.errors?.length || 0),
+                importados: data.imported,
+                erros: (data.errors || []).map((e: string, i: number) => ({ linha: i + 1, erro: e })),
+              }),
+              mensagemSucesso: (n) => `${n} produtos químicos importados`,
+            }}
+            onImportado={() => refetch()}
+          />
           <ExportarDados data={filtered} columns={[
             { key: "codigo", label: "Código" }, { key: "nome", label: "Nome" },
             { key: "categoria", label: "Categoria" }, { key: "unidadePadrao", label: "Unidade" },

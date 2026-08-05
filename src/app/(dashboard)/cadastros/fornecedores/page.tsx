@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input"
 import { matchesSearch } from "@/components/ui/list-filters"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
-import ImportarFornecedores from "@/components/importar/ImportarFornecedores"
+import { ImportarEntidade } from "@/components/importar/ImportarEntidade"
 import ImportarApiModal from "@/components/integracao/ImportarApiModal"
 import { ExportarDados } from "@/components/exportar/ExportarDados"
 
@@ -90,7 +90,7 @@ export default function FornecedoresPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <ImportarFornecedores onImportado={() => refetch()} />
+          <ImportarEntidade config={{ titulo: "Fornecedores", apiBase: "cadastros/fornecedores", arquivoPrefixo: "fornecedores" }} onImportado={() => refetch()} />
           <ExportarDados data={filteredFornecedores} columns={[
             { key: "nome", label: "Nome" }, { key: "cnpj", label: "CNPJ" }, { key: "email", label: "Email" },
             { key: "telefone", label: "Telefone" }, { key: "cidade", label: "Cidade" }, { key: "uf", label: "UF" },
