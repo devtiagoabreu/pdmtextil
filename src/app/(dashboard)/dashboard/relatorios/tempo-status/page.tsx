@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 import { Clock, Filter } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"

@@ -1,7 +1,9 @@
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { redirect } from "next/navigation"
-import { BiDashboardClient } from "@/components/bi/bi-dashboard-client"
+import dynamicClient from "next/dynamic"
+
+const BiDashboardClient = dynamicClient(() => import("@/components/bi/bi-dashboard-client").then((m) => m.BiDashboardClient), { ssr: false })
 
 export const dynamic = "force-dynamic"
 
