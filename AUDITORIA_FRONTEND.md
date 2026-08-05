@@ -79,11 +79,11 @@ Regra de trabalho: cada item corrigido = **commit + push** separado, para acompa
 
 ## 7. `useMemo`/`useCallback` preventivos
 
-- [ ] `admin/email-massa/page.tsx` — remover 20 `useCallback` desnecessários (migrar loaders para useQuery)
-- [ ] `components/crm/rich-text-editor.tsx` — avaliar 7 `useCallback`
-- [ ] `components/kanban/kanban-board.tsx` / `kanban-amostras.tsx` — remover useCallback só para dep de useEffect
-- [ ] `components/layout/sidebar.tsx` — remover `isAtiva` preventivo
-- [ ] ~30 arquivos com "useCallback para dep de useEffect" — resolver junto da migração para useQuery
+- [ ] `admin/email-massa/page.tsx` — remover 20 `useCallback` desnecessários (migrar loaders para useQuery). Parcial: `components/dashboard-relatorio.tsx` migrado para useQuery `518265be`; faltam loaders `carregarModelos/Listas/Historico/Agendados` + handlers do editor (event-handler-only, baixo risco)
+- [x] `components/crm/rich-text-editor.tsx` — avaliar 7 `useCallback` `08f81231`
+- [x] `components/kanban/kanban-board.tsx` / `kanban-amostras.tsx` — remover useCallback só para dep de useEffect `6ac82ef4`
+- [x] `components/layout/sidebar.tsx` — remover `isAtiva` preventivo `08f81231`
+- [x] ~30 arquivos com "useCallback para dep de useEffect" — resolver junto da migração para useQuery `08f81231`, `c33db109`, `3238f8bc`, `fcc69ee7`, `518265be`. Migrados para useQuery: kanbans CRM (leads/tarefas/propostas/campanhas/pessoas/oportunidades + página oportunidades/kanban), notificacoes, conversas, clientes/pessoas (novo e [id]), amostra-comercial kanban-board, dashboard-relatorio, relatórios (12 páginas). Removidos imports não usados: chat, perfil/menus, AnexosUpload, visitas-kanban, requisicoes-corte-kanban. Restantes são legítimos: event handlers (openModal, handleGerarPdf, navigate, handleSearchChange), memoized loaders com params usados em effect+handler (loadFolder, fetchSheetData), stable ref-effect-deps (checkPosition), e ações complexas (buscar romaneios/por-romaneio)
 
 ## 8. Bundle — libs pesadas
 
