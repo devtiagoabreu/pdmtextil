@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { useRouter, useParams, usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
@@ -40,31 +41,31 @@ export default function EstampaFormPage() {
     ativo: true,
     idIntegracao: "",
   })
-  const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
 
+  const { data: estampaData, isLoading: loading } = useQuery<any>({
+    queryKey: ["cadastro-estampa", id],
+    queryFn: async () => {
+      const res = await fetch(`/api/cadastros/estampas/${id}`)
+      return res.json()
+    },
+    enabled: !!isEditing && !!id,
+  })
+
   useEffect(() => {
-    if (isEditing && id) {
-      fetch(`/api/cadastros/estampas/${id}`)
-        .then((res: any) => res.json())
-        .then((data: any) => {
-          setEstampa({
-            id: data.id,
-            codigoDesenho: data.codigoDesenho || "",
-            variante: data.variante || "01",
-            nome: data.nome || "",
-            tipo: data.tipo || "",
-            imagemUrl: data.imagemUrl || "",
-            ativo: data.ativo ?? true,
-            idIntegracao: data.idIntegracao || "",
-          })
-        })
-        .catch((err: any) => console.error(err))
-        .finally(() => setLoading(false))
-    } else {
-      setLoading(false)
+    if (estampaData) {
+      setEstampa({
+        id: estampaData.id,
+        codigoDesenho: estampaData.codigoDesenho || "",
+        variante: estampaData.variante || "01",
+        nome: estampaData.nome || "",
+        tipo: estampaData.tipo || "",
+        imagemUrl: estampaData.imagemUrl || "",
+        ativo: estampaData.ativo ?? true,
+        idIntegracao: estampaData.idIntegracao || "",
+      })
     }
-  }, [id, isEditing])
+  }, [estampaData])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()

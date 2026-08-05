@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, type MouseEvent } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { useRouter, useParams, usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
@@ -130,7 +131,6 @@ export default function ProdutoCruFormPage() {
     idIntegracaoErpCru: "",
     idIntegracao: "",
   })
-  const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
 
   const [composicao, setComposicao] = useState<Composicao[]>([])
@@ -190,65 +190,94 @@ export default function ProdutoCruFormPage() {
   const [editAmostraErp, setEditAmostraErp] = useState("")
   const [editAmostraTear, setEditAmostraTear] = useState("")
 
+  const { data: fiosData } = useQuery<{ id: number; codigoFio: string; nome: string; idIntegracao: string | null }[]>({
+    queryKey: ["cadastro-fios"],
+    queryFn: async () => {
+      const res = await fetch("/api/cadastros/fios")
+      return res.json()
+    },
+  })
+
+  const { data: basesUrdumeData } = useQuery<{ id: number; nome: string; idIntegracao: string | null }[]>({
+    queryKey: ["cadastro-bases-urdume"],
+    queryFn: async () => {
+      const res = await fetch("/api/cadastros/bases-urdume")
+      return res.json()
+    },
+  })
+
+  const { data: solicitacoesData } = useQuery<{ id: number; cliente: string; projeto: string }[]>({
+    queryKey: ["solicitacoes"],
+    queryFn: async () => {
+      const res = await fetch("/api/solicitacoes")
+      return res.json()
+    },
+  })
+
+  const { data: statusProdData } = useQuery<{ nome: string; rotulo?: string }[]>({
+    queryKey: ["admin-status", "PRODUTO_CRU"],
+    queryFn: async () => {
+      const res = await fetch("/api/admin/status?tipo=PRODUTO_CRU")
+      return res.json()
+    },
+  })
+
+  const { data: statusAmostraData } = useQuery<{ nome: string; rotulo?: string }[]>({
+    queryKey: ["admin-status", "AMOSTRA"],
+    queryFn: async () => {
+      const res = await fetch("/api/admin/status?tipo=AMOSTRA")
+      return res.json()
+    },
+  })
+
   useEffect(() => {
-    fetch("/api/cadastros/fios")
-      .then((res: any) => res.json())
-      .then((data: any) => setFios(data))
-
-    fetch("/api/cadastros/bases-urdume")
-      .then((res: any) => res.json())
-      .then((data: any) => setBasesUrdume(data))
-
-    fetch("/api/solicitacoes")
-      .then((res: any) => res.json())
-      .then((data: any) => {
-        if (Array.isArray(data)) setSolicitacoes(data)
-      })
-      .catch(console.error)
-
-    fetch("/api/admin/status?tipo=PRODUTO_CRU")
-      .then((res: any) => res.json())
-      .then((data: any) => {
-        if (Array.isArray(data)) setStatusOptionsProd(data.map((s: any) => ({ value: s.nome, label: s.rotulo || s.nome })))
-      })
-      .catch(console.error)
-
-    fetch("/api/admin/status?tipo=AMOSTRA")
-      .then((res: any) => res.json())
-      .then((data: any) => {
-        if (Array.isArray(data)) setStatusOptionsAmostra(data.map((s: any) => ({ value: s.nome, label: s.rotulo || s.nome })))
-      })
-      .catch(console.error)
-  }, [])
+    if (fiosData) setFios(fiosData)
+  }, [fiosData])
 
   useEffect(() => {
-    if (isEditing && id) {
-      fetch(`/api/cadastros/produto-cru/${id}`)
-        .then((res: any) => res.json())
-        .then((data: any) => {
-          setProduto({
-            id: data.id,
-            codigoPdm: data.codigoPdm || "",
-            descricao: data.descricao || "",
-            solicitacaoDesenvolvimentoId: data.solicitacaoDesenvolvimentoId || null,
-            status: data.status || "DESENVOLVIMENTO",
-            fichaTecnica: data.fichaTecnica || null,
-            links: data.links || [],
-            ativo: data.ativo ?? true,
-            idIntegracaoErpCru: data.idIntegracaoErpCru || "",
-            idIntegracao: data.idIntegracao || "",
-          })
-          setComposicao(data.composicao || [])
-          setEstrutura(data.estrutura || [])
-          setAmostras(data.amostras || [])
-          setAcabamentos(data.acabamentos?.map((a: any) => ({ ...a, receitas: undefined })) || [])
-        })
-        .catch((err: any) => console.error(err))
-        .finally(() => setLoading(false))
-    } else {
-      setLoading(false)
-    }
-  }, [id, isEditing])
+    if (basesUrdumeData) setBasesUrdume(basesUrdumeData)
+  }, [basesUrdumeData])
+
+  useEffect(() => {
+    if (solicitacoesData && Array.isArray(solicitacoesData)) setSolicitacoes(solicitacoesData)
+  }, [solicitacoesData])
+
+  useEffect(() => {
+    if (Array.isArray(statusProdData)) setStatusOptionsProd(statusProdData.map((s) => ({ value: s.nome, label: s.rotulo || s.nome })))
+  }, [statusProdData])
+
+  useEffect(() => {
+    if (Array.isArray(statusAmostraData)) setStatusOptionsAmostra(statusAmostraData.map((s) => ({ value: s.nome, label: s.rotulo || s.nome })))
+  }, [statusAmostraData])
+
+  const { data: produtoData, isLoading: loading } = useQuery<any>({
+    queryKey: ["cadastro-produto-cru", id],
+    queryFn: async () => {
+      const res = await fetch(`/api/cadastros/produto-cru/${id}`)
+      return res.json()
+    },
+    enabled: !!isEditing && !!id,
+  })
+
+  useEffect(() => {
+    if (!produtoData) return
+    setProduto({
+      id: produtoData.id,
+      codigoPdm: produtoData.codigoPdm || "",
+      descricao: produtoData.descricao || "",
+      solicitacaoDesenvolvimentoId: produtoData.solicitacaoDesenvolvimentoId || null,
+      status: produtoData.status || "DESENVOLVIMENTO",
+      fichaTecnica: produtoData.fichaTecnica || null,
+      links: produtoData.links || [],
+      ativo: produtoData.ativo ?? true,
+      idIntegracaoErpCru: produtoData.idIntegracaoErpCru || "",
+      idIntegracao: produtoData.idIntegracao || "",
+    })
+    setComposicao(produtoData.composicao || [])
+    setEstrutura(produtoData.estrutura || [])
+    setAmostras(produtoData.amostras || [])
+    setAcabamentos(produtoData.acabamentos?.map((a: any) => ({ ...a, receitas: undefined })) || [])
+  }, [produtoData])
 
   useEffect(() => {
     if (!loading) {

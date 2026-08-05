@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { useRouter, useParams, usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
@@ -63,91 +64,54 @@ export default function BaseFormPage() {
     idIntegracao: "",
   })
   const [fiosSelecionados, setFiosSelecionados] = useState<FioSelecionado[]>([])
-  const [fiosDisponiveis, setFiosDisponiveis] = useState<FioOption[]>([])
   const [fioSearch, setFioSearch] = useState("")
-  const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
 
+  const { data: fiosDisponiveis = [] } = useQuery<FioOption[]>({
+    queryKey: ["cadastro-fios"],
+    queryFn: async () => {
+      const res = await fetch("/api/cadastros/fios")
+      if (!res.ok) return []
+      const fios: FioOption[] = await res.json()
+      return fios.filter((f: any) => f.id)
+    },
+  })
+
+  const { data: baseData, isLoading: loading } = useQuery<any>({
+    queryKey: ["cadastro-base-urdume", id],
+    queryFn: async () => {
+      const res = await fetch(`/api/cadastros/bases-urdume/${id}`)
+      if (!res.ok) throw new Error()
+      return res.json()
+    },
+    enabled: !!isEditing && !!id,
+  })
+
   useEffect(() => {
-    async function load() {
-      try {
-        const [fiosRes] = await Promise.all([
-          fetch("/api/cadastros/fios"),
-        ])
-
-        if (fiosRes.ok) {
-          const fios: FioOption[] = await fiosRes.json()
-          setFiosDisponiveis(fios.filter((f: any) => f.id))
-        }
-
-        if (isEditing && id) {
-          const baseRes = await fetch(`/api/cadastros/bases-urdume/${id}`)
-          if (baseRes.ok) {
-            const data = await baseRes.json()
-            setBase({
-              id: data.id,
-              codigoBase: data.codigoBase || "",
-              codigoCompleto: data.codigoCompleto || "",
-              nome: data.nome || "",
-              descricao: data.descricao || "",
-              densidade: data.densidade || "",
-              tratamento: data.tratamento || "",
-              tensaoUrdume: data.tensaoUrdume || "",
-              largura: data.largura || "",
-              observacoes: data.observacoes || "",
-              ativo: data.ativo ?? true,
-              idIntegracao: data.idIntegracao || "",
-            })
-            if (data.fiosLista) {
-              setFiosSelecionados(data.fiosLista.map((f: any) => ({
-                fioId: f.fioId,
-                fioNome: f.fioNome || "",
-                fioCodigo: f.fioCodigo || "",
-                fioIdIntegracao: f.fioIdIntegracao || null,
-              })))
-            }
-          } else {
-            const err = await baseRes.json().catch(() => ({ error: "Erro ao carregar" }))
-            toast.error(err.error || "Erro ao carregar base")
-          }
-        }
-
-        if (isEditing && id) {
-          const baseRes = await fetch(`/api/cadastros/bases-urdume/${id}`)
-          if (baseRes.ok) {
-            const data = await baseRes.json()
-            setBase({
-              id: data.id,
-              codigoBase: data.codigoBase || "",
-              codigoCompleto: data.codigoCompleto || "",
-              nome: data.nome || "",
-              descricao: data.descricao || "",
-              densidade: data.densidade || "",
-              tratamento: data.tratamento || "",
-              tensaoUrdume: data.tensaoUrdume || "",
-              largura: data.largura || "",
-              observacoes: data.observacoes || "",
-              ativo: data.ativo ?? true,
-              idIntegracao: data.idIntegracao || "",
-            })
-            if (data.fiosLista) {
-              setFiosSelecionados(data.fiosLista.map((f: any) => ({
-                fioId: f.fioId,
-                fioNome: f.fioNome || "",
-                fioCodigo: f.fioCodigo || "",
-                fioIdIntegracao: f.fioIdIntegracao || null,
-              })))
-            }
-          }
-        }
-      } catch (err) {
-        console.error(err)
-      } finally {
-        setLoading(false)
-      }
+    if (!baseData) return
+    setBase({
+      id: baseData.id,
+      codigoBase: baseData.codigoBase || "",
+      codigoCompleto: baseData.codigoCompleto || "",
+      nome: baseData.nome || "",
+      descricao: baseData.descricao || "",
+      densidade: baseData.densidade || "",
+      tratamento: baseData.tratamento || "",
+      tensaoUrdume: baseData.tensaoUrdume || "",
+      largura: baseData.largura || "",
+      observacoes: baseData.observacoes || "",
+      ativo: baseData.ativo ?? true,
+      idIntegracao: baseData.idIntegracao || "",
+    })
+    if (baseData.fiosLista) {
+      setFiosSelecionados(baseData.fiosLista.map((f: any) => ({
+        fioId: f.fioId,
+        fioNome: f.fioNome || "",
+        fioCodigo: f.fioCodigo || "",
+        fioIdIntegracao: f.fioIdIntegracao || null,
+      })))
     }
-    load()
-  }, [id, isEditing])
+  }, [baseData])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()

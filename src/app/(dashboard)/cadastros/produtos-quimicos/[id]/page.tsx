@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { useRouter, useParams, usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
@@ -35,29 +36,34 @@ export default function ProdutoQuimicoFormPage() {
     ativo: true,
   })
 
+  const { data: produtoData } = useQuery<any>({
+    queryKey: ["cadastro-produto-quimico", id],
+    queryFn: async () => {
+      const res = await fetch(`/api/cadastros/produtos-quimicos/${id}`)
+      return res.json()
+    },
+    enabled: !isNew,
+  })
+
   useEffect(() => {
-    if (!isNew) {
-      fetch(`/api/cadastros/produtos-quimicos/${id}`)
-        .then((r: any) => r.json())
-        .then((data: any) => {
-          setForm({
-            codigo: data.codigo || "",
-            nome: data.nome || "",
-            descricao: data.descricao || "",
-            categoria: data.categoria || "",
-            unidadePadrao: data.unidadePadrao || "kg",
-            tipo: data.tipo || "",
-            concentracao: data.concentracao || "",
-            densidade: data.densidade?.toString() || "",
-            ph: data.ph?.toString() || "",
-            observacoes: data.observacoes || "",
-            fichaSeguranca: data.fichaSeguranca || "",
-            idIntegracao: data.idIntegracao || "",
-            ativo: data.ativo ?? true,
-          })
-        })
+    if (produtoData) {
+      setForm({
+        codigo: produtoData.codigo || "",
+        nome: produtoData.nome || "",
+        descricao: produtoData.descricao || "",
+        categoria: produtoData.categoria || "",
+        unidadePadrao: produtoData.unidadePadrao || "kg",
+        tipo: produtoData.tipo || "",
+        concentracao: produtoData.concentracao || "",
+        densidade: produtoData.densidade?.toString() || "",
+        ph: produtoData.ph?.toString() || "",
+        observacoes: produtoData.observacoes || "",
+        fichaSeguranca: produtoData.fichaSeguranca || "",
+        idIntegracao: produtoData.idIntegracao || "",
+        ativo: produtoData.ativo ?? true,
+      })
     }
-  }, [id, isNew])
+  }, [produtoData])
 
   async function handleSave() {
     const method = isNew ? "POST" : "PUT"

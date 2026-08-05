@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { useRouter, useParams, usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
@@ -38,30 +39,30 @@ export default function CorFormPage() {
     ativo: true,
     idIntegracao: "",
   })
-  const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
 
+  const { data: corData, isLoading: loading } = useQuery<any>({
+    queryKey: ["cadastro-cor", id],
+    queryFn: async () => {
+      const res = await fetch(`/api/cadastros/cores/${id}`)
+      return res.json()
+    },
+    enabled: !!isEditing && !!id,
+  })
+
   useEffect(() => {
-    if (isEditing && id) {
-      fetch(`/api/cadastros/cores/${id}`)
-        .then((res: any) => res.json())
-        .then((data: any) => {
-          setCor({
-            id: data.id,
-            codigo: data.codigo || "",
-            nome: data.nome || "",
-            pantone: data.pantone || "",
-            familia: data.familia || "",
-            ativo: data.ativo ?? true,
-            idIntegracao: data.idIntegracao || "",
-          })
-        })
-        .catch((err: any) => console.error(err))
-        .finally(() => setLoading(false))
-    } else {
-      setLoading(false)
+    if (corData) {
+      setCor({
+        id: corData.id,
+        codigo: corData.codigo || "",
+        nome: corData.nome || "",
+        pantone: corData.pantone || "",
+        familia: corData.familia || "",
+        ativo: corData.ativo ?? true,
+        idIntegracao: corData.idIntegracao || "",
+      })
     }
-  }, [id, isEditing])
+  }, [corData])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()

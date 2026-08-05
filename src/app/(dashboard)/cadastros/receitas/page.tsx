@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useQuery } from "@tanstack/react-query"
 import Link from "next/link"
 import { FlaskConical, Beaker, FileText, ChevronRight } from "lucide-react"
 import { usePathname } from "next/navigation"
@@ -44,16 +45,28 @@ export default function ListaReceitasPage() {
   const [loading, setLoading] = useState(true)
   const [aba, setAba] = useState<"simples" | "completas">("completas")
 
+  const { data: receitasData, isError } = useQuery<{ simples: ReceitaSimples[]; completas: ReceitaCompleta[] }>({
+    queryKey: ["receitas"],
+    queryFn: async () => {
+      const res = await fetch("/api/receitas")
+      return res.json()
+    },
+  })
+
   useEffect(() => {
-    fetch("/api/receitas")
-      .then((r: any) => r.json())
-      .then((data: any) => {
-        setSimples(data.simples || [])
-        setCompletas(data.completas || [])
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false))
-  }, [])
+    if (receitasData) {
+      setSimples(receitasData.simples || [])
+      setCompletas(receitasData.completas || [])
+      setLoading(false)
+    }
+  }, [receitasData])
+
+  useEffect(() => {
+    if (isError) {
+      console.error("Erro ao carregar receitas")
+      setLoading(false)
+    }
+  }, [isError])
 
   return (
     <div className="space-y-6 animate-fade-in">

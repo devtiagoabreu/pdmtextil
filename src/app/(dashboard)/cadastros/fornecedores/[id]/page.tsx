@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { useRouter, useParams, usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
@@ -48,35 +49,35 @@ export default function FornecedorFormPage() {
     ativo: true,
     idIntegracao: "",
   })
-  const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
 
+  const { data: fornecedorData, isLoading: loading } = useQuery<any>({
+    queryKey: ["cadastro-fornecedor", id],
+    queryFn: async () => {
+      const res = await fetch(`/api/cadastros/fornecedores/${id}`)
+      return res.json()
+    },
+    enabled: !!isEditing && !!id,
+  })
+
   useEffect(() => {
-    if (isEditing && id) {
-      fetch(`/api/cadastros/fornecedores/${id}`)
-        .then((res: any) => res.json())
-        .then((data: any) => {
-          setFornecedor({
-            id: data.id,
-            nome: data.nome || "",
-            cnpj: data.cnpj || "",
-            razaoSocial: data.razaoSocial || "",
-            email: data.email || "",
-            telefone: data.telefone || "",
-            contato: data.contato || "",
-            endereco: data.endereco || "",
-            cidade: data.cidade || "",
-            uf: data.uf || "",
-            ativo: data.ativo ?? true,
-            idIntegracao: data.idIntegracao || "",
-          })
-        })
-        .catch((err: any) => console.error(err))
-        .finally(() => setLoading(false))
-    } else {
-      setLoading(false)
+    if (fornecedorData) {
+      setFornecedor({
+        id: fornecedorData.id,
+        nome: fornecedorData.nome || "",
+        cnpj: fornecedorData.cnpj || "",
+        razaoSocial: fornecedorData.razaoSocial || "",
+        email: fornecedorData.email || "",
+        telefone: fornecedorData.telefone || "",
+        contato: fornecedorData.contato || "",
+        endereco: fornecedorData.endereco || "",
+        cidade: fornecedorData.cidade || "",
+        uf: fornecedorData.uf || "",
+        ativo: fornecedorData.ativo ?? true,
+        idIntegracao: fornecedorData.idIntegracao || "",
+      })
     }
-  }, [id, isEditing])
+  }, [fornecedorData])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()

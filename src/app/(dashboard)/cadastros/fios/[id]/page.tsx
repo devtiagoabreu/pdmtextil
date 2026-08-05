@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { useRouter, useParams, usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
@@ -87,7 +88,6 @@ export default function FioFormPage() {
     ativo: true,
     idIntegracao: "",
   })
-  const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   
   const [fornecedores, setFornecedores] = useState<Fornecedor[]>([])
@@ -130,43 +130,61 @@ export default function FioFormPage() {
     }))
   }
 
-  useEffect(() => {
-    fetch("/api/cadastros/fornecedores")
-      .then((res: any) => res.json())
-      .then((data: any) => setFornecedores(data))
-  }, [])
+  const { data: fornecedoresData } = useQuery<Fornecedor[]>({
+    queryKey: ["cadastro-fornecedores"],
+    queryFn: async () => {
+      const res = await fetch("/api/cadastros/fornecedores")
+      return res.json()
+    },
+  })
+
+  const { data: fioData, isLoading: loading } = useQuery<any>({
+    queryKey: ["cadastro-fio", id],
+    queryFn: async () => {
+      const res = await fetch(`/api/cadastros/fios/${id}`)
+      return res.json()
+    },
+    enabled: !!isEditing && !!id,
+  })
+
+  const { data: fioFornecedoresData } = useQuery<FioFornecedor[]>({
+    queryKey: ["cadastro-fio-fornecedores", id],
+    queryFn: async () => {
+      const res = await fetch(`/api/cadastros/fios/${id}/fornecedores`)
+      return res.json()
+    },
+    enabled: !!isEditing && !!id,
+  })
 
   useEffect(() => {
-    if (isEditing && id) {
-      Promise.all([
-        fetch(`/api/cadastros/fios/${id}`).then((res: any) => res.json()),
-        fetch(`/api/cadastros/fios/${id}/fornecedores`).then((res: any) => res.json())
-      ]).then(([fioData, fornecedoresData]) => {
-        setFio({
-          id: fioData.id,
-          codigoFio: fioData.codigoFio || "",
-          codigoCompleto: fioData.codigoCompleto || "",
-          nome: fioData.nome || "",
-          nomeComercial: fioData.nomeComercial || "",
-          composicao: fioData.composicao || "",
-          titulo: fioData.titulo || "",
-          titulagemReal: fioData.titulagemReal || "",
-          ncm: fioData.ncm || "",
-          torcao: fioData.torcao || "",
-          resistencia: fioData.resistencia || "",
-          alongamento: fioData.alongamento || "",
-          links: fioData.links || [],
-          observacoes: fioData.observacoes || "",
-          ativo: fioData.ativo ?? true,
-          idIntegracao: fioData.idIntegracao || "",
-        })
-        setFioFornecedores(fornecedoresData)
-        setLoading(false)
-      })
-    } else {
-      setLoading(false)
-    }
-  }, [id, isEditing])
+    if (fornecedoresData) setFornecedores(fornecedoresData)
+  }, [fornecedoresData])
+
+  useEffect(() => {
+    if (!fioData) return
+    setFio({
+      id: fioData.id,
+      codigoFio: fioData.codigoFio || "",
+      codigoCompleto: fioData.codigoCompleto || "",
+      nome: fioData.nome || "",
+      nomeComercial: fioData.nomeComercial || "",
+      composicao: fioData.composicao || "",
+      titulo: fioData.titulo || "",
+      titulagemReal: fioData.titulagemReal || "",
+      ncm: fioData.ncm || "",
+      torcao: fioData.torcao || "",
+      resistencia: fioData.resistencia || "",
+      alongamento: fioData.alongamento || "",
+      links: fioData.links || [],
+      observacoes: fioData.observacoes || "",
+      ativo: fioData.ativo ?? true,
+      idIntegracao: fioData.idIntegracao || "",
+    })
+  }, [fioData])
+
+  useEffect(() => {
+    if (fioFornecedoresData) setFioFornecedores(fioFornecedoresData)
+  }, [fioFornecedoresData])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
