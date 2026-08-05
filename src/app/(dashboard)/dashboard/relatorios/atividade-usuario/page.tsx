@@ -1,6 +1,7 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useState } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts"
 import { Activity, Filter, UserCheck } from "lucide-react"
 import { usePathname } from "next/navigation"
@@ -8,34 +9,6 @@ import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { exportCSV, exportPDFRelatorio } from "@/lib/export-utils"
 import { ChartTooltip } from "@/components/ui/chart-tooltip"
-
-type Stats = {
-  total: number
-  totalUsuarios: number
-  primeiraAtividade: string | null
-  ultimaAtividade: string | null
-}
-
-type UserActivity = {
-  usuario: string
-  total: number
-}
-
-type TipoActivity = {
-  tipo: string
-  total: number
-}
-
-type RecentLog = {
-  id: number
-  tipo: string
-  acao: string
-  descricao: string
-  entidade: string
-  entidadeId: number
-  usuario: string
-  createdAt: string
-}
 
 const TIPO_CORES: Record<string, string> = {
   DELECAO: "#ef4444",
@@ -54,41 +27,41 @@ const TIPO_LABELS: Record<string, string> = {
 }
 
 export default function RelatorioAtividadeUsuario() {
-  const [stats, setStats] = useState<Stats | null>(null)
-  const [porUsuario, setPorUsuario] = useState<UserActivity[]>([])
-  const [porTipo, setPorTipo] = useState<TipoActivity[]>([])
-  const [recentes, setRecentes] = useState<RecentLog[]>([])
-  const [tiposDisponiveis, setTiposDisponiveis] = useState<string[]>([])
-  const [usuariosDisponiveis, setUsuariosDisponiveis] = useState<string[]>([])
-  const [loading, setLoading] = useState(true)
-  const [dataInicio, setDataInicio] = useState("")
-  const [dataFim, setDataFim] = useState("")
-  const [usuarioFiltro, setUsuarioFiltro] = useState("")
-  const [tipoFiltro, setTipoFiltro] = useState("")
+  const [filtroDataInicio, setFiltroDataInicio] = useState("")
+  const [filtroDataFim, setFiltroDataFim] = useState("")
+  const [filtroUsuario, setFiltroUsuario] = useState("")
+  const [filtroTipo, setFiltroTipo] = useState("")
+  const [aplicadoDataInicio, setAplicadoDataInicio] = useState("")
+  const [aplicadoDataFim, setAplicadoDataFim] = useState("")
+  const [aplicadoUsuario, setAplicadoUsuario] = useState("")
+  const [aplicadoTipo, setAplicadoTipo] = useState("")
 
-  const fetchData = useCallback(() => {
-    setLoading(true)
-    const params = new URLSearchParams()
-    if (dataInicio) params.set("dataInicio", dataInicio)
-    if (dataFim) params.set("dataFim", dataFim)
-    if (usuarioFiltro) params.set("usuario", usuarioFiltro)
-    if (tipoFiltro) params.set("tipo", tipoFiltro)
+  const { data, isLoading: loading } = useQuery<any>({
+    queryKey: ["relatorio-atividade-usuario", aplicadoDataInicio, aplicadoDataFim, aplicadoUsuario, aplicadoTipo],
+    queryFn: async () => {
+      const params = new URLSearchParams()
+      if (aplicadoDataInicio) params.set("dataInicio", aplicadoDataInicio)
+      if (aplicadoDataFim) params.set("dataFim", aplicadoDataFim)
+      if (aplicadoUsuario) params.set("usuario", aplicadoUsuario)
+      if (aplicadoTipo) params.set("tipo", aplicadoTipo)
+      const r: any = await fetch(`/api/relatorios/atividade-usuario?${params}`)
+      return r.json()
+    },
+  })
 
-    fetch(`/api/relatorios/atividade-usuario?${params}`)
-      .then((r: any) => r.json())
-      .then((data: any) => {
-        setStats(data.stats)
-        setPorUsuario(data.porUsuario || [])
-        setPorTipo(data.porTipo || [])
-        setRecentes(data.recentes || [])
-        setTiposDisponiveis(data.filtros?.tipos || [])
-        setUsuariosDisponiveis(data.filtros?.usuarios || [])
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false))
-  }, [dataInicio, dataFim, usuarioFiltro, tipoFiltro])
+  const stats = data?.stats
+  const porUsuario = data?.porUsuario || []
+  const porTipo = data?.porTipo || []
+  const recentes = data?.recentes || []
+  const tiposDisponiveis = data?.filtros?.tipos || []
+  const usuariosDisponiveis = data?.filtros?.usuarios || []
 
-  useEffect(() => { fetchData() }, [fetchData])
+  function handleFiltrar() {
+    setAplicadoDataInicio(filtroDataInicio)
+    setAplicadoDataFim(filtroDataFim)
+    setAplicadoUsuario(filtroUsuario)
+    setAplicadoTipo(filtroTipo)
+  }
 
   function handleExportCSV() {
     exportCSV("atividade-usuario", ["Usuário", "Ações"], porUsuario.map((u: any) => [u.usuario, u.total]))
@@ -148,8 +121,8 @@ export default function RelatorioAtividadeUsuario() {
           <label className="block text-xs text-slate-400 mb-1">Data início</label>
           <input
             type="date"
-            value={dataInicio}
-            onChange={(e) => setDataInicio(e.target.value)}
+            value={filtroDataInicio}
+            onChange={(e) => setFiltroDataInicio(e.target.value)}
             className="h-9 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 text-sm"
           />
         </div>
@@ -157,16 +130,16 @@ export default function RelatorioAtividadeUsuario() {
           <label className="block text-xs text-slate-400 mb-1">Data fim</label>
           <input
             type="date"
-            value={dataFim}
-            onChange={(e) => setDataFim(e.target.value)}
+            value={filtroDataFim}
+            onChange={(e) => setFiltroDataFim(e.target.value)}
             className="h-9 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 text-sm"
           />
         </div>
         <div>
           <label className="block text-xs text-slate-400 mb-1">Usuário</label>
           <select
-            value={usuarioFiltro}
-            onChange={(e) => setUsuarioFiltro(e.target.value)}
+            value={filtroUsuario}
+            onChange={(e) => setFiltroUsuario(e.target.value)}
             className="h-9 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 text-sm min-w-[140px]"
           >
             <option value="">Todos</option>
@@ -178,8 +151,8 @@ export default function RelatorioAtividadeUsuario() {
         <div>
           <label className="block text-xs text-slate-400 mb-1">Tipo</label>
           <select
-            value={tipoFiltro}
-            onChange={(e) => setTipoFiltro(e.target.value)}
+            value={filtroTipo}
+            onChange={(e) => setFiltroTipo(e.target.value)}
             className="h-9 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 text-sm min-w-[140px]"
           >
             <option value="">Todos</option>
@@ -189,7 +162,7 @@ export default function RelatorioAtividadeUsuario() {
           </select>
         </div>
         <button
-          onClick={fetchData}
+          onClick={handleFiltrar}
           className="h-9 px-4 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700"
         >
           Filtrar

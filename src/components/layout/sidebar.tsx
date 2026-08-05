@@ -4,7 +4,7 @@ import { NavLink } from "@/components/ui/nav-link"
 import { MenuIcone } from "@/lib/menu-icones"
 import { usePathname } from "next/navigation"
 import { useSession } from "next-auth/react"
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect } from "react"
 import { useQuery } from "@tanstack/react-query"
 import {
   Settings,
@@ -71,18 +71,18 @@ function SidebarContent({ onClose, collapsed }: { onClose?: () => void; collapse
 
   const loading = menusLoading && menus.length === 0
 
-  const toggleMenu = useCallback((id: number) => {
+  const toggleMenu = (id: number) => {
     setExpandedMenus(prev => {
       const next = new Set(prev)
       if (next.has(id)) next.delete(id)
       else next.add(id)
       return next
     })
-  }, [])
+  }
 
-  const isAtiva = useCallback((url: string) => {
+  const isAtiva = (url: string) => {
     return pathname === url || pathname?.startsWith(url + "/")
-  }, [pathname])
+  }
 
   if (collapsed) {
     return (

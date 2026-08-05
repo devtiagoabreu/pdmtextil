@@ -1,6 +1,7 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useState } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 import { Clock, Filter } from "lucide-react"
 import { usePathname } from "next/navigation"
@@ -39,35 +40,37 @@ type Resultado = {
 
 export default function RelatorioTempoStatus() {
   const { statuses, getLabel: getStatusLabel, getColor: getStatusColor } = useStatuses("SOLICITACAO_DESENVOLVIMENTO")
-  const [resultados, setResultados] = useState<Resultado[]>([])
-  const [stats, setStats] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
   const [expandido, setExpandido] = useState<number | null>(null)
   const [filtroStatus, setFiltroStatus] = useState("")
   const [filtroDataInicio, setFiltroDataInicio] = useState("")
   const [filtroDataFim, setFiltroDataFim] = useState("")
+  const [aplicadoStatus, setAplicadoStatus] = useState("")
+  const [aplicadoDataInicio, setAplicadoDataInicio] = useState("")
+  const [aplicadoDataFim, setAplicadoDataFim] = useState("")
 
-  const fetchData = useCallback(() => {
-    setLoading(true)
-    const params = new URLSearchParams()
-    if (filtroStatus) params.set("status", filtroStatus)
-    if (filtroDataInicio) params.set("dataInicio", filtroDataInicio)
-    if (filtroDataFim) params.set("dataFim", filtroDataFim)
+  const { data, isLoading: loading, refetch: fetchData } = useQuery<any>({
+    queryKey: ["relatorio-tempo-status", aplicadoStatus, aplicadoDataInicio, aplicadoDataFim],
+    queryFn: async () => {
+      const params = new URLSearchParams()
+      if (aplicadoStatus) params.set("status", aplicadoStatus)
+      if (aplicadoDataInicio) params.set("dataInicio", aplicadoDataInicio)
+      if (aplicadoDataFim) params.set("dataFim", aplicadoDataFim)
+      const r: any = await fetch(`/api/relatorios/tempo-status?${params}`)
+      return r.json()
+    },
+  })
 
-    fetch(`/api/relatorios/tempo-status?${params}`)
-      .then((r: any) => r.json())
-      .then((data: any) => {
-        setResultados(data.resultados || [])
-        setStats(data.stats)
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false))
-  }, [filtroStatus, filtroDataInicio, filtroDataFim])
+  const resultados = data?.resultados || []
+  const stats = data?.stats
 
-  useEffect(() => { fetchData() }, [fetchData])
+  function handleFiltrar() {
+    setAplicadoStatus(filtroStatus)
+    setAplicadoDataInicio(filtroDataInicio)
+    setAplicadoDataFim(filtroDataFim)
+  }
 
   function handleExportCSV() {
-    const rows = resultados.flatMap((r) =>
+    const rows = resultados.flatMap((r: any) =>
       r.timeline.map((t: any) => [
         `#${r.id}`,
         r.cliente,
@@ -103,7 +106,7 @@ export default function RelatorioTempoStatus() {
         { headers: ["#", "Cliente", "Status", "Tempo Total", "Trocas"], rows: resultados.map((r: any) => [
           `#${r.id}`, r.cliente, r.statusAtualLabel, r.tempoTotalLabel, r.trocasStatus,
         ])},
-        { headers: ["Solicitação", "Status", "Entrada", "Saída", "Duração"], rows: resultados.flatMap((r) =>
+        { headers: ["Solicitação", "Status", "Entrada", "Saída", "Duração"], rows: resultados.flatMap((r: any) =>
           r.timeline.map((t: any) => [
             `#${r.id} - ${r.cliente}`,
             t.statusLabel,
@@ -165,7 +168,7 @@ export default function RelatorioTempoStatus() {
           />
         </div>
         <button
-          onClick={fetchData}
+          onClick={handleFiltrar}
           className="h-9 px-4 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700"
         >
           Filtrar

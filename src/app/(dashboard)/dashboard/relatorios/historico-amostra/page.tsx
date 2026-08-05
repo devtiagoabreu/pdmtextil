@@ -1,6 +1,7 @@
 "use client"
 
-import {Suspense, useCallback, useEffect, useMemo, useRef, useState, type ReactNode} from "react"
+import {Suspense, useEffect, useMemo, useRef, useState, type ReactNode} from "react"
+import { useQuery } from "@tanstack/react-query"
 import { useRouter, useSearchParams, usePathname } from "next/navigation"
 import { BarChart3, Search, Clock, FileText, FlaskConical, CheckCircle, AlertCircle, ExternalLink, Activity, Beaker } from "lucide-react"
 import { InfoButton } from "@/components/ui/info-button"
@@ -26,9 +27,21 @@ function HistoricoAmostraPageContent() {
   const selectedId = searchParams.get("id")
   const selectedTipo = searchParams.get("tipo")
 
-  const [data, setData] = useState<any | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
+  const id = selectedId ? parseInt(selectedId) : 0
+  const tipo = selectedTipo || ""
+
+  const { data, isLoading: loading, isError, error } = useQuery<any>({
+    queryKey: ["relatorio-historico-amostra", id, tipo],
+    enabled: !!id && !!tipo,
+    queryFn: async () => {
+      const res = await fetch(`/api/relatorios/historico-amostra?id=${id}&tipo=${tipo}`)
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.error || "Erro ao carregar histórico")
+      }
+      return res.json()
+    },
+  })
 
   const [amostrasList, setAmostrasList] = useState<any[]>([])
   const [searchText, setSearchText] = useState("")
@@ -37,29 +50,6 @@ function HistoricoAmostraPageContent() {
   const searchRef = useRef<HTMLDivElement>(null)
   const idInputRef = useRef<HTMLInputElement>(null)
   const idTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  const fetchHistory = useCallback(async (id: number, tipo: string) => {
-    setLoading(true)
-    setError("")
-    try {
-      const res = await fetch(`/api/relatorios/historico-amostra?id=${id}&tipo=${tipo}`)
-      if (!res.ok) {
-        const err = await res.json()
-        setError(err.error || "Erro ao carregar histórico")
-        setData(null)
-        return
-      }
-      setData(await res.json())
-    } catch {
-      setError("Erro ao carregar histórico")
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    if (selectedId && selectedTipo) fetchHistory(parseInt(selectedId), selectedTipo)
-  }, [selectedId, selectedTipo, fetchHistory])
 
   useEffect(() => {
     fetch("/api/amostras").then((r: any) => r.json()).then((res: any) => {
@@ -319,8 +309,8 @@ function HistoricoAmostraPageContent() {
         </div>
       </div>
 
-      {error && (
-        <div className="rounded-xl border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/50 p-4 text-sm text-red-600 dark:text-red-400">{error}</div>
+      {isError && error && (
+        <div className="rounded-xl border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/50 p-4 text-sm text-red-600 dark:text-red-400">{error instanceof Error ? error.message : "Erro ao carregar histórico"}</div>
       )}
 
       {loading && <div className="text-center py-16 text-slate-500">Carregando histórico...</div>}

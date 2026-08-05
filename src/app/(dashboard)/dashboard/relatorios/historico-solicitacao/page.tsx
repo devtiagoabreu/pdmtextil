@@ -1,6 +1,7 @@
 "use client"
 
-import {Suspense, useCallback, useEffect, useMemo, useRef, useState, type ReactNode} from "react"
+import {Suspense, useEffect, useMemo, useRef, useState, type ReactNode} from "react"
+import { useQuery } from "@tanstack/react-query"
 import { useRouter, useSearchParams, usePathname } from "next/navigation"
 import { BarChart3, Search, Clock, FileText, FlaskConical, CheckCircle, XCircle, AlertCircle, ExternalLink, Activity, History } from "lucide-react"
 import { InfoButton } from "@/components/ui/info-button"
@@ -25,11 +26,24 @@ function HistoricoSolicitacaoPageContent() {
   const searchParams = useSearchParams()
   const selectedId = searchParams.get("id")
 
-  const [solicitacao, setSolicitacao] = useState<any | null>(null)
-  const [produtos, setProdutos] = useState<any[]>([])
-  const [logs, setLogs] = useState<any[]>([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
+  const id = selectedId ? parseInt(selectedId) : 0
+
+  const { data, isLoading: loading, isError, error } = useQuery<any>({
+    queryKey: ["relatorio-historico-solicitacao", id],
+    enabled: !!id,
+    queryFn: async () => {
+      const res = await fetch(`/api/relatorios/historico-solicitacao?id=${id}`)
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.error || "Erro ao carregar histórico")
+      }
+      return res.json()
+    },
+  })
+
+  const solicitacao = data?.solicitacao
+  const produtos = data?.produtos || []
+  const logs = data?.logs || []
 
   const [solicitacoesList, setSolicitacoesList] = useState<any[]>([])
   const [searchText, setSearchText] = useState("")
@@ -38,32 +52,6 @@ function HistoricoSolicitacaoPageContent() {
   const searchRef = useRef<HTMLDivElement>(null)
   const idInputRef = useRef<HTMLInputElement>(null)
   const idTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  const fetchHistory = useCallback(async (id: number) => {
-    setLoading(true)
-    setError("")
-    try {
-      const res = await fetch(`/api/relatorios/historico-solicitacao?id=${id}`)
-      if (!res.ok) {
-        const err = await res.json()
-        setError(err.error || "Erro ao carregar histórico")
-        setSolicitacao(null)
-        return
-      }
-      const data = await res.json()
-      setSolicitacao(data.solicitacao)
-      setProdutos(data.produtos || [])
-      setLogs(data.logs || [])
-    } catch {
-      setError("Erro ao carregar histórico")
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    if (selectedId) fetchHistory(parseInt(selectedId))
-  }, [selectedId, fetchHistory])
 
   useEffect(() => {
     fetch("/api/solicitacoes?limit=200").then((r: any) => r.json()).then(setSolicitacoesList).catch(console.error)
@@ -309,8 +297,8 @@ function HistoricoSolicitacaoPageContent() {
         </div>
       </div>
 
-      {error && (
-        <div className="rounded-xl border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/50 p-4 text-sm text-red-600 dark:text-red-400">{error}</div>
+      {isError && error && (
+        <div className="rounded-xl border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/50 p-4 text-sm text-red-600 dark:text-red-400">{error instanceof Error ? error.message : "Erro ao carregar histórico"}</div>
       )}
 
       {loading && <div className="text-center py-16 text-slate-500">Carregando histórico...</div>}

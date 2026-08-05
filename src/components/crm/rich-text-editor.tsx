@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useCallback, useState, useEffect } from "react"
+import { useRef, useState, useEffect } from "react"
 import { sanitizeHtml } from "@/lib/sanitize"
 import {
   Bold, Italic, Underline, Strikethrough,
@@ -53,14 +53,14 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = "300p
     }
   }, [value])
 
-  const saveSelection = useCallback(() => {
+  function saveSelection() {
     const sel = window.getSelection()
     if (sel && sel.rangeCount > 0 && editorRef.current?.contains(sel.anchorNode)) {
       savedRange.current = sel.getRangeAt(0)
     }
-  }, [])
+  }
 
-  const exec = useCallback((cmd: string, val?: string) => {
+  function exec(cmd: string, val?: string) {
     if (savedRange.current) {
       const sel = window.getSelection()
       if (sel) {
@@ -74,36 +74,36 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = "300p
     if (editorRef.current) {
       onChange(editorRef.current.innerHTML)
     }
-  }, [onChange])
+  }
 
-  const insertList = useCallback((ordered: boolean) => {
+  function insertList(ordered: boolean) {
     const tag = ordered ? "ol" : "ul"
     exec("insertHTML", `<${tag} style="padding-left:24px"><li>Item</li></${tag}>`)
-  }, [exec])
+  }
 
-  const openLinkDialog = useCallback(() => {
+  function openLinkDialog() {
     setLinkUrl("https://")
     setLinkDialogOpen(true)
-  }, [])
+  }
 
-  const confirmLink = useCallback(() => {
+  function confirmLink() {
     if (linkUrl) {
       exec("createLink", linkUrl)
       setLinkDialogOpen(false)
     }
-  }, [linkUrl, exec])
+  }
 
-  const openColorPicker = useCallback((mode: "fore" | "back") => {
+  function openColorPicker(mode: "fore" | "back") {
     setColorMode(mode)
     setColorValue("#000000")
     setColorDialogOpen(true)
-  }, [])
+  }
 
-  const confirmColor = useCallback(() => {
+  function confirmColor() {
     const cmd = colorMode === "fore" ? "foreColor" : "hiliteColor"
     exec(cmd, colorValue)
     setColorDialogOpen(false)
-  }, [colorMode, colorValue, exec])
+  }
 
   function handleEditorInput() {
     if (editorRef.current) {

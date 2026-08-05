@@ -1,6 +1,7 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts"
 import { BarChart3, Filter, ExternalLink } from "lucide-react"
 import { usePathname } from "next/navigation"
@@ -11,66 +12,41 @@ import { exportCSV, exportPDFRelatorio } from "@/lib/export-utils"
 import { useStatuses, hexToRgba } from "@/hooks/use-statuses"
 import { ChartTooltip } from "@/components/ui/chart-tooltip"
 
-type Stats = {
-  total: number
-  tecelagem: number
-  beneficiamento: number
-}
-
-type MesData = {
-  mes: string
-  total: number
-}
-
-type SolicitacaoItem = {
-  id: number
-  tipo: string
-  cliente: string
-  projeto: string | null
-  status: string
-  createdAt: string
-  dataConclusao: string | null
-  prazoDesejado: string | null
-}
-
 export default function RelatorioSolicitacoesPorStatus() {
   const { statuses, getLabel: getStatusLabel, getColor: getStatusColor } = useStatuses("SOLICITACAO_DESENVOLVIMENTO")
   const [selectedStatus, setSelectedStatus] = useState("")
-  const [stats, setStats] = useState<Stats | null>(null)
-  const [porMes, setPorMes] = useState<MesData[]>([])
-  const [lista, setLista] = useState<SolicitacaoItem[]>([])
-  const [loading, setLoading] = useState(false)
-  const [dataInicio, setDataInicio] = useState("")
-  const [dataFim, setDataFim] = useState("")
+  const [filtroDataInicio, setFiltroDataInicio] = useState("")
+  const [filtroDataFim, setFiltroDataFim] = useState("")
+  const [aplicadoDataInicio, setAplicadoDataInicio] = useState("")
+  const [aplicadoDataFim, setAplicadoDataFim] = useState("")
 
-  const fetchData = useCallback(() => {
-    if (!selectedStatus) return
-    setLoading(true)
-    const params = new URLSearchParams()
-    params.set("status", selectedStatus)
-    if (dataInicio) params.set("dataInicio", dataInicio)
-    if (dataFim) params.set("dataFim", dataFim)
+  const { data, isLoading: loading } = useQuery<any>({
+    queryKey: ["relatorio-solicitacoes-por-status", selectedStatus, aplicadoDataInicio, aplicadoDataFim],
+    enabled: !!selectedStatus,
+    queryFn: async () => {
+      const params = new URLSearchParams()
+      params.set("status", selectedStatus)
+      if (aplicadoDataInicio) params.set("dataInicio", aplicadoDataInicio)
+      if (aplicadoDataFim) params.set("dataFim", aplicadoDataFim)
+      const r: any = await fetch(`/api/relatorios/solicitacoes-por-status?${params}`)
+      return r.json()
+    },
+  })
 
-    fetch(`/api/relatorios/solicitacoes-por-status?${params}`)
-      .then((r: any) => r.json())
-      .then((data: any) => {
-        setStats(data.stats)
-        setPorMes(data.porMes || [])
-        setLista(data.lista || [])
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false))
-  }, [selectedStatus, dataInicio, dataFim])
-
-  useEffect(() => {
-    if (selectedStatus) fetchData()
-  }, [fetchData, selectedStatus])
+  const stats = data?.stats
+  const porMes = data?.porMes || []
+  const lista = data?.lista || []
 
   useEffect(() => {
     if (statuses.length > 0 && !selectedStatus) {
       setSelectedStatus(statuses[0].nome)
     }
   }, [statuses, selectedStatus])
+
+  function handleFiltrar() {
+    setAplicadoDataInicio(filtroDataInicio)
+    setAplicadoDataFim(filtroDataFim)
+  }
 
   function handleExportCSV() {
     const rotulo = getStatusLabel(selectedStatus)
@@ -143,8 +119,8 @@ export default function RelatorioSolicitacoesPorStatus() {
           <label className="block text-xs text-slate-400 mb-1">Data início</label>
           <input
             type="date"
-            value={dataInicio}
-            onChange={(e) => setDataInicio(e.target.value)}
+            value={filtroDataInicio}
+            onChange={(e) => setFiltroDataInicio(e.target.value)}
             className="h-9 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 text-sm"
           />
         </div>
@@ -152,13 +128,13 @@ export default function RelatorioSolicitacoesPorStatus() {
           <label className="block text-xs text-slate-400 mb-1">Data fim</label>
           <input
             type="date"
-            value={dataFim}
-            onChange={(e) => setDataFim(e.target.value)}
+            value={filtroDataFim}
+            onChange={(e) => setFiltroDataFim(e.target.value)}
             className="h-9 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 text-sm"
           />
         </div>
         <button
-          onClick={fetchData}
+          onClick={handleFiltrar}
           className="h-9 px-4 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700"
         >
           Filtrar

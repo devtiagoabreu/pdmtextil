@@ -1,6 +1,7 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { Clock, FlaskConical } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
@@ -45,24 +46,20 @@ type AmostraReport = {
 }
 
 export default function RelatorioTempoStatusAmostras() {
-  const [tecidoCru, setTecidoCru] = useState<AmostraReport[]>([])
-  const [acabamento, setAcabamento] = useState<AmostraReport[]>([])
-  const [stats, setStats] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
   const [expandido, setExpandido] = useState<string | null>(null)
   const [aba, setAba] = useState<"tecidoCru" | "acabamento">("tecidoCru")
 
-  useEffect(() => {
-    fetch("/api/relatorios/tempo-status-amostras")
-      .then((r: any) => r.json())
-      .then((data: any) => {
-        setTecidoCru(data.tecidoCru || [])
-        setAcabamento(data.acabamento || [])
-        setStats(data.stats)
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false))
-  }, [])
+  const { data, isLoading: loading } = useQuery<any>({
+    queryKey: ["relatorio-tempo-status-amostras"],
+    queryFn: async () => {
+      const r: any = await fetch("/api/relatorios/tempo-status-amostras")
+      return r.json()
+    },
+  })
+
+  const tecidoCru = data?.tecidoCru || []
+  const acabamento = data?.acabamento || []
+  const stats = data?.stats
 
   const lista = aba === "tecidoCru" ? tecidoCru : acabamento
 
@@ -70,7 +67,7 @@ export default function RelatorioTempoStatusAmostras() {
     const currentList = aba === "tecidoCru" ? tecidoCru : acabamento
     const prefix = aba === "tecidoCru" ? "tecido-cru" : "acabamento"
 
-    const rows = currentList.flatMap((r) =>
+    const rows = currentList.flatMap((r: any) =>
       r.timeline.map((t: any) => [
         r.produtoCodigo,
         r.descricao || r.produtoDescricao,
@@ -109,7 +106,7 @@ export default function RelatorioTempoStatusAmostras() {
         { headers: ["Produto", "Descrição", "Status", "Tempo Total", "Trocas"], rows: currentList.map((r: any) => [
           r.produtoCodigo, r.descricao || r.produtoDescricao, STATUS_LABELS[r.statusAtual] || r.statusAtual, r.tempoTotalLabel, r.trocasStatus,
         ])},
-        { headers: ["Produto", "Status", "Entrada", "Saída", "Duração"], rows: currentList.flatMap((r) =>
+        { headers: ["Produto", "Status", "Entrada", "Saída", "Duração"], rows: currentList.flatMap((r: any) =>
           r.timeline.map((t: any) => [
             `${r.produtoCodigo} - ${r.descricao || r.produtoDescricao}`,
             t.statusLabel,
