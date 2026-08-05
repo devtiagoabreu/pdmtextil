@@ -88,9 +88,9 @@ Regra de trabalho: cada item corrigido = **commit + push** separado, para acompa
 ## 8. Bundle — libs pesadas
 
 - [x] `recharts` top-level → `next/dynamic ssr:false` (15 arquivos: dashboards, relatorios, `comercial/crm/page.tsx`, `crm/relatorios`, `visitas/dashboard`, `bi-dashboard-client`) `c0258907`. Extraídos charts para `charts.tsx` irmão em 12 páginas (relatorios, dashboards, crm, crm/relatorios, visitas/dashboard), `bi/page.tsx` importa `bi-dashboard-client` via dynamic, leafs `animated-line`/`staggered-bar-chart` só são importados por charts lazy. Nenhum import estático de recharts restante.
-- [ ] `treinamento/exportar-pdf/page.tsx` — jspdf estático → dynamic import
-- [ ] `admin/email-massa/page.tsx` — dompurify (sanitize.ts) → dynamic import no uso
-- [ ] Wrappers `Importar*` com `"use client"` desnecessário (8 arquivos) — remover/reduzir boundary
+- [x] `treinamento/exportar-pdf/page.tsx` — jspdf estático → dynamic import `ca1e83c3`. `@/lib/export-treinamento-pdf` carregada via `await import()` dentro de `handleExportPdf`; removido import estático.
+- [x] `admin/email-massa/page.tsx` — dompurify (sanitize.ts) → dynamic import no uso `f28f7251`. Novo `src/components/ui/sanitized-html.tsx` (`SanitizedHtml`) faz `import("@/lib/sanitize")` no client via useEffect; 3 usages de `sanitizeHtml` no JSX substituídas; import estático removido.
+- [x] Wrappers `Importar*` com `"use client"` desnecessário (8 arquivos) — remover/reduzir boundary `438ab225`. Como os wrappers recebem `onImportado` (função) de páginas client, o `"use client"` é obrigatório — removi a camada inteira: inlined `ImportarEntidade` nas 7 páginas de cadastros + email-massa e deletei os 8 wrappers.
 - [ ] Migrar páginas de listagem/detalhe client → Server Component quando não precisam de estado
 
 ## 9. Quebrar arquivos gigantes em subcomponentes
