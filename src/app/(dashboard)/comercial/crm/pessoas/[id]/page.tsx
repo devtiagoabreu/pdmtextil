@@ -1,6 +1,7 @@
 "use client"
 
-import {Suspense, useState, useEffect, useCallback} from "react"
+import {Suspense, useState, useEffect} from "react"
+import { useQuery } from "@tanstack/react-query"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { useRouter, useParams, usePathname, useSearchParams } from "next/navigation"
@@ -38,23 +39,33 @@ function PessoaDetailPageContent() {
   const [showDelete, setShowDelete] = useState(false)
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [estadoId, setEstadoId] = useState<number | null>(null)
-  const [estados, setEstados] = useState<{ id: number; uf: string }[]>([])
+  const { data: estados = [] } = useQuery<{ id: number; uf: string }[]>({
+    queryKey: ["crm-estados"],
+    queryFn: async () => {
+      const res = await fetch("/api/crm/estados")
+      if (!res.ok) return []
+      return res.json()
+    },
+  })
 
   const [vinculos, setVinculos] = useState<any[]>([])
-  const [loadingVinculos, setLoadingVinculos] = useState(false)
+  const { data: dadosVinculos, isLoading: loadingVinculos } = useQuery({
+    queryKey: ["pessoa-representantes", params.id],
+    queryFn: async () => {
+      const res = await fetch(`/api/crm/pessoas/${params.id}/representantes`)
+      if (!res.ok) return []
+      return res.json()
+    },
+  })
+
+  useEffect(() => {
+    if (dadosVinculos) setVinculos(dadosVinculos)
+  }, [dadosVinculos])
+
   const [searchRep, setSearchRep] = useState("")
   const [repResults, setRepResults] = useState<any[]>([])
   const [searchingRep, setSearchingRep] = useState(false)
   const [repToRemove, setRepToRemove] = useState<any>(null)
-
-  const fetchEstados = useCallback(async () => {
-    try {
-      const res = await fetch("/api/crm/estados")
-      if (res.ok) setEstados(await res.json())
-    } catch {}
-  }, [])
-
-  useEffect(() => { fetchEstados() }, [fetchEstados])
 
   useEffect(() => {
     if (form.uf) {
@@ -64,18 +75,6 @@ function PessoaDetailPageContent() {
       setEstadoId(null)
     }
   }, [form.uf, estados])
-
-  const loadVinculos = useCallback(async () => {
-    setLoadingVinculos(true)
-    try {
-      const res = await fetch(`/api/crm/pessoas/${params.id}/representantes`)
-      if (res.ok) setVinculos(await res.json())
-    } catch {} finally {
-      setLoadingVinculos(false)
-    }
-  }, [params.id])
-
-  useEffect(() => { loadVinculos() }, [loadVinculos])
 
   async function searchRepresentantes(query: string) {
     setSearchRep(query)

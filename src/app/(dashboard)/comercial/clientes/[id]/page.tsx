@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect } from "react"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useRouter, usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
@@ -59,8 +60,14 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
   const [saving, setSaving] = useState(false)
   const [id, setId] = useState<string>("")
 
-  const [vinculos, setVinculos] = useState<Vinculo[]>([])
-  const [loadingVinculos, setLoadingVinculos] = useState(false)
+  const queryClient = useQueryClient()
+
+  const { data: vinculos = [], isLoading: loadingVinculos } = useQuery({
+    queryKey: ["cliente-representantes", id],
+    queryFn: () => fetchVinculos(id),
+    enabled: !!id,
+  })
+
   const [searchRep, setSearchRep] = useState("")
   const [repResults, setRepResults] = useState<any[]>([])
   const [searchingRep, setSearchingRep] = useState(false)
@@ -87,23 +94,6 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
     }
     loadCliente()
   }, [params, router])
-
-  const loadVinculos = useCallback(async () => {
-    if (!id) return
-    setLoadingVinculos(true)
-    try {
-      const data = await fetchVinculos(id)
-      setVinculos(data)
-    } catch {
-      toast.error("Erro ao carregar representantes")
-    } finally {
-      setLoadingVinculos(false)
-    }
-  }, [id])
-
-  useEffect(() => {
-    if (id) loadVinculos()
-  }, [id, loadVinculos])
 
   async function searchRepresentantes(query: string) {
     setSearchRep(query)
@@ -134,7 +124,7 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
         const err = await res.json()
         throw new Error(err.error || "Erro ao adicionar")
       }
-      await loadVinculos()
+      queryClient.invalidateQueries({ queryKey: ["cliente-representantes", id] })
       setSearchRep("")
       setRepResults([])
       toast.success("Representante vinculado ao cliente")
@@ -146,7 +136,7 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
   async function removeRepresentante(vinculo: Vinculo) {
     try {
       await fetch(`/api/clientes/${id}/representantes?vinculoId=${vinculo.id}`, { method: "DELETE" })
-      await loadVinculos()
+      queryClient.invalidateQueries({ queryKey: ["cliente-representantes", id] })
       toast.success("Representante removido do cliente")
     } catch {
       toast.error("Erro ao remover")

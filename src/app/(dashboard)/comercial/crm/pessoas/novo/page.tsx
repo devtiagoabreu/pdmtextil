@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { useRouter, usePathname } from "next/navigation"
@@ -40,21 +41,19 @@ export default function NovaPessoaPage() {
   })
   const [saving, setSaving] = useState(false)
   const [estadoId, setEstadoId] = useState<number | null>(null)
-  const [estados, setEstados] = useState<{ id: number; uf: string }[]>([])
+  const { data: estados = [] } = useQuery<{ id: number; uf: string }[]>({
+    queryKey: ["crm-estados"],
+    queryFn: async () => {
+      const res = await fetch("/api/crm/estados")
+      if (!res.ok) return []
+      return res.json()
+    },
+  })
 
   const [vinculos, setVinculos] = useState<any[]>([])
   const [searchRep, setSearchRep] = useState("")
   const [repResults, setRepResults] = useState<any[]>([])
   const [searchingRep, setSearchingRep] = useState(false)
-
-  const fetchEstados = useCallback(async () => {
-    try {
-      const res = await fetch("/api/crm/estados")
-      if (res.ok) setEstados(await res.json())
-    } catch {}
-  }, [])
-
-  useEffect(() => { fetchEstados() }, [fetchEstados])
 
   useEffect(() => {
     if (form.uf) {

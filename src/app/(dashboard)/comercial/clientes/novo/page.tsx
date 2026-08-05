@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { useRouter, usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
@@ -30,16 +31,14 @@ export default function NovoClientePage() {
   })
   const [saving, setSaving] = useState(false)
   const [estadoId, setEstadoId] = useState<number | null>(null)
-  const [estados, setEstados] = useState<{ id: number; uf: string }[]>([])
-
-  const fetchEstados = useCallback(async () => {
-    try {
+  const { data: estados = [] } = useQuery<{ id: number; uf: string }[]>({
+    queryKey: ["crm-estados"],
+    queryFn: async () => {
       const res = await fetch("/api/crm/estados")
-      if (res.ok) setEstados(await res.json())
-    } catch {}
-  }, [])
-
-  useEffect(() => { fetchEstados() }, [fetchEstados])
+      if (!res.ok) return []
+      return res.json()
+    },
+  })
 
   useEffect(() => {
     if (form.uf) {
