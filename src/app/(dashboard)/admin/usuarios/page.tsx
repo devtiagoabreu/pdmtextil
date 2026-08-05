@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { InfoButton } from "@/components/ui/info-button"
@@ -32,9 +33,6 @@ interface Usuario {
 export default function UsuariosPage() {
   const pathname = usePathname()
   const info = getInfoContent(pathname)
-  const [usuarios, setUsuarios] = useState<Usuario[]>([])
-  const [roles, setRoles] = useState<Role[]>([])
-  const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
 
   const [showNovo, setShowNovo] = useState(false)
@@ -44,24 +42,33 @@ export default function UsuariosPage() {
   const [novoRole, setNovoRole] = useState("COMERCIAL")
   const [saving, setSaving] = useState(false)
 
-  const fetchUsuarios = async () => {
-    try {
-      const [usuariosRes, rolesRes] = await Promise.all([
-        fetch("/api/admin/usuarios"),
-        fetch("/api/admin/roles"),
-      ])
-      if (usuariosRes.ok) setUsuarios(await usuariosRes.json())
-      if (rolesRes.ok) setRoles(await rolesRes.json())
-    } catch {
-      toast.error("Erro ao carregar dados")
-    } finally {
-      setLoading(false)
-    }
-  }
+  const queryClient = useQueryClient()
+
+  const { data: usuarios, isLoading: loading, isError } = useQuery<Usuario[]>({
+    queryKey: ["admin-usuarios"],
+    queryFn: async () => {
+      const res = await fetch("/api/admin/usuarios")
+      if (!res.ok) throw new Error()
+      return res.json()
+    },
+  })
+
+  const { data: roles } = useQuery<Role[]>({
+    queryKey: ["admin-roles"],
+    queryFn: async () => {
+      const res = await fetch("/api/admin/roles")
+      if (!res.ok) throw new Error()
+      return res.json()
+    },
+  })
 
   useEffect(() => {
-    fetchUsuarios()
-  }, [])
+    if (isError) toast.error("Erro ao carregar dados")
+  }, [isError])
+
+  const fetchUsuarios = () => {
+    queryClient.invalidateQueries({ queryKey: ["admin-usuarios"] })
+  }
 
   const handleCreate = async () => {
     if (!novoEmail || !novoNome || !novoPassword) {
@@ -108,7 +115,7 @@ export default function UsuariosPage() {
     }
   }
 
-  const filtered = usuarios.filter((u: any) => matchesSearch(u, search))
+  const filtered = (usuarios ?? []).filter((u: any) => matchesSearch(u, search))
 
   return (
     <div className="space-y-6">
@@ -142,7 +149,7 @@ export default function UsuariosPage() {
               <Label>Perfil</Label>
               <select value={novoRole} onChange={e => setNovoRole(e.target.value)}
                 className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600">
-                {roles.filter((r: any) => r.ativo).map((r: any) => <option key={r.name} value={r.name}>{r.label}</option>)}
+                {(roles ?? []).filter((r: any) => r.ativo).map((r: any) => <option key={r.name} value={r.name}>{r.label}</option>)}
               </select>
             </div>
           </div>
@@ -190,7 +197,7 @@ export default function UsuariosPage() {
                   <td className="p-3 text-sm text-slate-600 dark:text-slate-400">{u.email}</td>
                   <td className="p-3">
                     <span className="inline-block rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 px-2 py-0.5 text-xs font-medium">
-                      {roles.find((r: any) => r.name === u.role)?.label || u.role}
+                      {(roles ?? []).find((r: any) => r.name === u.role)?.label || u.role}
                     </span>
                   </td>
                   <td className="p-3">

@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -23,8 +24,6 @@ interface Role {
 export default function RolesPage() {
   const pathname = usePathname()
   const info = getInfoContent(pathname)
-  const [roles, setRoles] = useState<Role[]>([])
-  const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [editId, setEditId] = useState<number | null>(null)
   const [name, setName] = useState("")
@@ -33,19 +32,20 @@ export default function RolesPage() {
   const [saving, setSaving] = useState(false)
   const [editAtivo, setEditAtivo] = useState(true)
 
-  const fetchRoles = async () => {
-    try {
-      const res = await fetch("/api/admin/roles")
-      if (res.ok) setRoles(await res.json())
-    } catch {
-    } finally {
-      setLoading(false)
-    }
-  }
+  const queryClient = useQueryClient()
 
-  useEffect(() => {
-    fetchRoles()
-  }, [])
+  const { data: roles, isLoading: loading } = useQuery<Role[]>({
+    queryKey: ["admin-roles"],
+    queryFn: async () => {
+      const res = await fetch("/api/admin/roles")
+      if (res.ok) return res.json()
+      return []
+    },
+  })
+
+  const fetchRoles = () => {
+    queryClient.invalidateQueries({ queryKey: ["admin-roles"] })
+  }
 
   const resetForm = () => {
     setShowForm(false)
@@ -197,14 +197,14 @@ export default function RolesPage() {
               </tr>
             </thead>
             <tbody className="divide-y dark:divide-slate-800">
-              {roles.length === 0 ? (
+              {(roles ?? []).length === 0 ? (
                 <tr>
                   <td colSpan={5}>
                     <EmptyState icon={ShieldCheck} message="Nenhuma role cadastrada" />
                   </td>
                 </tr>
               ) : (
-                roles.map((r: any) => (
+                (roles ?? []).map((r: any) => (
                   <tr key={r.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
                     <td className="p-3 text-sm font-mono font-medium text-slate-900 dark:text-slate-100">
                       {r.name}

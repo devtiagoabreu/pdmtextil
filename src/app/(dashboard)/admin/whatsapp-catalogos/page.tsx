@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -27,9 +28,6 @@ interface Catalogo {
 }
 
 export default function WhatsAppCatalogosPage() {
-  const [linhas, setLinhas] = useState<Linha[]>([])
-  const [catalogos, setCatalogos] = useState<Catalogo[]>([])
-  const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [editId, setEditId] = useState<number | null>(null)
 
@@ -47,29 +45,37 @@ export default function WhatsAppCatalogosPage() {
   const [linhaNomeInput, setLinhaNomeInput] = useState("")
   const [savingLinha, setSavingLinha] = useState(false)
 
-  const fetchLinhas = async () => {
-    try {
-      const res = await fetch("/api/admin/whatsapp-linhas")
-      if (res.ok) setLinhas(await res.json())
-    } catch {
-      toast.error("Erro ao carregar linhas")
-    }
-  }
+  const queryClient = useQueryClient()
 
-  const fetchCatalogos = async () => {
-    try {
+  const { data: linhas = [] } = useQuery<Linha[]>({
+    queryKey: ["admin-whatsapp-linhas"],
+    queryFn: async () => {
+      const res = await fetch("/api/admin/whatsapp-linhas")
+      if (!res.ok) throw new Error()
+      return res.json()
+    },
+  })
+
+  const { data: catalogos = [], isLoading: loading, isError } = useQuery<Catalogo[]>({
+    queryKey: ["admin-whatsapp-catalogos"],
+    queryFn: async () => {
       const res = await fetch("/api/admin/whatsapp-catalogos")
-      if (res.ok) setCatalogos(await res.json())
-    } catch {
-      toast.error("Erro ao carregar catalogos")
-    } finally {
-      setLoading(false)
-    }
-  }
+      if (!res.ok) throw new Error()
+      return res.json()
+    },
+  })
 
   useEffect(() => {
-    Promise.all([fetchLinhas(), fetchCatalogos()])
-  }, [])
+    if (isError) toast.error("Erro ao carregar catalogos")
+  }, [isError])
+
+  const fetchLinhas = () => {
+    queryClient.invalidateQueries({ queryKey: ["admin-whatsapp-linhas"] })
+  }
+
+  const fetchCatalogos = () => {
+    queryClient.invalidateQueries({ queryKey: ["admin-whatsapp-catalogos"] })
+  }
 
   const resetForm = () => {
     setLinhaNumero(1)

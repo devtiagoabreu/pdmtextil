@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { Loader2, Save, Bell, ArrowLeft } from "lucide-react"
 import Link from "next/link"
@@ -59,17 +60,25 @@ export default function NotificacoesAdminPage() {
   const pathname = usePathname()
   const info = getInfoContent(pathname)
   const [regras, setRegras] = useState<Regra[]>([])
-  const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [dirty, setDirty] = useState(false)
 
+  const { data: regrasData, isLoading: loading, isError } = useQuery<{ regras: Regra[] }>({
+    queryKey: ["admin-notificacao-regras"],
+    queryFn: async () => {
+      const res = await fetch("/api/admin/notificacao-regras")
+      if (!res.ok) throw new Error("Erro HTTP")
+      return res.json()
+    },
+  })
+
   useEffect(() => {
-    fetch("/api/admin/notificacao-regras")
-      .then((res: any) => { if (!res.ok) throw new Error("Erro HTTP"); return res.json() })
-      .then((d: { regras: Regra[] }) => setRegras(d.regras ?? []))
-      .catch(() => toast.error("Erro ao carregar regras de notificação"))
-      .finally(() => setLoading(false))
-  }, [])
+    if (regrasData) setRegras(regrasData.regras ?? [])
+  }, [regrasData])
+
+  useEffect(() => {
+    if (isError) toast.error("Erro ao carregar regras de notificação")
+  }, [isError])
 
   function toggleRole(tipo: string, role: string) {
     setRegras(prev => prev.map((r: any) => {

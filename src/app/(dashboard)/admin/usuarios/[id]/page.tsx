@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { useParams, useRouter, usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
@@ -30,25 +31,37 @@ export default function EditarUsuarioPage() {
   const [role, setRole] = useState("COMERCIAL")
   const [ativo, setAtivo] = useState(true)
   const [password, setPassword] = useState("")
-  const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [roles, setRoles] = useState<Role[]>([])
+
+  const { data: userData, isLoading: loading, isError } = useQuery<any>({
+    queryKey: ["admin-usuario", id],
+    queryFn: async () => {
+      const res = await fetch(`/api/admin/usuarios/${id}`)
+      return res.json()
+    },
+    enabled: !!id,
+  })
+
+  const { data: roles } = useQuery<Role[]>({
+    queryKey: ["admin-roles"],
+    queryFn: async () => {
+      const res = await fetch("/api/admin/roles")
+      return res.json()
+    },
+  })
 
   useEffect(() => {
-    Promise.all([
-      fetch(`/api/admin/usuarios/${id}`).then((r: any) => r.json()),
-      fetch("/api/admin/roles").then((r: any) => r.json()),
-    ])
-      .then(([userData, rolesData]) => {
-        setName(userData.name || "")
-        setEmail(userData.email || "")
-        setRole(userData.role || "COMERCIAL")
-        setAtivo(userData.ativo ?? true)
-        setRoles(Array.isArray(rolesData) ? rolesData : [])
-      })
-      .catch(() => toast.error("Erro ao carregar dados"))
-      .finally(() => setLoading(false))
-  }, [id])
+    if (userData) {
+      setName(userData.name || "")
+      setEmail(userData.email || "")
+      setRole(userData.role || "COMERCIAL")
+      setAtivo(userData.ativo ?? true)
+    }
+  }, [userData])
+
+  useEffect(() => {
+    if (isError) toast.error("Erro ao carregar dados")
+  }, [isError])
 
   const handleSave = async () => {
     if (!name || !email) {
@@ -104,7 +117,7 @@ export default function EditarUsuarioPage() {
           <Label>Perfil (Role)</Label>
           <select value={role} onChange={e => setRole(e.target.value)}
             className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600">
-            {roles.filter((r: any) => r.ativo).map((r: any) => <option key={r.name} value={r.name}>{r.label}</option>)}
+            {(roles ?? []).filter((r: any) => r.ativo).map((r: any) => <option key={r.name} value={r.name}>{r.label}</option>)}
           </select>
         </div>
         <div className="flex items-center gap-2">
