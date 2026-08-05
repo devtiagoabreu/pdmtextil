@@ -87,7 +87,7 @@ Regra de trabalho: cada item corrigido = **commit + push** separado, para acompa
 
 ## 8. Bundle — libs pesadas
 
-- [ ] `recharts` top-level → `next/dynamic ssr:false` (15 arquivos: dashboards, relatorios, `comercial/crm/page.tsx`, `crm/relatorios`, `visitas/dashboard`, `bi-dashboard-client`)
+- [x] `recharts` top-level → `next/dynamic ssr:false` (15 arquivos: dashboards, relatorios, `comercial/crm/page.tsx`, `crm/relatorios`, `visitas/dashboard`, `bi-dashboard-client`) `c0258907`. Extraídos charts para `charts.tsx` irmão em 12 páginas (relatorios, dashboards, crm, crm/relatorios, visitas/dashboard), `bi/page.tsx` importa `bi-dashboard-client` via dynamic, leafs `animated-line`/`staggered-bar-chart` só são importados por charts lazy. Nenhum import estático de recharts restante.
 - [ ] `treinamento/exportar-pdf/page.tsx` — jspdf estático → dynamic import
 - [ ] `admin/email-massa/page.tsx` — dompurify (sanitize.ts) → dynamic import no uso
 - [ ] Wrappers `Importar*` com `"use client"` desnecessário (8 arquivos) — remover/reduzir boundary
