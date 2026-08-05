@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"

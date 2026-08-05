@@ -1,6 +1,7 @@
 "use client"
 
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
@@ -108,9 +109,7 @@ export function KanbanAmostraComercial() {
   const role = session?.user?.role as string | undefined
   const podeArrastar = role ? ROLES_PERMITIDOS.includes(role) : false
 
-  const [statusList, setStatusList] = useState<StatusCol[]>([])
   const [requisicoes, setRequisicoes] = useState<RequisicaoCard[]>([])
-  const [loading, setLoading] = useState(true)
   const [activeCard, setActiveCard] = useState<RequisicaoCard | null>(null)
   const [motivoModal, setMotivoModal] = useState<{ requisicao: RequisicaoCard; novoStatus: string } | null>(null)
   const [motivoText, setMotivoText] = useState("")
@@ -119,33 +118,36 @@ export function KanbanAmostraComercial() {
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
   )
 
-  const carregar = useCallback(async () => {
-    setLoading(true)
-    try {
-      const [statusRes, reqRes] = await Promise.all([
-        fetch("/api/admin/status?tipo=AMOSTRA_COMERCIAL").then((r: any) => r.json()),
-        fetch("/api/requisicoes-amostra-comercial").then((r: any) => r.json()),
-      ])
-      if (Array.isArray(statusRes)) setStatusList(statusRes)
-      if (Array.isArray(reqRes)) {
-        setRequisicoes(reqRes.map((r: any) => ({
-          id: r.id,
-          titulo: r.titulo,
-          cliente: r.cliente,
-          produtoCodigo: r.produtoCodigo,
-          produtoDescricao: r.produtoDescricao,
-          status: r.status,
-          quantidade: r.quantidade,
-        })))
-      }
-    } catch {
-      toast.error("Erro ao carregar dados")
-    } finally {
-      setLoading(false)
-    }
-  }, [])
+  const { data: statusList = [] } = useQuery<StatusCol[]>({
+    queryKey: ["admin-status", "AMOSTRA_COMERCIAL"],
+    queryFn: async () => {
+      const res = await fetch("/api/admin/status?tipo=AMOSTRA_COMERCIAL")
+      const data = await res.json()
+      return Array.isArray(data) ? data : []
+    },
+  })
 
-  useEffect(() => { carregar() }, [carregar])
+  const { data: dadosRequisicoes, isLoading: loading } = useQuery({
+    queryKey: ["requisicoes-amostra-comercial"],
+    queryFn: async () => {
+      const res = await fetch("/api/requisicoes-amostra-comercial")
+      const data = await res.json()
+      if (!Array.isArray(data)) return []
+      return data.map((r: any) => ({
+        id: r.id,
+        titulo: r.titulo,
+        cliente: r.cliente,
+        produtoCodigo: r.produtoCodigo,
+        produtoDescricao: r.produtoDescricao,
+        status: r.status,
+        quantidade: r.quantidade,
+      })) as RequisicaoCard[]
+    },
+  })
+
+  useEffect(() => {
+    if (dadosRequisicoes) setRequisicoes(dadosRequisicoes)
+  }, [dadosRequisicoes])
 
   const colunas = statusList
     .map((col: any) => ({

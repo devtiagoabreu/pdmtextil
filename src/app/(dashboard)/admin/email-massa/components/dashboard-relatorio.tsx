@@ -1,24 +1,19 @@
 "use client"
 
-import { useState, useCallback, useEffect } from "react"
+import { useState } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { Loader2, BarChart3, MousePointerClick, CheckCircle2, XCircle, Clock } from "lucide-react"
 
 export function DashboardRelatorio() {
-  const [remessas, setRemessas] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-
-  const carregar = useCallback(async () => {
-    setLoading(true)
-    try {
+  const { data: remessas = [], isLoading: loading } = useQuery({
+    queryKey: ["email-massa-relatorio"],
+    queryFn: async () => {
       const res = await fetch("/api/admin/email-massa/relatorio")
       if (!res.ok) throw new Error("Erro ao carregar")
       const data = await res.json()
-      setRemessas(data.remessas || [])
-    } catch { /* empty */ }
-    setLoading(false)
-  }, [])
-
-  useEffect(() => { carregar() }, [carregar])
+      return data.remessas || []
+    },
+  })
 
   if (loading) {
     return (
