@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { DndContext, DragOverlay, useDraggable, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
@@ -99,13 +99,13 @@ export default function OportunidadesKanban({ oportunidades }: { oportunidades: 
   const effectiveStatuses = hasStatuses ? statuses : DEFAULT_STATUSES
   const effectiveLoading = statusLoading && !hasStatuses
 
-  const getLabelSafe = useCallback((nome: string) => {
+  const getLabelSafe = (nome: string) => {
     if (hasStatuses) {
       const s = statuses.find((s: any) => s.nome === nome)
       return s?.rotulo || nome
     }
     return DEFAULT_STATUSES.find((s: any) => s.nome === nome)?.rotulo || nome
-  }, [hasStatuses, statuses])
+  }
 
   const colunas = effectiveStatuses
     .filter((s: any) => s.ativo !== false)

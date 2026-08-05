@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { DndContext, DragOverlay, useDraggable, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
@@ -105,21 +105,21 @@ export default function TarefasKanban({ tarefas }: { tarefas: TarefaCard[] }) {
   const effectiveStatuses = hasStatuses ? statuses : DEFAULT_STATUSES
   const effectiveLoading = statusLoading && !hasStatuses
 
-  const getLabel = useCallback((nome: string) => {
+  const getLabel = (nome: string) => {
     if (hasStatuses) {
       const s = statuses.find((s: any) => s.nome === nome)
       return s?.rotulo || nome
     }
     return DEFAULT_STATUSES.find((s: any) => s.nome === nome)?.rotulo || nome
-  }, [hasStatuses, statuses])
+  }
 
-  const getColor = useCallback((nome: string) => {
+  const getColor = (nome: string) => {
     if (hasStatuses) {
       const s = statuses.find((s: any) => s.nome === nome)
       return s?.cor || "#94a3b8"
     }
     return DEFAULT_STATUSES.find((s: any) => s.nome === nome)?.cor || "#94a3b8"
-  }, [hasStatuses, statuses])
+  }
 
   const colunas = effectiveStatuses
     .filter((s: any) => s.ativo !== false)

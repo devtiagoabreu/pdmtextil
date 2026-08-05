@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { DndContext, DragOverlay, useDraggable, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
@@ -102,13 +102,13 @@ export default function PessoasKanban({ pessoas }: { pessoas: PessoaCard[] }) {
   const effectiveStatuses = hasStatuses ? statuses : DEFAULT_STATUSES
   const effectiveLoading = statusLoading && !hasStatuses
 
-  const getLabel = useCallback((nome: string) => {
+  const getLabel = (nome: string) => {
     if (hasStatuses) {
       const s = statuses.find((s: any) => s.nome === nome)
       return s?.rotulo || nome
     }
     return DEFAULT_STATUSES.find((s: any) => s.nome === nome)?.rotulo || nome
-  }, [hasStatuses, statuses])
+  }
 
   const colunas = effectiveStatuses
     .filter((s: any) => s.ativo !== false)
