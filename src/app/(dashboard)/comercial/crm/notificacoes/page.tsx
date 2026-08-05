@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState } from "react"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import Link from "next/link"
 import { Bell, BellRing, Check, CheckCheck, ExternalLink, Loader2, MessageSquare, UserPlus, XCircle } from "lucide-react"
 import { InfoButton } from "@/components/ui/info-button"
@@ -25,35 +26,24 @@ const TIPO_ICON: Record<string, React.ReactNode> = {
 }
 
 export default function NotificacoesPage() {
-  const [notificacoes, setNotificacoes] = useState<Notificacao[]>([])
-  const [naoLidas, setNaoLidas] = useState(0)
-  const [loading, setLoading] = useState(true)
   const [filtro, setFiltro] = useState<"todas" | "naoLidas">("todas")
+  const queryClient = useQueryClient()
 
-  const carregar = useCallback(async () => {
-    setLoading(true)
-    try {
+  const { data = { lista: [], naoLidas: 0 }, isLoading: loading } = useQuery({
+    queryKey: ["crm-notificacoes", filtro],
+    queryFn: async () => {
       const params = filtro === "naoLidas" ? "?naoLidas=true" : ""
       const res = await fetch(`/api/crm/notificacoes${params}`)
-      const data = await res.json()
-      setNotificacoes(Array.isArray(data.lista) ? data.lista : [])
-      setNaoLidas(data.naoLidas || 0)
-    } catch {
-      setNotificacoes([])
-    } finally {
-      setLoading(false)
-    }
-  }, [filtro])
-
-  useEffect(() => {
-    carregar()
-  }, [carregar])
+      return res.json()
+    },
+  })
+  const notificacoes: Notificacao[] = Array.isArray(data.lista) ? data.lista : []
+  const naoLidas = data.naoLidas || 0
 
   async function marcarLida(id: number) {
     try {
       await fetch(`/api/crm/notificacoes/${id}/ler`, { method: "PATCH" })
-      setNotificacoes((prev) => prev.map((n: any) => (n.id === id ? { ...n, lida: true } : n)))
-      setNaoLidas((prev) => Math.max(0, prev - 1))
+      queryClient.invalidateQueries({ queryKey: ["crm-notificacoes"] })
     } catch {}
   }
 
@@ -64,8 +54,7 @@ export default function NotificacoesPage() {
           fetch(`/api/crm/notificacoes/${n.id}/ler`, { method: "PATCH" })
         )
       )
-      setNotificacoes((prev) => prev.map((n: any) => ({ ...n, lida: true })))
-      setNaoLidas(0)
+      queryClient.invalidateQueries({ queryKey: ["crm-notificacoes"] })
     } catch {}
   }
 

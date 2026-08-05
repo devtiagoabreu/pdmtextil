@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState } from "react"
+import { useQuery } from "@tanstack/react-query"
 import Link from "next/link"
 import { MessageSquare, Search, Check, CheckCheck, Loader2, ExternalLink } from "lucide-react"
 import { InfoButton } from "@/components/ui/info-button"
@@ -20,29 +21,19 @@ type Conversa = {
 }
 
 export default function ConversasPage() {
-  const [conversas, setConversas] = useState<Conversa[]>([])
-  const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
   const [selectedRemoteJid, setSelectedRemoteJid] = useState<string | null>(null)
   const [selectedNome, setSelectedNome] = useState("")
 
-  const carregar = useCallback(async () => {
-    setLoading(true)
-    try {
+  const { data: conversas = [], isLoading: loading } = useQuery({
+    queryKey: ["crm-conversas", search],
+    queryFn: async () => {
       const params = search ? `?search=${encodeURIComponent(search)}` : ""
       const res = await fetch(`/api/crm/whatsapp/conversas${params}`)
       const data = await res.json()
-      setConversas(Array.isArray(data) ? data : [])
-    } catch {
-      setConversas([])
-    } finally {
-      setLoading(false)
-    }
-  }, [search])
-
-  useEffect(() => {
-    carregar()
-  }, [carregar])
+      return Array.isArray(data) ? data : []
+    },
+  })
 
   function formatTime(dateStr: string) {
     const d = new Date(dateStr)

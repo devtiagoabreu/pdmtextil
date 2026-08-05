@@ -1,6 +1,7 @@
 "use client"
 
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { useRouter, usePathname } from "next/navigation"
@@ -104,7 +105,6 @@ export default function KanbanOportunidadesPage() {
   const info = getInfoContent(pathname)
   const { statuses, loading: statusLoading, getLabel } = useStatuses("OPORTUNIDADE")
   const [oportunidades, setOportunidades] = useState<OportunidadeCard[]>([])
-  const [loading, setLoading] = useState(true)
   const [activeCard, setActiveCard] = useState<OportunidadeCard | null>(null)
 
   const [showMotivoPerda, setShowMotivoPerda] = useState(false)
@@ -115,29 +115,26 @@ export default function KanbanOportunidadesPage() {
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
   )
 
-  const carregar = useCallback(async () => {
-    setLoading(true)
-    try {
+  const { data: dadosCarregados, isLoading: loading } = useQuery({
+    queryKey: ["crm-oportunidades-kanban"],
+    queryFn: async () => {
       const res = await fetch("/api/crm/oportunidades")
       const data = await res.json()
-      if (Array.isArray(data)) {
-        setOportunidades(data.map((o: any) => ({
-          id: o.id,
-          titulo: o.titulo,
-          valorEstimado: o.valorEstimado,
-          empresaNome: o.empresaNome,
-          responsavelNome: o.responsavelNome,
-          status: o.status,
-        })))
-      }
-    } catch {
-      toast.error("Erro ao carregar dados")
-    } finally {
-      setLoading(false)
-    }
-  }, [])
+      if (!Array.isArray(data)) throw new Error("Dados inválidos")
+      return data.map((o: any) => ({
+        id: o.id,
+        titulo: o.titulo,
+        valorEstimado: o.valorEstimado,
+        empresaNome: o.empresaNome,
+        responsavelNome: o.responsavelNome,
+        status: o.status,
+      })) as OportunidadeCard[]
+    },
+  })
 
-  useEffect(() => { carregar() }, [carregar])
+  useEffect(() => {
+    if (dadosCarregados) setOportunidades(dadosCarregados)
+  }, [dadosCarregados])
 
   const colunas = statuses
     .filter((s: any) => s.ativo !== false)
