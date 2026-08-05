@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useRef, useCallback, useEffect } from "react"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { matchesSearch } from "@/components/ui/list-filters"
@@ -99,13 +100,51 @@ export default function EmailMassaPage() {
   const [previewSize, setPreviewSize] = useState({ w: "80vw", h: "85vh" })
   const [activeTab, setActiveTab] = useState("enviar")
 
-  const [modelos, setModelos] = useState<Modelo[]>([])
+  const { data: modelos = [] } = useQuery<Modelo[]>({
+    queryKey: ["email-massa-modelos"],
+    queryFn: async () => {
+      const res = await fetch("/api/admin/email-massa/modelos")
+      if (!res.ok) return []
+      return res.json()
+    },
+  })
+
+  const { data: listas = [], isLoading: loadingListas } = useQuery<Lista[]>({
+    queryKey: ["email-massa-listas"],
+    queryFn: async () => {
+      const res = await fetch("/api/admin/email-massa/listas")
+      if (!res.ok) return []
+      return res.json()
+    },
+  })
+
+  const { data: historico = null, isLoading: loadingHistorico } = useQuery<HistoricoData | null>({
+    queryKey: ["email-massa-historico"],
+    queryFn: async () => {
+      const res = await fetch("/api/admin/email-massa/historico")
+      if (!res.ok) return null
+      return res.json()
+    },
+    enabled: activeTab === "historico",
+  })
+
+  const { data: agendados = [], isLoading: loadingAgendados } = useQuery<Agendado[]>({
+    queryKey: ["email-massa-agendados"],
+    queryFn: async () => {
+      const res = await fetch("/api/admin/email-massa/agendados")
+      if (!res.ok) return []
+      return res.json()
+    },
+    enabled: activeTab === "agendar",
+  })
+
+  const queryClient = useQueryClient()
+
   const [modeloDialogOpen, setModeloDialogOpen] = useState(false)
   const [editModelo, setEditModelo] = useState<Modelo | null>(null)
   const [modeloForm, setModeloForm] = useState({ nome: "", assunto: "", html: "" })
   const [viewModelo, setViewModelo] = useState<Modelo | null>(null)
 
-  const [listas, setListas] = useState<Lista[]>([])
   const [listaDialogOpen, setListaDialogOpen] = useState(false)
   const [editLista, setEditLista] = useState<ListaComContatos | null>(null)
   const [listaForm, setListaForm] = useState({ nome: "", descricao: "" })
@@ -113,7 +152,6 @@ export default function EmailMassaPage() {
   const [novoContato, setNovoContato] = useState({ nome: "", email: "" })
   const [editContatoId, setEditContatoId] = useState<number | null>(null)
   const [viewLista, setViewLista] = useState<ListaComContatos | null>(null)
-  const [loadingListas, setLoadingListas] = useState(false)
 
 
   const [linkDialogOpen, setLinkDialogOpen] = useState(false)
@@ -133,15 +171,11 @@ export default function EmailMassaPage() {
   const [colorMode, setColorMode] = useState<"fore" | "back">("fore")
   const [colorValue, setColorValue] = useState("#000000")
 
-  const [historico, setHistorico] = useState<HistoricoData | null>(null)
-  const [loadingHistorico, setLoadingHistorico] = useState(false)
   const [historicoSearch, setHistoricoSearch] = useState("")
 
   const [remetente, setRemetente] = useState("sistema")
   const [userEmailConfig, setUserEmailConfig] = useState<{ email: string } | null>(null)
 
-  const [agendados, setAgendados] = useState<Agendado[]>([])
-  const [loadingAgendados, setLoadingAgendados] = useState(false)
   const [agendadoForm, setAgendadoForm] = useState({ nome: "", agendadoPara: "" })
   const [editAgendado, setEditAgendado] = useState<Agendado | null>(null)
   const [agendadoFiltro, setAgendadoFiltro] = useState<string>("todos")
@@ -447,34 +481,7 @@ export default function EmailMassaPage() {
     }
   }
 
-  const carregarModelos = useCallback(async () => {
-    try {
-      const res = await fetch("/api/admin/email-massa/modelos")
-      if (res.ok) setModelos(await res.json())
-    } catch { /* ignore */ }
-  }, [])
-
-  const carregarListas = useCallback(async () => {
-    setLoadingListas(true)
-    try {
-      const res = await fetch("/api/admin/email-massa/listas")
-      if (res.ok) setListas(await res.json())
-    } catch { /* ignore */ }
-    setLoadingListas(false)
-  }, [])
-
-  const carregarHistorico = useCallback(async () => {
-    setLoadingHistorico(true)
-    try {
-      const res = await fetch("/api/admin/email-massa/historico")
-      if (res.ok) setHistorico(await res.json())
-    } catch { /* ignore */ }
-    setLoadingHistorico(false)
-  }, [])
-
   useEffect(() => {
-    carregarModelos()
-    carregarListas()
     fetch("/api/user/email-config")
       .then((r: any) => r.json())
       .then((data: any) => {
@@ -484,7 +491,7 @@ export default function EmailMassaPage() {
         }
       })
       .catch(console.error)
-  }, [carregarModelos, carregarListas])
+  }, [])
 
   useEffect(() => {
     const link = document.createElement("link")
@@ -513,24 +520,10 @@ export default function EmailMassaPage() {
   }, [])
 
   useEffect(() => {
-    if (activeTab === "historico") carregarHistorico()
-  }, [activeTab, carregarHistorico])
-
-  const carregarAgendados = useCallback(async () => {
-    setLoadingAgendados(true)
-    try {
-      const res = await fetch("/api/admin/email-massa/agendados")
-      if (res.ok) setAgendados(await res.json())
-    } catch { /* ignore */ }
-    setLoadingAgendados(false)
-  }, [])
-
-  useEffect(() => {
     if (activeTab === "agendar") {
-      carregarAgendados()
       fetch("/api/admin/email-massa/agendados/executar", { method: "POST" }).catch(console.error)
     }
-  }, [activeTab, carregarAgendados])
+  }, [activeTab])
 
   const salvarAgendado = async (status: "rascunho" | "agendado") => {
     const html = getContentHtml()
@@ -551,7 +544,7 @@ export default function EmailMassaPage() {
         toast.success(status === "agendado" ? "Disparo agendado!" : "Rascunho salvo!")
         setEditAgendado(null)
         setAgendadoForm({ nome: "", agendadoPara: "" })
-        carregarAgendados()
+        queryClient.invalidateQueries({ queryKey: ["email-massa-agendados"] })
       } else {
         const err = await res.json()
         toast.error(err.error || "Erro ao salvar")
@@ -579,7 +572,7 @@ export default function EmailMassaPage() {
         method: "PUT", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ agendadoPara: data, status: "agendado" }),
       })
-      if (res.ok) { toast.success("Disparo agendado!"); carregarAgendados() }
+      if (res.ok) { toast.success("Disparo agendado!"); queryClient.invalidateQueries({ queryKey: ["email-massa-agendados"] }) }
     } catch { toast.error("Erro ao agendar") }
   }
 
@@ -589,7 +582,7 @@ export default function EmailMassaPage() {
         method: "PUT", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: "cancelado" }),
       })
-      if (res.ok) { toast.success("Disparo cancelado"); carregarAgendados() }
+      if (res.ok) { toast.success("Disparo cancelado"); queryClient.invalidateQueries({ queryKey: ["email-massa-agendados"] }) }
     } catch { toast.error("Erro ao cancelar") }
   }
 
@@ -597,7 +590,7 @@ export default function EmailMassaPage() {
     if (!confirm("Excluir este agendamento?")) return
     try {
       const res = await fetch(`/api/admin/email-massa/agendados/${id}`, { method: "DELETE" })
-      if (res.ok) { toast.success("Excluído"); carregarAgendados() }
+      if (res.ok) { toast.success("Excluído"); queryClient.invalidateQueries({ queryKey: ["email-massa-agendados"] }) }
     } catch { toast.error("Erro ao excluir") }
   }
 
@@ -607,7 +600,7 @@ export default function EmailMassaPage() {
       const data = await res.json()
       if (data.executados > 0) toast.success(`${data.executados} disparo(s) executado(s)`)
       else toast.info("Nenhum agendamento pendente")
-      carregarAgendados()
+      queryClient.invalidateQueries({ queryKey: ["email-massa-agendados"] })
     } catch { toast.error("Erro ao verificar agendamentos") }
   }
 
@@ -636,7 +629,7 @@ export default function EmailMassaPage() {
         setModeloDialogOpen(false)
         setEditModelo(null)
         setModeloForm({ nome: "", assunto: "", html: "" })
-        carregarModelos()
+        queryClient.invalidateQueries({ queryKey: ["email-massa-modelos"] })
       } else {
         const data = await res.json()
         toast.error(data.error || "Erro ao salvar")
@@ -652,7 +645,7 @@ export default function EmailMassaPage() {
       const res = await fetch(`/api/admin/email-massa/modelos/${id}`, { method: "DELETE" })
       if (res.ok) {
         toast.success("Modelo deletado")
-        carregarModelos()
+        queryClient.invalidateQueries({ queryKey: ["email-massa-modelos"] })
       }
     } catch {
       toast.error("Erro ao deletar")
@@ -696,7 +689,7 @@ export default function EmailMassaPage() {
         setEditLista(null)
         setListaForm({ nome: "", descricao: "" })
         setListaContatos([])
-        carregarListas()
+        queryClient.invalidateQueries({ queryKey: ["email-massa-listas"] })
       } else {
         const data = await res.json()
         toast.error(data.error || "Erro ao salvar")
@@ -712,7 +705,7 @@ export default function EmailMassaPage() {
       const res = await fetch(`/api/admin/email-massa/listas/${id}`, { method: "DELETE" })
       if (res.ok) {
         toast.success("Lista deletada")
-        carregarListas()
+        queryClient.invalidateQueries({ queryKey: ["email-massa-listas"] })
         setSelectedListaIds((prev: any) => prev.filter((lid: any) => lid !== id))
       }
     } catch {
@@ -1193,7 +1186,7 @@ export default function EmailMassaPage() {
                           <td className="p-2 text-center"><span className="text-xs bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded-full">{l.totalContatos}</span></td>
                           <td className="p-2 text-right whitespace-nowrap">
                             <div className="flex gap-1 justify-end items-center">
-                              <ImportarContatosEmail listaId={l.id} listaNome={l.nome} onImportado={carregarListas} />
+                              <ImportarContatosEmail listaId={l.id} listaNome={l.nome} onImportado={() => queryClient.invalidateQueries({ queryKey: ["email-massa-listas"] })} />
                               <Button variant="ghost" size="xs" onClick={() => abrirEditarLista(l)} className="gap-1"><Pencil size={12} /></Button>
                               <Button variant="ghost" size="xs" onClick={() => abrirVerLista(l)} className="gap-1"><Eye size={12} /></Button>
                               <Button variant="ghost" size="xs" onClick={() => deletarLista(l.id)} className="gap-1 text-red-500 hover:text-red-700"><Trash2 size={12} /></Button>
@@ -1255,7 +1248,7 @@ export default function EmailMassaPage() {
                       <FileText size={14} /> Relatório PDF
                     </Button>
                   )}
-                  <Button variant="outline" size="sm" onClick={carregarHistorico} className="gap-1">
+                  <Button variant="outline" size="sm" onClick={() => queryClient.invalidateQueries({ queryKey: ["email-massa-historico"] })} className="gap-1">
                     <RefreshCw size={14} /> Atualizar
                   </Button>
                 </div>
