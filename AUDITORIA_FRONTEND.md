@@ -67,7 +67,7 @@ Regra de trabalho: cada item corrigido = **commit + push** separado, para acompa
 - [x] `comercial/crm/visitas/[id]/page.tsx` e `novo/page.tsx` — useQuery `896c517a`
 - [x] `comercial/solicitacoes/[id]/editar/page.tsx` — useQuery `25a6ad93`
 - [x] Cluster `admin/*` — `usuarios/page.tsx`, `roles/page.tsx`, `usuarios/[id]/page.tsx`, `notificacoes/page.tsx`, `whatsapp-catalogos/page.tsx` via `useQuery` (`["admin-usuarios"]`, `["admin-roles"]`, `["admin-usuario", id]`, `["admin-notificacao-regras"]`, `["admin-whatsapp-linhas"]`, `["admin-whatsapp-catalogos"]`; mutações via `invalidateQueries`) `4cc35382`. `whatsapp-monitor`, `whatsapp-dashboard`, `whatsapp-chat` mantidos como polling com `setInterval` + `autoRefresh`/silent refresh (telas de tempo real — exceção documentada). `email-massa` e `configuracoes/*` tratados nos itens 7/9.
-- [ ] Cluster `cadastros/*/[id]` (fios, produto-cru, fornecedores, bases-urdume, cores, estampas, produtos-quimicos) — useQuery
+- [x] Cluster `cadastros/*/[id]` — `fios`, `cores`, `estampas`, `fornecedores`, `produto-cru`, `produtos-quimicos`, `bases-urdume`, `receitas` via `useQuery` (`["cadastro-fio", id]`, `["cadastro-fios"]`, `["cadastro-cor", id]`, `["cadastro-estampa", id]`, `["cadastro-fornecedor", id]`, `["cadastro-produto-cru", id]`, `["cadastro-produto-quimico", id]`, `["cadastro-base-urdume", id]`, `["cadastro-bases-urdume"]`, `["cadastro-fornecedores"]`, `["cadastro-fio-fornecedores", id]`, `["solicitacoes"]`, `["admin-status", tipo]`, `["receitas"]`) `bb62068c`
 - [x] `documentos/romaneios/page.tsx` — useQuery `6edaa217`
 - [x] `components/bi/bi-dashboard-client.tsx` — useQuery `74f88d1f`
 - [x] `perfil/page.tsx`, `perfil/menus/page.tsx` — useQuery `1362a9a2`
