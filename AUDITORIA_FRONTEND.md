@@ -91,7 +91,7 @@ Regra de trabalho: cada item corrigido = **commit + push** separado, para acompa
 - [x] `treinamento/exportar-pdf/page.tsx` — jspdf estático → dynamic import `ca1e83c3`. `@/lib/export-treinamento-pdf` carregada via `await import()` dentro de `handleExportPdf`; removido import estático.
 - [x] `admin/email-massa/page.tsx` — dompurify (sanitize.ts) → dynamic import no uso `f28f7251`. Novo `src/components/ui/sanitized-html.tsx` (`SanitizedHtml`) faz `import("@/lib/sanitize")` no client via useEffect; 3 usages de `sanitizeHtml` no JSX substituídas; import estático removido.
 - [x] Wrappers `Importar*` com `"use client"` desnecessário (8 arquivos) — remover/reduzir boundary `438ab225`. Como os wrappers recebem `onImportado` (função) de páginas client, o `"use client"` é obrigatório — removi a camada inteira: inlined `ImportarEntidade` nas 7 páginas de cadastros + email-massa e deletei os 8 wrappers.
-- [ ] Migrar páginas de listagem/detalhe client → Server Component quando não precisam de estado
+- [x] Migrar páginas de listagem/detalhe client → Server Component quando não precisam de estado `39d5c85d`. Varredura de todas as pages `"use client"`: `documentos/page.tsx` era a única sem estado (só `usePathname` para `getInfoContent` + links com `onClick` de preventDefault) — migrada para Server Component usando pathname constante `"/documentos"` e renderização condicional (`<div aria-disabled>` para itens desabilitados). Demais páginas client usam `useState`/`useQuery`/interatividade real e não são candidatas.
 
 ## 9. Quebrar arquivos gigantes em subcomponentes
 
