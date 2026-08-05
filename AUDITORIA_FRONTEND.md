@@ -79,7 +79,7 @@ Regra de trabalho: cada item corrigido = **commit + push** separado, para acompa
 
 ## 7. `useMemo`/`useCallback` preventivos
 
-- [ ] `admin/email-massa/page.tsx` — remover 20 `useCallback` desnecessários (migrar loaders para useQuery). Parcial: `components/dashboard-relatorio.tsx` migrado para useQuery `518265be`; faltam loaders `carregarModelos/Listas/Historico/Agendados` + handlers do editor (event-handler-only, baixo risco)
+- [x] `admin/email-massa/page.tsx` — remover 20 `useCallback` desnecessários (migrar loaders para useQuery). Loaders `carregarModelos/Listas/Historico/Agendados` → useQuery + invalidateQueries (`dashboard-relatorio.tsx` também) `518265be`, `15519e68`; handlers do editor (`exec`, `saveSelection`, etc.) mantidos — event-handler-only, baixo risco
 - [x] `components/crm/rich-text-editor.tsx` — avaliar 7 `useCallback` `08f81231`
 - [x] `components/kanban/kanban-board.tsx` / `kanban-amostras.tsx` — remover useCallback só para dep de useEffect `6ac82ef4`
 - [x] `components/layout/sidebar.tsx` — remover `isAtiva` preventivo `08f81231`
