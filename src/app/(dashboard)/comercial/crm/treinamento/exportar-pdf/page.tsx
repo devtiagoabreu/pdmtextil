@@ -8,7 +8,6 @@ import {
 } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
-import { exportTreinamentoCompletoPdf } from "@/lib/export-treinamento-pdf"
 
 type LicaoCompleta = {
   id: number
@@ -43,6 +42,7 @@ export default function ExportarPdfPage() {
     if (!modulos || modulos.length === 0) return
     setExportando(true)
     try {
+      const { exportTreinamentoCompletoPdf } = await import("@/lib/export-treinamento-pdf")
       await exportTreinamentoCompletoPdf(modulos)
     } finally {
       setExportando(false)
