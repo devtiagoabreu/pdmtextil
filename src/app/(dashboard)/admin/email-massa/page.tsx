@@ -12,6 +12,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog"
 import { toast } from "sonner"
+import { SanitizedHtml } from "@/components/ui/sanitized-html"
 import {
   Send, Loader2, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight,
   Link, List, Plus, Pencil, Trash2, FileText, Users, Copy, X, Eye,
@@ -27,7 +28,6 @@ import { exportPDF, exportPDFRelatorio } from "@/lib/export-utils"
 import { getInfoContent } from "@/lib/info-content"
 import { Separator } from "@/components/ui/separator"
 import { htmlToModelo, modeloToHtml } from "@/lib/email-modelo"
-import { sanitizeHtml } from "@/lib/sanitize"
 import type { Modelo, Lista, ListaComContatos, Contato, Envio, HistoricoData, Agendado } from "./types"
 import { FONT_SIZES, FONT_FAMILIES } from "./types"
 import { DashboardRelatorio } from "./components/dashboard-relatorio"
@@ -1475,7 +1475,7 @@ export default function EmailMassaPage() {
           {viewModelo && (
             <div className="border rounded-lg p-4 bg-white dark:bg-slate-800 overflow-y-auto max-h-96">
               <div className="text-xs text-slate-400 mb-2">Prévia do HTML:</div>
-              <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(modeloToHtml(viewModelo.html)) }} />
+              <SanitizedHtml html={modeloToHtml(viewModelo.html)} />
             </div>
           )}
           <DialogFooter>
@@ -1610,7 +1610,7 @@ export default function EmailMassaPage() {
               className="w-full bg-white text-black shadow-sm mx-auto"
               style={{ fontFamily: "Arial, sans-serif", lineHeight: "1.8", fontSize: "15px", padding: "32px 40px", minHeight: "100%" }}
             >
-              <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(getContentHtml()) }} />
+              <SanitizedHtml html={getContentHtml()} />
             </div>
           </div>
           <DialogFooter className="gap-2">
@@ -1713,8 +1713,9 @@ export default function EmailMassaPage() {
             {htmlCodeValue && (
               <div className="mt-3">
                 <p className="text-xs text-slate-400 mb-1">Preview:</p>
-                <div className="border rounded-lg p-3 bg-white dark:bg-slate-800 max-h-40 overflow-auto"
-                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(htmlCodeValue) }} />
+                <div className="border rounded-lg p-3 bg-white dark:bg-slate-800 max-h-40 overflow-auto">
+                  <SanitizedHtml html={htmlCodeValue} />
+                </div>
               </div>
             )}
           </div>
