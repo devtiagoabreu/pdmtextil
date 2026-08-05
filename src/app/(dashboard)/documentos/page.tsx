@@ -1,8 +1,5 @@
-"use client"
-
 import Link from "next/link"
 import { FileText, Truck, FileSpreadsheet, ShoppingCart, BarChart3 } from "lucide-react"
-import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 
@@ -44,8 +41,7 @@ const modulos = [
 ]
 
 export default function DocumentosPage() {
-  const pathname = usePathname()
-  const info = getInfoContent(pathname)
+  const info = getInfoContent("/documentos")
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -61,17 +57,13 @@ export default function DocumentosPage() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {modulos.map((mod: any) => {
           const Icon = mod.icon
-          return (
-            <Link
-              key={mod.href}
-              href={mod.disabled ? "#" : mod.href}
-              className={`relative rounded-xl border p-5 transition-all ${
-                mod.disabled
-                  ? "border-slate-200 dark:border-slate-800 opacity-50 cursor-not-allowed"
-                  : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:shadow-md hover:border-blue-200 dark:hover:border-blue-800 cursor-pointer"
-              }`}
-              onClick={(e) => mod.disabled && e.preventDefault()}
-            >
+          const baseClass = `relative rounded-xl border p-5 transition-all ${
+            mod.disabled
+              ? "border-slate-200 dark:border-slate-800 opacity-50 cursor-not-allowed"
+              : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:shadow-md hover:border-blue-200 dark:hover:border-blue-800 cursor-pointer"
+          }`
+          const content = (
+            <>
               <div className="flex items-start gap-4">
                 <div className="shrink-0 inline-flex p-2.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400">
                   <Icon size={20} />
@@ -88,6 +80,15 @@ export default function DocumentosPage() {
                   <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{mod.desc}</p>
                 </div>
               </div>
+            </>
+          )
+          return mod.disabled ? (
+            <div key={mod.href} className={baseClass} aria-disabled="true" tabIndex={-1}>
+              {content}
+            </div>
+          ) : (
+            <Link key={mod.href} href={mod.href} className={baseClass}>
+              {content}
             </Link>
           )
         })}
