@@ -102,7 +102,7 @@ Regra de trabalho: cada item corrigido = **commit + push** separado, para acompa
 - [x] `documentos/romaneios/page.tsx` (945 linhas) — `e319eed5` (5 arquivos em `components/`: types, utils, romaneio-pdf, romaneio-card, toolbar)
 - [x] `comercial/crm/visitas/[id]/page.tsx` (812 linhas) — `29f5a0b2` (6 arquivos em `components/`: constants, visita-header, edicao-card, visualizacao-card, check-card, relato-fotos)
 - [x] `comercial/crm/visitas/novo/page.tsx` (784 linhas) — `53d58020` (4 arquivos em `components/`: constants, tipo-entidade-selector, form-fields, endereco-section)
-- [ ] `perfil/menus/page.tsx` (720 linhas)
+- [x] `perfil/menus/page.tsx` (720 linhas) — `f3558867` (4 arquivos em `components/`: types, sortable-menu, sortable-item, copiar-dialog)
 - [ ] `comercial/crm/pessoas/[id]/page.tsx` (701 linhas)
 - [ ] `chat/page.tsx` (672 linhas)
 - [ ] `comercial/solicitacoes/[id]/page.tsx` (657 linhas)
