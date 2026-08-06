@@ -99,7 +99,7 @@ Regra de trabalho: cada item corrigido = **commit + push** separado, para acompa
 - [x] `cadastros/produto-cru/[id]/page.tsx` (1350 linhas, 4 modais) — `ce309f67` (652 linhas + `components/` com 7 arquivos: capa, ficha-tecnica, composicao, amostras, links, modais, types)
 - [x] `components/bi/bi-dashboard-client.tsx` (1066 linhas) — `c7ffbbf0` (13 arquivos em `components/bi/`: url-bar, period-bar, tabs-nav, dashboard/representantes/clientes/produto/grupo tabs, stat-card, rank-list, clientes-table, constants)
 - [x] `comercial/requisicoes-corte/por-romaneio/page.tsx` (1063 linhas) — (7 arquivos em `components/`: types, utils, romaneio-pdf, romaneio-card, toolbar, requisicao-dialog)
-- [ ] `documentos/romaneios/page.tsx` (945 linhas)
+- [x] `documentos/romaneios/page.tsx` (945 linhas) — `e319eed5` (5 arquivos em `components/`: types, utils, romaneio-pdf, romaneio-card, toolbar)
 - [ ] `comercial/crm/visitas/[id]/page.tsx` (812 linhas)
 - [ ] `comercial/crm/visitas/novo/page.tsx` (784 linhas)
 - [ ] `perfil/menus/page.tsx` (720 linhas)
