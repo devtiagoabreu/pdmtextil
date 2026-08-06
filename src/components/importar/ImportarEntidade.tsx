@@ -26,6 +26,7 @@ interface ImportarEntidadeProps {
     tela: string
     existingKey: string
     extraImportParams: Record<string, unknown>
+    buscarExistentes?: () => Promise<Record<string, any>[]>
   }
 }
 
@@ -298,6 +299,7 @@ export function ImportarEntidade({ config, onImportado, buttonVariant = "default
           onImportado={() => { setShowApiImport(false); onImportado?.() }}
           onClose={() => setShowApiImport(false)}
           extraImportParams={apiImportConfig.extraImportParams}
+          buscarExistentes={apiImportConfig.buscarExistentes}
         />
       )}
     </>

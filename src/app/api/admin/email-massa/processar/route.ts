@@ -16,9 +16,20 @@ export const dynamic = "force-dynamic"
 export const maxDuration = 300
 
 const BCC_CHUNK = 50
-const INDIVIDUAL_BATCH = 20
+const INDIVIDUAL_BATCH = 10
 const MAX_RUN_MS = 280_000
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://pdmprotextil.vercel.app"
+
+const SMTP_OPTS = {
+  pool: true,
+  maxConnections: 3,
+  maxMessages: 100,
+  connectionTimeout: 15_000,
+  greetingTimeout: 15_000,
+  socketTimeout: 30_000,
+  rateLimit: 2,
+  rateDelta: 1_000,
+}
 
 async function recomputarContadores(disparoId: number) {
   await db
@@ -51,7 +62,7 @@ function isFalhaTransiente(err: any): boolean {
   if (code && ["ECONNECTION", "EAUTH", "ETIMEDOUT", "ESOCKET", "ECONNRESET"].includes(code)) return true
   if (rc != null) {
     if (rc >= 500) return true
-    if ([421, 450, 451, 452].includes(rc)) return true
+    if ([421, 450, 451, 452, 454].includes(rc)) return true
   }
   return false
 }
@@ -111,6 +122,7 @@ export async function POST(req: NextRequest) {
         port: tc.port,
         secure: tc.port === 465,
         auth: { user: tc.user, pass: tc.pass },
+        ...SMTP_OPTS,
       })
 
       try {

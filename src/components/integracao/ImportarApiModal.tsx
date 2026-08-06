@@ -29,16 +29,27 @@ interface ImportarApiModalProps {
   onImportado?: () => void
   onClose: () => void
   extraImportParams?: Record<string, any>
+  buscarExistentes?: () => Promise<Record<string, any>[]>
 }
 
-export default function ImportarApiModal({ tela, existingRecords, existingKey = "idIntegracao", onImportado, onClose, extraImportParams }: ImportarApiModalProps) {
+export default function ImportarApiModal({ tela, existingRecords, existingKey = "idIntegracao", onImportado, onClose, extraImportParams, buscarExistentes }: ImportarApiModalProps) {
   const [selectedId, setSelectedId] = useState<number | null>(null)
   const [items, setItems] = useState<Record<string, any>[]>([])
   const [loadingData, setLoadingData] = useState(false)
   const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set())
   const [importing, setImporting] = useState(false)
   const [existingSet, setExistingSet] = useState<Set<string>>(new Set())
+  const [existingRecordsCarregados, setExistingRecordsCarregados] = useState<Record<string, any>[]>([])
   const [searchQuery, setSearchQuery] = useState("")
+
+  useEffect(() => {
+    if (!buscarExistentes) return
+    let ativo = true
+    buscarExistentes()
+      .then((recs) => { if (ativo) setExistingRecordsCarregados(recs || []) })
+      .catch(() => { if (ativo) setExistingRecordsCarregados([]) })
+    return () => { ativo = false } // eslint-disable-line react-hooks/exhaustive-deps
+  }, [])
 
   useEscapeClose(true, onClose)
 
@@ -68,12 +79,12 @@ export default function ImportarApiModal({ tela, existingRecords, existingKey = 
 
   useEffect(() => {
     const existing = new Set<string>()
-    for (const r of existingRecords) {
+    for (const r of [...existingRecords, ...existingRecordsCarregados]) {
       const val = r[existingKey]
       if (val != null) existing.add(String(val).trim().toLowerCase())
     }
     setExistingSet(existing)
-  }, [existingRecords, existingKey])
+  }, [existingRecords, existingRecordsCarregados, existingKey])
 
   function getMappedValue(item: Record<string, any>, mappedField: string) {
     const apiField = Object.entries(fieldMapping).find(([, v]) => v === mappedField)?.[0]
@@ -139,6 +150,29 @@ export default function ImportarApiModal({ tela, existingRecords, existingKey = 
       filteredItems.forEach((item: any) => next.add(items.indexOf(item)))
       setSelectedRows(next)
     }
+  }
+
+  function selecionarAleatorios(qtd: number) {
+    const elegiveis: number[] = []
+    items.forEach((item: any, idx: number) => {
+      if (selectedRows.has(idx)) return
+      if (isDuplicate(item)) return
+      if (hasMissingRequiredField(item)) return
+      elegiveis.push(idx)
+    })
+    for (let i = elegiveis.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      const tmp = elegiveis[i]
+      elegiveis[i] = elegiveis[j]
+      elegiveis[j] = tmp
+    }
+    const escolhidos = elegiveis.slice(0, Math.min(qtd, elegiveis.length))
+    if (escolhidos.length === 0) {
+      toast.info("Nenhum contato novo disponível para seleção aleatória")
+      return
+    }
+    setSelectedRows(prev => new Set([...prev, ...escolhidos]))
+    toast.success(`${escolhidos.length} contato(s) aleatório(s) selecionado(s)`)
   }
 
   function isDuplicate(item: Record<string, any>) {
@@ -250,14 +284,30 @@ export default function ImportarApiModal({ tela, existingRecords, existingKey = 
                       {items.filter((i: any) => hasMissingRequiredField(i)).length} item(s) com &quot;{uniqueKey}&quot; vazio — não serão selecionados para importação.
                     </p>
                   )}
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-                    <Input
-                      value={searchQuery}
-                      onChange={e => setSearchQuery(e.target.value)}
-                      placeholder="Pesquisar na lista..."
-                      className="pl-9 max-w-sm"
-                    />
+                  <div className="flex items-center justify-between gap-3 flex-wrap">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                      <Input
+                        value={searchQuery}
+                        onChange={e => setSearchQuery(e.target.value)}
+                        placeholder="Pesquisar na lista..."
+                        className="pl-9 max-w-sm"
+                      />
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="text-xs text-slate-500 mr-1">Selecionar aleatórios:</span>
+                      {[50, 100, 500].map((n: number) => (
+                        <Button
+                          key={n}
+                          variant="outline"
+                          size="xs"
+                          onClick={() => selecionarAleatorios(n)}
+                          disabled={items.length === 0}
+                        >
+                          {n}
+                        </Button>
+                      ))}
+                    </div>
                   </div>
                   <div className="border border-slate-200 dark:border-slate-800 rounded-lg overflow-auto max-h-96">
                   <table className="w-full text-sm">

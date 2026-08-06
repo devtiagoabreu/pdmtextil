@@ -32,6 +32,7 @@ export default function EmailMassaPage() {
   const [activeTab, setActiveTab] = useState("enviar")
   const [disparoProgresso, setDisparoProgresso] = useState<Disparo | null>(null)
   const pollRef = useRef<number | null>(null)
+  const processingRef = useRef(false)
 
   useEffect(() => {
     return () => {
@@ -110,6 +111,12 @@ export default function EmailMassaPage() {
       setSending(false)
       setDisparoProgresso({ ...data, enviados: 0, falhas: 0, pendentes: data.total } as Disparo)
       pollDisparo(data.disparoId)
+      if (!processingRef.current) {
+        processingRef.current = true
+        fetch("/api/admin/email-massa/processar", { method: "POST" })
+          .catch(() => {})
+          .finally(() => { processingRef.current = false })
+      }
       queryClient.invalidateQueries({ queryKey: ["email-massa-disparos"] })
     } catch {
       setSending(false)
@@ -139,6 +146,13 @@ export default function EmailMassaPage() {
           setDisparoProgresso(null)
           toast.error(d.erro || "Erro no envio do disparo")
           queryClient.invalidateQueries({ queryKey: ["email-massa-disparos"] })
+        } else if (d.status === "fila" || d.status === "enviando") {
+          if (!processingRef.current) {
+            processingRef.current = true
+            fetch("/api/admin/email-massa/processar", { method: "POST" })
+              .catch(() => {})
+              .finally(() => { processingRef.current = false })
+          }
         }
       } catch {
         // mantém o polling

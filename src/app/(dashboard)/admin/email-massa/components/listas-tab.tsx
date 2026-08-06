@@ -190,7 +190,16 @@ export function ListasTab({ onListaDeletada }: ListasTabProps) {
                             onImportado={() => queryClient.invalidateQueries({ queryKey: ["email-massa-listas"] })}
                             buttonVariant="compact"
                             titleSuffix={l.nome}
-                            apiImportConfig={{ tela: "email-listas", existingKey: "email", extraImportParams: { listaId: l.id } }}
+                            apiImportConfig={{ tela: "email-listas", existingKey: "email", extraImportParams: { listaId: l.id }, buscarExistentes: async () => {
+                              try {
+                                const res = await fetch(`/api/admin/email-massa/listas/${l.id}`)
+                                if (!res.ok) return []
+                                const data = await res.json()
+                                return data.contatos || []
+                              } catch {
+                                return []
+                              }
+                            } }}
                           />
                           <Button variant="ghost" size="xs" onClick={() => abrirEditarLista(l)} className="gap-1"><Pencil size={12} /></Button>
                           <Button variant="ghost" size="xs" onClick={() => abrirVerLista(l)} className="gap-1"><Eye size={12} /></Button>
