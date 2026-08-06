@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
@@ -8,7 +8,7 @@ import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { htmlToModelo, modeloToHtml } from "@/lib/email-modelo"
-import type { Modelo, Lista, Agendado } from "./types"
+import type { Modelo, Lista, Agendado, Disparo } from "./types"
 import { DashboardRelatorio } from "./components/dashboard-relatorio"
 import { EnviarTab } from "./components/enviar-tab"
 import { ModelosTab } from "./components/modelos-tab"
@@ -30,6 +30,14 @@ export default function EmailMassaPage() {
   const [selectedListaIds, setSelectedListaIds] = useState<number[]>([])
   const [sending, setSending] = useState(false)
   const [activeTab, setActiveTab] = useState("enviar")
+  const [disparoProgresso, setDisparoProgresso] = useState<Disparo | null>(null)
+  const pollRef = useRef<number | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (pollRef.current !== null) window.clearInterval(pollRef.current)
+    }
+  }, [])
 
   const { data: modelos = [] } = useQuery<Modelo[]>({
     queryKey: ["email-massa-modelos"],
@@ -81,7 +89,10 @@ export default function EmailMassaPage() {
 
     setSending(true)
     try {
-      const body: any = { para, assunto, html, modo_envio: modoEnvio, remetente, preheader }
+      const body: any = {
+        para, assunto, html, modo_envio: modoEnvio, remetente, preheader,
+        nome: agendadoForm.nome || assunto,
+      }
       if (para === "lista") body.listas = selectedListaIds
 
       const res = await fetch("/api/admin/email-massa", {
@@ -90,24 +101,49 @@ export default function EmailMassaPage() {
         body: JSON.stringify(body),
       })
       const data = await res.json()
-      if (res.ok) {
-        if (data.enviados > 0) {
-          toast.success(`Enviados: ${data.enviados} de ${data.total}`)
-        } else {
-          toast.error(`Nenhum email enviado (0 de ${data.total})`)
-        }
-        if (data.erros && data.erros.length > 0) {
-          console.warn("[EMAIL-MASSA] Erros:", data.erros)
-          toast.warning(`${data.erros.length} erro(s). Verifique o console.`)
-        }
-      } else {
-        toast.error(data.error || "Erro ao enviar")
+      if (!res.ok) {
+        toast.error(data.error || "Erro ao criar disparo")
+        setSending(false)
+        return
       }
-    } catch {
-      toast.error("Erro ao enviar emails")
-    } finally {
+      toast.success(`Disparo criado: ${data.total} destinatário(s) na fila. Envio em andamento.`)
       setSending(false)
+      setDisparoProgresso({ ...data, enviados: 0, falhas: 0, pendentes: data.total } as Disparo)
+      pollDisparo(data.disparoId)
+      queryClient.invalidateQueries({ queryKey: ["email-massa-disparos"] })
+    } catch {
+      setSending(false)
+      toast.error("Erro ao criar disparo")
     }
+  }
+
+  const pollDisparo = (disparoId: number) => {
+    if (pollRef.current) window.clearInterval(pollRef.current)
+    pollRef.current = window.setInterval(async () => {
+      try {
+        const res = await fetch(`/api/admin/email-massa/disparos/${disparoId}`)
+        if (!res.ok) return
+        const d = await res.json()
+        setDisparoProgresso(d)
+        if (d.status === "concluido") {
+          if (pollRef.current) window.clearInterval(pollRef.current)
+          pollRef.current = null
+          setDisparoProgresso(null)
+          toast.success(`Envio concluído: ${d.enviados} enviado(s), ${d.falhas} falha(s)`)
+          queryClient.invalidateQueries({ queryKey: ["email-massa-disparos"] })
+          queryClient.invalidateQueries({ queryKey: ["email-massa-historico"] })
+          queryClient.invalidateQueries({ queryKey: ["email-massa-relatorio"] })
+        } else if (d.status === "erro") {
+          if (pollRef.current) window.clearInterval(pollRef.current)
+          pollRef.current = null
+          setDisparoProgresso(null)
+          toast.error(d.erro || "Erro no envio do disparo")
+          queryClient.invalidateQueries({ queryKey: ["email-massa-disparos"] })
+        }
+      } catch {
+        // mantém o polling
+      }
+    }, 3000)
   }
 
   const salvarAgendado = async (status: "rascunho" | "agendado") => {
@@ -258,6 +294,7 @@ export default function EmailMassaPage() {
             onSalvarAgendado={salvarAgendado}
             sending={sending}
             onEnviar={handleSend}
+            disparoProgresso={disparoProgresso}
           />
         </TabsContent>
 

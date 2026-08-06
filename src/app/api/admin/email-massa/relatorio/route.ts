@@ -4,7 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { emailEnviados } from "@/lib/db/schema/email-enviados"
 import { emailCliques } from "@/lib/db/schema/email-cliques"
-import { desc, eq, sql, and, isNotNull, inArray } from "drizzle-orm"
+import { desc, eq, ne, sql, and, isNotNull, inArray } from "drizzle-orm"
 
 export const dynamic = "force-dynamic"
 
@@ -29,7 +29,7 @@ export async function GET() {
       })
       .from(emailEnviados)
       .leftJoin(emailCliques, eq(emailCliques.envioId, emailEnviados.id))
-      .where(isNotNull(emailEnviados.remessaId))
+      .where(and(isNotNull(emailEnviados.remessaId), ne(emailEnviados.status, "pendente")))
       .groupBy(emailEnviados.remessaId, emailEnviados.assunto)
       .orderBy(desc(sql`min(${emailEnviados.createdAt})`))
 

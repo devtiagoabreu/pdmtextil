@@ -997,6 +997,35 @@ async function migrate() {
     await sql`CREATE INDEX IF NOT EXISTS idx_email_enviados_remessa_id ON email_enviados(remessa_id)`
     console.log("✓ Tabela email_enviados criada")
 
+    // ==================== Email em Massa - Fila de Disparos ====================
+    await sql`
+      CREATE TABLE IF NOT EXISTS email_disparos (
+        id serial PRIMARY KEY,
+        nome varchar(255) NOT NULL DEFAULT '',
+        para varchar(50) NOT NULL,
+        listas json,
+        assunto varchar(500) NOT NULL DEFAULT '',
+        preheader varchar(255),
+        html text NOT NULL DEFAULT '',
+        modo_envio varchar(20) DEFAULT 'bcc',
+        remetente varchar(20) DEFAULT 'sistema',
+        remessa_id varchar(36) NOT NULL,
+        status varchar(20) NOT NULL DEFAULT 'fila',
+        total integer DEFAULT 0,
+        enviados integer DEFAULT 0,
+        falhas integer DEFAULT 0,
+        erro text,
+        criado_por integer REFERENCES usuarios(id),
+        criado_em timestamp DEFAULT now(),
+        iniciado_em timestamp,
+        concluido_em timestamp
+      )
+    `
+    await sql`CREATE INDEX IF NOT EXISTS idx_email_disparos_status ON email_disparos(status)`
+    await sql`ALTER TABLE email_enviados ADD COLUMN IF NOT EXISTS disparo_id INTEGER REFERENCES email_disparos(id)`
+    await sql`CREATE INDEX IF NOT EXISTS idx_email_enviados_disparo_id ON email_enviados(disparo_id)`
+    console.log("✓ Tabela email_disparos criada")
+
     // ==================== Email em Massa - Link Tracking ====================
     await sql`
       CREATE TABLE IF NOT EXISTS email_cliques (

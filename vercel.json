@@ -1,6 +1,10 @@
 {
   "crons": [
     {
+      "path": "/api/admin/email-massa/processar",
+      "schedule": "*/5 * * * *"
+    },
+    {
       "path": "/api/admin/email-massa/agendados/executar",
       "schedule": "0 9 * * *"
     }

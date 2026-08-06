@@ -307,6 +307,35 @@ CREATE TABLE IF NOT EXISTS config_geral (
 );
 INSERT INTO config_geral (chave, valor) VALUES ('bi_ttl_minutos', '10')
 ON CONFLICT (chave) DO NOTHING;
+
+-- email_disparos: fila de disparos de email em massa
+CREATE TABLE IF NOT EXISTS email_disparos (
+  id serial PRIMARY KEY,
+  nome varchar(255) NOT NULL DEFAULT '',
+  para varchar(50) NOT NULL,
+  listas json,
+  assunto varchar(500) NOT NULL DEFAULT '',
+  preheader varchar(255),
+  html text NOT NULL DEFAULT '',
+  modo_envio varchar(20) DEFAULT 'bcc',
+  remetente varchar(20) DEFAULT 'sistema',
+  remessa_id varchar(36) NOT NULL,
+  status varchar(20) NOT NULL DEFAULT 'fila',
+  total integer DEFAULT 0,
+  enviados integer DEFAULT 0,
+  falhas integer DEFAULT 0,
+  erro text,
+  criado_por integer REFERENCES usuarios(id),
+  criado_em timestamp DEFAULT now(),
+  iniciado_em timestamp,
+  concluido_em timestamp
+);
+CREATE INDEX IF NOT EXISTS idx_email_disparos_status ON email_disparos(status);
+DO $$ BEGIN
+  ALTER TABLE email_enviados ADD COLUMN IF NOT EXISTS disparo_id integer REFERENCES email_disparos(id);
+EXCEPTION WHEN duplicate_column THEN NULL; WHEN undefined_table THEN NULL;
+END $$;
+CREATE INDEX IF NOT EXISTS idx_email_enviados_disparo_id ON email_enviados(disparo_id);
 `
 
 async function migrateDb(name, url) {

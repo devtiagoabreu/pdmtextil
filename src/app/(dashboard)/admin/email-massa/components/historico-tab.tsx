@@ -7,10 +7,10 @@ import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import { matchesSearch } from "@/components/ui/list-filters"
 import {
-  CheckCircle2, XCircle, Clock, Search, RefreshCw, FileText,
+  CheckCircle2, XCircle, Clock, Search, RefreshCw, FileText, Loader2, RotateCw,
 } from "lucide-react"
 import { exportPDFRelatorio } from "@/lib/export-utils"
-import type { HistoricoData } from "../types"
+import type { HistoricoData, Disparo } from "../types"
 
 function StatusBadge({ status, abertoEm }: { status: string; abertoEm: string | null }) {
   if (abertoEm) {
@@ -40,6 +40,111 @@ function formatDate(dateStr: string | null) {
     day: "2-digit", month: "2-digit", year: "numeric",
     hour: "2-digit", minute: "2-digit",
   })
+}
+
+function DisparoStatusBadge({ status }: { status: string }) {
+  if (status === "fila" || status === "enviando") {
+    return (
+      <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+        <Loader2 size={12} className="animate-spin" /> {status === "fila" ? "Na fila" : "Enviando"}
+      </span>
+    )
+  }
+  if (status === "concluido") {
+    return (
+      <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-0.5 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+        <CheckCircle2 size={12} /> Concluído
+      </span>
+    )
+  }
+  return (
+    <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-0.5 rounded-full bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
+      <XCircle size={12} /> Erro
+    </span>
+  )
+}
+
+function DisparosSection() {
+  const queryClient = useQueryClient()
+
+  const { data: disparos = [], isLoading: loadingDisparos } = useQuery<Disparo[]>({
+    queryKey: ["email-massa-disparos"],
+    queryFn: async () => {
+      const res = await fetch("/api/admin/email-massa/disparos")
+      if (!res.ok) return []
+      const data = await res.json()
+      return data.disparos || []
+    },
+  })
+
+  const reenfileirar = async (d: Disparo) => {
+    try {
+      const res = await fetch(`/api/admin/email-massa/disparos/${d.id}/reenfileirar`, { method: "POST" })
+      if (res.ok) {
+        toast.success("Disparo reenfileirado")
+        queryClient.invalidateQueries({ queryKey: ["email-massa-disparos"] })
+      } else {
+        const data = await res.json()
+        toast.error(data.error || "Erro ao reenfileirar")
+      }
+    } catch {
+      toast.error("Erro ao reenfileirar")
+    }
+  }
+
+  return (
+    <section className="flex flex-col space-y-3">
+      <div className="flex items-center justify-between">
+        <h3 className="text-base font-semibold">Disparos Recentes</h3>
+        <Button variant="outline" size="xs" onClick={() => queryClient.invalidateQueries({ queryKey: ["email-massa-disparos"] })} className="gap-1">
+          <RefreshCw size={12} /> Atualizar
+        </Button>
+      </div>
+
+      {loadingDisparos ? (
+        <p className="text-sm text-slate-400 py-4 text-center">Carregando...</p>
+      ) : disparos.length === 0 ? (
+        <p className="text-sm text-slate-400 py-4 text-center">Nenhum disparo registrado ainda.</p>
+      ) : (
+        <div className="flex flex-col space-y-2">
+          {disparos.slice(0, 10).map((d) => {
+            const total = Number(d.total)
+            const processados = Number(d.enviados) + Number(d.falhas)
+            const perc = total > 0 ? Math.round((processados / total) * 100) : 0
+            const emAndamento = d.status === "fila" || d.status === "enviando"
+            return (
+              <div key={d.id} className="border border-slate-200 dark:border-slate-700 rounded-lg p-3 flex flex-col space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <DisparoStatusBadge status={d.status} />
+                    <span className="text-sm font-medium truncate">{d.nome || d.assunto}</span>
+                  </div>
+                  <span className="text-xs text-slate-400 whitespace-nowrap">{formatDate(d.criadoEm)}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 bg-slate-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
+                    <div className={`h-1.5 rounded-full ${emAndamento ? "bg-blue-500" : d.falhas > 0 ? "bg-amber-500" : "bg-green-500"}`} style={{ width: `${perc}%` }} />
+                  </div>
+                  <span className="text-xs font-medium text-slate-600 dark:text-slate-300 w-14 text-right whitespace-nowrap">{perc}%</span>
+                </div>
+                <p className="text-xs text-slate-400">
+                  {processados} de {total} &middot; {d.enviados} enviados &middot; {d.falhas} falhas &middot; {d.pendentes} na fila
+                  {d.status === "erro" && d.erro ? <> &middot; <span className="text-red-500">{d.erro}</span></> : null}
+                </p>
+                {d.status === "erro" && (
+                  <div>
+                    <Button variant="outline" size="xs" onClick={() => reenfileirar(d)} className="gap-1">
+                      <RotateCw size={12} /> Reenviar
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </section>
+  )
 }
 
 export function HistoricoTab() {
@@ -110,6 +215,8 @@ export function HistoricoTab() {
           <p className="text-sm text-slate-400 py-8 text-center">Carregando...</p>
         ) : historico ? (
           <div className="flex flex-col space-y-4">
+            <DisparosSection />
+
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
               <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
                 <p className="text-xs text-slate-400 uppercase tracking-wide">Total</p>

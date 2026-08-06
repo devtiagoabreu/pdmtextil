@@ -4,7 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { emailEnviados } from "@/lib/db/schema/email-enviados"
 import { emailCliques } from "@/lib/db/schema/email-cliques"
-import { desc, eq, sql } from "drizzle-orm"
+import { desc, eq, ne, sql } from "drizzle-orm"
 
 export const dynamic = "force-dynamic"
 
@@ -29,6 +29,7 @@ export async function GET() {
       })
       .from(emailEnviados)
       .leftJoin(emailCliques, eq(emailCliques.envioId, emailEnviados.id))
+      .where(ne(emailEnviados.status, "pendente"))
       .groupBy(emailEnviados.id)
       .orderBy(desc(emailEnviados.createdAt))
       .limit(500)
@@ -42,6 +43,7 @@ export async function GET() {
         totalCliques: sql<number>`(select count(*) from email_cliques)`,
       })
       .from(emailEnviados)
+      .where(ne(emailEnviados.status, "pendente"))
 
     return NextResponse.json({ envios, stats: statsArr[0] })
   } catch (error: any) {

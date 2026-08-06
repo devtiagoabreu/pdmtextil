@@ -10,7 +10,7 @@ import {
   Send, Loader2, FileText, Eye, Clock, X,
 } from "lucide-react"
 import { EditorEmail, type EditorEmailHandle } from "./editor-email"
-import type { Lista, Modelo, Agendado } from "../types"
+import type { Lista, Modelo, Agendado, Disparo } from "../types"
 
 export interface EnviarTabProps {
   editorRef: RefObject<EditorEmailHandle | null>
@@ -38,6 +38,7 @@ export interface EnviarTabProps {
   onSalvarAgendado: (status: "rascunho" | "agendado") => void
   sending: boolean
   onEnviar: () => void
+  disparoProgresso?: Disparo | null
 }
 
 export function EnviarTab(props: EnviarTabProps) {
@@ -47,11 +48,35 @@ export function EnviarTab(props: EnviarTabProps) {
     listas, selectedListaIds, toggleListaSelecionada,
     agendadoForm, setAgendadoForm, editAgendado, onLimparEdicao,
     modelos, onUsarModelo, onSalvarComoModelo, onSalvarAgendado, sending, onEnviar,
+    disparoProgresso,
   } = props
+
+  const progresso = disparoProgresso
+  const total = progresso?.total || 0
+  const processados = (progresso?.enviados || 0) + (progresso?.falhas || 0)
+  const perc = total > 0 ? Math.round((processados / total) * 100) : 0
+  const emAndamento = progresso && (progresso.status === "fila" || progresso.status === "enviando")
 
   return (
     <div className="w-full rounded-xl border bg-card text-card-foreground shadow flex flex-col">
       <div className="p-6 flex flex-col space-y-8">
+
+        {emAndamento && (
+          <section className="flex flex-col space-y-3 p-4 rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-semibold text-blue-800 dark:text-blue-300 flex items-center gap-2">
+                <Loader2 size={14} className="animate-spin" /> Envio em andamento
+              </h2>
+              <span className="text-xs font-medium text-blue-700 dark:text-blue-300">{perc}%</span>
+            </div>
+            <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
+              <div className="bg-blue-500 h-2 rounded-full transition-all" style={{ width: `${perc}%` }} />
+            </div>
+            <p className="text-xs text-blue-700 dark:text-blue-300">
+              {processados} de {total} processados &middot; {progresso.enviados} enviados &middot; {progresso.falhas} falhas &middot; {progresso.pendentes} na fila
+            </p>
+          </section>
+        )}
 
         {/* ── Configurações de Envio ── */}
         <section className="flex flex-col space-y-4">

@@ -83,3 +83,23 @@ export interface Agendado {
   createdAt: string
   updatedAt: string
 }
+
+export interface Disparo {
+  id: number
+  nome: string
+  para: string
+  assunto: string
+  modoEnvio: string | null
+  remetente: string | null
+  remessaId: string
+  status: string
+  total: number
+  enviados: number
+  falhas: number
+  pendentes: number
+  erro: string | null
+  criadoPor: number | null
+  criadoEm: string
+  iniciadoEm: string | null
+  concluidoEm: string | null
+}

@@ -1,119 +1,10 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
-import { db } from "@/lib/db"
-import { clientes } from "@/lib/db/schema/clientes"
-import { usuarios } from "@/lib/db/schema/usuarios"
-import { emailListaContatos } from "@/lib/db/schema/email-listas"
-import { emailEnviados } from "@/lib/db/schema/email-enviados"
-import { userEmailConfig } from "@/lib/db/schema/user-email-config"
-import { eq, inArray } from "drizzle-orm"
-import { sendEmail, sendEmailAsUser, parseEmails } from "@/lib/email"
-import { decrypt } from "@/lib/crypto"
-import crypto from "crypto"
+import { criarDisparo } from "@/lib/email-massa"
 
 export const dynamic = "force-dynamic"
-
-interface Destinatario {
-  email: string
-  nome: string
-}
-
-async function buscarDestinatarios(para: string, listas?: number[]): Promise<Destinatario[]> {
-  if (para === "clientes") {
-    const lista = await db.select({ email: clientes.email, nome: clientes.nome }).from(clientes).where(eq(clientes.ativo, true))
-    const result: Destinatario[] = []
-    for (const c of lista) {
-      const emails = parseEmails(c.email)
-      for (const addr of emails) {
-        result.push({ email: addr, nome: c.nome || "Cliente" })
-      }
-    }
-    return result
-  }
-
-  if (para === "usuarios") {
-    const lista = await db.select({ email: usuarios.email, name: usuarios.name }).from(usuarios).where(eq(usuarios.ativo, true))
-    return lista.filter((u: any) => u.email && u.email.includes("@")).map((u: any) => ({ email: u.email!, nome: u.name || "Usuário" }))
-  }
-
-  if (para === "todos") {
-    const clientesLista = await db.select({ email: clientes.email, nome: clientes.nome }).from(clientes).where(eq(clientes.ativo, true))
-    const usuariosLista = await db.select({ email: usuarios.email, name: usuarios.name }).from(usuarios).where(eq(usuarios.ativo, true))
-
-    const result: Destinatario[] = []
-    for (const c of clientesLista) {
-      const emails = parseEmails(c.email)
-      for (const addr of emails) {
-        result.push({ email: addr, nome: c.nome || "Cliente" })
-      }
-    }
-    for (const u of usuariosLista) {
-      if (u.email && u.email.includes("@")) {
-        result.push({ email: u.email, nome: u.name || "Usuário" })
-      }
-    }
-    return result
-  }
-
-  if (para === "lista" && listas && listas.length > 0) {
-    const contatos = await db.select({ email: emailListaContatos.email, nome: emailListaContatos.nome })
-      .from(emailListaContatos)
-      .where(inArray(emailListaContatos.listaId, listas))
-    const result: Destinatario[] = []
-    for (const c of contatos) {
-      const emails = parseEmails(c.email)
-      for (const addr of emails) {
-        result.push({ email: addr, nome: c.nome || "Contato" })
-      }
-    }
-    return result
-  }
-
-  return []
-}
-
-function injectTrackingPixel(html: string, trackingId: string, baseUrl: string): string {
-  const pixelUrl = `${baseUrl}/api/admin/email-massa/tracking/${trackingId}`
-  const pixel = `<img src="${pixelUrl}" width="1" height="1" alt="" style="display:none;" />`
-  if (html.includes("</body>")) {
-    return html.replace("</body>", `${pixel}</body>`)
-  }
-  return html + pixel
-}
-
-function injectLinkTracking(html: string, trackingId: string, baseUrl: string): string {
-  const clickBase = `${baseUrl}/api/admin/email-massa/click/${trackingId}`
-  return html.replace(
-    /<a\s+([^>]*?)href\s*=\s*["']([^"']+)["']([^>]*?)>/gi,
-    (_match, before, url, after) => {
-      if (
-        url.startsWith("mailto:") ||
-        url.startsWith("javascript:") ||
-        url.startsWith("#") ||
-        url.startsWith(clickBase)
-      ) {
-        return _match
-      }
-      return `<a ${before}href="${clickBase}?url=${encodeURIComponent(url)}"${after}>`
-    }
-  )
-}
-
-function aplicarTracking(html: string, trackingId: string, baseUrl: string): string {
-  let resultado = injectTrackingPixel(html, trackingId, baseUrl)
-  resultado = injectLinkTracking(resultado, trackingId, baseUrl)
-  return resultado
-}
-
-function injectPreheader(html: string, preheader: string): string {
-  if (!preheader) return html
-  const tag = `<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;font-size:1px;line-height:1px;color:#ffffff;" aria-hidden="true">${preheader}&zwnj;&nbsp;</div>`
-  if (html.includes("<body")) {
-    return html.replace(/<body([^>]*)>/i, `<body$1>${tag}`)
-  }
-  return tag + html
-}
+export const maxDuration = 300
 
 export async function POST(req: NextRequest) {
   try {
@@ -123,136 +14,41 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json()
-    const { para, assunto, html, listas, modo_envio, remetente, preheader } = body
+    const { para, assunto, html, listas, modo_envio, remetente, preheader, nome } = body
 
     if (!para || !assunto || !html) {
       return NextResponse.json({ error: "Para, assunto e conteúdo são obrigatórios" }, { status: 400 })
     }
 
-    const preheaderHtml = preheader
-      ? `<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;" aria-hidden="true">${preheader}</div>`
-      : ""
-
     if (para === "lista" && (!listas || listas.length === 0)) {
       return NextResponse.json({ error: "Selecione pelo menos uma lista" }, { status: 400 })
     }
 
-    const destinatarios = await buscarDestinatarios(para, listas)
-    if (destinatarios.length === 0) {
+    const result = await criarDisparo({
+      nome,
+      para,
+      listas,
+      assunto,
+      html,
+      preheader,
+      modoEnvio: modo_envio,
+      remetente,
+      criadoPor: Number(session.user.id) || undefined,
+    })
+
+    if (!result) {
       return NextResponse.json({ error: "Nenhum destinatário encontrado" }, { status: 400 })
     }
 
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || `${req.nextUrl.protocol}//${req.nextUrl.host}`
-    const remessaId = crypto.randomUUID()
-    let enviados = 0
-    let total = 0
-    const erros: string[] = []
-    const enviosRegistro: any[] = []
-
-    let userSmtpConfig: { email: string; senhaApp: string; host: string; port: number } | null = null
-    if (remetente === "usuario") {
-      const configs = await db.select()
-        .from(userEmailConfig)
-        .where(eq(userEmailConfig.usuarioId, Number(session.user.id)))
-        .limit(1)
-      if (configs.length > 0) {
-        const cfg = configs[0]
-        userSmtpConfig = {
-          email: cfg.email,
-          senhaApp: decrypt(cfg.senhaApp),
-          host: cfg.host,
-          port: cfg.port,
-        }
-      }
-    }
-
-    const enviarEmailFn = userSmtpConfig
-      ? (params: { to: string | string[]; subject: string; html: string; bcc?: string | string[] }) =>
-          sendEmailAsUser({ ...params, userConfig: userSmtpConfig! })
-      : sendEmail
-
-    const htmlWithPreheader = injectPreheader(html, preheader || "")
-
-    if (modo_envio === "individual") {
-      for (const d of destinatarios) {
-        total++
-        const trackingId = crypto.randomUUID()
-        const personalizado = htmlWithPreheader.replace(/\[NOME\]/g, d.nome)
-        const comTracking = aplicarTracking(personalizado, trackingId, baseUrl)
-        const result = await enviarEmailFn({ to: d.email, subject: assunto, html: comTracking })
-        if (result.sent > 0) {
-          enviados++
-        } else {
-          erros.push(`${d.email}: ${result.error}`)
-        }
-        enviosRegistro.push({
-          listaId: para === "lista" && listas?.[0] ? listas[0] : undefined,
-          remessaId,
-          email: d.email,
-          nome: d.nome || null,
-          assunto,
-          status: result.sent > 0 ? "enviado" : "falhou",
-          trackingId: result.sent > 0 ? trackingId : null,
-          error: result.sent > 0 ? null : (result.error || null),
-        })
-      }
-    } else {
-      const personalizado = htmlWithPreheader.replace(/\[NOME\]/g, "Cliente")
-      total = destinatarios.length
-
-      if (modo_envio === "bcc") {
-        const firstTrackingId = crypto.randomUUID()
-        const comTracking = aplicarTracking(personalizado, firstTrackingId, baseUrl)
-        const result = await enviarEmailFn({
-          to: destinatarios[0].email,
-          subject: assunto,
-          html: comTracking,
-          bcc: destinatarios.slice(1).map((d: any) => d.email),
-        })
-        for (let i = 0; i < destinatarios.length; i++) {
-          enviosRegistro.push({
-            remessaId,
-            email: destinatarios[i].email,
-            nome: destinatarios[i].nome || null,
-            assunto,
-            status: result.sent > 0 ? "enviado" : "falhou",
-            trackingId: i === 0 && result.sent > 0 ? firstTrackingId : null,
-            error: result.sent > 0 ? null : (result.error || null),
-          })
-        }
-        if (result.sent > 0) {
-          enviados = destinatarios.length
-        } else {
-          erros.push(result.error || "Erro no envio BCC")
-        }
-      } else {
-        for (const d of destinatarios) {
-          const trackingId = crypto.randomUUID()
-          const comTracking = aplicarTracking(personalizado, trackingId, baseUrl)
-          const result = await enviarEmailFn({ to: d.email, subject: assunto, html: comTracking })
-          enviosRegistro.push({
-            remessaId,
-            email: d.email,
-            nome: d.nome || null,
-            assunto,
-            status: result.sent > 0 ? "enviado" : "falhou",
-            trackingId: result.sent > 0 ? trackingId : null,
-            error: result.sent > 0 ? null : (result.error || null),
-          })
-          if (result.sent > 0) {
-            enviados++
-          } else {
-            erros.push(`${d.email}: ${result.error}`)
-          }
-        }
-      }
-    }
-
-    if (enviosRegistro.length > 0) await db.insert(emailEnviados).values(enviosRegistro)
-
-    return NextResponse.json({ success: enviados > 0, total, enviados, erros: erros.slice(0, 10) })
+    return NextResponse.json({
+      success: true,
+      disparoId: result.id,
+      remessaId: result.remessaId,
+      total: result.total,
+      status: "fila",
+    })
   } catch (error: any) {
     console.error("[POST /api/admin/email-massa]", error)
-    return NextResponse.json({ error: "Erro ao enviar emails" }, { status: 500 })
+    return NextResponse.json({ error: "Erro ao criar disparo" }, { status: 500 })
   }
 }
