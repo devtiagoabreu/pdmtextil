@@ -1,29 +1,20 @@
 "use client"
 
-import {Suspense, useState, useEffect} from "react"
+import { Suspense, useState, useEffect } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { useRouter, useParams, usePathname, useSearchParams } from "next/navigation"
 import Link from "next/link"
-import { SelectUf } from "@/components/crm/select-uf"
-import { SelectCidade } from "@/components/crm/select-cidade"
-import { ArrowLeft, Mail, Phone, Globe, Plus, Trash2, Pencil, Check, X, Clock, MessageSquare, Users, Search, UserPlus, Loader2, MapPin } from "lucide-react"
+import { Clock, MessageSquare } from "lucide-react"
 import CrmPessoaTimeline from "@/components/crm/crm-pessoa-timeline"
 import CrmPessoaWhatsapp from "@/components/crm/crm-pessoa-whatsapp"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { PageSkeleton } from "@/components/ui/page-skeleton"
-
-const STATUS_OPTIONS = ["NOVO", "QUALIFICADO", "CONVERTIDO_CLIENTE", "PERDIDO", "INATIVO"]
-
-const STATUS_CORES: Record<string, string> = {
-  NOVO: "text-blue-600 bg-blue-50 dark:bg-blue-950/50 dark:text-blue-400",
-  QUALIFICADO: "text-emerald-600 bg-emerald-50 dark:bg-emerald-950/50 dark:text-emerald-400",
-  CONVERTIDO_CLIENTE: "text-green-600 bg-green-50 dark:bg-green-950/50 dark:text-green-400",
-  PERDIDO: "text-red-600 bg-red-50 dark:bg-red-950/50 dark:text-red-400",
-  INATIVO: "text-slate-400 bg-slate-100 dark:bg-slate-800 dark:text-slate-500",
-}
+import { PessoaHeader } from "./components/header"
+import { DadosPessoaCard } from "./components/dados-pessoa-card"
+import { ContatosCard } from "./components/contatos-card"
+import { RepresentantesCard } from "./components/representantes-card"
 
 function PessoaDetailPageContent() {
   const router = useRouter()
@@ -216,279 +207,27 @@ function PessoaDetailPageContent() {
 
   return (
     <div className="space-y-6 animate-fade-in max-w-4xl">
-      <div className="flex items-center gap-3">
-        <button onClick={() => router.back()} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
-          <ArrowLeft size={18} className="text-slate-500" />
-        </button>
-        <div className="flex-1">
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">
-              {pessoa.tipoPessoa === "PF" ? (pessoa.nome || pessoa.razaoSocial) : pessoa.razaoSocial}
-              {info && <InfoButton content={info} />}
-            </h1>
-            {pessoa.tipoPessoa && (
-              <span className={`inline-flex text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
-                pessoa.tipoPessoa === "PF"
-                  ? "text-purple-600 bg-purple-50 dark:bg-purple-950/50 dark:text-purple-400"
-                  : "text-cyan-600 bg-cyan-50 dark:bg-cyan-950/50 dark:text-cyan-400"
-              }`}>
-                {pessoa.tipoPessoa === "PF" ? "PF" : "PJ"}
-              </span>
-            )}
-            <span className={`inline-flex text-[10px] px-2 py-0.5 rounded-full font-medium ${STATUS_CORES[pessoa.status] || ""}`}>
-              {pessoa.status}
-            </span>
-          </div>
-          {pessoa.tipoPessoa === "PJ" && pessoa.nomeFantasia && (
-            <p className="text-sm text-slate-500">{pessoa.nomeFantasia}</p>
-          )}
-        </div>
-        <div className="flex gap-2">
-          {editing ? (
-            <>
-              <button onClick={handleSave} className="flex items-center gap-1 text-xs font-medium text-emerald-600 hover:underline">
-                <Check size={14} /> Salvar
-              </button>
-              <button onClick={() => { setEditing(false); setForm(pessoa) }} className="flex items-center gap-1 text-xs font-medium text-slate-500 hover:underline">
-                <X size={14} /> Cancelar
-              </button>
-            </>
-          ) : (
-            <>
-              <button onClick={() => setEditing(true)} className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:underline">
-                <Pencil size={14} /> Editar
-              </button>
-              <button onClick={() => setShowDelete(true)} className="flex items-center gap-1 text-xs font-medium text-red-600 hover:underline">
-                <Trash2 size={14} /> Excluir
-              </button>
-            </>
-          )}
-        </div>
-      </div>
+      <PessoaHeader
+        pessoa={pessoa}
+        info={info}
+        editing={editing}
+        onBack={() => router.back()}
+        onSave={handleSave}
+        onCancel={() => { setEditing(false); setForm(pessoa) }}
+        onEdit={() => setEditing(true)}
+        onDelete={() => setShowDelete(true)}
+      />
 
       <div className="grid gap-6 md:grid-cols-2">
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
-          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4">Dados da Pessoa (Negócio)</h2>
-          {editing ? (
-            <div className="space-y-4">
-              <div>
-                <label className="block text-xs font-medium text-slate-500 mb-1">Tipo</label>
-                <div className="flex gap-2">
-                  <button type="button" onClick={() => { setTipoPessoa("PF"); setForm((p: any) => ({ ...p, tipoPessoa: "PF" })) }}
-                    className={`px-3 py-1.5 text-xs rounded-lg font-medium border ${tipoPessoa === "PF" ? "border-purple-500 bg-purple-50 dark:bg-purple-950/30 text-purple-700 dark:text-purple-300" : "border-slate-200 dark:border-slate-700 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800"}`}>
-                    PF
-                  </button>
-                  <button type="button" onClick={() => { setTipoPessoa("PJ"); setForm((p: any) => ({ ...p, tipoPessoa: "PJ" })) }}
-                    className={`px-3 py-1.5 text-xs rounded-lg font-medium border ${tipoPessoa === "PJ" ? "border-cyan-500 bg-cyan-50 dark:bg-cyan-950/30 text-cyan-700 dark:text-cyan-300" : "border-slate-200 dark:border-slate-700 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800"}`}>
-                    PJ
-                  </button>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                {tipoPessoa === "PF" ? (
-                  <>
-                    <div className="col-span-2">
-                      <label className="block text-xs font-medium text-slate-500 mb-1">Nome</label>
-                      <input type="text" value={form.nome || ""} onChange={e => setForm((p: any) => ({ ...p, nome: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-slate-500 mb-1">CPF</label>
-                      <input type="text" value={form.cpf || ""} onChange={e => setForm((p: any) => ({ ...p, cpf: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="col-span-2">
-                      <label className="block text-xs font-medium text-slate-500 mb-1">Razão Social</label>
-                      <input type="text" value={form.razaoSocial || ""} onChange={e => setForm((p: any) => ({ ...p, razaoSocial: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-slate-500 mb-1">Nome Fantasia</label>
-                      <input type="text" value={form.nomeFantasia || ""} onChange={e => setForm((p: any) => ({ ...p, nomeFantasia: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-slate-500 mb-1">CNPJ</label>
-                      <input type="text" value={form.cnpj || ""} onChange={e => setForm((p: any) => ({ ...p, cnpj: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
-                    </div>
-                  </>
-                )}
-                <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1">Segmento</label>
-                  <input type="text" value={form.segmento || ""} onChange={e => setForm((p: any) => ({ ...p, segmento: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1">Porte</label>
-                  <select value={form.porte || ""} onChange={e => setForm((p: any) => ({ ...p, porte: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm">
-                    <option value="">Selecione...</option>
-                    <option value="MEI">MEI</option>
-                    <option value="ME">ME</option>
-                    <option value="EPP">EPP</option>
-                    <option value="MEDIO">Médio</option>
-                    <option value="GRANDE">Grande</option>
-                  </select>
-                </div>
-                <div className="col-span-2">
-                  <label className="block text-xs font-medium text-slate-500 mb-1">Site</label>
-                  <input type="url" value={form.site || ""} onChange={e => setForm((p: any) => ({ ...p, site: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1">Telefone</label>
-                  <input type="text" value={form.telefone || ""} onChange={e => setForm((p: any) => ({ ...p, telefone: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1">Celular</label>
-                  <input type="text" value={form.celular || ""} onChange={e => setForm((p: any) => ({ ...p, celular: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
-                </div>
-                <div className="col-span-2">
-                  <label className="block text-xs font-medium text-slate-500 mb-1">E-mail</label>
-                  <input type="email" value={form.email || ""} onChange={e => setForm((p: any) => ({ ...p, email: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
-                </div>
-                <div className="col-span-2">
-                  <label className="block text-xs font-medium text-slate-500 mb-1">E-mail p/ Nota Fiscal</label>
-                  <input type="email" value={form.emailNf || ""} onChange={e => setForm((p: any) => ({ ...p, emailNf: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
-                </div>
-                <div className="col-span-2">
-                  <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800 pb-1 mb-1">Endereço</p>
-                </div>
-                <div className="col-span-2">
-                  <label className="block text-xs font-medium text-slate-500 mb-1">Logradouro</label>
-                  <input type="text" value={form.endereco || ""} onChange={e => setForm((p: any) => ({ ...p, endereco: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1">Número</label>
-                  <input type="text" value={form.numero || ""} onChange={e => setForm((p: any) => ({ ...p, numero: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1">Complemento</label>
-                  <input type="text" value={form.complemento || ""} onChange={e => setForm((p: any) => ({ ...p, complemento: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1">Bairro</label>
-                  <input type="text" value={form.bairro || ""} onChange={e => setForm((p: any) => ({ ...p, bairro: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1">CEP</label>
-                  <input type="text" value={form.cep || ""} onChange={e => setForm((p: any) => ({ ...p, cep: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
-                </div>
-                <div className="col-span-2">
-                  <label className="block text-xs font-medium text-slate-500 mb-1">UF</label>
-                  <SelectUf value={form.uf || ""} onChange={v => setForm((p: any) => ({ ...p, uf: v }))} />
-                </div>
-                <div className="col-span-2">
-                  <label className="block text-xs font-medium text-slate-500 mb-1">Cidade</label>
-                  <SelectCidade value={form.cidade || ""} onChange={v => setForm((p: any) => ({ ...p, cidade: v }))} estadoId={estadoId} />
-                </div>
-                <div className="col-span-2">
-                  <label className="block text-xs font-medium text-slate-500 mb-1">Status</label>
-                  <select value={form.status || "NOVO"} onChange={e => setForm((p: any) => ({ ...p, status: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm">
-                    {STATUS_OPTIONS.map((s: any) => <option key={s} value={s}>{s}</option>)}
-                  </select>
-                </div>
-                <div className="col-span-2">
-                  <label className="block text-xs font-medium text-slate-500 mb-1">Observações</label>
-                  <textarea value={form.observacoes || ""} onChange={e => setForm((p: any) => ({ ...p, observacoes: e.target.value }))} rows={3} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              {pessoa.tipoPessoa === "PF" ? (
-                <>
-                  <div className="col-span-2">
-                    <p className="text-xs text-slate-500 mb-0.5">Nome</p>
-                    <p className="text-slate-900 dark:text-slate-200">{pessoa.nome || "—"}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-slate-500 mb-0.5">CPF</p>
-                    <p className="text-slate-900 dark:text-slate-200">{pessoa.cpf || "—"}</p>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="col-span-2">
-                    <p className="text-xs text-slate-500 mb-0.5">Razão Social</p>
-                    <p className="text-slate-900 dark:text-slate-200">{pessoa.razaoSocial || "—"}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-slate-500 mb-0.5">Nome Fantasia</p>
-                    <p className="text-slate-900 dark:text-slate-200">{pessoa.nomeFantasia || "—"}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-slate-500 mb-0.5">CNPJ</p>
-                    <p className="text-slate-900 dark:text-slate-200">{pessoa.cnpj || "—"}</p>
-                  </div>
-                </>
-              )}
-              <div>
-                <p className="text-xs text-slate-500 mb-0.5">Segmento</p>
-                <p className="text-slate-900 dark:text-slate-200">{pessoa.segmento || "—"}</p>
-              </div>
-              <div>
-                <p className="text-xs text-slate-500 mb-0.5">Porte</p>
-                <p className="text-slate-900 dark:text-slate-200">{pessoa.porte || "—"}</p>
-              </div>
-              <div className="col-span-2">
-                <p className="text-xs text-slate-500 mb-0.5">Site</p>
-                <p className="text-slate-900 dark:text-slate-200">{pessoa.site || "—"}</p>
-              </div>
-              <div>
-                <p className="text-xs text-slate-500 mb-0.5">Telefone</p>
-                <p className="text-slate-900 dark:text-slate-200">{pessoa.telefone || "—"}</p>
-              </div>
-              <div>
-                <p className="text-xs text-slate-500 mb-0.5">Celular</p>
-                <p className="text-slate-900 dark:text-slate-200">{pessoa.celular || "—"}</p>
-              </div>
-              <div className="col-span-2">
-                <p className="text-xs text-slate-500 mb-0.5">E-mail</p>
-                <p className="text-slate-900 dark:text-slate-200">{pessoa.email || "—"}</p>
-              </div>
-              <div className="col-span-2">
-                <p className="text-xs text-slate-500 mb-0.5">E-mail p/ Nota Fiscal</p>
-                <p className="text-slate-900 dark:text-slate-200">{pessoa.emailNf || "—"}</p>
-              </div>
-              <div className="col-span-2">
-                <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800 pb-1 mb-1">Endereço</p>
-              </div>
-              <div className="col-span-2">
-                <p className="text-xs text-slate-500 mb-0.5">Logradouro</p>
-                <p className="text-slate-900 dark:text-slate-200">{pessoa.endereco || "—"}</p>
-              </div>
-              <div>
-                <p className="text-xs text-slate-500 mb-0.5">Número</p>
-                <p className="text-slate-900 dark:text-slate-200">{pessoa.numero || "—"}</p>
-              </div>
-              <div>
-                <p className="text-xs text-slate-500 mb-0.5">Complemento</p>
-                <p className="text-slate-900 dark:text-slate-200">{pessoa.complemento || "—"}</p>
-              </div>
-              <div>
-                <p className="text-xs text-slate-500 mb-0.5">Bairro</p>
-                <p className="text-slate-900 dark:text-slate-200">{pessoa.bairro || "—"}</p>
-              </div>
-              <div>
-                <p className="text-xs text-slate-500 mb-0.5">CEP</p>
-                <p className="text-slate-900 dark:text-slate-200">{pessoa.cep || "—"}</p>
-              </div>
-              <div className="col-span-2">
-                <p className="text-xs text-slate-500 mb-0.5">UF</p>
-                <p className="text-slate-900 dark:text-slate-200">{pessoa.uf || "—"}</p>
-              </div>
-              <div className="col-span-2">
-                <p className="text-xs text-slate-500 mb-0.5">Cidade</p>
-                <p className="text-slate-900 dark:text-slate-200">{pessoa.cidade || "—"}</p>
-              </div>
-              <div className="col-span-2">
-                <p className="text-xs text-slate-500 mb-0.5">Status</p>
-                <p className="text-slate-900 dark:text-slate-200">{pessoa.status || "—"}</p>
-              </div>
-              <div className="col-span-2">
-                <p className="text-xs text-slate-500 mb-0.5">Observações</p>
-                <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap">{pessoa.observacoes || "—"}</p>
-              </div>
-            </div>
-          )}
-        </div>
+        <DadosPessoaCard
+          pessoa={pessoa}
+          form={form}
+          setForm={setForm}
+          editing={editing}
+          tipoPessoa={tipoPessoa}
+          setTipoPessoa={setTipoPessoa}
+          estadoId={estadoId}
+        />
 
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
           <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4 flex items-center gap-2">
@@ -517,138 +256,23 @@ function PessoaDetailPageContent() {
           )}
         </div>
 
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50">Contatos</h2>
-            <button onClick={addContato} className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:underline">
-              <Plus size={14} /> Adicionar
-            </button>
-          </div>
-          {(pessoa.contatos || []).length === 0 ? (
-            <p className="text-sm text-slate-400 text-center py-6">Nenhum contato cadastrado</p>
-          ) : (
-            <div className="space-y-2">
-              {(pessoa.contatos || []).map((contato: any) => (
-                <div key={contato.id} className="flex items-center justify-between p-2.5 rounded-lg border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm font-medium text-slate-900 dark:text-slate-100">{contato.nome}</p>
-                      {contato.principal && (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400">Principal</span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-3 text-xs text-slate-500 mt-0.5">
-                      {contato.cargo && <span>{contato.cargo}</span>}
-                      {contato.email && <span className="flex items-center gap-1"><Mail size={10} />{contato.email}</span>}
-                      {contato.telefone && <span>{contato.telefone}</span>}
-                    </div>
-                  </div>
-                  <button onClick={() => removeContato(contato.id)} className="p-1 text-slate-400 hover:text-red-500">
-                    <Trash2 size={14} />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        <ContatosCard
+          contatos={pessoa.contatos || []}
+          onAdd={addContato}
+          onRemove={removeContato}
+        />
       </div>
 
-      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <Users size={16} className="text-blue-500" />
-          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50">Representantes Vinculados</h2>
-          {vinculos.length > 0 && (
-            <span className="text-xs text-slate-400">({vinculos.length})</span>
-          )}
-        </div>
-
-        <div className="flex gap-2 mb-4">
-          <div className="relative flex-1 max-w-sm">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Buscar representante por nome ou CNPJ..."
-              value={searchRep}
-              onChange={e => searchRepresentantes(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400"
-            />
-          </div>
-        </div>
-
-        {searchingRep && (
-          <div className="flex items-center gap-2 text-sm text-slate-500 mb-2">
-            <Loader2 className="w-4 h-4 animate-spin" />
-            Buscando...
-          </div>
-        )}
-
-        {repResults.length > 0 && (
-          <div className="rounded-lg border border-slate-200 dark:border-slate-700 divide-y divide-slate-100 dark:divide-slate-800 max-h-48 overflow-y-auto mb-4">
-            {repResults.map((r: any) => (
-              <button
-                key={r.id}
-                onClick={() => addRepresentante(r.id)}
-                className="flex items-center justify-between w-full px-4 py-2.5 text-sm hover:bg-slate-50 dark:hover:bg-slate-800/50 text-left"
-              >
-                <div>
-                  <span className="font-medium text-slate-900 dark:text-slate-100">{r.nome}</span>
-                  <span className="text-slate-400 ml-2">{r.cnpj}</span>
-                  {r.cidade && <span className="text-slate-400 ml-2">{r.cidade}/{r.uf}</span>}
-                </div>
-                <UserPlus size={14} className="text-blue-500 shrink-0" />
-              </button>
-            ))}
-          </div>
-        )}
-
-        {loadingVinculos ? (
-          <div className="flex justify-center py-4">
-            <Loader2 className="w-6 h-6 animate-spin text-slate-400" />
-          </div>
-        ) : vinculos.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-6 text-center">
-            <Users className="w-8 h-8 text-slate-300 dark:text-slate-700 mb-2" />
-            <p className="text-sm text-slate-500">Nenhum representante vinculado</p>
-            <p className="text-xs text-slate-400 mt-1">Busque acima para vincular representantes</p>
-          </div>
-        ) : (
-          <div className="rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <table className="w-full">
-              <thead className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
-                <tr>
-                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-3">Nome</th>
-                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-3">CNPJ</th>
-                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-3">Contato</th>
-                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-3">Cidade/UF</th>
-                  <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-3">Ações</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {vinculos.map((v: any) => (
-                  <tr key={v.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                    <td className="p-3 text-sm font-medium text-slate-900 dark:text-slate-200">{v.nome}</td>
-                    <td className="p-3 text-sm text-slate-500 font-mono">{v.cnpj || "—"}</td>
-                    <td className="p-3 text-sm text-slate-500">
-                      <div className="flex flex-col gap-0.5">
-                        {v.email && <span className="flex items-center gap-1"><Mail size={12} />{v.email}</span>}
-                        {v.telefone && <span className="flex items-center gap-1"><Phone size={12} />{v.telefone}</span>}
-                      </div>
-                    </td>
-                    <td className="p-3 text-sm text-slate-500">
-                      {v.cidade ? <span className="flex items-center gap-1"><MapPin size={12} />{v.cidade}/{v.uf}</span> : "—"}
-                    </td>
-                    <td className="p-3 text-right">
-                      <button onClick={() => setRepToRemove(v)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/50 text-slate-400 hover:text-red-600 transition-colors">
-                        <X size={14} />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+      <RepresentantesCard
+        vinculos={vinculos}
+        loadingVinculos={loadingVinculos}
+        searchRep={searchRep}
+        repResults={repResults}
+        searchingRep={searchingRep}
+        onSearch={searchRepresentantes}
+        onAdd={addRepresentante}
+        onRemoveClick={setRepToRemove}
+      />
 
       <div className="grid gap-6 md:grid-cols-2">
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
