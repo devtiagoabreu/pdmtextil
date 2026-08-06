@@ -15,10 +15,9 @@ import crypto from "crypto"
 export const dynamic = "force-dynamic"
 export const maxDuration = 300
 
-const BATCH = 40
 const BCC_CHUNK = 50
-const MAX_DISPAROS = 4
-const MAX_RUN_MS = 120_000
+const INDIVIDUAL_BATCH = 20
+const MAX_RUN_MS = 280_000
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://pdmprotextil.vercel.app"
 
 async function recomputarContadores(disparoId: number) {
@@ -46,6 +45,17 @@ async function marcarErroTransporte(disparoId: number, msg: string) {
     .where(eq(emailDisparos.id, disparoId))
 }
 
+function isFalhaTransiente(err: any): boolean {
+  const code = err?.code
+  const rc = err?.responseCode
+  if (code && ["ECONNECTION", "EAUTH", "ETIMEDOUT", "ESOCKET", "ECONNRESET"].includes(code)) return true
+  if (rc != null) {
+    if (rc >= 500) return true
+    if ([421, 450, 451, 452].includes(rc)) return true
+  }
+  return false
+}
+
 export async function POST(req: NextRequest) {
   try {
     const authHeader = req.headers.get("authorization")
@@ -58,37 +68,24 @@ export async function POST(req: NextRequest) {
     }
 
     const startedAt = Date.now()
-    let processados = 0
+    const elapsed = () => Date.now() - startedAt
     let enviadosNoRun = 0
     let falhasNoRun = 0
-    let restantes = 0
+    let disparosProcessados = 0
 
     const disparos = await db
       .select()
       .from(emailDisparos)
       .where(inArray(emailDisparos.status, ["fila", "enviando"]))
       .orderBy(asc(emailDisparos.id))
-      .limit(MAX_DISPAROS)
 
     for (const d of disparos) {
-      if (Date.now() - startedAt > MAX_RUN_MS) break
+      if (elapsed() > MAX_RUN_MS) break
 
       await db
         .update(emailDisparos)
         .set({ status: "enviando", iniciadoEm: sql`coalesce(${emailDisparos.iniciadoEm}, now())` })
         .where(eq(emailDisparos.id, d.id))
-
-      const pendentes: EmailEnviado[] = await db
-        .select()
-        .from(emailEnviados)
-        .where(and(eq(emailEnviados.disparoId, d.id), eq(emailEnviados.status, "pendente")))
-        .orderBy(asc(emailEnviados.id))
-        .limit(BATCH)
-
-      if (pendentes.length === 0) {
-        await finalizar(d.id)
-        continue
-      }
 
       let tc: { host: string; port: number; user: string; pass: string; fromName: string }
       if (d.remetente === "usuario" && d.criadoPor) {
@@ -115,6 +112,15 @@ export async function POST(req: NextRequest) {
         secure: tc.port === 465,
         auth: { user: tc.user, pass: tc.pass },
       })
+
+      try {
+        await transporter.verify()
+      } catch (err: any) {
+        await marcarErroTransporte(d.id, `Falha ao conectar ao SMTP: ${err?.message || "erro desconhecido"}`)
+        transporter.close()
+        continue
+      }
+
       const htmlBase = injectPreheader(d.html, d.preheader || "")
 
       const atualizarEnvio = (id: number, ok: boolean, trackingId: string | null, error: string | null) =>
@@ -123,9 +129,20 @@ export async function POST(req: NextRequest) {
           .set({ status: ok ? "enviado" : "falhou", trackingId: ok ? trackingId : null, error: ok ? null : error })
           .where(eq(emailEnviados.id, id))
 
+      const buscarPendentes = (limit: number) =>
+        db
+          .select()
+          .from(emailEnviados)
+          .where(and(eq(emailEnviados.disparoId, d.id), eq(emailEnviados.status, "pendente")))
+          .orderBy(asc(emailEnviados.id))
+          .limit(limit)
+
+      let pararDreno = false
+
       if (d.modoEnvio === "bcc") {
-        for (let i = 0; i < pendentes.length; i += BCC_CHUNK) {
-          const chunk = pendentes.slice(i, i + BCC_CHUNK)
+        while (!pararDreno && elapsed() <= MAX_RUN_MS) {
+          const chunk: EmailEnviado[] = await buscarPendentes(BCC_CHUNK)
+          if (chunk.length === 0) break
           const trackingId = crypto.randomUUID()
           const html = aplicarTracking(htmlBase.replace(/\[NOME\]/g, "Cliente"), trackingId, BASE_URL)
           try {
@@ -141,50 +158,76 @@ export async function POST(req: NextRequest) {
             }
             enviadosNoRun += chunk.length
           } catch (err: any) {
-            for (const p of chunk) {
-              await atualizarEnvio(p.id, false, null, err.message || "Erro SMTP")
+            if (isFalhaTransiente(err)) {
+              await marcarErroTransporte(d.id, err?.message || "Erro SMTP")
+              pararDreno = true
+            } else {
+              for (const p of chunk) {
+                await atualizarEnvio(p.id, false, null, err?.message || "Erro SMTP")
+              }
+              falhasNoRun += chunk.length
             }
-            falhasNoRun += chunk.length
           }
         }
       } else {
-        for (const p of pendentes) {
-          const trackingId = crypto.randomUUID()
-          const nome = d.modoEnvio === "individual" ? p.nome || "Cliente" : "Cliente"
-          const html = aplicarTracking(htmlBase.replace(/\[NOME\]/g, nome), trackingId, BASE_URL)
-          try {
-            await transporter.sendMail({
-              from: `"${tc.fromName}" <${tc.user}>`,
-              to: p.email,
-              subject: d.assunto,
-              html,
-            })
-            await atualizarEnvio(p.id, true, trackingId, null)
-            enviadosNoRun++
-          } catch (err: any) {
-            await atualizarEnvio(p.id, false, null, err.message || "Erro SMTP")
-            falhasNoRun++
+        while (!pararDreno && elapsed() <= MAX_RUN_MS) {
+          const batch: EmailEnviado[] = await buscarPendentes(INDIVIDUAL_BATCH)
+          if (batch.length === 0) break
+          for (const p of batch) {
+            if (elapsed() > MAX_RUN_MS) {
+              pararDreno = true
+              break
+            }
+            const trackingId = crypto.randomUUID()
+            const nome = d.modoEnvio === "individual" ? p.nome || "Cliente" : "Cliente"
+            const html = aplicarTracking(htmlBase.replace(/\[NOME\]/g, nome), trackingId, BASE_URL)
+            try {
+              await transporter.sendMail({
+                from: `"${tc.fromName}" <${tc.user}>`,
+                to: p.email,
+                subject: d.assunto,
+                html,
+              })
+              await atualizarEnvio(p.id, true, trackingId, null)
+              enviadosNoRun++
+            } catch (err: any) {
+              if (isFalhaTransiente(err)) {
+                await marcarErroTransporte(d.id, err?.message || "Erro SMTP")
+                pararDreno = true
+                break
+              }
+              await atualizarEnvio(p.id, false, null, err?.message || "Erro SMTP")
+              falhasNoRun++
+            }
           }
         }
       }
 
       transporter.close()
       await recomputarContadores(d.id)
-      processados++
+
+      const restantesDisparo = await db
+        .select({ total: sql<number>`count(*)` })
+        .from(emailEnviados)
+        .where(and(eq(emailEnviados.disparoId, d.id), eq(emailEnviados.status, "pendente")))
+      if (Number(restantesDisparo[0]?.total || 0) === 0) {
+        await finalizar(d.id)
+      }
+      disparosProcessados++
     }
 
     const contagemPendente = await db
       .select({ total: sql<number>`count(*)` })
       .from(emailEnviados)
       .where(eq(emailEnviados.status, "pendente"))
-    restantes = Number(contagemPendente[0]?.total || 0)
+    const restantes = Number(contagemPendente[0]?.total || 0)
 
     return NextResponse.json({
-      processados,
+      disparosProcessados,
       enviados: enviadosNoRun,
       falhas: falhasNoRun,
       restantes,
-      limiteTempo: Date.now() - startedAt > MAX_RUN_MS,
+      limiteTempo: elapsed() > MAX_RUN_MS,
     })
   } catch (error: any) {
     console.error("[POST /api/admin/email-massa/processar]", error)

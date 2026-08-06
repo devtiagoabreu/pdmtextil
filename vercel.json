@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/admin/email-massa/processar",
-      "schedule": "*/5 * * * *"
+      "schedule": "30 9 * * *"
     },
     {
       "path": "/api/admin/email-massa/agendados/executar",
