@@ -1,0 +1,50 @@
+// @vitest-environment jsdom
+import BasesUrdumePage from "./page"
+import { listPageSpec } from "@/test/list-page-spec"
+
+listPageSpec({
+  title: "BasesUrdumePage",
+  component: <BasesUrdumePage />,
+  apiBase: "bases-urdume",
+  heading: "Bases de Urdume",
+  searchPlaceholder: "Buscar por nome, código...",
+  emptyText: "Nenhuma base de urdume encontrada",
+  newLinkText: "Nova Base",
+  newHref: "/cadastros/bases-urdume/novo",
+  editHref: (item) => `/cadastros/bases-urdume/${item.id}`,
+  primaryField: "codigoBase",
+  data: [
+    {
+      id: 1,
+      codigoCompleto: "BASE-0001",
+      codigoBase: "BASE-0001",
+      nome: "Base Malha 30",
+      descricao: "Malha canelada",
+      densidade: "28x44",
+      tratamento: "Gessada",
+      largura: "160cm",
+      idIntegracao: "ERP-001",
+      ativo: true,
+      createdAt: "2026-01-01",
+    },
+    {
+      id: 2,
+      codigoCompleto: "BASE-0002",
+      codigoBase: "BASE-0002",
+      nome: "Base Moletom",
+      descricao: null,
+      densidade: "20x28",
+      tratamento: null,
+      largura: "180cm",
+      idIntegracao: null,
+      ativo: false,
+      createdAt: "2026-01-02",
+    },
+  ],
+  blockedId: 2,
+  successToast: "Base de urdume excluída com sucesso",
+  deleteSingular: "base de urdume",
+  matchQuery: "malha",
+  firstItemText: "BASE-0001",
+  secondItemText: "Base Moletom",
+})

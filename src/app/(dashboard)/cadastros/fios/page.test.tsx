@@ -1,0 +1,50 @@
+// @vitest-environment jsdom
+import FiosPage from "./page"
+import { listPageSpec } from "@/test/list-page-spec"
+
+listPageSpec({
+  title: "FiosPage",
+  component: <FiosPage />,
+  apiBase: "fios",
+  heading: "Fios",
+  searchPlaceholder: "Buscar por nome, código...",
+  emptyText: "Nenhum fio encontrado",
+  newLinkText: "Novo Fio",
+  newHref: "/cadastros/fios/novo",
+  editHref: (item) => `/cadastros/fios/${item.id}`,
+  primaryField: "codigoFio",
+  data: [
+    {
+      id: 1,
+      codigoCompleto: "FI-0001",
+      codigoFio: "FI-0001",
+      nome: "Poliéster Brilhante",
+      nomeComercial: "Poly Brilho 40/2",
+      composicao: "100% Poliéster",
+      titulo: "40/2",
+      fornecedor: "Fios Alfa",
+      idIntegracao: "ERP-001",
+      ativo: true,
+      createdAt: "2026-01-01",
+    },
+    {
+      id: 2,
+      codigoCompleto: "FI-0002",
+      codigoFio: "FI-0002",
+      nome: "Algodão Cru",
+      nomeComercial: null,
+      composicao: "100% Algodão",
+      titulo: "30/1",
+      fornecedor: null,
+      idIntegracao: null,
+      ativo: false,
+      createdAt: "2026-01-02",
+    },
+  ],
+  blockedId: 2,
+  successToast: "Fio excluído com sucesso",
+  deleteSingular: "fio",
+  matchQuery: "poliéster",
+  firstItemText: "FI-0001",
+  secondItemText: "Algodão Cru",
+})
