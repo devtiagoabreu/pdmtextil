@@ -1,31 +1,21 @@
 "use client"
 
-import {Suspense, useState, useEffect, useRef} from "react"
+import { Suspense, useState, useEffect, useRef } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { AlertTriangle, User } from "lucide-react"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Save, Building2, UserCheck, Repeat, Calendar } from "lucide-react"
+import { ArrowLeft, Save, Calendar } from "lucide-react"
 import { useSession } from "next-auth/react"
 import PhotoUpload from "@/components/crm/photo-upload"
 import { RelatoTemplateSelector } from "@/components/crm/relato-templates"
 import { toast } from "sonner"
-import { QuickCreatePessoa } from "@/components/crm/quick-create-pessoa"
-import { QuickCreateCliente } from "@/components/crm/quick-create-cliente"
-import { QuickCreateContato } from "@/components/crm/quick-create-contato"
-import { QuickCreateOportunidade } from "@/components/crm/quick-create-oportunidade"
-import { SelectUf } from "@/components/crm/select-uf"
-import { SelectCidade } from "@/components/crm/select-cidade"
 import { RichTextEditor } from "@/components/crm/rich-text-editor"
 import { PageSkeleton } from "@/components/ui/page-skeleton"
-
-const TIPO_OPTIONS = [
-  { value: "PRESENCIAL", label: "Presencial" },
-  { value: "VIDEO", label: "Vídeo" },
-  { value: "TELEFONE", label: "Telefone" },
-]
+import { TipoEntidadeSelector } from "./components/tipo-entidade-selector"
+import { FormFields } from "./components/form-fields"
+import { EnderecoSection } from "./components/endereco-section"
 
 function NovaVisitaPageContent() {
   const router = useRouter()
@@ -220,6 +210,15 @@ function NovaVisitaPageContent() {
     }))
   }
 
+  function handleTrocar() {
+    setTipoEntidade("")
+    setField("empresaId", "")
+    setField("clienteId", "")
+    setField("oportunidadeId", "")
+    setField("contatoId", "")
+    setField("nomeAvulso", "")
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (tipoEntidade === "PESSOA" && !form.empresaId) {
@@ -301,383 +300,37 @@ function NovaVisitaPageContent() {
         </div>
       </div>
 
-      {!tipoEntidade && (
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 space-y-4">
-          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 text-center">Quem você vai visitar?</h2>
-          <p className="text-sm text-slate-500 text-center">Selecione o tipo de entidade para iniciar o agendamento.</p>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-            <button
-              type="button"
-              onClick={() => setTipoEntidade("CLIENTE")}
-              className="flex flex-col items-center gap-3 p-6 rounded-xl border-2 border-slate-200 dark:border-slate-700 hover:border-emerald-400 dark:hover:border-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 transition-all cursor-pointer group"
-            >
-              <div className="p-3 rounded-full bg-emerald-100 dark:bg-emerald-900/50 group-hover:bg-emerald-200 dark:group-hover:bg-emerald-800/50 transition-colors">
-                <Building2 size={28} className="text-emerald-600 dark:text-emerald-400" />
-              </div>
-              <div className="text-center">
-                <p className="font-semibold text-slate-900 dark:text-slate-100">Cliente</p>
-                <p className="text-xs text-slate-500 mt-1">Empresa já cadastrada no sistema</p>
-              </div>
-            </button>
-            <button
-              type="button"
-              onClick={() => setTipoEntidade("PESSOA")}
-              className="flex flex-col items-center gap-3 p-6 rounded-xl border-2 border-slate-200 dark:border-slate-700 hover:border-blue-400 dark:hover:border-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/20 transition-all cursor-pointer group"
-            >
-              <div className="p-3 rounded-full bg-blue-100 dark:bg-blue-900/50 group-hover:bg-blue-200 dark:group-hover:bg-blue-800/50 transition-colors">
-                <UserCheck size={28} className="text-blue-600 dark:text-blue-400" />
-              </div>
-              <div className="text-center">
-                <p className="font-semibold text-slate-900 dark:text-slate-100">Pessoa</p>
-                <p className="text-xs text-slate-500 mt-1">Futuro cliente (negócio)</p>
-              </div>
-            </button>
-            <button
-              type="button"
-              onClick={() => setTipoEntidade("AVULSA")}
-              className="flex flex-col items-center gap-3 p-6 rounded-xl border-2 border-slate-200 dark:border-slate-700 hover:border-orange-400 dark:hover:border-orange-600 hover:bg-orange-50 dark:hover:bg-orange-950/20 transition-all cursor-pointer group"
-            >
-              <div className="p-3 rounded-full bg-orange-100 dark:bg-orange-900/50 group-hover:bg-orange-200 dark:group-hover:bg-orange-800/50 transition-colors">
-                <User size={28} className="text-orange-600 dark:text-orange-400" />
-              </div>
-              <div className="text-center">
-                <p className="font-semibold text-slate-900 dark:text-slate-100">Avulsa</p>
-                <p className="text-xs text-slate-500 mt-1">Visita sem vínculo inicial</p>
-              </div>
-            </button>
-          </div>
-        </div>
-      )}
+      {!tipoEntidade && <TipoEntidadeSelector onSelect={setTipoEntidade} />}
 
       {tipoEntidade && (
         <form onSubmit={handleSubmit} className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-5">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              {tipoEntidade === "CLIENTE" ? (
-                <Building2 size={18} className="text-emerald-600" />
-              ) : tipoEntidade === "AVULSA" ? (
-                <User size={18} className="text-orange-600" />
-              ) : (
-                <UserCheck size={18} className="text-blue-600" />
-              )}
-              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                {tipoEntidade === "CLIENTE" ? "Visitando Cliente" : tipoEntidade === "AVULSA" ? "Visita Avulsa" : "Visitando Pessoa (Negócio)"}
-              </span>
-            </div>
-            <button
-              type="button"
-              onClick={() => {
-                setTipoEntidade("")
-                setField("empresaId", "")
-                setField("clienteId", "")
-                setField("oportunidadeId", "")
-                setField("contatoId", "")
-                setField("nomeAvulso", "")
-              }}
-              className="text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:underline"
-            >
-              Trocar
-            </button>
-          </div>
+          <FormFields
+            form={form}
+            setField={setField}
+            conflictos={conflictos}
+            tipoEntidade={tipoEntidade}
+            empresas={empresas}
+            clientesList={clientesList}
+            oportunidades={oportunidades}
+            contatos={contatos}
+            recorrencia={recorrencia}
+            setRecorrencia={setRecorrencia}
+            recorrenciaFim={recorrenciaFim}
+            setRecorrenciaFim={setRecorrenciaFim}
+            onEmpresaCreated={handleEmpresaCreated}
+            onClienteCreated={handleClienteCreated}
+            onContatoCreated={handleContatoCreated}
+            onOportunidadeCreated={handleOportunidadeCreated}
+            onTrocar={handleTrocar}
+          />
 
-          <div className="grid gap-5 sm:grid-cols-2">
-            {tipoEntidade === "AVULSA" ? (
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                  Nome/Razão Social *
-                </label>
-                <input
-                  type="text"
-                  value={form.nomeAvulso}
-                  onChange={e => setField("nomeAvulso", e.target.value)}
-                  placeholder="Ex: José da Silva ou Árbora Têxtil"
-                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  required
-                />
-              </div>
-            ) : tipoEntidade === "CLIENTE" ? (
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                  Cliente *
-                  <QuickCreateCliente onCreated={handleClienteCreated} />
-                </label>
-                <select
-                  value={form.clienteId}
-                  onChange={e => {
-                    setField("clienteId", e.target.value)
-                    setField("contatoId", "")
-                  }}
-                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                >
-                  <option value="">Selecione...</option>
-                  {clientesList.map((c: any) => (
-                    <option key={c.id} value={String(c.id)}>{c.nome}</option>
-                  ))}
-                </select>
-              </div>
-            ) : (
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                  Pessoa (Negócio) *
-                  <QuickCreatePessoa onCreated={handleEmpresaCreated} />
-                </label>
-                <select
-                  value={form.empresaId}
-                  onChange={e => {
-                    setField("empresaId", e.target.value)
-                    setField("oportunidadeId", "")
-                    setField("contatoId", "")
-                  }}
-                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                >
-                  <option value="">Selecione...</option>
-                  {empresas.map((e: any) => (
-                    <option key={e.id} value={String(e.id)}>{e.razaoSocial || e.nomeFantasia}</option>
-                  ))}
-                </select>
-              </div>
-            )}
-            <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Data da Visita</label>
-              <input
-                type="date"
-                value={form.dataVisita}
-                onChange={e => setField("dataVisita", e.target.value)}
-                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Hora</label>
-              <input
-                type="time"
-                value={form.hora}
-                onChange={e => setField("hora", e.target.value)}
-                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              {conflictos.length > 0 && (
-                <div className="mt-2 flex items-start gap-2 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 px-3 py-2">
-                  <AlertTriangle size={16} className="text-amber-500 mt-0.5 shrink-0" />
-                  <div className="text-xs text-amber-700 dark:text-amber-300">
-                    <p className="font-medium">{conflictos.length} visita(s) ja agendada(s) neste horario:</p>
-                    <ul className="mt-1 space-y-0.5">
-                      {conflictos.map((c: any) => (
-                        <li key={c.id}>⬢ {c.empresaNome || c.clienteNome || "Visita"} ({c.tipo})</li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              )}
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Tipo</label>
-              <select
-                value={form.tipo}
-                onChange={e => setField("tipo", e.target.value)}
-                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                {TIPO_OPTIONS.map((opt: any) => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Duracao Estimada</label>
-              <select
-                value={form.duracaoEstimada}
-                onChange={e => setField("duracaoEstimada", e.target.value)}
-                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Nao definida</option>
-                <option value="15">15 minutos</option>
-                <option value="30">30 minutos</option>
-                <option value="45">45 minutos</option>
-                <option value="60">1 hora</option>
-                <option value="90">1h30</option>
-                <option value="120">2 horas</option>
-                <option value="180">3 horas</option>
-                <option value="240">4 horas</option>
-                <option value="480">Dia inteiro</option>
-              </select>
-            </div>
-            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-4">
-              <div className="flex items-center gap-2 mb-3">
-                <Repeat size={16} className="text-slate-500" />
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Recorrencia</label>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs text-slate-500 mb-1">Frequencia</label>
-                  <select
-                    value={recorrencia}
-                    onChange={e => setRecorrencia(e.target.value)}
-                    className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="nenhuma">Nenhuma (visita unica)</option>
-                    <option value="semanal">Semanal (a cada 7 dias)</option>
-                    <option value="quinzenal">Quinzenal (a cada 14 dias)</option>
-                    <option value="mensal">Mensal (a cada 30 dias)</option>
-                  </select>
-                </div>
-                {recorrencia !== "nenhuma" && (
-                  <div>
-                    <label className="block text-xs text-slate-500 mb-1">Repetir ate</label>
-                    <input
-                      type="date"
-                      value={recorrenciaFim}
-                      onChange={e => setRecorrenciaFim(e.target.value)}
-                      min={form.dataVisita}
-                      className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      required
-                    />
-                  </div>
-                )}
-              </div>
-              {recorrencia !== "nenhuma" && recorrenciaFim && form.dataVisita && (
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
-                  {(() => {
-                    const start = new Date(form.dataVisita + "T12:00:00")
-                    const end = new Date(recorrenciaFim + "T12:00:00")
-                    const diffMs = end.getTime() - start.getTime()
-                    const days = Math.floor(diffMs / (1000 * 60 * 60 * 24))
-                    const interval = recorrencia === "semanal" ? 7 : recorrencia === "quinzenal" ? 14 : 30
-                    const count = Math.floor(days / interval) + 1
-                    return `${count} visita(s) serao criadas`
-                  })()}
-                </p>
-              )}
-            </div>
-            {tipoEntidade === "PESSOA" && (
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                  Oportunidade
-                  <QuickCreateOportunidade empresaId={form.empresaId} onCreated={handleOportunidadeCreated} />
-                </label>
-                <select
-                  value={form.oportunidadeId}
-                  onChange={e => setField("oportunidadeId", e.target.value)}
-                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Selecione...</option>
-                  {oportunidades
-                    .filter((o: any) => !form.empresaId || String(o.empresaId) === form.empresaId)
-                    .map((o: any) => (
-                      <option key={o.id} value={String(o.id)}>{o.titulo}</option>
-                    ))}
-                </select>
-              </div>
-            )}
-            {tipoEntidade !== "AVULSA" && (
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                  Contato
-                  <QuickCreateContato
-                    empresaId={tipoEntidade === "PESSOA" ? form.empresaId : ""}
-                    clienteId={tipoEntidade === "CLIENTE" ? form.clienteId : ""}
-                    clienteNome={tipoEntidade === "CLIENTE" ? clientesList.find((c: any) => String(c.id) === form.clienteId)?.nome || "" : ""}
-                    onClickGuard={() => {
-                      if (!form.empresaId && !form.clienteId) {
-                        toast.error("Selecione uma pessoa ou cliente primeiro")
-                        return false
-                      }
-                      return true
-                    }}
-                    onCreated={handleContatoCreated}
-                  />
-                </label>
-                <select
-                  value={form.contatoId}
-                  onChange={e => setField("contatoId", e.target.value)}
-                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Selecione...</option>
-                  {contatos.map((c: any) => (
-                    <option key={c.id} value={String(c.id)}>{c.nome}{c.cargo ? ` (${c.cargo})` : ""}</option>
-                  ))}
-                </select>
-              </div>
-            )}
-          </div>
-
-          <div className="border-t border-slate-100 dark:border-slate-800 pt-4">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Endereço da Visita</h3>
-              {tipoEntidade !== "AVULSA" && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    const entidadeId = tipoEntidade === "PESSOA" ? form.empresaId : form.clienteId
-                    if (!entidadeId) {
-                      toast.error(`Selecione um${tipoEntidade === "CLIENTE" ? " cliente" : "a pessoa"} primeiro`)
-                      return
-                    }
-                    copiarEnderecoEmpresa()
-                  }}
-                  className="text-xs text-blue-600 hover:underline flex items-center gap-1"
-                >
-                  Copiar endereço {tipoEntidade === "CLIENTE" ? "do cliente" : "do negócio"}
-                </button>
-              )}
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="sm:col-span-2">
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Logradouro</label>
-                <input
-                  type="text"
-                  value={form.endereco}
-                  onChange={e => setField("endereco", e.target.value)}
-                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Número</label>
-                <input
-                  type="text"
-                  value={form.numero}
-                  onChange={e => setField("numero", e.target.value)}
-                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Complemento</label>
-                <input
-                  type="text"
-                  value={form.complemento}
-                  onChange={e => setField("complemento", e.target.value)}
-                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Bairro</label>
-                <input
-                  type="text"
-                  value={form.bairro}
-                  onChange={e => setField("bairro", e.target.value)}
-                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">UF</label>
-                <SelectUf value={form.uf} onChange={v => setField("uf", v)} />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Cidade</label>
-                <SelectCidade value={form.cidade} onChange={v => setField("cidade", v)} estadoId={estadoId} />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">CEP</label>
-                <input
-                  type="text"
-                  value={form.cep}
-                  onChange={e => setField("cep", e.target.value)}
-                  placeholder="00.000-000"
-                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-          </div>
+          <EnderecoSection
+            form={form}
+            setField={setField}
+            estadoId={estadoId}
+            tipoEntidade={tipoEntidade}
+            onCopiarEndereco={copiarEnderecoEmpresa}
+          />
 
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Relato / Ata da Visita</label>
