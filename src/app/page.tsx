@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react"
 import Link from "next/link"
-import { ArrowRight, Factory, ShoppingCart, Settings, PenTool, Users } from "lucide-react"
+import { ArrowRight, Factory, ShoppingCart, Settings, PenTool, Users, Wrench } from "lucide-react"
 
 const PDM_TOOLTIP = "PDM·PRO·TÊXTIL — Plataforma completa de gestão para a indústria têxtil. Integra Comercial, CRM, Desenvolvimento (Tecelagem e Beneficiamento), PCP e Admin em um único sistema. Gestão de clientes, leads, propostas, amostras, fichas técnicas, receitas, roteiros de produção, e-mail marketing, notificações inteligentes e exportação para ERP."
 
@@ -12,6 +12,7 @@ const DEPARTMENTS = [
   { icon: Users, abbr: "CRM", label: "CRM", phrase: "Pipeline de vendas, leads, propostas e visitas integradas" },
   { icon: PenTool, abbr: "DES", label: "Desenvolvimento", phrase: "Fichas técnicas, receitas e controle de amostras do conceito à aprovação" },
   { icon: Settings, abbr: "ADM", label: "Admin", phrase: "Usuários, permissões, menus e configurações centralizadas" },
+  { icon: Wrench, abbr: "FER", label: "Ferramentas", phrase: "Ferramentas personalizadas para cada tipo de negócio" },
 ]
 
 export default function LandingPage() {
@@ -211,7 +212,7 @@ export default function LandingPage() {
               <ArrowRight size={18} />
             </Link>
 
-            <div className="mt-16 grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
+            <div className="mt-16 grid grid-cols-2 md:grid-cols-6 gap-4 text-center">
               {DEPARTMENTS.map((dept: any) => (
                 <div
                   key={dept.abbr}
