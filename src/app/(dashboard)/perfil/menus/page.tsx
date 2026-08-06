@@ -7,18 +7,8 @@ import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Loader2, Plus, Trash2, Edit3, Minus, Save, GripVertical, Copy } from "lucide-react"
-import { ICONE_OPCOES, MenuIcone } from "@/lib/menu-icones"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog"
+import { Loader2, Plus, Save, Copy } from "lucide-react"
 import {
   Select,
   SelectContent,
@@ -27,252 +17,11 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { DndContext, PointerSensor, useSensor, useSensors, closestCenter } from "@dnd-kit/core"
-import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable"
-
-interface Tela {
-  id: string
-  label: string
-  href: string
-  module: string
-}
-
-interface MenuItem {
-  id: number
-  titulo: string
-  url: string
-  ordem: number
-}
-
-interface Menu {
-  id: number
-  titulo: string
-  icone?: string | null
-  ordem: number
-  itens: MenuItem[]
-}
-
-function SortableMenu({
-  menu,
-  isExpanded,
-  isEditing,
-  editValue,
-  editIcone,
-  onChangeEdit,
-  onChangeIcone,
-  onToggle,
-  onStartEdit,
-  onDelete,
-  onSave,
-  onCancelEdit,
-  children,
-}: {
-  menu: Menu
-  isExpanded: boolean
-  isEditing: boolean
-  editValue: string
-  editIcone: string
-  onChangeEdit: (v: string) => void
-  onChangeIcone: (v: string) => void
-  onToggle: () => void
-  onStartEdit: () => void
-  onDelete: () => void
-  onSave: () => void
-  onCancelEdit: () => void
-  children: React.ReactNode
-}) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: menu.id })
-
-  const style = {
-    transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
-    transition: transition || undefined,
-    opacity: isDragging ? 0.4 : 1,
-    position: "relative" as const,
-    zIndex: isDragging ? 10 : undefined,
-  }
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className={`border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden ${isDragging ? "shadow-lg" : ""}`}
-      {...attributes}
-    >
-      {/* Cabeçalho do Menu */}
-      <div className="flex items-center justify-between px-4 py-3 bg-slate-50 dark:bg-slate-800">
-        <div className="flex items-center gap-2 flex-1 min-w-0">
-          <button
-            className="cursor-grab active:cursor-grabbing p-1 text-slate-400 hover:text-slate-600 touch-none"
-            {...listeners}
-          >
-            <GripVertical size={16} />
-          </button>
-          <button
-            onClick={onToggle}
-            className="text-slate-400 hover:text-slate-600"
-          >
-            {isExpanded ? <Minus size={16} /> : <Plus size={16} />}
-          </button>
-          <MenuIcone icone={menu.icone} titulo={menu.titulo} url={menu.itens?.[0]?.url} size={16} className="text-slate-500" />
-          {isEditing ? (
-            <div className="flex items-center gap-2 flex-1">
-              <Input
-                value={editValue}
-                onChange={e => onChangeEdit(e.target.value)}
-                className="h-8 text-sm max-w-[180px]"
-                placeholder="Título do menu"
-                autoFocus
-              />
-              <Select
-                value={editIcone || ""}
-                onValueChange={(v: string | null) => {
-                  if (v) onChangeIcone(v)
-                }}
-              >
-                <SelectTrigger className="h-8 text-sm w-[200px]">
-                  <SelectValue placeholder="Ícone do menu" />
-                </SelectTrigger>
-                <SelectContent>
-                  {ICONE_OPCOES.map(op => (
-                    <SelectItem key={op.valor} value={op.valor}>
-                      <span className="inline-flex items-center gap-2">
-                        <op.Icone size={14} />
-                        {op.nome}
-                      </span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button size="sm" variant="ghost" onClick={onSave} className="h-8">
-                <Save size={14} />
-              </Button>
-              <Button size="sm" variant="ghost" onClick={onCancelEdit} className="h-8">
-                Cancelar
-              </Button>
-            </div>
-          ) : (
-            <>
-              <span className="text-sm font-medium text-slate-900 dark:text-slate-100">{menu.titulo}</span>
-              <span className="text-xs text-slate-400">{menu.itens.length} item(ns)</span>
-            </>
-          )}
-        </div>
-        {!isEditing && (
-          <div className="flex items-center gap-1">
-            <button
-              onClick={onStartEdit}
-              className="p-1.5 text-slate-400 hover:text-blue-600 rounded"
-            >
-              <Edit3 size={14} />
-            </button>
-            <button
-              onClick={onDelete}
-              className="p-1.5 text-slate-400 hover:text-red-600 rounded"
-            >
-              <Trash2 size={14} />
-            </button>
-          </div>
-        )}
-      </div>
-
-      {children}
-    </div>
-  )
-}
-
-function SortableItem({
-  item,
-  menuId,
-  isEditing,
-  editTitulo,
-  editUrl,
-  onChangeTitulo,
-  onChangeUrl,
-  onStartEdit,
-  onSaveEdit,
-  onCancelEdit,
-  onDelete,
-}: {
-  item: MenuItem
-  menuId: number
-  isEditing: boolean
-  editTitulo: string
-  editUrl: string
-  onChangeTitulo: (v: string) => void
-  onChangeUrl: (v: string) => void
-  onStartEdit: () => void
-  onSaveEdit: () => void
-  onCancelEdit: () => void
-  onDelete: () => void
-}) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id })
-
-  const style = {
-    transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
-    transition: transition || undefined,
-    opacity: isDragging ? 0.4 : 1,
-    position: "relative" as const,
-    zIndex: isDragging ? 10 : undefined,
-  }
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className={`flex items-center justify-between gap-3 py-1.5 ${isDragging ? "shadow-lg" : ""}`}
-      {...attributes}
-    >
-      <button
-        className="cursor-grab active:cursor-grabbing p-1 text-slate-400 hover:text-slate-600 touch-none"
-        {...listeners}
-      >
-        <GripVertical size={14} />
-      </button>
-      {isEditing ? (
-        <div className="flex items-center gap-2 flex-1">
-          <Input
-            value={editTitulo}
-            onChange={e => onChangeTitulo(e.target.value)}
-            className="h-8 text-sm max-w-[200px]"
-            placeholder="Título"
-          />
-          <Input
-            value={editUrl}
-            onChange={e => onChangeUrl(e.target.value)}
-            className="h-8 text-sm flex-1 font-mono"
-            placeholder="/url"
-          />
-          <Button size="sm" variant="ghost" onClick={onSaveEdit} className="h-8">
-            <Save size={14} />
-          </Button>
-          <Button size="sm" variant="ghost" onClick={onCancelEdit} className="h-8">
-            Cancelar
-          </Button>
-        </div>
-      ) : (
-        <>
-          <div className="flex items-center gap-2 flex-1 min-w-0">
-            <span className="text-sm text-slate-700 dark:text-slate-300">{item.titulo}</span>
-            <span className="text-xs text-slate-400 font-mono truncate">{item.url}</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <button
-              onClick={onStartEdit}
-              className="p-1 text-slate-400 hover:text-blue-600 rounded"
-            >
-              <Edit3 size={12} />
-            </button>
-            <button
-              onClick={onDelete}
-              className="p-1 text-slate-400 hover:text-red-600 rounded"
-            >
-              <Trash2 size={12} />
-            </button>
-          </div>
-        </>
-      )}
-    </div>
-  )
-}
+import { SortableContext, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable"
+import type { Tela, Menu } from "./components/types"
+import { SortableMenu } from "./components/sortable-menu"
+import { SortableItem } from "./components/sortable-item"
+import { CopiarMenusDialog } from "./components/copiar-dialog"
 
 export default function ConfigurarMenusPage() {
   const pathname = usePathname()
@@ -641,7 +390,6 @@ export default function ConfigurarMenusPage() {
                     onSave={() => salvarMenu(menu.id)}
                     onCancelEdit={() => setEditingMenuId(null)}
                   >
-                    {/* Itens */}
                     {expandedMenu === menu.id && (
                       <div className="px-4 py-3 space-y-2">
                         <DndContext
@@ -672,7 +420,6 @@ export default function ConfigurarMenusPage() {
                           </SortableContext>
                         </DndContext>
 
-                        {/* Adicionar novo item */}
                         <div className="flex items-center gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
                           <div className="flex-1">
                             <Select
@@ -706,44 +453,15 @@ export default function ConfigurarMenusPage() {
         )}
       </div>
 
-      {/* Dialog Copiar Menus */}
-      <Dialog open={showCopyDialog} onOpenChange={setShowCopyDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Copiar menus de outro usuário</DialogTitle>
-            <DialogDescription>
-              Selecione um usuário para copiar todos os menus e itens. Os menus atuais serão substituídos.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-2">
-            <Label>Usuário de origem</Label>
-            <Select
-              value={selectedUsuarioId?.toString() || ""}
-              onValueChange={(v) => setSelectedUsuarioId(v ? parseInt(v) : null)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione um usuário..." />
-              </SelectTrigger>
-              <SelectContent>
-                {usuarios.map((u: any) => (
-                  <SelectItem key={u.id} value={u.id.toString()}>{u.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <DialogFooter>
-            <Button variant="outline" type="button" disabled={copying} onClick={() => setShowCopyDialog(false)}>
-              Cancelar
-            </Button>
-            <Button onClick={copiarMenus} disabled={!selectedUsuarioId || copying} className="gap-2">
-              {copying ? <Loader2 size={14} className="animate-spin" /> : <Copy size={14} />}
-              Copiar
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <CopiarMenusDialog
+        open={showCopyDialog}
+        onOpenChange={setShowCopyDialog}
+        usuarios={usuarios}
+        selectedUsuarioId={selectedUsuarioId}
+        setSelectedUsuarioId={setSelectedUsuarioId}
+        copying={copying}
+        onCopiar={copiarMenus}
+      />
     </div>
   )
 }
