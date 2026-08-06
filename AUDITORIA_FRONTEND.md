@@ -108,7 +108,7 @@ Regra de trabalho: cada item corrigido = **commit + push** separado, para acompa
 - [x] `comercial/solicitacoes/[id]/page.tsx` (657 linhas) — `4eb5f226` (9 arquivos em `components/`: api, constants, utils, header, dados-comerciais, briefing, anexos, produtos, historico)
 - [x] `admin/configuracoes/integracoes/page.tsx` (613 linhas) — `5815e37e` (5 arquivos em `components/`: types, constants, integracao-card, integracao-form, test-result-modal)
 - [x] `components/kanban/kanban-board.tsx` (589 linhas, 3 dialogs) — `047d3e83` (7 arquivos irmãos: types, column, card, drag-overlay-card, chat-dialog, amostras-dialog, pilotagem-dialog)
-- [ ] `admin/configuracoes/banco-dados/page.tsx` (495 linhas, 3 dialogs)
+- [x] `admin/configuracoes/banco-dados/page.tsx` (495 linhas, 3 dialogs) — `956e132c` (7 arquivos em `components/`: types, banco-list, nova-conexao-form, criar-dialog, clone-dialog, redund-dialog, backup-card)
 
 ## 10. Verificação final
 
