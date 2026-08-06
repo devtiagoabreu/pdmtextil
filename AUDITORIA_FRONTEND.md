@@ -95,8 +95,8 @@ Regra de trabalho: cada item corrigido = **commit + push** separado, para acompa
 
 ## 9. Quebrar arquivos gigantes em subcomponentes
 
-- [ ] `admin/email-massa/page.tsx` (1766 linhas, 9 dialogs)
-- [ ] `cadastros/produto-cru/[id]/page.tsx` (1350 linhas, 4 modais)
+- [x] `admin/email-massa/page.tsx` (1766 linhas, 9 dialogs) — `96e8c720` (287 linhas + `components/` com 8 arquivos: editor-email, enviar, modelos, listas, historico, agendar, dialogs)
+- [x] `cadastros/produto-cru/[id]/page.tsx` (1350 linhas, 4 modais) — `ce309f67` (652 linhas + `components/` com 7 arquivos: capa, ficha-tecnica, composicao, amostras, links, modais, types)
 - [ ] `components/bi/bi-dashboard-client.tsx` (1066 linhas)
 - [ ] `comercial/requisicoes-corte/por-romaneio/page.tsx` (1063 linhas)
 - [ ] `documentos/romaneios/page.tsx` (945 linhas)
