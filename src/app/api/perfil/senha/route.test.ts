@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { NextResponse } from "next/server"
+import { NextResponse, NextRequest } from "next/server"
 import bcrypt from "bcryptjs"
 import { db } from "@/lib/db"
 import { requireAuth } from "@/lib/auth"
@@ -21,7 +21,7 @@ vi.mock("bcryptjs", () => ({ default: { hash: vi.fn() } }))
 const authOk = { session: {}, userId: 42 }
 
 function put(body: Record<string, unknown>) {
-  return new Request("http://localhost/api/perfil/senha", {
+  return new NextRequest("http://localhost/api/perfil/senha", {
     method: "PUT",
     body: JSON.stringify(body),
     headers: { "Content-Type": "application/json" },

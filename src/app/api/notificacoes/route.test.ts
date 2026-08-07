@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { NextResponse } from "next/server"
+import { NextResponse, NextRequest } from "next/server"
 import { db } from "@/lib/db"
 import { requireAuth } from "@/lib/auth"
 import { createQueryBuilder, resetDb } from "@/test/route-db-mock"
@@ -33,13 +33,13 @@ describe("GET /api/notificacoes", () => {
     vi.mocked(requireAuth).mockResolvedValue(
       NextResponse.json({ error: "Não autorizado" }, { status: 401 }) as any,
     )
-    const res = await GET(new Request("http://localhost/api/notificacoes"))
+    const res = await GET(new NextRequest("http://localhost/api/notificacoes"))
     expect(res.status).toBe(401)
   })
 
   it("retorna a lista de notificações", async () => {
     db.select = vi.fn(() => createQueryBuilder(notificacoes))
-    const res = await GET(new Request("http://localhost/api/notificacoes"))
+    const res = await GET(new NextRequest("http://localhost/api/notificacoes"))
     expect(res.status).toBe(200)
     expect(res.headers.get("Cache-Control")).toBe("private, max-age=30, stale-while-revalidate=60")
     expect(await res.json()).toHaveLength(2)
@@ -47,7 +47,7 @@ describe("GET /api/notificacoes", () => {
 
   it("retorna apenas não lidas com naoLidas=true", async () => {
     db.select = vi.fn(() => createQueryBuilder([notificacoes[0]]))
-    const res = await GET(new Request("http://localhost/api/notificacoes?naoLidas=true&limit=10"))
+    const res = await GET(new NextRequest("http://localhost/api/notificacoes?naoLidas=true&limit=10"))
     expect(res.status).toBe(200)
     const data = await res.json()
     expect(data).toHaveLength(1)
@@ -65,7 +65,7 @@ describe("PUT /api/notificacoes", () => {
   it("marca todas como lidas com marcarTodas", async () => {
     db.update = vi.fn(() => createQueryBuilder(undefined))
     const res = await PUT(
-      new Request("http://localhost/api/notificacoes", {
+      new NextRequest("http://localhost/api/notificacoes", {
         method: "PUT",
         body: JSON.stringify({ marcarTodas: true }),
         headers: { "Content-Type": "application/json" },
@@ -79,7 +79,7 @@ describe("PUT /api/notificacoes", () => {
   it("marca uma notificação específica como lida", async () => {
     db.update = vi.fn(() => createQueryBuilder(undefined))
     const res = await PUT(
-      new Request("http://localhost/api/notificacoes", {
+      new NextRequest("http://localhost/api/notificacoes", {
         method: "PUT",
         body: JSON.stringify({ id: 3 }),
         headers: { "Content-Type": "application/json" },

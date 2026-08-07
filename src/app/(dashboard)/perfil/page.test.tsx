@@ -54,7 +54,7 @@ describe("PerfilPage", () => {
 
     const call = findCall(fetchMock.calls, "/api/perfil/senha", "PUT")
     expect(call).toBeDefined()
-    expect(call.body).toEqual({ password: "novaSenha123" })
+    expect(call?.body).toEqual({ password: "novaSenha123" })
     await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Senha alterada com sucesso!"))
   })
 
@@ -88,7 +88,7 @@ describe("PerfilPage", () => {
 
     const call = findCall(fetchMock.calls, "/api/user/email-config", "PUT")
     expect(call).toBeDefined()
-    expect(call.body).toEqual({ email: "tiago@gmail.com", senha_app: "appPassword123" })
+    expect(call?.body).toEqual({ email: "tiago@gmail.com", senha_app: "appPassword123" })
     await waitFor(() =>
       expect(toastMock.success).toHaveBeenCalledWith("Configuração de email salva com sucesso!")
     )

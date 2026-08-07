@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
+import { NextRequest } from "next/server"
 import { getServerSession } from "next-auth"
 import { db } from "@/lib/db"
 import { resetDb } from "@/test/route-db-mock"
@@ -39,13 +40,13 @@ describe("GET /api/relatorios/solicitacoes-por-status", () => {
 
   it("retorna 401 quando não está autenticado", async () => {
     vi.mocked(getServerSession).mockResolvedValue(null as any)
-    const res = await GET(new Request("http://localhost/api/relatorios/solicitacoes-por-status"))
+    const res = await GET(new NextRequest("http://localhost/api/relatorios/solicitacoes-por-status"))
     expect(res.status).toBe(401)
   })
 
   it("retorna 400 quando o status não é informado", async () => {
     vi.mocked(getServerSession).mockResolvedValue({ user: { id: "1" } } as any)
-    const res = await GET(new Request("http://localhost/api/relatorios/solicitacoes-por-status"))
+    const res = await GET(new NextRequest("http://localhost/api/relatorios/solicitacoes-por-status"))
     expect(res.status).toBe(400)
     expect(await res.json()).toEqual({ error: "Parâmetro 'status' é obrigatório" })
   })
@@ -53,7 +54,7 @@ describe("GET /api/relatorios/solicitacoes-por-status", () => {
   it("retorna as estatísticas com o shape esperado", async () => {
     vi.mocked(getServerSession).mockResolvedValue({ user: { id: "1" } } as any)
     db.execute = vi.fn().mockResolvedValueOnce(stats).mockResolvedValueOnce(porMes).mockResolvedValueOnce(lista)
-    const res = await GET(new Request("http://localhost/api/relatorios/solicitacoes-por-status?status=PENDENTE"))
+    const res = await GET(new NextRequest("http://localhost/api/relatorios/solicitacoes-por-status?status=PENDENTE"))
     expect(res.status).toBe(200)
     const data = await res.json()
     expect(data.stats).toEqual({ total: 5, tecelagem: 3, beneficiamento: 2 })

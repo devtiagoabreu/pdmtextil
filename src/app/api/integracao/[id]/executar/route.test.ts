@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
+import { NextRequest } from "next/server"
 import { getServerSession } from "next-auth"
 import { db } from "@/lib/db"
 import { createQueryBuilder, resetDb } from "@/test/route-db-mock"
@@ -21,7 +22,7 @@ const fetchMock = vi.fn()
 
 function get(id: string, query = "") {
   const url = `http://localhost/api/integracao/${id}/executar${query}`
-  return GET(new Request(url), { params: Promise.resolve({ id }) })
+  return GET(new NextRequest(url), { params: Promise.resolve({ id }) })
 }
 
 describe("GET /api/integracao/[id]/executar", () => {

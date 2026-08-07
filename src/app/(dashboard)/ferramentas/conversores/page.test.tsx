@@ -17,7 +17,7 @@ describe("ConversoresPage", () => {
 
   it("converte um valor em Ne para as demais unidades", () => {
     renderPage(<ConversoresPage />)
-    const inputs = screen.getAllByPlaceholderText("0")
+    const inputs = screen.getAllByPlaceholderText("0") as HTMLInputElement[]
     fireEvent.change(inputs[0], { target: { value: "59.05" } })
 
     expect(inputs[0].value).toBe("59.0500")

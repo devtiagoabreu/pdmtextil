@@ -63,13 +63,15 @@ export function listSmokeSpec(cfg: ListSmokeSpecConfig) {
       expect(await screen.findByText(cfg.emptyText)).toBeInTheDocument()
     })
 
-    if (cfg.searchPlaceholder && cfg.matchQuery) {
+    const searchPlaceholder = cfg.searchPlaceholder
+    const matchQuery = cfg.matchQuery
+    if (searchPlaceholder && matchQuery) {
       it("filtra pela busca", async () => {
         renderPage(cfg.component)
         await screen.findByText(cfg.firstItemText)
 
-        const search = screen.getByPlaceholderText(cfg.searchPlaceholder)
-        fireEvent.change(search, { target: { value: cfg.matchQuery } })
+        const search = screen.getByPlaceholderText(searchPlaceholder)
+        fireEvent.change(search, { target: { value: matchQuery } })
         expect(screen.getByText(cfg.firstItemText)).toBeInTheDocument()
         if (cfg.secondItemText) {
           expect(screen.queryByText(cfg.secondItemText)).not.toBeInTheDocument()

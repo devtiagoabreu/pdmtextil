@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
+import { NextRequest } from "next/server"
 import { getServerSession } from "next-auth"
 import { db } from "@/lib/db"
 import { createQueryBuilder, resetDb } from "@/test/route-db-mock"
@@ -29,14 +30,14 @@ describe("GET /api/integracao/listar", () => {
 
   it("retorna 401 quando não está autenticado", async () => {
     vi.mocked(getServerSession).mockResolvedValue(null as any)
-    const res = await GET(new Request("http://localhost/api/integracao/listar"))
+    const res = await GET(new NextRequest("http://localhost/api/integracao/listar"))
     expect(res.status).toBe(401)
   })
 
   it("retorna todas as integrações ativas sem filtro", async () => {
     vi.mocked(getServerSession).mockResolvedValue({ user: { id: "1" } } as any)
     db.select = vi.fn(() => createQueryBuilder(integracoes))
-    const res = await GET(new Request("http://localhost/api/integracao/listar"))
+    const res = await GET(new NextRequest("http://localhost/api/integracao/listar"))
     expect(res.status).toBe(200)
     const data = await res.json()
     expect(data).toHaveLength(2)
@@ -46,7 +47,7 @@ describe("GET /api/integracao/listar", () => {
   it("filtra integrações pela tela informada", async () => {
     vi.mocked(getServerSession).mockResolvedValue({ user: { id: "1" } } as any)
     db.select = vi.fn(() => createQueryBuilder(integracoes))
-    const res = await GET(new Request("http://localhost/api/integracao/listar?tela=clientes"))
+    const res = await GET(new NextRequest("http://localhost/api/integracao/listar?tela=clientes"))
     expect(res.status).toBe(200)
     const data = await res.json()
     expect(data).toHaveLength(1)

@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
+import { NextRequest } from "next/server"
 import { getServerSession } from "next-auth"
 import { db } from "@/lib/db"
 import { encrypt, decrypt } from "@/lib/crypto"
@@ -21,7 +22,7 @@ vi.mock("@/lib/crypto", () => ({ encrypt: vi.fn(), decrypt: vi.fn() }))
 const session = { user: { id: "7" } }
 
 function put(body: Record<string, unknown>) {
-  return new Request("http://localhost/api/user/email-config", {
+  return new NextRequest("http://localhost/api/user/email-config", {
     method: "PUT",
     body: JSON.stringify(body),
     headers: { "Content-Type": "application/json" },
