@@ -5,8 +5,9 @@ import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
-import { RefreshCw, Plus, Pencil, Trash2, Clock } from "lucide-react"
-import type { Agendado } from "../types"
+import { RefreshCw, Plus, Pencil, Trash2, Clock, Send } from "lucide-react"
+import { EnvioProgresso } from "./envio-progresso"
+import type { Agendado, Disparo } from "../types"
 
 function ScheduleButton({ agendado, onAgendar }: { agendado: Agendado; onAgendar: (a: Agendado, data: string) => void }) {
   const [open, setOpen] = useState(false)
@@ -42,9 +43,11 @@ function ScheduleButton({ agendado, onAgendar }: { agendado: Agendado; onAgendar
 export interface AgendarTabProps {
   onCarregarNoEditor: (a: Agendado) => void
   onNovoDisparo: () => void
+  onEnviarAgendado: (a: Agendado) => void
+  disparoProgresso?: Disparo | null
 }
 
-export function AgendarTab({ onCarregarNoEditor, onNovoDisparo }: AgendarTabProps) {
+export function AgendarTab({ onCarregarNoEditor, onNovoDisparo, onEnviarAgendado, disparoProgresso }: AgendarTabProps) {
   const queryClient = useQueryClient()
 
   const { data: agendados = [], isLoading: loadingAgendados } = useQuery<Agendado[]>({
@@ -117,6 +120,8 @@ export function AgendarTab({ onCarregarNoEditor, onNovoDisparo }: AgendarTabProp
           </div>
         </div>
 
+        <EnvioProgresso progresso={disparoProgresso ?? null} />
+
         <div className="flex gap-2">
           {["todos", "rascunho", "agendado", "enviado", "cancelado", "erro"].map((f: any) => (
             <button key={f} onClick={() => setAgendadoFiltro(f)}
@@ -172,7 +177,12 @@ export function AgendarTab({ onCarregarNoEditor, onNovoDisparo }: AgendarTabProp
                           </>
                         )}
                         {a.status === "agendado" && (
-                          <Button variant="outline" size="xs" onClick={() => cancelarAgendado(a)} className="gap-1 text-yellow-600">Cancelar</Button>
+                          <>
+                            <Button variant="outline" size="xs" onClick={() => onEnviarAgendado(a)} className="gap-1 text-blue-600">
+                              <Send size={12} /> Enviar agora
+                            </Button>
+                            <Button variant="outline" size="xs" onClick={() => cancelarAgendado(a)} className="gap-1 text-yellow-600">Cancelar</Button>
+                          </>
                         )}
                         {(a.status === "rascunho" || a.status === "cancelado" || a.status === "erro") && (
                           <Button variant="ghost" size="xs" onClick={() => excluirAgendado(a.id)} className="gap-1 text-red-500 hover:text-red-700"><Trash2 size={12} /></Button>

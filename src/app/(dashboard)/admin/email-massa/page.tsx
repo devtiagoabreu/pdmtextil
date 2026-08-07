@@ -187,6 +187,30 @@ export default function EmailMassaPage() {
     } catch { toast.error("Erro ao salvar agendamento") }
   }
 
+  const enviarAgendado = async (a: Agendado) => {
+    try {
+      const res = await fetch(`/api/admin/email-massa/agendados/${a.id}/enviar`, { method: "POST" })
+      const data = await res.json()
+      if (!res.ok) {
+        toast.error(data.error || "Erro ao enviar agendamento")
+        return
+      }
+      setDisparoProgresso({ ...data, enviados: 0, falhas: 0, pendentes: data.total } as Disparo)
+      pollDisparo(data.disparoId)
+      if (!processingRef.current) {
+        processingRef.current = true
+        fetch("/api/admin/email-massa/processar", { method: "POST" })
+          .catch(() => {})
+          .finally(() => { processingRef.current = false })
+      }
+      queryClient.invalidateQueries({ queryKey: ["email-massa-agendados"] })
+      queryClient.invalidateQueries({ queryKey: ["email-massa-historico"] })
+      toast.success(`Envio iniciado: ${data.total} destinatário(s)`)
+    } catch {
+      toast.error("Erro ao iniciar envio")
+    }
+  }
+
   const carregarAgendado = (a: Agendado) => {
     setEditAgendado(a)
     setAssunto(a.assunto)
@@ -341,6 +365,8 @@ export default function EmailMassaPage() {
           <AgendarTab
             onCarregarNoEditor={carregarAgendado}
             onNovoDisparo={() => { setEditAgendado(null); setAgendadoForm({ nome: "", agendadoPara: "" }); setActiveTab("enviar") }}
+            onEnviarAgendado={enviarAgendado}
+            disparoProgresso={disparoProgresso}
           />
         </TabsContent>
 
