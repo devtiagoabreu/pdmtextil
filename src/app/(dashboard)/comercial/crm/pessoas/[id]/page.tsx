@@ -59,13 +59,13 @@ function PessoaDetailPageContent() {
   const [repToRemove, setRepToRemove] = useState<any>(null)
 
   useEffect(() => {
-    if (form.uf) {
+    if (form?.uf) {
       const found = estados.find((e: any) => e.uf === form.uf)
       setEstadoId(found ? found.id : null)
     } else {
       setEstadoId(null)
     }
-  }, [form.uf, estados])
+  }, [form?.uf, estados])
 
   async function searchRepresentantes(query: string) {
     setSearchRep(query)
@@ -112,6 +112,11 @@ function PessoaDetailPageContent() {
     fetch(`/api/crm/pessoas/${params.id}`)
       .then((r: any) => r.json())
       .then((data: any) => {
+        if (!data || data.error) {
+          setPessoa(null)
+          setForm({})
+          return
+        }
         setPessoa(data)
         setForm(data)
         setTipoPessoa(data.tipoPessoa || "PJ")

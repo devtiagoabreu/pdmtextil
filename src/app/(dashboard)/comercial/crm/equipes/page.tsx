@@ -326,6 +326,16 @@ export default function EquipesPage() {
             </div>
           )}
         </div>
+
+        <ConfirmModal
+          open={!!membroToRemove}
+          title="Remover membro da equipe"
+          message={`Deseja remover ${membroToRemove?.nome} desta equipe?`}
+          variant="danger"
+          confirmLabel="Remover"
+          onConfirm={() => { if (membroToRemove) { removeMembro(membroToRemove); setMembroToRemove(null) } }}
+          onCancel={() => setMembroToRemove(null)}
+        />
       </div>
     )
   }
@@ -475,15 +485,6 @@ export default function EquipesPage() {
         )}
       </div>
 
-      <ConfirmModal
-        open={!!membroToRemove}
-        title="Remover membro da equipe"
-        message={`Deseja remover ${membroToRemove?.nome} desta equipe?`}
-        variant="danger"
-        confirmLabel="Remover"
-        onConfirm={() => { if (membroToRemove) { removeMembro(membroToRemove); setMembroToRemove(null) } }}
-        onCancel={() => setMembroToRemove(null)}
-      />
       <ConfirmModal
         open={!!equipeToDelete}
         title="Excluir equipe?"

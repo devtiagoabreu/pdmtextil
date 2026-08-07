@@ -7,8 +7,12 @@ import type { MockFetchHandler } from "./harness"
 export interface FormPageSpecConfig {
   title: string
   component: ReactElement
-  /** Ex: "fornecedores" → POST /api/cadastros/fornecedores, PUT/GET /api/cadastros/fornecedores/:id */
+  /** Ex: "fornecedores" → POST {apiPrefix}/fornecedores, PUT/GET {apiPrefix}/fornecedores/:id */
   apiBase: string
+  /** Prefixo da rota de API (default "/api/cadastros") */
+  apiPrefix?: string
+  /** Prefixo da rota de página (default "/cadastros") */
+  pagePrefix?: string
   listHref: string
   headingNew: string
   headingEdit: string
@@ -36,14 +40,15 @@ export function formPageSpec(cfg: FormPageSpecConfig) {
     let fetchMock: ReturnType<typeof createFetchMock>
 
     beforeEach(() => {
+      const apiPrefix = cfg.apiPrefix ?? "/api/cadastros"
       const handler: MockFetchHandler = ({ method, url }) => {
-        if (method === "GET" && url === `/api/cadastros/${cfg.apiBase}/${cfg.editId}`) {
+        if (method === "GET" && url === `${apiPrefix}/${cfg.apiBase}/${cfg.editId}`) {
           return { json: cfg.editData }
         }
-        if (method === "POST" && url === `/api/cadastros/${cfg.apiBase}`) {
+        if (method === "POST" && url === `${apiPrefix}/${cfg.apiBase}`) {
           return { status: 201, json: { id: 99 } }
         }
-        if (method === "PUT" && url === `/api/cadastros/${cfg.apiBase}/${cfg.editId}`) {
+        if (method === "PUT" && url === `${apiPrefix}/${cfg.apiBase}/${cfg.editId}`) {
           return { json: { ok: true } }
         }
         if (cfg.handler) return cfg.handler({ method, url })
@@ -55,7 +60,8 @@ export function formPageSpec(cfg: FormPageSpecConfig) {
 
     describe("novo", () => {
       beforeEach(() => {
-        navMock.setPathname(`/cadastros/${cfg.apiBase}/novo`)
+        const pagePrefix = cfg.pagePrefix ?? "/cadastros"
+        navMock.setPathname(`${pagePrefix}/${cfg.apiBase}/novo`)
         navMock.setParams({ id: "novo" })
       })
 
@@ -70,7 +76,7 @@ export function formPageSpec(cfg: FormPageSpecConfig) {
         fireEvent.submit(ui.container.querySelector("form")!)
 
         await waitFor(() => expect(toastMock.error).toHaveBeenCalledWith(cfg.validationToast))
-        expect(findCall(fetchMock.calls, `/api/cadastros/${cfg.apiBase}`, "POST")).toBeUndefined()
+        expect(findCall(fetchMock.calls, `${cfg.apiPrefix ?? "/api/cadastros"}/${cfg.apiBase}`, "POST")).toBeUndefined()
       })
 
       it("cria via POST e redireciona", async () => {
@@ -83,7 +89,7 @@ export function formPageSpec(cfg: FormPageSpecConfig) {
         fireEvent.click(screen.getByRole("button", { name: submitNewLabel }))
 
         await waitFor(() => {
-          const call = findCall(fetchMock.calls, `/api/cadastros/${cfg.apiBase}`, "POST")
+          const call = findCall(fetchMock.calls, `${cfg.apiPrefix ?? "/api/cadastros"}/${cfg.apiBase}`, "POST")
           expect(call).toBeDefined()
           if (cfg.createBodyAssert) cfg.createBodyAssert(call!.body)
         })
@@ -94,7 +100,8 @@ export function formPageSpec(cfg: FormPageSpecConfig) {
 
     describe("edição", () => {
       beforeEach(() => {
-        navMock.setPathname(`/cadastros/${cfg.apiBase}/${cfg.editId}`)
+        const pagePrefix = cfg.pagePrefix ?? "/cadastros"
+        navMock.setPathname(`${pagePrefix}/${cfg.apiBase}/${cfg.editId}`)
         navMock.setParams({ id: String(cfg.editId) })
       })
 
@@ -107,7 +114,7 @@ export function formPageSpec(cfg: FormPageSpecConfig) {
         fireEvent.click(screen.getByRole("button", { name: submitEditLabel }))
 
         await waitFor(() => {
-          const call = findCall(fetchMock.calls, `/api/cadastros/${cfg.apiBase}/${cfg.editId}`, "PUT")
+          const call = findCall(fetchMock.calls, `${cfg.apiPrefix ?? "/api/cadastros"}/${cfg.apiBase}/${cfg.editId}`, "PUT")
           expect(call).toBeDefined()
           expect(call!.body.id).toBe(cfg.editId)
         })

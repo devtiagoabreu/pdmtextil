@@ -48,9 +48,28 @@ node scripts/compare-schemas.js
 
 Compara colunas entre os 4 bancos e lista diferenças.
 
+## Backup/Restore e fix de FKs (2026-08-06)
+
+- **Causa raiz**: `scripts/backup-db.mjs` remove colunas com default `nextval`; `scripts/restore-db.mjs` restaura com FKs dormentes → ids renumerados e referências de FKs apontando para ids antigos (corrompidos).
+- **Fix aplicado**: `scripts/fix-remap.mjs` gera `backups/fix-fk-remap.sql` (33 seções, 8538 tuplas) aplicado por `scripts/apply-fix.mjs` (transação única + DROP/ADD do constraint `crm_cidades_nome_estado_id_key` + DELETE `user_email_config` id=1). Backup pré-fix: `backups/pre-fix-2026-08-06.sql`.
+- **Pós-fix**: 0 órfãos nas 49 FKs declaradas (`scripts/diag-orphans-final.js`). Decisões: `chat_participantes` id=96 `ultima_mensagem_lida_id`→NULL; `chat_leituras` id=325 `mensagem_id`→26 (sucessor real da neon 50 = main 26, chat 10). `user_menu_itens` id=713 (`user_menu_id`=19) deixado intacto — quebrado na origem (menu 19 não existe em nenhum banco).
+- **Diagnósticos auxiliares**: `scripts/diag-*.js` (mensagem 50, colisões de cidades, duplicatas, órfãos pós-fix, email config, etc.).
+- Se o fix for refeito (novo backup/restore), use o mesmo fluxo e SEMPRE re-sincronize os 4 bancos (`node scripts/sync-all-dbs.js`).
+
 # Testes
 
 Suíte de regressão com **vitest + Testing Library** (jsdom por arquivo via comentário `// @vitest-environment jsdom`).
+
+## REGRA OBRIGATÓRIA: toda funcionalidade/tela exige teste
+
+**Nenhuma funcionalidade ou tela nova pode ser entregue sem teste.** Ao criar ou alterar uma página, componente, API route ou lógica reutilizável:
+
+1. **Páginas de lista/form seguindo o padrão de cadastros** → use as factories `list-page-spec`/`form-page-spec` (na pasta `src/test/`) com config na página do teste.
+2. **Telas/componentes atípicos** → teste customizado na pasta da página (jsdom, fetch mock via `harness.tsx`).
+3. **API routes** → teste com fetch mock/`routeJson` cobrindo sucesso e erro.
+4. **Lógica reutilizável (`src/lib`)** → teste unitário puro (node, sem jsdom quando não houver DOM).
+
+O teste deve ser criado **na mesma entrega/commit** da funcionalidade. Regressão da suíte completa (`npm run test`) é critério de aceite: **toda mudança precisa manter a suíte verde**.
 
 ## Comandos
 

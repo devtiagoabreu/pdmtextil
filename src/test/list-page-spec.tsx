@@ -7,8 +7,10 @@ import type { MockFetchHandler } from "./harness"
 export interface ListPageSpecConfig {
   title: string
   component: ReactElement
-  /** Ex: "fornecedores" → GET /api/cadastros/fornecedores, DELETE /api/cadastros/fornecedores/:id */
+  /** Ex: "fornecedores" → GET {apiPrefix}/fornecedores, DELETE {apiPrefix}/fornecedores/:id */
   apiBase: string
+  /** Prefixo da rota de API (default "/api/cadastros") */
+  apiPrefix?: string
   heading: string
   searchPlaceholder: string
   emptyText: string
@@ -36,10 +38,11 @@ export function listPageSpec(cfg: ListPageSpecConfig) {
     const primary = cfg.primaryField ?? "nome"
 
     beforeEach(() => {
+      const apiPrefix = cfg.apiPrefix ?? "/api/cadastros"
       const handler: MockFetchHandler =
         cfg.handler ??
         (({ method, url }) => {
-          if (method === "GET" && url === `/api/cadastros/${cfg.apiBase}`) return { json: cfg.data }
+          if (method === "GET" && url === `${apiPrefix}/${cfg.apiBase}`) return { json: cfg.data }
           if (method === "DELETE") {
             if (url.endsWith(`/${cfg.blockedId}`)) {
               return { status: 400, json: { error: "fk", fkError: true } }
@@ -101,7 +104,7 @@ export function listPageSpec(cfg: ListPageSpecConfig) {
       fireEvent.click(within(dialog).getByRole("button", { name: "Excluir" }))
 
       await waitFor(() =>
-        expect(findCall(fetchMock.calls, `/api/cadastros/${cfg.apiBase}/${cfg.data[0].id}`, "DELETE")).toBeDefined(),
+        expect(findCall(fetchMock.calls, `${cfg.apiPrefix ?? "/api/cadastros"}/${cfg.apiBase}/${cfg.data[0].id}`, "DELETE")).toBeDefined(),
       )
       await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith(cfg.successToast))
       expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
@@ -118,7 +121,7 @@ export function listPageSpec(cfg: ListPageSpecConfig) {
 
       fireEvent.click(screen.getByRole("button", { name: "Excluir" }))
       await waitFor(() =>
-        expect(findCall(fetchMock.calls, `/api/cadastros/${cfg.apiBase}/${cfg.blockedId}`, "DELETE")).toBeDefined(),
+        expect(findCall(fetchMock.calls, `${cfg.apiPrefix ?? "/api/cadastros"}/${cfg.apiBase}/${cfg.blockedId}`, "DELETE")).toBeDefined(),
       )
       const blockedDialog = await screen.findByRole("dialog", { name: "Exclusão não permitida" })
       expect(blockedDialog).toHaveTextContent(/não pode ser exclu/)
