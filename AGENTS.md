@@ -71,6 +71,21 @@ Suíte de regressão com **vitest + Testing Library** (jsdom por arquivo via com
 
 O teste deve ser criado **na mesma entrega/commit** da funcionalidade. Regressão da suíte completa (`npm run test`) é critério de aceite: **toda mudança precisa manter a suíte verde**.
 
+## Fluxo obrigatório ao modificar o código
+
+**Qualquer modificação no sistema (feature, bug fix, refactor) segue esta ordem — sem exceção:**
+
+1. **Alterar o código** (tela/componente/API route/lógica).
+2. **Atualizar/criar o teste** daquilo que mudou, na mesma entrega:
+   - Teste já existe → ajuste-o para refletir o novo comportamento (novo endpoint, textos, campos, fluxos).
+   - Não existe → crie seguindo o padrão da seção acima (factory, smoke ou custom).
+3. **Rodar o teste do arquivo** modificado: `npx.cmd vitest run <caminho-do-teste>`.
+4. **Rodar a suíte completa**: `npm run test` — **não commitar enquanto estiver vermelha**. Se quebrou:
+   - Verificar se a quebra é da mudança → corrigir o código OU o teste (decidir pelo que está certo: se o comportamento mudou de propósito, o teste é que deve ser atualizado).
+   - Verificar se a quebra é pré-existente/fora do escopo → reportar ao usuário, não mascarar com `.skip`/`.only`.
+5. **Só então commitar** — teste verde na mesma entrega do código.
+6. **Tela nova** → além do teste, registrar no grafo (`graphify-out/`) se aplicável.
+
 ## Comandos
 
 - Suíte completa: `npm run test` (ou `npx.cmd vitest run`)
