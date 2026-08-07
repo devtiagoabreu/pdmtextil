@@ -84,12 +84,14 @@ export function SortableItem({
           <div className="flex items-center gap-1">
             <button
               onClick={onStartEdit}
+              aria-label={`Editar item ${item.titulo}`}
               className="p-1 text-slate-400 hover:text-blue-600 rounded"
             >
               <Edit3 size={12} />
             </button>
             <button
               onClick={onDelete}
+              aria-label={`Excluir item ${item.titulo}`}
               className="p-1 text-slate-400 hover:text-red-600 rounded"
             >
               <Trash2 size={12} />

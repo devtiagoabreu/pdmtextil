@@ -70,6 +70,7 @@ export function SortableMenu({
           </button>
           <button
             onClick={onToggle}
+            aria-label={isExpanded ? `Recolher ${menu.titulo}` : `Expandir ${menu.titulo}`}
             className="text-slate-400 hover:text-slate-600"
           >
             {isExpanded ? <Minus size={16} /> : <Plus size={16} />}
@@ -122,12 +123,14 @@ export function SortableMenu({
           <div className="flex items-center gap-1">
             <button
               onClick={onStartEdit}
+              aria-label={`Editar menu ${menu.titulo}`}
               className="p-1.5 text-slate-400 hover:text-blue-600 rounded"
             >
               <Edit3 size={14} />
             </button>
             <button
               onClick={onDelete}
+              aria-label={`Excluir menu ${menu.titulo}`}
               className="p-1.5 text-slate-400 hover:text-red-600 rounded"
             >
               <Trash2 size={14} />

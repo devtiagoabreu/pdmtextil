@@ -8,6 +8,7 @@ import { getInfoContent } from "@/lib/info-content"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
+import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { Loader2, Plus, Save, Copy } from "lucide-react"
 import {
   Select,
@@ -22,6 +23,7 @@ import type { Tela, Menu } from "./components/types"
 import { SortableMenu } from "./components/sortable-menu"
 import { SortableItem } from "./components/sortable-item"
 import { CopiarMenusDialog } from "./components/copiar-dialog"
+import { NovoMenuDialog } from "./components/novo-menu-dialog"
 
 export default function ConfigurarMenusPage() {
   const pathname = usePathname()
@@ -39,6 +41,10 @@ export default function ConfigurarMenusPage() {
   const [usuarios, setUsuarios] = useState<{ id: number; name: string }[]>([])
   const [selectedUsuarioId, setSelectedUsuarioId] = useState<number | null>(null)
   const [copying, setCopying] = useState(false)
+  const [menuToDelete, setMenuToDelete] = useState<number | null>(null)
+  const [itemToDelete, setItemToDelete] = useState<{ menuId: number; itemId: number } | null>(null)
+  const [showNovoMenu, setShowNovoMenu] = useState(false)
+  const [novoMenuTitulo, setNovoMenuTitulo] = useState("")
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
@@ -137,18 +143,25 @@ export default function ConfigurarMenusPage() {
     setCopying(false)
   }
 
+  function abrirNovoMenu() {
+    setNovoMenuTitulo("")
+    setShowNovoMenu(true)
+  }
+
   async function criarMenu() {
-    const titulo = prompt("Nome do menu:")
-    if (!titulo?.trim()) return
+    const titulo = novoMenuTitulo.trim()
+    if (!titulo) return
     try {
       const res = await fetch("/api/user/menus", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ titulo: titulo.trim(), ordem: menus.length }),
+        body: JSON.stringify({ titulo, ordem: menus.length }),
       })
       if (!res.ok) throw new Error()
       const novo = await res.json()
       setMenus(prev => [...prev, { ...novo, itens: [] }])
+      setShowNovoMenu(false)
+      setNovoMenuTitulo("")
       toast.success("Menu criado")
     } catch {
       toast.error("Erro ao criar menu")
@@ -156,7 +169,6 @@ export default function ConfigurarMenusPage() {
   }
 
   async function deletarMenu(id: number) {
-    if (!confirm("Excluir este menu e todos os seus itens?")) return
     try {
       const res = await fetch(`/api/user/menus/${id}`, { method: "DELETE" })
       if (!res.ok) throw new Error()
@@ -209,7 +221,6 @@ export default function ConfigurarMenusPage() {
   }
 
   async function deletarItem(menuId: number, itemId: number) {
-    if (!confirm("Excluir este item?")) return
     try {
       const res = await fetch(`/api/user/menus/${menuId}/itens/${itemId}`, { method: "DELETE" })
       if (!res.ok) throw new Error()
@@ -352,11 +363,10 @@ export default function ConfigurarMenusPage() {
               <Copy size={14} />
               Copiar menus
             </Button>
-            <Button onClick={criarMenu} size="sm" className="gap-1" disabled={reordering}>
+            <Button onClick={abrirNovoMenu} size="sm" className="gap-1" disabled={reordering}>
               <Plus size={14} />
               Novo Menu
-            </Button>
-          </div>
+            </Button>          </div>
         </div>
 
         {menus.length === 0 ? (
@@ -385,7 +395,7 @@ export default function ConfigurarMenusPage() {
                       setEditingMenuId(menu.id)
                       setEditForm(prev => ({ ...prev, [`menu-${menu.id}`]: { titulo: menu.titulo, icone: menu.icone, ordem: menu.ordem } }))
                     }}
-                    onDelete={() => deletarMenu(menu.id)}
+                    onDelete={() => setMenuToDelete(menu.id)}
                     onChangeEdit={v => setEditForm(prev => ({ ...prev, [`menu-${menu.id}`]: { ...prev[`menu-${menu.id}`], titulo: v } }))}
                     onSave={() => salvarMenu(menu.id)}
                     onCancelEdit={() => setEditingMenuId(null)}
@@ -414,7 +424,7 @@ export default function ConfigurarMenusPage() {
                                 }}
                                 onSaveEdit={() => salvarItem(menu.id, item.id)}
                                 onCancelEdit={() => setEditingItemId(null)}
-                                onDelete={() => deletarItem(menu.id, item.id)}
+                                onDelete={() => setItemToDelete({ menuId: menu.id, itemId: item.id })}
                               />
                             ))}
                           </SortableContext>
@@ -461,6 +471,40 @@ export default function ConfigurarMenusPage() {
         setSelectedUsuarioId={setSelectedUsuarioId}
         copying={copying}
         onCopiar={copiarMenus}
+      />
+
+      <NovoMenuDialog
+        open={showNovoMenu}
+        onOpenChange={setShowNovoMenu}
+        titulo={novoMenuTitulo}
+        setTitulo={setNovoMenuTitulo}
+        onCriar={criarMenu}
+      />
+
+      <ConfirmModal
+        open={menuToDelete !== null}
+        title="Excluir menu?"
+        message="Excluir este menu e todos os seus itens?"
+        confirmLabel="Excluir"
+        variant="danger"
+        onConfirm={() => {
+          if (menuToDelete !== null) deletarMenu(menuToDelete)
+          setMenuToDelete(null)
+        }}
+        onCancel={() => setMenuToDelete(null)}
+      />
+
+      <ConfirmModal
+        open={itemToDelete !== null}
+        title="Excluir item?"
+        message="Excluir este item?"
+        confirmLabel="Excluir"
+        variant="danger"
+        onConfirm={() => {
+          if (itemToDelete) deletarItem(itemToDelete.menuId, itemToDelete.itemId)
+          setItemToDelete(null)
+        }}
+        onCancel={() => setItemToDelete(null)}
       />
     </div>
   )
