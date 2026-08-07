@@ -72,14 +72,14 @@ Compara colunas entre os 4 bancos e lista diferenças.
 | Fonte | Onde | Frequência | Obs |
 |---|---|---|---|
 | Vercel | `vercel.json` | 1x/dia (09:00Z `executar`, 09:30Z `processar`) | Plano Hobby limita a **1x/dia em UTC** (±59min de atraso) |
-| GitHub Actions | `.github/workflows/email-massa.yml` | **a cada 60 min** | Resolve a limitação do Hobby; dá para rodar manual via "Run workflow" |
+| GitHub Actions | `.github/workflows/email-massa.yml` | **a cada 15 min** | Resolve a limitação do Hobby; dá para rodar manual via "Run workflow" |
 
 ## CRON_SECRET (senha do cron)
 
 - É a **mesma senha** configurada em **2 lugares**:
   1. **Vercel** → projeto → Settings → Environment Variables (`CRON_SECRET`)
   2. **GitHub** → repo → Settings → Secrets and variables → Actions (`CRON_SECRET`)
-- Sem ela: o GitHub Actions recebe **401** e o agendamento automático a cada 60 min não roda; ainda funcionam o "Enviar agora" (sessão admin) e o cron diário do Vercel.
+- Sem ela: o GitHub Actions recebe **401** e o agendamento automático a cada 15 min não roda; ainda funcionam o "Enviar agora" (sessão admin) e o cron diário do Vercel.
 - Os endpoints `executar`/`processar` aceitam **Bearer `CRON_SECRET`** **OU** sessão de admin (`ADMIN`/`SUDO`/`CRM`).
 - **Atenção (fuso)**: cron do Vercel roda em **UTC**. Um agendamento para 09:00 Brasília (12:00Z) só é pego por um cron que rode **depois** das 12:00Z — no Hobby, o 1x/dia é insuficiente para horários da tarde/noite.
 
