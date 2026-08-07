@@ -1,0 +1,33 @@
+name: email-massa-cron
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: email-massa-cron
+  cancel-in-progress: false
+
+jobs:
+  processar:
+    runs-on: ubuntu-latest
+    env:
+      CRON_SECRET: ${{ secrets.CRON_SECRET }}
+    steps:
+      - name: Buscar e executar agendamentos vencidos
+        run: |
+          AUTH=()
+          if [ -n "$CRON_SECRET" ]; then
+            AUTH=(-H "Authorization: Bearer $CRON_SECRET")
+          fi
+          curl -fsS -X POST "${AUTH[@]}" \
+            https://pdmprotextil.vercel.app/api/admin/email-massa/agendados/executar
+      - name: Processar fila de envio
+        run: |
+          AUTH=()
+          if [ -n "$CRON_SECRET" ]; then
+            AUTH=(-H "Authorization: Bearer $CRON_SECRET")
+          fi
+          curl -fsS -X POST "${AUTH[@]}" \
+            https://pdmprotextil.vercel.app/api/admin/email-massa/processar

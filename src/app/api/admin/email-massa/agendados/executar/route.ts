@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { emailAgendados } from "@/lib/db/schema/email-agendados"
 import { and, eq, lte } from "drizzle-orm"
@@ -10,7 +12,10 @@ export async function POST(req: NextRequest) {
   try {
     const authHeader = req.headers.get("authorization")
     const cronSecret = process.env.CRON_SECRET
-    if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+    const session = await getServerSession(authOptions).catch(() => null)
+    const isAdmin =
+      session && (session.user.role === "ADMIN" || session.user.role === "SUDO" || session.user.role === "CRM")
+    if (!(cronSecret && authHeader === `Bearer ${cronSecret}`) && !isAdmin) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
