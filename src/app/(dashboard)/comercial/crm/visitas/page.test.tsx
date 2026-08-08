@@ -169,6 +169,17 @@ describe("VisitasPage", () => {
     expect(screen.getByText("Tecelagem Alpha")).toBeInTheDocument()
   })
 
+  it("expõe labels acessíveis para filtros de data e checkboxes", async () => {
+    renderPage(<VisitasPage />)
+    await screen.findByText("Tecelagem Alpha")
+
+    expect(screen.getByLabelText("Data inicial do período")).toBeInTheDocument()
+    expect(screen.getByLabelText("Data final do período")).toBeInTheDocument()
+    expect(screen.getByLabelText("Selecionar todas as visitas desta página")).toBeInTheDocument()
+    expect(screen.getByLabelText("Selecionar visita de Tecelagem Alpha")).toBeInTheDocument()
+    expect(screen.getByLabelText("Selecionar visita de Confecções Lima")).toBeInTheDocument()
+  })
+
   it("mostra estado vazio", async () => {
     const empty = createFetchMock(() => ({ json: { data: [], total: 0, totalPages: 0 } }))
     vi.stubGlobal("fetch", empty.fn)

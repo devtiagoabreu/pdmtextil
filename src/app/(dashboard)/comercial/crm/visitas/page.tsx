@@ -277,6 +277,7 @@ function VisitasPageContent() {
               type="date"
               value={dataInicio}
               onChange={e => { setDataInicio(e.target.value); setPage(1) }}
+              aria-label="Data inicial do período"
               className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <span className="text-xs text-slate-400">até</span>
@@ -284,6 +285,7 @@ function VisitasPageContent() {
               type="date"
               value={dataFim}
               onChange={e => { setDataFim(e.target.value); setPage(1) }}
+              aria-label="Data final do período"
               className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             {(dataInicio || dataFim) && (
@@ -371,6 +373,7 @@ function VisitasPageContent() {
                             setSelectedIds([])
                           }
                         }}
+                        aria-label="Selecionar todas as visitas desta página"
                         className="rounded border-slate-300 dark:border-slate-600 text-blue-600 focus:ring-blue-500"
                       />
                     </th>
@@ -400,6 +403,7 @@ function VisitasPageContent() {
                               setSelectedIds((prev: any) => prev.filter((id: any) => id !== v.id))
                             }
                           }}
+                          aria-label={`Selecionar visita de ${v.nomeAvulso || v.empresaNome || v.clienteNome || "registro sem identificação"}`}
                           className="rounded border-slate-300 dark:border-slate-600 text-blue-600 focus:ring-blue-500"
                         />
                       </td>
@@ -418,7 +422,7 @@ function VisitasPageContent() {
                           )}
                         </Link>
                       </td>
-                      <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden sm:table-cell">{v.oportunidadeTitulo || "—"}</td>
+                      <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 dark:text-slate-400 hidden sm:table-cell">{v.oportunidadeTitulo || "—"}</td>
                       <td className="px-2 py-2 md:px-4 md:py-3">
                         <span className={`inline-flex text-[10px] px-1.5 md:px-2 py-0.5 rounded-full font-medium ${TIPO_CORES[v.tipo] || ""}`}>
                           {TIPO_LABELS[v.tipo] || v.tipo}
@@ -427,12 +431,15 @@ function VisitasPageContent() {
                       <td className="px-2 py-2 md:px-4 md:py-3">
                         <span
                           className="inline-flex text-[10px] px-1.5 md:px-2 py-0.5 rounded-full font-medium"
-                          style={{ backgroundColor: getColor(v.status) + "20", color: getColor(v.status) }}
+                          style={{
+                            backgroundColor: `light-dark(color-mix(in srgb, ${getColor(v.status)} 14%, white), color-mix(in srgb, ${getColor(v.status)} 30%, #0f172a))`,
+                            color: `light-dark(color-mix(in srgb, ${getColor(v.status)} 48%, black), color-mix(in srgb, ${getColor(v.status)} 78%, white))`,
+                          }}
                         >
                           {getLabel(v.status)}
                         </span>
                       </td>
-                      <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden md:table-cell">{v.criadoPorNome || "—"}</td>
+                      <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 dark:text-slate-400 hidden md:table-cell">{v.criadoPorNome || "—"}</td>
                       <td className="px-2 py-2 md:px-4 md:py-3">
                         <div className="flex items-center gap-1">
                           {(v.endereco || v.cidade) && (
