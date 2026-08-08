@@ -4,7 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { emailDisparos, type EmailDisparo } from "@/lib/db/schema/email-disparos"
 import { emailEnviados } from "@/lib/db/schema/email-enviados"
-import { and, desc, eq, inArray, sql } from "drizzle-orm"
+import { desc, inArray, sql } from "drizzle-orm"
 
 export const dynamic = "force-dynamic"
 
@@ -39,21 +39,32 @@ export async function GET() {
       .limit(50)
 
     const ids = disparos.map((d: EmailDisparo) => d.id)
-    const pendentesMap = new Map<number, number>()
+    const contadoresMap = new Map<number, { pendentes: number; enviados: number; falhas: number }>()
     if (ids.length > 0) {
       const rows = await db
         .select({
           disparoId: emailEnviados.disparoId,
-          pendentes: sql<number>`count(*)`,
+          pendentes: sql<number>`count(*) filter (where ${emailEnviados.status} = 'pendente')`,
+          enviados: sql<number>`count(*) filter (where ${emailEnviados.status} = 'enviado')`,
+          falhas: sql<number>`count(*) filter (where ${emailEnviados.status} = 'falhou')`,
         })
         .from(emailEnviados)
-        .where(and(inArray(emailEnviados.disparoId, ids), eq(emailEnviados.status, "pendente")))
+        .where(inArray(emailEnviados.disparoId, ids))
         .groupBy(emailEnviados.disparoId)
-      for (const r of rows) pendentesMap.set(r.disparoId!, Number(r.pendentes))
+      for (const r of rows) {
+        contadoresMap.set(r.disparoId!, {
+          pendentes: Number(r.pendentes),
+          enviados: Number(r.enviados),
+          falhas: Number(r.falhas),
+        })
+      }
     }
 
     return NextResponse.json({
-      disparos: disparos.map((d: EmailDisparo) => ({ ...d, pendentes: pendentesMap.get(d.id) || 0 })),
+      disparos: disparos.map((d: EmailDisparo) => ({
+        ...d,
+        ...(contadoresMap.get(d.id) || { pendentes: 0, enviados: 0, falhas: 0 }),
+      })),
     })
   } catch (error: any) {
     console.error("[DISPAROS]", error)

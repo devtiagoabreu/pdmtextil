@@ -4,7 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { emailDisparos } from "@/lib/db/schema/email-disparos"
 import { emailEnviados } from "@/lib/db/schema/email-enviados"
-import { and, eq, sql } from "drizzle-orm"
+import { eq, sql } from "drizzle-orm"
 
 export const dynamic = "force-dynamic"
 
@@ -25,12 +25,21 @@ export async function GET(
     const [disparo] = await db.select().from(emailDisparos).where(eq(emailDisparos.id, disparoId))
     if (!disparo) return NextResponse.json({ error: "Disparo não encontrado" }, { status: 404 })
 
-    const [pendente] = await db
-      .select({ total: sql<number>`count(*)` })
+    const [stats] = await db
+      .select({
+        pendentes: sql<number>`count(*) filter (where ${emailEnviados.status} = 'pendente')`,
+        enviados: sql<number>`count(*) filter (where ${emailEnviados.status} = 'enviado')`,
+        falhas: sql<number>`count(*) filter (where ${emailEnviados.status} = 'falhou')`,
+      })
       .from(emailEnviados)
-      .where(and(eq(emailEnviados.disparoId, disparoId), eq(emailEnviados.status, "pendente")))
+      .where(eq(emailEnviados.disparoId, disparoId))
 
-    return NextResponse.json({ ...disparo, pendentes: Number(pendente?.total || 0) })
+    return NextResponse.json({
+      ...disparo,
+      pendentes: Number(stats?.pendentes || 0),
+      enviados: Number(stats?.enviados || 0),
+      falhas: Number(stats?.falhas || 0),
+    })
   } catch (error: any) {
     console.error("[DISPARO]", error)
     return NextResponse.json({ error: "Erro ao carregar disparo" }, { status: 500 })

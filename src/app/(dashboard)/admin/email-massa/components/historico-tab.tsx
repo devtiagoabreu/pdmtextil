@@ -42,6 +42,10 @@ function formatDate(dateStr: string | null) {
   })
 }
 
+function temDisparoAtivo(dados: Disparo[]) {
+  return dados.some((d) => d.status === "fila" || d.status === "enviando" || d.status === "pausado")
+}
+
 function DisparoStatusBadge({ status }: { status: string }) {
   if (status === "fila" || status === "enviando") {
     return (
@@ -82,6 +86,7 @@ function DisparosSection() {
       const data = await res.json()
       return data.disparos || []
     },
+    refetchInterval: (query) => (temDisparoAtivo(query.state.data || []) ? 5000 : false),
   })
 
   const reenfileirar = async (d: Disparo) => {
@@ -166,6 +171,10 @@ export function HistoricoTab() {
       const res = await fetch("/api/admin/email-massa/historico")
       if (!res.ok) return null
       return res.json()
+    },
+    refetchInterval: () => {
+      const disparos = queryClient.getQueryData<Disparo[]>(["email-massa-disparos"]) || []
+      return temDisparoAtivo(disparos) ? 5000 : false
     },
   })
 
