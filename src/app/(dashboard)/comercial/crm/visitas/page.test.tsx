@@ -113,7 +113,7 @@ describe("VisitasPage", () => {
 
     expect(await screen.findByRole("button", { name: "Flutuar" })).toBeInTheDocument()
     expect(screen.queryByRole("table")).not.toBeInTheDocument()
-    expect(screen.getByText("Tecelagem Alpha")).toBeInTheDocument()
+    expect(await screen.findByText("Tecelagem Alpha")).toBeInTheDocument()
   })
 
   it("altera status em massa via PATCH", async () => {

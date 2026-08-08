@@ -10,11 +10,13 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import { PlusCircle, CalendarDays, Table, Columns, Search, MapPin, Navigation, Users, User, ChevronLeft, ChevronRight, CalendarRange, X, Trash2, CheckSquare, AlertTriangle, Link as LinkIcon } from "lucide-react"
 import { toast } from "sonner"
 import { useStatuses } from "@/hooks/use-statuses"
-import VisitasCalendario from "@/components/crm/visitas-calendario"
-import VisitasKanban from "@/components/crm/visitas-kanban"
-import { FloatableKanban } from "@/components/crm/floatable-kanban"
-import VisitLocationModal from "@/components/crm/visit-location-modal"
+import dynamic from "next/dynamic"
 import { PageSkeleton } from "@/components/ui/page-skeleton"
+
+const VisitasCalendario = dynamic(() => import("@/components/crm/visitas-calendario"), { ssr: false })
+const VisitasKanban = dynamic(() => import("@/components/crm/visitas-kanban"), { ssr: false })
+const FloatableKanban = dynamic(() => import("@/components/crm/floatable-kanban").then((m) => m.FloatableKanban), { ssr: false })
+const VisitLocationModal = dynamic(() => import("@/components/crm/visit-location-modal"), { ssr: false })
 
 const PAGE_SIZE = 50
 
@@ -98,11 +100,12 @@ function VisitasPageContent() {
   const { data: avulsasCount } = useQuery({
     queryKey: ["crm-visitas-avulsas-count", visitasFilter],
     queryFn: async () => {
-      const sp = new URLSearchParams({ all: "true", avulsas: "true" })
+      const sp = new URLSearchParams({ page: "1", limit: "1", avulsas: "true" })
       if (visitasFilter === "minhas") sp.set("mine", "true")
       const res = await fetch(`/api/crm/visitas?${sp}`)
       if (!res.ok) throw new Error("Falha ao carregar")
-      return res.json()
+      const data = await res.json()
+      return data?.total || 0
     },
     retry: 1,
   })
@@ -296,12 +299,12 @@ function VisitasPageContent() {
         </div>
       )}
 
-      {(avulsasCount?.length || 0) > 0 && (
+      {(avulsasCount || 0) > 0 && (
         <div className="rounded-xl border border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-950/30 p-4 flex items-center gap-3">
           <LinkIcon size={18} className="text-orange-500 shrink-0" />
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-orange-800 dark:text-orange-200">
-              <strong>{avulsasCount.length}</strong> visita(s) avulsa(s) aguardando vínculo
+              <strong>{avulsasCount}</strong> visita(s) avulsa(s) aguardando vínculo
             </p>
             <p className="text-xs text-orange-600 dark:text-orange-400">
               {filterAvulsas
