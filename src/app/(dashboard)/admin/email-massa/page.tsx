@@ -146,7 +146,7 @@ export default function EmailMassaPage() {
           setDisparoProgresso(null)
           toast.error(d.erro || "Erro no envio do disparo")
           queryClient.invalidateQueries({ queryKey: ["email-massa-disparos"] })
-        } else if (d.status === "fila" || d.status === "enviando") {
+        } else if (d.status === "fila" || d.status === "enviando" || d.status === "pausado") {
           if (!processingRef.current) {
             processingRef.current = true
             fetch("/api/admin/email-massa/processar", { method: "POST" })

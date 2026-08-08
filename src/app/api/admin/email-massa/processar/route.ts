@@ -7,7 +7,7 @@ import { emailDisparos } from "@/lib/db/schema/email-disparos"
 import { emailEnviados, type EmailEnviado } from "@/lib/db/schema/email-enviados"
 import { emailConfig } from "@/lib/db/schema/email-config"
 import { userEmailConfig } from "@/lib/db/schema/user-email-config"
-import { and, asc, eq, inArray, sql } from "drizzle-orm"
+import { and, asc, eq, inArray, or, sql } from "drizzle-orm"
 import { decrypt } from "@/lib/crypto"
 import { aplicarTracking, injectPreheader } from "@/lib/email-massa"
 import crypto from "crypto"
@@ -56,6 +56,17 @@ async function marcarErroTransporte(disparoId: number, msg: string) {
     .where(eq(emailDisparos.id, disparoId))
 }
 
+function isLimiteDiario(err: any): boolean {
+  return /daily user sending limit exceeded/i.test(String(err?.message || ""))
+}
+
+async function pausarPorLimite(disparoId: number, msg: string) {
+  await db
+    .update(emailDisparos)
+    .set({ status: "pausado", erro: msg, concluidoEm: null })
+    .where(eq(emailDisparos.id, disparoId))
+}
+
 function isFalhaTransiente(err: any): boolean {
   const code = err?.code
   const rc = err?.responseCode
@@ -87,7 +98,12 @@ export async function POST(req: NextRequest) {
     const disparos = await db
       .select()
       .from(emailDisparos)
-      .where(inArray(emailDisparos.status, ["fila", "enviando"]))
+      .where(
+        or(
+          inArray(emailDisparos.status, ["fila", "enviando", "pausado"]),
+          and(eq(emailDisparos.status, "erro"), sql`lower(erro) like '%daily user sending limit exceeded%'`),
+        ),
+      )
       .orderBy(asc(emailDisparos.id))
 
     for (const d of disparos) {
@@ -170,7 +186,10 @@ export async function POST(req: NextRequest) {
             }
             enviadosNoRun += chunk.length
           } catch (err: any) {
-            if (isFalhaTransiente(err)) {
+            if (isLimiteDiario(err)) {
+              await pausarPorLimite(d.id, err?.message || "Limite diário do provedor atingido")
+              pararDreno = true
+            } else if (isFalhaTransiente(err)) {
               await marcarErroTransporte(d.id, err?.message || "Erro SMTP")
               pararDreno = true
             } else {
@@ -203,6 +222,11 @@ export async function POST(req: NextRequest) {
               await atualizarEnvio(p.id, true, trackingId, null)
               enviadosNoRun++
             } catch (err: any) {
+              if (isLimiteDiario(err)) {
+                await pausarPorLimite(d.id, err?.message || "Limite diário do provedor atingido")
+                pararDreno = true
+                break
+              }
               if (isFalhaTransiente(err)) {
                 await marcarErroTransporte(d.id, err?.message || "Erro SMTP")
                 pararDreno = true

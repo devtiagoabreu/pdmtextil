@@ -50,6 +50,13 @@ function DisparoStatusBadge({ status }: { status: string }) {
       </span>
     )
   }
+  if (status === "pausado") {
+    return (
+      <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+        <Clock size={12} /> Pausado
+      </span>
+    )
+  }
   if (status === "concluido") {
     return (
       <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-0.5 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
@@ -111,7 +118,7 @@ function DisparosSection() {
             const total = Number(d.total)
             const processados = Number(d.enviados) + Number(d.falhas)
             const perc = total > 0 ? Math.round((processados / total) * 100) : 0
-            const emAndamento = d.status === "fila" || d.status === "enviando"
+            const emAndamento = d.status === "fila" || d.status === "enviando" || d.status === "pausado"
             return (
               <div key={d.id} className="border border-slate-200 dark:border-slate-700 rounded-lg p-3 flex flex-col space-y-2">
                 <div className="flex items-center justify-between gap-2">
@@ -123,15 +130,17 @@ function DisparosSection() {
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="flex-1 bg-slate-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
-                    <div className={`h-1.5 rounded-full ${emAndamento ? "bg-blue-500" : d.falhas > 0 ? "bg-amber-500" : "bg-green-500"}`} style={{ width: `${perc}%` }} />
+                    <div className={`h-1.5 rounded-full ${d.status === "pausado" ? "bg-amber-500" : emAndamento ? "bg-blue-500" : d.falhas > 0 ? "bg-amber-500" : "bg-green-500"}`} style={{ width: `${perc}%` }} />
                   </div>
                   <span className="text-xs font-medium text-slate-600 dark:text-slate-300 w-14 text-right whitespace-nowrap">{perc}%</span>
                 </div>
                 <p className="text-xs text-slate-400">
                   {processados} de {total} &middot; {d.enviados} enviados &middot; {d.falhas} falhas &middot; {d.pendentes} na fila
-                  {d.status === "erro" && d.erro ? <> &middot; <span className="text-red-500">{d.erro}</span></> : null}
+                  {(d.status === "erro" || d.status === "pausado") && d.erro ? (
+                    <> &middot; <span className={d.status === "erro" ? "text-red-500" : "text-amber-600 dark:text-amber-400"}>{d.erro}</span></>
+                  ) : null}
                 </p>
-                {d.status === "erro" && (
+                {(d.status === "erro" || d.status === "pausado") && (
                   <div>
                     <Button variant="outline" size="xs" onClick={() => reenfileirar(d)} className="gap-1">
                       <RotateCw size={12} /> Reenviar
