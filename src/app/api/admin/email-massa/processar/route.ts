@@ -60,7 +60,7 @@ function isLimiteDiario(err: any): boolean {
   return /daily user sending limit exceeded/i.test(String(err?.message || ""))
 }
 
-async function pausarPorLimite(disparoId: number, msg: string) {
+async function pausarDisparo(disparoId: number, msg: string) {
   await db
     .update(emailDisparos)
     .set({ status: "pausado", erro: msg, concluidoEm: null })
@@ -101,7 +101,16 @@ export async function POST(req: NextRequest) {
       .where(
         or(
           inArray(emailDisparos.status, ["fila", "enviando", "pausado"]),
-          and(eq(emailDisparos.status, "erro"), sql`lower(erro) like '%daily user sending limit exceeded%'`),
+          and(
+            eq(emailDisparos.status, "erro"),
+            or(
+              sql`lower(erro) like '%daily user sending limit exceeded%'`,
+              sql`lower(erro) like '%try again later%'`,
+              sql`lower(erro) like '%temporary%'`,
+              sql`lower(erro) like '%too many consecutive%'`,
+              sql`lower(erro) like '%insufficient system storage%'`,
+            ),
+          ),
         ),
       )
       .orderBy(asc(emailDisparos.id))
@@ -187,10 +196,10 @@ export async function POST(req: NextRequest) {
             enviadosNoRun += chunk.length
           } catch (err: any) {
             if (isLimiteDiario(err)) {
-              await pausarPorLimite(d.id, err?.message || "Limite diário do provedor atingido")
+              await pausarDisparo(d.id, err?.message || "Limite diário do provedor atingido")
               pararDreno = true
             } else if (isFalhaTransiente(err)) {
-              await marcarErroTransporte(d.id, err?.message || "Erro SMTP")
+              await pausarDisparo(d.id, err?.message || "Erro SMTP temporário")
               pararDreno = true
             } else {
               for (const p of chunk) {
@@ -223,12 +232,12 @@ export async function POST(req: NextRequest) {
               enviadosNoRun++
             } catch (err: any) {
               if (isLimiteDiario(err)) {
-                await pausarPorLimite(d.id, err?.message || "Limite diário do provedor atingido")
+                await pausarDisparo(d.id, err?.message || "Limite diário do provedor atingido")
                 pararDreno = true
                 break
               }
               if (isFalhaTransiente(err)) {
-                await marcarErroTransporte(d.id, err?.message || "Erro SMTP")
+                await pausarDisparo(d.id, err?.message || "Erro SMTP temporário")
                 pararDreno = true
                 break
               }

@@ -168,7 +168,7 @@ describe("POST /api/admin/email-massa/processar", () => {
     expect(enviado).toBeDefined()
   })
 
-  it("mantém comportamento de erro para falha transiente (421)", async () => {
+  it("pausa o disparo em falha transiente (421) em vez de marcar erro", async () => {
     vi.mocked(getServerSession).mockResolvedValue(session as any)
     const updBuilder = createQueryBuilder(undefined)
     db.update = vi.fn(() => updBuilder)
@@ -177,8 +177,85 @@ describe("POST /api/admin/email-massa/processar", () => {
 
     const res = await post()
     expect(res.status).toBe(200)
-    const erro = updBuilder.set.mock.calls.find((c: any[]) => c[0]?.status === "erro")
-    expect(erro).toBeDefined()
-    expect(updBuilder.set.mock.calls.some((c: any[]) => c[0]?.status === "pausado")).toBe(false)
+    const data = await res.json()
+    expect(data.disparosProcessados).toBe(1)
+    expect(data.enviados).toBe(0)
+    expect(data.restantes).toBe(4335)
+
+    const pausa = updBuilder.set.mock.calls.find((c: any[]) => c[0]?.status === "pausado")
+    expect(pausa).toBeDefined()
+    expect(pausa![0].erro).toContain("421")
+    expect(pausa![0].concluidoEm).toBeNull()
+    expect(updBuilder.set.mock.calls.some((c: any[]) => c[0]?.status === "erro")).toBe(false)
+  })
+
+  it("retoma disparo pausado por falha transiente quando o erro passa", async () => {
+    vi.mocked(getServerSession).mockResolvedValue(session as any)
+
+    const upd1 = createQueryBuilder(undefined)
+    db.update = vi.fn(() => upd1)
+    mockTransporter(vi.fn().mockRejectedValue(rateErr))
+    mockSelectSequence([disparo], [cfg], [pendente], [{ total: 4335 }], [{ total: 4335 }])
+    let res = await post()
+    expect(res.status).toBe(200)
+    expect(upd1.set.mock.calls.find((c: any[]) => c[0]?.status === "pausado")).toBeDefined()
+
+    const upd2 = createQueryBuilder(undefined)
+    db.update = vi.fn(() => upd2)
+    mockTransporter(vi.fn().mockResolvedValue(true))
+    mockSelectSequence(
+      [{ ...disparo, status: "pausado", erro: rateErr.message }],
+      [cfg],
+      [pendente],
+      [],
+      [{ total: 0 }],
+      [{ total: 0 }],
+    )
+    res = await post()
+    expect(res.status).toBe(200)
+    const data = await res.json()
+    expect(data.enviados).toBe(1)
+    expect(data.restantes).toBe(0)
+    expect(upd2.set.mock.calls.find((c: any[]) => c[0]?.status === "enviado")).toBeDefined()
+    expect(upd2.set.mock.calls.find((c: any[]) => c[0]?.status === "concluido")).toBeDefined()
+  })
+
+  it("retoma disparo em erro transitório legado (421) e conclui quando a fila zera", async () => {
+    vi.mocked(getServerSession).mockResolvedValue(session as any)
+    const updBuilder = createQueryBuilder(undefined)
+    db.update = vi.fn(() => updBuilder)
+    mockTransporter(vi.fn().mockResolvedValue(true))
+    mockSelectSequence(
+      [{ ...disparo, status: "erro", erro: "Data command failed: 421 4.3.0 Temporary System Problem" }],
+      [cfg],
+      [pendente],
+      [],
+      [{ total: 0 }],
+      [{ total: 0 }],
+    )
+
+    const res = await post()
+    expect(res.status).toBe(200)
+    const data = await res.json()
+    expect(data.disparosProcessados).toBe(1)
+    expect(data.enviados).toBe(1)
+    expect(data.restantes).toBe(0)
+
+    const enviado = updBuilder.set.mock.calls.find((c: any[]) => c[0]?.status === "enviado")
+    expect(enviado).toBeDefined()
+    const concluido = updBuilder.set.mock.calls.find((c: any[]) => c[0]?.status === "concluido")
+    expect(concluido).toBeDefined()
+  })
+
+  it("mantém erro permanente fora da fila de retomada", async () => {
+    vi.mocked(getServerSession).mockResolvedValue(session as any)
+    const updBuilder = createQueryBuilder(undefined)
+    db.update = vi.fn(() => updBuilder)
+    mockTransporter(vi.fn())
+    mockSelectSequence([], [{ total: 0 }])
+
+    const res = await post()
+    expect(res.status).toBe(200)
+    expect(updBuilder.set.mock.calls.some((c: any[]) => c[0]?.status === "enviando")).toBe(false)
   })
 })
