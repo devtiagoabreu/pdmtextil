@@ -123,7 +123,7 @@ describe("POST /api/admin/email-massa/processar", () => {
     const updBuilder = createQueryBuilder(undefined)
     db.update = vi.fn(() => updBuilder)
     const transporter = mockTransporter(vi.fn().mockRejectedValue(limiteErr))
-    mockSelectSequence([disparo], [cfg], [pendente], [{ total: 4335 }], [{ total: 4335 }])
+    mockSelectSequence([disparo], [cfg], [{ total: 0 }], [pendente], [{ total: 4335 }], [{ total: 4335 }])
 
     const res = await post()
     expect(res.status).toBe(200)
@@ -142,6 +142,53 @@ describe("POST /api/admin/email-massa/processar", () => {
     expect(updBuilder.set.mock.calls.some((c: any[]) => c[0]?.status === "erro")).toBe(false)
   })
 
+  it("pausa o disparo quando o limite diário configurado já foi atingido hoje", async () => {
+    vi.mocked(getServerSession).mockResolvedValue(session as any)
+    const updBuilder = createQueryBuilder(undefined)
+    db.update = vi.fn(() => updBuilder)
+    const transporter = mockTransporter(vi.fn())
+    mockSelectSequence([disparo], [cfg], [{ total: 1500 }], [{ total: 4335 }])
+
+    const res = await post()
+    expect(res.status).toBe(200)
+    const data = await res.json()
+    expect(data.disparosProcessados).toBe(1)
+    expect(data.enviados).toBe(0)
+    expect(transporter.sendMail).not.toHaveBeenCalled()
+    expect(transporter.verify).not.toHaveBeenCalled()
+
+    const pausa = updBuilder.set.mock.calls.find((c: any[]) => c[0]?.status === "pausado")
+    expect(pausa).toBeDefined()
+    expect(pausa![0].erro).toContain("Limite diário configurado atingido")
+    expect(pausa![0].concluidoEm).toBeNull()
+  })
+
+  it("pausa o disparo quando atinge o limite diário configurado no meio do envio", async () => {
+    vi.mocked(getServerSession).mockResolvedValue(session as any)
+    const updBuilder = createQueryBuilder(undefined)
+    db.update = vi.fn(() => updBuilder)
+    const transporter = mockTransporter(vi.fn().mockResolvedValue(true))
+    mockSelectSequence(
+      [{ ...disparo, remetente: "usuario" }],
+      [{ id: 1, usuarioId: 28, email: "contato@empresa.com", senhaApp: "apppass", host: "smtp.gmail.com", port: 587, ativo: true, limiteDiario: 1 }],
+      [{ total: 0 }],
+      [pendente],
+      [{ total: 1 }],
+      [{ total: 1 }],
+    )
+
+    const res = await post()
+    expect(res.status).toBe(200)
+    const data = await res.json()
+    expect(data.enviados).toBe(1)
+    expect(data.restantes).toBe(1)
+
+    const pausa = updBuilder.set.mock.calls.find((c: any[]) => c[0]?.status === "pausado")
+    expect(pausa).toBeDefined()
+    expect(pausa![0].erro).toContain("Limite diário configurado atingido (1)")
+    expect(updBuilder.set.mock.calls.some((c: any[]) => c[0]?.status === "concluido")).toBe(false)
+  })
+
   it("retoma um disparo pausado e conclui quando a fila zera", async () => {
     vi.mocked(getServerSession).mockResolvedValue(session as any)
     const updBuilder = createQueryBuilder(undefined)
@@ -150,6 +197,7 @@ describe("POST /api/admin/email-massa/processar", () => {
     mockSelectSequence(
       [{ ...disparo, status: "pausado" }],
       [cfg],
+      [{ total: 0 }],
       [pendente],
       [],
       [{ total: 0 }],
@@ -173,7 +221,7 @@ describe("POST /api/admin/email-massa/processar", () => {
     const updBuilder = createQueryBuilder(undefined)
     db.update = vi.fn(() => updBuilder)
     mockTransporter(vi.fn().mockRejectedValue(rateErr))
-    mockSelectSequence([disparo], [cfg], [pendente], [{ total: 4335 }], [{ total: 4335 }])
+    mockSelectSequence([disparo], [cfg], [{ total: 0 }], [pendente], [{ total: 4335 }], [{ total: 4335 }])
 
     const res = await post()
     expect(res.status).toBe(200)
@@ -195,7 +243,7 @@ describe("POST /api/admin/email-massa/processar", () => {
     const upd1 = createQueryBuilder(undefined)
     db.update = vi.fn(() => upd1)
     mockTransporter(vi.fn().mockRejectedValue(rateErr))
-    mockSelectSequence([disparo], [cfg], [pendente], [{ total: 4335 }], [{ total: 4335 }])
+    mockSelectSequence([disparo], [cfg], [{ total: 0 }], [pendente], [{ total: 4335 }], [{ total: 4335 }])
     let res = await post()
     expect(res.status).toBe(200)
     expect(upd1.set.mock.calls.find((c: any[]) => c[0]?.status === "pausado")).toBeDefined()
@@ -206,6 +254,7 @@ describe("POST /api/admin/email-massa/processar", () => {
     mockSelectSequence(
       [{ ...disparo, status: "pausado", erro: rateErr.message }],
       [cfg],
+      [{ total: 0 }],
       [pendente],
       [],
       [{ total: 0 }],
@@ -228,6 +277,7 @@ describe("POST /api/admin/email-massa/processar", () => {
     mockSelectSequence(
       [{ ...disparo, status: "erro", erro: "Data command failed: 421 4.3.0 Temporary System Problem" }],
       [cfg],
+      [{ total: 0 }],
       [pendente],
       [],
       [{ total: 0 }],

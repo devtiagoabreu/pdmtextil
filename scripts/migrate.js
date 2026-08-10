@@ -1053,6 +1053,20 @@ async function migrate() {
       )
     `
     console.log("✓ Tabela user_email_config criada")
+    await sql`ALTER TABLE user_email_config ADD COLUMN IF NOT EXISTS limite_diario INTEGER NOT NULL DEFAULT 1500`
+
+    // ==================== Email em Massa - Descadastros ====================
+    await sql`
+      CREATE TABLE IF NOT EXISTS email_optouts (
+        id serial PRIMARY KEY,
+        email varchar(255) NOT NULL UNIQUE,
+        criado_em timestamp DEFAULT now()
+      )
+    `
+    console.log("✓ Tabela email_optouts criada")
+
+    await sql`ALTER TABLE email_enviados ADD COLUMN IF NOT EXISTS enviado_em timestamp`
+    await sql`CREATE INDEX IF NOT EXISTS idx_email_enviados_enviado_em ON email_enviados(enviado_em)`
 
     await sql`
       CREATE TABLE IF NOT EXISTS crm_previsao_vendas (

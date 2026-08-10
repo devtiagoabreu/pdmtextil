@@ -14,6 +14,7 @@ export const emailEnviados = pgTable("email_enviados", {
   error: text("error"),
   trackingId: varchar("tracking_id", { length: 36 }).unique(),
   abertoEm: timestamp("aberto_em"),
+  enviadoEm: timestamp("enviado_em"),
   createdAt: timestamp("created_at").defaultNow(),
 }, (t: any) => [
   index("idx_email_enviados_lista").on(t.listaId),

@@ -9,7 +9,7 @@ import { emailConfig } from "@/lib/db/schema/email-config"
 import { userEmailConfig } from "@/lib/db/schema/user-email-config"
 import { and, asc, eq, inArray, or, sql } from "drizzle-orm"
 import { decrypt } from "@/lib/crypto"
-import { aplicarTracking, injectPreheader } from "@/lib/email-massa"
+import { aplicarTracking, injectPreheader, injectUnsubscribe, montarLinkDescadastro } from "@/lib/email-massa"
 import crypto from "crypto"
 
 export const dynamic = "force-dynamic"
@@ -19,6 +19,7 @@ const BCC_CHUNK = 50
 const INDIVIDUAL_BATCH = 10
 const MAX_RUN_MS = 280_000
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://pdmprotextil.vercel.app"
+const LIMITE_DIARIO_PADRAO = 1500
 
 const SMTP_OPTS = {
   pool: true,
@@ -27,8 +28,27 @@ const SMTP_OPTS = {
   connectionTimeout: 15_000,
   greetingTimeout: 15_000,
   socketTimeout: 30_000,
-  rateLimit: 2,
+  rateLimit: 1,
   rateDelta: 1_000,
+}
+
+async function contagemEnviadasHoje(remetente: "usuario" | "sistema", usuarioId?: number) {
+  const inicioDia = new Date()
+  inicioDia.setHours(0, 0, 0, 0)
+  const rows = await db
+    .select({ total: sql<number>`count(*)` })
+    .from(emailEnviados)
+    .innerJoin(emailDisparos, eq(emailEnviados.disparoId, emailDisparos.id))
+    .where(
+      and(
+        eq(emailEnviados.status, "enviado"),
+        sql`${emailEnviados.enviadoEm} >= ${inicioDia}`,
+        remetente === "usuario"
+          ? and(eq(emailDisparos.remetente, "usuario"), eq(emailDisparos.criadoPor, usuarioId ?? -1))
+          : eq(emailDisparos.remetente, "sistema")
+      )
+    )
+  return Number(rows[0]?.total || 0)
 }
 
 async function recomputarContadores(disparoId: number) {
@@ -123,7 +143,9 @@ export async function POST(req: NextRequest) {
         .set({ status: "enviando", iniciadoEm: sql`coalesce(${emailDisparos.iniciadoEm}, now())` })
         .where(eq(emailDisparos.id, d.id))
 
-      let tc: { host: string; port: number; user: string; pass: string; fromName: string }
+      disparosProcessados++
+
+      let tc: { host: string; port: number; user: string; pass: string; fromName: string; limiteDiario: number }
       if (d.remetente === "usuario" && d.criadoPor) {
         const cfgs = await db.select().from(userEmailConfig).where(eq(userEmailConfig.usuarioId, d.criadoPor)).limit(1)
         if (cfgs.length === 0) {
@@ -131,7 +153,7 @@ export async function POST(req: NextRequest) {
           continue
         }
         const cfg = cfgs[0]
-        tc = { host: cfg.host, port: cfg.port, user: cfg.email, pass: decrypt(cfg.senhaApp), fromName: cfg.email.split("@")[0] }
+        tc = { host: cfg.host, port: cfg.port, user: cfg.email, pass: decrypt(cfg.senhaApp), fromName: cfg.email.split("@")[0], limiteDiario: cfg.limiteDiario }
       } else {
         const cfgs = await db.select().from(emailConfig).where(eq(emailConfig.ativo, true)).limit(1)
         if (cfgs.length === 0) {
@@ -139,8 +161,15 @@ export async function POST(req: NextRequest) {
           continue
         }
         const cfg = cfgs[0]
-        tc = { host: cfg.host, port: cfg.port, user: cfg.user, pass: decrypt(cfg.pass), fromName: cfg.fromName || "PDM Têxtil" }
+        tc = { host: cfg.host, port: cfg.port, user: cfg.user, pass: decrypt(cfg.pass), fromName: cfg.fromName || "PDM Têxtil", limiteDiario: LIMITE_DIARIO_PADRAO }
       }
+
+      const enviadasHoje = await contagemEnviadasHoje(d.remetente === "usuario" ? "usuario" : "sistema", d.criadoPor ?? undefined)
+      if (enviadasHoje >= tc.limiteDiario) {
+        await pausarDisparo(d.id, `Limite diário configurado atingido (${tc.limiteDiario}). O disparo será retomado amanhã.`)
+        continue
+      }
+      const restantesDoCap = tc.limiteDiario - enviadasHoje
 
       const transporter = nodemailer.createTransport({
         host: tc.host,
@@ -163,7 +192,12 @@ export async function POST(req: NextRequest) {
       const atualizarEnvio = (id: number, ok: boolean, trackingId: string | null, error: string | null) =>
         db
           .update(emailEnviados)
-          .set({ status: ok ? "enviado" : "falhou", trackingId: ok ? trackingId : null, error: ok ? null : error })
+          .set({
+            status: ok ? "enviado" : "falhou",
+            trackingId: ok ? trackingId : null,
+            error: ok ? null : error,
+            enviadoEm: ok ? new Date() : null,
+          })
           .where(eq(emailEnviados.id, id))
 
       const buscarPendentes = (limit: number) =>
@@ -175,13 +209,23 @@ export async function POST(req: NextRequest) {
           .limit(limit)
 
       let pararDreno = false
+      let capRestante = restantesDoCap
+
+      const marcarCapAtingido = async () => {
+        await pausarDisparo(d.id, `Limite diário configurado atingido (${tc.limiteDiario}). O disparo será retomado amanhã.`)
+        pararDreno = true
+      }
 
       if (d.modoEnvio === "bcc") {
-        while (!pararDreno && elapsed() <= MAX_RUN_MS) {
-          const chunk: EmailEnviado[] = await buscarPendentes(BCC_CHUNK)
+        while (!pararDreno && capRestante > 0 && elapsed() <= MAX_RUN_MS) {
+          const chunk: EmailEnviado[] = await buscarPendentes(Math.min(BCC_CHUNK, capRestante))
           if (chunk.length === 0) break
           const trackingId = crypto.randomUUID()
-          const html = aplicarTracking(htmlBase.replace(/\[NOME\]/g, "Cliente"), trackingId, BASE_URL)
+          const html = aplicarTracking(
+            injectUnsubscribe(htmlBase.replace(/\[NOME\]/g, "Cliente"), chunk[0].email, BASE_URL),
+            trackingId,
+            BASE_URL
+          )
           try {
             await transporter.sendMail({
               from: `"${tc.fromName}" <${tc.user}>`,
@@ -189,11 +233,16 @@ export async function POST(req: NextRequest) {
               bcc: chunk.slice(1).map((p: EmailEnviado) => p.email),
               subject: d.assunto,
               html,
+              headers: {
+                "List-Unsubscribe": `<${montarLinkDescadastro(chunk[0].email, BASE_URL)}>`,
+                "Precedence": "bulk",
+              },
             })
             for (let j = 0; j < chunk.length; j++) {
               await atualizarEnvio(chunk[j].id, true, j === 0 ? trackingId : null, null)
             }
             enviadosNoRun += chunk.length
+            capRestante -= chunk.length
           } catch (err: any) {
             if (isLimiteDiario(err)) {
               await pausarDisparo(d.id, err?.message || "Limite diário do provedor atingido")
@@ -209,27 +258,37 @@ export async function POST(req: NextRequest) {
             }
           }
         }
+        if (!pararDreno && capRestante <= 0) await marcarCapAtingido()
       } else {
-        while (!pararDreno && elapsed() <= MAX_RUN_MS) {
-          const batch: EmailEnviado[] = await buscarPendentes(INDIVIDUAL_BATCH)
+        while (!pararDreno && capRestante > 0 && elapsed() <= MAX_RUN_MS) {
+          const batch: EmailEnviado[] = await buscarPendentes(Math.min(INDIVIDUAL_BATCH, capRestante))
           if (batch.length === 0) break
           for (const p of batch) {
-            if (elapsed() > MAX_RUN_MS) {
+            if (elapsed() > MAX_RUN_MS || capRestante <= 0) {
               pararDreno = true
               break
             }
             const trackingId = crypto.randomUUID()
             const nome = d.modoEnvio === "individual" ? p.nome || "Cliente" : "Cliente"
-            const html = aplicarTracking(htmlBase.replace(/\[NOME\]/g, nome), trackingId, BASE_URL)
+            const html = aplicarTracking(
+              injectUnsubscribe(htmlBase.replace(/\[NOME\]/g, nome), p.email, BASE_URL),
+              trackingId,
+              BASE_URL
+            )
             try {
               await transporter.sendMail({
                 from: `"${tc.fromName}" <${tc.user}>`,
                 to: p.email,
                 subject: d.assunto,
                 html,
+                headers: {
+                  "List-Unsubscribe": `<${montarLinkDescadastro(p.email, BASE_URL)}>`,
+                  "Precedence": "bulk",
+                },
               })
               await atualizarEnvio(p.id, true, trackingId, null)
               enviadosNoRun++
+              capRestante--
             } catch (err: any) {
               if (isLimiteDiario(err)) {
                 await pausarDisparo(d.id, err?.message || "Limite diário do provedor atingido")
@@ -246,6 +305,7 @@ export async function POST(req: NextRequest) {
             }
           }
         }
+        if (!pararDreno && capRestante <= 0) await marcarCapAtingido()
       }
 
       transporter.close()
@@ -258,7 +318,6 @@ export async function POST(req: NextRequest) {
       if (Number(restantesDisparo[0]?.total || 0) === 0) {
         await finalizar(d.id)
       }
-      disparosProcessados++
     }
 
     const contagemPendente = await db

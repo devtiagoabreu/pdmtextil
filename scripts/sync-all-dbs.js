@@ -336,6 +336,26 @@ DO $$ BEGIN
 EXCEPTION WHEN duplicate_column THEN NULL; WHEN undefined_table THEN NULL;
 END $$;
 CREATE INDEX IF NOT EXISTS idx_email_enviados_disparo_id ON email_enviados(disparo_id);
+
+-- user_email_config: limite diario por remetente
+DO $$ BEGIN
+  ALTER TABLE user_email_config ADD COLUMN IF NOT EXISTS limite_diario integer NOT NULL DEFAULT 1500;
+EXCEPTION WHEN duplicate_column THEN NULL; WHEN undefined_table THEN NULL;
+END $$;
+
+-- email_optouts: descadastros em massa
+CREATE TABLE IF NOT EXISTS email_optouts (
+  id serial PRIMARY KEY,
+  email varchar(255) NOT NULL UNIQUE,
+  criado_em timestamp DEFAULT now()
+);
+
+-- email_enviados: registro do momento do envio
+DO $$ BEGIN
+  ALTER TABLE email_enviados ADD COLUMN IF NOT EXISTS enviado_em timestamp;
+EXCEPTION WHEN duplicate_column THEN NULL; WHEN undefined_table THEN NULL;
+END $$;
+CREATE INDEX IF NOT EXISTS idx_email_enviados_enviado_em ON email_enviados(enviado_em);
 `
 
 async function migrateDb(name, url) {

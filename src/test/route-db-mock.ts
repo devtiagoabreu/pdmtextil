@@ -18,6 +18,8 @@ const CHAIN_METHODS = [
   "leftJoin",
   "rightJoin",
   "on",
+  "onConflictDoNothing",
+  "onConflictDoUpdate",
 ]
 
 export function createQueryBuilder<T>(result: T): any {

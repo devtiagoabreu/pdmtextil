@@ -35,6 +35,10 @@ function UserSmtpConfig() {
   const [senhaApp, setSenhaApp] = useState("")
   const [showSenha, setShowSenha] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [testing, setTesting] = useState(false)
+  const [testResult, setTestResult] = useState<"ok" | "erro" | null>(null)
+  const [testMessage, setTestMessage] = useState("")
+  const [limiteDiario, setLimiteDiario] = useState("1500")
   const [hasConfig, setHasConfig] = useState(false)
 
   const { data: emailConfig, isLoading: loading } = useQuery<any>({
@@ -49,6 +53,7 @@ function UserSmtpConfig() {
     if (emailConfig?.config) {
       setEmail(emailConfig.config.email)
       setSenhaApp(emailConfig.config.senhaApp)
+      setLimiteDiario(String(emailConfig.config.limiteDiario ?? 1500))
       setHasConfig(true)
     }
   }, [emailConfig])
@@ -64,7 +69,7 @@ function UserSmtpConfig() {
       const res = await fetch("/api/user/email-config", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, senha_app: senhaApp }),
+        body: JSON.stringify({ email, senha_app: senhaApp, limite_diario: Number(limiteDiario) }),
       })
       if (!res.ok) throw new Error((await res.json()).error || "Erro ao salvar")
       toast.success("Configuração de email salva com sucesso!")
@@ -73,6 +78,36 @@ function UserSmtpConfig() {
       toast.error(err.message)
     } finally {
       setSaving(false)
+    }
+  }
+
+  const handleTestar = async () => {
+    if (!email || !senhaApp) {
+      toast.error("Informe email e senha do app para testar")
+      return
+    }
+    setTesting(true)
+    setTestResult(null)
+    setTestMessage("")
+    try {
+      const res = await fetch("/api/user/email-config", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, senha_app: senhaApp }),
+      })
+      const data = await res.json()
+      if (data.success) {
+        setTestResult("ok")
+        setTestMessage(data.message || "Conexão SMTP realizada com sucesso")
+      } else {
+        setTestResult("erro")
+        setTestMessage(data.error || "Falha ao conectar ao SMTP")
+      }
+    } catch {
+      setTestResult("erro")
+      setTestMessage("Falha ao conectar ao SMTP")
+    } finally {
+      setTesting(false)
     }
   }
 
@@ -136,10 +171,30 @@ function UserSmtpConfig() {
         </p>
       </div>
 
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Limite Diário de Envios</label>
+        <Input
+          type="number"
+          min={100}
+          max={50000}
+          step={100}
+          value={limiteDiario}
+          onChange={e => setLimiteDiario(e.target.value)}
+        />
+        <p className="text-xs text-muted-foreground">
+          Quantidade máxima de emails enviados por este remetente em um dia. Ao atingir, o disparo
+          &eacute; pausado e retomado automaticamente no dia seguinte.
+        </p>
+      </div>
+
       <div className="flex gap-2">
         <Button type="submit" disabled={saving} className="gap-2">
           {saving && <Loader2 size={16} className="animate-spin" />}
           {hasConfig ? "Atualizar" : "Salvar"}
+        </Button>
+        <Button type="button" variant="outline" disabled={testing} onClick={handleTestar} className="gap-2">
+          {testing ? <Loader2 size={16} className="animate-spin" /> : <Mail size={16} />}
+          Testar conexão
         </Button>
         {hasConfig && (
           <Button type="button" variant="outline" onClick={handleRemover} className="gap-2 text-red-500">
@@ -147,6 +202,19 @@ function UserSmtpConfig() {
           </Button>
         )}
       </div>
+
+      {testResult && (
+        <div
+          className={`flex items-start gap-2 text-sm px-3 py-2 rounded-lg border ${
+            testResult === "ok"
+              ? "text-green-600 bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
+              : "text-red-600 bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800"
+          }`}
+        >
+          {testResult === "ok" ? <CheckCircle2 size={16} className="mt-0.5 shrink-0" /> : <XCircle size={16} className="mt-0.5 shrink-0" />}
+          <span className="break-all">{testMessage}</span>
+        </div>
+      )}
     </form>
   )
 }

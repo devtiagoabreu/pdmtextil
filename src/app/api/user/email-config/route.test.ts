@@ -1,10 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { NextRequest } from "next/server"
 import { getServerSession } from "next-auth"
+import nodemailer from "nodemailer"
 import { db } from "@/lib/db"
 import { encrypt, decrypt } from "@/lib/crypto"
 import { createQueryBuilder, resetDb } from "@/test/route-db-mock"
-import { GET, PUT, DELETE } from "./route"
+import { GET, PUT, POST, DELETE } from "./route"
 
 vi.mock("next-auth", () => ({ getServerSession: vi.fn() }))
 vi.mock("@/lib/auth", () => ({ authOptions: {} }))
@@ -18,12 +19,23 @@ vi.mock("@/lib/db", () => ({
   },
 }))
 vi.mock("@/lib/crypto", () => ({ encrypt: vi.fn(), decrypt: vi.fn() }))
+vi.mock("nodemailer", () => ({
+  default: { createTransport: vi.fn() },
+}))
 
 const session = { user: { id: "7" } }
 
 function put(body: Record<string, unknown>) {
   return new NextRequest("http://localhost/api/user/email-config", {
     method: "PUT",
+    body: JSON.stringify(body),
+    headers: { "Content-Type": "application/json" },
+  })
+}
+
+function post(body: Record<string, unknown>) {
+  return new NextRequest("http://localhost/api/user/email-config", {
+    method: "POST",
     body: JSON.stringify(body),
     headers: { "Content-Type": "application/json" },
   })
@@ -55,13 +67,14 @@ describe("GET /api/user/email-config", () => {
     vi.mocked(getServerSession).mockResolvedValue(session as any)
     vi.mocked(decrypt).mockReturnValue("senha-decifrada")
     db.select = vi.fn(() =>
-      createQueryBuilder([{ id: 1, usuarioId: 7, email: "teste@exemplo.com", senhaApp: "cripto" }]),
+      createQueryBuilder([{ id: 1, usuarioId: 7, email: "teste@exemplo.com", senhaApp: "cripto", limiteDiario: 2000 }]),
     )
     const res = await GET()
     expect(res.status).toBe(200)
     const data = await res.json()
     expect(data.config.email).toBe("teste@exemplo.com")
     expect(data.config.senhaApp).toBe("senha-decifrada")
+    expect(data.config.limiteDiario).toBe(2000)
     expect(decrypt).toHaveBeenCalledWith("cripto")
   })
 })
@@ -81,11 +94,17 @@ describe("PUT /api/user/email-config", () => {
     expect(await res.json()).toEqual({ error: "Email e senha do app são obrigatórios" })
   })
 
+  it("retorna 400 quando limite diário é inválido", async () => {
+    const res = await PUT(put({ email: "a@b.com", senha_app: "x", limite_diario: 10 }))
+    expect(res.status).toBe(400)
+    expect(await res.json()).toEqual({ error: "Limite diário deve ser um número entre 100 e 50000" })
+  })
+
   it("cria a configuração quando ainda não existe", async () => {
     vi.mocked(encrypt).mockReturnValue("cripto")
     db.select = vi.fn(() => createQueryBuilder([]))
     db.insert = vi.fn(() => createQueryBuilder(undefined))
-    const res = await PUT(put({ email: "teste@exemplo.com", senha_app: "segredo" }))
+    const res = await PUT(put({ email: "teste@exemplo.com", senha_app: "segredo", limite_diario: 1500 }))
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual({ success: true })
     expect(encrypt).toHaveBeenCalledWith("segredo")
@@ -96,10 +115,57 @@ describe("PUT /api/user/email-config", () => {
     vi.mocked(encrypt).mockReturnValue("cripto")
     db.select = vi.fn(() => createQueryBuilder([{ id: 1 }]))
     db.update = vi.fn(() => createQueryBuilder(undefined))
-    const res = await PUT(put({ email: "novo@exemplo.com", senha_app: "outra" }))
+    const res = await PUT(put({ email: "novo@exemplo.com", senha_app: "outra", limite_diario: 3000 }))
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual({ success: true })
     expect(db.update).toHaveBeenCalled()
+  })
+})
+
+describe("POST /api/user/email-config", () => {
+  beforeEach(() => {
+    vi.mocked(getServerSession).mockReset()
+    vi.mocked(getServerSession).mockResolvedValue(session as any)
+    vi.mocked(nodemailer.createTransport).mockReset()
+  })
+
+  function mockVerify(result: "ok" | "erro") {
+    const transporter = {
+      verify: vi.fn(result === "ok" ? vi.fn().mockResolvedValue(true) : vi.fn().mockRejectedValue(new Error("Invalid login"))),
+      close: vi.fn(),
+    }
+    vi.mocked(nodemailer.createTransport).mockReturnValue(transporter as any)
+    return transporter
+  }
+
+  it("retorna 401 quando não está autenticado", async () => {
+    vi.mocked(getServerSession).mockResolvedValue(null as any)
+    const res = await POST(post({ email: "a@b.com", senha_app: "x" }))
+    expect(res.status).toBe(401)
+  })
+
+  it("retorna 400 quando email ou senha estão ausentes", async () => {
+    const res = await POST(post({ email: "", senha_app: "" }))
+    expect(res.status).toBe(400)
+  })
+
+  it("retorna sucesso quando a conexão SMTP é válida", async () => {
+    mockVerify("ok")
+    const res = await POST(post({ email: "teste@gmail.com", senha_app: "segredo" }))
+    expect(res.status).toBe(200)
+    const data = await res.json()
+    expect(data.success).toBe(true)
+    expect(nodemailer.createTransport).toHaveBeenCalledWith(
+      expect.objectContaining({ host: "smtp.gmail.com", auth: { user: "teste@gmail.com", pass: "segredo" } })
+    )
+  })
+
+  it("retorna a mensagem de erro quando a conexão falha", async () => {
+    mockVerify("erro")
+    const res = await POST(post({ email: "teste@gmail.com", senha_app: "errada" }))
+    const data = await res.json()
+    expect(data.success).toBe(false)
+    expect(data.error).toContain("Invalid login")
   })
 })
 

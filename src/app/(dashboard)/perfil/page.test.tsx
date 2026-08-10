@@ -17,6 +17,7 @@ function setup(emailConfig: unknown = { config: null }) {
   const fetchMock = createFetchMock(({ method, url, body }) => {
     if (method === "GET" && url === "/api/user/email-config") return { json: emailConfig }
     if (method === "PUT" && url === "/api/user/email-config") return { json: { ok: true } }
+    if (method === "POST" && url === "/api/user/email-config") return { json: { success: true } }
     if (method === "PUT" && url === "/api/perfil/senha") return { json: { ok: true }, body }
     return { json: null }
   })
@@ -84,22 +85,44 @@ describe("PerfilPage", () => {
     fireEvent.change(screen.getByPlaceholderText("senha de app do Gmail"), {
       target: { value: "appPassword123" },
     })
+    fireEvent.change(screen.getByDisplayValue("1500"), {
+      target: { value: "2000" },
+    })
     fireEvent.click(screen.getByRole("button", { name: "Salvar" }))
 
     const call = findCall(fetchMock.calls, "/api/user/email-config", "PUT")
     expect(call).toBeDefined()
-    expect(call?.body).toEqual({ email: "tiago@gmail.com", senha_app: "appPassword123" })
+    expect(call?.body).toEqual({ email: "tiago@gmail.com", senha_app: "appPassword123", limite_diario: 2000 })
     await waitFor(() =>
       expect(toastMock.success).toHaveBeenCalledWith("Configuração de email salva com sucesso!")
     )
   })
 
+  it("testa a conexão SMTP via POST /api/user/email-config", async () => {
+    const fetchMock = setup()
+    renderPage(<PerfilPage />)
+
+    fireEvent.change(await screen.findByPlaceholderText("seuemail@gmail.com"), {
+      target: { value: "tiago@gmail.com" },
+    })
+    fireEvent.change(screen.getByPlaceholderText("senha de app do Gmail"), {
+      target: { value: "appPassword123" },
+    })
+    fireEvent.click(screen.getByRole("button", { name: "Testar conexão" }))
+
+    const call = findCall(fetchMock.calls, "/api/user/email-config", "POST")
+    expect(call).toBeDefined()
+    expect(call?.body).toEqual({ email: "tiago@gmail.com", senha_app: "appPassword123" })
+    expect(await screen.findByText("Conexão SMTP realizada com sucesso")).toBeInTheDocument()
+  })
+
   it("exibe a configuração de email já cadastrada", async () => {
-    setup({ config: { email: "tiago@gmail.com", senhaApp: "abc123" } })
+    setup({ config: { email: "tiago@gmail.com", senhaApp: "abc123", limiteDiario: 2000 } })
     renderPage(<PerfilPage />)
 
     expect(await screen.findByText("Você já possui uma configuração de email cadastrada.")).toBeInTheDocument()
     expect(screen.getByDisplayValue("tiago@gmail.com")).toBeInTheDocument()
+    expect(screen.getByDisplayValue("2000")).toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Atualizar" })).toBeInTheDocument()
   })
 })

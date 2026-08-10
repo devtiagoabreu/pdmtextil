@@ -9,6 +9,7 @@ export const userEmailConfig = pgTable("user_email_config", {
   host: varchar("host", { length: 255 }).notNull().default("smtp.gmail.com"),
   port: integer("port").notNull().default(587),
   ativo: boolean("ativo").default(true),
+  limiteDiario: integer("limite_diario").notNull().default(1500),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 })
