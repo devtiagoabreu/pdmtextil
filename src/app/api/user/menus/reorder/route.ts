@@ -2,41 +2,9 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { userMenus, userMenuItens } from "@/lib/db/schema/user-menus"
+import { forkRoleMenusToUser } from "@/lib/menus-fork"
 import { eq, and, asc, isNull, inArray } from "drizzle-orm"
 import { handleApiError } from "@/lib/api-error"
-
-async function forkRoleMenusToUser(userId: number, roleName: string) {
-  const idMap = new Map<number, number>()
-
-  const menus = await db
-    .select()
-    .from(userMenus)
-    .where(and(eq(userMenus.role, roleName), isNull(userMenus.usuarioId)))
-    .orderBy(asc(userMenus.ordem))
-
-  for (const menu of menus) {
-    const [novo] = await db
-      .insert(userMenus)
-      .values({ usuarioId: userId, titulo: menu.titulo, icone: menu.icone, ordem: menu.ordem })
-      .returning()
-
-    idMap.set(menu.id, novo.id)
-
-    const itens = await db
-      .select()
-      .from(userMenuItens)
-      .where(eq(userMenuItens.userMenuId, menu.id))
-      .orderBy(asc(userMenuItens.ordem))
-
-    for (const item of itens) {
-      await db
-        .insert(userMenuItens)
-        .values({ userMenuId: novo.id, titulo: item.titulo, url: item.url, ordem: item.ordem })
-    }
-  }
-
-  return idMap
-}
 
 async function carregarMenus(usuarioId: number) {
   const menus = await db
@@ -90,11 +58,17 @@ export async function PATCH(req: NextRequest) {
 
     const idMap = new Map<number, number>()
     if (needsFork) {
-      // Buscar o role do primeiro menu role-based
-      const [roleMenu] = await db
-        .select()
-        .from(userMenus)
-        .where(and(isNull(userMenus.usuarioId)))
+      // Buscar o role do primeiro menu role-based do papel do usuário
+      let [roleMenu] = userRole
+        ? await db
+            .select()
+            .from(userMenus)
+            .where(and(isNull(userMenus.usuarioId), eq(userMenus.role, userRole)))
+        : []
+
+      if (!roleMenu) {
+        ;[roleMenu] = await db.select().from(userMenus).where(isNull(userMenus.usuarioId))
+      }
 
       if (!roleMenu || !roleMenu.role) {
         return NextResponse.json({ error: "Menu não encontrado" }, { status: 404 })

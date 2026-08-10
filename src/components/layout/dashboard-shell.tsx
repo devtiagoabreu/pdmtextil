@@ -28,7 +28,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       <div className={collapsed ? "lg:pl-16" : "lg:pl-64"}>
         <Header onMenuClick={() => setSidebarOpen(true)} onToggleSidebar={toggleCollapsed} sidebarCollapsed={collapsed} />
         <main className="p-4 md:p-6 pb-20 lg:pb-6">
-          <div className="mx-auto max-w-7xl animate-fade-in">
+          <div className={`mx-auto animate-fade-in ${collapsed ? "max-w-none" : "max-w-7xl"}`}>
             {children}
           </div>
         </main>
