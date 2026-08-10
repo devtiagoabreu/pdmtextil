@@ -95,7 +95,9 @@ describe("HistoricoTab", () => {
 
   it("Continuar envio chama o processar e mostra o resultado", async () => {
     const fetchMock = createFetchMock(({ method, url }) => {
-      if (method === "GET" && url === "/api/admin/email-massa/disparos") return { json: { disparos: [] } }
+      if (method === "GET" && url === "/api/admin/email-massa/disparos") {
+        return { json: { disparos: [{ id: 1, nome: "Promo Julho", status: "pausado", total: 10, enviados: 5, falhas: 0, pendentes: 5, erro: "Limite diário", criadoEm: "2026-07-09T10:00:00.000Z" }] } }
+      }
       if (method === "GET" && url === "/api/admin/email-massa/historico") {
         return { json: { envios, stats: { total: 3, enviados: 2, lidos: 1, falhas: 1, totalCliques: 4 } } }
       }
@@ -108,7 +110,7 @@ describe("HistoricoTab", () => {
     renderPage(<HistoricoTab />)
     await screen.findByText("ana@empresa.com")
 
-    fireEvent.click(screen.getByRole("button", { name: /Continuar envio/ }))
+    fireEvent.click(await screen.findByRole("button", { name: /Continuar envio/ }))
 
     await waitFor(() => expect(findCall(fetchMock.calls, "/api/admin/email-massa/processar", "POST")).toBeDefined())
     await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Envio processado: 5 enviado(s), 1 falha(s), 2 restante(s)"))

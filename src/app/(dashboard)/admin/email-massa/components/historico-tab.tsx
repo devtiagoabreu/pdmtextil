@@ -118,6 +118,7 @@ function DisparoStatusBadge({ status }: { status: string }) {
 function DisparosSection() {
   const queryClient = useQueryClient()
   const [processando, setProcessando] = useState(false)
+  const [atualizando, setAtualizando] = useState(false)
 
   const { data: disparos = [], isLoading: loadingDisparos } = useQuery<Disparo[]>({
     queryKey: ["email-massa-disparos"],
@@ -169,19 +170,19 @@ function DisparosSection() {
     }
   }
 
+  const atualizarCards = async () => {
+    if (atualizando) return
+    setAtualizando(true)
+    try {
+      await queryClient.refetchQueries({ queryKey: ["email-massa-disparos"] })
+    } finally {
+      setAtualizando(false)
+    }
+  }
+
   return (
     <section className="flex flex-col space-y-3">
-      <div className="flex items-center justify-between">
-        <h3 className="text-base font-semibold">Disparos Recentes</h3>
-        <div className="flex gap-2">
-          <Button variant="outline" size="xs" onClick={continuarEnvio} disabled={processando} className="gap-1">
-            {processando ? <Loader2 size={12} className="animate-spin" /> : <Play size={12} />} Continuar envio
-          </Button>
-          <Button variant="outline" size="xs" onClick={() => queryClient.invalidateQueries({ queryKey: ["email-massa-disparos"] })} className="gap-1">
-            <RefreshCw size={12} /> Atualizar
-          </Button>
-        </div>
-      </div>
+      <h3 className="text-base font-semibold">Disparos Recentes</h3>
 
       {loadingDisparos ? (
         <p className="text-sm text-slate-400 py-4 text-center">Carregando...</p>
@@ -215,13 +216,21 @@ function DisparosSection() {
                     <> &middot; <span className={d.status === "erro" ? "text-red-500" : "text-amber-600 dark:text-amber-400"}>{d.erro}</span></>
                   ) : null}
                 </p>
-                {(d.status === "erro" || d.status === "pausado") && (
-                  <div>
-                    <Button variant="outline" size="xs" onClick={() => reenfileirar(d)} className="gap-1">
+                <div className="flex items-center gap-2">
+                  {(d.status === "erro" || d.status === "pausado") && (
+                    <Button variant="outline" size="xs" onClick={() => reenfileirar(d)} className="gap-1 active:opacity-70">
                       <RotateCw size={12} /> Reenviar
                     </Button>
-                  </div>
-                )}
+                  )}
+                  {d.status !== "concluido" && (
+                    <Button variant="outline" size="xs" onClick={continuarEnvio} disabled={processando} className="gap-1 active:opacity-70">
+                      {processando ? <Loader2 size={12} className="animate-spin" /> : <Play size={12} />} Continuar envio
+                    </Button>
+                  )}
+                  <Button variant="outline" size="xs" onClick={atualizarCards} disabled={atualizando} className="gap-1 active:opacity-70">
+                    {atualizando ? <Loader2 size={12} className="animate-spin" /> : <RefreshCw size={12} />} Atualizar
+                  </Button>
+                </div>
               </div>
             )
           })}
@@ -336,7 +345,7 @@ export function HistoricoTab() {
                 <FileText size={14} /> Relatório PDF
               </Button>
             )}
-            <Button variant="outline" size="sm" onClick={refresh} className="gap-1">
+            <Button variant="outline" size="sm" onClick={refresh} className="gap-1 active:opacity-70">
               <RefreshCw size={14} /> Atualizar
             </Button>
           </div>

@@ -42,7 +42,7 @@ async function contagemEnviadasHoje(remetente: "usuario" | "sistema", usuarioId?
     .where(
       and(
         eq(emailEnviados.status, "enviado"),
-        sql`${emailEnviados.enviadoEm} >= ${inicioDia}`,
+        sql`${emailEnviados.enviadoEm} >= ${inicioDia.toISOString()}::timestamp`,
         remetente === "usuario"
           ? and(eq(emailDisparos.remetente, "usuario"), eq(emailDisparos.criadoPor, usuarioId ?? -1))
           : eq(emailDisparos.remetente, "sistema")

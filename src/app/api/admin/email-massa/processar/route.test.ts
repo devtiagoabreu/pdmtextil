@@ -377,4 +377,34 @@ describe("POST /api/admin/email-massa/processar", () => {
     expect(strings.some((s: string) => s.includes("erro"))).toBe(true)
     expect(strings.some((s: string) => s.includes("temporary"))).toBe(false)
   })
+
+  it("passa o início do dia como string ISO na contagem do limite diário (driver postgres.js não serializa Date)", async () => {
+    vi.mocked(getServerSession).mockResolvedValue(session as any)
+    const updBuilder = createQueryBuilder(undefined)
+    db.update = vi.fn(() => updBuilder)
+    mockTransporter(vi.fn().mockResolvedValue(true))
+
+    const builders: any[] = []
+    const mk = (result: any) => {
+      const b = createQueryBuilder(result)
+      builders.push(b)
+      return b
+    }
+    db.select = vi.fn()
+    vi.mocked(db.select).mockImplementationOnce(() => mk([{ ...disparo, remetente: "usuario" }]))
+    vi.mocked(db.select).mockImplementationOnce(() =>
+      mk([{ id: 1, usuarioId: 28, email: "contato@empresa.com", senhaApp: "apppass", host: "smtp.gmail.com", port: 587, ativo: true, limiteDiario: 1500 }])
+    )
+    vi.mocked(db.select).mockImplementationOnce(() => mk([{ total: 0 }]))
+    vi.mocked(db.select).mockImplementationOnce(() => mk([pendente]))
+    vi.mocked(db.select).mockImplementationOnce(() => mk([]))
+    vi.mocked(db.select).mockImplementationOnce(() => mk([{ total: 0 }]))
+    vi.mocked(db.select).mockImplementationOnce(() => mk([{ total: 0 }]))
+
+    const res = await post()
+    expect(res.status).toBe(200)
+
+    const strings = collectStrings(builders[2].where.mock.calls[0][0])
+    expect(strings.some((s: string) => /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(s)), JSON.stringify(strings)).toBe(true)
+  })
 })

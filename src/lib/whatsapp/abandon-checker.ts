@@ -20,7 +20,7 @@ export async function verificarAbandonos(): Promise<{ notificados: number }> {
     .from(crmWhatsappConversas)
     .where(
       and(
-        sql`${crmWhatsappConversas.updatedAt} < ${threshold}`,
+        sql`${crmWhatsappConversas.updatedAt} < ${threshold.toISOString()}::timestamp`,
         sql`${crmWhatsappConversas.estado} NOT IN ('SAUDACAO', 'ENCERRADO', 'HUMANO_ASSUMINDO', 'AGUARDANDO_REPRESENTANTE')`
       )
     )
