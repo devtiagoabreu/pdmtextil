@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -8,9 +8,49 @@ import { toast } from "sonner"
 import { matchesSearch } from "@/components/ui/list-filters"
 import {
   CheckCircle2, XCircle, Clock, Search, RefreshCw, FileText, Loader2, RotateCw,
+  X, ArrowUp, ArrowDown, ArrowUpDown,
 } from "lucide-react"
 import { exportPDFRelatorio } from "@/lib/export-utils"
 import type { HistoricoData, Disparo } from "../types"
+
+type SortField = "status" | "email" | "nome" | "assunto" | "totalCliques" | "createdAt" | "abertoEm" | "error"
+
+function SortableHeader({
+  field,
+  label,
+  sortField,
+  sortDir,
+  onSort,
+  className,
+}: {
+  field: SortField
+  label: string
+  sortField: SortField | null
+  sortDir: "asc" | "desc"
+  onSort: (field: SortField) => void
+  className?: string
+}) {
+  const active = sortField === field
+  return (
+    <th
+      className={`p-2 ${className || ""}`}
+      aria-sort={active ? (sortDir === "asc" ? "ascending" : "descending") : undefined}
+    >
+      <button
+        type="button"
+        onClick={() => onSort(field)}
+        className="inline-flex items-center gap-1 font-medium hover:text-foreground"
+      >
+        {label}
+        {active ? (
+          sortDir === "asc" ? <ArrowUp size={12} /> : <ArrowDown size={12} />
+        ) : (
+          <ArrowUpDown size={12} className="opacity-40" />
+        )}
+      </button>
+    </th>
+  )
+}
 
 function StatusBadge({ status, abertoEm }: { status: string; abertoEm: string | null }) {
   if (abertoEm) {
@@ -164,6 +204,20 @@ function DisparosSection() {
 export function HistoricoTab() {
   const queryClient = useQueryClient()
   const [historicoSearch, setHistoricoSearch] = useState("")
+  const [debouncedSearch, setDebouncedSearch] = useState("")
+  const [sortField, setSortField] = useState<SortField | null>(null)
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc")
+  const debounceRef = useRef<NodeJS.Timeout | null>(null)
+
+  const handleSearchChange = useCallback((value: string) => {
+    setHistoricoSearch(value)
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => setDebouncedSearch(value), 300)
+  }, [])
+
+  useEffect(() => {
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current) }
+  }, [])
 
   const { data: historico = null, isLoading: loadingHistorico } = useQuery<HistoricoData | null>({
     queryKey: ["email-massa-historico"],
@@ -178,9 +232,38 @@ export function HistoricoTab() {
     },
   })
 
-  const filteredEnvios = historico?.envios.filter((e: any) =>
-    !historicoSearch || matchesSearch(e, historicoSearch)
-  ) || []
+  const filteredEnvios = useMemo(() => {
+    const envios = historico?.envios || []
+    let result = !debouncedSearch ? envios : envios.filter((e: any) => matchesSearch(e, debouncedSearch))
+    if (!sortField) return result
+    const dir = sortDir === "asc" ? 1 : -1
+    return [...result].sort((a: any, b: any) => {
+      const av = a[sortField]
+      const bv = b[sortField]
+      if (av == null && bv == null) return 0
+      if (av == null) return dir
+      if (bv == null) return -dir
+      if (typeof av === "number" && typeof bv === "number") return (av - bv) * dir
+      const as = String(av).toLowerCase()
+      const bs = String(bv).toLowerCase()
+      return as < bs ? -dir : as > bs ? dir : 0
+    })
+  }, [historico, debouncedSearch, sortField, sortDir])
+
+  const toggleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortDir(sortDir === "asc" ? "desc" : "asc")
+    } else {
+      setSortField(field)
+      setSortDir(field === "totalCliques" || field === "createdAt" || field === "abertoEm" ? "desc" : "asc")
+    }
+  }
+
+  const clearSearch = () => {
+    setHistoricoSearch("")
+    setDebouncedSearch("")
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+  }
 
   const refresh = () => {
     queryClient.invalidateQueries({ queryKey: ["email-massa-historico"] })
@@ -262,29 +345,40 @@ export function HistoricoTab() {
               <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <Input
                 value={historicoSearch}
-                onChange={e => setHistoricoSearch(e.target.value)}
+                onChange={e => handleSearchChange(e.target.value)}
                 placeholder="Buscar por email, nome ou assunto..."
-                className="pl-9"
+                className="pl-9 pr-8"
+                aria-label="Buscar no histórico"
               />
+              {historicoSearch && (
+                <button
+                  type="button"
+                  onClick={clearSearch}
+                  aria-label="Limpar busca"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                >
+                  <X size={14} />
+                </button>
+              )}
             </div>
 
             {filteredEnvios.length === 0 ? (
               <p className="text-sm text-slate-400 py-8 text-center">
-                {historicoSearch ? "Nenhum envio encontrado para esta busca." : "Nenhum envio registrado ainda."}
+                {debouncedSearch ? "Nenhum envio encontrado para esta busca." : "Nenhum envio registrado ainda."}
               </p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-slate-200 dark:border-slate-700">
-                      <th className="text-left font-medium p-2">Status</th>
-                      <th className="text-left font-medium p-2">Email</th>
-                      <th className="text-left font-medium p-2">Nome</th>
-                      <th className="text-left font-medium p-2">Assunto</th>
-                      <th className="text-center font-medium p-2 w-20">Cliques</th>
-                      <th className="text-left font-medium p-2">Enviado em</th>
-                      <th className="text-left font-medium p-2">Aberto em</th>
-                      <th className="text-left font-medium p-2">Erro</th>
+                      <SortableHeader field="status" label="Status" sortField={sortField} sortDir={sortDir} onSort={toggleSort} />
+                      <SortableHeader field="email" label="Email" sortField={sortField} sortDir={sortDir} onSort={toggleSort} />
+                      <SortableHeader field="nome" label="Nome" sortField={sortField} sortDir={sortDir} onSort={toggleSort} />
+                      <SortableHeader field="assunto" label="Assunto" sortField={sortField} sortDir={sortDir} onSort={toggleSort} />
+                      <SortableHeader field="totalCliques" label="Cliques" className="text-center w-20" sortField={sortField} sortDir={sortDir} onSort={toggleSort} />
+                      <SortableHeader field="createdAt" label="Enviado em" sortField={sortField} sortDir={sortDir} onSort={toggleSort} />
+                      <SortableHeader field="abertoEm" label="Aberto em" sortField={sortField} sortDir={sortDir} onSort={toggleSort} />
+                      <SortableHeader field="error" label="Erro" sortField={sortField} sortDir={sortDir} onSort={toggleSort} />
                     </tr>
                   </thead>
                   <tbody>
