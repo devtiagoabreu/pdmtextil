@@ -8,7 +8,7 @@ import { toast } from "sonner"
 import { matchesSearch } from "@/components/ui/list-filters"
 import {
   CheckCircle2, XCircle, Clock, Search, RefreshCw, FileText, Loader2, RotateCw,
-  X, ArrowUp, ArrowDown, ArrowUpDown,
+  X, ArrowUp, ArrowDown, ArrowUpDown, Play,
 } from "lucide-react"
 import { exportPDFRelatorio } from "@/lib/export-utils"
 import type { HistoricoData, Disparo } from "../types"
@@ -117,6 +117,7 @@ function DisparoStatusBadge({ status }: { status: string }) {
 
 function DisparosSection() {
   const queryClient = useQueryClient()
+  const [processando, setProcessando] = useState(false)
 
   const { data: disparos = [], isLoading: loadingDisparos } = useQuery<Disparo[]>({
     queryKey: ["email-massa-disparos"],
@@ -128,6 +129,30 @@ function DisparosSection() {
     },
     refetchInterval: (query) => (temDisparoAtivo(query.state.data || []) ? 5000 : false),
   })
+
+  const continuarEnvio = async () => {
+    if (processando) return
+    setProcessando(true)
+    try {
+      const res = await fetch("/api/admin/email-massa/processar", { method: "POST" })
+      const data = await res.json()
+      if (!res.ok) {
+        toast.error(data.error || "Erro ao processar envios")
+        return
+      }
+      const partes: string[] = []
+      if (data.enviados) partes.push(`${data.enviados} enviado(s)`)
+      if (data.falhas) partes.push(`${data.falhas} falha(s)`)
+      if (data.restantes) partes.push(`${data.restantes} restante(s)`)
+      toast.success(partes.length ? `Envio processado: ${partes.join(", ")}` : "Nenhum envio pendente na fila")
+    } catch {
+      toast.error("Erro ao processar envios")
+    } finally {
+      setProcessando(false)
+      queryClient.invalidateQueries({ queryKey: ["email-massa-disparos"] })
+      queryClient.invalidateQueries({ queryKey: ["email-massa-historico"] })
+    }
+  }
 
   const reenfileirar = async (d: Disparo) => {
     try {
@@ -148,9 +173,14 @@ function DisparosSection() {
     <section className="flex flex-col space-y-3">
       <div className="flex items-center justify-between">
         <h3 className="text-base font-semibold">Disparos Recentes</h3>
-        <Button variant="outline" size="xs" onClick={() => queryClient.invalidateQueries({ queryKey: ["email-massa-disparos"] })} className="gap-1">
-          <RefreshCw size={12} /> Atualizar
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" size="xs" onClick={continuarEnvio} disabled={processando} className="gap-1">
+            {processando ? <Loader2 size={12} className="animate-spin" /> : <Play size={12} />} Continuar envio
+          </Button>
+          <Button variant="outline" size="xs" onClick={() => queryClient.invalidateQueries({ queryKey: ["email-massa-disparos"] })} className="gap-1">
+            <RefreshCw size={12} /> Atualizar
+          </Button>
+        </div>
       </div>
 
       {loadingDisparos ? (
@@ -368,17 +398,17 @@ export function HistoricoTab() {
               </p>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+                <table className="w-full text-sm table-fixed min-w-[820px]">
                   <thead>
                     <tr className="border-b border-slate-200 dark:border-slate-700">
-                      <SortableHeader field="status" label="Status" sortField={sortField} sortDir={sortDir} onSort={toggleSort} />
-                      <SortableHeader field="email" label="Email" sortField={sortField} sortDir={sortDir} onSort={toggleSort} />
-                      <SortableHeader field="nome" label="Nome" sortField={sortField} sortDir={sortDir} onSort={toggleSort} />
-                      <SortableHeader field="assunto" label="Assunto" sortField={sortField} sortDir={sortDir} onSort={toggleSort} />
+                      <SortableHeader field="status" label="Status" className="w-[76px]" sortField={sortField} sortDir={sortDir} onSort={toggleSort} />
+                      <SortableHeader field="email" label="Email" className="w-[24%]" sortField={sortField} sortDir={sortDir} onSort={toggleSort} />
+                      <SortableHeader field="nome" label="Nome" className="w-[16%]" sortField={sortField} sortDir={sortDir} onSort={toggleSort} />
+                      <SortableHeader field="assunto" label="Assunto" className="w-[18%]" sortField={sortField} sortDir={sortDir} onSort={toggleSort} />
                       <SortableHeader field="totalCliques" label="Cliques" className="text-center w-20" sortField={sortField} sortDir={sortDir} onSort={toggleSort} />
-                      <SortableHeader field="createdAt" label="Enviado em" sortField={sortField} sortDir={sortDir} onSort={toggleSort} />
-                      <SortableHeader field="abertoEm" label="Aberto em" sortField={sortField} sortDir={sortDir} onSort={toggleSort} />
-                      <SortableHeader field="error" label="Erro" sortField={sortField} sortDir={sortDir} onSort={toggleSort} />
+                      <SortableHeader field="createdAt" label="Enviado em" className="w-[118px]" sortField={sortField} sortDir={sortDir} onSort={toggleSort} />
+                      <SortableHeader field="abertoEm" label="Aberto em" className="w-[118px]" sortField={sortField} sortDir={sortDir} onSort={toggleSort} />
+                      <SortableHeader field="error" label="Erro" className="w-[13%]" sortField={sortField} sortDir={sortDir} onSort={toggleSort} />
                     </tr>
                   </thead>
                   <tbody>
@@ -387,17 +417,17 @@ export function HistoricoTab() {
                         <td className="p-2">
                           <StatusBadge status={e.status} abertoEm={e.abertoEm} />
                         </td>
-                        <td className="p-2 text-slate-600 dark:text-slate-300">{e.email}</td>
-                        <td className="p-2">{e.nome || "—"}</td>
-                        <td className="p-2 text-slate-500 truncate max-w-[160px]">{e.assunto}</td>
+                        <td className="p-2 text-slate-600 dark:text-slate-300 break-words">{e.email}</td>
+                        <td className="p-2 truncate">{e.nome || "—"}</td>
+                        <td className="p-2 text-slate-500 truncate">{e.assunto}</td>
                         <td className="p-2 text-center">
                           <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${e.totalCliques > 0 ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400" : "bg-slate-100 text-slate-400 dark:bg-slate-800"}`}>
                             {e.totalCliques || 0}
                           </span>
                         </td>
-                        <td className="p-2 text-slate-500 text-xs">{formatDate(e.createdAt)}</td>
-                        <td className="p-2 text-slate-500 text-xs">{formatDate(e.abertoEm)}</td>
-                        <td className="p-2 text-red-500 text-xs max-w-[150px] truncate">{e.error || "—"}</td>
+                        <td className="p-2 text-slate-500 text-xs whitespace-nowrap">{formatDate(e.createdAt)}</td>
+                        <td className="p-2 text-slate-500 text-xs whitespace-nowrap">{formatDate(e.abertoEm)}</td>
+                        <td className="p-2 text-red-500 text-xs truncate">{e.error || "—"}</td>
                       </tr>
                     ))}
                   </tbody>

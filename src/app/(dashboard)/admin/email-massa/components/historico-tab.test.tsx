@@ -2,7 +2,7 @@
 import { describe, it, expect, vi } from "vitest"
 import { screen, fireEvent, waitFor } from "@testing-library/react"
 import { HistoricoTab } from "./historico-tab"
-import { createFetchMock, renderPage } from "@/test/harness"
+import { createFetchMock, renderPage, toastMock, findCall } from "@/test/harness"
 
 const envios = [
   { id: 1, email: "ana@empresa.com", nome: "Ana Souza", assunto: "Promo Julho", status: "enviado", error: null, abertoEm: "2026-07-10T10:00:00.000Z", createdAt: "2026-07-09T10:00:00.000Z", totalCliques: 3 },
@@ -91,5 +91,26 @@ describe("HistoricoTab", () => {
 
     expect(screen.getByText("ana@empresa.com")).toBeInTheDocument()
     expect(screen.getByText("bruno@empresa.com")).toBeInTheDocument()
+  })
+
+  it("Continuar envio chama o processar e mostra o resultado", async () => {
+    const fetchMock = createFetchMock(({ method, url }) => {
+      if (method === "GET" && url === "/api/admin/email-massa/disparos") return { json: { disparos: [] } }
+      if (method === "GET" && url === "/api/admin/email-massa/historico") {
+        return { json: { envios, stats: { total: 3, enviados: 2, lidos: 1, falhas: 1, totalCliques: 4 } } }
+      }
+      if (method === "POST" && url === "/api/admin/email-massa/processar") {
+        return { json: { disparosProcessados: 1, enviados: 5, falhas: 1, restantes: 2, limiteTempo: false } }
+      }
+      return { json: null }
+    })
+    vi.stubGlobal("fetch", fetchMock.fn)
+    renderPage(<HistoricoTab />)
+    await screen.findByText("ana@empresa.com")
+
+    fireEvent.click(screen.getByRole("button", { name: /Continuar envio/ }))
+
+    await waitFor(() => expect(findCall(fetchMock.calls, "/api/admin/email-massa/processar", "POST")).toBeDefined())
+    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Envio processado: 5 enviado(s), 1 falha(s), 2 restante(s)"))
   })
 })
