@@ -87,6 +87,18 @@ function mockTransporter(sendMail: any) {
   return transporter
 }
 
+function collectStrings(node: any, out: string[] = [], seen: Set<any> = new Set()): string[] {
+  if (node === null || node === undefined) return out
+  if (typeof node !== "object") {
+    if (typeof node === "string") out.push(node)
+    return out
+  }
+  if (seen.has(node)) return out
+  seen.add(node)
+  for (const key of Object.keys(node)) collectStrings(node[key], out, seen)
+  return out
+}
+
 describe("POST /api/admin/email-massa/processar", () => {
   beforeEach(() => {
     vi.mocked(getServerSession).mockReset()
@@ -297,15 +309,72 @@ describe("POST /api/admin/email-massa/processar", () => {
     expect(concluido).toBeDefined()
   })
 
-  it("mantém erro permanente fora da fila de retomada", async () => {
+  it("retoma disparo em erro por credencial (Invalid login) quando acionado manualmente por admin", async () => {
     vi.mocked(getServerSession).mockResolvedValue(session as any)
     const updBuilder = createQueryBuilder(undefined)
     db.update = vi.fn(() => updBuilder)
-    mockTransporter(vi.fn())
-    mockSelectSequence([], [{ total: 0 }])
+    mockTransporter(vi.fn().mockResolvedValue(true))
+    mockSelectSequence(
+      [{ ...disparo, status: "erro", erro: "Falha ao conectar ao SMTP: Invalid login: 535-5.7.8 Username and Password not accepted" }],
+      [cfg],
+      [{ total: 0 }],
+      [pendente],
+      [],
+      [{ total: 0 }],
+      [{ total: 0 }],
+    )
 
     const res = await post()
     expect(res.status).toBe(200)
-    expect(updBuilder.set.mock.calls.some((c: any[]) => c[0]?.status === "enviando")).toBe(false)
+    const data = await res.json()
+    expect(data.disparosProcessados).toBe(1)
+    expect(data.enviados).toBe(1)
+    expect(data.restantes).toBe(0)
+
+    const enviado = updBuilder.set.mock.calls.find((c: any[]) => c[0]?.status === "enviado")
+    expect(enviado).toBeDefined()
+    const concluido = updBuilder.set.mock.calls.find((c: any[]) => c[0]?.status === "concluido")
+    expect(concluido).toBeDefined()
+  })
+
+  it("mantém erro permanente fora da retomada via cron", async () => {
+    process.env.CRON_SECRET = "s3cr3t"
+    vi.mocked(getServerSession).mockResolvedValue(null as any)
+
+    const builders: any[] = []
+    db.select = vi.fn()
+    vi.mocked(db.select).mockImplementationOnce(() => {
+      const b = createQueryBuilder([])
+      builders.push(b)
+      return b
+    })
+    vi.mocked(db.select).mockImplementationOnce(() => createQueryBuilder([{ total: 0 }]))
+
+    const res = await post("Bearer s3cr3t")
+    expect(res.status).toBe(200)
+
+    const strings = collectStrings(builders[0].where.mock.calls[0][0])
+    expect(strings.some((s: string) => s.includes("temporary"))).toBe(true)
+    expect(strings.some((s: string) => s.includes("try again later"))).toBe(true)
+  })
+
+  it("retomada manual por admin inclui erros permanentes (sem filtro transitório)", async () => {
+    vi.mocked(getServerSession).mockResolvedValue(session as any)
+
+    const builders: any[] = []
+    db.select = vi.fn()
+    vi.mocked(db.select).mockImplementationOnce(() => {
+      const b = createQueryBuilder([])
+      builders.push(b)
+      return b
+    })
+    vi.mocked(db.select).mockImplementationOnce(() => createQueryBuilder([{ total: 0 }]))
+
+    const res = await post()
+    expect(res.status).toBe(200)
+
+    const strings = collectStrings(builders[0].where.mock.calls[0][0])
+    expect(strings.some((s: string) => s.includes("erro"))).toBe(true)
+    expect(strings.some((s: string) => s.includes("temporary"))).toBe(false)
   })
 })

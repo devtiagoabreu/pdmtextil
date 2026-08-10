@@ -103,9 +103,10 @@ export async function POST(req: NextRequest) {
     const authHeader = req.headers.get("authorization")
     const cronSecret = process.env.CRON_SECRET
     const session = await getServerSession(authOptions).catch(() => null)
+    const isCron = Boolean(cronSecret && authHeader === `Bearer ${cronSecret}`)
     const isAdmin =
       session && (session.user.role === "ADMIN" || session.user.role === "SUDO" || session.user.role === "CRM")
-    if (!(cronSecret && authHeader === `Bearer ${cronSecret}`) && !isAdmin) {
+    if (!isCron && !isAdmin) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
@@ -115,22 +116,24 @@ export async function POST(req: NextRequest) {
     let falhasNoRun = 0
     let disparosProcessados = 0
 
+    const erroTransiente = or(
+      sql`lower(erro) like '%daily user sending limit exceeded%'`,
+      sql`lower(erro) like '%try again later%'`,
+      sql`lower(erro) like '%temporary%'`,
+      sql`lower(erro) like '%too many consecutive%'`,
+      sql`lower(erro) like '%insufficient system storage%'`,
+    )
+    const condicaoErro = isCron
+      ? and(eq(emailDisparos.status, "erro"), erroTransiente)
+      : eq(emailDisparos.status, "erro")
+
     const disparos = await db
       .select()
       .from(emailDisparos)
       .where(
         or(
           inArray(emailDisparos.status, ["fila", "enviando", "pausado"]),
-          and(
-            eq(emailDisparos.status, "erro"),
-            or(
-              sql`lower(erro) like '%daily user sending limit exceeded%'`,
-              sql`lower(erro) like '%try again later%'`,
-              sql`lower(erro) like '%temporary%'`,
-              sql`lower(erro) like '%too many consecutive%'`,
-              sql`lower(erro) like '%insufficient system storage%'`,
-            ),
-          ),
+          condicaoErro,
         ),
       )
       .orderBy(asc(emailDisparos.id))
