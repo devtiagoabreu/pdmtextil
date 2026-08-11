@@ -8,9 +8,10 @@ import { toast } from "sonner"
 import { matchesSearch } from "@/components/ui/list-filters"
 import {
   CheckCircle2, XCircle, Clock, Search, RefreshCw, FileText, Loader2, RotateCw,
-  X, ArrowUp, ArrowDown, ArrowUpDown, Play,
+  X, ArrowUp, ArrowDown, ArrowUpDown, Play, Eye, MousePointerClick, Download,
 } from "lucide-react"
 import { exportPDFRelatorio } from "@/lib/export-utils"
+import { CriarListaModal, type TipoLista } from "./criar-lista-modal"
 import type { HistoricoData, Disparo } from "../types"
 
 type SortField = "status" | "email" | "nome" | "assunto" | "totalCliques" | "createdAt" | "abertoEm" | "error"
@@ -84,6 +85,15 @@ function formatDate(dateStr: string | null) {
 
 function temDisparoAtivo(dados: Disparo[]) {
   return dados.some((d) => d.status === "fila" || d.status === "enviando" || d.status === "pausado")
+}
+
+function statusLabel(status: string) {
+  if (status === "fila") return "Na fila"
+  if (status === "enviando") return "Enviando"
+  if (status === "pausado") return "Pausado"
+  if (status === "concluido") return "Concluído"
+  if (status === "erro") return "Erro"
+  return status
 }
 
 function DisparoStatusBadge({ status }: { status: string }) {
@@ -180,9 +190,98 @@ function DisparosSection() {
     }
   }
 
+  const [listaModal, setListaModal] = useState<{ tipo: TipoLista; disparo: Disparo } | null>(null)
+  const [relatorioLoading, setRelatorioLoading] = useState<number | null>(null)
+  const [sincronizando, setSincronizando] = useState(false)
+
+  const gerarRelatorio = async (d: Disparo) => {
+    if (relatorioLoading !== null) return
+    setRelatorioLoading(d.id)
+    try {
+      const res = await fetch(`/api/admin/email-massa/disparos/${d.id}/relatorio`)
+      const data = await res.json()
+      if (!res.ok) {
+        toast.error(data.error || "Erro ao gerar relatório")
+        return
+      }
+      const total = Number(data.disparo.total) || 0
+      const processados = Number(data.stats?.enviados || 0) + Number(data.stats?.falhas || 0)
+      const perc = total > 0 ? Math.round((processados / total) * 100) : 0
+      exportPDFRelatorio({
+        title: `Relatório do Disparo #${d.id} — ${d.nome || d.assunto}`,
+        period: `Enviado em ${formatDate(d.criadoEm)} · Status: ${statusLabel(d.status)} · Processamento: ${perc}%`,
+        stats: {
+          Total: total,
+          Enviados: data.stats?.enviados || 0,
+          Lidos: data.stats?.lidos || 0,
+          Cliques: data.stats?.totalCliques || 0,
+          Clicados: data.stats?.clicados || 0,
+          Falhas: data.stats?.falhas || 0,
+          Pendentes: data.stats?.pendentes || 0,
+        },
+        tables: [
+          {
+            headers: ["Status", "Email", "Nome", "Aberto em", "Enviado em", "Cliques", "Erro"],
+            rows: data.envios.map((e: any) => [
+              e.abertoEm ? "Lido" : e.status === "enviado" ? "Enviado" : "Falhou",
+              e.email,
+              e.nome || "-",
+              formatDate(e.abertoEm),
+              formatDate(e.enviadoEm || e.createdAt),
+              e.totalCliques || 0,
+              e.error || "-",
+            ]),
+          },
+          ...(data.links.length
+            ? [{ headers: ["Link", "Cliques"], rows: data.links.map((l: any) => [l.urlOriginal, l.total]) }]
+            : []),
+        ],
+        filename: `relatorio-disparo-${d.id}-${new Date().toISOString().split("T")[0]}`,
+        orientation: "landscape",
+      })
+    } catch {
+      toast.error("Erro ao gerar relatório")
+    } finally {
+      setRelatorioLoading(null)
+    }
+  }
+
+  const sincronizarBounces = async () => {
+    if (sincronizando) return
+    setSincronizando(true)
+    try {
+      const res = await fetch("/api/admin/email-massa/bounces/sincronizar", { method: "POST" })
+      const data = await res.json()
+      if (!res.ok) {
+        toast.error(data.error || "Erro ao sincronizar bounces")
+        return
+      }
+      if (data.erro) {
+        toast.error(data.erro)
+        return
+      }
+      if (data.marcados > 0) {
+        toast.success(`${data.marcados} bounce(s) identificado(s) e marcado(s) como falha${data.processados ? ` em ${data.processados} notificação(ões) lida(s)` : ""}`)
+      } else {
+        toast.info("Nenhum bounce novo encontrado")
+      }
+      queryClient.invalidateQueries({ queryKey: ["email-massa-disparos"] })
+      queryClient.invalidateQueries({ queryKey: ["email-massa-historico"] })
+    } catch {
+      toast.error("Erro ao sincronizar bounces")
+    } finally {
+      setSincronizando(false)
+    }
+  }
+
   return (
     <section className="flex flex-col space-y-3">
-      <h3 className="text-base font-semibold">Disparos Recentes</h3>
+      <div className="flex items-center justify-between">
+        <h3 className="text-base font-semibold">Disparos Recentes</h3>
+        <Button variant="outline" size="sm" onClick={sincronizarBounces} disabled={sincronizando} className="gap-1 active:opacity-70">
+          {sincronizando ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />} Sincronizar bounces
+        </Button>
+      </div>
 
       {loadingDisparos ? (
         <p className="text-sm text-slate-400 py-4 text-center">Carregando...</p>
@@ -216,7 +315,7 @@ function DisparosSection() {
                     <> &middot; <span className={d.status === "erro" ? "text-red-500" : "text-amber-600 dark:text-amber-400"}>{d.erro}</span></>
                   ) : null}
                 </p>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   {(d.status === "erro" || d.status === "pausado") && (
                     <Button variant="outline" size="xs" onClick={() => reenfileirar(d)} className="gap-1 active:opacity-70">
                       <RotateCw size={12} /> Reenviar
@@ -227,6 +326,18 @@ function DisparosSection() {
                       {processando ? <Loader2 size={12} className="animate-spin" /> : <Play size={12} />} Continuar envio
                     </Button>
                   )}
+                  <Button variant="outline" size="xs" onClick={() => gerarRelatorio(d)} disabled={relatorioLoading !== null} className="gap-1 active:opacity-70">
+                    {relatorioLoading === d.id ? <Loader2 size={12} className="animate-spin" /> : <FileText size={12} />} Relatório
+                  </Button>
+                  <Button variant="outline" size="xs" onClick={() => setListaModal({ tipo: "lidos", disparo: d })} className="gap-1 active:opacity-70">
+                    <Eye size={12} /> Lidos
+                  </Button>
+                  <Button variant="outline" size="xs" onClick={() => setListaModal({ tipo: "clicados", disparo: d })} className="gap-1 active:opacity-70">
+                    <MousePointerClick size={12} /> Cliques
+                  </Button>
+                  <Button variant="outline" size="xs" onClick={() => setListaModal({ tipo: "falhas", disparo: d })} className="gap-1 active:opacity-70">
+                    <XCircle size={12} /> Falhas
+                  </Button>
                   <Button variant="outline" size="xs" onClick={atualizarCards} disabled={atualizando} className="gap-1 active:opacity-70">
                     {atualizando ? <Loader2 size={12} className="animate-spin" /> : <RefreshCw size={12} />} Atualizar
                   </Button>
@@ -236,6 +347,13 @@ function DisparosSection() {
           })}
         </div>
       )}
+
+      <CriarListaModal
+        open={!!listaModal}
+        onOpenChange={(open) => { if (!open) setListaModal(null) }}
+        tipo={listaModal?.tipo || "lidos"}
+        disparo={listaModal?.disparo || null}
+      />
     </section>
   )
 }

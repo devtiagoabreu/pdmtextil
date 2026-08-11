@@ -38,6 +38,7 @@
     "drizzle-orm": "^0.45.2",
     "googleapis": "^173.0.0",
     "html2canvas": "^1.4.1",
+    "imapflow": "^1.6.6",
     "jspdf": "^2.5.2",
     "jspdf-autotable": "^3.8.4",
     "lucide-react": "^1.17.0",
