@@ -65,8 +65,8 @@ export function EnviarTab(props: EnviarTabProps) {
           <h2 className="text-base font-semibold text-slate-800 dark:text-slate-200">Configurações de Envio</h2>
 
           <div className="flex flex-col space-y-2">
-            <Label>Enviar para</Label>
-            <select value={para} onChange={e => setPara(e.target.value)}
+            <Label htmlFor="para">Enviar para</Label>
+            <select id="para" value={para} onChange={e => setPara(e.target.value)}
               className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600">
               <option value="todos">Clientes + Usuários do Sistema</option>
               <option value="clientes">Apenas Clientes</option>
@@ -76,14 +76,14 @@ export function EnviarTab(props: EnviarTabProps) {
           </div>
 
           <div className="flex flex-col space-y-2">
-            <Label>Assunto</Label>
-            <Input value={assunto} onChange={e => setAssunto(e.target.value)} placeholder="Assunto do email" />
+            <Label htmlFor="assunto">Assunto</Label>
+            <Input id="assunto" value={assunto} onChange={e => setAssunto(e.target.value)} placeholder="Assunto do email" />
           </div>
 
           <div className="flex flex-col space-y-2">
-            <Label>Texto de Preview (opcional)</Label>
-            <Input value={preheader} onChange={e => setPreheader(e.target.value)} placeholder="Texto que aparece após o assunto na caixa de entrada" maxLength={150} />
-            <p className="text-xs text-slate-400">Texto curto que aparece após o assunto no cliente de email. Máx. 150 caracteres.</p>
+            <Label htmlFor="preheader">Texto de Preview (opcional)</Label>
+            <Input id="preheader" value={preheader} onChange={e => setPreheader(e.target.value)} placeholder="Texto que aparece após o assunto na caixa de entrada" maxLength={150} />
+            <p className="text-xs text-slate-500">Texto curto que aparece após o assunto no cliente de email. Máx. 150 caracteres.</p>
           </div>
 
           {para === "lista" && (
@@ -91,29 +91,29 @@ export function EnviarTab(props: EnviarTabProps) {
               <Label>Selecionar Listas</Label>
               <div className="border rounded-lg border-slate-200 dark:border-slate-700 max-h-48 overflow-y-auto p-2 space-y-1">
                 {listas.length === 0 ? (
-                  <p className="text-sm text-slate-400 p-2">Nenhuma lista cadastrada. Vá na aba Listas para criar.</p>
+                  <p className="text-sm text-slate-500 p-2">Nenhuma lista cadastrada. Vá na aba Listas para criar.</p>
                 ) : listas.map((l: any) => (
-                  <label key={l.id} className="flex items-center gap-2 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer">
+                  <label key={l.id} className="flex items-center gap-2 p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer min-h-6">
                     <input type="checkbox" checked={selectedListaIds.includes(l.id)}
                       onChange={() => toggleListaSelecionada(l.id)}
                       className="rounded border-slate-300" />
                     <span className="text-sm font-medium">{l.nome}</span>
-                    <span className="text-xs text-slate-400">({l.totalContatos} contatos)</span>
+                    <span className="text-xs text-slate-500">({l.totalContatos} contatos)</span>
                   </label>
                 ))}
               </div>
             </div>
           )}
 
-          <div className="flex flex-col space-y-2">
-            <Label>Remetente</Label>
+          <fieldset className="flex flex-col space-y-2 min-w-0">
+            <legend className="text-sm font-medium text-slate-700 dark:text-slate-300">Remetente</legend>
             <div className="flex flex-col gap-2">
-              <label className="flex items-center gap-2 cursor-pointer">
+              <label className="flex items-center gap-2 cursor-pointer min-h-6">
                 <input type="radio" name="remetente" value="sistema" checked={remetente === "sistema"}
                   onChange={e => setRemetente(e.target.value)} className="text-blue-600" />
                 <span className="text-sm">Sistema (<code className="bg-slate-100 dark:bg-slate-700 px-1 rounded text-xs">SMTP padrão</code>)</span>
               </label>
-              <label className={`flex items-center gap-2 cursor-pointer ${!userEmailConfig ? "opacity-50" : ""}`}>
+              <label className={`flex items-center gap-2 cursor-pointer min-h-6 ${!userEmailConfig ? "opacity-50" : ""}`}>
                 <input type="radio" name="remetente" value="usuario" checked={remetente === "usuario"}
                   onChange={e => setRemetente(e.target.value)} className="text-blue-600"
                   disabled={!userEmailConfig} />
@@ -127,28 +127,28 @@ export function EnviarTab(props: EnviarTabProps) {
                 Nenhuma configuração encontrada. Vá em Meu Perfil.
               </p>
             )}
-          </div>
+          </fieldset>
 
-          <div className="flex flex-col space-y-2">
-            <Label>Modo de Envio</Label>
+          <fieldset className="flex flex-col space-y-2 min-w-0">
+            <legend className="text-sm font-medium text-slate-700 dark:text-slate-300">Modo de Envio</legend>
             <div className="flex flex-col gap-2">
-              <label className="flex items-center gap-2 cursor-pointer">
+              <label className="flex items-center gap-2 cursor-pointer min-h-6">
                 <input type="radio" name="modo_envio" value="bcc" checked={modoEnvio === "bcc"}
                   onChange={e => setModoEnvio(e.target.value)} className="text-blue-600" />
                 <span className="text-sm">Cópia Oculta (BCC)</span>
               </label>
-              <label className="flex items-center gap-2 cursor-pointer">
+              <label className="flex items-center gap-2 cursor-pointer min-h-6">
                 <input type="radio" name="modo_envio" value="to" checked={modoEnvio === "to"}
                   onChange={e => setModoEnvio(e.target.value)} className="text-blue-600" />
                 <span className="text-sm">Para (TO)</span>
               </label>
-              <label className="flex items-center gap-2 cursor-pointer">
+              <label className="flex items-center gap-2 cursor-pointer min-h-6">
                 <input type="radio" name="modo_envio" value="individual" checked={modoEnvio === "individual"}
                   onChange={e => setModoEnvio(e.target.value)} className="text-blue-600" />
                 <span className="text-sm">Individual (<code className="bg-slate-100 dark:bg-slate-700 px-1 rounded text-xs">[NOME]</code>)</span>
               </label>
             </div>
-          </div>
+          </fieldset>
         </section>
 
         <Separator />
@@ -157,16 +157,16 @@ export function EnviarTab(props: EnviarTabProps) {
         <section className="flex flex-col space-y-3 p-4 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
           <h2 className="text-base font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2">
             <Clock size={16} className="text-blue-500" /> Programação
-            <span className="text-xs font-normal text-slate-400">(opcional — para salvar rascunho ou agendar)</span>
+            <span className="text-xs font-normal text-slate-500">(opcional — para salvar rascunho ou agendar)</span>
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex flex-col space-y-1">
-              <Label className="text-xs">Nome do Disparo</Label>
-              <Input value={agendadoForm.nome} onChange={e => setAgendadoForm(f => ({ ...f, nome: e.target.value }))} placeholder="Ex: Promoção de Verão" />
+              <Label htmlFor="nome-disparo" className="text-xs">Nome do Disparo</Label>
+              <Input id="nome-disparo" value={agendadoForm.nome} onChange={e => setAgendadoForm(f => ({ ...f, nome: e.target.value }))} placeholder="Ex: Promoção de Verão" />
             </div>
             <div className="flex flex-col space-y-1">
-              <Label className="text-xs">Agendar para (data/hora)</Label>
-              <Input type="datetime-local" value={agendadoForm.agendadoPara} onChange={e => setAgendadoForm(f => ({ ...f, agendadoPara: e.target.value }))} />
+              <Label htmlFor="agendar-para" className="text-xs">Agendar para (data/hora)</Label>
+              <Input id="agendar-para" type="datetime-local" value={agendadoForm.agendadoPara} onChange={e => setAgendadoForm(f => ({ ...f, agendadoPara: e.target.value }))} />
             </div>
           </div>
         </section>
