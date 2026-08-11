@@ -55,7 +55,7 @@ export async function GET(
       .where(eq(emailEnviados.disparoId, disparoId))
       .groupBy(emailEnviados.id)
       .orderBy(desc(emailEnviados.id))
-      .limit(500)
+      .limit(5000)
 
     const links = await db
       .select({

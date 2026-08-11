@@ -230,6 +230,24 @@ function DisparosSection() {
       const total = Number(data.disparo.total) || 0
       const processados = Number(data.stats?.enviados || 0) + Number(data.stats?.falhas || 0)
       const perc = total > 0 ? Math.round((processados / total) * 100) : 0
+
+      const envios = data.envios || []
+      const grupos = [
+        { titulo: "Lidos", filtrar: (e: any) => !!e.abertoEm },
+        { titulo: "Enviados", filtrar: (e: any) => !e.abertoEm && e.status === "enviado" },
+        { titulo: "Pendentes", filtrar: (e: any) => e.status === "pendente" },
+        { titulo: "Falhas", filtrar: (e: any) => e.status === "falhou" },
+      ]
+      const headersRelatorio = ["Email", "Nome", "Aberto em", "Enviado em", "Cliques", "Erro"]
+      const linhaEnvio = (e: any) => [
+        e.email,
+        e.nome || "-",
+        formatDate(e.abertoEm),
+        formatDate(e.enviadoEm || e.createdAt),
+        e.totalCliques || 0,
+        e.error || "-",
+      ]
+
       exportPDFRelatorio({
         title: `Relatório do Disparo #${d.id} — ${d.nome || d.assunto}`,
         period: `Enviado em ${formatDate(d.criadoEm)} · Status: ${statusLabel(d.status)} · Processamento: ${perc}%`,
@@ -243,20 +261,14 @@ function DisparosSection() {
           Pendentes: data.stats?.pendentes || 0,
         },
         tables: [
-          {
-            headers: ["Status", "Email", "Nome", "Aberto em", "Enviado em", "Cliques", "Erro"],
-            rows: data.envios.map((e: any) => [
-              e.abertoEm ? "Lido" : e.status === "enviado" ? "Enviado" : "Falhou",
-              e.email,
-              e.nome || "-",
-              formatDate(e.abertoEm),
-              formatDate(e.enviadoEm || e.createdAt),
-              e.totalCliques || 0,
-              e.error || "-",
-            ]),
-          },
+          ...grupos.flatMap((g) => {
+            const linhas = envios.filter(g.filtrar)
+            return linhas.length
+              ? [{ title: `${g.titulo} (${linhas.length})`, headers: headersRelatorio, rows: linhas.map(linhaEnvio) }]
+              : []
+          }),
           ...(data.links.length
-            ? [{ headers: ["Link", "Cliques"], rows: data.links.map((l: any) => [l.urlOriginal, l.total]) }]
+            ? [{ title: "Links mais clicados", headers: ["Link", "Cliques"], rows: data.links.map((l: any) => [l.urlOriginal, l.total]) }]
             : []),
         ],
         filename: `relatorio-disparo-${d.id}-${new Date().toISOString().split("T")[0]}`,

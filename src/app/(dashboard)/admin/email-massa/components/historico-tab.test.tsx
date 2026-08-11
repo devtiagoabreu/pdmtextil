@@ -168,7 +168,11 @@ describe("HistoricoTab", () => {
         return { json: { envios, stats: { total: 3, enviados: 2, lidos: 1, falhas: 1, totalCliques: 4 } } }
       }
       if (method === "GET" && url === "/api/admin/email-massa/disparos/2/relatorio") {
-        return { json: { disparo, stats: { pendentes: 0, enviados: 10, falhas: 0, lidos: 5, clicados: 3, totalCliques: 6 }, envios: [{ id: 1, email: "ana@empresa.com", nome: "Ana Souza", status: "enviado", error: null, abertoEm: "2026-07-10T10:00:00.000Z", enviadoEm: "2026-07-09T10:00:00.000Z", totalCliques: 2 }], links: [{ urlOriginal: "https://pdmprotextil.com.br", total: 6 }] } }
+        return { json: { disparo, stats: { pendentes: 1, enviados: 10, falhas: 2, lidos: 5, clicados: 3, totalCliques: 6 }, envios: [
+          { id: 1, email: "ana@empresa.com", nome: "Ana Souza", status: "enviado", error: null, abertoEm: "2026-07-10T10:00:00.000Z", enviadoEm: "2026-07-09T10:00:00.000Z", totalCliques: 2 },
+          { id: 2, email: "bruno@empresa.com", nome: "Bruno Lima", status: "enviado", error: null, abertoEm: null, enviadoEm: "2026-07-09T10:00:00.000Z", totalCliques: 0 },
+          { id: 3, email: "carla@empresa.com", nome: "Carla Dias", status: "falhou", error: "550 rejected", abertoEm: null, enviadoEm: "2026-07-09T10:00:00.000Z", totalCliques: 0 },
+        ], links: [{ urlOriginal: "https://pdmprotextil.com.br", total: 6 }] } }
       }
       return { json: null }
     })
@@ -182,8 +186,11 @@ describe("HistoricoTab", () => {
     await waitFor(() => expect(exportPDFRelatorio).toHaveBeenCalledWith(expect.objectContaining({ filename: expect.stringContaining("relatorio-disparo-2-") })))
     const args = vi.mocked(exportPDFRelatorio).mock.calls.at(-1)![0] as any
     expect(args.title).toContain("Promo Julho")
-    expect(args.stats).toEqual({ Total: 10, Enviados: 10, Lidos: 5, Cliques: 6, Clicados: 3, Falhas: 0, Pendentes: 0 })
-    expect(args.tables).toHaveLength(2)
+    expect(args.stats).toEqual({ Total: 10, Enviados: 10, Lidos: 5, Cliques: 6, Clicados: 3, Falhas: 2, Pendentes: 1 })
+    expect(args.tables).toHaveLength(4)
+    expect(args.tables.map((t: any) => t.title)).toEqual(["Lidos (1)", "Enviados (1)", "Falhas (1)", "Links mais clicados"])
+    expect(args.tables[0].headers).toEqual(["Email", "Nome", "Aberto em", "Enviado em", "Cliques", "Erro"])
+    expect(args.tables[2].rows[0][5]).toBe("550 rejected")
   })
 
   it("abre o modal de lista de falhas e cria a lista via POST", async () => {

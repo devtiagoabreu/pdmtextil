@@ -82,7 +82,7 @@ export function exportPDF(title: string, contentHtml: string) {
 export async function exportPDFRelatorio(options: {
   title: string
   stats?: Record<string, string | number>
-  tables?: { headers: string[]; rows: (string | number | null | undefined)[][] }[]
+  tables?: { title?: string; headers: string[]; rows: (string | number | null | undefined)[][] }[]
   period?: string
   filename?: string
   orientation?: "portrait" | "landscape"
@@ -176,6 +176,13 @@ export async function exportPDFRelatorio(options: {
   if (options.tables) {
     for (const table of options.tables) {
       if (table.rows.length === 0) continue
+
+      if (table.title) {
+        doc.setFontSize(9).setFont("helvetica", "bold")
+        doc.setTextColor(7, 63, 184)
+        doc.text(table.title, marginX, y + 3)
+        y += 8
+      }
 
       const head = [table.headers]
       const body = table.rows.map((row: any) => row.map((cell: any) => cell?.toString() ?? "-"))
