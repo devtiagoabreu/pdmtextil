@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -82,6 +82,29 @@ function formatDate(dateStr: string | null) {
     hour: "2-digit", minute: "2-digit",
   })
 }
+
+function EnvioRow({ e }: { e: any }) {
+  return (
+    <tr className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
+      <td className="p-2">
+        <StatusBadge status={e.status} abertoEm={e.abertoEm} />
+      </td>
+      <td className="p-2 text-slate-600 dark:text-slate-300 break-words">{e.email}</td>
+      <td className="p-2 truncate">{e.nome || "—"}</td>
+      <td className="p-2 text-slate-500 truncate">{e.assunto}</td>
+      <td className="p-2 text-center">
+        <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${e.totalCliques > 0 ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400" : "bg-slate-100 text-slate-400 dark:bg-slate-800"}`}>
+          {e.totalCliques || 0}
+        </span>
+      </td>
+      <td className="p-2 text-slate-500 text-xs whitespace-nowrap">{formatDate(e.createdAt)}</td>
+      <td className="p-2 text-slate-500 text-xs whitespace-nowrap">{formatDate(e.abertoEm)}</td>
+      <td className="p-2 text-red-500 text-xs truncate">{e.error || "—"}</td>
+    </tr>
+  )
+}
+
+const MemoEnvioRow = memo(EnvioRow)
 
 function temDisparoAtivo(dados: Disparo[]) {
   return dados.some((d) => d.status === "fila" || d.status === "enviando" || d.status === "pausado")
@@ -364,6 +387,7 @@ export function HistoricoTab() {
   const [debouncedSearch, setDebouncedSearch] = useState("")
   const [sortField, setSortField] = useState<SortField | null>(null)
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc")
+  const [rowLimit, setRowLimit] = useState(50)
   const debounceRef = useRef<NodeJS.Timeout | null>(null)
 
   const handleSearchChange = useCallback((value: string) => {
@@ -375,6 +399,10 @@ export function HistoricoTab() {
   useEffect(() => {
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current) }
   }, [])
+
+  useEffect(() => {
+    setRowLimit(50)
+  }, [debouncedSearch])
 
   const { data: historico = null, isLoading: loadingHistorico } = useQuery<HistoricoData | null>({
     queryKey: ["email-massa-historico"],
@@ -415,6 +443,8 @@ export function HistoricoTab() {
       setSortDir(field === "totalCliques" || field === "createdAt" || field === "abertoEm" ? "desc" : "asc")
     }
   }
+
+  const visibleEnvios = useMemo(() => filteredEnvios.slice(0, rowLimit), [filteredEnvios, rowLimit])
 
   const clearSearch = () => {
     setHistoricoSearch("")
@@ -539,26 +569,22 @@ export function HistoricoTab() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredEnvios.map((e: any) => (
-                      <tr key={e.id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                        <td className="p-2">
-                          <StatusBadge status={e.status} abertoEm={e.abertoEm} />
-                        </td>
-                        <td className="p-2 text-slate-600 dark:text-slate-300 break-words">{e.email}</td>
-                        <td className="p-2 truncate">{e.nome || "—"}</td>
-                        <td className="p-2 text-slate-500 truncate">{e.assunto}</td>
-                        <td className="p-2 text-center">
-                          <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${e.totalCliques > 0 ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400" : "bg-slate-100 text-slate-400 dark:bg-slate-800"}`}>
-                            {e.totalCliques || 0}
-                          </span>
-                        </td>
-                        <td className="p-2 text-slate-500 text-xs whitespace-nowrap">{formatDate(e.createdAt)}</td>
-                        <td className="p-2 text-slate-500 text-xs whitespace-nowrap">{formatDate(e.abertoEm)}</td>
-                        <td className="p-2 text-red-500 text-xs truncate">{e.error || "—"}</td>
-                      </tr>
+                    {visibleEnvios.map((e: any) => (
+                      <MemoEnvioRow key={e.id} e={e} />
                     ))}
                   </tbody>
                 </table>
+              </div>
+            )}
+
+            {filteredEnvios.length > rowLimit && (
+              <div className="flex items-center justify-center gap-3">
+                <p className="text-xs text-slate-400">
+                  Mostrando {rowLimit} de {filteredEnvios.length} envios
+                </p>
+                <Button variant="outline" size="sm" onClick={() => setRowLimit(r => r + 100)} className="gap-1 active:opacity-70">
+                  <ArrowDown size={14} /> Mostrar mais
+                </Button>
               </div>
             )}
           </div>

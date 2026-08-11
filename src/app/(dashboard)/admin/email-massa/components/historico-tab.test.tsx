@@ -212,4 +212,36 @@ describe("HistoricoTab", () => {
     await waitFor(() => expect(findCall(fetchMock.calls, "/api/admin/email-massa/disparos/2/criar-lista", "POST")).toBeDefined())
     await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith(expect.stringContaining("1 contato(s)")))
   })
+
+  it("pagina a tabela: renderiza 50 linhas e 'Mostrar mais' expande", async () => {
+    const muitos = Array.from({ length: 60 }, (_, i) => ({
+      id: i + 1,
+      email: `user${i}@empresa.com`,
+      nome: `User ${i}`,
+      assunto: "Promo",
+      status: "enviado",
+      error: null,
+      abertoEm: null,
+      createdAt: "2026-07-09T10:00:00.000Z",
+      totalCliques: 0,
+    }))
+    const fetchMock = createFetchMock(({ method, url }) => {
+      if (method === "GET" && url === "/api/admin/email-massa/disparos") return { json: { disparos: [] } }
+      if (method === "GET" && url === "/api/admin/email-massa/historico") {
+        return { json: { envios: muitos, stats: { total: 60, enviados: 60, lidos: 0, falhas: 0, totalCliques: 0 } } }
+      }
+      return { json: null }
+    })
+    vi.stubGlobal("fetch", fetchMock.fn)
+    renderPage(<HistoricoTab />)
+    await screen.findByText("user0@empresa.com")
+
+    expect(screen.getAllByRole("row")).toHaveLength(51)
+    expect(screen.queryByText("user59@empresa.com")).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole("button", { name: /Mostrar mais/ }))
+
+    await waitFor(() => expect(screen.getAllByRole("row")).toHaveLength(61))
+    expect(screen.getByText("user59@empresa.com")).toBeInTheDocument()
+  })
 })
