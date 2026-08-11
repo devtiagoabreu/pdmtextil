@@ -378,7 +378,7 @@ describe("POST /api/admin/email-massa/processar", () => {
     expect(strings.some((s: string) => s.includes("temporary"))).toBe(false)
   })
 
-  it("passa o início do dia como string ISO na contagem do limite diário (driver postgres.js não serializa Date)", async () => {
+  it("usa janela móvel de 24h na contagem do limite diário em vez de dia de calendário", async () => {
     vi.mocked(getServerSession).mockResolvedValue(session as any)
     const updBuilder = createQueryBuilder(undefined)
     db.update = vi.fn(() => updBuilder)
@@ -405,6 +405,6 @@ describe("POST /api/admin/email-massa/processar", () => {
     expect(res.status).toBe(200)
 
     const strings = collectStrings(builders[2].where.mock.calls[0][0])
-    expect(strings.some((s: string) => /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(s)), JSON.stringify(strings)).toBe(true)
+    expect(strings.some((s: string) => s.includes("interval") && s.includes("24")), JSON.stringify(strings)).toBe(true)
   })
 })

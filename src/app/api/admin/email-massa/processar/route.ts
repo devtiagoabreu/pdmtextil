@@ -32,9 +32,7 @@ const SMTP_OPTS = {
   rateDelta: 1_000,
 }
 
-async function contagemEnviadasHoje(remetente: "usuario" | "sistema", usuarioId?: number) {
-  const inicioDia = new Date()
-  inicioDia.setHours(0, 0, 0, 0)
+async function contagemEnviadasJanela(remetente: "usuario" | "sistema", usuarioId?: number) {
   const rows = await db
     .select({ total: sql<number>`count(*)` })
     .from(emailEnviados)
@@ -42,7 +40,7 @@ async function contagemEnviadasHoje(remetente: "usuario" | "sistema", usuarioId?
     .where(
       and(
         eq(emailEnviados.status, "enviado"),
-        sql`${emailEnviados.enviadoEm} >= ${inicioDia.toISOString()}::timestamp`,
+        sql`${emailEnviados.enviadoEm} >= now() - interval '24 hours'`,
         remetente === "usuario"
           ? and(eq(emailDisparos.remetente, "usuario"), eq(emailDisparos.criadoPor, usuarioId ?? -1))
           : eq(emailDisparos.remetente, "sistema")
@@ -167,9 +165,9 @@ export async function POST(req: NextRequest) {
         tc = { host: cfg.host, port: cfg.port, user: cfg.user, pass: decrypt(cfg.pass), fromName: cfg.fromName || "PDM Têxtil", limiteDiario: LIMITE_DIARIO_PADRAO }
       }
 
-      const enviadasHoje = await contagemEnviadasHoje(d.remetente === "usuario" ? "usuario" : "sistema", d.criadoPor ?? undefined)
+      const enviadasHoje = await contagemEnviadasJanela(d.remetente === "usuario" ? "usuario" : "sistema", d.criadoPor ?? undefined)
       if (enviadasHoje >= tc.limiteDiario) {
-        await pausarDisparo(d.id, `Limite diário configurado atingido (${tc.limiteDiario}). O disparo será retomado amanhã.`)
+        await pausarDisparo(d.id, `Limite diário configurado atingido (${tc.limiteDiario}) nas últimas 24h. Retomada automática quando a janela liberar.`)
         continue
       }
       const restantesDoCap = tc.limiteDiario - enviadasHoje
@@ -215,7 +213,7 @@ export async function POST(req: NextRequest) {
       let capRestante = restantesDoCap
 
       const marcarCapAtingido = async () => {
-        await pausarDisparo(d.id, `Limite diário configurado atingido (${tc.limiteDiario}). O disparo será retomado amanhã.`)
+        await pausarDisparo(d.id, `Limite diário configurado atingido (${tc.limiteDiario}) nas últimas 24h. Retomada automática quando a janela liberar.`)
         pararDreno = true
       }
 
