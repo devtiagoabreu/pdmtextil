@@ -127,7 +127,7 @@ export default function DashboardPage() {
           {/* Stats cards */}
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-7">
             {[
-              { key: "total-mes", label: "Total este mês", value: stats?.totalEsteMes ?? 0, color: "text-slate-700 dark:text-slate-200", bg: "bg-slate-100 dark:bg-slate-800", delay: 0 },
+              { key: "total-mes", label: "Total geral", value: stats?.totalGeral ?? 0, color: "text-slate-700 dark:text-slate-200", bg: "bg-slate-100 dark:bg-slate-800", delay: 0 },
               { key: "pendentes", label: "Pendentes", value: stats?.pendentes ?? 0, color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-50 dark:bg-amber-950/50", delay: 50 },
               { key: "em-desenvolvimento", label: "Em Desenvolvimento", value: stats?.emDesenvolvimento ?? 0, color: "text-indigo-600 dark:text-indigo-400", bg: "bg-indigo-50 dark:bg-indigo-950/50", delay: 100 },
               { key: "pilotagem", label: "Pilotagem", value: stats?.pilotagem ?? 0, color: "text-cyan-600 dark:text-cyan-400", bg: "bg-cyan-50 dark:bg-cyan-950/50", delay: 150 },
@@ -145,6 +145,11 @@ export default function DashboardPage() {
                 <p className={`text-3xl font-bold mt-1 ${stat.color}`}>
                   <AnimatedNumber value={stat.value} delay={stat.delay} duration={1500} />
                 </p>
+                {stat.key === "total-mes" && (
+                  <p className="text-xs text-slate-400 dark:text-slate-500 mt-1.5">
+                    <AnimatedNumber value={stats?.totalEsteMes ?? 0} delay={0} duration={1500} /> este mês
+                  </p>
+                )}
               </button>
             ))}
           </div>

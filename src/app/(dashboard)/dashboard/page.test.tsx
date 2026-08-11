@@ -12,7 +12,8 @@ describe("DashboardPage", () => {
   it("renderiza o heading e o estado final das atividades", async () => {
     const fetchMock = createFetchMock(routeJson({
       "GET /api/dashboard/stats": {
-        totalEsteMes: 0,
+        totalGeral: 17,
+        totalEsteMes: 5,
         pendentes: 0,
         emDesenvolvimento: 0,
         pilotagem: 0,
@@ -29,6 +30,8 @@ describe("DashboardPage", () => {
     vi.stubGlobal("fetch", fetchMock.fn)
     renderPage(<DashboardPage />)
     expect(screen.getByRole("heading", { name: /Dashboard Solicitações de Desenvolvimento/ })).toBeInTheDocument()
+    expect(await screen.findByText("Total geral")).toBeInTheDocument()
+    expect(await screen.findByText(/este mês/)).toBeInTheDocument()
     expect(await screen.findByText("Nenhuma atividade recente")).toBeInTheDocument()
   })
 })

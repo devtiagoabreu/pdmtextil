@@ -29,6 +29,8 @@ const agrupado = [
   },
 ]
 
+const geralMes = [{ total_geral: 25, total_mes: 5 }]
+
 describe("GET /api/dashboard/stats", () => {
   beforeEach(() => {
     vi.mocked(getServerSession).mockReset()
@@ -43,10 +45,14 @@ describe("GET /api/dashboard/stats", () => {
 
   it("retorna as estatísticas com o shape esperado", async () => {
     vi.mocked(getServerSession).mockResolvedValue({ user: { id: "1" } } as any)
-    db.execute = vi.fn().mockResolvedValueOnce(mensal).mockResolvedValueOnce(agrupado)
+    db.execute = vi.fn()
+      .mockResolvedValueOnce(mensal)
+      .mockResolvedValueOnce(agrupado)
+      .mockResolvedValueOnce(geralMes)
     const res = await GET()
     expect(res.status).toBe(200)
     const data = await res.json()
+    expect(data.totalGeral).toBe(25)
     expect(data.totalEsteMes).toBe(5)
     expect(data.pendentes).toBe(3)
     expect(data.concluidas).toBe(2)
@@ -65,6 +71,7 @@ describe("GET /api/dashboard/stats", () => {
     const res = await GET()
     expect(res.status).toBe(200)
     const data = await res.json()
+    expect(data.totalGeral).toBe(0)
     expect(data.totalEsteMes).toBe(0)
     expect(data.monthlyTrend).toEqual([])
     expect(data.statusDistribution).toEqual([])

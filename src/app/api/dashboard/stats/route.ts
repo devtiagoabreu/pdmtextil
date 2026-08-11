@@ -24,7 +24,7 @@ export async function GET() {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
-    const [monthlyRaw, aggRaw] = await Promise.all([
+    const [monthlyRaw, aggRaw, geralMesRaw] = await Promise.all([
       query(sql`
         SELECT
           to_char(created_at, 'YYYY-MM') AS mes,
@@ -43,13 +43,21 @@ export async function GET() {
            FROM (SELECT tipo, COUNT(*)::int AS cnt FROM solicitacoes GROUP BY tipo) t) AS tipo_rows,
           (SELECT COUNT(*)::int AS total FROM produtos_cru) AS pc_total
       `),
+      query(sql`
+        SELECT
+          (SELECT COUNT(*)::int FROM solicitacoes) AS total_geral,
+          (SELECT COUNT(*)::int FROM solicitacoes WHERE created_at >= date_trunc('month', now())) AS total_mes
+      `),
     ])
 
     const monthlyRows = Array.isArray(monthlyRaw) ? monthlyRaw : []
     const agg = Array.isArray(aggRaw) ? aggRaw[0] : aggRaw ?? {}
+    const geralMes = Array.isArray(geralMesRaw) ? geralMesRaw[0] : geralMesRaw ?? {}
     const statusRows = parseJson(agg?.status_rows)
     const tipoRows = parseJson(agg?.tipo_rows)
     const totalProdutosCru = Number(agg?.pc_total ?? 0)
+    const totalGeral = Number(geralMes?.total_geral ?? 0)
+    const totalEsteMes = Number(geralMes?.total_mes ?? 0)
 
     const monthMap = new Map<string, { pendentes: number; emDesenvolvimento: number; pilotagem: number; concluidoDev: number; aprovadoCliente: number; concluidas: number; total: number }>()
     let geralPendentes = 0, geralEmDesenvolvimento = 0, geralPilotagem = 0, geralConcluidoDev = 0, geralAprovadoCliente = 0, geralConcluidas = 0, geralTotal = 0
@@ -83,7 +91,8 @@ export async function GET() {
     }
 
     return NextResponse.json({
-      totalEsteMes: geralTotal,
+      totalGeral,
+      totalEsteMes,
       pendentes: geralPendentes,
       emDesenvolvimento: geralEmDesenvolvimento,
       pilotagem: geralPilotagem,
