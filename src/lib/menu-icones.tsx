@@ -47,6 +47,7 @@ import {
 // [título (pt-BR), nome do ícone (lucide), componente]
 const ENTRADAS: [string, string, LucideIcon][] = [
   ["Dashboard", "LayoutDashboard", LayoutDashboard],
+  ["Dashboards", "LayoutDashboard", LayoutDashboard],
   ["Comercial", "Handshake", Handshake],
   ["CRM", "Target", Target],
   ["Amostras", "Package", Package],
