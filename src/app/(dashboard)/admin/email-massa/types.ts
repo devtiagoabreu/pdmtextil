@@ -99,6 +99,8 @@ export interface Disparo {
   enviados: number
   falhas: number
   pendentes: number
+  lidos: number
+  cliques: number
   erro: string | null
   criadoPor: number | null
   criadoEm: string

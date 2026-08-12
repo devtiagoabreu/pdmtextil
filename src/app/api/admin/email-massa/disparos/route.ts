@@ -4,7 +4,8 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { emailDisparos, type EmailDisparo } from "@/lib/db/schema/email-disparos"
 import { emailEnviados } from "@/lib/db/schema/email-enviados"
-import { desc, inArray, sql } from "drizzle-orm"
+import { emailCliques } from "@/lib/db/schema/email-cliques"
+import { desc, eq, inArray, sql } from "drizzle-orm"
 
 export const dynamic = "force-dynamic"
 
@@ -39,7 +40,7 @@ export async function GET() {
       .limit(50)
 
     const ids = disparos.map((d: EmailDisparo) => d.id)
-    const contadoresMap = new Map<number, { pendentes: number; enviados: number; falhas: number }>()
+    const contadoresMap = new Map<number, { pendentes: number; enviados: number; falhas: number; lidos: number; cliques: number }>()
     if (ids.length > 0) {
       const rows = await db
         .select({
@@ -47,6 +48,7 @@ export async function GET() {
           pendentes: sql<number>`count(*) filter (where ${emailEnviados.status} = 'pendente')`,
           enviados: sql<number>`count(*) filter (where ${emailEnviados.status} = 'enviado')`,
           falhas: sql<number>`count(*) filter (where ${emailEnviados.status} = 'falhou')`,
+          lidos: sql<number>`count(*) filter (where ${emailEnviados.abertoEm} is not null)`,
         })
         .from(emailEnviados)
         .where(inArray(emailEnviados.disparoId, ids))
@@ -56,14 +58,29 @@ export async function GET() {
           pendentes: Number(r.pendentes),
           enviados: Number(r.enviados),
           falhas: Number(r.falhas),
+          lidos: Number(r.lidos),
+          cliques: 0,
         })
+      }
+      const cliquesRows = await db
+        .select({
+          disparoId: emailEnviados.disparoId,
+          cliques: sql<number>`count(distinct ${emailCliques.envioId})`,
+        })
+        .from(emailCliques)
+        .innerJoin(emailEnviados, eq(emailEnviados.id, emailCliques.envioId))
+        .where(inArray(emailEnviados.disparoId, ids))
+        .groupBy(emailEnviados.disparoId)
+      for (const r of cliquesRows) {
+        const atual = contadoresMap.get(r.disparoId) || { pendentes: 0, enviados: 0, falhas: 0, lidos: 0, cliques: 0 }
+        contadoresMap.set(r.disparoId!, { ...atual, cliques: Number(r.cliques) })
       }
     }
 
     return NextResponse.json({
       disparos: disparos.map((d: EmailDisparo) => ({
         ...d,
-        ...(contadoresMap.get(d.id) || { pendentes: 0, enviados: 0, falhas: 0 }),
+        ...(contadoresMap.get(d.id) || { pendentes: 0, enviados: 0, falhas: 0, lidos: 0, cliques: 0 }),
       })),
     })
   } catch (error: any) {

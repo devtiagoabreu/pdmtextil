@@ -39,6 +39,8 @@ const progresso: Disparo = {
   enviados: 100,
   falhas: 0,
   pendentes: 4611,
+  lidos: 0,
+  cliques: 0,
   erro: null,
   criadoPor: 16,
   criadoEm: "2026-08-07T16:36:59.000Z",

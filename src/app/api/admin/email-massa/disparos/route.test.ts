@@ -50,7 +50,11 @@ describe("GET /api/admin/email-massa/disparos", () => {
 
   it("lista disparos com contadores ao vivo", async () => {
     vi.mocked(getServerSession).mockResolvedValue(session as any)
-    mockSelectSequence([disparo], [{ disparoId: 2, pendentes: 10, enviados: 380, falhas: 2 }])
+    mockSelectSequence(
+      [disparo],
+      [{ disparoId: 2, pendentes: 10, enviados: 380, falhas: 2, lidos: 150 }],
+      [{ disparoId: 2, cliques: 42 }],
+    )
 
     const res = await GET()
     expect(res.status).toBe(200)
@@ -59,11 +63,13 @@ describe("GET /api/admin/email-massa/disparos", () => {
     expect(data.disparos[0].enviados).toBe(380)
     expect(data.disparos[0].falhas).toBe(2)
     expect(data.disparos[0].pendentes).toBe(10)
+    expect(data.disparos[0].lidos).toBe(150)
+    expect(data.disparos[0].cliques).toBe(42)
   })
 
   it("zera contadores quando não há envios registrados", async () => {
     vi.mocked(getServerSession).mockResolvedValue(session as any)
-    mockSelectSequence([disparo], [])
+    mockSelectSequence([disparo], [], [])
 
     const res = await GET()
     expect(res.status).toBe(200)
@@ -71,5 +77,7 @@ describe("GET /api/admin/email-massa/disparos", () => {
     expect(data.disparos[0].enviados).toBe(0)
     expect(data.disparos[0].falhas).toBe(0)
     expect(data.disparos[0].pendentes).toBe(0)
+    expect(data.disparos[0].lidos).toBe(0)
+    expect(data.disparos[0].cliques).toBe(0)
   })
 })
