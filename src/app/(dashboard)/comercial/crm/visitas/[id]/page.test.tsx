@@ -202,6 +202,22 @@ describe("DetalheVisitaPage", () => {
     await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Visita vinculada com sucesso!"))
   })
 
+  it("aplica o modelo de visita técnica no relato da ata", async () => {
+    renderPage(<DetalheVisitaPage />)
+    await screen.findByRole("heading", { name: "Visita — Tecelagem Alpha" })
+
+    fireEvent.click(screen.getByRole("button", { name: "Editar" }))
+    await screen.findByRole("button", { name: "Salvar" })
+
+    const editor = document.querySelector('[contenteditable="true"]') as HTMLElement
+    expect(editor.innerHTML).toContain("Visita de apresentação")
+
+    fireEvent.click(screen.getByRole("button", { name: "Visita tecnica" }))
+
+    await waitFor(() => expect(editor.innerHTML).toContain("Visita tecnica para levantamento de necessidades"))
+    expect(editor.innerHTML).not.toContain("Visita de apresentação")
+  })
+
   it("mostra mensagem quando a visita não existe", async () => {
     navMock.setParams({ id: "999" })
     const notFound = createFetchMock(() => ({ status: 404, json: { error: "não encontrada" } }))

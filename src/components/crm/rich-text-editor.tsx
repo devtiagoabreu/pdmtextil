@@ -46,11 +46,16 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = "300p
   const [colorValue, setColorValue] = useState("#000000")
 
   useEffect(() => {
-    if (editorRef.current && !initialized.current) {
-      editorRef.current.innerHTML = sanitizeHtml(value || "")
+    const el = editorRef.current
+    if (!el) return
+    const next = sanitizeHtml(value || "")
+    if (!initialized.current) {
+      el.innerHTML = next
       initialized.current = true
-      lastExternalValue.current = value
+    } else if (value !== lastExternalValue.current) {
+      el.innerHTML = next
     }
+    lastExternalValue.current = value
   }, [value])
 
   function saveSelection() {
@@ -58,6 +63,12 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = "300p
     if (sel && sel.rangeCount > 0 && editorRef.current?.contains(sel.anchorNode)) {
       savedRange.current = sel.getRangeAt(0)
     }
+  }
+
+  function emitChange() {
+    if (!editorRef.current) return
+    lastExternalValue.current = editorRef.current.innerHTML
+    onChange(editorRef.current.innerHTML)
   }
 
   function exec(cmd: string, val?: string) {
@@ -71,9 +82,7 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = "300p
     document.execCommand(cmd, false, val)
     if (editorRef.current) editorRef.current.focus()
     savedRange.current = null
-    if (editorRef.current) {
-      onChange(editorRef.current.innerHTML)
-    }
+    emitChange()
   }
 
   function insertList(ordered: boolean) {
@@ -106,9 +115,7 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = "300p
   }
 
   function handleEditorInput() {
-    if (editorRef.current) {
-      onChange(editorRef.current.innerHTML)
-    }
+    emitChange()
   }
 
   return (
