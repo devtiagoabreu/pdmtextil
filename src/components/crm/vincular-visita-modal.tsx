@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { Loader2, Link as LinkIcon } from "lucide-react"
+import { Loader2, Link as LinkIcon, Plus } from "lucide-react"
 import { toast } from "sonner"
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog"
+import { QuickCreateCliente } from "./quick-create-cliente"
 
 type Props = {
   visitaId: number
@@ -19,11 +20,13 @@ export default function VincularVisitaModal({ visitaId, open, onClose, onLinked 
   const [tipo, setTipo] = useState<"CLIENTE" | "PESSOA" | "">("")
   const [loading, setLoading] = useState(false)
   const [selectedId, setSelectedId] = useState("")
+  const [createOpen, setCreateOpen] = useState(false)
 
   useEffect(() => {
     if (!open) {
       setTipo("")
       setSelectedId("")
+      setCreateOpen(false)
       return
     }
   }, [open])
@@ -50,21 +53,9 @@ export default function VincularVisitaModal({ visitaId, open, onClose, onLinked 
   const clientes = tipo === "CLIENTE" ? (lista ?? []) : []
   const empresas = tipo === "PESSOA" ? (lista ?? []) : []
 
-  async function handleConfirm() {
-    if (!selectedId) {
-      toast.error(`Selecione um${tipo === "CLIENTE" ? " cliente" : "a pessoa"}`)
-      return
-    }
+  async function linkVisita(body: Record<string, any>, successMsg: string) {
     setLoading(true)
     try {
-      const body: Record<string, any> = { nomeAvulso: null }
-      if (tipo === "CLIENTE") {
-        body.clienteId = parseInt(selectedId)
-        body.empresaId = null
-      } else {
-        body.empresaId = parseInt(selectedId)
-        body.clienteId = null
-      }
       const res = await fetch(`/api/crm/visitas/${visitaId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -74,7 +65,7 @@ export default function VincularVisitaModal({ visitaId, open, onClose, onLinked 
         const err = await res.json()
         throw new Error(err.error || "Erro ao vincular")
       }
-      toast.success("Visita vinculada com sucesso!")
+      toast.success(successMsg)
       onLinked()
       onClose()
     } catch (err: any) {
@@ -82,6 +73,29 @@ export default function VincularVisitaModal({ visitaId, open, onClose, onLinked 
     } finally {
       setLoading(false)
     }
+  }
+
+  async function handleConfirm() {
+    if (!selectedId) {
+      toast.error(`Selecione um${tipo === "CLIENTE" ? " cliente" : "a pessoa"}`)
+      return
+    }
+    const body: Record<string, any> = { nomeAvulso: null }
+    if (tipo === "CLIENTE") {
+      body.clienteId = parseInt(selectedId)
+      body.empresaId = null
+    } else {
+      body.empresaId = parseInt(selectedId)
+      body.clienteId = null
+    }
+    await linkVisita(body, "Visita vinculada com sucesso!")
+  }
+
+  async function handleClienteCreated(id: number, nome: string) {
+    await linkVisita(
+      { clienteId: id, empresaId: null, nomeAvulso: null },
+      `Cliente "${nome}" criado e vinculado à visita!`,
+    )
   }
 
   return (
@@ -145,6 +159,29 @@ export default function VincularVisitaModal({ visitaId, open, onClose, onLinked 
                   </option>
                 ))}
               </select>
+            )}
+
+            {tipo === "CLIENTE" && (
+              <div className="space-y-2 border-t border-slate-100 dark:border-slate-800 pt-3">
+                <div className="flex items-center gap-2">
+                  <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
+                  <span className="text-xs text-slate-400">ou crie um novo</span>
+                  <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setCreateOpen(true)}
+                  className="w-full inline-flex items-center justify-center gap-1.5 rounded-lg border border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/30 px-3 py-2 text-sm font-medium text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-950/50 transition-colors"
+                >
+                  <Plus size={14} />
+                  Criar novo cliente
+                </button>
+                <QuickCreateCliente
+                  open={createOpen}
+                  onOpenChange={setCreateOpen}
+                  onCreated={handleClienteCreated}
+                />
+              </div>
             )}
 
             <div className="flex justify-end gap-3 pt-2">

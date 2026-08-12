@@ -12,6 +12,8 @@ import { SelectCidade } from "./select-cidade"
 
 type Props = {
   onCreated: (id: number, nome: string) => void
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
 function formatCnpj(v: string) {
@@ -20,8 +22,16 @@ function formatCnpj(v: string) {
   return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}/${d.slice(8, 12)}-${d.slice(12)}`
 }
 
-export function QuickCreateCliente({ onCreated }: Props) {
-  const [open, setOpen] = useState(false)
+export function QuickCreateCliente({ onCreated, open: openProp, onOpenChange }: Props) {
+  const [internalOpen, setInternalOpen] = useState(false)
+  const open = openProp ?? internalOpen
+  const isControlled = openProp !== undefined
+
+  function setOpen(v: boolean) {
+    setInternalOpen(v)
+    onOpenChange?.(v)
+  }
+
   const [saving, setSaving] = useState(false)
   const [nome, setNome] = useState("")
   const [razaoSocial, setRazaoSocial] = useState("")
@@ -147,13 +157,15 @@ export function QuickCreateCliente({ onCreated }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) resetForm() }}>
-      <DialogTrigger
-        type="button"
-        className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 rounded transition-colors min-w-[32px] min-h-[32px] flex items-center justify-center"
-        title="Cadastrar novo cliente"
-      >
-        <Plus size={14} />
-      </DialogTrigger>
+      {!isControlled && (
+        <DialogTrigger
+          type="button"
+          className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 rounded transition-colors min-w-[32px] min-h-[32px] flex items-center justify-center"
+          title="Cadastrar novo cliente"
+        >
+          <Plus size={14} />
+        </DialogTrigger>
+      )}
       <DialogContent className="sm:max-w-2xl p-0">
         <DialogHeader className="px-4 pt-4 sm:px-6 sm:pt-6">
           <DialogTitle>Novo Cliente</DialogTitle>
