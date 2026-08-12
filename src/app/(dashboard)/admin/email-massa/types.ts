@@ -37,6 +37,8 @@ export interface Envio {
   abertoEm: string | null
   createdAt: string
   totalCliques: number
+  disparoId: number | null
+  disparoNome: string | null
 }
 
 export interface HistoricoData {

@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { emailEnviados } from "@/lib/db/schema/email-enviados"
 import { emailCliques } from "@/lib/db/schema/email-cliques"
+import { emailDisparos } from "@/lib/db/schema/email-disparos"
 import { desc, eq, ne, sql } from "drizzle-orm"
 
 export const dynamic = "force-dynamic"
@@ -26,11 +27,14 @@ export async function GET() {
         abertoEm: emailEnviados.abertoEm,
         createdAt: emailEnviados.createdAt,
         totalCliques: sql<number>`count(${emailCliques.id})`,
+        disparoId: emailDisparos.id,
+        disparoNome: emailDisparos.nome,
       })
       .from(emailEnviados)
       .leftJoin(emailCliques, eq(emailCliques.envioId, emailEnviados.id))
+      .leftJoin(emailDisparos, eq(emailDisparos.id, emailEnviados.disparoId))
       .where(ne(emailEnviados.status, "pendente"))
-      .groupBy(emailEnviados.id)
+      .groupBy(emailEnviados.id, emailDisparos.id, emailDisparos.nome)
       .orderBy(desc(emailEnviados.createdAt))
       .limit(500)
 

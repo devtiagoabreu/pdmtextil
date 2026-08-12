@@ -8,10 +8,14 @@ import { toast } from "sonner"
 import { matchesSearch } from "@/components/ui/list-filters"
 import {
   CheckCircle2, XCircle, Clock, Search, RefreshCw, FileText, Loader2, RotateCw,
-  X, ArrowUp, ArrowDown, ArrowUpDown, Play, Eye, MousePointerClick, Download,
+  X, ArrowUp, ArrowDown, ArrowUpDown, Play, Eye, MousePointerClick, Download, ChevronDown,
 } from "lucide-react"
 import { exportPDFRelatorio } from "@/lib/export-utils"
 import { CriarListaModal, type TipoLista } from "./criar-lista-modal"
+import { CardDetalheModal, type TipoCard } from "./card-detalhe-modal"
+import {
+  DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem,
+} from "@/components/ui/dropdown-menu"
 import type { HistoricoData, Disparo } from "../types"
 
 type SortField = "status" | "email" | "nome" | "assunto" | "totalCliques" | "createdAt" | "abertoEm" | "error"
@@ -217,7 +221,9 @@ function DisparosSection() {
   const [relatorioLoading, setRelatorioLoading] = useState<number | null>(null)
   const [sincronizando, setSincronizando] = useState(false)
 
-  const gerarRelatorio = async (d: Disparo) => {
+  type TipoPdf = "enviados" | "lidos" | "cliques" | "falhas"
+
+  const gerarRelatorio = async (d: Disparo, tipo?: TipoPdf) => {
     if (relatorioLoading !== null) return
     setRelatorioLoading(d.id)
     try {
@@ -232,12 +238,6 @@ function DisparosSection() {
       const perc = total > 0 ? Math.round((processados / total) * 100) : 0
 
       const envios = data.envios || []
-      const grupos = [
-        { titulo: "Lidos", filtrar: (e: any) => !!e.abertoEm },
-        { titulo: "Enviados", filtrar: (e: any) => !e.abertoEm && e.status === "enviado" },
-        { titulo: "Pendentes", filtrar: (e: any) => e.status === "pendente" },
-        { titulo: "Falhas", filtrar: (e: any) => e.status === "falhou" },
-      ]
       const headersRelatorio = ["Email", "Nome", "Aberto em", "Enviado em", "Cliques", "Erro"]
       const linhaEnvio = (e: any) => [
         e.email,
@@ -246,6 +246,37 @@ function DisparosSection() {
         formatDate(e.enviadoEm || e.createdAt),
         e.totalCliques || 0,
         e.error || "-",
+      ]
+
+      if (tipo) {
+        const filtros: Record<TipoPdf, (e: any) => boolean> = {
+          lidos: (e: any) => !!e.abertoEm,
+          enviados: (e: any) => !e.abertoEm && e.status === "enviado",
+          cliques: (e: any) => (e.totalCliques || 0) > 0,
+          falhas: (e: any) => e.status === "falhou",
+        }
+        const label: Record<TipoPdf, string> = {
+          lidos: "Lidos", enviados: "Enviados", cliques: "Cliques", falhas: "Falhas",
+        }
+        const linhas = envios.filter(filtros[tipo])
+        exportPDFRelatorio({
+          title: `${label[tipo]} do Disparo #${d.id} — ${d.nome || d.assunto}`,
+          period: `Enviado em ${formatDate(d.criadoEm)} · Status: ${statusLabel(d.status)} · Processamento: ${perc}%`,
+          stats: { [label[tipo]]: linhas.length },
+          tables: linhas.length
+            ? [{ title: `${label[tipo]} (${linhas.length})`, headers: headersRelatorio, rows: linhas.map(linhaEnvio) }]
+            : [],
+          filename: `relatorio-disparo-${d.id}-${tipo}-${new Date().toISOString().split("T")[0]}`,
+          orientation: "landscape",
+        })
+        return
+      }
+
+      const grupos = [
+        { titulo: "Lidos", filtrar: (e: any) => !!e.abertoEm },
+        { titulo: "Enviados", filtrar: (e: any) => !e.abertoEm && e.status === "enviado" },
+        { titulo: "Pendentes", filtrar: (e: any) => e.status === "pendente" },
+        { titulo: "Falhas", filtrar: (e: any) => e.status === "falhou" },
       ]
 
       exportPDFRelatorio({
@@ -364,6 +395,17 @@ function DisparosSection() {
                   <Button variant="outline" size="xs" onClick={() => gerarRelatorio(d)} disabled={relatorioLoading !== null} className="gap-1 active:opacity-70">
                     {relatorioLoading === d.id ? <Loader2 size={12} className="animate-spin" /> : <FileText size={12} />} Relatório
                   </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger render={<Button variant="outline" size="xs" disabled={relatorioLoading !== null} className="gap-1 active:opacity-70">
+                      <FileText size={12} /> PDF <ChevronDown size={12} />
+                    </Button>} />
+                    <DropdownMenuContent align="start">
+                      <DropdownMenuItem onClick={() => gerarRelatorio(d, "enviados")}>Enviados</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => gerarRelatorio(d, "lidos")}>Lidos</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => gerarRelatorio(d, "cliques")}>Cliques</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => gerarRelatorio(d, "falhas")}>Falhas</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                   <Button variant="outline" size="xs" onClick={() => setListaModal({ tipo: "lidos", disparo: d })} className="gap-1 active:opacity-70">
                     <Eye size={12} /> Lidos
                   </Button>
@@ -400,6 +442,7 @@ export function HistoricoTab() {
   const [sortField, setSortField] = useState<SortField | null>(null)
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc")
   const [rowLimit, setRowLimit] = useState(50)
+  const [cardModal, setCardModal] = useState<TipoCard | null>(null)
   const debounceRef = useRef<NodeJS.Timeout | null>(null)
 
   const handleSearchChange = useCallback((value: string) => {
@@ -518,26 +561,46 @@ export function HistoricoTab() {
             <DisparosSection />
 
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-              <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
+              <button
+                type="button"
+                onClick={() => setCardModal("total")}
+                className="text-left bg-slate-50 dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700 transition hover:opacity-80 focus:outline-none focus-visible:ring-2"
+              >
                 <p className="text-xs text-slate-400 uppercase tracking-wide">Total</p>
                 <p className="text-2xl font-bold mt-1">{historico.stats.total}</p>
-              </div>
-              <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
+              </button>
+              <button
+                type="button"
+                onClick={() => setCardModal("enviados")}
+                className="text-left bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800 transition hover:opacity-80 focus:outline-none focus-visible:ring-2"
+              >
                 <p className="text-xs text-blue-500 uppercase tracking-wide">Enviados</p>
                 <p className="text-2xl font-bold mt-1 text-blue-700 dark:text-blue-300">{historico.stats.enviados}</p>
-              </div>
-              <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 border border-green-200 dark:border-green-800">
+              </button>
+              <button
+                type="button"
+                onClick={() => setCardModal("lidos")}
+                className="text-left bg-green-50 dark:bg-green-900/20 rounded-lg p-4 border border-green-200 dark:border-green-800 transition hover:opacity-80 focus:outline-none focus-visible:ring-2"
+              >
                 <p className="text-xs text-green-500 uppercase tracking-wide">Lidos</p>
                 <p className="text-2xl font-bold mt-1 text-green-700 dark:text-green-300">{historico.stats.lidos}</p>
-              </div>
-              <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4 border border-purple-200 dark:border-purple-800">
+              </button>
+              <button
+                type="button"
+                onClick={() => setCardModal("cliques")}
+                className="text-left bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4 border border-purple-200 dark:border-purple-800 transition hover:opacity-80 focus:outline-none focus-visible:ring-2"
+              >
                 <p className="text-xs text-purple-500 uppercase tracking-wide">Cliques</p>
                 <p className="text-2xl font-bold mt-1 text-purple-700 dark:text-purple-300">{historico.stats.totalCliques}</p>
-              </div>
-              <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4 border border-red-200 dark:border-red-800">
+              </button>
+              <button
+                type="button"
+                onClick={() => setCardModal("falhas")}
+                className="text-left bg-red-50 dark:bg-red-900/20 rounded-lg p-4 border border-red-200 dark:border-red-800 transition hover:opacity-80 focus:outline-none focus-visible:ring-2"
+              >
                 <p className="text-xs text-red-500 uppercase tracking-wide">Falhas</p>
                 <p className="text-2xl font-bold mt-1 text-red-700 dark:text-red-300">{historico.stats.falhas}</p>
-              </div>
+              </button>
             </div>
 
             <div className="relative">
@@ -604,6 +667,13 @@ export function HistoricoTab() {
           <p className="text-sm text-slate-400 py-8 text-center">Nenhum envio registrado ainda.</p>
         )}
       </div>
+
+      <CardDetalheModal
+        open={cardModal !== null}
+        onOpenChange={(open) => { if (!open) setCardModal(null) }}
+        tipo={cardModal || "total"}
+        envios={historico?.envios || []}
+      />
     </div>
   )
 }
