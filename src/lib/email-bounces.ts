@@ -13,6 +13,20 @@ const RECIPIENT_PATTERNS = [
   /couldn'?t (?:be delivered|find)\s*:?\s*([^\s<>]+)/i,
 ]
 const DSN_SENDERS = /^(mailer-daemon|postmaster|noreply|no-reply|abuse|administrator)@/i
+const BOUNCE_MAILBOX = /mailer[-_ ]?daemon/i
+const JANELA_DIAS = 90
+const MAX_UIDS_POR_PASTA = 1000
+
+async function pastasDeBounce(client: ImapFlow): Promise<string[]> {
+  const pastas = ["INBOX"]
+  const list = await client.list()
+  for (const mb of list) {
+    if (BOUNCE_MAILBOX.test(`${mb.name} ${mb.path}`) && !pastas.includes(mb.path)) {
+      pastas.push(mb.path)
+    }
+  }
+  return pastas
+}
 
 function parseRecipientsHeader(value: string): string[] | null {
   const found = value
@@ -92,25 +106,28 @@ export async function sincronizarBounces(usuarioId: number) {
   const recipients = new Set<string>()
 
   try {
-    const lock = await client.getMailboxLock("INBOX")
-    try {
-      const desde = new Date()
-      desde.setDate(desde.getDate() - 30)
-      const uids = (await client.search({ from: "mailer-daemon@googlemail.com", since: desde }, { uid: true })) || []
-      for (const uid of uids.slice(-200)) {
-        const msg = await client.fetchOne(uid, { headers: true }, { uid: true })
-        if (!msg) continue
-        const headerText = Buffer.from(msg.headers as Uint8Array).toString("utf8")
-        let recips = parseFailedRecipients(headerText)
-        if (recips.length === 0 && !/^X-Failed-Recipients:/im.test(headerText)) {
-          const full = await client.fetchOne(uid, { source: true }, { uid: true })
-          if (full) recips = parseFailedRecipients(Buffer.from(full.source as Uint8Array).toString("utf8"))
+    const pastas = await pastasDeBounce(client)
+    for (const pasta of pastas) {
+      const lock = await client.getMailboxLock(pasta)
+      try {
+        const desde = new Date()
+        desde.setDate(desde.getDate() - JANELA_DIAS)
+        const uids = (await client.search({ from: "mailer-daemon@googlemail.com", since: desde }, { uid: true })) || []
+        for (const uid of uids.slice(-MAX_UIDS_POR_PASTA)) {
+          const msg = await client.fetchOne(uid, { headers: true }, { uid: true })
+          if (!msg) continue
+          const headerText = Buffer.from(msg.headers as Uint8Array).toString("utf8")
+          let recips = parseFailedRecipients(headerText)
+          if (recips.length === 0 && !/^X-Failed-Recipients:/im.test(headerText)) {
+            const full = await client.fetchOne(uid, { source: true }, { uid: true })
+            if (full) recips = parseFailedRecipients(Buffer.from(full.source as Uint8Array).toString("utf8"))
+          }
+          for (const r of recips) recipients.add(r.toLowerCase())
+          processados++
         }
-        for (const r of recips) recipients.add(r.toLowerCase())
-        processados++
+      } finally {
+        lock.release()
       }
-    } finally {
-      lock.release()
     }
   } finally {
     await client.logout()

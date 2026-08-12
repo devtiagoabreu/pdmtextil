@@ -1,8 +1,25 @@
-import { describe, expect, it, vi } from "vitest"
-import { parseFailedRecipients } from "./email-bounces"
+import { beforeEach, describe, expect, it, vi } from "vitest"
+import { parseFailedRecipients, sincronizarBounces } from "./email-bounces"
+import { ImapFlow } from "imapflow"
+import { db } from "@/lib/db"
 
-vi.mock("@/lib/db", () => ({ db: {} }))
 vi.mock("@/lib/crypto", () => ({ decrypt: (s: string) => s }))
+
+function makeQueryChain(resolveValues: unknown[]) {
+  const q: any = {}
+  let i = 0
+  for (const m of ["from", "where", "innerJoin", "limit", "set", "returning"]) {
+    q[m] = vi.fn(() => q)
+  }
+  q.then = (resolve: any) => Promise.resolve(resolveValues[i++] ?? []).then(resolve)
+  return q
+}
+
+vi.mock("@/lib/db", () => ({ db: { select: vi.fn(), update: vi.fn() } }))
+
+vi.mock("imapflow", () => ({ ImapFlow: vi.fn() }))
+
+const mockImapFlow = vi.mocked(ImapFlow)
 
 const HEADER_EXAMPLE = [
   "Delivered-To: contato@promodatextil.ind.br",
@@ -52,5 +69,78 @@ describe("parseFailedRecipients", () => {
   it("retorna vazio quando não há destinatário", () => {
     const raw = "Subject: Olá\r\n\r\nSó um texto sem emails."
     expect(parseFailedRecipients(raw)).toEqual([])
+  })
+})
+
+function buildClient() {
+  return {
+    connect: vi.fn().mockResolvedValue(undefined),
+    logout: vi.fn().mockResolvedValue(undefined),
+    list: vi.fn(),
+    getMailboxLock: vi.fn(),
+    search: vi.fn(),
+    fetchOne: vi.fn(),
+  }
+}
+
+describe("sincronizarBounces", () => {
+  beforeEach(() => {
+    vi.mocked(db.select).mockReset()
+    vi.mocked(db.update).mockReset()
+  })
+
+  it("varre INBOX e a pasta Mailer-Daemon", async () => {
+    const client = buildClient()
+    client.list.mockResolvedValue([
+      { path: "INBOX", name: "INBOX" },
+      { path: "Mailer-Daemon", name: "Mailer-Daemon" },
+      { path: "[Gmail]/Spam", name: "Spam" },
+    ])
+    const lock = { release: vi.fn() }
+    client.getMailboxLock.mockResolvedValue(lock)
+    client.search.mockResolvedValue([1, 2])
+    client.fetchOne.mockResolvedValue({
+      headers: Buffer.from("X-Failed-Recipients: madeiradecor@gmail.com\r\n\r\n"),
+    })
+
+    db.select
+      .mockReturnValueOnce(makeQueryChain([[{ email: "contato@promodatextil.ind.br", senhaApp: "abc" }]]))
+      .mockReturnValueOnce(makeQueryChain([[]]))
+    mockImapFlow.mockImplementation(function () {
+      return client as any
+    })
+
+    const res = await sincronizarBounces(16)
+
+    expect(client.list).toHaveBeenCalled()
+    expect(client.getMailboxLock).toHaveBeenCalledWith("INBOX")
+    expect(client.getMailboxLock).toHaveBeenCalledWith("Mailer-Daemon")
+    expect(client.getMailboxLock).not.toHaveBeenCalledWith("[Gmail]/Spam")
+    expect(client.search).toHaveBeenCalledTimes(2)
+    expect(lock.release).toHaveBeenCalledTimes(2)
+    expect(res.processados).toBe(4)
+  })
+
+  it("respeita o limite de UIDs por pasta", async () => {
+    const client = buildClient()
+    client.list.mockResolvedValue([{ path: "INBOX", name: "INBOX" }])
+    client.getMailboxLock.mockResolvedValue({ release: vi.fn() })
+    const uids = Array.from({ length: 1200 }, (_, i) => i + 1)
+    client.search.mockResolvedValue(uids)
+    client.fetchOne.mockResolvedValue({
+      headers: Buffer.from("X-Failed-Recipients: madeiradecor@gmail.com\r\n\r\n"),
+    })
+
+    db.select
+      .mockReturnValueOnce(makeQueryChain([[{ email: "contato@promodatextil.ind.br", senhaApp: "abc" }]]))
+      .mockReturnValueOnce(makeQueryChain([[]]))
+    mockImapFlow.mockImplementation(function () {
+      return client as any
+    })
+
+    const res = await sincronizarBounces(16)
+
+    expect(client.fetchOne).toHaveBeenCalledTimes(1000)
+    expect(res.processados).toBe(1000)
   })
 })
