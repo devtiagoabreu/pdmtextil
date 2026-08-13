@@ -12,8 +12,9 @@ import {
 } from "@/components/ui/dialog"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { toast } from "sonner"
-import { Plus, Pencil, Eye, Trash2, X } from "lucide-react"
+import { Plus, Pencil, Eye, Trash2, X, FileText, Loader2 } from "lucide-react"
 import { ImportarEntidade } from "@/components/importar/ImportarEntidade"
+import { exportPDFRelatorio } from "@/lib/export-utils"
 import type { Lista, ListaComContatos, Contato } from "../types"
 
 export interface ListasTabProps {
@@ -46,6 +47,7 @@ export function ListasTab({ onListaDeletada }: ListasTabProps) {
   const [buscaContato, setBuscaContato] = useState("")
   const [deleteTarget, setDeleteTarget] = useState<Lista | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
+  const [pdfLoading, setPdfLoading] = useState<number | null>(null)
 
   const emailsDuplicados = useMemo(() => {
     const counts = new Map<string, number>()
@@ -152,6 +154,32 @@ export function ListasTab({ onListaDeletada }: ListasTabProps) {
       if (res.ok) setViewLista(await res.json())
     } catch {
       toast.error("Erro ao carregar lista")
+    }
+  }
+
+  const gerarPDFLista = async (l: Lista) => {
+    if (pdfLoading === l.id) return
+    setPdfLoading(l.id)
+    try {
+      const res = await fetch(`/api/admin/email-massa/listas/${l.id}`)
+      if (!res.ok) {
+        toast.error("Erro ao carregar contatos")
+        return
+      }
+      const data = await res.json()
+      const contatos: Contato[] = data.contatos || []
+      await exportPDFRelatorio({
+        title: `Lista de Contatos — ${l.nome}`,
+        period: `Exportado em ${new Date().toLocaleString("pt-BR")} · ${contatos.length} contato(s)`,
+        stats: { Lista: l.nome, "Total de contatos": contatos.length },
+        tables: [{ title: "Contatos", headers: ["Nome", "Email"], rows: contatos.map((c) => [c.nome, c.email]) }],
+        orientation: "portrait",
+        filename: `lista-contatos-${l.nome.replace(/[^a-zA-Z0-9]/g, "-").toLowerCase()}`,
+      })
+    } catch {
+      toast.error("Erro ao gerar PDF")
+    } finally {
+      setPdfLoading(null)
     }
   }
 
@@ -263,6 +291,9 @@ export function ListasTab({ onListaDeletada }: ListasTabProps) {
                               }
                             } }}
                           />
+                          <Button variant="ghost" size="xs" onClick={() => gerarPDFLista(l)} aria-label={`PDF lista ${l.nome}`} className="gap-1" disabled={pdfLoading === l.id}>
+                            {pdfLoading === l.id ? <Loader2 size={12} className="animate-spin" /> : <FileText size={12} />}
+                          </Button>
                           <Button variant="ghost" size="xs" onClick={() => abrirEditarLista(l)} aria-label={`Editar lista ${l.nome}`} className="gap-1"><Pencil size={12} /></Button>
                           <Button variant="ghost" size="xs" onClick={() => abrirVerLista(l)} aria-label={`Ver lista ${l.nome}`} className="gap-1"><Eye size={12} /></Button>
                           <Button variant="ghost" size="xs" onClick={() => setDeleteTarget(l)} aria-label={`Deletar lista ${l.nome}`} className="gap-1 text-red-500 hover:text-red-700"><Trash2 size={12} /></Button>

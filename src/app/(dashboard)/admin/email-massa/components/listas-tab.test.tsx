@@ -3,6 +3,9 @@ import { describe, it, expect, vi } from "vitest"
 import { screen, fireEvent, waitFor } from "@testing-library/react"
 import { ListasTab } from "./listas-tab"
 import { createFetchMock, renderPage, toastMock, findCall } from "@/test/harness"
+import { exportPDFRelatorio } from "@/lib/export-utils"
+
+vi.mock("@/lib/export-utils", () => ({ exportPDFRelatorio: vi.fn(), exportCSV: vi.fn() }))
 
 const lista = { id: 1, nome: "Clientes SP", descricao: null }
 
@@ -128,5 +131,20 @@ describe("ListasTab", () => {
     await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Lista deletada"))
     expect(fetchMock.calls.some((c) => c.method === "DELETE" && c.url === "/api/admin/email-massa/listas/1")).toBe(true)
     expect(onListaDeletada).toHaveBeenCalledWith(1)
+  })
+
+  it("gera PDF da listagem de contatos", async () => {
+    setup()
+    renderPage(<ListasTab onListaDeletada={() => {}} />)
+
+    fireEvent.click(await screen.findByRole("button", { name: "PDF lista Clientes SP" }))
+
+    await waitFor(() => expect(exportPDFRelatorio).toHaveBeenCalled())
+    const args = vi.mocked(exportPDFRelatorio).mock.calls.at(-1)![0] as any
+    expect(args.title).toContain("Clientes SP")
+    expect(args.stats["Total de contatos"]).toBe(5)
+    expect(args.tables[0].headers).toEqual(["Nome", "Email"])
+    expect(args.tables[0].rows).toHaveLength(5)
+    expect(args.tables[0].rows[0]).toEqual(["Ana", "ana@faturamento.com"])
   })
 })

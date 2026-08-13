@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { emailListaContatos } from "@/lib/db/schema/email-listas"
+import { extrairEmails } from "@/lib/email-utils"
 import { eq } from "drizzle-orm"
 export const dynamic = "force-dynamic"
 
@@ -40,15 +41,22 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         return NextResponse.json({ error: "Nenhum contato válido" }, { status: 400 })
       }
 
+      // Um contato com vários emails em uma única string vira uma linha por email
+      const limpos = contatos.flatMap((c: { nome: string; email: string }) =>
+        extrairEmails(c.email).map((email: string) => ({
+          listaId,
+          nome: c.nome.trim(),
+          email,
+        }))
+      )
+
+      if (limpos.length === 0) {
+        return NextResponse.json({ error: "Nenhum contato válido" }, { status: 400 })
+      }
+
       const inseridos = await db.transaction(async (tx: any) => {
         await tx.delete(emailListaContatos).where(eq(emailListaContatos.listaId, listaId))
-        return tx.insert(emailListaContatos).values(
-          contatos.map((c: { nome: string; email: string }) => ({
-            listaId,
-            nome: c.nome,
-            email: c.email,
-          }))
-        ).returning()
+        return tx.insert(emailListaContatos).values(limpos).returning()
       })
 
       return NextResponse.json(inseridos)
@@ -59,8 +67,13 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       return NextResponse.json({ error: "Nome e email são obrigatórios" }, { status: 400 })
     }
 
-    const [novo] = await db.insert(emailListaContatos).values({ listaId, nome, email }).returning()
-    return NextResponse.json(novo)
+    const limpos = extrairEmails(email).map((e: string) => ({ listaId, nome: nome.trim(), email: e }))
+    if (limpos.length === 0) {
+      return NextResponse.json({ error: "Email inválido" }, { status: 400 })
+    }
+
+    const inseridos = await db.insert(emailListaContatos).values(limpos).returning()
+    return NextResponse.json(inseridos.length === 1 ? inseridos[0] : inseridos)
   } catch (error) {
     console.error("[POST /api/admin/email-massa/listas/contatos]", error)
     return NextResponse.json({ error: "Erro ao salvar contatos" }, { status: 500 })

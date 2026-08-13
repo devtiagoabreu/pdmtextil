@@ -3,12 +3,14 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { emailListas, emailListaContatos } from "@/lib/db/schema/email-listas"
+import { extrairEmails } from "@/lib/email-utils"
 import { eq } from "drizzle-orm"
 export const dynamic = "force-dynamic"
 
 interface ContatoImport {
   nome?: string
   email?: string
+  emails?: string[]
 }
 
 const campoMap: Record<string, keyof ContatoImport> = {
@@ -44,7 +46,13 @@ function parseCSV(texto: string): ContatoImport[] {
       }
     }
 
-    if (item.nome || item.email) {
+    // Colunas além do cabeçalho podem conter mais emails (ex.: nome;email;email2)
+    const extras = valores.slice(cabecalhoLower.length).filter((v) => v.includes("@"))
+    if (extras.length > 0) {
+      item.emails = extras
+    }
+
+    if (item.nome || item.email || item.emails) {
       dados.push(item)
     }
   }
@@ -114,21 +122,21 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     for (let i = 0; i < registros.length; i++) {
       const reg = registros[i]
 
-      if (!reg.nome || !reg.email) {
-        resultados.erros.push({ linha: i + 2, erro: "Nome e email são obrigatórios" })
+      if (!reg.nome) {
+        resultados.erros.push({ linha: i + 2, erro: "Nome é obrigatório" })
         continue
       }
 
-      if (!reg.email.includes("@")) {
-        resultados.erros.push({ linha: i + 2, erro: `Email inválido: ${reg.email}` })
+      const emails = extrairEmails([reg.email, ...(reg.emails || [])].filter(Boolean).join(";"))
+
+      if (emails.length === 0) {
+        resultados.erros.push({ linha: i + 2, erro: `Email inválido: ${reg.email || "vazio"}` })
         continue
       }
 
-      paraInserir.push({
-        listaId,
-        nome: reg.nome,
-        email: reg.email,
-      })
+      for (const email of emails) {
+        paraInserir.push({ listaId, nome: reg.nome.trim(), email })
+      }
     }
 
     if (paraInserir.length > 0) {
