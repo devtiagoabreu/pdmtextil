@@ -52,11 +52,14 @@ describe("DashboardRelatorio", () => {
     renderPage(<DashboardRelatorio />)
 
     expect(await screen.findByText("Promo Julho")).toBeInTheDocument()
-    expect(screen.getByText("Total enviados")).toBeInTheDocument()
+    expect(screen.getByText("Total de envios")).toBeInTheDocument()
     expect(screen.getByText("150")).toBeInTheDocument()
+    expect(screen.getByText("143")).toBeInTheDocument()
     expect(screen.getAllByText("60").length).toBeGreaterThan(0)
     expect(screen.getByText("40% de abertura")).toBeInTheDocument()
-    expect(screen.getAllByText("15").length).toBeGreaterThan(0)
+    expect(screen.getByText("90")).toBeInTheDocument()
+    expect(screen.getAllByText("10").length).toBeGreaterThan(0)
+    expect(screen.getByText("15 cliques no total")).toBeInTheDocument()
     expect(screen.getByText("7")).toBeInTheDocument()
   })
 
@@ -66,7 +69,8 @@ describe("DashboardRelatorio", () => {
 
     expect(await screen.findByText("Promo Julho")).toBeInTheDocument()
     expect(screen.getByText("Informativo")).toBeInTheDocument()
-    expect(screen.getAllByText("Não abertos").length).toBeGreaterThanOrEqual(2)
+    expect(screen.getAllByText("Total").length).toBeGreaterThanOrEqual(2)
+    expect(screen.getByText("Não abertos")).toBeInTheDocument()
     expect(screen.getAllByText("pdmprotextil.com.br").length).toBe(2)
     expect(screen.getByText("Nenhum clique registrado nesta remessa.")).toBeInTheDocument()
   })
@@ -81,10 +85,11 @@ describe("DashboardRelatorio", () => {
     await waitFor(() => expect(exportPDFRelatorio).toHaveBeenCalled())
     const args = vi.mocked(exportPDFRelatorio).mock.calls.at(-1)![0] as any
     expect(args.title).toContain("Dashboard de Email em Massa")
-    expect(args.stats).toEqual({ "Total enviados": 150, Lidos: 60, "Taxa de abertura": "40%", Clicados: 10, Cliques: 15, Falhas: 7 })
+    expect(args.stats).toEqual({ "Total de envios": 150, Enviados: 143, Lidos: 60, "Não abertos": 90, Cliques: 10, "Cliques no total": 15, Falhas: 7 })
     expect(args.tables[0].title).toBe("Resumo por remessa")
     expect(args.tables[0].rows).toHaveLength(2)
     expect(args.tables[0].rows[0][0]).toBe("Remessa #2")
+    expect(args.tables[0].rows[0][3]).toBe(95)
     expect(args.filename).toContain("dashboard-email-massa-")
   })
 
@@ -98,7 +103,7 @@ describe("DashboardRelatorio", () => {
     await waitFor(() => expect(exportPDFRelatorio).toHaveBeenCalled())
     const args = vi.mocked(exportPDFRelatorio).mock.calls.at(-1)![0] as any
     expect(args.title).toContain("Promo Julho")
-    expect(args.stats).toEqual({ Enviados: 100, Lidos: 40, "Não abertos": 60, Clicados: 10, Cliques: 15, Falhas: 5 })
+    expect(args.stats).toEqual({ Total: 100, Enviados: 95, Lidos: 40, "Não abertos": 60, Cliques: 10, "Cliques no total": 15, Falhas: 5 })
     expect(args.tables[0].title).toBe("Links mais clicados (2)")
     expect(args.filename).toContain("relatorio-remessa-r1-")
   })

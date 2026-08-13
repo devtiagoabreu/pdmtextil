@@ -23,19 +23,32 @@ export async function GET() {
         enviados: sql<number>`count(*) filter (where ${emailEnviados.status} = 'enviado')`,
         falhas: sql<number>`count(*) filter (where ${emailEnviados.status} = 'falhou')`,
         lidos: sql<number>`count(*) filter (where ${emailEnviados.abertoEm} is not null)`,
-        clicados: sql<number>`count(distinct ${emailCliques.envioId})`,
-        totalCliques: sql<number>`count(${emailCliques.id})`,
         createdAt: sql<string>`min(${emailEnviados.createdAt})`,
       })
       .from(emailEnviados)
-      .leftJoin(emailCliques, eq(emailCliques.envioId, emailEnviados.id))
       .where(and(isNotNull(emailEnviados.remessaId), ne(emailEnviados.status, "pendente")))
       .groupBy(emailEnviados.remessaId, emailEnviados.assunto)
       .orderBy(desc(sql`min(${emailEnviados.createdAt})`))
 
     const remessaIds = remessas.map((r: any) => r.remessaId!).filter(Boolean)
-    const linksPorRemessa = new Map<string, { urlOriginal: string; total: number }[]>()
+    const cliquesPorRemessa = new Map<string, { clicados: number; totalCliques: number }>()
     if (remessaIds.length > 0) {
+      const cliquesRows = await db
+        .select({
+          remessaId: emailEnviados.remessaId,
+          clicados: sql<number>`count(distinct ${emailCliques.envioId})`,
+          totalCliques: sql<number>`count(${emailCliques.id})`,
+        })
+        .from(emailCliques)
+        .innerJoin(emailEnviados, eq(emailEnviados.id, emailCliques.envioId))
+        .where(inArray(emailEnviados.remessaId, remessaIds))
+        .groupBy(emailEnviados.remessaId)
+
+      for (const r of cliquesRows) {
+        cliquesPorRemessa.set(r.remessaId!, { clicados: Number(r.clicados), totalCliques: Number(r.totalCliques) })
+      }
+
+      const linksPorRemessa = new Map<string, { urlOriginal: string; total: number }[]>()
       const todosLinks = await db
         .select({
           remessaId: emailEnviados.remessaId,
@@ -52,14 +65,18 @@ export async function GET() {
         if (!linksPorRemessa.has(link.remessaId!)) linksPorRemessa.set(link.remessaId!, [])
         linksPorRemessa.get(link.remessaId!)!.push({ urlOriginal: link.urlOriginal, total: link.total })
       }
+
+      return NextResponse.json({
+        remessas: remessas.map((r: any) => ({
+          ...r,
+          clicados: cliquesPorRemessa.get(r.remessaId!)?.clicados || 0,
+          totalCliques: cliquesPorRemessa.get(r.remessaId!)?.totalCliques || 0,
+          links: linksPorRemessa.get(r.remessaId!) || [],
+        })),
+      })
     }
 
-    const remessasLinks = remessas.map((r: any) => ({
-      ...r,
-      links: linksPorRemessa.get(r.remessaId!) || [],
-    }))
-
-    return NextResponse.json({ remessas: remessasLinks })
+    return NextResponse.json({ remessas })
   } catch (error: any) {
     console.error("[RELATORIO]", error)
     return NextResponse.json({ error: "Erro ao carregar relatório" }, { status: 500 })

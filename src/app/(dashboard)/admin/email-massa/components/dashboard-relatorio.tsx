@@ -65,6 +65,7 @@ export function DashboardRelatorio() {
   })
 
   const totalEnviados = remessas.reduce((s, r) => s + Number(r.total), 0)
+  const totalEnviadosReal = remessas.reduce((s, r) => s + Number(r.enviados), 0)
   const totalLidos = remessas.reduce((s, r) => s + Number(r.lidos), 0)
   const totalFalhas = remessas.reduce((s, r) => s + Number(r.falhas), 0)
   const totalClicados = remessas.reduce((s, r) => s + Number(r.clicados), 0)
@@ -72,7 +73,6 @@ export function DashboardRelatorio() {
   const naoLidos = totalEnviados - totalLidos
   const percAbertura = totalEnviados > 0 ? Math.round((totalLidos / totalEnviados) * 100) : 0
   const percNaoLidos = totalEnviados > 0 ? Math.round((naoLidos / totalEnviados) * 100) : 0
-  const percClicados = totalLidos > 0 ? Math.round((totalClicados / totalLidos) * 100) : 0
 
   const linkHost = (url: string) => {
     try { return new URL(url).hostname } catch { return url }
@@ -100,7 +100,7 @@ export function DashboardRelatorio() {
           `Remessa #${remessas.length - idx}`,
           formatDate(r.createdAt),
           r.assunto || "-",
-          total,
+          Number(r.enviados),
           lidos,
           `${perc}%`,
           Number(r.clicados),
@@ -112,15 +112,16 @@ export function DashboardRelatorio() {
         title: "Dashboard de Email em Massa",
         period: `Exportado em ${new Date().toLocaleString("pt-BR")} · ${remessas.length} remessa(s)`,
         stats: {
-          "Total enviados": totalEnviados,
+          "Total de envios": totalEnviados,
+          Enviados: totalEnviadosReal,
           Lidos: totalLidos,
-          "Taxa de abertura": `${percAbertura}%`,
-          Clicados: totalClicados,
-          Cliques: totalCliques,
+          "Não abertos": naoLidos,
+          Cliques: totalClicados,
+          "Cliques no total": totalCliques,
           Falhas: totalFalhas,
         },
         tables: [
-          { title: "Resumo por remessa", headers: ["Remessa", "Enviado em", "Assunto", "Enviados", "Lidos", "Abertura", "Clicados", "Cliques", "Falhas"], rows: linhasRemessas },
+          { title: "Resumo por remessa", headers: ["Remessa", "Enviado em", "Assunto", "Enviados", "Lidos", "Abertura", "Cliques", "Cliques no total", "Falhas"], rows: linhasRemessas },
           ...remessas.flatMap((r, idx) =>
             (r.links && r.links.length > 0)
               ? [{ title: `Links — Remessa #${remessas.length - idx}`, headers: ["Link", "Cliques"], rows: r.links.map((l) => [l.urlOriginal, l.total]) }]
@@ -149,11 +150,12 @@ export function DashboardRelatorio() {
         title: `Relatório da Remessa #${remessas.length - idx} — ${r.assunto || "Email em Massa"}`,
         period: `Enviado em ${formatDate(r.createdAt)} · ${total} enviado(s) · ${perc}% de abertura`,
         stats: {
-          Enviados: total,
+          Total: total,
+          Enviados: Number(r.enviados),
           Lidos: lidos,
           "Não abertos": naoLidosRemessa,
-          Clicados: Number(r.clicados),
-          Cliques: Number(r.totalCliques),
+          Cliques: Number(r.clicados),
+          "Cliques no total": Number(r.totalCliques),
           Falhas: Number(r.falhas),
         },
         tables: (r.links && r.links.length > 0)
@@ -209,11 +211,11 @@ export function DashboardRelatorio() {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
-        <SummaryCard label="Total enviados" value={totalEnviados} sub={`${remessas.length} remessa(s)`} className="bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700" />
+        <SummaryCard label="Total de envios" value={totalEnviados} sub={`${remessas.length} remessa(s)`} className="bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700" />
+        <SummaryCard label="Enviados" value={totalEnviadosReal} className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300" />
         <SummaryCard label="Lidos" value={totalLidos} sub={`${percAbertura}% de abertura`} className="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 text-green-700 dark:text-green-300" />
         <SummaryCard label="Não abertos" value={naoLidos} sub={`${percNaoLidos}%`} className="bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300" />
-        <SummaryCard label="Pessoas clicaram" value={totalClicados} sub={`${percClicados}% dos lidos`} className="bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300" />
-        <SummaryCard label="Cliques totais" value={totalCliques} className="bg-indigo-50 dark:bg-indigo-900/20 border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300" />
+        <SummaryCard label="Cliques" value={totalClicados} sub={`${totalCliques} clique${totalCliques !== 1 ? "s" : ""} no total`} className="bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300" />
         <SummaryCard label="Falhas" value={totalFalhas} className="bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300" />
       </div>
 
@@ -246,14 +248,14 @@ export function DashboardRelatorio() {
               </div>
 
               <p className="text-xs text-slate-400">
-                {total} enviado{total !== 1 ? "s" : ""} &middot; {lidos} lido{ lidos !== 1 ? "s" : ""} &middot; {falhas} falha{falhas !== 1 ? "s" : ""}
+                {Number(r.enviados)} enviado{Number(r.enviados) !== 1 ? "s" : ""} &middot; {lidos} lido{ lidos !== 1 ? "s" : ""} &middot; {falhas} falha{falhas !== 1 ? "s" : ""}
               </p>
 
               <div className="flex flex-wrap gap-2">
-                <MiniStat label="Enviados" value={total} className="bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700" />
+                <MiniStat label="Total" value={total} className="bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700" />
+                <MiniStat label="Enviados" value={Number(r.enviados)} className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300" />
                 <MiniStat label="Lidos" value={lidos} className="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 text-green-700 dark:text-green-300" />
-                <MiniStat label="Não abertos" value={naoLidosRemessa} className="bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300" />
-                <MiniStat label="Cliques" value={Number(r.totalCliques) || 0} className="bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300" />
+                <MiniStat label="Cliques" value={Number(r.clicados) || 0} className="bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300" />
                 <MiniStat label="Falhas" value={falhas} className="bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300" />
               </div>
 
