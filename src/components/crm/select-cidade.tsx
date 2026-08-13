@@ -35,6 +35,9 @@ export function SelectCidade({ value, onChange, estadoId, className }: Props) {
         className={`flex-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 ${className || ""}`}
       >
         <option value="">{estadoId ? "Selecione a cidade..." : "Selecione o UF primeiro"}</option>
+        {value && !cidades.some((cid: Cidade) => cid.nome === value) && (
+          <option value={value}>{value}</option>
+        )}
         {cidades.map((cid: any) => (
           <option key={cid.id} value={cid.nome}>{cid.nome}</option>
         ))}

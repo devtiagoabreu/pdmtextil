@@ -32,6 +32,9 @@ export function QuickCreatePessoa({ onCreated, open: openProp, onOpenChange }: P
     onOpenChange?.(v)
   }
   const [saving, setSaving] = useState(false)
+  const [tipoPessoa, setTipoPessoa] = useState<"PF" | "PJ">("PJ")
+  const [nomePF, setNomePF] = useState("")
+  const [cpf, setCpf] = useState("")
   const [razaoSocial, setRazaoSocial] = useState("")
   const [nomeFantasia, setNomeFantasia] = useState("")
   const [cnpj, setCnpj] = useState("")
@@ -68,6 +71,9 @@ export function QuickCreatePessoa({ onCreated, open: openProp, onOpenChange }: P
   }, [uf, estados])
 
   function resetForm() {
+    setTipoPessoa("PJ")
+    setNomePF("")
+    setCpf("")
     setRazaoSocial("")
     setNomeFantasia("")
     setCnpj("")
@@ -110,7 +116,7 @@ export function QuickCreatePessoa({ onCreated, open: openProp, onOpenChange }: P
       setConsulted(true)
       setRazaoSocial(api.razao_social || "")
       setNomeFantasia(api.nome_fantasia || "")
-      setSegmento(api.cnae_principal_descricao || "")
+      setSegmento(api.cnaes?.find((c: any) => c.is_principal)?.descricao || api.cnae_principal_descricao || "")
       setPorte(api.porte_empresa || "")
       setEndereco(api.logradouro || "")
       setNumero(api.numero || "")
@@ -130,8 +136,13 @@ export function QuickCreatePessoa({ onCreated, open: openProp, onOpenChange }: P
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     e.stopPropagation()
-    if (!razaoSocial.trim() || !cnpj.trim()) {
-      toast.error("Razão Social e CNPJ são obrigatórios")
+    if (tipoPessoa === "PJ") {
+      if (!razaoSocial.trim() || !cnpj.trim()) {
+        toast.error("Razão Social e CNPJ são obrigatórios")
+        return
+      }
+    } else if (!nomePF.trim()) {
+      toast.error("Nome é obrigatório")
       return
     }
     setSaving(true)
@@ -140,9 +151,12 @@ export function QuickCreatePessoa({ onCreated, open: openProp, onOpenChange }: P
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          razaoSocial,
-          nomeFantasia: nomeFantasia || null,
-          cnpj,
+          tipoPessoa,
+          nome: tipoPessoa === "PF" ? nomePF : null,
+          cpf: tipoPessoa === "PF" ? cpf : null,
+          razaoSocial: tipoPessoa === "PJ" ? razaoSocial : null,
+          nomeFantasia: tipoPessoa === "PJ" ? (nomeFantasia || null) : null,
+          cnpj: tipoPessoa === "PJ" ? cnpj : null,
           segmento: segmento || null,
           porte: porte || null,
           endereco: endereco || null,
@@ -159,7 +173,7 @@ export function QuickCreatePessoa({ onCreated, open: openProp, onOpenChange }: P
         throw new Error(err.error || "Erro ao criar pessoa")
       }
       const data = await res.json()
-      onCreated(data.id, data.razaoSocial)
+      onCreated(data.id, data.nome || data.razaoSocial || "")
       setOpen(false)
       resetForm()
       toast.success("Pessoa criada com sucesso")
@@ -186,6 +200,35 @@ export function QuickCreatePessoa({ onCreated, open: openProp, onOpenChange }: P
           <DialogTitle>Nova Pessoa (Negócio)</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 px-4 pb-4 sm:px-6 sm:pb-6 max-h-[80vh] overflow-y-auto">
+          <div className="flex items-center justify-between">
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Tipo de Pessoa</label>
+            <div className="flex rounded-lg bg-slate-100 dark:bg-slate-800 p-1">
+              <button
+                type="button"
+                onClick={() => { setTipoPessoa("PF"); setRazaoSocial(""); setNomeFantasia(""); setCnpj("") }}
+                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                  tipoPessoa === "PF"
+                    ? "bg-white dark:bg-slate-700 text-purple-700 dark:text-purple-300 shadow-sm"
+                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
+                }`}
+              >
+                Pessoa Física
+              </button>
+              <button
+                type="button"
+                onClick={() => setTipoPessoa("PJ")}
+                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                  tipoPessoa === "PJ"
+                    ? "bg-white dark:bg-slate-700 text-cyan-700 dark:text-cyan-300 shadow-sm"
+                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
+                }`}
+              >
+                Pessoa Jurídica
+              </button>
+            </div>
+          </div>
+          {tipoPessoa === "PJ" ? (
+            <>
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Razão Social *</label>
             <input
@@ -248,6 +291,33 @@ export function QuickCreatePessoa({ onCreated, open: openProp, onOpenChange }: P
                 </p>
               </div>
             </div>
+          )}
+            </>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="sm:col-span-2">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nome Completo *</label>
+                  <input
+                    type="text"
+                    value={nomePF}
+                    onChange={e => setNomePF(e.target.value)}
+                    className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">CPF</label>
+                  <input
+                    type="text"
+                    value={cpf}
+                    onChange={e => setCpf(e.target.value)}
+                    placeholder="000.000.000-00"
+                    className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+            </>
           )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

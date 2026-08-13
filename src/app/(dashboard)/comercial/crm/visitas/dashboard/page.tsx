@@ -1,7 +1,6 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
-import { useSession } from "next-auth/react"
 import Link from "next/link"
 import dynamic from "next/dynamic"
 import { useState, useCallback } from "react"
@@ -59,12 +58,7 @@ export default function VisitasDashboardPage() {
   const [selectedVisita, setSelectedVisita] = useState<{ id: number; nome: string } | null>(null)
   const [modalFiltro, setModalFiltro] = useState<string | null>(null)
   const [modalTitle, setModalTitle] = useState("")
-  const { data: session } = useSession()
-  const userRole = (session?.user as any)?.role
-  const isComercial = userRole && !["ADMIN", "SUDO", "CRM"].includes(userRole)
-  const [visitasFilter, setVisitasFilter] = useState<"todas" | "minhas">(
-    isComercial ? "minhas" : "todas"
-  )
+  const [visitasFilter, setVisitasFilter] = useState<"todas" | "minhas">("minhas")
 
   useEscapeClose(!!modalFiltro, () => setModalFiltro(null))
 

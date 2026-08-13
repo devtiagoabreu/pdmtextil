@@ -1,7 +1,6 @@
 "use client"
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { useSession } from "next-auth/react"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import Link from "next/link"
@@ -63,7 +62,6 @@ function VisitasPageContent() {
   const searchParams = useSearchParams()
   const info = getInfoContent(pathname)
   const { getLabel, getColor } = useStatuses("VISITA")
-  const { data: session } = useSession()
   const [search, setSearch] = useState("")
   const [debouncedSearch, setDebouncedSearch] = useState("")
   const [page, setPage] = useState(1)
@@ -75,11 +73,7 @@ function VisitasPageContent() {
   const debounceRef = useRef<NodeJS.Timeout | null>(null)
   const queryClient = useQueryClient()
 
-  const userRole = (session?.user as any)?.role
-  const isComercial = userRole && !["ADMIN", "SUDO", "CRM"].includes(userRole)
-  const [visitasFilter, setVisitasFilter] = useState<"todas" | "minhas">(
-    isComercial ? "minhas" : "todas"
-  )
+  const [visitasFilter, setVisitasFilter] = useState<"todas" | "minhas">("minhas")
   const [filterAvulsas, setFilterAvulsas] = useState(false)
 
   const handleSearchChange = useCallback((value: string) => {

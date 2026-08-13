@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
 
     const { searchParams } = new URL(req.url)
     const mine = searchParams.get("mine")
-    const isMine = mine === "true" && (auth.session.user?.role ?? "") !== "ADMIN" && (auth.session.user?.role ?? "") !== "SUDO"
+    const isMine = mine === "true"
     const mineCondition = isMine ? eq(crmVisitas.criadoPor, auth.userId) : undefined
 
     const now = new Date()

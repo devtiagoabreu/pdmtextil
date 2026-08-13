@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url)
     const filtro = searchParams.get("filtro") || "total"
     const mine = searchParams.get("mine")
-    const isMine = mine === "true" && (auth.session.user?.role ?? "") !== "ADMIN" && (auth.session.user?.role ?? "") !== "SUDO"
+    const isMine = mine === "true"
 
     const conditions: any[] = []
     if (isMine) conditions.push(eq(crmVisitas.criadoPor, auth.userId))

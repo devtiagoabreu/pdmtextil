@@ -15,6 +15,30 @@ describe("NovaPessoaPage", () => {
       if (method === "GET" && url === "/api/crm/cidades?estadoId=35") {
         return { json: [{ id: 1, nome: "São Paulo", estadoId: 35 }] }
       }
+      if (method === "GET" && url === "/api/crm/consulta-cnpj?cnpj=12345678000190") {
+        return {
+          json: {
+            apiData: {
+              razao_social: "Tecelagem Alpha Ltda",
+              nome_fantasia: "Alpha Confecções",
+              situacao_cadastral: "Ativa",
+              cnae_principal: "1412601",
+              cnaes: [{ codigo: "1412601", descricao: "Confecção de peças do vestuário", is_principal: true }],
+              logradouro: "Rua das Flores",
+              numero: "100",
+              complemento: "",
+              bairro: "Centro",
+              municipio: "São Paulo",
+              uf: "SP",
+              cep: "01000000",
+              telefones: [{ ddd: "11", numero: "99999999", is_fax: false }],
+            },
+          },
+        }
+      }
+      if (method === "GET" && url === "/api/crm/consulta-cnpj?cnpj=00000000000000") {
+        return { json: { apiData: null } }
+      }
       if (method === "POST" && url === "/api/crm/pessoas") {
         return { json: { id: 5 } }
       }
@@ -104,6 +128,39 @@ describe("NovaPessoaPage", () => {
     })
     await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Pessoa cadastrada com sucesso"))
     expect(navMock.router.push).toHaveBeenCalledWith("/comercial/crm/pessoas/5")
+  })
+
+  it("consulta CNPJ e preenche os campos automaticamente (PJ)", async () => {
+    renderPage(<NovaPessoaPage />)
+    await screen.findByRole("heading", { name: "Nova Pessoa (Negócio)" })
+
+    const textboxes = screen.getAllByRole("textbox")
+    fireEvent.change(textboxes[2], { target: { value: "12.345.678/0001-90" } })
+    fireEvent.click(screen.getByRole("button", { name: "Consultar" }))
+
+    await waitFor(() => {
+      expect(screen.getByDisplayValue("Tecelagem Alpha Ltda")).toBeInTheDocument()
+      expect(screen.getByDisplayValue("Alpha Confecções")).toBeInTheDocument()
+    })
+    expect(screen.getByDisplayValue("Confecção de peças do vestuário")).toBeInTheDocument()
+    expect(screen.getByDisplayValue("Rua das Flores")).toBeInTheDocument()
+    expect(screen.getByDisplayValue("São Paulo")).toBeInTheDocument()
+    expect(screen.getByDisplayValue("01000000")).toBeInTheDocument()
+    expect(screen.getByText("Tecelagem Alpha Ltda")).toBeInTheDocument()
+    expect(screen.getByText(/Ativa/)).toBeInTheDocument()
+    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Dados preenchidos automaticamente"))
+  })
+
+  it("mostra aviso quando o CNPJ não é encontrado", async () => {
+    renderPage(<NovaPessoaPage />)
+    await screen.findByRole("heading", { name: "Nova Pessoa (Negócio)" })
+
+    const textboxes = screen.getAllByRole("textbox")
+    fireEvent.change(textboxes[2], { target: { value: "00.000.000/0000-00" } })
+    fireEvent.click(screen.getByRole("button", { name: "Consultar" }))
+
+    await waitFor(() => expect(screen.getByText(/não encontrado na Receita Federal/)).toBeInTheDocument())
+    await waitFor(() => expect(toastMock.error).toHaveBeenCalledWith("CNPJ não encontrado na Receita Federal"))
   })
 
   it("vincula representante e envia vínculo na criação", async () => {

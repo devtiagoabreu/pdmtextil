@@ -97,6 +97,16 @@ describe("VisitasPage", () => {
     expect(screen.getByRole("link", { name: "Nova Visita" })).toHaveAttribute("href", "/comercial/crm/visitas/novo")
   })
 
+  it("carrega por padrao apenas as minhas visitas (mine=true)", async () => {
+    renderPage(<VisitasPage />)
+
+    await screen.findByText("Tecelagem Alpha")
+    await waitFor(() =>
+      expect(findCall(fetchMock.calls, "/api/crm/visitas?page=1&limit=50&mine=true", "GET")).toBeDefined()
+    )
+    expect(screen.getByRole("button", { name: /Minhas Visitas/ })).toHaveClass("bg-blue-600")
+  })
+
   it("alterna para o kanban", async () => {
     const handler = buildHandler()
     const withStatus = ({ method, url }: { method: string; url: string }) => {
@@ -162,7 +172,7 @@ describe("VisitasPage", () => {
     })
 
     await waitFor(
-      () => expect(findCall(fetchMock.calls, "/api/crm/visitas?page=1&limit=50&q=Tecelagem", "GET")).toBeDefined(),
+      () => expect(findCall(fetchMock.calls, "/api/crm/visitas?page=1&limit=50&mine=true&q=Tecelagem", "GET")).toBeDefined(),
       { timeout: 2000 }
     )
     await waitFor(() => expect(screen.queryByText("Confecções Lima")).not.toBeInTheDocument())

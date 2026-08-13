@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
     const conditions = []
     if (empresaId) conditions.push(eq(crmVisitas.empresaId, parseInt(empresaId)))
     if (status) conditions.push(eq(crmVisitas.status, status))
-    if (mine === "true" && (auth.session.user?.role ?? "") !== "ADMIN" && (auth.session.user?.role ?? "") !== "SUDO") {
+    if (mine === "true") {
       conditions.push(eq(crmVisitas.criadoPor, auth.userId))
     }
     if (q) {
