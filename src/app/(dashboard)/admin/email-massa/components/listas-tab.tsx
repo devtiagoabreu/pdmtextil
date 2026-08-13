@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -18,6 +18,10 @@ import type { Lista, ListaComContatos, Contato } from "../types"
 export interface ListasTabProps {
   onListaDeletada: (id: number) => void
 }
+
+const MAX_CONTATOS_EXIBIDOS = 200
+
+const normalizeEmail = (email: string) => email.trim().toLowerCase()
 
 export function ListasTab({ onListaDeletada }: ListasTabProps) {
   const queryClient = useQueryClient()
@@ -38,6 +42,31 @@ export function ListasTab({ onListaDeletada }: ListasTabProps) {
   const [novoContato, setNovoContato] = useState({ nome: "", email: "" })
   const [editContatoId, setEditContatoId] = useState<number | null>(null)
   const [viewLista, setViewLista] = useState<ListaComContatos | null>(null)
+  const [buscaContato, setBuscaContato] = useState("")
+
+  const emailsDuplicados = useMemo(() => {
+    const counts = new Map<string, number>()
+    for (const c of listaContatos) {
+      const chave = normalizeEmail(c.email)
+      counts.set(chave, (counts.get(chave) || 0) + 1)
+    }
+    const duplicados = new Set<string>()
+    for (const [chave, n] of counts) {
+      if (n > 1) duplicados.add(chave)
+    }
+    return duplicados
+  }, [listaContatos])
+
+  const buscaNorm = buscaContato.trim().toLowerCase()
+  const contatosFiltrados = useMemo(() => {
+    if (!buscaNorm) return listaContatos
+    return listaContatos.filter((c) =>
+      normalizeEmail(c.email).includes(buscaNorm) || c.nome.toLowerCase().includes(buscaNorm)
+    )
+  }, [listaContatos, buscaNorm])
+
+  const contatosExibidos = contatosFiltrados.slice(0, MAX_CONTATOS_EXIBIDOS)
+  const contatosOcultos = contatosFiltrados.length - contatosExibidos.length
 
   const salvarLista = async () => {
     if (!listaForm.nome) { toast.error("Informe o nome da lista"); return }
@@ -153,6 +182,32 @@ export function ListasTab({ onListaDeletada }: ListasTabProps) {
     setListaContatos(prev => prev.filter((c: any) => c.id !== id))
   }
 
+  const removerFiltrados = () => {
+    if (!buscaNorm) return
+    const removidos = contatosFiltrados.length
+    setListaContatos(prev => prev.filter((c) => {
+      const k = normalizeEmail(c.email)
+      const n = c.nome.toLowerCase()
+      return !k.includes(buscaNorm) && !n.includes(buscaNorm)
+    }))
+    toast.success(`Removidos ${removidos} contato(s)`)
+  }
+
+  const limparEmailsRepetidos = () => {
+    const vistos = new Set<string>()
+    const mantidos: Contato[] = []
+    for (const c of listaContatos) {
+      const chave = normalizeEmail(c.email)
+      if (!vistos.has(chave)) {
+        vistos.add(chave)
+        mantidos.push(c)
+      }
+    }
+    const removidos = listaContatos.length - mantidos.length
+    setListaContatos(mantidos)
+    toast.success(`Removidos ${removidos} email(s) repetido(s)`)
+  }
+
   return (
     <>
       <div className="w-full rounded-xl border bg-card text-card-foreground shadow">
@@ -201,9 +256,9 @@ export function ListasTab({ onListaDeletada }: ListasTabProps) {
                               }
                             } }}
                           />
-                          <Button variant="ghost" size="xs" onClick={() => abrirEditarLista(l)} className="gap-1"><Pencil size={12} /></Button>
-                          <Button variant="ghost" size="xs" onClick={() => abrirVerLista(l)} className="gap-1"><Eye size={12} /></Button>
-                          <Button variant="ghost" size="xs" onClick={() => deletarLista(l.id)} className="gap-1 text-red-500 hover:text-red-700"><Trash2 size={12} /></Button>
+                          <Button variant="ghost" size="xs" onClick={() => abrirEditarLista(l)} aria-label={`Editar lista ${l.nome}`} className="gap-1"><Pencil size={12} /></Button>
+                          <Button variant="ghost" size="xs" onClick={() => abrirVerLista(l)} aria-label={`Ver lista ${l.nome}`} className="gap-1"><Eye size={12} /></Button>
+                          <Button variant="ghost" size="xs" onClick={() => deletarLista(l.id)} aria-label={`Deletar lista ${l.nome}`} className="gap-1 text-red-500 hover:text-red-700"><Trash2 size={12} /></Button>
                         </div>
                       </td>
                     </tr>
@@ -250,8 +305,36 @@ export function ListasTab({ onListaDeletada }: ListasTabProps) {
                 )}
               </div>
 
-              {listaContatos.length === 0 ? (
-                <p className="text-xs text-slate-400 py-4 text-center">Nenhum contato adicionado</p>
+              <div className="flex gap-2 mt-1 mb-2">
+                <Input
+                  value={buscaContato}
+                  onChange={e => setBuscaContato(e.target.value)}
+                  placeholder="Buscar contato por nome ou email"
+                  aria-label="Buscar contato por nome ou email"
+                  className="flex-1"
+                />
+                {buscaNorm && contatosFiltrados.length > 0 && (
+                  <Button variant="destructive" size="sm" onClick={removerFiltrados} className="gap-1 shrink-0">
+                    <Trash2 size={14} /> Remover {contatosFiltrados.length} encontrado(s)
+                  </Button>
+                )}
+              </div>
+
+              {emailsDuplicados.size > 0 && (
+                <div className="flex items-center justify-between gap-2 rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 px-3 py-2 mb-2">
+                  <span className="text-xs text-amber-700 dark:text-amber-400">
+                    {emailsDuplicados.size} email(s) repetido(s) na lista — mantém 1 contato por email
+                  </span>
+                  <Button variant="outline" size="xs" onClick={limparEmailsRepetidos} className="gap-1 shrink-0">
+                    <Trash2 size={12} /> Limpar emails repetidos
+                  </Button>
+                </div>
+              )}
+
+              {contatosFiltrados.length === 0 ? (
+                <p className="text-xs text-slate-400 py-4 text-center">
+                  {buscaNorm ? "Nenhum contato encontrado para a busca" : "Nenhum contato adicionado"}
+                </p>
               ) : (
                 <div className="max-h-48 overflow-y-auto border rounded-lg border-slate-200 dark:border-slate-700">
                   <table className="w-full text-sm">
@@ -259,26 +342,41 @@ export function ListasTab({ onListaDeletada }: ListasTabProps) {
                       <tr className="border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
                         <th className="text-left font-medium p-2">Nome</th>
                         <th className="text-left font-medium p-2">Email</th>
-                        <th className="w-10 p-2" />
+                        <th className="text-center font-medium p-2 w-20">Repetido</th>
+                        <th className="w-14 p-2" />
                       </tr>
                     </thead>
                     <tbody>
-                      {listaContatos.map((c: any) => (
-                        <tr key={c.id} className="border-b border-slate-100 dark:border-slate-800">
-                          <td className="p-2">{c.nome}</td>
-                          <td className="p-2 text-slate-500 break-all max-w-0">{c.email}</td>
-                          <td className="p-2">
-                            <div className="flex items-center gap-1">
-                              <button onClick={() => editarContato(c)} className="text-blue-400 hover:text-blue-600"><Pencil size={14} /></button>
-                              <button onClick={() => removerContato(c.id)} className="text-red-400 hover:text-red-600"><X size={14} /></button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
+                      {contatosExibidos.map((c: any) => {
+                        const repetido = emailsDuplicados.has(normalizeEmail(c.email))
+                        return (
+                          <tr key={c.id} className={`border-b border-slate-100 dark:border-slate-800 ${repetido ? "bg-amber-50 dark:bg-amber-900/10" : ""}`}>
+                            <td className="p-2">{c.nome}</td>
+                            <td className="p-2 text-slate-500 break-all max-w-0">{c.email}</td>
+                            <td className="p-2 text-center">
+                              {repetido && (
+                                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400">
+                                  repetido
+                                </span>
+                              )}
+                            </td>
+                            <td className="p-2">
+                              <div className="flex items-center gap-1">
+                                <button onClick={() => editarContato(c)} aria-label={`Editar contato ${c.nome}`} className="text-blue-400 hover:text-blue-600"><Pencil size={14} /></button>
+                                <button onClick={() => removerContato(c.id)} aria-label={`Remover contato ${c.nome}`} className="text-red-400 hover:text-red-600"><X size={14} /></button>
+                              </div>
+                            </td>
+                          </tr>
+                        )
+                      })}
                     </tbody>
                   </table>
                 </div>
               )}
+              <p className="text-xs text-slate-400 mt-1">
+                {contatosFiltrados.length} contato(s)
+                {contatosOcultos > 0 && ` — exibindo ${contatosExibidos.length}, use a busca para refinar`}
+              </p>
             </div>
           </div>
           <DialogFooter>
@@ -305,7 +403,7 @@ export function ListasTab({ onListaDeletada }: ListasTabProps) {
                   </tr>
                 </thead>
                 <tbody>
-                  {viewLista.contatos.map((c: any) => (
+                  {viewLista.contatos.slice(0, MAX_CONTATOS_EXIBIDOS).map((c: any) => (
                     <tr key={c.id} className="border-b border-slate-100 dark:border-slate-800">
                       <td className="p-2">{c.nome}</td>
                       <td className="p-2 text-slate-500">{c.email}</td>
