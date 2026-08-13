@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useMemo, useState, useDeferredValue } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -45,6 +45,7 @@ export function ListasTab({ onListaDeletada }: ListasTabProps) {
   const [editContatoId, setEditContatoId] = useState<number | null>(null)
   const [viewLista, setViewLista] = useState<ListaComContatos | null>(null)
   const [buscaContato, setBuscaContato] = useState("")
+  const buscaContatoDeferred = useDeferredValue(buscaContato)
   const [deleteTarget, setDeleteTarget] = useState<Lista | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [pdfLoading, setPdfLoading] = useState<number | null>(null)
@@ -62,7 +63,7 @@ export function ListasTab({ onListaDeletada }: ListasTabProps) {
     return duplicados
   }, [listaContatos])
 
-  const buscaNorm = buscaContato.trim().toLowerCase()
+  const buscaNorm = buscaContatoDeferred.trim().toLowerCase()
   const contatosFiltrados = useMemo(() => {
     if (!buscaNorm) return listaContatos
     return listaContatos.filter((c) =>

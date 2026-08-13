@@ -192,6 +192,12 @@ export function AgendarTab({ onCarregarNoEditor, onNovoDisparo, onEnviarAgendado
                             <Button variant="outline" size="xs" onClick={() => cancelarAgendado(a)} className="gap-1 text-yellow-600">Cancelar</Button>
                           </>
                         )}
+                        {a.status === "enviado" && (
+                          <>
+                            <Button variant="outline" size="xs" onClick={() => onCarregarNoEditor(a)} className="gap-1"><RefreshCw size={12} /> Reutilizar</Button>
+                            <Button variant="ghost" size="xs" onClick={() => setDeleteTarget(a.id)} aria-label={`Excluir ${a.nome || a.assunto}`} className="gap-1 text-red-500 hover:text-red-700"><Trash2 size={12} /></Button>
+                          </>
+                        )}
                         {(a.status === "rascunho" || a.status === "cancelado" || a.status === "erro") && (
                           <Button variant="ghost" size="xs" onClick={() => setDeleteTarget(a.id)} aria-label={`Excluir ${a.nome || a.assunto}`} className="gap-1 text-red-500 hover:text-red-700"><Trash2 size={12} /></Button>
                         )}

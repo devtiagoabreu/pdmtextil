@@ -26,6 +26,15 @@ const agendado: Agendado = {
 
 const rascunho: Agendado = { ...agendado, id: 5, nome: "Rascunho 1", status: "rascunho" }
 
+const enviado: Agendado = {
+  ...agendado,
+  id: 6,
+  nome: "07.08 | Feira Equipotel",
+  status: "enviado",
+  enviadoEm: "2026-08-07T16:36:59.000Z",
+  agendadoPara: null,
+}
+
 const progresso: Disparo = {
   id: 42,
   nome: "07.08 | Feira Equipotel",
@@ -109,6 +118,24 @@ describe("AgendarTab", () => {
     expect(bar).toHaveAttribute("aria-valuenow", "2")
     expect(screen.getByText("Envio em andamento")).toBeInTheDocument()
     expect(screen.getByText(/100 de 4711 processados/)).toBeInTheDocument()
+  })
+
+  it("mostra Reutilizar e Excluir para itens enviados", async () => {
+    vi.stubGlobal("fetch", createFetchMock(handler([enviado])).fn)
+    const onCarregarNoEditor = vi.fn()
+    renderPage(
+      <AgendarTab
+        onCarregarNoEditor={onCarregarNoEditor}
+        onNovoDisparo={vi.fn()}
+        onEnviarAgendado={vi.fn()}
+        disparoProgresso={null}
+      />,
+    )
+
+    await screen.findByText("07.08 | Feira Equipotel")
+    fireEvent.click(screen.getByRole("button", { name: /Reutilizar/ }))
+    expect(onCarregarNoEditor).toHaveBeenCalledWith(expect.objectContaining({ id: 6, status: "enviado" }))
+    expect(screen.getByRole("button", { name: "Excluir 07.08 | Feira Equipotel" })).toBeInTheDocument()
   })
 
   it("exclui o rascunho via modal de confirmação e refaz o fetch", async () => {
