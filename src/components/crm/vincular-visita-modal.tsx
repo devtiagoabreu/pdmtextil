@@ -8,6 +8,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog"
 import { QuickCreateCliente } from "./quick-create-cliente"
+import { QuickCreatePessoa } from "./quick-create-pessoa"
 
 type Props = {
   visitaId: number
@@ -21,12 +22,14 @@ export default function VincularVisitaModal({ visitaId, open, onClose, onLinked 
   const [loading, setLoading] = useState(false)
   const [selectedId, setSelectedId] = useState("")
   const [createOpen, setCreateOpen] = useState(false)
+  const [createOpenPessoa, setCreateOpenPessoa] = useState(false)
 
   useEffect(() => {
     if (!open) {
       setTipo("")
       setSelectedId("")
       setCreateOpen(false)
+      setCreateOpenPessoa(false)
       return
     }
   }, [open])
@@ -95,6 +98,13 @@ export default function VincularVisitaModal({ visitaId, open, onClose, onLinked 
     await linkVisita(
       { clienteId: id, empresaId: null, nomeAvulso: null },
       `Cliente "${nome}" criado e vinculado à visita!`,
+    )
+  }
+
+  async function handlePessoaCreated(id: number, razaoSocial: string) {
+    await linkVisita(
+      { empresaId: id, clienteId: null, nomeAvulso: null },
+      `Pessoa "${razaoSocial}" criada e vinculada à visita!`,
     )
   }
 
@@ -180,6 +190,29 @@ export default function VincularVisitaModal({ visitaId, open, onClose, onLinked 
                   open={createOpen}
                   onOpenChange={setCreateOpen}
                   onCreated={handleClienteCreated}
+                />
+              </div>
+            )}
+
+            {tipo === "PESSOA" && (
+              <div className="space-y-2 border-t border-slate-100 dark:border-slate-800 pt-3">
+                <div className="flex items-center gap-2">
+                  <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
+                  <span className="text-xs text-slate-400">ou crie um novo</span>
+                  <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setCreateOpenPessoa(true)}
+                  className="w-full inline-flex items-center justify-center gap-1.5 rounded-lg border border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-950/30 px-3 py-2 text-sm font-medium text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-950/50 transition-colors"
+                >
+                  <Plus size={14} />
+                  Criar nova pessoa
+                </button>
+                <QuickCreatePessoa
+                  open={createOpenPessoa}
+                  onOpenChange={setCreateOpenPessoa}
+                  onCreated={handlePessoaCreated}
                 />
               </div>
             )}

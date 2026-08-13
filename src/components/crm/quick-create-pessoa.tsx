@@ -12,6 +12,8 @@ import { SelectCidade } from "./select-cidade"
 
 type Props = {
   onCreated: (id: number, razaoSocial: string) => void
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
 function formatCnpj(v: string) {
@@ -20,8 +22,15 @@ function formatCnpj(v: string) {
   return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}/${d.slice(8, 12)}-${d.slice(12)}`
 }
 
-export function QuickCreatePessoa({ onCreated }: Props) {
-  const [open, setOpen] = useState(false)
+export function QuickCreatePessoa({ onCreated, open: openProp, onOpenChange }: Props) {
+  const [internalOpen, setInternalOpen] = useState(false)
+  const open = openProp ?? internalOpen
+  const isControlled = openProp !== undefined
+
+  function setOpen(v: boolean) {
+    setInternalOpen(v)
+    onOpenChange?.(v)
+  }
   const [saving, setSaving] = useState(false)
   const [razaoSocial, setRazaoSocial] = useState("")
   const [nomeFantasia, setNomeFantasia] = useState("")
@@ -162,13 +171,15 @@ export function QuickCreatePessoa({ onCreated }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) resetForm() }}>
-      <DialogTrigger
-        type="button"
-        className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 rounded transition-colors min-w-[32px] min-h-[32px] flex items-center justify-center"
-        title="Cadastrar nova pessoa (negócio)"
-      >
-        <Plus size={14} />
-      </DialogTrigger>
+      {!isControlled && (
+        <DialogTrigger
+          type="button"
+          className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 rounded transition-colors min-w-[32px] min-h-[32px] flex items-center justify-center"
+          title="Cadastrar nova pessoa (negócio)"
+        >
+          <Plus size={14} />
+        </DialogTrigger>
+      )}
       <DialogContent className="sm:max-w-2xl p-0">
         <DialogHeader className="px-4 pt-4 sm:px-6 sm:pt-6">
           <DialogTitle>Nova Pessoa (Negócio)</DialogTitle>
