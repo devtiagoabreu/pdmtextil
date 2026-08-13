@@ -3,6 +3,8 @@
 import { useState } from "react"
 import { FileText, Loader2 } from "lucide-react"
 import { toast } from "sonner"
+import type { VisitaFoto } from "@/lib/crm/visita-fotos"
+import { normalizeVisitaFotos } from "@/lib/crm/visita-fotos"
 
 interface Location {
   id: number
@@ -31,7 +33,7 @@ interface Visita {
   cidade: string | null
   uf: string | null
   relato: string | null
-  fotos: string[] | null
+  fotos: VisitaFoto[] | string[] | null
   criadoPorNome: string | null
   checkInTime: string | null
   checkOutTime: string | null
@@ -297,7 +299,8 @@ export default function VisitReportButton({ visita }: { visita: Visita }) {
         y += splitRelato.length * 4 + 8
       }
 
-      if (visita.fotos && visita.fotos.length > 0) {
+      const fotosList = normalizeVisitaFotos(visita.fotos)
+      if (fotosList.length > 0) {
         if (y > pageH - 60) {
           doc.addPage()
           y = 20
@@ -305,18 +308,28 @@ export default function VisitReportButton({ visita }: { visita: Visita }) {
 
         doc.setFontSize(10).setFont("helvetica", "bold")
         doc.setTextColor(0, 0, 0)
-        doc.text(`Fotos (${visita.fotos.length})`, marginX, y)
+        doc.text(`Fotos (${fotosList.length})`, marginX, y)
         y += 6
 
         doc.setFontSize(7).setFont("helvetica", "normal")
         doc.setTextColor(59, 130, 246)
-        for (const foto of visita.fotos) {
+        for (const foto of fotosList) {
           if (y > pageH - 20) {
             doc.addPage()
             y = 20
           }
-          doc.text(foto, marginX, y)
+          doc.text(foto.url, marginX, y)
           y += 4
+          if (foto.descricao) {
+            if (y > pageH - 20) {
+              doc.addPage()
+              y = 20
+            }
+            doc.setTextColor(80, 80, 80)
+            doc.text(`  ${foto.descricao}`, marginX, y)
+            doc.setTextColor(59, 130, 246)
+            y += 4
+          }
         }
         doc.setTextColor(0, 0, 0)
         y += 4

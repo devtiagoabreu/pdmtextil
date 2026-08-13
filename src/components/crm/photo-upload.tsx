@@ -2,20 +2,23 @@
 
 import { useState, useRef } from "react"
 import { Camera, Upload, X, Link as LinkIcon, Loader2 } from "lucide-react"
+import type { VisitaFoto } from "@/lib/crm/visita-fotos"
+import { normalizeVisitaFotos } from "@/lib/crm/visita-fotos"
 
 interface PhotoUploadProps {
-  photos: string[]
-  onPhotosChange: (photos: string[]) => void
+  photos: VisitaFoto[]
+  onPhotosChange: (photos: VisitaFoto[]) => void
   maxPhotos?: number
   label?: string
 }
 
-export default function PhotoUpload({ photos, onPhotosChange, maxPhotos = 20, label = "Fotos" }: PhotoUploadProps) {
+export default function PhotoUpload({ photos, onPhotosChange, maxPhotos = 20, label = "Fotos, comprovantes, documentos e outros" }: PhotoUploadProps) {
   const [uploading, setUploading] = useState(false)
   const [showUrlInput, setShowUrlInput] = useState(false)
   const [urlValue, setUrlValue] = useState("")
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  const normalized = normalizeVisitaFotos(photos)
   const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || ""
   const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || ""
 
@@ -23,7 +26,7 @@ export default function PhotoUpload({ photos, onPhotosChange, maxPhotos = 20, la
     const files = e.target.files
     if (!files || files.length === 0) return
 
-    const remaining = maxPhotos - photos.length
+    const remaining = maxPhotos - normalized.length
     const filesToUpload = Array.from(files).slice(0, remaining)
 
     if (filesToUpload.length < files.length) {
@@ -57,7 +60,7 @@ export default function PhotoUpload({ photos, onPhotosChange, maxPhotos = 20, la
       }
 
       if (uploadedUrls.length > 0) {
-        onPhotosChange([...photos, ...uploadedUrls])
+        onPhotosChange([...normalized, ...uploadedUrls.map((url) => ({ url, descricao: "" }))])
       }
     } catch (err) {
       console.error("Upload failed:", err)
@@ -72,15 +75,19 @@ export default function PhotoUpload({ photos, onPhotosChange, maxPhotos = 20, la
 
   function addUrl() {
     const trimmed = urlValue.trim()
-    if (trimmed && !photos.includes(trimmed)) {
-      onPhotosChange([...photos, trimmed])
+    if (trimmed && !normalized.some((f) => f.url === trimmed)) {
+      onPhotosChange([...normalized, { url: trimmed, descricao: "" }])
       setUrlValue("")
       setShowUrlInput(false)
     }
   }
 
   function removePhoto(index: number) {
-    onPhotosChange(photos.filter((_: any, i: any) => i !== index))
+    onPhotosChange(normalized.filter((_: VisitaFoto, i: number) => i !== index))
+  }
+
+  function updateDescricao(index: number, descricao: string) {
+    onPhotosChange(normalized.map((foto, i) => (i === index ? { ...foto, descricao } : foto)))
   }
 
   return (
@@ -97,7 +104,7 @@ export default function PhotoUpload({ photos, onPhotosChange, maxPhotos = 20, la
       <div className="flex items-center justify-between mb-2">
         <label className="text-sm font-medium text-slate-700 dark:text-slate-300">{label}</label>
         <div className="flex items-center gap-2">
-          {photos.length < maxPhotos && (
+          {normalized.length < maxPhotos && (
             <>
               <button
                 type="button"
@@ -149,45 +156,52 @@ export default function PhotoUpload({ photos, onPhotosChange, maxPhotos = 20, la
         </div>
       )}
 
-      {photos.length > 0 ? (
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
-          {photos.map((url: any, i: any) => (
-            <div key={url} className="relative group aspect-square rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden bg-slate-100 dark:bg-slate-800">
-              <img
-                src={url}
-                alt={`Foto ${i + 1}`}
-                className="object-cover w-full h-full"
-                onError={e => {
-                  const img = e.target as HTMLImageElement
-                  img.style.display = "none"
-                  const parent = img.parentElement
-                  if (parent && !parent.querySelector(".error-fallback")) {
-                    const span = document.createElement("span")
-                    span.className = "error-fallback absolute inset-0 flex items-center justify-center text-xs text-slate-400"
-                    span.textContent = "Invalida"
-                    parent.appendChild(span)
-                  }
-                }}
+      {normalized.length > 0 ? (
+        <ul className="space-y-2">
+          {normalized.map((foto, i) => (
+            <li key={`${foto.url}-${i}`} className="flex items-center gap-3">
+              <div className="relative shrink-0 w-28 aspect-video rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden bg-slate-100 dark:bg-slate-800">
+                <img
+                  src={foto.url}
+                  alt={foto.descricao || `Item ${i + 1}`}
+                  className="object-cover w-full h-full"
+                  onError={e => {
+                    const img = e.target as HTMLImageElement
+                    img.style.display = "none"
+                    const parent = img.parentElement
+                    if (parent && !parent.querySelector(".foto-fallback")) {
+                      const span = document.createElement("span")
+                      span.className = "foto-fallback absolute inset-0 flex items-center justify-center text-xs text-slate-400 px-2 text-center"
+                      span.textContent = "Anexo / link"
+                      parent.appendChild(span)
+                    }
+                  }}
+                />
+              </div>
+              <input
+                type="text"
+                value={foto.descricao}
+                onChange={e => updateDescricao(i, e.target.value)}
+                placeholder="Descreva o que é este item (ex: comprovante de entrega)"
+                aria-label={`Descrição do item ${i + 1}`}
+                className="flex-1 min-w-0 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <button
                 type="button"
                 onClick={() => removePhoto(i)}
-                aria-label={`Remover foto ${i + 1}`}
-                className="absolute top-1 right-1 p-1 rounded-full bg-black/60 text-white opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity hover:bg-red-600 min-h-[28px] min-w-[28px] flex items-center justify-center"
+                aria-label={`Remover item ${i + 1}`}
+                className="p-1.5 rounded-full bg-black/60 text-white hover:bg-red-600 min-h-[28px] min-w-[28px] flex items-center justify-center transition-colors"
               >
                 <X size={12} />
               </button>
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-1">
-                <span className="text-[10px] text-white/80">{i + 1}</span>
-              </div>
-            </div>
+            </li>
           ))}
-        </div>
+        </ul>
       ) : (
         <div className="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl p-6 text-center">
           <Camera size={24} className="mx-auto text-slate-300 dark:text-slate-600 mb-2" />
           <p className="text-xs text-slate-400">
-            Nenhuma foto adicionada
+            Nenhum anexo adicionado
           </p>
           <button
             type="button"
@@ -200,9 +214,9 @@ export default function PhotoUpload({ photos, onPhotosChange, maxPhotos = 20, la
         </div>
       )}
 
-      {photos.length > 0 && (
+      {normalized.length > 0 && (
         <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-2">
-          {photos.length}/{maxPhotos} fotos
+          {normalized.length}/{maxPhotos} itens
         </p>
       )}
     </div>

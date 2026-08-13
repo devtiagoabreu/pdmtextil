@@ -16,6 +16,7 @@ import { PageSkeleton } from "@/components/ui/page-skeleton"
 import { TipoEntidadeSelector } from "./components/tipo-entidade-selector"
 import { FormFields } from "./components/form-fields"
 import { EnderecoSection } from "./components/endereco-section"
+import type { VisitaFoto } from "@/lib/crm/visita-fotos"
 
 function NovaVisitaPageContent() {
   const router = useRouter()
@@ -28,7 +29,7 @@ function NovaVisitaPageContent() {
   const dataParam = searchParams.get("data")
   const [tipoEntidade, setTipoEntidade] = useState<"CLIENTE" | "PESSOA" | "AVULSA" | "">("")
   const [saving, setSaving] = useState(false)
-  const [fotos, setFotos] = useState<string[]>([])
+  const [fotos, setFotos] = useState<VisitaFoto[]>([])
   const [conflictos, setConflictos] = useState<any[]>([])
   const [recorrencia, setRecorrencia] = useState<string>("nenhuma")
   const [recorrenciaFim, setRecorrenciaFim] = useState("")

@@ -9,6 +9,8 @@ import Link from "next/link"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { useStatuses } from "@/hooks/use-statuses"
+import { normalizeVisitaFotos } from "@/lib/crm/visita-fotos"
+import type { VisitaFoto } from "@/lib/crm/visita-fotos"
 import VincularVisitaModal from "@/components/crm/vincular-visita-modal"
 import { VisitaHeader } from "./components/visita-header"
 import { EdicaoCard } from "./components/edicao-card"
@@ -28,7 +30,7 @@ export default function DetalheVisitaPage() {
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [editing, setEditing] = useState(false)
   const [form, setForm] = useState<any>({})
-  const [fotos, setFotos] = useState<string[]>([])
+  const [fotos, setFotos] = useState<VisitaFoto[]>([])
   const [conflictos, setConflictos] = useState<any[]>([])
   const conflictTimerRef = useRef<NodeJS.Timeout | null>(null)
   const [estadoId, setEstadoId] = useState<number | null>(null)
@@ -56,7 +58,7 @@ export default function DetalheVisitaPage() {
   useEffect(() => {
     if (visitaQuery.data) {
       setForm(visitaQuery.data)
-      setFotos(visitaQuery.data.fotos || [])
+      setFotos(normalizeVisitaFotos(visitaQuery.data.fotos))
     }
   }, [visitaQuery.data])
 
@@ -94,7 +96,7 @@ export default function DetalheVisitaPage() {
 
   function startEditing() {
     setForm({ ...visita })
-    setFotos(visita.fotos || [])
+    setFotos(normalizeVisitaFotos(visita.fotos))
     if (visita.empresaId) loadEmpresaEndereco(visita.empresaId)
     setEditing(true)
   }
@@ -102,7 +104,7 @@ export default function DetalheVisitaPage() {
   function cancelEditing() {
     setEditing(false)
     setForm(visita)
-    setFotos(visita.fotos || [])
+    setFotos(normalizeVisitaFotos(visita.fotos))
   }
 
   async function handleSave() {

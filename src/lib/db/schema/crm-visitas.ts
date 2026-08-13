@@ -4,6 +4,7 @@ import { crmOportunidades } from "./crm-oportunidades"
 import { crmContatos } from "./crm-contatos"
 import { clientes } from "./clientes"
 import { usuarios } from "./usuarios"
+import type { VisitaFoto } from "@/lib/crm/visita-fotos"
 
 export const crmVisitas = pgTable("crm_visitas", {
   id: serial("id").primaryKey(),
@@ -25,7 +26,7 @@ export const crmVisitas = pgTable("crm_visitas", {
   motivoCancelamento: text("motivo_cancelamento"),
   nomeAvulso: varchar("nome_avulso", { length: 300 }),
   relato: text("relato"),
-  fotos: jsonb("fotos").$type<string[]>().default([]),
+  fotos: jsonb("fotos").$type<VisitaFoto[]>().default([]),
   checkInTime: timestamp("check_in_time"),
   checkOutTime: timestamp("check_out_time"),
   checkInLat: doublePrecision("check_in_lat"),

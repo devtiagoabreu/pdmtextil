@@ -218,6 +218,54 @@ describe("DetalheVisitaPage", () => {
     expect(editor.innerHTML).not.toContain("Visita de apresentação")
   })
 
+  it("mostra o card de anexos com descrições e aceita dados antigos (string[])", async () => {
+    const comAnexos = {
+      ...visita,
+      fotos: [
+        { url: "https://cloud.com/nota.jpg", descricao: "Nota fiscal da entrega" },
+        "https://cloud.com/legada.jpg",
+      ],
+    }
+    const anexosMock = createFetchMock(buildHandler(comAnexos))
+    vi.stubGlobal("fetch", anexosMock.fn)
+
+    renderPage(<DetalheVisitaPage />)
+    await screen.findByRole("heading", { name: "Visita — Tecelagem Alpha" })
+
+    expect(screen.getByText("Fotos, comprovantes, documentos e outros")).toBeInTheDocument()
+    expect(screen.getByText("Nota fiscal da entrega")).toBeInTheDocument()
+    expect(document.querySelector('a[href="https://cloud.com/nota.jpg"]')).not.toBeNull()
+    expect(document.querySelector('a[href="https://cloud.com/legada.jpg"]')).not.toBeNull()
+  })
+
+  it("permite adicionar URL e descrever o anexo na edição", async () => {
+    renderPage(<DetalheVisitaPage />)
+    await screen.findByRole("heading", { name: "Visita — Tecelagem Alpha" })
+
+    fireEvent.click(screen.getByRole("button", { name: "Editar" }))
+    await screen.findByRole("button", { name: "Salvar" })
+
+    fireEvent.click(screen.getByRole("button", { name: "URL" }))
+    fireEvent.change(screen.getByPlaceholderText("https://..."), { target: { value: "https://cloud.com/comprovante.pdf" } })
+    fireEvent.click(screen.getByRole("button", { name: "Adicionar" }))
+
+    const descricaoInput = await screen.findByRole("textbox", { name: "Descrição do item 1" })
+    fireEvent.change(descricaoInput, { target: { value: "Comprovante de entrega" } })
+
+    fireEvent.click(screen.getByRole("button", { name: "Salvar" }))
+
+    await waitFor(() => {
+      const call = findCall(fetchMock.calls, "/api/crm/visitas/1", "PUT")
+      expect(call).toBeDefined()
+      expect(call!.body).toEqual(
+        expect.objectContaining({
+          fotos: [{ url: "https://cloud.com/comprovante.pdf", descricao: "Comprovante de entrega" }],
+        }),
+      )
+    })
+    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Visita atualizada"))
+  })
+
   it("mostra mensagem quando a visita não existe", async () => {
     navMock.setParams({ id: "999" })
     const notFound = createFetchMock(() => ({ status: 404, json: { error: "não encontrada" } }))
