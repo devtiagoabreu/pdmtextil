@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest"
-import { screen, fireEvent } from "@testing-library/react"
+import { screen, fireEvent, waitFor } from "@testing-library/react"
 import { AgendarTab } from "./agendar-tab"
-import { createFetchMock, renderPage } from "@/test/harness"
+import { createFetchMock, renderPage, toastMock } from "@/test/harness"
 import type { Agendado, Disparo } from "../types"
 
 const agendado: Agendado = {
@@ -109,5 +109,32 @@ describe("AgendarTab", () => {
     expect(bar).toHaveAttribute("aria-valuenow", "2")
     expect(screen.getByText("Envio em andamento")).toBeInTheDocument()
     expect(screen.getByText(/100 de 4711 processados/)).toBeInTheDocument()
+  })
+
+  it("exclui o rascunho via modal de confirmação e refaz o fetch", async () => {
+    const fetchMock = createFetchMock(({ method, url }) => {
+      if (method === "GET" && url === "/api/admin/email-massa/agendados") return { json: [agendado, rascunho] }
+      if (method === "POST" && url === "/api/admin/email-massa/agendados/executar") return { json: { executados: 0 } }
+      if (method === "DELETE" && url === "/api/admin/email-massa/agendados/5") return { json: { success: true } }
+      return { json: null }
+    })
+    vi.stubGlobal("fetch", fetchMock.fn)
+    renderPage(
+      <AgendarTab
+        onCarregarNoEditor={vi.fn()}
+        onNovoDisparo={vi.fn()}
+        onEnviarAgendado={vi.fn()}
+        disparoProgresso={null}
+      />,
+    )
+
+    await screen.findByText("Rascunho 1")
+    fireEvent.click(screen.getByRole("button", { name: "Excluir Rascunho 1" }))
+
+    expect(screen.getByText("Excluir agendamento?")).toBeInTheDocument()
+    fireEvent.click(screen.getByRole("button", { name: "Excluir" }))
+
+    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Excluído"))
+    expect(fetchMock.calls.some((c) => c.method === "DELETE" && c.url === "/api/admin/email-massa/agendados/5")).toBe(true)
   })
 })

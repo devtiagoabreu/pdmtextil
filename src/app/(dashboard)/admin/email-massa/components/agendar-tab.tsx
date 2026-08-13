@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { toast } from "sonner"
 import { RefreshCw, Plus, Pencil, Trash2, Clock, Send } from "lucide-react"
 import { EnvioProgresso } from "./envio-progresso"
@@ -60,6 +61,8 @@ export function AgendarTab({ onCarregarNoEditor, onNovoDisparo, onEnviarAgendado
   })
 
   const [agendadoFiltro, setAgendadoFiltro] = useState<string>("todos")
+  const [deleteTarget, setDeleteTarget] = useState<number | null>(null)
+  const [deleteLoading, setDeleteLoading] = useState(false)
 
   useEffect(() => {
     fetch("/api/admin/email-massa/agendados/executar", { method: "POST" }).catch(console.error)
@@ -85,12 +88,17 @@ export function AgendarTab({ onCarregarNoEditor, onNovoDisparo, onEnviarAgendado
     } catch { toast.error("Erro ao cancelar") }
   }
 
-  const excluirAgendado = async (id: number) => {
-    if (!confirm("Excluir este agendamento?")) return
+  const excluirAgendado = async () => {
+    if (deleteTarget === null) return
+    setDeleteLoading(true)
     try {
-      const res = await fetch(`/api/admin/email-massa/agendados/${id}`, { method: "DELETE" })
-      if (res.ok) { toast.success("Excluído"); queryClient.invalidateQueries({ queryKey: ["email-massa-agendados"] }) }
-    } catch { toast.error("Erro ao excluir") }
+      const res = await fetch(`/api/admin/email-massa/agendados/${deleteTarget}`, { method: "DELETE" })
+      if (res.ok) {
+        toast.success("Excluído")
+        setDeleteTarget(null)
+        queryClient.invalidateQueries({ queryKey: ["email-massa-agendados"] })
+      }
+    } catch { toast.error("Erro ao excluir") } finally { setDeleteLoading(false) }
   }
 
   const executarAgendamentos = async () => {
@@ -185,7 +193,7 @@ export function AgendarTab({ onCarregarNoEditor, onNovoDisparo, onEnviarAgendado
                           </>
                         )}
                         {(a.status === "rascunho" || a.status === "cancelado" || a.status === "erro") && (
-                          <Button variant="ghost" size="xs" onClick={() => excluirAgendado(a.id)} className="gap-1 text-red-500 hover:text-red-700"><Trash2 size={12} /></Button>
+                          <Button variant="ghost" size="xs" onClick={() => setDeleteTarget(a.id)} aria-label={`Excluir ${a.nome || a.assunto}`} className="gap-1 text-red-500 hover:text-red-700"><Trash2 size={12} /></Button>
                         )}
                       </div>
                     </td>
@@ -196,6 +204,17 @@ export function AgendarTab({ onCarregarNoEditor, onNovoDisparo, onEnviarAgendado
           </div>
         )}
       </div>
+
+      <ConfirmModal
+        open={deleteTarget !== null}
+        title="Excluir agendamento?"
+        message="Tem certeza que deseja excluir este disparo programado? Esta ação não pode ser desfeita."
+        confirmLabel="Excluir"
+        variant="danger"
+        loading={deleteLoading}
+        onConfirm={excluirAgendado}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   )
 }
