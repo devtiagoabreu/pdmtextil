@@ -20,6 +20,7 @@ export function QuickCreateLead({ onCreated }: Props) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    e.stopPropagation()
     if (!nome.trim()) {
       toast.error("Nome é obrigatório")
       return

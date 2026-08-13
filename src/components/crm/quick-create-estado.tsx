@@ -19,6 +19,7 @@ export function QuickCreateEstado({ onCreated }: Props) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    e.stopPropagation()
     if (!nome.trim() || !uf.trim()) {
       toast.error("Nome e UF são obrigatórios")
       return

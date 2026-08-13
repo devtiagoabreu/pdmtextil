@@ -1,6 +1,6 @@
 ﻿// @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest"
-import { screen, fireEvent, waitFor } from "@testing-library/react"
+import { screen, fireEvent, waitFor, within } from "@testing-library/react"
 import NovaVisitaPage from "./page"
 import { createFetchMock, renderPage, findCall, toastMock, navMock } from "@/test/harness"
 
@@ -24,6 +24,12 @@ describe("NovaVisitaPage", () => {
       }
       if (method === "GET" && url === "/api/crm/estados") {
         return { json: [{ id: 35, uf: "SP", nome: "São Paulo" }] }
+      }
+      if (method === "GET" && url.startsWith("/api/crm/contatos?clienteId=")) {
+        return { json: [{ id: 9, nome: "Ana Silva" }] }
+      }
+      if (method === "POST" && url === "/api/crm/contatos") {
+        return { json: { id: 9, nome: "Ana Silva" } }
       }
       if (method === "POST" && url === "/api/crm/visitas") {
         return { json: { id: 1, total: 1 } }
@@ -133,5 +139,43 @@ describe("NovaVisitaPage", () => {
     })
     await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Visita criada com sucesso"))
     expect(navMock.router.push).toHaveBeenCalledWith("/comercial/crm/visitas")
+  })
+
+  it("criar contato via quick create NAO salva a visita nem navega", async () => {
+    renderPage(<NovaVisitaPage />)
+    await screen.findByRole("heading", { name: "Nova Visita" })
+
+    fireEvent.click(screen.getByRole("button", { name: /^Cliente/ }))
+    await screen.findByText("Visitando Cliente")
+
+    fireEvent.change(screen.getAllByRole("combobox")[0], { target: { value: "5" } })
+    await waitFor(() =>
+      expect(findCall(fetchMock.calls, "/api/crm/contatos?clienteId=5", "GET")).toBeDefined()
+    )
+
+    fireEvent.click(screen.getByTitle("Cadastrar novo contato"))
+    const dialog = await screen.findByRole("dialog")
+    expect(within(dialog).getByRole("heading", { name: "Novo Contato" })).toBeInTheDocument()
+
+    fireEvent.change(within(dialog).getAllByRole("textbox")[0], { target: { value: "Ana Silva" } })
+    fireEvent.click(within(dialog).getByRole("button", { name: /^Criar$/ }))
+
+    await waitFor(() => {
+      const call = findCall(fetchMock.calls, "/api/crm/contatos", "POST")
+      expect(call).toBeDefined()
+      expect(call!.body).toEqual({
+        nome: "Ana Silva",
+        cargo: null,
+        email: null,
+        celular: null,
+        clienteId: 5,
+      })
+    })
+    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Contato criado com sucesso"))
+
+    await waitFor(() => expect(screen.getAllByRole("combobox")[4]).toHaveValue("9"))
+    const visitaCall = findCall(fetchMock.calls, "/api/crm/visitas", "POST")
+    expect(visitaCall).toBeUndefined()
+    expect(navMock.router.push).not.toHaveBeenCalled()
   })
 })

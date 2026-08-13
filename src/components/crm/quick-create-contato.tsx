@@ -41,6 +41,7 @@ export function QuickCreateContato({ empresaId, clienteId, clienteNome, onClickG
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    e.stopPropagation()
     if (!nome.trim()) {
       toast.error("Nome é obrigatório")
       return

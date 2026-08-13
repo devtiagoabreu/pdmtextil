@@ -129,6 +129,7 @@ export function QuickCreatePessoa({ onCreated, open: openProp, onOpenChange }: P
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    e.stopPropagation()
     if (!razaoSocial.trim() || !cnpj.trim()) {
       toast.error("Razão Social e CNPJ são obrigatórios")
       return

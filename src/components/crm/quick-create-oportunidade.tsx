@@ -20,6 +20,7 @@ export function QuickCreateOportunidade({ empresaId, onCreated }: Props) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    e.stopPropagation()
     if (!titulo.trim()) {
       toast.error("Título é obrigatório")
       return

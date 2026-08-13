@@ -118,6 +118,7 @@ export function QuickCreateCliente({ onCreated, open: openProp, onOpenChange }: 
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    e.stopPropagation()
     if (!nome.trim() || !cnpj.trim()) {
       toast.error("Nome e CNPJ são obrigatórios")
       return
