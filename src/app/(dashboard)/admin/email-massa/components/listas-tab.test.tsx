@@ -114,4 +114,19 @@ describe("ListasTab", () => {
     expect(screen.getByText("205 contato(s) — exibindo 200, use a busca para refinar")).toBeInTheDocument()
     expect(screen.getAllByRole("row")).toHaveLength(201)
   })
+
+  it("exclui a lista via modal de confirmação", async () => {
+    const fetchMock = setup()
+    const onListaDeletada = vi.fn()
+    renderPage(<ListasTab onListaDeletada={onListaDeletada} />)
+
+    fireEvent.click(await screen.findByRole("button", { name: "Deletar lista Clientes SP" }))
+
+    expect(screen.getByText("Deletar lista?")).toBeInTheDocument()
+    fireEvent.click(screen.getByRole("button", { name: "Deletar" }))
+
+    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Lista deletada"))
+    expect(fetchMock.calls.some((c) => c.method === "DELETE" && c.url === "/api/admin/email-massa/listas/1")).toBe(true)
+    expect(onListaDeletada).toHaveBeenCalledWith(1)
+  })
 })

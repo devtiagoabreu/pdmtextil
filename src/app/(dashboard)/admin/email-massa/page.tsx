@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
@@ -64,6 +65,8 @@ export default function EmailMassaPage() {
   const [editModelo, setEditModelo] = useState<Modelo | null>(null)
   const [modeloForm, setModeloForm] = useState({ nome: "", assunto: "", html: "" })
   const [viewModelo, setViewModelo] = useState<Modelo | null>(null)
+  const [modeloDeleteTarget, setModeloDeleteTarget] = useState<Modelo | null>(null)
+  const [modeloDeleteLoading, setModeloDeleteLoading] = useState(false)
 
   const [remetente, setRemetente] = useState("sistema")
   const [userEmailConfig, setUserEmailConfig] = useState<{ email: string } | null>(null)
@@ -258,16 +261,20 @@ export default function EmailMassaPage() {
     }
   }
 
-  const deletarModelo = async (id: number) => {
-    if (!confirm("Deletar este modelo?")) return
+  const deletarModelo = async () => {
+    if (!modeloDeleteTarget) return
+    setModeloDeleteLoading(true)
     try {
-      const res = await fetch(`/api/admin/email-massa/modelos/${id}`, { method: "DELETE" })
+      const res = await fetch(`/api/admin/email-massa/modelos/${modeloDeleteTarget.id}`, { method: "DELETE" })
       if (res.ok) {
         toast.success("Modelo deletado")
+        setModeloDeleteTarget(null)
         queryClient.invalidateQueries({ queryKey: ["email-massa-modelos"] })
       }
     } catch {
       toast.error("Erro ao deletar")
+    } finally {
+      setModeloDeleteLoading(false)
     }
   }
 
@@ -344,7 +351,7 @@ export default function EmailMassaPage() {
             onUsar={usarModelo}
             onEditar={abrirEditarModelo}
             onVer={setViewModelo}
-            onDeletar={deletarModelo}
+            onDeletar={(m) => setModeloDeleteTarget(m)}
           />
         </TabsContent>
 
@@ -388,6 +395,17 @@ export default function EmailMassaPage() {
         viewModelo={viewModelo}
         onFecharVer={() => setViewModelo(null)}
         onUsarModelo={usarModelo}
+      />
+
+      <ConfirmModal
+        open={modeloDeleteTarget !== null}
+        title="Deletar modelo?"
+        message={modeloDeleteTarget ? `Tem certeza que deseja deletar o modelo "${modeloDeleteTarget.nome}"? Esta ação não pode ser desfeita.` : ""}
+        confirmLabel="Deletar"
+        variant="danger"
+        loading={modeloDeleteLoading}
+        onConfirm={deletarModelo}
+        onCancel={() => setModeloDeleteTarget(null)}
       />
     </div>
   )

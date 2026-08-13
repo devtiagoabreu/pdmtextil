@@ -38,6 +38,22 @@ describe("EmailMassaPage", () => {
     expect(screen.getByText("Oferta imperdível")).toBeInTheDocument()
   })
 
+  it("exclui um modelo via modal de confirmação", async () => {
+    const fetchMock = setup()
+    renderPage(<EmailMassaPage />)
+
+    fireEvent.click(screen.getByRole("tab", { name: "Modelos" }))
+    await screen.findByText("Promoção de Verão")
+
+    fireEvent.click(screen.getByRole("button", { name: "Deletar modelo Promoção de Verão" }))
+
+    expect(screen.getByText("Deletar modelo?")).toBeInTheDocument()
+    fireEvent.click(screen.getByRole("button", { name: "Deletar" }))
+
+    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Modelo deletado"))
+    expect(fetchMock.calls.some((c) => c.method === "DELETE" && c.url === "/api/admin/email-massa/modelos/1")).toBe(true)
+  })
+
   it("valida conteúdo vazio antes de enviar", async () => {
     setup()
     renderPage(<EmailMassaPage />)

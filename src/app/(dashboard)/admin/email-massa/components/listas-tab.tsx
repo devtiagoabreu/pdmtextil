@@ -10,6 +10,7 @@ import { Separator } from "@/components/ui/separator"
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog"
+import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { toast } from "sonner"
 import { Plus, Pencil, Eye, Trash2, X } from "lucide-react"
 import { ImportarEntidade } from "@/components/importar/ImportarEntidade"
@@ -43,6 +44,8 @@ export function ListasTab({ onListaDeletada }: ListasTabProps) {
   const [editContatoId, setEditContatoId] = useState<number | null>(null)
   const [viewLista, setViewLista] = useState<ListaComContatos | null>(null)
   const [buscaContato, setBuscaContato] = useState("")
+  const [deleteTarget, setDeleteTarget] = useState<Lista | null>(null)
+  const [deleteLoading, setDeleteLoading] = useState(false)
 
   const emailsDuplicados = useMemo(() => {
     const counts = new Map<string, number>()
@@ -103,17 +106,21 @@ export function ListasTab({ onListaDeletada }: ListasTabProps) {
     }
   }
 
-  const deletarLista = async (id: number) => {
-    if (!confirm("Deletar esta lista e todos os seus contatos?")) return
+  const deletarLista = async () => {
+    if (!deleteTarget) return
+    setDeleteLoading(true)
     try {
-      const res = await fetch(`/api/admin/email-massa/listas/${id}`, { method: "DELETE" })
+      const res = await fetch(`/api/admin/email-massa/listas/${deleteTarget.id}`, { method: "DELETE" })
       if (res.ok) {
         toast.success("Lista deletada")
+        setDeleteTarget(null)
         queryClient.invalidateQueries({ queryKey: ["email-massa-listas"] })
-        onListaDeletada(id)
+        onListaDeletada(deleteTarget.id)
       }
     } catch {
       toast.error("Erro ao deletar")
+    } finally {
+      setDeleteLoading(false)
     }
   }
 
@@ -258,7 +265,7 @@ export function ListasTab({ onListaDeletada }: ListasTabProps) {
                           />
                           <Button variant="ghost" size="xs" onClick={() => abrirEditarLista(l)} aria-label={`Editar lista ${l.nome}`} className="gap-1"><Pencil size={12} /></Button>
                           <Button variant="ghost" size="xs" onClick={() => abrirVerLista(l)} aria-label={`Ver lista ${l.nome}`} className="gap-1"><Eye size={12} /></Button>
-                          <Button variant="ghost" size="xs" onClick={() => deletarLista(l.id)} aria-label={`Deletar lista ${l.nome}`} className="gap-1 text-red-500 hover:text-red-700"><Trash2 size={12} /></Button>
+                          <Button variant="ghost" size="xs" onClick={() => setDeleteTarget(l)} aria-label={`Deletar lista ${l.nome}`} className="gap-1 text-red-500 hover:text-red-700"><Trash2 size={12} /></Button>
                         </div>
                       </td>
                     </tr>
@@ -420,6 +427,17 @@ export function ListasTab({ onListaDeletada }: ListasTabProps) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <ConfirmModal
+        open={deleteTarget !== null}
+        title="Deletar lista?"
+        message={deleteTarget ? `Tem certeza que deseja deletar a lista "${deleteTarget.nome}" e todos os seus contatos? Esta ação não pode ser desfeita.` : ""}
+        confirmLabel="Deletar"
+        variant="danger"
+        loading={deleteLoading}
+        onConfirm={deletarLista}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </>
   )
 }

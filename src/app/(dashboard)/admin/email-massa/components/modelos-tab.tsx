@@ -10,7 +10,7 @@ export interface ModelosTabProps {
   onUsar: (m: Modelo) => void
   onEditar: (m: Modelo) => void
   onVer: (m: Modelo) => void
-  onDeletar: (id: number) => void
+  onDeletar: (m: Modelo) => void
 }
 
 export function ModelosTab({ modelos, onNovo, onUsar, onEditar, onVer, onDeletar }: ModelosTabProps) {
@@ -44,13 +44,13 @@ export function ModelosTab({ modelos, onNovo, onUsar, onEditar, onVer, onDeletar
                         <Button variant="outline" size="xs" onClick={() => onUsar(m)} className="gap-1">
                           <Copy size={12} /> Usar
                         </Button>
-                        <Button variant="ghost" size="xs" onClick={() => onEditar(m)} className="gap-1">
+                        <Button variant="ghost" size="xs" onClick={() => onEditar(m)} aria-label={`Editar modelo ${m.nome}`} className="gap-1">
                           <Pencil size={12} />
                         </Button>
-                        <Button variant="ghost" size="xs" onClick={() => onVer(m)} className="gap-1">
+                        <Button variant="ghost" size="xs" onClick={() => onVer(m)} aria-label={`Ver modelo ${m.nome}`} className="gap-1">
                           <Eye size={12} />
                         </Button>
-                        <Button variant="ghost" size="xs" onClick={() => onDeletar(m.id)} className="gap-1 text-red-500 hover:text-red-700">
+                        <Button variant="ghost" size="xs" onClick={() => onDeletar(m)} aria-label={`Deletar modelo ${m.nome}`} className="gap-1 text-red-500 hover:text-red-700">
                           <Trash2 size={12} />
                         </Button>
                       </div>
