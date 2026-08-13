@@ -18,11 +18,24 @@ const produtoData = {
   idIntegracao: "",
   composicao: [],
   estrutura: [],
-  amostras: [],
+  amostras: [
+    {
+      id: 15,
+      descricao: "AMOSTRA - PILOTAGEM 001",
+      status: "EM_DESENVOLVIMENTO",
+      observacoes: null,
+      quantidadeProduzida: null,
+      idIntegracaoErpCru: null,
+      links: [],
+      dados: null,
+      motivoAprovacao: null,
+      data: "2026-08-13T00:00:00.000Z",
+    },
+  ],
   acabamentos: [],
 }
 
-function setup(paramsId: string) {
+function setup(paramsId: string, deleteAmostraResponse: { status?: number; json?: unknown } = { status: 200, json: { success: true } }) {
   navMock.setPathname(`/cadastros/produto-cru/${paramsId}`)
   navMock.setParams({ id: paramsId })
   const isEditing = paramsId !== "novo"
@@ -44,6 +57,9 @@ function setup(paramsId: string) {
     if (method === "GET" && url === "/api/admin/status?tipo=AMOSTRA") return { json: [] }
     if (method === "POST" && url === "/api/cadastros/produto-cru") {
       return { status: 201, json: { id: 8 } }
+    }
+    if (method === "DELETE" && isEditing && url === `/api/cadastros/produto-cru/${paramsId}/amostras/15`) {
+      return { status: deleteAmostraResponse.status ?? 200, json: deleteAmostraResponse.json ?? { success: true } }
     }
     return { status: 404, json: { error: "Rota não mockada" } }
   })
@@ -92,5 +108,33 @@ describe("ProdutoCruFormPage", () => {
     const call = findCall(fetchMock.calls, "/api/cadastros/produto-cru", "POST")
     expect(call?.body?.codigoPdm).toBe("D99")
     expect(call?.body?.descricao).toBe("Tecido Novo")
+  })
+
+  async function abrirExclusaoAmostra() {
+    await userEvent.click(screen.getByRole("button", { name: "Amostras" }))
+    await screen.findByText("AMOSTRA - PILOTAGEM 001")
+    const trash = document.getElementById("amostra-15")!.querySelector(".lucide-trash-2")!.closest("button")!
+    fireEvent.click(trash)
+    await screen.findByText("Confirmar exclusão")
+  }
+
+  it("exclui amostra após confirmação e remove da lista", async () => {
+    const { fetchMock } = setup("7")
+    await screen.findByDisplayValue("D28")
+    await abrirExclusaoAmostra()
+    await userEvent.click(screen.getByRole("button", { name: "Remover" }))
+    const call = findCall(fetchMock.calls, "/api/cadastros/produto-cru/7/amostras/15", "DELETE")
+    expect(call).toBeDefined()
+    await waitFor(() => expect(screen.queryByText("AMOSTRA - PILOTAGEM 001")).toBeNull())
+    expect(toastMock.success).toHaveBeenCalledWith("Amostra removida")
+  })
+
+  it("mantém a amostra e mostra erro da API quando o DELETE falha", async () => {
+    setup("7", { status: 403, json: { error: "Apenas administradores podem excluir amostras" } })
+    await screen.findByDisplayValue("D28")
+    await abrirExclusaoAmostra()
+    await userEvent.click(screen.getByRole("button", { name: "Remover" }))
+    await waitFor(() => expect(toastMock.error).toHaveBeenCalledWith("Apenas administradores podem excluir amostras"))
+    expect(screen.getByText("AMOSTRA - PILOTAGEM 001")).toBeDefined()
   })
 })

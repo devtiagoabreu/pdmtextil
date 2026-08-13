@@ -308,13 +308,25 @@ export default function ProdutoCruFormPage() {
     }
   }
 
+  const removeItem = async (url: string, successMsg: string) => {
+    try {
+      const res = await fetch(url, { method: "DELETE" })
+      if (!res.ok) {
+        const data = await res.json().catch(() => null)
+        throw new Error(data?.error || "Erro ao remover")
+      }
+      toast.success(successMsg)
+      return true
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erro de rede ao remover")
+      return false
+    }
+  }
+
   const removeComposicao = async (cid: number) => {
     if (!id) return
-    try {
-      await fetch(`/api/cadastros/produto-cru/${id}/composicao/${cid}`, { method: "DELETE" })
+    if (await removeItem(`/api/cadastros/produto-cru/${id}/composicao/${cid}`, "Material removido")) {
       setComposicao(composicao.filter((c) => c.id !== cid))
-    } catch {
-      toast.error("Erro ao remover material")
     }
   }
 
@@ -345,11 +357,8 @@ export default function ProdutoCruFormPage() {
 
   const removeEstrutura = async (eid: number) => {
     if (!id) return
-    try {
-      await fetch(`/api/cadastros/produto-cru/${id}/estrutura/${eid}`, { method: "DELETE" })
+    if (await removeItem(`/api/cadastros/produto-cru/${id}/estrutura/${eid}`, "Estrutura removida")) {
       setEstrutura(estrutura.filter((e) => e.id !== eid))
-    } catch {
-      toast.error("Erro ao remover estrutura")
     }
   }
 
@@ -532,11 +541,8 @@ export default function ProdutoCruFormPage() {
 
   const removeAmostra = async (amostraId: number) => {
     if (!id) return
-    try {
-      await fetch(`/api/cadastros/produto-cru/${id}/amostras/${amostraId}`, { method: "DELETE" })
+    if (await removeItem(`/api/cadastros/produto-cru/${id}/amostras/${amostraId}`, "Amostra removida")) {
       setAmostras(amostras.filter((a) => a.id !== amostraId))
-    } catch {
-      toast.error("Erro ao remover amostra")
     }
   }
 
@@ -598,11 +604,8 @@ export default function ProdutoCruFormPage() {
 
   const removeAcabamento = async (acabamentoId: number) => {
     if (!id) return
-    try {
-      await fetch(`/api/cadastros/produto-cru/${id}/acabamentos/${acabamentoId}`, { method: "DELETE" })
+    if (await removeItem(`/api/cadastros/produto-cru/${id}/acabamentos/${acabamentoId}`, "Acabamento removido")) {
       setAcabamentos(acabamentos.filter((a) => a.id !== acabamentoId))
-    } catch {
-      toast.error("Erro ao remover acabamento")
     }
   }
 
@@ -630,13 +633,10 @@ export default function ProdutoCruFormPage() {
 
   const removeAmostraAcabamento = async (acabamentoId: number, asid: number) => {
     if (!id) return
-    try {
-      await fetch(`/api/cadastros/produto-cru/${id}/acabamentos/${acabamentoId}/amostras/${asid}`, { method: "DELETE" })
+    if (await removeItem(`/api/cadastros/produto-cru/${id}/acabamentos/${acabamentoId}/amostras/${asid}`, "Amostra removida")) {
       setAcabamentos(acabamentos.map((a) =>
         a.id === acabamentoId ? { ...a, amostras: a.amostras.filter((as) => as.id !== asid) } : a
       ))
-    } catch {
-      toast.error("Erro ao remover amostra")
     }
   }
 

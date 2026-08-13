@@ -159,9 +159,6 @@ export async function DELETE(
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
     const session = auth.session
-    if (session.user.role !== "ADMIN" && session.user.role !== "SUDO") {
-      return NextResponse.json({ error: "Apenas administradores podem excluir amostras" }, { status: 403 })
-    }
 
     const { id, aid } = await params
 
