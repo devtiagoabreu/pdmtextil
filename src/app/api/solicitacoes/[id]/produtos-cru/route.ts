@@ -55,7 +55,7 @@ export async function POST(
       return NextResponse.json({ error: "Solicitação não encontrada" }, { status: 404 })
     }
 
-    await db.transaction(async (tx) => {
+    await db.transaction(async (tx: any) => {
       await tx
         .update(produtosCru)
         .set({ solicitacaoDesenvolvimentoId: solicId, updatedAt: new Date() })
