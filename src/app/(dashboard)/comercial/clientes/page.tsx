@@ -2,13 +2,15 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { PlusCircle, Building2, Phone, Mail, MapPin, Pencil, Users, Database, FileText, FlaskConical, Loader2, X, ExternalLink } from "lucide-react"
+import { PlusCircle, Building2, Phone, Mail, MapPin, Pencil, Users, Database, FileText, FlaskConical, Loader2, X, ExternalLink, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import { usePathname } from "next/navigation"
+import { useSession } from "next-auth/react"
 import { InfoButton } from "@/components/ui/info-button"
 import ListFilters, { useListFilters } from "@/components/ui/list-filters"
 import { getInfoContent } from "@/lib/info-content"
 import { Button } from "@/components/ui/button"
+import { ConfirmModal } from "@/components/ui/confirm-modal"
 import ImportarApiModal from "@/components/integracao/ImportarApiModal"
 import { ExportarDados } from "@/components/exportar/ExportarDados"
 import { useStatuses, hexToRgba } from "@/hooks/use-statuses"
@@ -69,6 +71,11 @@ export default function ClientesPage() {
 
   const [solicModal, setSolicModal] = useState<{ cliente: Cliente; data: SolicitacaoResumo[]; loading: boolean } | null>(null)
   const [amostraModal, setAmostraModal] = useState<{ cliente: Cliente; data: AmostraResumo[]; loading: boolean } | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<Cliente | null>(null)
+  const [deleteLoading, setDeleteLoading] = useState(false)
+  const [deleteBlocked, setDeleteBlocked] = useState(false)
+  const { data: session } = useSession()
+  const isAdmin = session?.user?.role === "ADMIN" || session?.user?.role === "SUDO"
 
   useEffect(() => {
     async function fetchClientes() {
@@ -126,6 +133,31 @@ export default function ClientesPage() {
   }
 
 
+
+  async function handleExcluirCliente() {
+    if (!deleteTarget) return
+    setDeleteLoading(true)
+    setDeleteBlocked(false)
+    try {
+      const res = await fetch(`/api/clientes/${deleteTarget.id}`, { method: "DELETE" })
+      const data = await res.json()
+      if (!res.ok) {
+        if (data.fkError) {
+          setDeleteBlocked(true)
+          return
+        }
+        throw new Error(data.error || "Erro ao excluir cliente")
+      }
+      toast.success("Cliente excluído com sucesso")
+      setClientes((prev) => prev.filter((c) => c.id !== deleteTarget.id))
+      setDeleteTarget(null)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao excluir cliente")
+      setDeleteTarget(null)
+    } finally {
+      setDeleteLoading(false)
+    }
+  }
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -241,6 +273,18 @@ export default function ClientesPage() {
                     <FlaskConical size={12} />
                     Amostras
                   </button>
+                  {isAdmin && (
+                    <button
+                      onClick={() => {
+                        setDeleteTarget(cliente)
+                        setDeleteBlocked(false)
+                      }}
+                      className="inline-flex items-center gap-1 text-xs text-red-600 hover:underline ml-auto"
+                    >
+                      <Trash2 size={12} />
+                      Excluir
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
@@ -367,6 +411,32 @@ export default function ClientesPage() {
           onClose={() => setShowApiImport(false)}
         />
       )}
+
+      <ConfirmModal
+        open={deleteTarget !== null}
+        title={deleteBlocked ? "Exclusão não permitida" : "Excluir cliente?"}
+        message={deleteBlocked
+          ? "Este cliente possui cadastros vinculados e não pode ser excluído."
+          : `Tem certeza que deseja excluir "${deleteTarget?.nome}"? Esta ação não pode ser desfeita.`}
+        subMessage={deleteBlocked
+          ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informações."
+          : undefined}
+        confirmLabel={deleteBlocked ? "OK" : "Excluir"}
+        variant={deleteBlocked ? "warning" : "danger"}
+        loading={deleteLoading}
+        onConfirm={() => {
+          if (deleteBlocked) {
+            setDeleteTarget(null)
+            setDeleteBlocked(false)
+            return
+          }
+          handleExcluirCliente()
+        }}
+        onCancel={() => {
+          setDeleteTarget(null)
+          setDeleteBlocked(false)
+        }}
+      />
     </div>
   )
 }

@@ -47,13 +47,16 @@ export default function DetalheSolicitacaoPage() {
     setMounted(true)
   }, [])
 
+  const carregarProdutos = () => {
+    if (!id) return
+    fetch(`/api/solicitacoes/${id}/produtos-cru`)
+      .then((r: any) => r.json())
+      .then((data: any) => setProdutos(Array.isArray(data) ? data : []))
+      .catch(console.error)
+  }
+
   useEffect(() => {
-    if (id) {
-      fetch(`/api/solicitacoes/${id}/produtos-cru`)
-        .then((r: any) => r.json())
-        .then((data: any) => setProdutos(Array.isArray(data) ? data : []))
-        .catch(console.error)
-    }
+    carregarProdutos()
   }, [id])
 
   const { data: sol, isLoading, error, refetch } = useQuery({
@@ -213,7 +216,7 @@ export default function DetalheSolicitacaoPage() {
         </div>
       </div>
 
-      <Produtos produtos={produtos} />
+      <Produtos produtos={produtos} solicitacaoId={id} onAtualizar={carregarProdutos} />
       <Historico historico={sol.historicoComunicacao} />
 
       <ConfirmModal
