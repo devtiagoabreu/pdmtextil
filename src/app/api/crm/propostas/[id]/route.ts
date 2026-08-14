@@ -6,7 +6,7 @@ import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
 import { clientes } from "@/lib/db/schema/clientes"
 import { eq } from "drizzle-orm"
 import { registrarLog, notificar, notificarDelecao } from "@/lib/notificar"
-import { inserirTimelineEvento } from "@/lib/crm-timeline"
+import { inserirTimelineEvento, excluirTimelineEventosEntidade } from "@/lib/crm-timeline"
 import { handleApiError } from "@/lib/api-error"
 
 export async function GET(
@@ -139,7 +139,11 @@ export async function DELETE(
     }
 
     const { id } = await params
-    await db.delete(crmPropostas).where(eq(crmPropostas.id, parseInt(id)))
+    const propostaId = parseInt(id)
+    await db.transaction(async (tx: any) => {
+      await excluirTimelineEventosEntidade({ tipo: "PROPOSTA", campo: "propostaId", id: propostaId }, tx)
+      await tx.delete(crmPropostas).where(eq(crmPropostas.id, propostaId))
+    })
 
     await notificarDelecao("Proposta CRM", id, auth.session.user.name)
 

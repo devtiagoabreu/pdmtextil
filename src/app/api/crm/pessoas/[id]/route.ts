@@ -4,8 +4,19 @@ import { db } from "@/lib/db"
 import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
 import { clientes } from "@/lib/db/schema/clientes"
 import { crmContatos } from "@/lib/db/schema/crm-contatos"
+import { crmLeads } from "@/lib/db/schema/crm-leads"
+import { crmOportunidades } from "@/lib/db/schema/crm-oportunidades"
+import { crmPropostas } from "@/lib/db/schema/crm-propostas"
+import { crmTarefas } from "@/lib/db/schema/crm-tarefas"
+import { crmTimelineEventos } from "@/lib/db/schema/crm-timeline-eventos"
+import { crmVisitas } from "@/lib/db/schema/crm-visitas"
+import { crmVisitasLocalizacoes } from "@/lib/db/schema/crm-visitas-localizacoes"
+import { crmPesquisasSatisfacao } from "@/lib/db/schema/crm-pesquisas-satisfacao"
+import { crmPesquisasRespostas } from "@/lib/db/schema/crm-pesquisas-respostas"
+import { crmWhatsappMensagens } from "@/lib/db/schema/crm-whatsapp"
+import { pessoasRepresentantes } from "@/lib/db/schema/pessoas-representantes"
 import { usuarios } from "@/lib/db/schema/usuarios"
-import { eq, and, ne } from "drizzle-orm"
+import { eq, and, ne, or, inArray } from "drizzle-orm"
 import { registrarLog, notificar, notificarDelecao } from "@/lib/notificar"
 import { handleApiError } from "@/lib/api-error"
 
@@ -174,8 +185,82 @@ export async function DELETE(
     const { id } = await params
     const empresaId = parseInt(id)
 
-    await db.delete(crmContatos).where(eq(crmContatos.empresaId, empresaId))
-    await db.delete(crmPessoas).where(eq(crmPessoas.id, empresaId))
+    await db.transaction(async (tx: any) => {
+      const contatosIds = (await tx
+        .select({ id: crmContatos.id })
+        .from(crmContatos)
+        .where(eq(crmContatos.empresaId, empresaId))).map((r: any) => r.id)
+
+      const leadsIds = (await tx
+        .select({ id: crmLeads.id })
+        .from(crmLeads)
+        .where(eq(crmLeads.pessoaId, empresaId))).map((r: any) => r.id)
+
+      const oportunidadesIds = (await tx
+        .select({ id: crmOportunidades.id })
+        .from(crmOportunidades)
+        .where(or(
+          eq(crmOportunidades.empresaId, empresaId),
+          leadsIds.length ? inArray(crmOportunidades.leadId, leadsIds) : undefined,
+          contatosIds.length ? inArray(crmOportunidades.contatoId, contatosIds) : undefined,
+        ))).map((r: any) => r.id)
+
+      const visitasIds = (await tx
+        .select({ id: crmVisitas.id })
+        .from(crmVisitas)
+        .where(or(
+          eq(crmVisitas.empresaId, empresaId),
+          oportunidadesIds.length ? inArray(crmVisitas.oportunidadeId, oportunidadesIds) : undefined,
+          contatosIds.length ? inArray(crmVisitas.contatoId, contatosIds) : undefined,
+        ))).map((r: any) => r.id)
+
+      if (visitasIds.length) {
+        const pesquisasIds = (await tx
+          .select({ id: crmPesquisasSatisfacao.id })
+          .from(crmPesquisasSatisfacao)
+          .where(inArray(crmPesquisasSatisfacao.visitaId, visitasIds))).map((r: any) => r.id)
+
+        if (pesquisasIds.length) {
+          await tx.delete(crmPesquisasRespostas).where(inArray(crmPesquisasRespostas.pesquisaId, pesquisasIds))
+          await tx.delete(crmPesquisasSatisfacao).where(inArray(crmPesquisasSatisfacao.id, pesquisasIds))
+        }
+
+        await tx.delete(crmVisitasLocalizacoes).where(inArray(crmVisitasLocalizacoes.visitaId, visitasIds))
+        await tx.delete(crmVisitas).where(inArray(crmVisitas.id, visitasIds))
+      }
+
+      if (oportunidadesIds.length) {
+        await tx.delete(crmTarefas).where(or(
+          eq(crmTarefas.empresaId, empresaId),
+          inArray(crmTarefas.oportunidadeId, oportunidadesIds),
+        ))
+        await tx.delete(crmPropostas).where(or(
+          eq(crmPropostas.empresaId, empresaId),
+          inArray(crmPropostas.oportunidadeId, oportunidadesIds),
+        ))
+        await tx.delete(crmOportunidades).where(inArray(crmOportunidades.id, oportunidadesIds))
+      } else {
+        await tx.delete(crmTarefas).where(eq(crmTarefas.empresaId, empresaId))
+        await tx.delete(crmPropostas).where(eq(crmPropostas.empresaId, empresaId))
+      }
+
+      if (leadsIds.length) {
+        await tx.delete(crmLeads).where(inArray(crmLeads.id, leadsIds))
+      }
+
+      await tx.delete(crmWhatsappMensagens).where(or(
+        eq(crmWhatsappMensagens.empresaId, empresaId),
+        contatosIds.length ? inArray(crmWhatsappMensagens.contatoId, contatosIds) : undefined,
+      ))
+      await tx.delete(crmTimelineEventos).where(eq(crmTimelineEventos.empresaId, empresaId))
+
+      if (contatosIds.length) {
+        await tx.delete(crmContatos).where(inArray(crmContatos.id, contatosIds))
+      }
+
+      await tx.delete(pessoasRepresentantes).where(eq(pessoasRepresentantes.pessoaId, empresaId))
+      await tx.delete(crmPessoas).where(eq(crmPessoas.id, empresaId))
+    })
 
     await notificarDelecao("Pessoa CRM", id, auth.session.user.name)
 

@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { crmContatos } from "@/lib/db/schema/crm-contatos"
+import { crmOportunidades } from "@/lib/db/schema/crm-oportunidades"
+import { crmVisitas } from "@/lib/db/schema/crm-visitas"
+import { crmWhatsappMensagens } from "@/lib/db/schema/crm-whatsapp"
 import { eq } from "drizzle-orm"
 import { notificar } from "@/lib/notificar"
 import { handleApiError } from "@/lib/api-error"
@@ -63,7 +66,13 @@ export async function DELETE(
     if (auth instanceof NextResponse) return auth
 
     const { id } = await params
-    await db.delete(crmContatos).where(eq(crmContatos.id, parseInt(id)))
+    const contatoId = parseInt(id)
+    await db.transaction(async (tx: any) => {
+      await tx.update(crmOportunidades).set({ contatoId: null }).where(eq(crmOportunidades.contatoId, contatoId))
+      await tx.update(crmVisitas).set({ contatoId: null }).where(eq(crmVisitas.contatoId, contatoId))
+      await tx.update(crmWhatsappMensagens).set({ contatoId: null }).where(eq(crmWhatsappMensagens.contatoId, contatoId))
+      await tx.delete(crmContatos).where(eq(crmContatos.id, contatoId))
+    })
 
     return NextResponse.json({ success: true })
   } catch (error) {

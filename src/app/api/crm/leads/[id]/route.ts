@@ -5,8 +5,10 @@ import { crmLeads } from "@/lib/db/schema/crm-leads"
 import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
 import { eq } from "drizzle-orm"
 import { registrarLog, notificar, notificarDelecao } from "@/lib/notificar"
-import { inserirTimelineEvento } from "@/lib/crm-timeline"
+import { inserirTimelineEvento, excluirTimelineEventosEntidade } from "@/lib/crm-timeline"
 import { handleApiError } from "@/lib/api-error"
+import { excluirOportunidadeCascade } from "@/lib/crm-cascade"
+import { crmOportunidades } from "@/lib/db/schema/crm-oportunidades"
 
 export async function GET(
   req: NextRequest,
@@ -148,7 +150,18 @@ export async function DELETE(
     }
 
     const { id } = await params
-    await db.delete(crmLeads).where(eq(crmLeads.id, parseInt(id)))
+    const leadId = parseInt(id)
+    await db.transaction(async (tx: any) => {
+      const opors = await tx
+        .select({ id: crmOportunidades.id })
+        .from(crmOportunidades)
+        .where(eq(crmOportunidades.leadId, leadId))
+      for (const o of opors) {
+        await excluirOportunidadeCascade(tx, o.id)
+      }
+      await excluirTimelineEventosEntidade({ tipo: "LEAD", campo: "leadId", id: leadId }, tx)
+      await tx.delete(crmLeads).where(eq(crmLeads.id, leadId))
+    })
 
     await notificarDelecao("Lead CRM", id, auth.session.user.name)
 

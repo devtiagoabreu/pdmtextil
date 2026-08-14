@@ -318,7 +318,7 @@ function PessoaDetailPageContent() {
       <ConfirmModal
         open={showDelete}
         title="Excluir pessoa?"
-        message={`Tem certeza que deseja excluir "${pessoa.razaoSocial}"? Todos os contatos vinculados também serão removidos.`}
+        message={`Tem certeza que deseja excluir "${pessoa.razaoSocial}"? Todos os registros vinculados (contatos, visitas, tarefas, propostas, timeline e conversas WhatsApp) também serão removidos. Esta ação não pode ser desfeita.`}
         confirmLabel="Excluir"
         variant="danger"
         loading={deleteLoading}

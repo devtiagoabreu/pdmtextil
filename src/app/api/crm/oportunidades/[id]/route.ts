@@ -9,6 +9,7 @@ import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq } from "drizzle-orm"
 import { registrarLog, notificar, notificarDelecao } from "@/lib/notificar"
 import { handleApiError } from "@/lib/api-error"
+import { excluirOportunidadeCascade } from "@/lib/crm-cascade"
 
 export async function GET(
   req: NextRequest,
@@ -134,7 +135,7 @@ export async function DELETE(
     }
 
     const { id } = await params
-    await db.delete(crmOportunidades).where(eq(crmOportunidades.id, parseInt(id)))
+    await db.transaction((tx: any) => excluirOportunidadeCascade(tx, parseInt(id)))
 
     await notificarDelecao("Oportunidade CRM", id, auth.session.user.name)
 

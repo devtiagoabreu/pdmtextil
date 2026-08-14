@@ -10,7 +10,7 @@ import { crmPesquisasSatisfacao } from "@/lib/db/schema/crm-pesquisas-satisfacao
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq } from "drizzle-orm"
 import { registrarLog, notificar, notificarDelecao } from "@/lib/notificar"
-import { inserirTimelineEvento } from "@/lib/crm-timeline"
+import { inserirTimelineEvento, excluirTimelineEventosEntidade } from "@/lib/crm-timeline"
 import { handleApiError } from "@/lib/api-error"
 import { sendCrmEmail } from "@/lib/email"
 import crypto from "crypto"
@@ -195,8 +195,9 @@ export async function DELETE(
     }
 
     const { id } = await params
+    const visitaId = parseInt(id)
 
-    const [existente] = await db.select({ criadoPor: crmVisitas.criadoPor, googleEventId: crmVisitas.googleEventId }).from(crmVisitas).where(eq(crmVisitas.id, parseInt(id))).limit(1)
+    const [existente] = await db.select({ criadoPor: crmVisitas.criadoPor, googleEventId: crmVisitas.googleEventId }).from(crmVisitas).where(eq(crmVisitas.id, visitaId)).limit(1)
     if (userRole !== "ADMIN" && userRole !== "SUDO" && existente?.criadoPor !== auth.userId) {
       return NextResponse.json({ error: "Apenas o criador da visita pode excluí-la" }, { status: 403 })
     }
@@ -211,7 +212,10 @@ export async function DELETE(
       } catch {}
     }
 
-    await db.delete(crmVisitas).where(eq(crmVisitas.id, parseInt(id)))
+    await db.transaction(async (tx: any) => {
+      await excluirTimelineEventosEntidade({ tipo: "VISITA", campo: "visitaId", id: visitaId }, tx)
+      await tx.delete(crmVisitas).where(eq(crmVisitas.id, visitaId))
+    })
 
     await notificarDelecao("Visita CRM", id, auth.session.user.name)
 

@@ -1,3 +1,4 @@
+import { and, eq, sql } from "drizzle-orm"
 import { db } from "@/lib/db"
 import { crmTimelineEventos } from "@/lib/db/schema/crm-timeline-eventos"
 
@@ -24,4 +25,21 @@ export async function inserirTimelineEvento(params: {
     metadados: params.metadados || {},
     dataEvento: new Date(),
   })
+}
+
+export async function excluirTimelineEventosEntidade(
+  params: {
+    tipo: "LEAD" | "OPORTUNIDADE" | "VISITA" | "TAREFA" | "PROPOSTA"
+    campo: "leadId" | "oportunidadeId" | "visitaId" | "tarefaId" | "propostaId"
+    id: number
+  },
+  client: any = db
+) {
+  if (!params.id) return
+  await client.delete(crmTimelineEventos).where(
+    and(
+      eq(crmTimelineEventos.tipo, params.tipo),
+      sql`${crmTimelineEventos.metadados}->>'${sql.raw(params.campo)}' = ${String(params.id)}`
+    )
+  )
 }
