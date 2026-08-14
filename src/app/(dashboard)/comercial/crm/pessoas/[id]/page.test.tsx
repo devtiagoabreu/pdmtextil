@@ -58,6 +58,10 @@ const propostas = [
   { id: 30, titulo: "Proposta Tecido", valor: 1200, status: "ENVIADA", empresaId: 1 },
 ]
 
+const orfaos = [
+  { id: 9, nome: "Contato Órfão", email: "orfao@x.com" },
+]
+
 describe("PessoaDetailPage", () => {
   let fetchMock: ReturnType<typeof createFetchMock>
 
@@ -81,6 +85,9 @@ describe("PessoaDetailPage", () => {
       if (method === "GET" && url === "/api/crm/whatsapp?empresaId=1") return { json: [] }
       if (method === "PUT" && url === "/api/crm/pessoas/1") return { json: { ...pessoa } }
       if (method === "DELETE" && url === "/api/crm/pessoas/1") return { json: { ok: true } }
+      if (method === "GET" && url === "/api/crm/contatos?orfao=true") return { json: orfaos }
+      if (method === "PUT" && url === "/api/crm/contatos/9") return { json: { id: 9, nome: "Contato Órfão", email: "orfao@x.com", empresaId: 1, clienteId: null } }
+      if (method === "PUT" && url === "/api/crm/contatos/3") return { json: { id: 3, nome: "Carlos Silva", email: "carlos@alpha.com", empresaId: null, clienteId: null } }
       return { json: null }
     }
     fetchMock = createFetchMock(handler)
@@ -164,6 +171,40 @@ describe("PessoaDetailPage", () => {
     })
     await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Pessoa excluída"))
     expect(navMock.router.push).toHaveBeenCalledWith("/comercial/crm/pessoas")
+  })
+
+  it("vincular um contato órfão à pessoa", async () => {
+    navMock.setParams({ id: "1" })
+    navMock.setPathname("/comercial/crm/pessoas/1")
+    renderPage(<PessoaDetailPage />)
+
+    const select = await screen.findByLabelText("Contatos sem vínculo")
+    fireEvent.change(select, { target: { value: "9" } })
+    fireEvent.click(screen.getByRole("button", { name: "Vincular" }))
+
+    await waitFor(() => {
+      const call = findCall(fetchMock.calls, "/api/crm/contatos/9", "PUT")
+      expect(call).toBeDefined()
+      expect(call!.body).toEqual({ empresaId: 1 })
+    })
+    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Contato vinculado"))
+    expect(await screen.findByText("Contato Órfão")).toBeInTheDocument()
+  })
+
+  it("desvincula um contato da pessoa", async () => {
+    navMock.setParams({ id: "1" })
+    navMock.setPathname("/comercial/crm/pessoas/1")
+    renderPage(<PessoaDetailPage />)
+
+    fireEvent.click(await screen.findByTitle("Desvincular contato"))
+
+    await waitFor(() => {
+      const call = findCall(fetchMock.calls, "/api/crm/contatos/3", "PUT")
+      expect(call).toBeDefined()
+      expect(call!.body).toEqual({ empresaId: null, clienteId: null })
+    })
+    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Contato desvinculado"))
+    await waitFor(() => expect(screen.queryByText("Carlos Silva")).not.toBeInTheDocument())
   })
 
   it("mostra pessoa não encontrada", async () => {

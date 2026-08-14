@@ -15,6 +15,7 @@ export async function GET(req: NextRequest) {
     const empresaId = searchParams.get("empresaId")
     const clienteId = searchParams.get("clienteId")
     const search = searchParams.get("search")
+    const orfao = searchParams.get("orfao")
 
     const conditions: any[] = []
     if (empresaId) {
@@ -22,6 +23,9 @@ export async function GET(req: NextRequest) {
     }
     if (clienteId) {
       conditions.push(eq(crmContatos.clienteId, parseInt(clienteId)))
+    }
+    if (orfao === "true") {
+      conditions.push(sql`${crmContatos.empresaId} IS NULL AND ${crmContatos.clienteId} IS NULL`)
     }
     if (search) {
       conditions.push(
@@ -72,14 +76,17 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json()
 
-    if (!body.empresaId && !body.clienteId) {
-      return NextResponse.json({ error: "É necessário vincular a uma Pessoa ou Cliente" }, { status: 400 })
+    if (!body.nome?.trim()) {
+      return NextResponse.json({ error: "Nome é obrigatório" }, { status: 400 })
     }
+
+    const empresaId = body.empresaId ? parseInt(body.empresaId) : null
+    const clienteId = body.clienteId ? parseInt(body.clienteId) : null
 
     const [novo] = await db
       .insert(crmContatos)
       .values({
-        nome: body.nome,
+        nome: body.nome.trim(),
         cargo: body.cargo || null,
         email: body.email || null,
         telefone: body.telefone || null,
@@ -87,14 +94,16 @@ export async function POST(req: NextRequest) {
         whatsapp: body.whatsapp || null,
         principal: body.principal || false,
         observacoes: body.observacoes || null,
-        empresaId: body.empresaId || null,
-        clienteId: body.clienteId || null,
+        empresaId,
+        clienteId,
       })
       .returning()
 
     const linkDestino = novo.empresaId
       ? `/comercial/crm/pessoas/${novo.empresaId}`
-      : `/comercial/crm/clientes/${novo.clienteId}`
+      : novo.clienteId
+        ? `/comercial/clientes/${novo.clienteId}`
+        : "/comercial/crm/contatos"
 
     await notificar("CONTATO_CRIADO", `Contato criado: ${novo.nome}`, linkDestino, session.user.name)
 

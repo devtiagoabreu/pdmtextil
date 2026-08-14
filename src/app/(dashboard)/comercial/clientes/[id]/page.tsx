@@ -6,7 +6,7 @@ import { useRouter, usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import Link from "next/link"
-import { ArrowLeft, Save, Trash2, Building2, Search, UserPlus, Users, Loader2, X, Mail, Phone, MapPin } from "lucide-react"
+import { ArrowLeft, Save, Trash2, Building2, Search, UserPlus, Users, Loader2, X, Mail, Phone, MapPin, Plus, Unlink } from "lucide-react"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { SelectSegmento } from "@/components/crm/select-segmento"
@@ -76,6 +76,10 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
   const [repToRemove, setRepToRemove] = useState<Vinculo | null>(null)
   const [showDelete, setShowDelete] = useState(false)
   const [deleteLoading, setDeleteLoading] = useState(false)
+  const [contatos, setContatos] = useState<any[]>([])
+  const [loadingContatos, setLoadingContatos] = useState(false)
+  const [orfaos, setOrfaos] = useState<any[]>([])
+  const [contatoSelecionado, setContatoSelecionado] = useState("")
 
   useEffect(() => {
     async function loadCliente() {
@@ -98,6 +102,90 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
     }
     loadCliente()
   }, [params, router])
+
+  useEffect(() => {
+    if (!id) return
+    let ativo = true
+    setLoadingContatos(true)
+    Promise.all([
+      fetch(`/api/crm/contatos?clienteId=${id}`).then((r) => r.json()),
+      fetch("/api/crm/contatos?orfao=true").then((r) => r.json()),
+    ])
+      .then(([cts, orf]) => {
+        if (!ativo) return
+        if (Array.isArray(cts)) setContatos(cts)
+        if (Array.isArray(orf)) setOrfaos(orf)
+      })
+      .catch(() => toast.error("Erro ao carregar contatos"))
+      .finally(() => setLoadingContatos(false))
+    return () => {
+      ativo = false
+    }
+  }, [id])
+
+  async function adicionarContato() {
+    const nome = prompt("Nome do novo contato:")
+    if (!nome) return
+    try {
+      const res = await fetch("/api/crm/contatos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nome, clienteId: id }),
+      })
+      if (!res.ok) {
+        const err = await res.json().catch(() => null)
+        throw new Error(err?.error || "Erro ao criar contato")
+      }
+      const novo = await res.json()
+      setContatos((prev) => [...prev, novo])
+      toast.success("Contato adicionado e vinculado ao cliente")
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao adicionar contato")
+    }
+  }
+
+  async function vincularContatoSelecionado() {
+    if (!contatoSelecionado) return
+    const contatoId = parseInt(contatoSelecionado)
+    try {
+      const res = await fetch(`/api/crm/contatos/${contatoId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ clienteId: id }),
+      })
+      if (!res.ok) {
+        const err = await res.json().catch(() => null)
+        throw new Error(err?.error || "Erro ao vincular")
+      }
+      const atualizado = await res.json()
+      setContatos((prev) => [...prev, atualizado])
+      setOrfaos((prev) => prev.filter((c: any) => c.id !== contatoId))
+      setContatoSelecionado("")
+      toast.success("Contato vinculado ao cliente")
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao vincular contato")
+    }
+  }
+
+  async function removerContato(contatoId: number) {
+    try {
+      const res = await fetch(`/api/crm/contatos/${contatoId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ empresaId: null, clienteId: null }),
+      })
+      if (!res.ok) {
+        const err = await res.json().catch(() => null)
+        throw new Error(err?.error || "Erro ao desvincular")
+      }
+      const atualizado = await res.json()
+      setContatos((prev) => prev.filter((c: any) => c.id !== contatoId))
+      setOrfaos((prev) => [...prev, atualizado])
+      toast.success("Contato desvinculado do cliente")
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao desvincular contato")
+    }
+  }
 
   async function searchRepresentantes(query: string) {
     setSearchRep(query)
@@ -478,6 +566,96 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
                             className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/50 text-slate-400 hover:text-red-600 transition-colors"
                           >
                             <X size={14} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+
+          <div className="border-t border-slate-200 dark:border-slate-700 pt-6 space-y-4">
+            <h2 className="text-lg font-semibold flex items-center gap-2">
+              <Users size={18} className="text-blue-500" />
+              Contatos Vinculados ({contatos.length})
+            </h2>
+
+            <div className="flex gap-2">
+              <div className="relative flex-1 max-w-sm">
+                <select
+                  aria-label="Contatos sem vínculo"
+                  value={contatoSelecionado}
+                  onChange={(e) => setContatoSelecionado(e.target.value)}
+                  className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+                >
+                  <option value="">Vincular contato existente...</option>
+                  {orfaos.map((c: any) => (
+                    <option key={c.id} value={String(c.id)}>
+                      {c.nome}
+                      {c.email ? ` — ${c.email}` : ""}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <button
+                type="button"
+                onClick={vincularContatoSelecionado}
+                disabled={!contatoSelecionado}
+                className="inline-flex items-center gap-2 px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+              >
+                <UserPlus size={14} />
+                Vincular
+              </button>
+              <button
+                type="button"
+                onClick={adicionarContato}
+                className="inline-flex items-center gap-2 px-3 py-2 text-sm border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800"
+              >
+                <Plus size={14} />
+                Adicionar contato
+              </button>
+            </div>
+
+            {loadingContatos ? (
+              <div className="flex justify-center py-4">
+                <Loader2 className="w-6 h-6 animate-spin text-slate-400" />
+              </div>
+            ) : contatos.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-6 text-center">
+                <Users className="w-8 h-8 text-slate-300 dark:text-slate-700 mb-2" />
+                <p className="text-sm text-slate-500">Nenhum contato vinculado</p>
+                <p className="text-xs text-slate-400 mt-1">Vincule um contato existente ou adicione um novo</p>
+              </div>
+            ) : (
+              <div className="rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
+                <table className="w-full">
+                  <thead className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
+                    <tr>
+                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-3">Nome</th>
+                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-3">Email</th>
+                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-3">Telefone</th>
+                      <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-3">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                    {contatos.map((c: any) => (
+                      <tr key={c.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                        <td className="p-3 text-sm font-medium text-slate-900 dark:text-slate-200">
+                          <Link href={`/comercial/crm/contatos/${c.id}`} className="hover:underline">
+                            {c.nome}
+                          </Link>
+                        </td>
+                        <td className="p-3 text-sm text-slate-500">{c.email || "—"}</td>
+                        <td className="p-3 text-sm text-slate-500">{c.telefone || c.celular || "—"}</td>
+                        <td className="p-3 text-right">
+                          <button
+                            onClick={() => removerContato(c.id)}
+                            title="Desvincular contato"
+                            className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/50 text-slate-400 hover:text-red-600 transition-colors"
+                          >
+                            <Unlink size={14} />
                           </button>
                         </td>
                       </tr>

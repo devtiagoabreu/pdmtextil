@@ -27,6 +27,8 @@ export default function ContatoDetailPage() {
   const [showDelete, setShowDelete] = useState(false)
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [empresas, setEmpresas] = useState<any[]>([])
+  const [clientes, setClientes] = useState<any[]>([])
+  const [vinculoTipo, setVinculoTipo] = useState<"none" | "pessoa" | "cliente">("none")
 
   useEffect(() => {
     if (!params.id) return
@@ -35,6 +37,7 @@ export default function ContatoDetailPage() {
       .then((data: any) => {
         setContato(data)
         setForm(data)
+        setVinculoTipo(data.empresaId ? "pessoa" : data.clienteId ? "cliente" : "none")
       })
       .catch(() => toast.error("Erro ao carregar contato"))
       .finally(() => setLoading(false))
@@ -46,12 +49,26 @@ export default function ContatoDetailPage() {
       .then((r: any) => r.json())
       .then((data: any) => { if (Array.isArray(data)) setEmpresas(data) })
       .catch(console.error)
+    fetch("/api/clientes")
+      .then((r: any) => r.json())
+      .then((data: any) => { if (Array.isArray(data)) setClientes(data) })
+      .catch(console.error)
   }, [editing])
 
   async function handleSave() {
     try {
-      const body = { ...form }
-      if (body.empresaId) body.empresaId = parseInt(body.empresaId)
+      const body: Record<string, unknown> = {
+        nome: form.nome,
+        cargo: form.cargo,
+        email: form.email,
+        telefone: form.telefone,
+        celular: form.celular,
+        whatsapp: form.whatsapp,
+        principal: form.principal,
+        observacoes: form.observacoes,
+        empresaId: vinculoTipo === "pessoa" ? (form.empresaId || null) : null,
+        clienteId: vinculoTipo === "cliente" ? (form.clienteId || null) : null,
+      }
 
       const res = await fetch(`/api/crm/contatos/${params.id}`, {
         method: "PUT",
@@ -153,21 +170,51 @@ export default function ContatoDetailPage() {
         {editing ? (
           <div className="space-y-4">
             <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1">Pessoa (Negócio)</label>
+              <label className="block text-xs font-medium text-slate-500 mb-1">Vincular a</label>
               <select
-                value={form.empresaId || ""}
-                onChange={e => setForm((p: any) => ({ ...p, empresaId: e.target.value }))}
+                value={vinculoTipo}
+                onChange={e => setVinculoTipo(e.target.value as any)}
                 className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
-                required
               >
-                <option value="">Selecione...</option>
-                {empresas.map((e: any) => (
-                  <option key={e.id} value={String(e.id)}>
-                    {e.razaoSocial || e.nomeFantasia || e.nome}
-                  </option>
-                ))}
+                <option value="none">Sem vínculo (órfão)</option>
+                <option value="pessoa">Pessoa (Negócio)</option>
+                <option value="cliente">Cliente</option>
               </select>
             </div>
+            {vinculoTipo === "pessoa" && (
+              <div>
+                <label className="block text-xs font-medium text-slate-500 mb-1">Pessoa (Negócio)</label>
+                <select
+                  value={form.empresaId || ""}
+                  onChange={e => setForm((p: any) => ({ ...p, empresaId: e.target.value }))}
+                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+                >
+                  <option value="">Selecione...</option>
+                  {empresas.map((e: any) => (
+                    <option key={e.id} value={String(e.id)}>
+                      {e.razaoSocial || e.nomeFantasia || e.nome}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+            {vinculoTipo === "cliente" && (
+              <div>
+                <label className="block text-xs font-medium text-slate-500 mb-1">Cliente</label>
+                <select
+                  value={form.clienteId || ""}
+                  onChange={e => setForm((p: any) => ({ ...p, clienteId: e.target.value }))}
+                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+                >
+                  <option value="">Selecione...</option>
+                  {clientes.map((c: any) => (
+                    <option key={c.id} value={String(c.id)}>
+                      {c.nome}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1">Nome</label>
               <input type="text" value={form.nome || ""} onChange={e => setForm((p: any) => ({ ...p, nome: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
@@ -212,7 +259,7 @@ export default function ContatoDetailPage() {
         ) : (
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div className="col-span-2">
-              <p className="text-xs text-slate-500 mb-0.5">{contato.empresaId ? "Pessoa (Negócio)" : "Cliente"}</p>
+              <p className="text-xs text-slate-500 mb-0.5">{contato.empresaId ? "Pessoa (Negócio)" : contato.clienteId ? "Cliente" : "Vínculo"}</p>
               {contato.empresaId ? (
                 <Link href={`/comercial/crm/pessoas/${contato.empresaId}`} className="inline-flex items-center gap-1 text-blue-600 hover:underline font-medium">
                   <Building2 size={14} />

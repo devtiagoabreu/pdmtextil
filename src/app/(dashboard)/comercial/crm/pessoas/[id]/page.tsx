@@ -60,6 +60,14 @@ function PessoaDetailPageContent() {
   const [repResults, setRepResults] = useState<any[]>([])
   const [searchingRep, setSearchingRep] = useState(false)
   const [repToRemove, setRepToRemove] = useState<any>(null)
+  const [orfaos, setOrfaos] = useState<any[]>([])
+
+  useEffect(() => {
+    fetch("/api/crm/contatos?orfao=true")
+      .then((r: any) => r.json())
+      .then((data: any) => { if (Array.isArray(data)) setOrfaos(data) })
+      .catch(() => toast.error("Erro ao carregar contatos órfãos"))
+  }, [])
 
   useEffect(() => {
     if (form?.uf) {
@@ -182,17 +190,40 @@ function PessoaDetailPageContent() {
     }
   }
 
-  async function removeContato(contatoId: number) {
+  async function removerContato(contatoId: number) {
     try {
-      const res = await fetch(`/api/crm/contatos/${contatoId}`, { method: "DELETE" })
-      if (!res.ok) throw new Error("Erro ao excluir")
+      const res = await fetch(`/api/crm/contatos/${contatoId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ empresaId: null, clienteId: null }),
+      })
+      if (!res.ok) throw new Error("Erro ao desvincular")
+      const atualizado = await res.json()
       setPessoa((prev: any) => ({
         ...prev,
         contatos: (prev.contatos || []).filter((c: any) => c.id !== contatoId),
       }))
-      toast.success("Contato removido")
+      setOrfaos(prev => [...prev, atualizado])
+      toast.success("Contato desvinculado")
     } catch {
-      toast.error("Erro ao remover contato")
+      toast.error("Erro ao desvincular contato")
+    }
+  }
+
+  async function vincularContato(contatoId: number) {
+    try {
+      const res = await fetch(`/api/crm/contatos/${contatoId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ empresaId: parseInt(params.id as string) }),
+      })
+      if (!res.ok) throw new Error("Erro ao vincular")
+      const atualizado = await res.json()
+      setPessoa((prev: any) => ({ ...prev, contatos: [...(prev.contatos || []), atualizado] }))
+      setOrfaos(prev => prev.filter((c: any) => c.id !== contatoId))
+      toast.success("Contato vinculado")
+    } catch {
+      toast.error("Erro ao vincular contato")
     }
   }
 
@@ -266,8 +297,10 @@ function PessoaDetailPageContent() {
 
         <ContatosCard
           contatos={pessoa.contatos || []}
+          orfaos={orfaos}
           onAdd={addContato}
-          onRemove={removeContato}
+          onVincular={vincularContato}
+          onRemover={removerContato}
         />
       </div>
 

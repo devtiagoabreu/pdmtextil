@@ -40,8 +40,14 @@ export async function PUT(
     if (body.whatsapp !== undefined) values.whatsapp = body.whatsapp || null
     if (body.principal !== undefined) values.principal = body.principal
     if (body.observacoes !== undefined) values.observacoes = body.observacoes || null
-    if (body.empresaId !== undefined) values.empresaId = body.empresaId
-    if (body.clienteId !== undefined) values.clienteId = body.clienteId
+    if (body.empresaId !== undefined) {
+      values.empresaId = body.empresaId ? parseInt(body.empresaId) : null
+      if (body.empresaId) values.clienteId = null
+    }
+    if (body.clienteId !== undefined) {
+      values.clienteId = body.clienteId ? parseInt(body.clienteId) : null
+      if (body.clienteId) values.empresaId = null
+    }
 
     const [atualizado] = await db
       .update(crmContatos)

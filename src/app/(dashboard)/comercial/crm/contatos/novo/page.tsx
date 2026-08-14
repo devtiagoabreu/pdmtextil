@@ -7,13 +7,18 @@ import { ArrowLeft, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import { PageSkeleton } from "@/components/ui/page-skeleton"
 
+type VinculoTipo = "none" | "pessoa" | "cliente"
+
 function NovoContatoPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const empresaIdPrefill = searchParams.get("empresaId")
+  const clienteIdPrefill = searchParams.get("clienteId")
 
   const [saving, setSaving] = useState(false)
   const [empresas, setEmpresas] = useState<any[]>([])
+  const [clientes, setClientes] = useState<any[]>([])
+  const [vinculoTipo, setVinculoTipo] = useState<VinculoTipo>(empresaIdPrefill ? "pessoa" : clienteIdPrefill ? "cliente" : "none")
   const [form, setForm] = useState({
     nome: "",
     cargo: "",
@@ -24,6 +29,7 @@ function NovoContatoPageContent() {
     principal: false,
     observacoes: "",
     empresaId: empresaIdPrefill || "",
+    clienteId: clienteIdPrefill || "",
   })
 
   useEffect(() => {
@@ -31,23 +37,37 @@ function NovoContatoPageContent() {
       .then((r: any) => r.json())
       .then((data: any) => { if (Array.isArray(data)) setEmpresas(data) })
       .catch(() => toast.error("Erro ao carregar empresas"))
+    fetch("/api/clientes")
+      .then((r: any) => r.json())
+      .then((data: any) => { if (Array.isArray(data)) setClientes(data) })
+      .catch(() => toast.error("Erro ao carregar clientes"))
   }, [])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!form.nome.trim() || !form.empresaId) {
-      toast.error("Nome e Pessoa (Negócio) são obrigatórios")
+    if (!form.nome.trim()) {
+      toast.error("Nome é obrigatório")
       return
     }
     setSaving(true)
     try {
+      const payload: Record<string, unknown> = {
+        nome: form.nome,
+        cargo: form.cargo,
+        email: form.email,
+        telefone: form.telefone,
+        celular: form.celular,
+        whatsapp: form.whatsapp,
+        principal: form.principal,
+        observacoes: form.observacoes,
+      }
+      if (vinculoTipo === "pessoa") payload.empresaId = form.empresaId
+      if (vinculoTipo === "cliente") payload.clienteId = form.clienteId
+
       const res = await fetch("/api/crm/contatos", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...form,
-          empresaId: parseInt(form.empresaId),
-        }),
+        body: JSON.stringify(payload),
       })
       if (!res.ok) {
         const err = await res.json()
@@ -74,21 +94,53 @@ function NovoContatoPageContent() {
 
       <form onSubmit={handleSubmit} className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-5">
         <div>
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Pessoa (Negócio) *</label>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Vincular a</label>
           <select
-            value={form.empresaId}
-            onChange={e => setForm(p => ({ ...p, empresaId: e.target.value }))}
+            value={vinculoTipo}
+            onChange={e => setVinculoTipo(e.target.value as VinculoTipo)}
             className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
           >
-            <option value="">Selecione uma empresa...</option>
-            {empresas.map((e: any) => (
-              <option key={e.id} value={String(e.id)}>
-                {e.razaoSocial || e.nomeFantasia || e.nome}
-              </option>
-            ))}
+            <option value="none">Sem vínculo (criar órfão)</option>
+            <option value="pessoa">Pessoa (Negócio)</option>
+            <option value="cliente">Cliente</option>
           </select>
         </div>
+
+        {vinculoTipo === "pessoa" && (
+          <div>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Pessoa (Negócio)</label>
+            <select
+              value={form.empresaId}
+              onChange={e => setForm(p => ({ ...p, empresaId: e.target.value }))}
+              className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Selecione uma pessoa...</option>
+              {empresas.map((e: any) => (
+                <option key={e.id} value={String(e.id)}>
+                  {e.razaoSocial || e.nomeFantasia || e.nome}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {vinculoTipo === "cliente" && (
+          <div>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Cliente</label>
+            <select
+              value={form.clienteId}
+              onChange={e => setForm(p => ({ ...p, clienteId: e.target.value }))}
+              className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Selecione um cliente...</option>
+              {clientes.map((c: any) => (
+                <option key={c.id} value={String(c.id)}>
+                  {c.nome}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
         <div className="grid grid-cols-2 gap-4">
           <div className="col-span-2">

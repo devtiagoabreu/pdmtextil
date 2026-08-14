@@ -76,6 +76,53 @@ describe("ContatoDetailPage", () => {
     await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Contato atualizado"))
   })
 
+  it("desvincula o contato ao escolher 'Sem vínculo'", async () => {
+    const fetchMock = createFetchMock(({ method, url }) => {
+      if (method === "GET" && url === "/api/crm/contatos/1") return { json: contato }
+      if (method === "GET" && url === "/api/crm/pessoas") return { json: empresas }
+      if (method === "PUT" && url === "/api/crm/contatos/1") return { json: { ...contato, empresaId: null } }
+      return { json: null }
+    })
+    vi.stubGlobal("fetch", fetchMock.fn)
+    renderPage(<ContatoDetailPage />)
+
+    fireEvent.click(await screen.findByRole("button", { name: "Editar" }))
+    fireEvent.change(screen.getAllByRole("combobox")[0], { target: { value: "none" } })
+    fireEvent.click(screen.getByRole("button", { name: "Salvar" }))
+
+    await waitFor(() => {
+      const call = findCall(fetchMock.calls, "/api/crm/contatos/1", "PUT")
+      expect(call).toBeDefined()
+      expect(call!.body.empresaId).toBeNull()
+      expect(call!.body.clienteId).toBeNull()
+    })
+  })
+
+  it("vincula o contato a um cliente ao salvar", async () => {
+    const fetchMock = createFetchMock(({ method, url }) => {
+      if (method === "GET" && url === "/api/crm/contatos/1") return { json: contato }
+      if (method === "GET" && url === "/api/crm/pessoas") return { json: empresas }
+      if (method === "GET" && url === "/api/clientes") return { json: [{ id: 9, nome: "Cliente SP" }] }
+      if (method === "PUT" && url === "/api/crm/contatos/1") return { json: { ...contato, empresaId: null, clienteId: 9 } }
+      return { json: null }
+    })
+    vi.stubGlobal("fetch", fetchMock.fn)
+    renderPage(<ContatoDetailPage />)
+
+    fireEvent.click(await screen.findByRole("button", { name: "Editar" }))
+    fireEvent.change(screen.getAllByRole("combobox")[0], { target: { value: "cliente" } })
+    await screen.findByRole("option", { name: "Cliente SP" })
+    fireEvent.change(screen.getAllByRole("combobox")[1], { target: { value: "9" } })
+    fireEvent.click(screen.getByRole("button", { name: "Salvar" }))
+
+    await waitFor(() => {
+      const call = findCall(fetchMock.calls, "/api/crm/contatos/1", "PUT")
+      expect(call).toBeDefined()
+      expect(call!.body.clienteId).toBe("9")
+      expect(call!.body.empresaId).toBeNull()
+    })
+  })
+
   it("exclui o contato via modal de confirmação", async () => {
     const fetchMock = createFetchMock(({ method, url }) => {
       if (method === "GET" && url === "/api/crm/contatos/1") return { json: contato }

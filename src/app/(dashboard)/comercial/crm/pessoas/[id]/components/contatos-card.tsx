@@ -1,12 +1,17 @@
-import { Plus, Trash2, Mail } from "lucide-react"
+import { useState } from "react"
+import { Plus, Unlink, Mail, UserPlus } from "lucide-react"
 
 interface ContatosCardProps {
   contatos: any[]
+  orfaos: any[]
   onAdd: () => void
-  onRemove: (id: number) => void
+  onVincular: (contatoId: number) => void
+  onRemover: (contatoId: number) => void
 }
 
-export function ContatosCard({ contatos, onAdd, onRemove }: ContatosCardProps) {
+export function ContatosCard({ contatos, orfaos, onAdd, onVincular, onRemover }: ContatosCardProps) {
+  const [selecionado, setSelecionado] = useState("")
+
   return (
     <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
       <div className="flex items-center justify-between mb-4">
@@ -15,6 +20,35 @@ export function ContatosCard({ contatos, onAdd, onRemove }: ContatosCardProps) {
           <Plus size={14} /> Adicionar
         </button>
       </div>
+
+      {orfaos.length > 0 && (
+        <div className="mb-4 p-3 rounded-lg border border-dashed border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 space-y-2">
+          <p className="text-xs font-medium text-slate-500">Vincular contato órfão</p>
+          <div className="flex gap-2">
+            <select
+              aria-label="Contatos sem vínculo"
+              value={selecionado}
+              onChange={e => setSelecionado(e.target.value)}
+              className="flex-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Selecione um contato...</option>
+              {orfaos.map((o: any) => (
+                <option key={o.id} value={String(o.id)}>
+                  {o.nome}{o.email ? ` — ${o.email}` : ""}
+                </option>
+              ))}
+            </select>
+            <button
+              onClick={() => { if (selecionado) { onVincular(parseInt(selecionado)); setSelecionado("") } }}
+              disabled={!selecionado}
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 rounded-lg transition-colors"
+            >
+              <UserPlus size={12} /> Vincular
+            </button>
+          </div>
+        </div>
+      )}
+
       {contatos.length === 0 ? (
         <p className="text-sm text-slate-400 text-center py-6">Nenhum contato cadastrado</p>
       ) : (
@@ -34,8 +68,12 @@ export function ContatosCard({ contatos, onAdd, onRemove }: ContatosCardProps) {
                   {contato.telefone && <span>{contato.telefone}</span>}
                 </div>
               </div>
-              <button onClick={() => onRemove(contato.id)} className="p-1 text-slate-400 hover:text-red-500">
-                <Trash2 size={14} />
+              <button
+                onClick={() => onRemover(contato.id)}
+                title="Desvincular contato"
+                className="p-1 text-slate-400 hover:text-red-500"
+              >
+                <Unlink size={14} />
               </button>
             </div>
           ))}
