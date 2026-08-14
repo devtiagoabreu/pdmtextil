@@ -9,12 +9,16 @@ describe("NovoContatoPage", () => {
     navMock.setPathname("/comercial/crm/contatos/novo")
   })
 
-  it("renderiza o formulário de criação", () => {
+  it("renderiza o seletor de tipo de vínculo (Cliente/Pessoa/Avulso)", () => {
     vi.stubGlobal("fetch", createFetchMock(() => ({ json: null })).fn)
     renderPage(<NovoContatoPage />)
 
     expect(screen.getByRole("heading", { name: "Novo Contato" })).toBeInTheDocument()
-    expect(screen.getByRole("button", { name: "Criar Contato" })).toBeInTheDocument()
+    expect(screen.getByText("A quem este contato pertence?")).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /Cliente/i })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /Pessoa/i })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /Avulso/i })).toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "Criar Contato" })).not.toBeInTheDocument()
   })
 
   it("valida o nome antes de salvar", async () => {
@@ -22,13 +26,14 @@ describe("NovoContatoPage", () => {
     vi.stubGlobal("fetch", fetchMock.fn)
     const ui = renderPage(<NovoContatoPage />)
 
+    fireEvent.click(screen.getByRole("button", { name: /Avulso/i }))
     fireEvent.submit(ui.container.querySelector("form")!)
 
     await waitFor(() => expect(toastMock.error).toHaveBeenCalledWith("Nome é obrigatório"))
     expect(findCall(fetchMock.calls, "/api/crm/contatos", "POST")).toBeUndefined()
   })
 
-  it("cria contato órfão (sem vínculo) via POST", async () => {
+  it("cria contato avulso (sem vínculo) via POST", async () => {
     const fetchMock = createFetchMock(({ method, url }) => {
       if (method === "GET" && url === "/api/crm/pessoas") return { json: [] }
       if (method === "GET" && url === "/api/clientes") return { json: [] }
@@ -38,6 +43,7 @@ describe("NovoContatoPage", () => {
     vi.stubGlobal("fetch", fetchMock.fn)
     renderPage(<NovoContatoPage />)
 
+    fireEvent.click(screen.getByRole("button", { name: /Avulso/i }))
     fireEvent.change(screen.getAllByRole("textbox")[0], { target: { value: "Carlos Silva" } })
     fireEvent.click(screen.getByRole("button", { name: "Criar Contato" }))
 
@@ -67,9 +73,9 @@ describe("NovoContatoPage", () => {
     vi.stubGlobal("fetch", fetchMock.fn)
     renderPage(<NovoContatoPage />)
 
-    fireEvent.change(screen.getByRole("combobox"), { target: { value: "pessoa" } })
+    fireEvent.click(screen.getByRole("button", { name: /Pessoa/i }))
     await screen.findByRole("option", { name: "Tecelagem Alpha" })
-    fireEvent.change(screen.getAllByRole("combobox")[1], { target: { value: "1" } })
+    fireEvent.change(screen.getAllByRole("combobox")[0], { target: { value: "1" } })
     fireEvent.change(screen.getAllByRole("textbox")[0], { target: { value: "Carlos Silva" } })
     fireEvent.click(screen.getByRole("button", { name: "Criar Contato" }))
 
@@ -91,9 +97,9 @@ describe("NovoContatoPage", () => {
     vi.stubGlobal("fetch", fetchMock.fn)
     renderPage(<NovoContatoPage />)
 
-    fireEvent.change(screen.getByRole("combobox"), { target: { value: "cliente" } })
+    fireEvent.click(screen.getByRole("button", { name: /Cliente/i }))
     await screen.findByRole("option", { name: "Cliente SP" })
-    fireEvent.change(screen.getAllByRole("combobox")[1], { target: { value: "9" } })
+    fireEvent.change(screen.getAllByRole("combobox")[0], { target: { value: "9" } })
     fireEvent.change(screen.getAllByRole("textbox")[0], { target: { value: "Carlos Silva" } })
     fireEvent.click(screen.getByRole("button", { name: "Criar Contato" }))
 

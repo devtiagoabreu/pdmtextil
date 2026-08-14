@@ -2,13 +2,32 @@ import { Building2, User, UserCheck } from "lucide-react"
 
 interface TipoEntidadeSelectorProps {
   onSelect: (tipo: "CLIENTE" | "PESSOA" | "AVULSA") => void
+  title?: string
+  description?: string
+  labels?: {
+    cliente?: string
+    clienteDesc?: string
+    pessoa?: string
+    pessoaDesc?: string
+    avulsa?: string
+    avulsaDesc?: string
+  }
 }
 
-export function TipoEntidadeSelector({ onSelect }: TipoEntidadeSelectorProps) {
+export function TipoEntidadeSelector({ onSelect, title, description, labels }: TipoEntidadeSelectorProps) {
+  const t = {
+    cliente: labels?.cliente ?? "Cliente",
+    clienteDesc: labels?.clienteDesc ?? "Empresa já cadastrada no sistema",
+    pessoa: labels?.pessoa ?? "Pessoa",
+    pessoaDesc: labels?.pessoaDesc ?? "Futuro cliente (negócio)",
+    avulsa: labels?.avulsa ?? "Avulsa",
+    avulsaDesc: labels?.avulsaDesc ?? "Visita sem vínculo inicial",
+  }
+
   return (
     <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 space-y-4">
-      <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 text-center">Quem você vai visitar?</h2>
-      <p className="text-sm text-slate-500 text-center">Selecione o tipo de entidade para iniciar o agendamento.</p>
+      <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 text-center">{title ?? "Quem você vai visitar?"}</h2>
+      <p className="text-sm text-slate-500 text-center">{description ?? "Selecione o tipo de entidade para iniciar o agendamento."}</p>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
         <button
           type="button"
@@ -19,8 +38,8 @@ export function TipoEntidadeSelector({ onSelect }: TipoEntidadeSelectorProps) {
             <Building2 size={28} className="text-emerald-600 dark:text-emerald-400" />
           </div>
           <div className="text-center">
-            <p className="font-semibold text-slate-900 dark:text-slate-100">Cliente</p>
-            <p className="text-xs text-slate-500 mt-1">Empresa já cadastrada no sistema</p>
+            <p className="font-semibold text-slate-900 dark:text-slate-100">{t.cliente}</p>
+            <p className="text-xs text-slate-500 mt-1">{t.clienteDesc}</p>
           </div>
         </button>
         <button
@@ -32,8 +51,8 @@ export function TipoEntidadeSelector({ onSelect }: TipoEntidadeSelectorProps) {
             <UserCheck size={28} className="text-blue-600 dark:text-blue-400" />
           </div>
           <div className="text-center">
-            <p className="font-semibold text-slate-900 dark:text-slate-100">Pessoa</p>
-            <p className="text-xs text-slate-500 mt-1">Futuro cliente (negócio)</p>
+            <p className="font-semibold text-slate-900 dark:text-slate-100">{t.pessoa}</p>
+            <p className="text-xs text-slate-500 mt-1">{t.pessoaDesc}</p>
           </div>
         </button>
         <button
@@ -45,8 +64,8 @@ export function TipoEntidadeSelector({ onSelect }: TipoEntidadeSelectorProps) {
             <User size={28} className="text-orange-600 dark:text-orange-400" />
           </div>
           <div className="text-center">
-            <p className="font-semibold text-slate-900 dark:text-slate-100">Avulsa</p>
-            <p className="text-xs text-slate-500 mt-1">Visita sem vínculo inicial</p>
+            <p className="font-semibold text-slate-900 dark:text-slate-100">{t.avulsa}</p>
+            <p className="text-xs text-slate-500 mt-1">{t.avulsaDesc}</p>
           </div>
         </button>
       </div>
