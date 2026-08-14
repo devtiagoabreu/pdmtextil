@@ -5,12 +5,13 @@ import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
-import { Loader2, ArrowLeft } from "lucide-react"
+import { Loader2, ArrowLeft, Building2, User, UserCheck } from "lucide-react"
 import Link from "next/link"
 import { QuickCreatePessoa } from "@/components/crm/quick-create-pessoa"
+import { QuickCreateCliente } from "@/components/crm/quick-create-cliente"
 import { QuickCreateOportunidade } from "@/components/crm/quick-create-oportunidade"
 import { SelectCliente } from "@/components/crm/select-cliente"
-import { Building2, UserCheck } from "lucide-react"
+import { TipoEntidadeSelector } from "@/app/(dashboard)/comercial/crm/visitas/novo/components/tipo-entidade-selector"
 
 async function fetchEmpresas() {
   const res = await fetch("/api/crm/pessoas")
@@ -24,13 +25,15 @@ async function fetchOportunidades() {
   return res.json()
 }
 
+type TipoEntidade = "CLIENTE" | "PESSOA" | "AVULSO"
+
 export default function NovaPropostaPage() {
   const router = useRouter()
   const pathname = usePathname()
   const info = getInfoContent(pathname)
   const queryClient = useQueryClient()
+  const [tipoEntidade, setTipoEntidade] = useState<TipoEntidade | "">("")
   const [titulo, setTitulo] = useState("")
-  const [tipo, setTipo] = useState<"PESSOA" | "CLIENTE">("PESSOA")
   const [empresaId, setEmpresaId] = useState("")
   const [clienteId, setClienteId] = useState("")
   const [oportunidadeId, setOportunidadeId] = useState("")
@@ -48,9 +51,20 @@ export default function NovaPropostaPage() {
     setEmpresaId(String(id))
   }
 
+  function handleClienteCreated(id: number) {
+    queryClient.invalidateQueries({ queryKey: ["clientes"] })
+    setClienteId(String(id))
+  }
+
   function handleOportunidadeCreated(id: number) {
     queryClient.invalidateQueries({ queryKey: ["crm-oportunidades"] })
     setOportunidadeId(String(id))
+  }
+
+  function handleTrocar() {
+    setTipoEntidade("")
+    setEmpresaId("")
+    setClienteId("")
   }
 
   const mutation = useMutation({
@@ -68,6 +82,22 @@ export default function NovaPropostaPage() {
     },
   })
 
+  const entidadeIcone =
+    tipoEntidade === "CLIENTE" ? (
+      <Building2 size={18} className="text-emerald-600" />
+    ) : tipoEntidade === "AVULSO" ? (
+      <User size={18} className="text-orange-600" />
+    ) : (
+      <UserCheck size={18} className="text-blue-600" />
+    )
+
+  const entidadeLabel =
+    tipoEntidade === "CLIENTE"
+      ? "Proposta para Cliente"
+      : tipoEntidade === "AVULSO"
+        ? "Proposta Avulsa"
+        : "Proposta para Pessoa (Negócio)"
+
   return (
     <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
       <div className="flex items-center gap-3">
@@ -80,6 +110,21 @@ export default function NovaPropostaPage() {
         </div>
       </div>
 
+      {!tipoEntidade && (
+        <TipoEntidadeSelector
+          onSelect={(tipo) => setTipoEntidade(tipo === "AVULSA" ? "AVULSO" : tipo)}
+          title="Para quem é esta proposta?"
+          description="Selecione o tipo de cliente para iniciar a proposta."
+          labels={{
+            clienteDesc: "Vincular a uma empresa cliente",
+            pessoaDesc: "Vincular a uma pessoa (negócio)",
+            avulsa: "Avulso",
+            avulsaDesc: "Sem vínculo obrigatório (pode vincular)",
+          }}
+        />
+      )}
+
+      {tipoEntidade && (
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-5">
         <div>
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Título *</label>
@@ -92,56 +137,80 @@ export default function NovaPropostaPage() {
           />
         </div>
 
-        <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-0.5 shadow-sm w-fit">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            {entidadeIcone}
+            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+              {entidadeLabel}
+            </span>
+          </div>
           <button
             type="button"
-            onClick={() => setTipo("PESSOA")}
-            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
-              tipo === "PESSOA"
-                ? "bg-blue-600 text-white shadow-sm"
-                : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
-            }`}
+            onClick={handleTrocar}
+            className="text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:underline"
           >
-            <UserCheck size={14} />
-            Pessoa (Negócio)
-          </button>
-          <button
-            type="button"
-            onClick={() => setTipo("CLIENTE")}
-            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
-              tipo === "CLIENTE"
-                ? "bg-blue-600 text-white shadow-sm"
-                : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
-            }`}
-          >
-            <Building2 size={14} />
-            Cliente
+            Trocar
           </button>
         </div>
 
+        {tipoEntidade === "AVULSO" && (
+          <div className="rounded-lg border border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-950/20 px-4 py-3 text-sm text-orange-700 dark:text-orange-300">
+            Proposta sem vínculo obrigatório. Opcionalmente vincule a uma pessoa ou cliente.
+          </div>
+        )}
+
         <div className="grid grid-cols-2 gap-4">
-          {tipo === "PESSOA" ? (
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Pessoa (Negócio) *
-              <QuickCreatePessoa onCreated={handleEmpresaCreated} />
-            </label>
-            <select
-              value={empresaId}
-              onChange={(e) => setEmpresaId(e.target.value)}
-              className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">Selecione...</option>
-              {(empresas || []).map((e: any) => (
-                <option key={e.id} value={e.id}>{e.razaoSocial}</option>
-              ))}
-            </select>
-          </div>
+          {tipoEntidade === "AVULSO" ? (
+            <>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  Pessoa (Negócio)
+                  <QuickCreatePessoa onCreated={handleEmpresaCreated} />
+                </label>
+                <select
+                  value={empresaId}
+                  onChange={(e) => setEmpresaId(e.target.value)}
+                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Selecione...</option>
+                  {(empresas || []).map((e: any) => (
+                    <option key={e.id} value={e.id}>{e.razaoSocial}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  Cliente
+                  <QuickCreateCliente onCreated={handleClienteCreated} />
+                </label>
+                <SelectCliente value={clienteId} onChange={setClienteId} />
+              </div>
+            </>
+          ) : tipoEntidade === "CLIENTE" ? (
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Cliente *
+                <QuickCreateCliente onCreated={handleClienteCreated} />
+              </label>
+              <SelectCliente value={clienteId} onChange={setClienteId} />
+            </div>
           ) : (
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Cliente *</label>
-            <SelectCliente value={clienteId} onChange={setClienteId} />
-          </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Pessoa (Negócio) *
+                <QuickCreatePessoa onCreated={handleEmpresaCreated} />
+              </label>
+              <select
+                value={empresaId}
+                onChange={(e) => setEmpresaId(e.target.value)}
+                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Selecione...</option>
+                {(empresas || []).map((e: any) => (
+                  <option key={e.id} value={e.id}>{e.razaoSocial}</option>
+                ))}
+              </select>
+            </div>
           )}
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
@@ -229,8 +298,8 @@ export default function NovaPropostaPage() {
           <button
             onClick={() => mutation.mutate({
               titulo,
-              empresaId: tipo === "PESSOA" && empresaId ? parseInt(empresaId) : null,
-              clienteId: tipo === "CLIENTE" && clienteId ? parseInt(clienteId) : null,
+              empresaId: empresaId ? parseInt(empresaId) : null,
+              clienteId: clienteId ? parseInt(clienteId) : null,
               oportunidadeId: oportunidadeId ? parseInt(oportunidadeId) : null,
               valor: valor ? parseFloat(valor) : null,
               descricao,
@@ -238,7 +307,7 @@ export default function NovaPropostaPage() {
               prazoEntrega,
               arquivoUrl: arquivoUrl || null,
             })}
-            disabled={!titulo || (tipo === "PESSOA" ? !empresaId : !clienteId) || mutation.isPending}
+            disabled={!titulo || (tipoEntidade === "PESSOA" ? !empresaId : tipoEntidade === "CLIENTE" ? !clienteId : false) || mutation.isPending}
             className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 rounded-lg transition-colors"
           >
             {mutation.isPending && <Loader2 size={14} className="animate-spin" />}
@@ -246,6 +315,7 @@ export default function NovaPropostaPage() {
           </button>
         </div>
       </div>
+      )}
     </div>
   )
 }

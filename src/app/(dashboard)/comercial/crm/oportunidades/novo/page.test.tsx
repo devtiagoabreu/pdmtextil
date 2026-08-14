@@ -38,18 +38,21 @@ describe("NovaOportunidadePage", () => {
     vi.stubGlobal("fetch", fetchMock.fn)
   })
 
-  it("renderiza o formulário de nova oportunidade", async () => {
+  it("renderiza o seletor de tipo de vínculo (Cliente/Pessoa/Avulso)", async () => {
     renderPage(<NovaOportunidadePage />)
 
     expect(await screen.findByRole("heading", { name: "Nova Oportunidade" })).toBeInTheDocument()
-    expect(screen.getByText(/Título/)).toBeInTheDocument()
-    expect(screen.getByPlaceholderText("Ex: Venda de malha 100% algodão")).toBeInTheDocument()
-    expect(screen.getByRole("button", { name: "Salvar" })).toBeInTheDocument()
+    expect(screen.getByText("A quem pertence esta oportunidade?")).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /Cliente/i })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /Pessoa/i })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /Avulso/i })).toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "Salvar" })).not.toBeInTheDocument()
   })
 
   it("valida Título obrigatório", async () => {
     const { container } = renderPage(<NovaOportunidadePage />)
     await screen.findByRole("heading", { name: "Nova Oportunidade" })
+    fireEvent.click(screen.getByRole("button", { name: /Pessoa/i }))
 
     fireEvent.submit(container.querySelector("form")!)
     await waitFor(() => expect(toastMock.error).toHaveBeenCalledWith("Título é obrigatório"))
@@ -58,6 +61,7 @@ describe("NovaOportunidadePage", () => {
   it("cria oportunidade via POST e navega para a lista", async () => {
     const { container } = renderPage(<NovaOportunidadePage />)
     await screen.findByRole("heading", { name: "Nova Oportunidade" })
+    fireEvent.click(screen.getByRole("button", { name: /Pessoa/i }))
 
     fireEvent.change(screen.getByPlaceholderText("Ex: Venda de malha 100% algodão"), {
       target: { value: "Venda de malha 100% algodão" },
@@ -95,6 +99,37 @@ describe("NovaOportunidadePage", () => {
         responsavelId: 3,
         dataFechamentoPrevista: "2026-08-30",
         probabilidade: 50,
+        status: "NOVO",
+      })
+    })
+    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Oportunidade criada com sucesso"))
+    expect(navMock.router.push).toHaveBeenCalledWith("/comercial/crm/oportunidades")
+  })
+
+  it("cria oportunidade avulsa (sem vínculo) via POST", async () => {
+    const { container } = renderPage(<NovaOportunidadePage />)
+    await screen.findByRole("heading", { name: "Nova Oportunidade" })
+    fireEvent.click(screen.getByRole("button", { name: /Avulso/i }))
+
+    fireEvent.change(screen.getByPlaceholderText("Ex: Venda de malha 100% algodão"), {
+      target: { value: "Oportunidade Avulsa Teste" },
+    })
+
+    fireEvent.submit(container.querySelector("form")!)
+
+    await waitFor(() => {
+      const call = findCall(fetchMock.calls, "/api/crm/oportunidades", "POST")
+      expect(call).toBeDefined()
+      expect(call!.body).toEqual({
+        titulo: "Oportunidade Avulsa Teste",
+        descricao: null,
+        valorEstimado: null,
+        empresaId: null,
+        clienteId: null,
+        leadId: null,
+        responsavelId: null,
+        dataFechamentoPrevista: null,
+        probabilidade: 0,
         status: "NOVO",
       })
     })

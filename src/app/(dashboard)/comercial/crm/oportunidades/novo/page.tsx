@@ -4,25 +4,30 @@ import { useState, useEffect } from "react"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { useRouter, usePathname } from "next/navigation"
+import { useQueryClient } from "@tanstack/react-query"
 import Link from "next/link"
-import { ArrowLeft, Save } from "lucide-react"
+import { ArrowLeft, Save, Building2, User, UserCheck } from "lucide-react"
 import { toast } from "sonner"
 import { QuickCreatePessoa } from "@/components/crm/quick-create-pessoa"
+import { QuickCreateCliente } from "@/components/crm/quick-create-cliente"
 import { QuickCreateLead } from "@/components/crm/quick-create-lead"
 import { SelectCliente } from "@/components/crm/select-cliente"
 import { useStatuses } from "@/hooks/use-statuses"
-import { Building2, UserCheck } from "lucide-react"
+import { TipoEntidadeSelector } from "@/app/(dashboard)/comercial/crm/visitas/novo/components/tipo-entidade-selector"
+
+type TipoEntidade = "CLIENTE" | "PESSOA" | "AVULSO"
 
 export default function NovaOportunidadePage() {
   const router = useRouter()
   const pathname = usePathname()
   const info = getInfoContent(pathname)
+  const queryClient = useQueryClient()
   const { statuses } = useStatuses("OPORTUNIDADE")
   const [empresas, setEmpresas] = useState<any[]>([])
   const [leads, setLeads] = useState<any[]>([])
   const [usuarios, setUsuarios] = useState<any[]>([])
   const [saving, setSaving] = useState(false)
-  const [tipo, setTipo] = useState<"PESSOA" | "CLIENTE">("PESSOA")
+  const [tipoEntidade, setTipoEntidade] = useState<TipoEntidade | "">("")
   const [form, setForm] = useState({
     titulo: "",
     descricao: "",
@@ -61,9 +66,20 @@ export default function NovaOportunidadePage() {
     setField("empresaId", String(id))
   }
 
+  function handleClienteCreated(id: number) {
+    queryClient.invalidateQueries({ queryKey: ["clientes"] })
+    setField("clienteId", String(id))
+  }
+
   function handleLeadCreated(id: number) {
     loadLeads()
     setField("leadId", String(id))
+  }
+
+  function handleTrocar() {
+    setTipoEntidade("")
+    setField("empresaId", "")
+    setField("clienteId", "")
   }
 
   useEffect(() => {
@@ -92,6 +108,14 @@ export default function NovaOportunidadePage() {
       toast.error("Título é obrigatório")
       return
     }
+    if (tipoEntidade === "PESSOA" && !form.empresaId) {
+      toast.error("Selecione uma pessoa")
+      return
+    }
+    if (tipoEntidade === "CLIENTE" && !form.clienteId) {
+      toast.error("Selecione um cliente")
+      return
+    }
     setSaving(true)
     try {
       const res = await fetch("/api/crm/oportunidades", {
@@ -101,8 +125,8 @@ export default function NovaOportunidadePage() {
           titulo: form.titulo,
           descricao: form.descricao || null,
           valorEstimado: form.valorEstimado ? form.valorEstimado : null,
-          empresaId: tipo === "PESSOA" && form.empresaId ? parseInt(form.empresaId) : null,
-          clienteId: tipo === "CLIENTE" && form.clienteId ? parseInt(form.clienteId) : null,
+          empresaId: form.empresaId ? parseInt(form.empresaId) : null,
+          clienteId: form.clienteId ? parseInt(form.clienteId) : null,
           leadId: form.leadId ? parseInt(form.leadId) : null,
           responsavelId: form.responsavelId ? parseInt(form.responsavelId) : null,
           dataFechamentoPrevista: form.dataFechamentoPrevista || null,
@@ -123,6 +147,22 @@ export default function NovaOportunidadePage() {
     }
   }
 
+  const entidadeIcone =
+    tipoEntidade === "CLIENTE" ? (
+      <Building2 size={18} className="text-emerald-600" />
+    ) : tipoEntidade === "AVULSO" ? (
+      <User size={18} className="text-orange-600" />
+    ) : (
+      <UserCheck size={18} className="text-blue-600" />
+    )
+
+  const entidadeLabel =
+    tipoEntidade === "CLIENTE"
+      ? "Oportunidade de Cliente"
+      : tipoEntidade === "AVULSO"
+        ? "Oportunidade Avulsa"
+        : "Oportunidade de Pessoa (Negócio)"
+
   return (
     <div className="space-y-6 animate-fade-in max-w-2xl">
       <div className="flex items-center gap-3">
@@ -135,6 +175,21 @@ export default function NovaOportunidadePage() {
         </div>
       </div>
 
+      {!tipoEntidade && (
+        <TipoEntidadeSelector
+          onSelect={(tipo) => setTipoEntidade(tipo === "AVULSA" ? "AVULSO" : tipo)}
+          title="A quem pertence esta oportunidade?"
+          description="Selecione o tipo de cliente para iniciar a oportunidade."
+          labels={{
+            clienteDesc: "Vincular a uma empresa cliente",
+            pessoaDesc: "Vincular a uma pessoa (negócio)",
+            avulsa: "Avulso",
+            avulsaDesc: "Sem vínculo obrigatório (pode vincular)",
+          }}
+        />
+      )}
+
+      {tipoEntidade && (
       <form onSubmit={handleSubmit} className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-5">
         <div className="grid gap-5 sm:grid-cols-2">
           <div className="sm:col-span-2">
@@ -148,56 +203,77 @@ export default function NovaOportunidadePage() {
               required
             />
           </div>
-          <div className="sm:col-span-2">
-            <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-0.5 shadow-sm w-fit">
-              <button
-                type="button"
-                onClick={() => setTipo("PESSOA")}
-                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                  tipo === "PESSOA"
-                    ? "bg-blue-600 text-white shadow-sm"
-                    : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
-                }`}
-              >
-                <UserCheck size={14} />
-                Pessoa (Negócio)
-              </button>
-              <button
-                type="button"
-                onClick={() => setTipo("CLIENTE")}
-                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                  tipo === "CLIENTE"
-                    ? "bg-blue-600 text-white shadow-sm"
-                    : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
-                }`}
-              >
-                <Building2 size={14} />
-                Cliente
-              </button>
+          <div className="sm:col-span-2 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              {entidadeIcone}
+              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                {entidadeLabel}
+              </span>
             </div>
-          </div>
-          {tipo === "PESSOA" ? (
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Pessoa (Negócio)
-              <QuickCreatePessoa onCreated={handleEmpresaCreated} />
-            </label>
-            <select
-              value={form.empresaId}
-              onChange={e => setField("empresaId", e.target.value)}
-              className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            <button
+              type="button"
+              onClick={handleTrocar}
+              className="text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:underline"
             >
-              <option value="">Selecione...</option>
-              {empresas.map((e: any) => (
-                <option key={e.id} value={String(e.id)}>{e.razaoSocial || e.nomeFantasia}</option>
-              ))}
-            </select>
+              Trocar
+            </button>
           </div>
+          {tipoEntidade === "AVULSO" && (
+            <div className="sm:col-span-2 rounded-lg border border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-950/20 px-4 py-3 text-sm text-orange-700 dark:text-orange-300">
+              Oportunidade sem vínculo obrigatório. Opcionalmente vincule a uma pessoa ou cliente.
+            </div>
+          )}
+          {tipoEntidade === "AVULSO" ? (
+            <>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  Pessoa (Negócio)
+                  <QuickCreatePessoa onCreated={handleEmpresaCreated} />
+                </label>
+                <select
+                  value={form.empresaId}
+                  onChange={e => setField("empresaId", e.target.value)}
+                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Selecione...</option>
+                  {empresas.map((e: any) => (
+                    <option key={e.id} value={String(e.id)}>{e.razaoSocial || e.nomeFantasia}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  Cliente
+                  <QuickCreateCliente onCreated={handleClienteCreated} />
+                </label>
+                <SelectCliente value={form.clienteId} onChange={value => setField("clienteId", value)} />
+              </div>
+            </>
+          ) : tipoEntidade === "CLIENTE" ? (
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Cliente *
+                <QuickCreateCliente onCreated={handleClienteCreated} />
+              </label>
+              <SelectCliente value={form.clienteId} onChange={value => setField("clienteId", value)} />
+            </div>
           ) : (
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Cliente</label>
-            <SelectCliente value={form.clienteId} onChange={value => setField("clienteId", value)} />
-          </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Pessoa (Negócio) *
+                <QuickCreatePessoa onCreated={handleEmpresaCreated} />
+              </label>
+              <select
+                value={form.empresaId}
+                onChange={e => setField("empresaId", e.target.value)}
+                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Selecione...</option>
+                {empresas.map((e: any) => (
+                  <option key={e.id} value={String(e.id)}>{e.razaoSocial || e.nomeFantasia}</option>
+                ))}
+              </select>
+            </div>
           )}
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
@@ -300,6 +376,7 @@ export default function NovaOportunidadePage() {
           </button>
         </div>
       </form>
+      )}
     </div>
   )
 }

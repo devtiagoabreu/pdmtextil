@@ -30,19 +30,22 @@ describe("NovaPropostaPage", () => {
     vi.stubGlobal("fetch", fetchMock.fn)
   })
 
-  it("renderiza o formulário com Criar Proposta desabilitado", async () => {
+  it("renderiza o seletor de tipo de vínculo (Cliente/Pessoa/Avulso)", async () => {
     renderPage(<NovaPropostaPage />)
 
     expect(await screen.findByRole("heading", { name: "Nova Proposta" })).toBeInTheDocument()
-    expect(screen.getByText(/Título/)).toBeInTheDocument()
-    expect(screen.getAllByText(/Pessoa \(Negócio\)/).length).toBeGreaterThan(0)
-    expect(screen.getByRole("button", { name: "Criar Proposta" })).toBeDisabled()
+    expect(screen.getByText("Para quem é esta proposta?")).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /Cliente/i })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /Pessoa/i })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /Avulso/i })).toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "Criar Proposta" })).not.toBeInTheDocument()
   })
 
   it("cria proposta via POST e navega para o detalhe", async () => {
     renderPage(<NovaPropostaPage />)
     await screen.findByRole("heading", { name: "Nova Proposta" })
 
+    fireEvent.click(screen.getByRole("button", { name: /Pessoa/i }))
     fireEvent.change(screen.getByPlaceholderText("Ex: Proposta Comercial - Tecido X"), {
       target: { value: "Proposta Comercial - Tecido X" },
     })
@@ -82,11 +85,11 @@ describe("NovaPropostaPage", () => {
     expect(navMock.router.push).toHaveBeenCalledWith("/comercial/crm/propostas/7")
   })
 
-  it("cria proposta vinculada a Cliente via toggle", async () => {
+  it("cria proposta vinculada a Cliente", async () => {
     renderPage(<NovaPropostaPage />)
     await screen.findByRole("heading", { name: "Nova Proposta" })
 
-    fireEvent.click(screen.getByRole("button", { name: "Cliente" }))
+    fireEvent.click(screen.getByRole("button", { name: /Cliente/i }))
     await waitFor(() => expect(screen.getByRole("option", { name: "Confeitaria Beta" })).toBeInTheDocument())
 
     fireEvent.change(screen.getByPlaceholderText("Ex: Proposta Comercial - Tecido X"), {
@@ -105,6 +108,36 @@ describe("NovaPropostaPage", () => {
         titulo: "Proposta Cliente Beta",
         empresaId: null,
         clienteId: 9,
+        oportunidadeId: null,
+        valor: null,
+        descricao: "",
+        condicoesPagamento: "",
+        prazoEntrega: "",
+        arquivoUrl: null,
+      })
+    })
+    expect(navMock.router.push).toHaveBeenCalledWith("/comercial/crm/propostas/7")
+  })
+
+  it("cria proposta avulsa (sem vínculo) via POST", async () => {
+    renderPage(<NovaPropostaPage />)
+    await screen.findByRole("heading", { name: "Nova Proposta" })
+
+    fireEvent.click(screen.getByRole("button", { name: /Avulso/i }))
+    fireEvent.change(screen.getByPlaceholderText("Ex: Proposta Comercial - Tecido X"), {
+      target: { value: "Proposta Avulsa Teste" },
+    })
+
+    expect(screen.getByRole("button", { name: "Criar Proposta" })).toBeEnabled()
+    fireEvent.click(screen.getByRole("button", { name: "Criar Proposta" }))
+
+    await waitFor(() => {
+      const call = findCall(fetchMock.calls, "/api/crm/propostas", "POST")
+      expect(call).toBeDefined()
+      expect(call!.body).toEqual({
+        titulo: "Proposta Avulsa Teste",
+        empresaId: null,
+        clienteId: null,
         oportunidadeId: null,
         valor: null,
         descricao: "",
