@@ -74,6 +74,8 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
   const [repResults, setRepResults] = useState<any[]>([])
   const [searchingRep, setSearchingRep] = useState(false)
   const [repToRemove, setRepToRemove] = useState<Vinculo | null>(null)
+  const [showDelete, setShowDelete] = useState(false)
+  const [deleteLoading, setDeleteLoading] = useState(false)
 
   useEffect(() => {
     async function loadCliente() {
@@ -178,6 +180,24 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
 
   const handleCheckboxChange = (field: keyof Cliente, checked: boolean) => {
     setCliente((prev) => prev ? { ...prev, [field]: checked } : null)
+  }
+
+  async function handleDelete() {
+    setDeleteLoading(true)
+    try {
+      const res = await fetch(`/api/clientes/${id}`, { method: "DELETE" })
+      if (!res.ok) {
+        const err = await res.json().catch(() => null)
+        throw new Error(err?.error || "Erro ao excluir")
+      }
+      toast.success("Cliente excluído com sucesso!")
+      router.push("/comercial/clientes")
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao excluir cliente")
+    } finally {
+      setDeleteLoading(false)
+      setShowDelete(false)
+    }
   }
 
   if (loading) {
@@ -471,8 +491,10 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
           <div className="flex justify-between pt-6 border-t border-slate-200 dark:border-slate-700">
             <button
               type="button"
-              className="text-sm text-red-600 hover:text-red-700"
+              onClick={() => setShowDelete(true)}
+              className="inline-flex items-center gap-1.5 text-sm text-red-600 hover:text-red-700"
             >
+              <Trash2 size={14} />
               Excluir Cliente
             </button>
             <div className="flex gap-2">
@@ -503,6 +525,16 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
         confirmLabel="Remover"
         onConfirm={() => repToRemove && removeRepresentante(repToRemove)}
         onCancel={() => setRepToRemove(null)}
+      />
+      <ConfirmModal
+        open={showDelete}
+        title="Excluir cliente?"
+        message={`Tem certeza que deseja excluir "${cliente.nome}"? Os vínculos de representantes serão removidos e os registros de CRM (pessoas, contatos, oportunidades, propostas, visitas) ficarão sem cliente vinculado. Esta ação não pode ser desfeita.`}
+        confirmLabel="Excluir"
+        variant="danger"
+        loading={deleteLoading}
+        onConfirm={handleDelete}
+        onCancel={() => setShowDelete(false)}
       />
     </div>
   )

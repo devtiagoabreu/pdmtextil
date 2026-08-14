@@ -26,6 +26,7 @@ describe("EditarClientePage", () => {
       }
       if (method === "GET" && url === `/api/clientes/${id}/representantes`) return { json: [] }
       if (method === "PUT" && url === `/api/clientes/${id}`) return { json: { ok: true } }
+      if (method === "DELETE" && url === `/api/clientes/${id}`) return { json: { success: true } }
       return { status: 404, json: { error: "Rota não mockada" } }
     }
     fetchMock = createFetchMock(handler)
@@ -50,6 +51,25 @@ describe("EditarClientePage", () => {
       expect(call!.body.nome).toBe("Tecidos Silva")
     })
     await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Cliente atualizado com sucesso!"))
+    expect(navMock.router.push).toHaveBeenCalledWith("/comercial/clientes")
+  })
+
+  it("exclui o cliente via modal de confirmação e redireciona", async () => {
+    renderPage(<EditarClientePage params={Promise.resolve({ id })} />)
+
+    await screen.findByDisplayValue("Tecidos Silva")
+
+    fireEvent.click(screen.getByRole("button", { name: "Excluir Cliente" }))
+    await screen.findByRole("dialog")
+    expect(screen.getByText(/Tem certeza que deseja excluir/)).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole("button", { name: "Excluir" }))
+
+    await waitFor(() => {
+      const call = findCall(fetchMock.calls, `/api/clientes/${id}`, "DELETE")
+      expect(call).toBeDefined()
+    })
+    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Cliente excluído com sucesso!"))
     expect(navMock.router.push).toHaveBeenCalledWith("/comercial/clientes")
   })
 })
