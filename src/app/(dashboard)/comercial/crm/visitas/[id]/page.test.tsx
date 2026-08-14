@@ -266,6 +266,25 @@ describe("DetalheVisitaPage", () => {
     await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Visita atualizada"))
   })
 
+  it("Enter confirma a descrição do anexo e mostra feedback salvo", async () => {
+    renderPage(<DetalheVisitaPage />)
+    await screen.findByRole("heading", { name: "Visita — Tecelagem Alpha" })
+
+    fireEvent.click(screen.getByRole("button", { name: "Editar" }))
+    await screen.findByRole("button", { name: "Salvar" })
+
+    fireEvent.click(screen.getByRole("button", { name: "URL" }))
+    fireEvent.change(screen.getByPlaceholderText("https://..."), { target: { value: "https://cloud.com/nota.jpg" } })
+    fireEvent.click(screen.getByRole("button", { name: "Adicionar" }))
+
+    const descricaoInput = await screen.findByRole("textbox", { name: "Descrição do item 1" })
+    fireEvent.change(descricaoInput, { target: { value: "Nota fiscal" } })
+    fireEvent.keyDown(descricaoInput, { key: "Enter" })
+
+    expect(await screen.findByText("Descrição salva")).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Remover item 1" })).toBeInTheDocument()
+  })
+
   it("mostra mensagem quando a visita não existe", async () => {
     navMock.setParams({ id: "999" })
     const notFound = createFetchMock(() => ({ status: 404, json: { error: "não encontrada" } }))

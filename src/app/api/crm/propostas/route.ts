@@ -4,6 +4,7 @@ import { db } from "@/lib/db"
 import { crmPropostas } from "@/lib/db/schema/crm-propostas"
 import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
 import { crmOportunidades } from "@/lib/db/schema/crm-oportunidades"
+import { clientes } from "@/lib/db/schema/clientes"
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq, desc, sql } from "drizzle-orm"
 import { registrarLog, notificar } from "@/lib/notificar"
@@ -15,12 +16,14 @@ export async function GET(req: NextRequest) {
     if (auth instanceof NextResponse) return auth
     const { searchParams } = new URL(req.url)
     const empresaId = searchParams.get("empresaId")
+    const clienteId = searchParams.get("clienteId")
     const status = searchParams.get("status")
     const oportunidadeId = searchParams.get("oportunidadeId")
     const mine = searchParams.get("mine")
 
     const conditions = []
     if (empresaId) conditions.push(eq(crmPropostas.empresaId, parseInt(empresaId)))
+    if (clienteId) conditions.push(eq(crmPropostas.clienteId, parseInt(clienteId)))
     if (status) conditions.push(eq(crmPropostas.status, status))
     if (oportunidadeId) conditions.push(eq(crmPropostas.oportunidadeId, parseInt(oportunidadeId)))
     if (mine === "true" && (auth.session.user?.role ?? "") !== "ADMIN" && (auth.session.user?.role ?? "") !== "SUDO") {
@@ -37,6 +40,8 @@ export async function GET(req: NextRequest) {
         status: crmPropostas.status,
         empresaId: crmPropostas.empresaId,
         empresaNome: crmPessoas.razaoSocial,
+        clienteId: crmPropostas.clienteId,
+        clienteNome: clientes.nome,
         oportunidadeId: crmPropostas.oportunidadeId,
         oportunidadeTitulo: crmOportunidades.titulo,
         descricao: crmPropostas.descricao,
@@ -51,6 +56,7 @@ export async function GET(req: NextRequest) {
       })
       .from(crmPropostas)
       .leftJoin(crmPessoas, eq(crmPropostas.empresaId, crmPessoas.id))
+      .leftJoin(clientes, eq(crmPropostas.clienteId, clientes.id))
       .leftJoin(crmOportunidades, eq(crmPropostas.oportunidadeId, crmOportunidades.id))
       .leftJoin(usuarios, eq(crmPropostas.criadoPor, usuarios.id))
       .where(where)
@@ -75,7 +81,8 @@ export async function POST(req: NextRequest) {
     const [nova] = await db
       .insert(crmPropostas)
       .values({
-        empresaId: body.empresaId,
+        empresaId: body.empresaId || null,
+        clienteId: body.clienteId || null,
         oportunidadeId: body.oportunidadeId || null,
         titulo: body.titulo,
         valor: body.valor || null,
@@ -98,12 +105,14 @@ export async function POST(req: NextRequest) {
       usuarioNome: session.user.name,
     })
 
-    await inserirTimelineEvento({
-      empresaId: nova.empresaId,
-      tipo: "PROPOSTA",
-      descricao: `Proposta "${nova.titulo}" enviada${nova.valor ? ` — valor: R$ ${Number(nova.valor).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : ""}`,
-      metadados: { propostaId: nova.id },
-    })
+    if (nova.empresaId) {
+      await inserirTimelineEvento({
+        empresaId: nova.empresaId,
+        tipo: "PROPOSTA",
+        descricao: `Proposta "${nova.titulo}" enviada${nova.valor ? ` — valor: R$ ${Number(nova.valor).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : ""}`,
+        metadados: { propostaId: nova.id },
+      })
+    }
 
     await notificar("PROPOSTA_CRIADA", `Proposta criada: ${nova.titulo}`, `/comercial/crm/propostas/${nova.id}`, session.user.name)
 

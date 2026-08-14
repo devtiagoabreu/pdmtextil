@@ -1,7 +1,6 @@
 "use client"
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { useSession } from "next-auth/react"
 import { usePathname, useSearchParams } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
@@ -49,16 +48,11 @@ function TarefasPageContent() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const info = getInfoContent(pathname)
-  const { data: session } = useSession()
   const [filtro, setFiltro] = useState("pendentes")
   const [dialogOpen, setDialogOpen] = useState(false)
   const [modo, setModo] = useState<"tabela" | "kanban">(searchParams.get("view") === "kanban" ? "kanban" : "tabela")
 
-  const userRole = (session?.user as any)?.role
-  const isComercial = userRole && !["ADMIN", "SUDO", "CRM"].includes(userRole)
-  const [visitasFilter, setVisitasFilter] = useState<"todas" | "minhas">(
-    isComercial ? "minhas" : "todas"
-  )
+  const [visitasFilter, setVisitasFilter] = useState<"todas" | "minhas">("minhas")
 
   const { data: tarefas, isLoading } = useQuery({
     queryKey: ["crm-tarefas", filtro, visitasFilter],

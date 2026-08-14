@@ -11,6 +11,7 @@ interface PropostaCard {
   id: number
   titulo: string
   empresaNome: string | null
+  clienteNome: string | null
   valor: string | number | null
   status: string
 }
@@ -59,8 +60,8 @@ function DraggableCard({ proposta }: { proposta: PropostaCard }) {
       <p className="text-sm font-medium text-slate-900 dark:text-slate-100 leading-snug line-clamp-2">
         {proposta.titulo}
       </p>
-      {proposta.empresaNome && (
-        <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">{proposta.empresaNome}</p>
+      {(proposta.empresaNome || proposta.clienteNome) && (
+        <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">{proposta.empresaNome || proposta.clienteNome}</p>
       )}
       {valorFormatado && (
         <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 mt-1">
@@ -172,7 +173,7 @@ export default function PropostasKanban({ propostas }: { propostas: PropostaCard
           <DragOverlay>
             <div className="bg-white dark:bg-slate-800 rounded-lg border border-blue-400 shadow-xl p-3 w-72 opacity-90">
               <p className="text-sm font-medium text-slate-900">{activeCard.titulo}</p>
-              {activeCard.empresaNome && <p className="text-xs text-slate-500 mt-0.5">{activeCard.empresaNome}</p>}
+              {(activeCard.empresaNome || activeCard.clienteNome) && <p className="text-xs text-slate-500 mt-0.5">{activeCard.empresaNome || activeCard.clienteNome}</p>}
             </div>
           </DragOverlay>
         )}

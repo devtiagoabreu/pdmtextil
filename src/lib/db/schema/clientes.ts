@@ -10,6 +10,7 @@ export const clientes = pgTable("clientes", {
   telefone: varchar("telefone", { length: 20 }),
   celular: varchar("celular", { length: 20 }),
   contato: varchar("contato", { length: 100 }),
+  segmento: varchar("segmento", { length: 100 }),
   endereco: varchar("endereco", { length: 300 }),
   cidade: varchar("cidade", { length: 100 }),
   uf: varchar("uf", { length: 2 }),

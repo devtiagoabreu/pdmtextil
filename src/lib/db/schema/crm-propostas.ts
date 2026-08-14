@@ -1,12 +1,14 @@
 import { pgTable, serial, varchar, text, integer, numeric, timestamp } from "drizzle-orm/pg-core"
 import { crmOportunidades } from "./crm-oportunidades"
 import { crmPessoas } from "./crm-pessoas"
+import { clientes } from "./clientes"
 import { usuarios } from "./usuarios"
 
 export const crmPropostas = pgTable("crm_propostas", {
   id: serial("id").primaryKey(),
   oportunidadeId: integer("oportunidade_id").references(() => crmOportunidades.id),
-  empresaId: integer("empresa_id").notNull().references(() => crmPessoas.id),
+  empresaId: integer("empresa_id").references(() => crmPessoas.id),
+  clienteId: integer("cliente_id").references(() => clientes.id),
   titulo: varchar("titulo", { length: 300 }).notNull(),
   valor: numeric("valor", { precision: 12, scale: 2 }),
   descricao: text("descricao"),

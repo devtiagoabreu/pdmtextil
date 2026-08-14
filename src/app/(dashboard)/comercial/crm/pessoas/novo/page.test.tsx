@@ -9,6 +9,9 @@ describe("NovaPessoaPage", () => {
 
   beforeEach(() => {
     const handler = ({ method, url }: { method: string; url: string }) => {
+      if (method === "GET" && url === "/api/crm/segmentos") {
+        return { json: [{ id: 1, nome: "Tecelagem", ativo: true }] }
+      }
       if (method === "GET" && url === "/api/crm/estados") {
         return { json: [{ id: 35, uf: "SP", nome: "São Paulo" }] }
       }
@@ -86,16 +89,17 @@ describe("NovaPessoaPage", () => {
     fireEvent.change(textboxes[0], { target: { value: "Tecelagem Beta Ltda" } })
     fireEvent.change(textboxes[1], { target: { value: "Beta Confecções" } })
     fireEvent.change(textboxes[2], { target: { value: "12.345.678/0001-90" } })
-    fireEvent.change(textboxes[3], { target: { value: "Têxtil" } })
-    fireEvent.change(textboxes[7], { target: { value: "contato@beta.com" } })
+    fireEvent.change(textboxes[6], { target: { value: "contato@beta.com" } })
 
     const comboboxes = screen.getAllByRole("combobox")
-    fireEvent.change(comboboxes[0], { target: { value: "ME" } })
-    fireEvent.change(comboboxes[1], { target: { value: "SP" } })
+    await waitFor(() => expect(screen.getByRole("option", { name: "Tecelagem" })).toBeInTheDocument())
+    fireEvent.change(comboboxes[0], { target: { value: "Tecelagem" } })
+    fireEvent.change(comboboxes[1], { target: { value: "ME" } })
+    fireEvent.change(comboboxes[2], { target: { value: "SP" } })
 
     await waitFor(() => expect(screen.getByRole("option", { name: "São Paulo" })).toBeInTheDocument())
     const comboboxesApos = screen.getAllByRole("combobox")
-    fireEvent.change(comboboxesApos[2], { target: { value: "São Paulo" } })
+    fireEvent.change(comboboxesApos[3], { target: { value: "São Paulo" } })
 
     fireEvent.submit(container.querySelector("form")!)
 
@@ -109,7 +113,7 @@ describe("NovaPessoaPage", () => {
         razaoSocial: "Tecelagem Beta Ltda",
         nomeFantasia: "Beta Confecções",
         cnpj: "12.345.678/0001-90",
-        segmento: "Têxtil",
+        segmento: "Tecelagem",
         porte: "ME",
         site: "",
         telefone: "",

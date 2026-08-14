@@ -46,6 +46,18 @@ const representantes = [
   },
 ]
 
+const leads = [
+  { id: 10, nome: "Pedro Souza", celular: "(11) 97777-0001", cargo: "Gerente", origem: "OUTRO", status: "NOVO", empresaId: 1 },
+]
+
+const oportunidades = [
+  { id: 20, titulo: "Oportunidade Grande", valorEstimado: 5000, status: "Novo", empresaId: 1 },
+]
+
+const propostas = [
+  { id: 30, titulo: "Proposta Tecido", valor: 1200, status: "ENVIADA", empresaId: 1 },
+]
+
 describe("PessoaDetailPage", () => {
   let fetchMock: ReturnType<typeof createFetchMock>
 
@@ -53,6 +65,12 @@ describe("PessoaDetailPage", () => {
     const handler = ({ method, url }: { method: string; url: string }) => {
       if (method === "GET" && url === "/api/crm/pessoas/1") return { json: pessoa }
       if (method === "GET" && url === "/api/crm/pessoas/1/representantes") return { json: representantes }
+      if (method === "GET" && url === "/api/crm/leads?empresaId=1") return { json: leads }
+      if (method === "GET" && url === "/api/crm/oportunidades?empresaId=1") return { json: oportunidades }
+      if (method === "GET" && url === "/api/crm/propostas?empresaId=1") return { json: propostas }
+      if (method === "POST" && url === "/api/crm/leads") {
+        return { json: { id: 99, nome: "Novo Lead Teste", empresaId: 1 } }
+      }
       if (method === "GET" && url === "/api/crm/estados") {
         return { json: [{ id: 35, uf: "SP", nome: "São Paulo" }] }
       }
@@ -69,7 +87,7 @@ describe("PessoaDetailPage", () => {
     vi.stubGlobal("fetch", fetchMock.fn)
   })
 
-  it("exibe os dados da pessoa com contatos e representantes", async () => {
+  it("exibe os dados da pessoa com contatos, representantes, leads, oportunidades e propostas", async () => {
     navMock.setParams({ id: "1" })
     navMock.setPathname("/comercial/crm/pessoas/1")
     renderPage(<PessoaDetailPage />)
@@ -84,7 +102,30 @@ describe("PessoaDetailPage", () => {
 
     expect(await screen.findByText("Representante Beta")).toBeInTheDocument()
     expect(screen.getByText("11.222.333/0001-44")).toBeInTheDocument()
+
+    expect(await screen.findByText("Pedro Souza")).toBeInTheDocument()
+    expect(screen.getByText("Oportunidade Grande")).toBeInTheDocument()
+    expect(screen.getByText("Proposta Tecido")).toBeInTheDocument()
     expect(await screen.findByText("Nenhuma mensagem")).toBeInTheDocument()
+  })
+
+  it("cria um lead vinculado à pessoa pelo card de leads", async () => {
+    navMock.setParams({ id: "1" })
+    navMock.setPathname("/comercial/crm/pessoas/1")
+    renderPage(<PessoaDetailPage />)
+
+    fireEvent.click(await screen.findByTitle("Cadastrar novo lead"))
+
+    const dialog = screen.getByRole("dialog", { name: "Novo Lead" })
+    fireEvent.change(within(dialog).getAllByRole("textbox")[0], { target: { value: "Novo Lead Teste" } })
+    fireEvent.click(within(dialog).getByRole("button", { name: "Criar" }))
+
+    await waitFor(() => {
+      const call = findCall(fetchMock.calls, "/api/crm/leads", "POST")
+      expect(call).toBeDefined()
+      expect(call!.body).toEqual(expect.objectContaining({ nome: "Novo Lead Teste", empresaId: 1 }))
+    })
+    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Lead criado com sucesso"))
   })
 
   it("edita a pessoa via PUT", async () => {

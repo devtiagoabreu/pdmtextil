@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { crmPropostas } from "@/lib/db/schema/crm-propostas"
+import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
+import { clientes } from "@/lib/db/schema/clientes"
 import { eq } from "drizzle-orm"
 import { registrarLog, notificar, notificarDelecao } from "@/lib/notificar"
 import { inserirTimelineEvento } from "@/lib/crm-timeline"
@@ -17,8 +19,29 @@ export async function GET(
 
     const { id } = await params
     const [proposta] = await db
-      .select()
+      .select({
+        id: crmPropostas.id,
+        titulo: crmPropostas.titulo,
+        valor: crmPropostas.valor,
+        status: crmPropostas.status,
+        empresaId: crmPropostas.empresaId,
+        empresaNome: crmPessoas.razaoSocial,
+        clienteId: crmPropostas.clienteId,
+        clienteNome: clientes.nome,
+        oportunidadeId: crmPropostas.oportunidadeId,
+        descricao: crmPropostas.descricao,
+        condicoesPagamento: crmPropostas.condicoesPagamento,
+        prazoEntrega: crmPropostas.prazoEntrega,
+        arquivoUrl: crmPropostas.arquivoUrl,
+        dataEnvio: crmPropostas.dataEnvio,
+        dataResposta: crmPropostas.dataResposta,
+        criadoPor: crmPropostas.criadoPor,
+        createdAt: crmPropostas.createdAt,
+        updatedAt: crmPropostas.updatedAt,
+      })
       .from(crmPropostas)
+      .leftJoin(crmPessoas, eq(crmPropostas.empresaId, crmPessoas.id))
+      .leftJoin(clientes, eq(crmPropostas.clienteId, clientes.id))
       .where(eq(crmPropostas.id, parseInt(id)))
       .limit(1)
 
@@ -62,6 +85,7 @@ export async function PUT(
     if (body.prazoEntrega !== undefined) values.prazoEntrega = body.prazoEntrega
     if (body.arquivoUrl !== undefined) values.arquivoUrl = body.arquivoUrl
     if (body.empresaId !== undefined) values.empresaId = body.empresaId
+    if (body.clienteId !== undefined) values.clienteId = body.clienteId
     if (body.oportunidadeId !== undefined) values.oportunidadeId = body.oportunidadeId
 
     if (body.status !== undefined) {
@@ -86,7 +110,7 @@ export async function PUT(
       usuarioNome: session.user.name,
     })
 
-    if (body.status && body.status !== existente.status) {
+    if (body.status && body.status !== existente.status && existente.empresaId) {
       await inserirTimelineEvento({
         empresaId: existente.empresaId,
         tipo: "PROPOSTA",

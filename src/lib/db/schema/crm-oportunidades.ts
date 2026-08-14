@@ -3,6 +3,7 @@ import { usuarios } from "./usuarios"
 import { crmLeads } from "./crm-leads"
 import { crmPessoas } from "./crm-pessoas"
 import { crmContatos } from "./crm-contatos"
+import { clientes } from "./clientes"
 
 export const crmOportunidades = pgTable("crm_oportunidades", {
   id: serial("id").primaryKey(),
@@ -12,6 +13,7 @@ export const crmOportunidades = pgTable("crm_oportunidades", {
   status: varchar("status", { length: 30 }).notNull().default("NOVO"),
   leadId: integer("lead_id").references(() => crmLeads.id),
   empresaId: integer("empresa_id").references(() => crmPessoas.id),
+  clienteId: integer("cliente_id").references(() => clientes.id),
   contatoId: integer("contato_id").references(() => crmContatos.id),
   responsavelId: integer("responsavel_id").references(() => usuarios.id),
   dataFechamentoPrevista: date("data_fechamento_prevista"),

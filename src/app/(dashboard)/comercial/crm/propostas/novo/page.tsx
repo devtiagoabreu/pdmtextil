@@ -9,6 +9,8 @@ import { Loader2, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { QuickCreatePessoa } from "@/components/crm/quick-create-pessoa"
 import { QuickCreateOportunidade } from "@/components/crm/quick-create-oportunidade"
+import { SelectCliente } from "@/components/crm/select-cliente"
+import { Building2, UserCheck } from "lucide-react"
 
 async function fetchEmpresas() {
   const res = await fetch("/api/crm/pessoas")
@@ -28,7 +30,9 @@ export default function NovaPropostaPage() {
   const info = getInfoContent(pathname)
   const queryClient = useQueryClient()
   const [titulo, setTitulo] = useState("")
+  const [tipo, setTipo] = useState<"PESSOA" | "CLIENTE">("PESSOA")
   const [empresaId, setEmpresaId] = useState("")
+  const [clienteId, setClienteId] = useState("")
   const [oportunidadeId, setOportunidadeId] = useState("")
   const [valor, setValor] = useState("")
   const [descricao, setDescricao] = useState("")
@@ -88,7 +92,35 @@ export default function NovaPropostaPage() {
           />
         </div>
 
+        <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-0.5 shadow-sm w-fit">
+          <button
+            type="button"
+            onClick={() => setTipo("PESSOA")}
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+              tipo === "PESSOA"
+                ? "bg-blue-600 text-white shadow-sm"
+                : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+            }`}
+          >
+            <UserCheck size={14} />
+            Pessoa (Negócio)
+          </button>
+          <button
+            type="button"
+            onClick={() => setTipo("CLIENTE")}
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+              tipo === "CLIENTE"
+                ? "bg-blue-600 text-white shadow-sm"
+                : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+            }`}
+          >
+            <Building2 size={14} />
+            Cliente
+          </button>
+        </div>
+
         <div className="grid grid-cols-2 gap-4">
+          {tipo === "PESSOA" ? (
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
               Pessoa (Negócio) *
@@ -105,6 +137,12 @@ export default function NovaPropostaPage() {
               ))}
             </select>
           </div>
+          ) : (
+          <div>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Cliente *</label>
+            <SelectCliente value={clienteId} onChange={setClienteId} />
+          </div>
+          )}
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
               Oportunidade
@@ -191,7 +229,8 @@ export default function NovaPropostaPage() {
           <button
             onClick={() => mutation.mutate({
               titulo,
-              empresaId: empresaId ? parseInt(empresaId) : null,
+              empresaId: tipo === "PESSOA" && empresaId ? parseInt(empresaId) : null,
+              clienteId: tipo === "CLIENTE" && clienteId ? parseInt(clienteId) : null,
               oportunidadeId: oportunidadeId ? parseInt(oportunidadeId) : null,
               valor: valor ? parseFloat(valor) : null,
               descricao,
@@ -199,7 +238,7 @@ export default function NovaPropostaPage() {
               prazoEntrega,
               arquivoUrl: arquivoUrl || null,
             })}
-            disabled={!titulo || !empresaId || mutation.isPending}
+            disabled={!titulo || (tipo === "PESSOA" ? !empresaId : !clienteId) || mutation.isPending}
             className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 rounded-lg transition-colors"
           >
             {mutation.isPending && <Loader2 size={14} className="animate-spin" />}

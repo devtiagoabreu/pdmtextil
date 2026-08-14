@@ -8,10 +8,11 @@ import {
 } from "@/components/ui/dialog"
 
 type Props = {
+  empresaId?: string
   onCreated: (id: number, nome: string) => void
 }
 
-export function QuickCreateLead({ onCreated }: Props) {
+export function QuickCreateLead({ empresaId, onCreated }: Props) {
   const [open, setOpen] = useState(false)
   const [saving, setSaving] = useState(false)
   const [nome, setNome] = useState("")
@@ -30,7 +31,7 @@ export function QuickCreateLead({ onCreated }: Props) {
       const res = await fetch("/api/crm/leads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nome, celular: celular || null, origem }),
+        body: JSON.stringify({ nome, celular: celular || null, origem, empresaId: empresaId ? parseInt(empresaId) : null }),
       })
       if (!res.ok) {
         const err = await res.json()

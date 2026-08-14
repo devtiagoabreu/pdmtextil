@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef } from "react"
-import { Camera, Upload, X, Link as LinkIcon, Loader2 } from "lucide-react"
+import { Camera, Trash2, Link as LinkIcon, Loader2, Check } from "lucide-react"
 import type { VisitaFoto } from "@/lib/crm/visita-fotos"
 import { normalizeVisitaFotos } from "@/lib/crm/visita-fotos"
 
@@ -16,7 +16,9 @@ export default function PhotoUpload({ photos, onPhotosChange, maxPhotos = 20, la
   const [uploading, setUploading] = useState(false)
   const [showUrlInput, setShowUrlInput] = useState(false)
   const [urlValue, setUrlValue] = useState("")
+  const [savedIndex, setSavedIndex] = useState<number | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const normalized = normalizeVisitaFotos(photos)
   const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || ""
@@ -88,6 +90,12 @@ export default function PhotoUpload({ photos, onPhotosChange, maxPhotos = 20, la
 
   function updateDescricao(index: number, descricao: string) {
     onPhotosChange(normalized.map((foto, i) => (i === index ? { ...foto, descricao } : foto)))
+  }
+
+  function commitDescricao(index: number) {
+    setSavedIndex(index)
+    if (savedTimerRef.current) clearTimeout(savedTimerRef.current)
+    savedTimerRef.current = setTimeout(() => setSavedIndex(null), 1600)
   }
 
   return (
@@ -178,21 +186,39 @@ export default function PhotoUpload({ photos, onPhotosChange, maxPhotos = 20, la
                   }}
                 />
               </div>
-              <input
-                type="text"
-                value={foto.descricao}
-                onChange={e => updateDescricao(i, e.target.value)}
-                placeholder="Descreva o que é este item (ex: comprovante de entrega)"
-                aria-label={`Descrição do item ${i + 1}`}
-                className="flex-1 min-w-0 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+              <div className="flex-1 min-w-0">
+                <input
+                  type="text"
+                  value={foto.descricao}
+                  onChange={e => updateDescricao(i, e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === "Enter") {
+                      e.preventDefault()
+                      commitDescricao(i)
+                      ;(e.target as HTMLInputElement).blur()
+                    }
+                  }}
+                  placeholder="Descreva o que é este item (ex: comprovante de entrega)"
+                  aria-label={`Descrição do item ${i + 1}`}
+                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <div className="h-5 mt-1">
+                  {savedIndex === i && (
+                    <span className="inline-flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
+                      <Check size={12} />
+                      Descrição salva
+                    </span>
+                  )}
+                </div>
+              </div>
               <button
                 type="button"
                 onClick={() => removePhoto(i)}
                 aria-label={`Remover item ${i + 1}`}
-                className="p-1.5 rounded-full bg-black/60 text-white hover:bg-red-600 min-h-[28px] min-w-[28px] flex items-center justify-center transition-colors"
+                title="Remover item"
+                className="self-start p-1.5 rounded-full bg-black/60 text-white hover:bg-red-600 min-h-[28px] min-w-[28px] flex items-center justify-center transition-colors"
               >
-                <X size={12} />
+                <Trash2 size={13} />
               </button>
             </li>
           ))}

@@ -9,7 +9,9 @@ import { ArrowLeft, Save } from "lucide-react"
 import { toast } from "sonner"
 import { QuickCreatePessoa } from "@/components/crm/quick-create-pessoa"
 import { QuickCreateLead } from "@/components/crm/quick-create-lead"
+import { SelectCliente } from "@/components/crm/select-cliente"
 import { useStatuses } from "@/hooks/use-statuses"
+import { Building2, UserCheck } from "lucide-react"
 
 export default function NovaOportunidadePage() {
   const router = useRouter()
@@ -20,11 +22,13 @@ export default function NovaOportunidadePage() {
   const [leads, setLeads] = useState<any[]>([])
   const [usuarios, setUsuarios] = useState<any[]>([])
   const [saving, setSaving] = useState(false)
+  const [tipo, setTipo] = useState<"PESSOA" | "CLIENTE">("PESSOA")
   const [form, setForm] = useState({
     titulo: "",
     descricao: "",
     valorEstimado: "",
     empresaId: "",
+    clienteId: "",
     leadId: "",
     responsavelId: "",
     dataFechamentoPrevista: "",
@@ -97,7 +101,8 @@ export default function NovaOportunidadePage() {
           titulo: form.titulo,
           descricao: form.descricao || null,
           valorEstimado: form.valorEstimado ? form.valorEstimado : null,
-          empresaId: form.empresaId ? parseInt(form.empresaId) : null,
+          empresaId: tipo === "PESSOA" && form.empresaId ? parseInt(form.empresaId) : null,
+          clienteId: tipo === "CLIENTE" && form.clienteId ? parseInt(form.clienteId) : null,
           leadId: form.leadId ? parseInt(form.leadId) : null,
           responsavelId: form.responsavelId ? parseInt(form.responsavelId) : null,
           dataFechamentoPrevista: form.dataFechamentoPrevista || null,
@@ -143,6 +148,35 @@ export default function NovaOportunidadePage() {
               required
             />
           </div>
+          <div className="sm:col-span-2">
+            <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-0.5 shadow-sm w-fit">
+              <button
+                type="button"
+                onClick={() => setTipo("PESSOA")}
+                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                  tipo === "PESSOA"
+                    ? "bg-blue-600 text-white shadow-sm"
+                    : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+                }`}
+              >
+                <UserCheck size={14} />
+                Pessoa (Negócio)
+              </button>
+              <button
+                type="button"
+                onClick={() => setTipo("CLIENTE")}
+                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                  tipo === "CLIENTE"
+                    ? "bg-blue-600 text-white shadow-sm"
+                    : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+                }`}
+              >
+                <Building2 size={14} />
+                Cliente
+              </button>
+            </div>
+          </div>
+          {tipo === "PESSOA" ? (
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
               Pessoa (Negócio)
@@ -159,6 +193,12 @@ export default function NovaOportunidadePage() {
               ))}
             </select>
           </div>
+          ) : (
+          <div>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Cliente</label>
+            <SelectCliente value={form.clienteId} onChange={value => setField("clienteId", value)} />
+          </div>
+          )}
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
               Lead

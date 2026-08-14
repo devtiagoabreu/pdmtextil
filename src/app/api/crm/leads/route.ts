@@ -15,9 +15,15 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url)
     const search = searchParams.get("search")
     const status = searchParams.get("status")
+    const empresaId = searchParams.get("empresaId")
 
     let conditions = []
     if (status) conditions.push(eq(crmLeads.status, status))
+    if (empresaId) {
+      conditions.push(
+        or(eq(crmLeads.empresaId, parseInt(empresaId)), eq(crmLeads.pessoaId, parseInt(empresaId)))
+      )
+    }
     if (search) {
       conditions.push(
         or(

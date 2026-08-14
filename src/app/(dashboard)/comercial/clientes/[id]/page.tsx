@@ -9,6 +9,7 @@ import Link from "next/link"
 import { ArrowLeft, Save, Trash2, Building2, Search, UserPlus, Users, Loader2, X, Mail, Phone, MapPin } from "lucide-react"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
+import { SelectSegmento } from "@/components/crm/select-segmento"
 
 type Cliente = {
   id: number
@@ -20,6 +21,7 @@ type Cliente = {
   telefone?: string | null
   celular?: string | null
   contato?: string | null
+  segmento?: string | null
   endereco?: string | null
   cidade?: string | null
   uf?: string | null
@@ -249,6 +251,13 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
                 onChange={(e) => handleChange("razaoSocial", e.target.value)}
                 className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
               />
+            </div>
+
+            <div className="space-y-2 md:col-span-2">
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                Segmento
+              </label>
+              <SelectSegmento value={cliente.segmento || ""} onChange={v => handleChange("segmento", v)} />
             </div>
 
             <div className="space-y-2">

@@ -1,5 +1,6 @@
 import { SelectUf } from "@/components/crm/select-uf"
 import { SelectCidade } from "@/components/crm/select-cidade"
+import { SelectSegmento } from "@/components/crm/select-segmento"
 import { STATUS_OPTIONS } from "./constants"
 
 interface DadosPessoaCardProps {
@@ -69,7 +70,7 @@ export function DadosPessoaCard({
             )}
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1">Segmento</label>
-              <input type="text" value={form.segmento || ""} onChange={e => setForm((p: any) => ({ ...p, segmento: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+              <SelectSegmento value={form.segmento || ""} onChange={v => setForm((p: any) => ({ ...p, segmento: v }))} />
             </div>
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1">Porte</label>

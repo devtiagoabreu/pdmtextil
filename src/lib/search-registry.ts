@@ -162,6 +162,9 @@ export const searchRegistry: SearchItem[] = [
   // CRM — Regiões
   { id: "crm-regioes", label: "CRM — Regiões", keywords: ["crm", "regiao", "regioes", "gerente", "hierarquia", "comercial"], href: "/comercial/crm/regioes", description: "Cadastro de regiões comerciais", module: "CRM" },
 
+  // CRM — Segmentos
+  { id: "crm-segmentos", label: "CRM — Segmentos", keywords: ["crm", "segmento", "segmentos", "categoria", "pessoa", "cliente", "comercial"], href: "/comercial/crm/segmentos", description: "Cadastro de segmentos de pessoas e clientes", module: "CRM" },
+
   // CRM — Equipes
   { id: "crm-equipes", label: "CRM — Equipes", keywords: ["crm", "equipe", "equipes", "representante", "hierarquia", "comercial"], href: "/comercial/crm/equipes", description: "Cadastro de equipes comerciais", module: "CRM" },
 

@@ -125,9 +125,9 @@ export default function DetalheOportunidadePage() {
               </button>
             )}
           </div>
-          {oportunidade.empresaNome && (
-            <p className="text-sm text-slate-500">{oportunidade.empresaNome}</p>
-          )}
+          {oportunidade.empresaNome || oportunidade.clienteNome ? (
+            <p className="text-sm text-slate-500">{oportunidade.empresaNome || oportunidade.clienteNome}</p>
+          ) : null}
         </div>
         <button onClick={() => setShowDelete(true)} className="flex items-center gap-1 text-xs font-medium text-red-600 hover:underline">
           <Trash2 size={14} /> Excluir
@@ -142,7 +142,7 @@ export default function DetalheOportunidadePage() {
             <Field label="Probabilidade" value={oportunidade.probabilidade != null ? `${oportunidade.probabilidade}%` : "—"} />
             <Field label="Previsão" value={oportunidade.dataFechamentoPrevista ? new Date(oportunidade.dataFechamentoPrevista).toLocaleDateString("pt-BR") : "—"} />
             <Field label="Responsável" value={oportunidade.responsavelNome || "—"} />
-            <Field label="Pessoa (Negócio)" value={oportunidade.empresaNome || "—"} />
+            <Field label="Pessoa / Cliente" value={oportunidade.empresaNome || oportunidade.clienteNome || "—"} />
             <Field label="Criado em" value={oportunidade.createdAt ? new Date(oportunidade.createdAt).toLocaleDateString("pt-BR") : "—"} />
           </div>
         </div>

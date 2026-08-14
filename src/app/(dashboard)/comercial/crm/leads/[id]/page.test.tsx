@@ -107,6 +107,7 @@ describe("LeadDetailPage", () => {
     renderPage(<LeadDetailPage />)
 
     const input = await screen.findByPlaceholderText("Digite uma mensagem...")
+    await screen.findByText("Olá, gostaria de um orçamento")
     fireEvent.change(input, { target: { value: "Olá!" } })
     fireEvent.keyDown(input, { key: "Enter" })
 

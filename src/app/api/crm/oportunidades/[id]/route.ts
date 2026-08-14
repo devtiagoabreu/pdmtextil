@@ -4,6 +4,7 @@ import { db } from "@/lib/db"
 import { crmOportunidades } from "@/lib/db/schema/crm-oportunidades"
 import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
 import { crmContatos } from "@/lib/db/schema/crm-contatos"
+import { clientes } from "@/lib/db/schema/clientes"
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq } from "drizzle-orm"
 import { registrarLog, notificar, notificarDelecao } from "@/lib/notificar"
@@ -28,6 +29,8 @@ export async function GET(
         leadId: crmOportunidades.leadId,
         empresaId: crmOportunidades.empresaId,
         empresaNome: crmPessoas.razaoSocial,
+        clienteId: crmOportunidades.clienteId,
+        clienteNome: clientes.nome,
         contatoId: crmOportunidades.contatoId,
         responsavelId: crmOportunidades.responsavelId,
         responsavelNome: usuarios.name,
@@ -39,6 +42,7 @@ export async function GET(
       })
       .from(crmOportunidades)
       .leftJoin(crmPessoas, eq(crmOportunidades.empresaId, crmPessoas.id))
+      .leftJoin(clientes, eq(crmOportunidades.clienteId, clientes.id))
       .leftJoin(usuarios, eq(crmOportunidades.responsavelId, usuarios.id))
       .where(eq(crmOportunidades.id, parseInt(id)))
       .limit(1)
@@ -88,6 +92,7 @@ export async function PUT(
     if (body.status !== undefined) values.status = body.status
     if (body.leadId !== undefined) values.leadId = body.leadId
     if (body.empresaId !== undefined) values.empresaId = body.empresaId
+    if (body.clienteId !== undefined) values.clienteId = body.clienteId
     if (body.contatoId !== undefined) values.contatoId = body.contatoId
     if (body.responsavelId !== undefined) values.responsavelId = body.responsavelId
     if (body.dataFechamentoPrevista !== undefined) values.dataFechamentoPrevista = body.dataFechamentoPrevista || null

@@ -47,7 +47,10 @@ function buildHandler() {
     if (method === "GET" && url === "/api/crm/tarefas?status=CONCLUIDO") return { json: tarefasConcluidas }
     if (method === "GET" && url === "/api/crm/tarefas?") return { json: [...tarefasPendentes, ...tarefasConcluidas] }
     if (method === "GET" && url === "/api/crm/tarefas?hoje=true") return { json: tarefasPendentes }
+    if (method === "GET" && url === "/api/crm/tarefas?mine=true") return { json: [...tarefasPendentes, ...tarefasConcluidas] }
     if (method === "GET" && url === "/api/crm/tarefas?status=PENDENTE&mine=true") return { json: tarefasPendentes }
+    if (method === "GET" && url === "/api/crm/tarefas?status=CONCLUIDO&mine=true") return { json: tarefasConcluidas }
+    if (method === "GET" && url === "/api/crm/tarefas?hoje=true&mine=true") return { json: tarefasPendentes }
     if (method === "GET" && url === "/api/crm/pessoas") return { json: [{ id: 1, razaoSocial: "Tecidos Silva" }] }
     if (method === "PUT" && url === "/api/crm/tarefas/1") return { json: {} }
     if (method === "PUT" && url === "/api/crm/tarefas/3") return { json: {} }
@@ -76,7 +79,7 @@ describe("TarefasPage", () => {
     expect(screen.getByText("Tecidos Silva")).toBeInTheDocument()
     expect(screen.getByText("2 tarefa(s)")).toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Nova Tarefa" })).toBeInTheDocument()
-    expect(findCall(mock.calls, "/api/crm/tarefas?status=PENDENTE")).toBeDefined()
+    expect(findCall(mock.calls, "/api/crm/tarefas?status=PENDENTE&mine=true")).toBeDefined()
   })
 
   it("troca o filtro e refaz a busca", async () => {
@@ -84,13 +87,13 @@ describe("TarefasPage", () => {
     await screen.findByText("Ligar para Tecidos Silva")
 
     fireEvent.click(screen.getByRole("button", { name: "Hoje" }))
-    await waitFor(() => expect(findCall(mock.calls, "/api/crm/tarefas?hoje=true")).toBeDefined())
+    await waitFor(() => expect(findCall(mock.calls, "/api/crm/tarefas?hoje=true&mine=true")).toBeDefined())
 
     fireEvent.click(screen.getAllByRole("button", { name: "Todas" })[1])
-    await waitFor(() => expect(findCall(mock.calls, "/api/crm/tarefas?")).toBeDefined())
+    await waitFor(() => expect(findCall(mock.calls, "/api/crm/tarefas?mine=true")).toBeDefined())
 
     fireEvent.click(screen.getByRole("button", { name: "Concluídas" }))
-    await waitFor(() => expect(findCall(mock.calls, "/api/crm/tarefas?status=CONCLUIDO")).toBeDefined())
+    await waitFor(() => expect(findCall(mock.calls, "/api/crm/tarefas?status=CONCLUIDO&mine=true")).toBeDefined())
     expect(await screen.findByText("Enviar contrato")).toBeInTheDocument()
   })
 
@@ -98,8 +101,12 @@ describe("TarefasPage", () => {
     const mock = render()
     await screen.findByText("Ligar para Tecidos Silva")
 
-    fireEvent.click(screen.getByRole("button", { name: "Minhas" }))
+    expect(findCall(mock.calls, "/api/crm/tarefas?status=PENDENTE&mine=true")).toBeDefined()
 
+    fireEvent.click(screen.getAllByRole("button", { name: "Todas" })[0])
+    await waitFor(() => expect(findCall(mock.calls, "/api/crm/tarefas?status=PENDENTE")).toBeDefined())
+
+    fireEvent.click(screen.getByRole("button", { name: "Minhas" }))
     await waitFor(() =>
       expect(findCall(mock.calls, "/api/crm/tarefas?status=PENDENTE&mine=true")).toBeDefined()
     )

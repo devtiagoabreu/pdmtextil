@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
     } catch {
       body = {}
     }
-    const { nome, cnpj, razaoSocial, email, emailNf, telefone, celular, contato, endereco, cidade, uf, idIntegracao } = body
+    const { nome, cnpj, razaoSocial, email, emailNf, telefone, celular, contato, segmento, endereco, cidade, uf, idIntegracao } = body
 
     if (!nome?.trim()) {
       return NextResponse.json({ error: "Nome é obrigatório" }, { status: 400 })
@@ -83,6 +83,7 @@ export async function POST(req: NextRequest) {
         telefone: telefone?.trim() || null,
         celular: celular?.trim() || null,
         contato: contato?.trim() || null,
+        segmento: segmento?.trim() || null,
         endereco: endereco?.trim() || null,
         cidade: cidade?.trim() || null,
         uf: uf?.trim() || null,

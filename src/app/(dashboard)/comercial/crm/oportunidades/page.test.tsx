@@ -35,7 +35,7 @@ const oportunidades = [
 listSmokeSpec({
   title: "OportunidadesPage",
   component: <OportunidadesPage />,
-  apiUrl: "/api/crm/oportunidades",
+  apiUrl: "/api/crm/oportunidades?mine=true",
   heading: "Oportunidades",
   emptyText: "Nenhuma oportunidade encontrada",
   searchPlaceholder: "Buscar por título ou pessoa...",
@@ -54,7 +54,7 @@ describe("OportunidadesPage kanban", () => {
 
   beforeEach(() => {
     const handler = ({ method, url }: { method: string; url: string }) => {
-      if (method === "GET" && url === "/api/crm/oportunidades") return { json: oportunidades }
+      if (method === "GET" && url === "/api/crm/oportunidades?mine=true") return { json: oportunidades }
       return { json: null }
     }
     fetchMock = createFetchMock(handler)

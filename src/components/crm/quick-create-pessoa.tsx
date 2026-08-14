@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dialog"
 import { SelectUf } from "./select-uf"
 import { SelectCidade } from "./select-cidade"
+import { SelectSegmento } from "./select-segmento"
 
 type Props = {
   onCreated: (id: number, razaoSocial: string) => void
@@ -323,21 +324,7 @@ export function QuickCreatePessoa({ onCreated, open: openProp, onOpenChange }: P
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Segmento</label>
-              <select
-                value={segmento}
-                onChange={e => setSegmento(e.target.value)}
-                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Selecione...</option>
-                <option value="CONFECCAO">Confecção</option>
-                <option value="LAVANDERIA">Lavanderia</option>
-                <option value="ESTAMPARIA">Estamparia</option>
-                <option value="MALHARIA">Malharia</option>
-                <option value="TINTURARIA">Tinturaria</option>
-                <option value="ACABAMENTO">Acabamento</option>
-                <option value="COMERCIO">Comércio</option>
-                <option value="OUTRO">Outro</option>
-              </select>
+              <SelectSegmento value={segmento} onChange={setSegmento} />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Porte</label>

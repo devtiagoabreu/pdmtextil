@@ -1169,6 +1169,28 @@ async function migrate() {
     `
     console.log("✓ Contatos adicionado em menus de usuários específicos")
 
+    // ==================== Segmentos CRM + cliente_id em propostas/oportunidades ====================
+    await sql`
+      CREATE TABLE IF NOT EXISTS crm_segmentos (
+        id SERIAL PRIMARY KEY,
+        nome VARCHAR(100) NOT NULL UNIQUE,
+        ativo BOOLEAN DEFAULT true,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `
+    console.log("✓ Tabela crm_segmentos criada")
+
+    await sql`ALTER TABLE clientes ADD COLUMN IF NOT EXISTS segmento VARCHAR(100)`
+    console.log("✓ Coluna segmento adicionada em clientes")
+
+    await sql`ALTER TABLE crm_propostas ADD COLUMN IF NOT EXISTS cliente_id INTEGER REFERENCES clientes(id)`
+    await sql`ALTER TABLE crm_propostas ALTER COLUMN empresa_id DROP NOT NULL`
+    console.log("✓ Coluna cliente_id adicionada em crm_propostas e empresa_id liberada")
+
+    await sql`ALTER TABLE crm_oportunidades ADD COLUMN IF NOT EXISTS cliente_id INTEGER REFERENCES clientes(id)`
+    console.log("✓ Coluna cliente_id adicionada em crm_oportunidades")
+
     console.log("\n✅ Migration concluída com sucesso!")
     
   } catch (error) {

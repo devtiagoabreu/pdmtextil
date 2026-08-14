@@ -90,6 +90,7 @@ describe("NovaOportunidadePage", () => {
         descricao: "Cliente quer 5 toneladas de malha",
         valorEstimado: "5000",
         empresaId: 1,
+        clienteId: null,
         leadId: 2,
         responsavelId: 3,
         dataFechamentoPrevista: "2026-08-30",

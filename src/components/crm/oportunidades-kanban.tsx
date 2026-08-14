@@ -14,6 +14,7 @@ interface OportunidadeCard {
   titulo: string
   valorEstimado: string | null
   empresaNome: string | null
+  clienteNome: string | null
   responsavelNome: string | null
   status: string
 }
@@ -68,8 +69,8 @@ function DraggableCard({ oportunidade }: { oportunidade: OportunidadeCard }) {
       <p className="text-sm font-medium text-slate-900 dark:text-slate-100 mt-1 leading-snug line-clamp-2">
         {oportunidade.titulo}
       </p>
-      {oportunidade.empresaNome && (
-        <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">{oportunidade.empresaNome}</p>
+      {(oportunidade.empresaNome || oportunidade.clienteNome) && (
+        <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">{oportunidade.empresaNome || oportunidade.clienteNome}</p>
       )}
       {oportunidade.valorEstimado && (
         <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 mt-1">
@@ -223,8 +224,8 @@ export default function OportunidadesKanban({ oportunidades }: { oportunidades: 
                 <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-blue-100 text-blue-700">#{activeCard.id}</span>
               </div>
               <p className="text-sm font-medium text-slate-900 mt-1">{activeCard.titulo}</p>
-              {activeCard.empresaNome && (
-                <p className="text-xs text-slate-500 mt-0.5">{activeCard.empresaNome}</p>
+              {(activeCard.empresaNome || activeCard.clienteNome) && (
+                <p className="text-xs text-slate-500 mt-0.5">{activeCard.empresaNome || activeCard.clienteNome}</p>
               )}
             </div>
           </DragOverlay>

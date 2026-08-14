@@ -1,7 +1,6 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
-import { useSession } from "next-auth/react"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import Link from "next/link"
@@ -41,14 +40,9 @@ export default function OportunidadesPage() {
   const router = useRouter()
   const pathname = usePathname()
   const info = getInfoContent(pathname)
-  const { data: session } = useSession()
   const [modo, setModo] = useState<"tabela" | "kanban">("tabela")
 
-  const userRole = (session?.user as any)?.role
-  const isComercial = userRole && !["ADMIN", "SUDO", "CRM"].includes(userRole)
-  const [visitasFilter, setVisitasFilter] = useState<"todas" | "minhas">(
-    isComercial ? "minhas" : "todas"
-  )
+  const [visitasFilter, setVisitasFilter] = useState<"todas" | "minhas">("minhas")
 
   const { data: oportunidades, isLoading } = useQuery({
     queryKey: ["crm-oportunidades", visitasFilter],
@@ -57,7 +51,7 @@ export default function OportunidadesPage() {
   })
 
   const filterState = useListFilters(
-    { searchFields: ["titulo", "empresaNome", "responsavelNome"],
+    { searchFields: ["titulo", "empresaNome", "clienteNome", "responsavelNome"],
       statusOptions: [
         { value: "NOVO", label: "Novo" },
         { value: "QUALIFICACAO", label: "Qualificação" },
@@ -149,7 +143,7 @@ export default function OportunidadesPage() {
       <>
       <ListFilters
         config={{
-          searchFields: ["titulo", "empresaNome", "responsavelNome"],
+          searchFields: ["titulo", "empresaNome", "clienteNome", "responsavelNome"],
           statusOptions: [
             { value: "NOVO", label: "Novo" },
             { value: "QUALIFICACAO", label: "Qualificação" },
@@ -200,7 +194,7 @@ export default function OportunidadesPage() {
                         {op.titulo}
                       </Link>
                     </td>
-                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500">{op.empresaNome || "—"}</td>
+                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500">{op.empresaNome || op.clienteNome || "—"}</td>
                     <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden sm:table-cell whitespace-nowrap">{formatarMoeda(op.valorEstimado)}</td>
                     <td className="px-2 py-2 md:px-4 md:py-3">
                       <span className={`inline-flex text-[10px] px-1.5 md:px-2 py-0.5 rounded-full font-medium ${STATUS_CORES[op.status] || ""}`}>

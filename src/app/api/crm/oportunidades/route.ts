@@ -5,6 +5,7 @@ import { crmOportunidades } from "@/lib/db/schema/crm-oportunidades"
 import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
 import { crmLeads } from "@/lib/db/schema/crm-leads"
 import { crmContatos } from "@/lib/db/schema/crm-contatos"
+import { clientes } from "@/lib/db/schema/clientes"
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq, desc, like, or, sql } from "drizzle-orm"
 import { registrarLog, notificar } from "@/lib/notificar"
@@ -17,10 +18,14 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url)
     const search = searchParams.get("search")
     const status = searchParams.get("status")
+    const empresaId = searchParams.get("empresaId")
+    const clienteId = searchParams.get("clienteId")
     const mine = searchParams.get("mine")
 
     let conditions = []
     if (status) conditions.push(eq(crmOportunidades.status, status))
+    if (empresaId) conditions.push(eq(crmOportunidades.empresaId, parseInt(empresaId)))
+    if (clienteId) conditions.push(eq(crmOportunidades.clienteId, parseInt(clienteId)))
     if (mine === "true" && (auth.session.user?.role ?? "") !== "ADMIN" && (auth.session.user?.role ?? "") !== "SUDO") {
       conditions.push(eq(crmOportunidades.responsavelId, auth.userId))
     }
@@ -46,6 +51,8 @@ export async function GET(req: NextRequest) {
         leadId: crmOportunidades.leadId,
         empresaId: crmOportunidades.empresaId,
         empresaNome: crmPessoas.razaoSocial,
+        clienteId: crmOportunidades.clienteId,
+        clienteNome: clientes.nome,
         contatoId: crmOportunidades.contatoId,
         responsavelId: crmOportunidades.responsavelId,
         responsavelNome: usuarios.name,
@@ -57,6 +64,7 @@ export async function GET(req: NextRequest) {
       })
       .from(crmOportunidades)
       .leftJoin(crmPessoas, eq(crmOportunidades.empresaId, crmPessoas.id))
+      .leftJoin(clientes, eq(crmOportunidades.clienteId, clientes.id))
       .leftJoin(usuarios, eq(crmOportunidades.responsavelId, usuarios.id))
       .where(where)
       .orderBy(desc(crmOportunidades.createdAt))
@@ -85,6 +93,7 @@ export async function POST(req: NextRequest) {
         valorEstimado: body.valorEstimado || null,
         leadId: body.leadId || null,
         empresaId: body.empresaId || null,
+        clienteId: body.clienteId || null,
         contatoId: body.contatoId || null,
         responsavelId: body.responsavelId || userId,
         dataFechamentoPrevista: body.dataFechamentoPrevista || null,

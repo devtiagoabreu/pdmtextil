@@ -15,6 +15,9 @@ import { PessoaHeader } from "./components/header"
 import { DadosPessoaCard } from "./components/dados-pessoa-card"
 import { ContatosCard } from "./components/contatos-card"
 import { RepresentantesCard } from "./components/representantes-card"
+import { LeadsCard } from "./components/leads-card"
+import { OportunidadesCard } from "./components/oportunidades-card"
+import { PropostasCard } from "./components/propostas-card"
 
 function PessoaDetailPageContent() {
   const router = useRouter()
@@ -278,6 +281,12 @@ function PessoaDetailPageContent() {
         onAdd={addRepresentante}
         onRemoveClick={setRepToRemove}
       />
+
+      <div className="grid gap-6 md:grid-cols-3">
+        <LeadsCard empresaId={params.id as string} />
+        <OportunidadesCard empresaId={params.id as string} />
+        <PropostasCard empresaId={params.id as string} />
+      </div>
 
       <div className="grid gap-6 md:grid-cols-2">
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">

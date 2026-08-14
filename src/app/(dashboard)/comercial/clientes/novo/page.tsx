@@ -7,6 +7,7 @@ import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { SelectUf } from "@/components/crm/select-uf"
 import { SelectCidade } from "@/components/crm/select-cidade"
+import { SelectSegmento } from "@/components/crm/select-segmento"
 import Link from "next/link"
 import { ArrowLeft, Save } from "lucide-react"
 import { toast } from "sonner"
@@ -24,6 +25,7 @@ export default function NovoClientePage() {
     telefone: "",
     celular: "",
     contato: "",
+    segmento: "",
     endereco: "",
     cidade: "",
     uf: "",
@@ -134,6 +136,11 @@ export default function NovoClientePage() {
               onChange={e => setField("razaoSocial", e.target.value)}
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+          </div>
+
+          <div className="sm:col-span-2">
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Segmento</label>
+            <SelectSegmento value={form.segmento} onChange={v => setField("segmento", v)} />
           </div>
 
           <div className="sm:col-span-2">

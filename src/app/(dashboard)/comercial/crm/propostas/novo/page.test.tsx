@@ -18,6 +18,9 @@ describe("NovaPropostaPage", () => {
       if (method === "GET" && url === "/api/crm/oportunidades") {
         return { json: [{ id: 3, titulo: "Oportunidade Expansão" }] }
       }
+      if (method === "GET" && url === "/api/clientes") {
+        return { json: [{ id: 9, nome: "Confeitaria Beta" }] }
+      }
       if (method === "POST" && url === "/api/crm/propostas") {
         return { json: { id: 7 } }
       }
@@ -32,7 +35,7 @@ describe("NovaPropostaPage", () => {
 
     expect(await screen.findByRole("heading", { name: "Nova Proposta" })).toBeInTheDocument()
     expect(screen.getByText(/Título/)).toBeInTheDocument()
-    expect(screen.getByText(/Pessoa \(Negócio\)/)).toBeInTheDocument()
+    expect(screen.getAllByText(/Pessoa \(Negócio\)/).length).toBeGreaterThan(0)
     expect(screen.getByRole("button", { name: "Criar Proposta" })).toBeDisabled()
   })
 
@@ -67,12 +70,47 @@ describe("NovaPropostaPage", () => {
       expect(call!.body).toEqual({
         titulo: "Proposta Comercial - Tecido X",
         empresaId: 1,
+        clienteId: null,
         oportunidadeId: 3,
         valor: 5000,
         descricao: "Tecido com elastano",
         condicoesPagamento: "30/60/90 dias",
         prazoEntrega: "30 dias",
         arquivoUrl: "https://exemplo.com/proposta.pdf",
+      })
+    })
+    expect(navMock.router.push).toHaveBeenCalledWith("/comercial/crm/propostas/7")
+  })
+
+  it("cria proposta vinculada a Cliente via toggle", async () => {
+    renderPage(<NovaPropostaPage />)
+    await screen.findByRole("heading", { name: "Nova Proposta" })
+
+    fireEvent.click(screen.getByRole("button", { name: "Cliente" }))
+    await waitFor(() => expect(screen.getByRole("option", { name: "Confeitaria Beta" })).toBeInTheDocument())
+
+    fireEvent.change(screen.getByPlaceholderText("Ex: Proposta Comercial - Tecido X"), {
+      target: { value: "Proposta Cliente Beta" },
+    })
+    const selects = screen.getAllByRole("combobox")
+    fireEvent.change(selects[0], { target: { value: "9" } })
+
+    expect(screen.getByRole("button", { name: "Criar Proposta" })).toBeEnabled()
+    fireEvent.click(screen.getByRole("button", { name: "Criar Proposta" }))
+
+    await waitFor(() => {
+      const call = findCall(fetchMock.calls, "/api/crm/propostas", "POST")
+      expect(call).toBeDefined()
+      expect(call!.body).toEqual({
+        titulo: "Proposta Cliente Beta",
+        empresaId: null,
+        clienteId: 9,
+        oportunidadeId: null,
+        valor: null,
+        descricao: "",
+        condicoesPagamento: "",
+        prazoEntrega: "",
+        arquivoUrl: null,
       })
     })
     expect(navMock.router.push).toHaveBeenCalledWith("/comercial/crm/propostas/7")

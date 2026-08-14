@@ -356,6 +356,37 @@ DO $$ BEGIN
 EXCEPTION WHEN duplicate_column THEN NULL; WHEN undefined_table THEN NULL;
 END $$;
 CREATE INDEX IF NOT EXISTS idx_email_enviados_enviado_em ON email_enviados(enviado_em);
+
+-- crm_segmentos: tabela de segmentos CRM
+CREATE TABLE IF NOT EXISTS crm_segmentos (
+  id SERIAL PRIMARY KEY,
+  nome VARCHAR(100) NOT NULL UNIQUE,
+  ativo BOOLEAN DEFAULT true,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+-- clientes: adicionar segmento
+DO $$ BEGIN
+  ALTER TABLE clientes ADD COLUMN IF NOT EXISTS segmento varchar(100);
+EXCEPTION WHEN duplicate_column THEN NULL; WHEN undefined_table THEN NULL;
+END $$;
+
+-- crm_propostas: adicionar cliente_id e liberar empresa_id
+DO $$ BEGIN
+  ALTER TABLE crm_propostas ADD COLUMN IF NOT EXISTS cliente_id integer REFERENCES clientes(id);
+EXCEPTION WHEN duplicate_column THEN NULL; WHEN undefined_table THEN NULL;
+END $$;
+DO $$ BEGIN
+  ALTER TABLE crm_propostas ALTER COLUMN empresa_id DROP NOT NULL;
+EXCEPTION WHEN undefined_column THEN NULL; WHEN undefined_table THEN NULL;
+END $$;
+
+-- crm_oportunidades: adicionar cliente_id
+DO $$ BEGIN
+  ALTER TABLE crm_oportunidades ADD COLUMN IF NOT EXISTS cliente_id integer REFERENCES clientes(id);
+EXCEPTION WHEN duplicate_column THEN NULL; WHEN undefined_table THEN NULL;
+END $$;
 `
 
 async function migrateDb(name, url) {
