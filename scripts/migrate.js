@@ -1191,6 +1191,37 @@ async function migrate() {
     await sql`ALTER TABLE crm_oportunidades ADD COLUMN IF NOT EXISTS cliente_id INTEGER REFERENCES clientes(id)`
     console.log("✓ Coluna cliente_id adicionada em crm_oportunidades")
 
+    // ==================== Viagens no menu CRM (role-based + user-specific) ====================
+    const viagemRoles = ['CRM', 'COMERCIAL', 'ADMIN', 'SUDO']
+    for (const role of viagemRoles) {
+      await sql`
+        INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem)
+        SELECT um.id, 'Viagens', '/comercial/crm/viagens', 8
+        FROM user_menus um
+        WHERE um.role = ${role}
+          AND um.titulo = 'CRM'
+          AND um.usuario_id IS NULL
+          AND NOT EXISTS (
+            SELECT 1 FROM user_menu_itens umi
+            WHERE umi.user_menu_id = um.id AND umi.titulo = 'Viagens'
+          )
+      `
+    }
+    console.log("✓ Viagens adicionado em menus role-based (CRM, COMERCIAL, ADMIN, SUDO)")
+
+    await sql`
+      INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem)
+      SELECT um.id, 'Viagens', '/comercial/crm/viagens', 8
+      FROM user_menus um
+      WHERE um.usuario_id IS NOT NULL
+        AND um.titulo = 'CRM'
+        AND NOT EXISTS (
+          SELECT 1 FROM user_menu_itens umi
+          WHERE umi.user_menu_id = um.id AND umi.titulo = 'Viagens'
+        )
+    `
+    console.log("✓ Viagens adicionado em menus de usuários específicos")
+
     console.log("\n✅ Migration concluída com sucesso!")
     
   } catch (error) {

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { crmVisitas } from "@/lib/db/schema/crm-visitas"
+import { crmViagens } from "@/lib/db/schema/crm-viagens"
 import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
 import { clientes } from "@/lib/db/schema/clientes"
 import { crmOportunidades } from "@/lib/db/schema/crm-oportunidades"
@@ -46,6 +47,8 @@ export async function GET(
         contatoId: crmVisitas.contatoId,
         contatoNome: crmContatos.nome,
         contatoEmail: crmContatos.email,
+        viagemId: crmVisitas.viagemId,
+        viagemTitulo: crmViagens.titulo,
         nomeAvulso: crmVisitas.nomeAvulso,
         dataVisita: crmVisitas.dataVisita,
         hora: crmVisitas.hora,
@@ -79,6 +82,7 @@ export async function GET(
       .leftJoin(clientes, eq(crmVisitas.clienteId, clientes.id))
       .leftJoin(crmOportunidades, eq(crmVisitas.oportunidadeId, crmOportunidades.id))
       .leftJoin(crmContatos, eq(crmVisitas.contatoId, crmContatos.id))
+      .leftJoin(crmViagens, eq(crmVisitas.viagemId, crmViagens.id))
       .leftJoin(usuarios, eq(crmVisitas.criadoPor, usuarios.id))
       .where(eq(crmVisitas.id, parseInt(id)))
       .limit(1)
@@ -126,6 +130,7 @@ export async function PUT(
     if (body.nomeAvulso !== undefined) values.nomeAvulso = body.nomeAvulso
     if (body.oportunidadeId !== undefined) values.oportunidadeId = body.oportunidadeId
     if (body.contatoId !== undefined) values.contatoId = body.contatoId
+    if (body.viagemId !== undefined) values.viagemId = body.viagemId ? parseInt(body.viagemId) : null
     if (body.dataVisita !== undefined) values.dataVisita = body.dataVisita
     if (body.hora !== undefined) values.hora = body.hora || null
     if (body.tipo !== undefined) values.tipo = body.tipo

@@ -25,6 +25,9 @@ describe("NovaVisitaPage", () => {
       if (method === "GET" && url === "/api/crm/estados") {
         return { json: [{ id: 35, uf: "SP", nome: "São Paulo" }] }
       }
+      if (method === "GET" && url === "/api/crm/viagens?all=true") {
+        return { json: [] }
+      }
       if (method === "GET" && url.startsWith("/api/crm/contatos?clienteId=")) {
         return { json: [{ id: 9, nome: "Ana Silva" }] }
       }
@@ -134,6 +137,7 @@ describe("NovaVisitaPage", () => {
         cep: null,
         relato: null,
         duracaoEstimada: 30,
+        viagemId: null,
         fotos: [],
       })
     })

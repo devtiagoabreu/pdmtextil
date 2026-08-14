@@ -1,6 +1,7 @@
 import { AlertTriangle } from "lucide-react"
 import { SelectUf } from "@/components/crm/select-uf"
 import { SelectCidade } from "@/components/crm/select-cidade"
+import { ViagemSelect } from "@/components/crm/viagem-select"
 import { STATUS_OPTIONS, TIPO_OPTIONS } from "./constants"
 
 interface EdicaoCardProps {
@@ -38,6 +39,13 @@ export function EdicaoCard({
                 <option key={s} value={s}>{getStatusLabel(s)}</option>
               ))}
             </select>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-slate-500 mb-1">Viagem</label>
+            <ViagemSelect
+              value={form.viagemId ? String(form.viagemId) : ""}
+              onChange={v => setField("viagemId", v)}
+            />
           </div>
           {form.status === "CANCELADA" && (
             <div>

@@ -51,6 +51,9 @@ function buildHandler(data: any) {
     if (method === "GET" && url === "/api/crm/estados") {
       return { json: [{ id: 35, uf: "SP", nome: "São Paulo" }] }
     }
+    if (method === "GET" && url === "/api/crm/viagens?all=true") {
+      return { json: [] }
+    }
     if (method === "GET" && url === "/api/admin/status?tipo=VISITA") {
       return { json: statusesVisita }
     }

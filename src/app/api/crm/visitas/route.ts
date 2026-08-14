@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { crmVisitas } from "@/lib/db/schema/crm-visitas"
+import { crmViagens } from "@/lib/db/schema/crm-viagens"
 import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
 import { clientes } from "@/lib/db/schema/clientes"
 import { crmOportunidades } from "@/lib/db/schema/crm-oportunidades"
@@ -76,6 +77,8 @@ export async function GET(req: NextRequest) {
         oportunidadeId: crmVisitas.oportunidadeId,
         oportunidadeTitulo: crmOportunidades.titulo,
         contatoId: crmVisitas.contatoId,
+        viagemId: crmVisitas.viagemId,
+        viagemTitulo: crmViagens.titulo,
         criadoPor: crmVisitas.criadoPor,
         criadoPorNome: usuarios.name,
         duracaoEstimada: crmVisitas.duracaoEstimada,
@@ -88,6 +91,7 @@ export async function GET(req: NextRequest) {
       .leftJoin(crmPessoas, eq(crmVisitas.empresaId, crmPessoas.id))
       .leftJoin(clientes, eq(crmVisitas.clienteId, clientes.id))
       .leftJoin(crmOportunidades, eq(crmVisitas.oportunidadeId, crmOportunidades.id))
+      .leftJoin(crmViagens, eq(crmVisitas.viagemId, crmViagens.id))
       .leftJoin(usuarios, eq(crmVisitas.criadoPor, usuarios.id))
       .where(where)
 
@@ -137,6 +141,7 @@ export async function POST(req: NextRequest) {
       clienteId: body.clienteId || null,
       oportunidadeId: body.oportunidadeId || null,
       contatoId: body.contatoId || null,
+      viagemId: body.viagemId || null,
       hora: body.hora || null,
       tipo: body.tipo || "PRESENCIAL",
       status: "AGENDADA" as const,

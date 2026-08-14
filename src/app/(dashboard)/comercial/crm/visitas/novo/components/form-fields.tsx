@@ -4,6 +4,7 @@ import { QuickCreatePessoa } from "@/components/crm/quick-create-pessoa"
 import { QuickCreateCliente } from "@/components/crm/quick-create-cliente"
 import { QuickCreateContato } from "@/components/crm/quick-create-contato"
 import { QuickCreateOportunidade } from "@/components/crm/quick-create-oportunidade"
+import { ViagemSelect } from "@/components/crm/viagem-select"
 import { TIPO_OPTIONS } from "./constants"
 
 interface FormFieldsProps {
@@ -298,6 +299,17 @@ export function FormFields({
           </select>
         </div>
       )}
+      </div>
+
+      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
+        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Viagem</label>
+        <ViagemSelect
+          value={form.viagemId || ""}
+          onChange={v => setField("viagemId", v)}
+        />
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+          Opcional. Vincule esta visita a uma viagem planejada.
+        </p>
       </div>
     </>
   )

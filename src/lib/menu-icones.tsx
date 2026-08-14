@@ -42,6 +42,7 @@ import {
   Handshake,
   DollarSign,
   GitBranch,
+  Plane,
 } from "lucide-react"
 
 // [título (pt-BR), nome do ícone (lucide), componente]
@@ -71,6 +72,7 @@ const ENTRADAS: [string, string, LucideIcon][] = [
   ["Oportunidades", "TrendingUp", TrendingUp],
   ["Propostas", "FileText", FileText],
   ["Visitas", "Calendar", Calendar],
+  ["Viagens", "Plane", Plane],
   ["Tarefas", "CheckSquare", CheckSquare],
   ["Campanhas", "Megaphone", Megaphone],
   ["Equipes", "Users", Users],
@@ -133,6 +135,7 @@ const URL_ICONES: [string, LucideIcon][] = [
   ["/comercial/crm/configuracoes", Settings],
   ["/comercial/crm/notificacoes", Bell],
   ["/comercial/crm/visitas", Calendar],
+  ["/comercial/crm/viagens", Plane],
   ["/comercial/crm/tarefas", CheckSquare],
   ["/comercial/crm/campanhas", Megaphone],
   ["/comercial/crm/oportunidades", TrendingUp],

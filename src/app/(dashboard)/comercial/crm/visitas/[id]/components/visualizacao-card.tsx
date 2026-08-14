@@ -70,6 +70,14 @@ export function VisualizacaoCard({ visita, statusLabel, statusColor }: Visualiza
               <p className="text-slate-900 dark:text-slate-200">{visita.contatoNome}</p>
             </div>
           )}
+          {visita.viagemTitulo && (
+            <div>
+              <span className="text-xs text-slate-500 block mb-0.5">Viagem</span>
+              <Link href={`/comercial/crm/viagens/${visita.viagemId}`} className="text-blue-600 hover:underline inline-flex items-center gap-1">
+                {visita.viagemTitulo} <ExternalLink size={12} />
+              </Link>
+            </div>
+          )}
           {visita.criadoPorNome && (
             <div>
               <span className="text-xs text-slate-500 block mb-0.5">Criado por</span>
