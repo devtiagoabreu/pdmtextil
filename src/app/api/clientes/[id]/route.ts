@@ -3,6 +3,7 @@ import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { clientes } from "@/lib/db/schema/clientes"
 import { eq } from "drizzle-orm"
+import { excluirClienteCascade } from "@/lib/cliente-cascade"
 
 export async function GET(
   req: NextRequest,
@@ -117,9 +118,7 @@ export async function DELETE(
 
     const { id } = await params
 
-    await db
-      .delete(clientes)
-      .where(eq(clientes.id, parseInt(id)))
+    await db.transaction((tx: any) => excluirClienteCascade(tx, parseInt(id)))
 
     return NextResponse.json({ success: true })
   } catch (error) {

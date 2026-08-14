@@ -3,6 +3,7 @@ import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { representantes } from "@/lib/db/schema/representantes"
 import { eq } from "drizzle-orm"
+import { excluirRepresentanteCascade } from "@/lib/representante-cascade"
 
 export async function GET(
   req: NextRequest,
@@ -108,9 +109,7 @@ export async function DELETE(
     if (auth instanceof NextResponse) return auth
     const { id } = await params
 
-    await db
-      .delete(representantes)
-      .where(eq(representantes.id, parseInt(id)))
+    await db.transaction((tx: any) => excluirRepresentanteCascade(tx, parseInt(id)))
 
     return NextResponse.json({ success: true })
   } catch (error) {

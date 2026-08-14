@@ -6,6 +6,7 @@ import { representantes } from "@/lib/db/schema/representantes"
 import { eq } from "drizzle-orm"
 import { handleApiError } from "@/lib/api-error"
 import { notificarDelecao } from "@/lib/notificar"
+import { excluirRepresentanteCascade } from "@/lib/representante-cascade"
 export const dynamic = "force-dynamic"
 
 export async function GET(
@@ -88,10 +89,7 @@ export async function DELETE(
 
     const { id } = await params
 
-    const deleted = await db
-      .delete(representantes)
-      .where(eq(representantes.id, parseInt(id)))
-      .returning()
+    const deleted = await db.transaction((tx: any) => excluirRepresentanteCascade(tx, parseInt(id)))
 
     if (deleted.length === 0) {
       return NextResponse.json({ error: "Representante não encontrado" }, { status: 404 })

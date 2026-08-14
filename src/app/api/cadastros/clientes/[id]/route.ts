@@ -6,6 +6,7 @@ import { clientes } from "@/lib/db/schema/clientes"
 import { eq } from "drizzle-orm"
 import { handleApiError } from "@/lib/api-error"
 import { notificarDelecao } from "@/lib/notificar"
+import { excluirClienteCascade } from "@/lib/cliente-cascade"
 export const dynamic = "force-dynamic"
 
 export async function GET(
@@ -84,10 +85,7 @@ export async function DELETE(
 
     const { id } = await params
 
-    const deleted = await db
-      .delete(clientes)
-      .where(eq(clientes.id, parseInt(id)))
-      .returning()
+    const deleted = await db.transaction((tx: any) => excluirClienteCascade(tx, parseInt(id)))
 
     if (deleted.length === 0) {
       return NextResponse.json({ error: "Cliente não encontrado" }, { status: 404 })
