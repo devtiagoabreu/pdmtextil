@@ -4,6 +4,13 @@ import { screen, fireEvent, waitFor, within } from "@testing-library/react"
 import LeadDetailPage from "./page"
 import { createFetchMock, renderPage, findCall, navMock, toastMock } from "@/test/harness"
 
+const { sessionMock } = vi.hoisted(() => ({
+  sessionMock: { data: { user: { role: "ADMIN" as string } } },
+}))
+vi.mock("next-auth/react", () => ({
+  useSession: () => sessionMock,
+}))
+
 const lead = {
   id: 1,
   nome: "João Pereira",
@@ -33,6 +40,7 @@ describe("LeadDetailPage", () => {
   beforeEach(() => {
     navMock.setPathname("/comercial/crm/leads/1")
     navMock.setParams({ id: "1" })
+    sessionMock.data.user.role = "ADMIN"
   })
 
   it("carrega e exibe os dados do lead e as mensagens", async () => {
@@ -125,5 +133,19 @@ describe("LeadDetailPage", () => {
     renderPage(<LeadDetailPage />)
 
     expect(await screen.findByText("Lead não encontrado")).toBeInTheDocument()
+  })
+
+  it("não mostra o botão de excluir para não-administradores", async () => {
+    sessionMock.data.user.role = "VENDEDOR"
+    const fetchMock = createFetchMock(({ method, url }) => {
+      if (method === "GET" && url === "/api/crm/leads/1") return { json: lead }
+      if (method === "GET" && url === "/api/crm/leads/1/whatsapp") return { json: [] }
+      return { json: null }
+    })
+    vi.stubGlobal("fetch", fetchMock.fn)
+    renderPage(<LeadDetailPage />)
+
+    await screen.findByRole("heading", { name: "João Pereira" })
+    expect(screen.queryByRole("button", { name: "Excluir" })).not.toBeInTheDocument()
   })
 })

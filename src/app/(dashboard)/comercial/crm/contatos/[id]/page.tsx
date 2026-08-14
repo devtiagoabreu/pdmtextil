@@ -10,6 +10,7 @@ import {
   Building2, Star, StarOff, Mail, Phone, Smartphone,
 } from "lucide-react"
 import { toast } from "sonner"
+import { useSession } from "next-auth/react"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 
 export default function ContatoDetailPage() {
@@ -17,6 +18,8 @@ export default function ContatoDetailPage() {
   const pathname = usePathname()
   const info = getInfoContent(pathname)
   const params = useParams()
+  const { data: session } = useSession()
+  const isAdmin = (session?.user as any)?.role === "ADMIN" || (session?.user as any)?.role === "SUDO"
   const [contato, setContato] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(false)
@@ -135,9 +138,11 @@ export default function ContatoDetailPage() {
               <button onClick={() => setEditing(true)} className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:underline">
                 <Pencil size={14} /> Editar
               </button>
-              <button onClick={() => setShowDelete(true)} className="flex items-center gap-1 text-xs font-medium text-red-600 hover:underline">
-                <Trash2 size={14} /> Excluir
-              </button>
+              {isAdmin && (
+                <button onClick={() => setShowDelete(true)} className="flex items-center gap-1 text-xs font-medium text-red-600 hover:underline">
+                  <Trash2 size={14} /> Excluir
+                </button>
+              )}
             </>
           )}
         </div>

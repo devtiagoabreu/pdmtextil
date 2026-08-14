@@ -6,8 +6,9 @@ import {Suspense, useState} from "react"
 import { usePathname, useSearchParams } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
-import { PlusCircle, UserPlus, Search, Phone, Star, Building2, XCircle, Table, Columns } from "lucide-react"
+import { PlusCircle, UserPlus, Search, Phone, Star, Building2, XCircle, Trash2, Table, Columns } from "lucide-react"
 import { toast } from "sonner"
+import { useSession } from "next-auth/react"
 import { FloatableKanban } from "@/components/crm/floatable-kanban"
 import LeadsKanban from "@/components/crm/leads-kanban"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
@@ -45,6 +46,9 @@ function CrmLeadsPageContent() {
   const info = getInfoContent(pathname)
   const [modo, setModo] = useState<"tabela" | "kanban">(searchParams.get("view") === "kanban" ? "kanban" : "tabela")
   const [leadToPerder, setLeadToPerder] = useState<any>(null)
+  const [leadToExcluir, setLeadToExcluir] = useState<any>(null)
+  const { data: session } = useSession()
+  const isAdmin = (session?.user as any)?.role === "ADMIN" || (session?.user as any)?.role === "SUDO"
 
   const { data: leads, isLoading, refetch } = useQuery({
     queryKey: ["crm-leads"],
@@ -110,6 +114,22 @@ function CrmLeadsPageContent() {
       refetch()
     } catch {
       toast.error("Erro ao atualizar status")
+    }
+  }
+
+  async function excluirLead(lead: any) {
+    try {
+      const res = await fetch(`/api/crm/leads/${lead.id}`, { method: "DELETE" })
+      if (!res.ok) {
+        const err = await res.json().catch(() => null)
+        throw new Error(err?.error || "Erro ao excluir")
+      }
+      toast.success(`Lead "${lead.nome}" excluído`)
+      refetch()
+    } catch (err: any) {
+      toast.error(err.message)
+    } finally {
+      setLeadToExcluir(null)
     }
   }
 
@@ -306,6 +326,15 @@ function CrmLeadsPageContent() {
                             <XCircle size={15} />
                           </button>
                         )}
+                        {isAdmin && (
+                          <button
+                            onClick={() => setLeadToExcluir(lead)}
+                            title="Excluir lead"
+                            className="p-1.5 rounded-lg text-slate-500 hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600"
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -337,6 +366,15 @@ function CrmLeadsPageContent() {
         confirmLabel="Marcar como Perdido"
         onConfirm={() => { if (leadToPerder) { mudarStatus(leadToPerder, "PERDIDO"); setLeadToPerder(null) } }}
         onCancel={() => setLeadToPerder(null)}
+      />
+      <ConfirmModal
+        open={!!leadToExcluir}
+        title="Excluir lead?"
+        message={`Tem certeza que deseja excluir "${leadToExcluir?.nome}"? Oportunidades vinculadas e a timeline também serão removidos. Esta ação não pode ser desfeita.`}
+        confirmLabel="Excluir"
+        variant="danger"
+        onConfirm={() => leadToExcluir && excluirLead(leadToExcluir)}
+        onCancel={() => setLeadToExcluir(null)}
       />
     </div>
   )

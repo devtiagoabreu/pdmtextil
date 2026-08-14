@@ -7,6 +7,7 @@ import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { ArrowLeft, Pencil, Check, X, Trash2, MessageSquare, Send, Loader2, Check as CheckIcon, CheckCheck } from "lucide-react"
 import { toast } from "sonner"
+import { useSession } from "next-auth/react"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 
 const STATUS_OPTIONS = ["NOVO", "CONTATADO", "QUALIFICADO", "CONVERTIDO", "PERDIDO"]
@@ -33,6 +34,8 @@ export default function LeadDetailPage() {
   const pathname = usePathname()
   const info = getInfoContent(pathname)
   const params = useParams()
+  const { data: session } = useSession()
+  const isAdmin = (session?.user as any)?.role === "ADMIN" || (session?.user as any)?.role === "SUDO"
   const [lead, setLead] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(false)
@@ -200,9 +203,11 @@ export default function LeadDetailPage() {
               <button onClick={() => setEditing(true)} className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:underline">
                 <Pencil size={14} /> Editar
               </button>
-              <button onClick={() => setShowDelete(true)} className="flex items-center gap-1 text-xs font-medium text-red-600 hover:underline">
-                <Trash2 size={14} /> Excluir
-              </button>
+              {isAdmin && (
+                <button onClick={() => setShowDelete(true)} className="flex items-center gap-1 text-xs font-medium text-red-600 hover:underline">
+                  <Trash2 size={14} /> Excluir
+                </button>
+              )}
             </>
           )}
         </div>

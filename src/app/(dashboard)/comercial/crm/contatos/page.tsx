@@ -4,12 +4,15 @@ import { useQuery } from "@tanstack/react-query"
 import Link from "next/link"
 import { useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
+import { useSession } from "next-auth/react"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
+import { toast } from "sonner"
+import { ConfirmModal } from "@/components/ui/confirm-modal"
 import {
   PlusCircle, Search, Users,
   Star, StarOff, Phone, Mail,
-  Building2, User,
+  Building2, User, Pencil, Trash2,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import ListFilters, { useListFilters } from "@/components/ui/list-filters"
@@ -24,7 +27,11 @@ export default function CrmContatosPage() {
   const router = useRouter()
   const pathname = usePathname()
   const info = getInfoContent(pathname)
-  const { data: contatos, isLoading } = useQuery({
+  const { data: session } = useSession()
+  const isAdmin = (session?.user as any)?.role === "ADMIN" || (session?.user as any)?.role === "SUDO"
+  const [deleteTarget, setDeleteTarget] = useState<any>(null)
+  const [deleteLoading, setDeleteLoading] = useState(false)
+  const { data: contatos, isLoading, refetch } = useQuery({
     queryKey: ["crm-contatos"],
     queryFn: fetchContatos,
     retry: 1,
@@ -40,6 +47,24 @@ export default function CrmContatosPage() {
 
   function empresaNome(c: any) {
     return c.empresaRazaoSocial || c.empresaNomeFantasia || c.empresaNome || "—"
+  }
+
+  async function excluirContato(c: any) {
+    setDeleteLoading(true)
+    try {
+      const res = await fetch(`/api/crm/contatos/${c.id}`, { method: "DELETE" })
+      if (!res.ok) {
+        const err = await res.json().catch(() => null)
+        throw new Error(err?.error || "Erro ao excluir")
+      }
+      toast.success(`Contato "${c.nome}" excluído`)
+      refetch()
+    } catch (err: any) {
+      toast.error(err.message)
+    } finally {
+      setDeleteLoading(false)
+      setDeleteTarget(null)
+    }
   }
 
   return (
@@ -95,6 +120,7 @@ export default function CrmContatosPage() {
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Email</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Celular</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Data</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Ações</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -158,6 +184,26 @@ export default function CrmContatosPage() {
                     <td className="px-4 py-3 text-sm text-slate-500">
                       {c.createdAt ? new Date(c.createdAt).toLocaleDateString("pt-BR") : "—"}
                     </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <Link
+                          href={`/comercial/crm/contatos/${c.id}`}
+                          className="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline"
+                        >
+                          <Pencil size={12} />
+                          Editar
+                        </Link>
+                        {isAdmin && (
+                          <button
+                            onClick={() => setDeleteTarget(c)}
+                            title="Excluir contato"
+                            className="p-1.5 rounded-lg text-slate-500 hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        )}
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -165,6 +211,17 @@ export default function CrmContatosPage() {
           </div>
         )}
       </div>
+
+      <ConfirmModal
+        open={!!deleteTarget}
+        title="Excluir contato?"
+        message={`Tem certeza que deseja excluir "${deleteTarget?.nome}"? Oportunidades, visitas e conversas vinculadas ficarão sem este contato. Esta ação não pode ser desfeita.`}
+        confirmLabel="Excluir"
+        variant="danger"
+        loading={deleteLoading}
+        onConfirm={() => deleteTarget && excluirContato(deleteTarget)}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   )
 }

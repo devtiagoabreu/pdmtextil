@@ -64,6 +64,9 @@ export async function DELETE(
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
+    if ((auth.session.user?.role ?? "") !== "ADMIN" && (auth.session.user?.role ?? "") !== "SUDO") {
+      return NextResponse.json({ error: "Apenas administradores podem excluir" }, { status: 403 })
+    }
 
     const { id } = await params
     const contatoId = parseInt(id)

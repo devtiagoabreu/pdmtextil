@@ -19,6 +19,7 @@ vi.mock("@/lib/db", () => ({
 }))
 
 const sessionAdmin = { session: { user: { id: "1", role: "ADMIN", name: "Tiago" } }, userId: 1 }
+const sessionVendedor = { session: { user: { id: "2", role: "VENDEDOR", name: "Ana" } }, userId: 2 }
 
 function del(id: string) {
   return DELETE(new NextRequest(`http://localhost/api/crm/contatos/${id}`), {
@@ -49,6 +50,14 @@ describe("DELETE /api/crm/contatos/[id]", () => {
     vi.mocked(requireAuth).mockResolvedValue(new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any)
     const res = await del("1")
     expect(res.status).toBe(401)
+  })
+
+  it("retorna 403 para usuário não administrador", async () => {
+    vi.mocked(requireAuth).mockResolvedValue(sessionVendedor as any)
+    const res = await del("1")
+    expect(res.status).toBe(403)
+    expect(await res.json()).toEqual({ error: "Apenas administradores podem excluir" })
+    expect(db.transaction).not.toHaveBeenCalled()
   })
 
   it("exclui o contato e desvincula referências em transação", async () => {
