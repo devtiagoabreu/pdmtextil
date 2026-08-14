@@ -48,6 +48,12 @@ node scripts/compare-schemas.js
 
 Compara colunas entre os 4 bancos e lista diferenças.
 
+## Sync de FKs de `clientes_representantes` (2026-08-14)
+
+- O schema (Drizzle) declara `clientes_representantes.cliente_id` e `.representante_id` com `onDelete: "cascade"`, mas o `pdm_textil` tinha as FKs como **NO ACTION** (os outros 3 bancos já estavam CASCADE).
+- **Fix aplicado**: `node scripts/sync-fk-clientes-representantes.js` — idempotente, percorre os 4 bancos, e onde a regra não é CASCADE faz DROP + ADD do constraint com `ON DELETE CASCADE` (transação por FK).
+- A partir daqui, deletar um `cliente` ou `representante` apaga os vínculos da tabela de junção automaticamente no banco (o código das rotas também já apaga explicitamente em transação).
+
 ## Backup/Restore e fix de FKs (2026-08-06)
 
 - **Causa raiz**: `scripts/backup-db.mjs` remove colunas com default `nextval`; `scripts/restore-db.mjs` restaura com FKs dormentes → ids renumerados e referências de FKs apontando para ids antigos (corrompidos).
