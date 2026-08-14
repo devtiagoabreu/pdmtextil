@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { representantes } from "@/lib/db/schema/representantes"
+import { clientesRepresentantes } from "@/lib/db/schema/clientes-representantes"
 import { ilike, or, desc, eq } from "drizzle-orm"
 
 export async function GET(req: NextRequest) {
@@ -54,7 +55,7 @@ export async function POST(req: NextRequest) {
       body = {}
     }
 
-    const { nome, cnpj, razaoSocial, email, telefone, contato, endereco, cidade, uf, gerenteId, idIntegracao } = body
+    const { nome, cnpj, razaoSocial, email, telefone, contato, endereco, cidade, uf, gerenteId, idIntegracao, clientesIds } = body
 
     if (!nome?.trim()) {
       return NextResponse.json({ error: "Nome é obrigatório" }, { status: 400 })
@@ -73,22 +74,39 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "CNPJ já cadastrado" }, { status: 409 })
     }
 
-    const [novoRepresentante] = await db
-      .insert(representantes)
-      .values({
-        nome: nome.trim(),
-        cnpj: cnpj.trim(),
-        razaoSocial: razaoSocial?.trim() || null,
-        email: email?.trim() || null,
-        telefone: telefone?.trim() || null,
-        contato: contato?.trim() || null,
-        endereco: endereco?.trim() || null,
-        cidade: cidade?.trim() || null,
-        uf: uf?.trim() || null,
-        gerenteId: gerenteId || null,
-        idIntegracao: idIntegracao || null,
-      })
-      .returning()
+    const idsClientes = Array.isArray(clientesIds)
+      ? clientesIds.map((c: any) => Number(c)).filter((n: number) => Number.isInteger(n) && n > 0)
+      : []
+
+    const [novoRepresentante] = await db.transaction(async (tx: any) => {
+      const [rep] = await tx
+        .insert(representantes)
+        .values({
+          nome: nome.trim(),
+          cnpj: cnpj.trim(),
+          razaoSocial: razaoSocial?.trim() || null,
+          email: email?.trim() || null,
+          telefone: telefone?.trim() || null,
+          contato: contato?.trim() || null,
+          endereco: endereco?.trim() || null,
+          cidade: cidade?.trim() || null,
+          uf: uf?.trim() || null,
+          gerenteId: gerenteId || null,
+          idIntegracao: idIntegracao || null,
+        })
+        .returning()
+
+      if (idsClientes.length > 0) {
+        await tx.insert(clientesRepresentantes).values(
+          idsClientes.map((cid: number) => ({
+            clienteId: cid,
+            representanteId: rep.id,
+          }))
+        )
+      }
+
+      return [rep]
+    })
 
     return NextResponse.json(novoRepresentante, { status: 201 })
   } catch (error: any) {

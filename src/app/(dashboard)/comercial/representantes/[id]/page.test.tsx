@@ -17,6 +17,7 @@ const dados = {
   uf: "SP",
   gerenteId: 2,
   idIntegracao: "ERP-1",
+  clientes: [{ id: 9, nome: "Tecelagem Beta" }],
 }
 
 describe("EditarRepresentantePage", () => {
@@ -27,6 +28,9 @@ describe("EditarRepresentantePage", () => {
   it("carrega os dados e salva as alterações via PUT", async () => {
     const fetchMock = createFetchMock(({ method, url }) => {
       if (method === "GET" && url === "/api/representantes/5") return { json: dados }
+      if (method === "GET" && url === "/api/usuarios/ativos?role=COMERCIAL,ADMIN,SUDO") {
+        return { json: [{ id: 2, name: "Ana Vendas" }, { id: 1, name: "Tiago" }] }
+      }
       if (method === "PUT" && url === "/api/representantes/5") return { json: dados }
       return { status: 404, json: { error: "Rota não mockada" } }
     })
@@ -37,6 +41,8 @@ describe("EditarRepresentantePage", () => {
     await screen.findByRole("heading", { name: /Editar Representante/ })
     await screen.findByDisplayValue("Rep ABC")
     expect(screen.getByDisplayValue("11.222.333/0001-44")).toBeInTheDocument()
+    expect(screen.getByRole("option", { name: "Ana Vendas" })).toBeInTheDocument()
+    expect(screen.getByText("Tecelagem Beta")).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole("button", { name: "Salvar" }))
 
@@ -45,6 +51,8 @@ describe("EditarRepresentantePage", () => {
       expect(call).toBeDefined()
       expect(call!.body.id).toBe(5)
       expect(call!.body.nome).toBe("Rep ABC")
+      expect(call!.body.gerenteId).toBe(2)
+      expect(call!.body.clientesIds).toEqual([9])
     })
     await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Representante atualizado com sucesso!"))
     expect(navMock.router.push).toHaveBeenCalledWith("/comercial/representantes")

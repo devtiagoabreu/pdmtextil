@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { representantes } from "@/lib/db/schema/representantes"
+import { clientesRepresentantes } from "@/lib/db/schema/clientes-representantes"
+import { clientes } from "@/lib/db/schema/clientes"
 import { eq } from "drizzle-orm"
 import { excluirRepresentanteCascade } from "@/lib/representante-cascade"
 
@@ -22,7 +24,14 @@ export async function GET(
       return NextResponse.json({ error: "Representante não encontrado" }, { status: 404 })
     }
 
-    return NextResponse.json(resultado[0])
+    const clientesVinculados = await db
+      .select({ id: clientes.id, nome: clientes.nome })
+      .from(clientesRepresentantes)
+      .innerJoin(clientes, eq(clientes.id, clientesRepresentantes.clienteId))
+      .where(eq(clientesRepresentantes.representanteId, parseInt(id)))
+      .orderBy(clientes.nome)
+
+    return NextResponse.json({ ...resultado[0], clientes: clientesVinculados })
   } catch (error) {
     console.error("[GET /api/representantes/[id]]", error)
     return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
@@ -39,7 +48,7 @@ export async function PUT(
     const { id } = await params
     const body = await req.json()
 
-    const { nome, cnpj, razaoSocial, email, telefone, contato, endereco, cidade, uf, gerenteId, idIntegracao } = body
+    const { nome, cnpj, razaoSocial, email, telefone, contato, endereco, cidade, uf, gerenteId, idIntegracao, clientesIds } = body
 
     if (!nome?.trim()) {
       return NextResponse.json({ error: "Nome é obrigatório" }, { status: 400 })
@@ -71,24 +80,44 @@ export async function PUT(
       }
     }
 
-    const [representanteAtualizado] = await db
-      .update(representantes)
-      .set({
-        nome: nome.trim(),
-        cnpj: cnpjLimpo,
-        razaoSocial: razaoSocial?.trim() || null,
-        email: email?.trim() || null,
-        telefone: telefone?.trim() || null,
-        contato: contato?.trim() || null,
-        endereco: endereco?.trim() || null,
-        cidade: cidade?.trim() || null,
-        uf: uf?.trim() || null,
-        gerenteId: gerenteId || null,
-        idIntegracao: idIntegracao || null,
-        updatedAt: new Date(),
-      })
-      .where(eq(representantes.id, parseInt(id)))
-      .returning()
+    const repId = parseInt(id)
+    const idsClientes = Array.isArray(clientesIds)
+      ? clientesIds.map((c: any) => Number(c)).filter((n: number) => Number.isInteger(n) && n > 0)
+      : []
+
+    const [representanteAtualizado] = await db.transaction(async (tx: any) => {
+      const [rep] = await tx
+        .update(representantes)
+        .set({
+          nome: nome.trim(),
+          cnpj: cnpjLimpo,
+          razaoSocial: razaoSocial?.trim() || null,
+          email: email?.trim() || null,
+          telefone: telefone?.trim() || null,
+          contato: contato?.trim() || null,
+          endereco: endereco?.trim() || null,
+          cidade: cidade?.trim() || null,
+          uf: uf?.trim() || null,
+          gerenteId: gerenteId || null,
+          idIntegracao: idIntegracao || null,
+          updatedAt: new Date(),
+        })
+        .where(eq(representantes.id, repId))
+        .returning()
+
+      await tx.delete(clientesRepresentantes).where(eq(clientesRepresentantes.representanteId, repId))
+
+      if (idsClientes.length > 0) {
+        await tx.insert(clientesRepresentantes).values(
+          idsClientes.map((cid: number) => ({
+            clienteId: cid,
+            representanteId: repId,
+          }))
+        )
+      }
+
+      return [rep]
+    })
 
     return NextResponse.json(representanteAtualizado)
   } catch (error: any) {
