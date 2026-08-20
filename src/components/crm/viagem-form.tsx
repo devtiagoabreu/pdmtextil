@@ -148,7 +148,7 @@ export function ViagemForm({ form, setField, investimentos, setInvestimentos }: 
 
         {investimentos.length === 0 ? (
           <p className="text-sm text-slate-500 dark:text-slate-400 py-2">
-            Nenhum investimento registrado. Clique em "Adicionar" para incluir passagens, hospedagem, alimentação, etc.
+            Nenhum investimento registrado. Clique em &quot;Adicionar&quot; para incluir passagens, hospedagem, alimentação, etc.
           </p>
         ) : (
           <div className="space-y-3">

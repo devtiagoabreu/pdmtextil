@@ -231,7 +231,7 @@ export default function ViagemDetailPage() {
             <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-3">Visitas Vinculadas</h2>
             {viagem.visitas.length === 0 ? (
               <p className="text-sm text-slate-500 dark:text-slate-400 py-2">
-                Nenhuma visita vinculada. Vincule visitas a esta viagem pelo campo "Viagem" ao criar/editar uma visita.
+                Nenhuma visita vinculada. Vincule visitas a esta viagem pelo campo &quot;Viagem&quot; ao criar/editar uma visita.
               </p>
             ) : (
               <div className="space-y-2">
