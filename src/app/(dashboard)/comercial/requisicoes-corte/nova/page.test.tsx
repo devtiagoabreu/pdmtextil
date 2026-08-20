@@ -9,7 +9,7 @@ describe("NovaRequisicaoCortePage", () => {
     navMock.setPathname("/comercial/requisicoes-corte/nova")
   })
 
-  it("renderiza o formulário com a linha de item inicial", () => {
+  it("renderiza o formulário com a linha de item inicial e botões de ação", () => {
     const fetchMock = createFetchMock(() => ({ json: {} }))
     vi.stubGlobal("fetch", fetchMock.fn)
 
@@ -19,6 +19,7 @@ describe("NovaRequisicaoCortePage", () => {
     expect(screen.getByPlaceholderText("2.K2620...")).toBeInTheDocument()
     expect(screen.getByPlaceholderText("2 M")).toBeInTheDocument()
     expect(screen.getByRole("button", { name: /Adicionar Item/ })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /Copiar Item/ })).toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Salvar Requisição" })).toBeInTheDocument()
   })
 
@@ -60,5 +61,33 @@ describe("NovaRequisicaoCortePage", () => {
     })
     await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Requisição criada com sucesso"))
     expect(navMock.router.push).toHaveBeenCalledWith("/comercial/requisicoes-corte")
+  })
+
+  it("copia o último item ao usar Copiar Item", async () => {
+    const fetchMock = createFetchMock(() => ({ json: {} }))
+    vi.stubGlobal("fetch", fetchMock.fn)
+
+    renderPage(<NovaRequisicaoCortePage />)
+
+    fireEvent.change(screen.getByPlaceholderText("2.K2620..."), { target: { value: "2.K2620.001" } })
+    fireEvent.change(screen.getByPlaceholderText("2 M"), { target: { value: "5 M" } })
+
+    fireEvent.click(screen.getByRole("button", { name: /Copiar Item/ }))
+
+    const dialog = screen.getByText("Copiar último item").closest("div[class*='fixed']")!
+    expect(dialog).toBeInTheDocument()
+
+    const inputNumero = dialog.querySelector("input[type='number']") as HTMLInputElement
+    expect(inputNumero).toHaveValue(1)
+
+    fireEvent.change(inputNumero, { target: { value: "2" } })
+    fireEvent.click(screen.getByRole("button", { name: "Copiar" }))
+
+    await waitFor(() => {
+      expect(toastMock.success).toHaveBeenCalledWith("2 cópia(s) adicionada(s)")
+    })
+
+    const inputsCodigo = screen.getAllByPlaceholderText("2.K2620...")
+    expect(inputsCodigo).toHaveLength(3)
   })
 })

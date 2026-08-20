@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
-import { Scissors, Plus, FileText, Loader2, Truck, Columns, Table, RotateCw } from "lucide-react"
+import { Scissors, Plus, FileText, Loader2, Truck, Columns, Table, RotateCw, Copy } from "lucide-react"
 import { toast } from "sonner"
 import ListFilters, { useListFilters } from "@/components/ui/list-filters"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
@@ -136,6 +136,23 @@ function ListaRequisicoesCortePageContent() {
     }
     if (detalhes.length > 0) await gerarRequisicaoCortePdfConsolidado(detalhes, pdfOrientacao)
     setGerandoPdf(false)
+  }
+
+  async function copiarRequisicao(item: any) {
+    try {
+      const res = await fetch(`/api/comercial/requisicoes-corte/${item.id}?t=${Date.now()}`)
+      if (!res.ok) throw new Error()
+      const dados = await res.json()
+      const payload = {
+        itens: Array.isArray(dados.itens) ? dados.itens : [],
+        observacoes: dados.observacoes || "",
+        entreguePor: dados.entreguePor || "",
+      }
+      const query = encodeURIComponent(JSON.stringify(payload))
+      router.push(`/comercial/requisicoes-corte/nova?copiar=${query}`)
+    } catch {
+      toast.error("Erro ao carregar requisição para cópia")
+    }
   }
 
   const handleDelete = async () => {
@@ -370,6 +387,13 @@ function ListaRequisicoesCortePageContent() {
                             <FileText size={13} />
                             PDF
                           </Button>
+                          <button
+                            onClick={() => copiarRequisicao(item)}
+                            className="text-slate-600 dark:text-slate-400 hover:underline text-xs font-medium gap-1 inline-flex items-center"
+                          >
+                            <Copy size={12} />
+                            Copiar
+                          </button>
                           <Link
                             href={`/comercial/requisicoes-corte/${item.id}`}
                             className="text-blue-600 dark:text-blue-400 hover:underline text-xs font-medium"

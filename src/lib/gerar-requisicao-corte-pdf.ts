@@ -82,44 +82,44 @@ export async function gerarRequisicaoCortePdf(data: RequisicaoCorteData, orienta
 
   function drawHeader() {
     let y = margin
-    const headerH = 42
+    const headerH = 28
 
     if (empresa) {
       doc.setFillColor(...corHeader)
       doc.rect(0, 0, pageWidth, headerH, "F")
 
       if (logoImg) {
-        const maxW = 26
-        const maxH = 26
+        const maxW = 18
+        const maxH = 18
         const scale = Math.min(maxW / logoImg.width, maxH / logoImg.height, 1)
         doc.addImage(logoImg, "PNG", margin, (headerH - logoImg.height * scale) / 2, logoImg.width * scale, logoImg.height * scale)
       }
 
-      const textX = logoImg ? margin + logoImg.width * Math.min(26 / logoImg.width, 26 / logoImg.height, 1) + 10 : margin + 8
+      const textX = logoImg ? margin + 18 + 8 : margin + 6
       doc.setTextColor(...corHeaderText)
-      doc.setFontSize(13).setFont("helvetica", "bold")
-      doc.text("REQUISIÇÃO DE CORTE", textX, 14)
-      doc.setFontSize(8).setFont("helvetica", "normal")
-      doc.text(empresa.nome || "", textX, 23)
+      doc.setFontSize(11).setFont("helvetica", "bold")
+      doc.text("REQUISIÇÃO DE CORTE", textX, 11)
+      doc.setFontSize(7).setFont("helvetica", "normal")
+      doc.text(empresa.nome || "", textX, 18)
       if (empresa.documento) {
-        doc.setFontSize(7)
-        doc.text(`CNPJ: ${empresa.documento}`, textX, 32)
+        doc.setFontSize(6.5)
+        doc.text(`CNPJ: ${empresa.documento}`, textX, 24)
       }
 
-      doc.setFontSize(12).setFont("helvetica", "bold")
+      doc.setFontSize(11).setFont("helvetica", "bold")
       doc.setTextColor(...corHeaderText)
       doc.text(`Nº ${data.id}`, pageWidth - margin, headerH / 2, { align: "right" })
 
-      y = headerH + 6
+      y = headerH + 5
     } else {
       doc.setFillColor(...corHeader)
-      doc.rect(0, 0, pageWidth, 28, "F")
+      doc.rect(0, 0, pageWidth, 22, "F")
       doc.setTextColor(...corHeaderText)
-      doc.setFontSize(13).setFont("helvetica", "bold")
-      doc.text("REQUISIÇÃO DE CORTE", pageWidth / 2, 12, { align: "center" })
-      doc.setFontSize(11)
-      doc.text(`Nº ${data.id}`, pageWidth / 2, 22, { align: "center" })
-      y = 38
+      doc.setFontSize(11).setFont("helvetica", "bold")
+      doc.text("REQUISIÇÃO DE CORTE", pageWidth / 2, 9, { align: "center" })
+      doc.setFontSize(9)
+      doc.text(`Nº ${data.id}`, pageWidth / 2, 17, { align: "center" })
+      y = 30
     }
 
     return y
@@ -158,12 +158,16 @@ export async function gerarRequisicaoCortePdf(data: RequisicaoCorteData, orienta
     ],
   ]
 
-  const infoBoxH = 38
+  const colW = (pageWidth - margin * 2 - 16) / 3
+  const infoRowsH = 30
+  const obsParts = data.observacoes ? doc.splitTextToSize(data.observacoes, pageWidth - margin * 2 - 16) : []
+  const obsBlockH = data.observacoes ? Math.max(14, obsParts.length * 4 + 10) : 0
+  const infoBoxH = infoRowsH + 8 + obsBlockH
+
   doc.setFillColor(...corSecundaria)
   doc.setDrawColor(...corBorda)
   doc.roundedRect(margin, y, pageWidth - margin * 2, infoBoxH, 2, 2, "FD")
 
-  const colW = (pageWidth - margin * 2 - 16) / 3
   infoRows.forEach((row: any, ri: any) => {
     const rowY = y + 4 + ri * 15
     row.forEach((cell: any, ci: any) => {
@@ -175,6 +179,16 @@ export async function gerarRequisicaoCortePdf(data: RequisicaoCorteData, orienta
       doc.text(cell.value, cx, rowY + 4)
     })
   })
+
+  if (data.observacoes && obsParts.length > 0) {
+    const obsY = y + infoRowsH + 8
+    doc.setFont("helvetica", "bold").setFontSize(7)
+    doc.setTextColor(...corTexto)
+    doc.text("Observações:", margin + 8, obsY)
+    doc.setFont("helvetica", "normal").setFontSize(7.5)
+    doc.setTextColor(...corTextoSec)
+    doc.text(obsParts, margin + 8, obsY + 4)
+  }
 
   y += infoBoxH + 6
 
@@ -231,40 +245,6 @@ export async function gerarRequisicaoCortePdf(data: RequisicaoCorteData, orienta
     },
   })
 
-  // ── Observações ──
-  const finalY = (doc as any).lastAutoTable.finalY + 6
-
-  if (data.observacoes) {
-    if (finalY > pageHeight - 40) {
-      doc.addPage()
-    }
-
-    let obsY = (doc as any).lastAutoTable.finalY + 8
-
-    doc.setFillColor(...corHeader)
-    doc.roundedRect(margin, obsY, pageWidth - margin * 2, 7, 1.5, 1.5, "F")
-    doc.setTextColor(...corHeaderText)
-    doc.setFontSize(8).setFont("helvetica", "bold")
-    doc.text("OBSERVAÇÕES", margin + 4, obsY + 5)
-
-    obsY += 7 + 3
-    doc.setFillColor(255, 255, 255)
-    doc.setDrawColor(...corBorda)
-
-    const obsParts = doc.splitTextToSize(data.observacoes, tableW - 8)
-    const obsH = Math.max(20, obsParts.length * 5 + 8)
-
-    if (obsY + obsH > pageHeight - 16) {
-      doc.addPage()
-      obsY = margin
-    }
-
-    doc.roundedRect(margin, obsY, tableW, obsH, 2, 2, "FD")
-    doc.setTextColor(...corTexto)
-    doc.setFont("helvetica", "normal").setFontSize(8)
-    doc.text(obsParts, margin + 4, obsY + 5)
-  }
-
   // ── Footer on each page (handled by didDrawPage in autoTable) ──
 
   const nomeArquivo = `requisicao-corte-${data.id}.pdf`
@@ -317,44 +297,44 @@ export async function gerarRequisicaoCortePdfConsolidado(lista: RequisicaoCorteD
 
   function drawHeader(data: RequisicaoCorteData) {
     let y = margin
-    const headerH = 42
+    const headerH = 28
 
     if (empresa) {
       doc.setFillColor(...corHeader)
       doc.rect(0, 0, pageWidth, headerH, "F")
 
       if (logoImg) {
-        const maxW = 26
-        const maxH = 26
+        const maxW = 18
+        const maxH = 18
         const scale = Math.min(maxW / logoImg.width, maxH / logoImg.height, 1)
         doc.addImage(logoImg, "PNG", margin, (headerH - logoImg.height * scale) / 2, logoImg.width * scale, logoImg.height * scale)
       }
 
-      const textX = logoImg ? margin + 26 + 10 : margin + 8
+      const textX = logoImg ? margin + 18 + 8 : margin + 6
       doc.setTextColor(...corHeaderText)
-      doc.setFontSize(13).setFont("helvetica", "bold")
-      doc.text("REQUISIÇÃO DE CORTE", textX, 14)
-      doc.setFontSize(8).setFont("helvetica", "normal")
-      doc.text(empresa.nome || "", textX, 23)
+      doc.setFontSize(11).setFont("helvetica", "bold")
+      doc.text("REQUISIÇÃO DE CORTE", textX, 11)
+      doc.setFontSize(7).setFont("helvetica", "normal")
+      doc.text(empresa.nome || "", textX, 18)
       if (empresa.documento) {
-        doc.setFontSize(7)
-        doc.text(`CNPJ: ${empresa.documento}`, textX, 32)
+        doc.setFontSize(6.5)
+        doc.text(`CNPJ: ${empresa.documento}`, textX, 24)
       }
 
-      doc.setFontSize(12).setFont("helvetica", "bold")
+      doc.setFontSize(11).setFont("helvetica", "bold")
       doc.setTextColor(...corHeaderText)
       doc.text(`Nº ${data.id}`, pageWidth - margin, headerH / 2, { align: "right" })
 
-      y = headerH + 6
+      y = headerH + 5
     } else {
       doc.setFillColor(...corHeader)
-      doc.rect(0, 0, pageWidth, 28, "F")
+      doc.rect(0, 0, pageWidth, 22, "F")
       doc.setTextColor(...corHeaderText)
-      doc.setFontSize(13).setFont("helvetica", "bold")
-      doc.text("REQUISIÇÃO DE CORTE", pageWidth / 2, 12, { align: "center" })
-      doc.setFontSize(11)
-      doc.text(`Nº ${data.id}`, pageWidth / 2, 22, { align: "center" })
-      y = 38
+      doc.setFontSize(11).setFont("helvetica", "bold")
+      doc.text("REQUISIÇÃO DE CORTE", pageWidth / 2, 9, { align: "center" })
+      doc.setFontSize(9)
+      doc.text(`Nº ${data.id}`, pageWidth / 2, 17, { align: "center" })
+      y = 30
     }
 
     return y
@@ -422,6 +402,15 @@ export async function gerarRequisicaoCortePdfConsolidado(lista: RequisicaoCorteD
       ],
     ]
 
+    const infoRowsH = 30
+    const obsPartsC = data.observacoes ? doc.splitTextToSize(data.observacoes, pageWidth - margin * 2 - 16) : []
+    const obsBlockHC = data.observacoes ? Math.max(14, obsPartsC.length * 4 + 10) : 0
+    const infoBoxHC = infoRowsH + 8 + obsBlockHC
+
+    doc.setFillColor(...corSecundaria)
+    doc.setDrawColor(...corBorda)
+    doc.roundedRect(margin, y, pageWidth - margin * 2, infoBoxHC, 2, 2, "FD")
+
     infoData.forEach((row: any, ri: any) => {
       const rowY = y + 4 + ri * 15
       row.forEach((cell: any, ci: any) => {
@@ -434,7 +423,17 @@ export async function gerarRequisicaoCortePdfConsolidado(lista: RequisicaoCorteD
       })
     })
 
-    y += infoBoxH + 6
+    if (data.observacoes && obsPartsC.length > 0) {
+      const obsYC = y + infoRowsH + 8
+      doc.setFont("helvetica", "bold").setFontSize(7)
+      doc.setTextColor(...corTexto)
+      doc.text("Observações:", margin + 8, obsYC)
+      doc.setFont("helvetica", "normal").setFontSize(7.5)
+      doc.setTextColor(...corTextoSec)
+      doc.text(obsPartsC, margin + 8, obsYC + 4)
+    }
+
+    y += infoBoxHC + 6
 
     // Itens table
     doc.setFillColor(...corHeader)
@@ -483,32 +482,6 @@ export async function gerarRequisicaoCortePdfConsolidado(lista: RequisicaoCorteD
         doc.setTextColor(...corTexto)
       },
     })
-
-    // Observações
-    const finalY = (doc as any).lastAutoTable.finalY + 6
-    if (data.observacoes) {
-      let obsY = (doc as any).lastAutoTable.finalY + 8
-      if (obsY > pageHeight - 40) {
-        doc.addPage()
-        obsY = margin
-      }
-
-      doc.setFillColor(...corHeader)
-      doc.roundedRect(margin, obsY, pageWidth - margin * 2, 7, 1.5, 1.5, "F")
-      doc.setTextColor(...corHeaderText)
-      doc.setFontSize(8).setFont("helvetica", "bold")
-      doc.text("OBSERVAÇÕES", margin + 4, obsY + 5)
-      obsY += 7 + 3
-
-      const obsParts = doc.splitTextToSize(data.observacoes, tableW - 8)
-      const obsH = Math.max(20, obsParts.length * 5 + 8)
-      doc.setFillColor(255, 255, 255)
-      doc.setDrawColor(...corBorda)
-      doc.roundedRect(margin, obsY, tableW, obsH, 2, 2, "FD")
-      doc.setTextColor(...corTexto)
-      doc.setFont("helvetica", "normal").setFontSize(8)
-      doc.text(obsParts, margin + 4, obsY + 5)
-    }
   }
 
   const sufixo = lista.length <= 3 ? lista.map((r: any) => r.id).join("-") : `${lista[0].id}-${lista[lista.length - 1].id}`

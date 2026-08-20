@@ -19,7 +19,7 @@ describe("DetalheRequisicaoCortePage", () => {
     navMock.setParams({ id: "40" })
   })
 
-  it("renderiza o detalhe com os itens carregados", async () => {
+  it("renderiza o detalhe com os itens carregados e botões de ação", async () => {
     const fetchMock = createFetchMock(({ method, url }) => {
       if (method === "GET" && url === "/api/admin/status?tipo=REQUISICAO_CORTE") return { json: [] }
       if (method === "GET" && url.startsWith("/api/comercial/requisicoes-corte/40?t=")) return { json: dados }
@@ -35,6 +35,8 @@ describe("DetalheRequisicaoCortePage", () => {
     expect(screen.getByDisplayValue("Observação inicial")).toBeInTheDocument()
     expect(screen.getByRole("button", { name: "PDF" })).toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Salvar" })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /Adicionar Item/ })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /Copiar Item/ })).toBeInTheDocument()
   })
 
   it("salva as alterações via PUT", async () => {
@@ -60,5 +62,33 @@ describe("DetalheRequisicaoCortePage", () => {
       expect(call!.body.itens).toHaveLength(1)
     })
     await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Requisição atualizada com sucesso"))
+  })
+
+  it("copia o último item ao usar Copiar Item", async () => {
+    const fetchMock = createFetchMock(({ method, url }) => {
+      if (method === "GET" && url === "/api/admin/status?tipo=REQUISICAO_CORTE") return { json: [] }
+      if (method === "GET" && url.startsWith("/api/comercial/requisicoes-corte/40?t=")) return { json: dados }
+      return { status: 404, json: { error: "Rota não mockada" } }
+    })
+    vi.stubGlobal("fetch", fetchMock.fn)
+
+    renderPage(<DetalheRequisicaoCortePage />)
+    await screen.findByDisplayValue("2.K2620.001")
+
+    fireEvent.click(screen.getByRole("button", { name: /Copiar Item/ }))
+
+    const dialog = screen.getByText("Copiar último item").closest("div[class*='fixed']")!
+    expect(dialog).toBeInTheDocument()
+
+    const inputNumero = dialog.querySelector("input[type='number']") as HTMLInputElement
+    fireEvent.change(inputNumero, { target: { value: "3" } })
+    fireEvent.click(screen.getByRole("button", { name: "Copiar" }))
+
+    await waitFor(() => {
+      expect(toastMock.success).toHaveBeenCalledWith("3 cópia(s) adicionada(s)")
+    })
+
+    const inputsCodigo = screen.getAllByDisplayValue("2.K2620.001")
+    expect(inputsCodigo).toHaveLength(4)
   })
 })

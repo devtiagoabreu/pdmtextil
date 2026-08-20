@@ -9,10 +9,22 @@ const dados = [
   { id: 31, requisitanteNome: "Ana", totalCortes: 2, quantidadeTotal: 50, status: "ATENDIDO", createdAt: "2026-01-02T00:00:00.000Z" },
 ]
 
+const detalheRequisicao = {
+  id: 30,
+  requisitanteNome: "Tiago",
+  status: "SOLICITADO",
+  observacoes: "Observação teste",
+  entreguePor: "Vilma",
+  itens: [
+    { id: 1, codigoProduto: "2.K2620.001", ordem: "10", artigo: "ART-1", cor: "Preto", desenho: "500101", quantidade: "3 M" },
+  ],
+}
+
 function makeMock() {
   return createFetchMock(({ method, url }) => {
     if (method === "GET" && url === "/api/comercial/requisicoes-corte") return { json: dados }
     if (method === "DELETE" && url === "/api/comercial/requisicoes-corte/30") return { json: { ok: true } }
+    if (method === "GET" && url.startsWith("/api/comercial/requisicoes-corte/30?t=")) return { json: detalheRequisicao }
     return { status: 404, json: { error: "Rota não mockada" } }
   })
 }
@@ -78,5 +90,28 @@ describe("ListaRequisicoesCortePage", () => {
     await waitFor(() => expect(findCall(fetchMock.calls, "/api/comercial/requisicoes-corte/30", "DELETE")).toBeDefined())
     await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Requisição excluída com sucesso"))
     expect(screen.queryByText("Tiago")).not.toBeInTheDocument()
+  })
+
+  it("copia uma requisição inteira ao clicar Copiar", async () => {
+    const fetchMock = makeMock()
+    vi.stubGlobal("fetch", fetchMock.fn)
+
+    renderPage(<ListaRequisicoesCortePage />)
+    await screen.findByText("Tiago")
+
+    const row = screen.getByText("Tiago").closest("tr")!
+    fireEvent.click(within(row).getByText("Copiar"))
+
+    await waitFor(() => {
+      const call = fetchMock.calls.find((c: any) =>
+        c.url.startsWith("/api/comercial/requisicoes-corte/30") && c.method === "GET"
+      )
+      expect(call).toBeDefined()
+    })
+    await waitFor(() => {
+      expect(navMock.router.push).toHaveBeenCalledWith(
+        expect.stringContaining("/comercial/requisicoes-corte/nova?copiar=")
+      )
+    })
   })
 })
