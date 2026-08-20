@@ -21,6 +21,9 @@ describe("DetalheRequisicaoCortePage", () => {
 
   it("renderiza o detalhe com os itens carregados e botões de ação", async () => {
     const fetchMock = createFetchMock(({ method, url }) => {
+      if (url === "/api/clientes") return { json: [] }
+      if (url.startsWith("/api/cadastros/fornecedores")) return { json: [] }
+      if (url === "/api/representantes") return { json: [] }
       if (method === "GET" && url === "/api/admin/status?tipo=REQUISICAO_CORTE") return { json: [] }
       if (method === "GET" && url.startsWith("/api/comercial/requisicoes-corte/40?t=")) return { json: dados }
       return { status: 404, json: { error: "Rota não mockada" } }
@@ -42,6 +45,9 @@ describe("DetalheRequisicaoCortePage", () => {
 
   it("salva as alterações via PUT", async () => {
     const fetchMock = createFetchMock(({ method, url }) => {
+      if (url === "/api/clientes") return { json: [] }
+      if (url.startsWith("/api/cadastros/fornecedores")) return { json: [] }
+      if (url === "/api/representantes") return { json: [] }
       if (method === "GET" && url === "/api/admin/status?tipo=REQUISICAO_CORTE") return { json: [] }
       if (method === "GET" && url.startsWith("/api/comercial/requisicoes-corte/40?t=")) return { json: dados }
       if (method === "PUT" && url === "/api/comercial/requisicoes-corte/40") return { json: dados }
@@ -67,6 +73,9 @@ describe("DetalheRequisicaoCortePage", () => {
 
   it("copia o último item ao usar Copiar Item", async () => {
     const fetchMock = createFetchMock(({ method, url }) => {
+      if (url === "/api/clientes") return { json: [] }
+      if (url.startsWith("/api/cadastros/fornecedores")) return { json: [] }
+      if (url === "/api/representantes") return { json: [] }
       if (method === "GET" && url === "/api/admin/status?tipo=REQUISICAO_CORTE") return { json: [] }
       if (method === "GET" && url.startsWith("/api/comercial/requisicoes-corte/40?t=")) return { json: dados }
       return { status: 404, json: { error: "Rota não mockada" } }

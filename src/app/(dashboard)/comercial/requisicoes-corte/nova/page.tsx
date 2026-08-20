@@ -23,6 +23,9 @@ interface ItemLinha {
   cor: string
   desenho: string
   quantidade: string
+  clienteId: number | null
+  fornecedorId: number | null
+  representanteId: number | null
 }
 
 function itemVazio(): ItemLinha {
@@ -34,6 +37,9 @@ function itemVazio(): ItemLinha {
     cor: "",
     desenho: "",
     quantidade: "",
+    clienteId: null,
+    fornecedorId: null,
+    representanteId: null,
   }
 }
 
@@ -55,6 +61,19 @@ function NovaRequisicaoCortePageContent() {
   const [entreguePor, setEntreguePor] = useState("")
   const [dataSolicitacao, setDataSolicitacao] = useState("")
   const [dataEntrega, setDataEntrega] = useState("")
+  const [clienteIdGlobal, setClienteIdGlobal] = useState<number | null>(null)
+  const [fornecedorIdGlobal, setFornecedorIdGlobal] = useState<number | null>(null)
+  const [representanteIdGlobal, setRepresentanteIdGlobal] = useState<number | null>(null)
+
+  const [clientes, setClientes] = useState<{ id: number; nome: string }[]>([])
+  const [fornecedores, setFornecedores] = useState<{ id: number; nome: string }[]>([])
+  const [representantes, setRepresentantes] = useState<{ id: number; nome: string }[]>([])
+
+  useEffect(() => {
+    fetch("/api/clientes").then(r => r.json()).then(setClientes).catch(() => {})
+    fetch("/api/cadastros/fornecedores?limit=100").then(r => r.json()).then(d => setFornecedores(Array.isArray(d) ? d : [])).catch(() => {})
+    fetch("/api/representantes").then(r => r.json()).then(setRepresentantes).catch(() => {})
+  }, [])
 
   const [dialogCopiarAberto, setDialogCopiarAberto] = useState(false)
   const [qtdCopias, setQtdCopias] = useState("1")
@@ -73,18 +92,24 @@ function NovaRequisicaoCortePageContent() {
           cor: item.cor || "",
           desenho: item.desenho || "",
           quantidade: item.quantidade || "",
+          clienteId: item.clienteId || null,
+          fornecedorId: item.fornecedorId || null,
+          representanteId: item.representanteId || null,
         })))
         if (dados.observacoes) setObservacoes(dados.observacoes)
         if (dados.entreguePor) setEntreguePor(dados.entreguePor)
         if (dados.dataSolicitacao) setDataSolicitacao(dados.dataSolicitacao)
         if (dados.dataEntrega) setDataEntrega(dados.dataEntrega)
+        if (dados.clienteId) setClienteIdGlobal(dados.clienteId)
+        if (dados.fornecedorId) setFornecedorIdGlobal(dados.fornecedorId)
+        if (dados.representanteId) setRepresentanteIdGlobal(dados.representanteId)
         toast.success(`Requisição copiada — ${dados.itens.length} item(ns) carregado(s)`)
       }
       router.replace(pathname, { scroll: false })
     } catch {}
   }, [searchParams, pathname, router])
 
-  const handleItemChange = (index: number, field: keyof ItemLinha, value: string) => {
+  const handleItemChange = (index: number, field: keyof ItemLinha, value: any) => {
     setItens(prev => {
       const next = [...prev]
       next[index] = { ...next[index], [field]: value }
@@ -136,6 +161,9 @@ function NovaRequisicaoCortePageContent() {
         cor: item.cor || "",
         desenho: item.desenho || "",
         quantidade: item.quantidade || "",
+        clienteId: null,
+        fornecedorId: null,
+        representanteId: null,
       })),
     ])
   }
@@ -154,7 +182,7 @@ function NovaRequisicaoCortePageContent() {
       const res = await fetch("/api/comercial/requisicoes-corte", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ itens: itensValidos, observacoes, entreguePor, dataSolicitacao, dataEntrega }),
+        body: JSON.stringify({ itens: itensValidos, observacoes, entreguePor, dataSolicitacao, dataEntrega, clienteId: clienteIdGlobal, fornecedorId: fornecedorIdGlobal, representanteId: representanteIdGlobal }),
       })
       if (!res.ok) {
         const err = await res.json().catch(() => ({}))
@@ -201,6 +229,9 @@ function NovaRequisicaoCortePageContent() {
                   <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Cor</th>
                   <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Desenho</th>
                   <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Qtd <span className="text-red-500">*</span></th>
+                  <th className="px-2 py-2 text-left text-xs font-medium text-slate-500 uppercase">Cliente</th>
+                  <th className="px-2 py-2 text-left text-xs font-medium text-slate-500 uppercase">Fornec.</th>
+                  <th className="px-2 py-2 text-left text-xs font-medium text-slate-500 uppercase">Repr.</th>
                   <th className="px-3 py-2 w-10"></th>
                 </tr>
               </thead>
@@ -274,6 +305,36 @@ function NovaRequisicaoCortePageContent() {
                         placeholder="2 M"
                         className="h-9 text-sm"
                       />
+                    </td>
+                    <td className="px-2 py-2">
+                      <select
+                        value={item.clienteId ?? ""}
+                        onChange={(e) => handleItemChange(index, "clienteId", e.target.value ? Number(e.target.value) : null)}
+                        className="h-9 w-full text-xs rounded-md border border-input bg-transparent px-1"
+                      >
+                        <option value="">—</option>
+                        {clientes.map(c => <option key={c.id} value={c.id}>{c.nome}</option>)}
+                      </select>
+                    </td>
+                    <td className="px-2 py-2">
+                      <select
+                        value={item.fornecedorId ?? ""}
+                        onChange={(e) => handleItemChange(index, "fornecedorId", e.target.value ? Number(e.target.value) : null)}
+                        className="h-9 w-full text-xs rounded-md border border-input bg-transparent px-1"
+                      >
+                        <option value="">—</option>
+                        {fornecedores.map(f => <option key={f.id} value={f.id}>{f.nome}</option>)}
+                      </select>
+                    </td>
+                    <td className="px-2 py-2">
+                      <select
+                        value={item.representanteId ?? ""}
+                        onChange={(e) => handleItemChange(index, "representanteId", e.target.value ? Number(e.target.value) : null)}
+                        className="h-9 w-full text-xs rounded-md border border-input bg-transparent px-1"
+                      >
+                        <option value="">—</option>
+                        {representantes.map(r => <option key={r.id} value={r.id}>{r.nome}</option>)}
+                      </select>
                     </td>
                     <td className="px-3 py-2">
                       {itens.length > 1 && (
@@ -356,6 +417,45 @@ function NovaRequisicaoCortePageContent() {
                 value={dataEntrega}
                 onChange={(e) => setDataEntrega(e.target.value)}
               />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="clienteGlobal">Cliente (geral)</Label>
+              <select
+                id="clienteGlobal"
+                value={clienteIdGlobal ?? ""}
+                onChange={(e) => setClienteIdGlobal(e.target.value ? Number(e.target.value) : null)}
+                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              >
+                <option value="">Nenhum</option>
+                {clientes.map(c => <option key={c.id} value={c.id}>{c.nome}</option>)}
+              </select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="fornecedorGlobal">Fornecedor (geral)</Label>
+              <select
+                id="fornecedorGlobal"
+                value={fornecedorIdGlobal ?? ""}
+                onChange={(e) => setFornecedorIdGlobal(e.target.value ? Number(e.target.value) : null)}
+                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              >
+                <option value="">Nenhum</option>
+                {fornecedores.map(f => <option key={f.id} value={f.id}>{f.nome}</option>)}
+              </select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="representanteGlobal">Representante (geral)</Label>
+              <select
+                id="representanteGlobal"
+                value={representanteIdGlobal ?? ""}
+                onChange={(e) => setRepresentanteIdGlobal(e.target.value ? Number(e.target.value) : null)}
+                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              >
+                <option value="">Nenhum</option>
+                {representantes.map(r => <option key={r.id} value={r.id}>{r.nome}</option>)}
+              </select>
             </div>
           </div>
         </div>

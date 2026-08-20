@@ -10,7 +10,12 @@ describe("NovaRequisicaoCortePage", () => {
   })
 
   it("renderiza o formulário com a linha de item inicial e botões de ação", () => {
-    const fetchMock = createFetchMock(() => ({ json: {} }))
+    const fetchMock = createFetchMock(({ url }) => {
+      if (url === "/api/clientes") return { json: [] }
+      if (url.startsWith("/api/cadastros/fornecedores")) return { json: [] }
+      if (url === "/api/representantes") return { json: [] }
+      return { json: {} }
+    })
     vi.stubGlobal("fetch", fetchMock.fn)
 
     renderPage(<NovaRequisicaoCortePage />)
@@ -25,7 +30,12 @@ describe("NovaRequisicaoCortePage", () => {
   })
 
   it("bloqueia o envio sem item com quantidade", async () => {
-    const fetchMock = createFetchMock(() => ({ json: {} }))
+    const fetchMock = createFetchMock(({ url }) => {
+      if (url === "/api/clientes") return { json: [] }
+      if (url.startsWith("/api/cadastros/fornecedores")) return { json: [] }
+      if (url === "/api/representantes") return { json: [] }
+      return { json: {} }
+    })
     vi.stubGlobal("fetch", fetchMock.fn)
 
     renderPage(<NovaRequisicaoCortePage />)
@@ -37,6 +47,9 @@ describe("NovaRequisicaoCortePage", () => {
 
   it("cria a requisição via POST com itens válidos", async () => {
     const fetchMock = createFetchMock(({ method, url }) => {
+      if (url === "/api/clientes") return { json: [] }
+      if (url.startsWith("/api/cadastros/fornecedores")) return { json: [] }
+      if (url === "/api/representantes") return { json: [] }
       if (method === "POST" && url === "/api/comercial/requisicoes-corte") return { status: 201, json: { id: 40 } }
       return { status: 404, json: { error: "Rota não mockada" } }
     })
@@ -65,7 +78,12 @@ describe("NovaRequisicaoCortePage", () => {
   })
 
   it("copia o último item ao usar Copiar Item", async () => {
-    const fetchMock = createFetchMock(() => ({ json: {} }))
+    const fetchMock = createFetchMock(({ url }) => {
+      if (url === "/api/clientes") return { json: [] }
+      if (url.startsWith("/api/cadastros/fornecedores")) return { json: [] }
+      if (url === "/api/representantes") return { json: [] }
+      return { json: {} }
+    })
     vi.stubGlobal("fetch", fetchMock.fn)
 
     renderPage(<NovaRequisicaoCortePage />)

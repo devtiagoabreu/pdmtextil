@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const parsed = validateRequest(requisicaoCorteSchema, body)
     if ("error" in parsed) return parsed.error
-    const { itens, observacoes, entreguePor, dataSolicitacao, dataEntrega } = parsed.data
+    const { itens, observacoes, entreguePor, dataSolicitacao, dataEntrega, clienteId, fornecedorId, representanteId } = parsed.data
 
     const [novaRequisicao] = await db
       .insert(requisicoesCorte)
@@ -60,6 +60,9 @@ export async function POST(req: NextRequest) {
         entreguePor: entreguePor || null,
         dataSolicitacao: dataSolicitacao || null,
         dataEntrega: dataEntrega || null,
+        clienteId: clienteId || null,
+        fornecedorId: fornecedorId || null,
+        representanteId: representanteId || null,
         status: "SOLICITADO",
       })
       .returning()
@@ -74,6 +77,9 @@ export async function POST(req: NextRequest) {
           cor: item.cor || null,
           desenho: item.desenho || null,
           quantidade: item.quantidade,
+          clienteId: item.clienteId || null,
+          fornecedorId: item.fornecedorId || null,
+          representanteId: item.representanteId || null,
         }))
       )
     }

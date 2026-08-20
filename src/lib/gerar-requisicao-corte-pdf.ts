@@ -74,23 +74,6 @@ export async function gerarRequisicaoCortePdf(data: RequisicaoCorteData, orienta
     return acc + (isNaN(num) ? 0 : num)
   }, 0)
 
-  function agruparItens(itens: RequisicaoCorteData["itens"]) {
-    const mapa = new Map<string, { item: RequisicaoCorteData["itens"][0]; qtd: string; qtdNum: number }>()
-    for (const item of itens) {
-      const chave = [item.codigoProduto, item.ordem, item.artigo, item.cor, item.desenho].join("||")
-      const num = parseFloat(item.quantidade.replace(/[^0-9.,]/g, "").replace(",", "."))
-      const existente = mapa.get(chave)
-      if (existente) {
-        existente.qtd += " + " + item.quantidade
-        existente.qtdNum += isNaN(num) ? 0 : num
-      } else {
-        mapa.set(chave, { item, qtd: item.quantidade, qtdNum: isNaN(num) ? 0 : num })
-      }
-    }
-    return Array.from(mapa.values())
-  }
-
-  const itensAgrupados = agruparItens(data.itens)
 
   // ── Header ──
   let logoImg: HTMLImageElement | null = null
@@ -217,7 +200,7 @@ export async function gerarRequisicaoCortePdf(data: RequisicaoCorteData, orienta
 
   y += infoBoxH + 6
 
-  // ── Itens table ──
+  // ── Itens table (romaneio-style grouping) ──
   doc.setFillColor(...corHeader)
   doc.roundedRect(margin, y, pageWidth - margin * 2, 7, 1.5, 1.5, "F")
   doc.setTextColor(...corHeaderText)
@@ -225,21 +208,59 @@ export async function gerarRequisicaoCortePdf(data: RequisicaoCorteData, orienta
   doc.text("ITENS DE CORTE", margin + 4, y + 5)
   y += 7 + 3
 
+  const NUM_COLS = 7
   const tableHead = [["#", "Cód. Produto", "Ordem", "Artigo", "Cor", "Desenho", "Quantidade"]]
-  const tableBody: string[][] = []
+  const tableBody: any[][] = []
+
+  const produtosMap = new Map<string, RequisicaoCorteData["itens"]>()
+  for (const item of data.itens) {
+    const prod = item.codigoProduto || "SEM PRODUTO"
+    if (!produtosMap.has(prod)) produtosMap.set(prod, [])
+    produtosMap.get(prod)!.push(item)
+  }
+  const produtosOrdenados = Array.from(produtosMap.entries()).sort((a: any, b: any) => a[0].localeCompare(b[0]))
+
   let numSeq = 0
-  for (const g of itensAgrupados) {
-    numSeq++
+  let totalGeralQtd = 0
+
+  for (const [prodNome, prodItens] of produtosOrdenados) {
+    let prodQtd = 0
+
     tableBody.push([
-      String(numSeq),
-      g.item.codigoProduto || "—",
-      g.item.ordem || "—",
-      g.item.artigo || "—",
-      g.item.cor || "—",
-      g.item.desenho || "—",
-      g.qtd,
+      {
+        content: `PRODUTO: ${prodNome}`,
+        colSpan: NUM_COLS,
+        styles: { fillColor: [233, 213, 255], fontStyle: "bold", fontSize: 7, halign: "left" },
+      },
+    ])
+
+    for (const item of prodItens) {
+      numSeq++
+      const num = parseFloat(item.quantidade.replace(/[^0-9.,]/g, "").replace(",", "."))
+      prodQtd += isNaN(num) ? 0 : num
+      tableBody.push([
+        String(numSeq),
+        item.codigoProduto || "—",
+        item.ordem || "—",
+        item.artigo || "—",
+        item.cor || "—",
+        item.desenho || "—",
+        item.quantidade,
+      ])
+    }
+
+    totalGeralQtd += prodQtd
+
+    tableBody.push([
+      { content: `SUBTOTAL ${prodNome}: ${prodItens.length} item(ns)`, colSpan: NUM_COLS - 1, styles: { fontStyle: "bold", fontSize: 7, fillColor: [233, 213, 255] } },
+      { content: String(prodQtd), styles: { fontStyle: "bold", fontSize: 7, fillColor: [233, 213, 255], halign: "center" } },
     ])
   }
+
+  tableBody.push([
+    { content: `TOTAL GERAL: ${data.itens.length} item(ns)`, colSpan: NUM_COLS - 1, styles: { fontStyle: "bold", fontSize: 8, fillColor: [191, 219, 254] } },
+    { content: String(totalGeralQtd), styles: { fontStyle: "bold", fontSize: 8, fillColor: [191, 219, 254], halign: "center" } },
+  ])
 
   const footerId = data.id
 
@@ -273,15 +294,6 @@ export async function gerarRequisicaoCortePdf(data: RequisicaoCorteData, orienta
       doc.setTextColor(...corTexto)
     },
   })
-
-  // ── Total row ──
-  const afterTableY = (doc as any).lastAutoTable?.finalY ?? y + 10
-  doc.setFillColor(...corHeader)
-  doc.roundedRect(margin, afterTableY, pageWidth - margin * 2, 7, 1.5, 1.5, "F")
-  doc.setTextColor(...corHeaderText)
-  doc.setFontSize(7.5).setFont("helvetica", "bold")
-  const totalLabelX = margin + 4
-  doc.text(`TOTAL: ${itensAgrupados.length} grupo(s) — ${data.itens.length} item(ns) — Qtd: ${totalQtd}`, totalLabelX, afterTableY + 5)
 
   // ── Footer on each page (handled by didDrawPage in autoTable) ──
 
@@ -478,7 +490,7 @@ export async function gerarRequisicaoCortePdfConsolidado(lista: RequisicaoCorteD
 
     y += infoBoxHC + 6
 
-    // Itens table
+    // Itens table (romaneio-style grouping)
     doc.setFillColor(...corHeader)
     doc.roundedRect(margin, y, pageWidth - margin * 2, 7, 1.5, 1.5, "F")
     doc.setTextColor(...corHeaderText)
@@ -486,40 +498,61 @@ export async function gerarRequisicaoCortePdfConsolidado(lista: RequisicaoCorteD
     doc.text("ITENS DE CORTE", margin + 4, y + 5)
     y += 7 + 3
 
-    function agruparItensConsol(itens: RequisicaoCorteData["itens"]) {
-      const mapa = new Map<string, { item: RequisicaoCorteData["itens"][0]; qtd: string; qtdNum: number }>()
-      for (const item of itens) {
-        const chave = [item.codigoProduto, item.ordem, item.artigo, item.cor, item.desenho].join("||")
-        const num = parseFloat(item.quantidade.replace(/[^0-9.,]/g, "").replace(",", "."))
-        const existente = mapa.get(chave)
-        if (existente) {
-          existente.qtd += " + " + item.quantidade
-          existente.qtdNum += isNaN(num) ? 0 : num
-        } else {
-          mapa.set(chave, { item, qtd: item.quantidade, qtdNum: isNaN(num) ? 0 : num })
-        }
-      }
-      return Array.from(mapa.values())
-    }
-
-    const itensAgrupadosC = agruparItensConsol(data.itens)
-    const footerIdC = data.id
-
+    const NUM_COLS_C = 7
     const tableHeadC = [["#", "Cód. Produto", "Ordem", "Artigo", "Cor", "Desenho", "Quantidade"]]
-    const tableBodyC: string[][] = []
+    const tableBodyC: any[][] = []
+
+    const produtosMapC = new Map<string, RequisicaoCorteData["itens"]>()
+    for (const item of data.itens) {
+      const prod = item.codigoProduto || "SEM PRODUTO"
+      if (!produtosMapC.has(prod)) produtosMapC.set(prod, [])
+      produtosMapC.get(prod)!.push(item)
+    }
+    const produtosOrdenadosC = Array.from(produtosMapC.entries()).sort((a: any, b: any) => a[0].localeCompare(b[0]))
+
     let numSeqC = 0
-    for (const g of itensAgrupadosC) {
-      numSeqC++
+    let totalGeralQtdC = 0
+
+    for (const [prodNome, prodItens] of produtosOrdenadosC) {
+      let prodQtd = 0
+
       tableBodyC.push([
-        String(numSeqC),
-        g.item.codigoProduto || "—",
-        g.item.ordem || "—",
-        g.item.artigo || "—",
-        g.item.cor || "—",
-        g.item.desenho || "—",
-        g.qtd,
+        {
+          content: `PRODUTO: ${prodNome}`,
+          colSpan: NUM_COLS_C,
+          styles: { fillColor: [233, 213, 255], fontStyle: "bold", fontSize: 7, halign: "left" },
+        },
+      ])
+
+      for (const item of prodItens) {
+        numSeqC++
+        const num = parseFloat(item.quantidade.replace(/[^0-9.,]/g, "").replace(",", "."))
+        prodQtd += isNaN(num) ? 0 : num
+        tableBodyC.push([
+          String(numSeqC),
+          item.codigoProduto || "—",
+          item.ordem || "—",
+          item.artigo || "—",
+          item.cor || "—",
+          item.desenho || "—",
+          item.quantidade,
+        ])
+      }
+
+      totalGeralQtdC += prodQtd
+
+      tableBodyC.push([
+        { content: `SUBTOTAL ${prodNome}: ${prodItens.length} item(ns)`, colSpan: NUM_COLS_C - 1, styles: { fontStyle: "bold", fontSize: 7, fillColor: [233, 213, 255] } },
+        { content: String(prodQtd), styles: { fontStyle: "bold", fontSize: 7, fillColor: [233, 213, 255], halign: "center" } },
       ])
     }
+
+    tableBodyC.push([
+      { content: `TOTAL GERAL: ${data.itens.length} item(ns)`, colSpan: NUM_COLS_C - 1, styles: { fontStyle: "bold", fontSize: 8, fillColor: [191, 219, 254] } },
+      { content: String(totalGeralQtdC), styles: { fontStyle: "bold", fontSize: 8, fillColor: [191, 219, 254], halign: "center" } },
+    ])
+
+    const footerIdC = data.id
 
     const tableW = pageWidth - margin * 2
     ;(doc as any).autoTable({
@@ -551,14 +584,6 @@ export async function gerarRequisicaoCortePdfConsolidado(lista: RequisicaoCorteD
         doc.setTextColor(...corTexto)
       },
     })
-
-    // ── Total row per page ──
-    const afterTableYC = (doc as any).lastAutoTable?.finalY ?? y + 10
-    doc.setFillColor(...corHeader)
-    doc.roundedRect(margin, afterTableYC, pageWidth - margin * 2, 7, 1.5, 1.5, "F")
-    doc.setTextColor(...corHeaderText)
-    doc.setFontSize(7.5).setFont("helvetica", "bold")
-    doc.text(`TOTAL: ${itensAgrupadosC.length} grupo(s) — ${data.itens.length} item(ns) — Qtd: ${totalQtd}`, margin + 4, afterTableYC + 5)
   }
 
   const sufixo = lista.length <= 3 ? lista.map((r: any) => r.id).join("-") : `${lista[0].id}-${lista[lista.length - 1].id}`

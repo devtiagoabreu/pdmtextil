@@ -9,6 +9,9 @@ export const requisicoesCorte = pgTable("requisicoes_corte", {
   entreguePor: varchar("entregue_por", { length: 200 }),
   dataSolicitacao: date("data_solicitacao"),
   dataEntrega: date("data_entrega"),
+  clienteId: integer("cliente_id"),
+  fornecedorId: integer("fornecedor_id"),
+  representanteId: integer("representante_id"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 })
@@ -22,6 +25,9 @@ export const requisicoesCorteItens = pgTable("requisicoes_corte_itens", {
   cor: varchar("cor", { length: 100 }),
   desenho: varchar("desenho", { length: 100 }),
   quantidade: varchar("quantidade", { length: 50 }).notNull(),
+  clienteId: integer("cliente_id"),
+  fornecedorId: integer("fornecedor_id"),
+  representanteId: integer("representante_id"),
 })
 
 export type RequisicaoCorte = typeof requisicoesCorte.$inferSelect

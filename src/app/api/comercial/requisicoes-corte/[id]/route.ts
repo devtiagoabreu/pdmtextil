@@ -28,6 +28,9 @@ export async function GET(
         entreguePor: requisicoesCorte.entreguePor,
         dataSolicitacao: requisicoesCorte.dataSolicitacao,
         dataEntrega: requisicoesCorte.dataEntrega,
+        clienteId: requisicoesCorte.clienteId,
+        fornecedorId: requisicoesCorte.fornecedorId,
+        representanteId: requisicoesCorte.representanteId,
         createdAt: requisicoesCorte.createdAt,
         updatedAt: requisicoesCorte.updatedAt,
       })
@@ -83,6 +86,9 @@ export async function PUT(
     if (body.status !== undefined) setValues.status = body.status
     if (body.dataSolicitacao !== undefined) setValues.dataSolicitacao = body.dataSolicitacao
     if (body.dataEntrega !== undefined) setValues.dataEntrega = body.dataEntrega
+    if (body.clienteId !== undefined) setValues.clienteId = body.clienteId
+    if (body.fornecedorId !== undefined) setValues.fornecedorId = body.fornecedorId
+    if (body.representanteId !== undefined) setValues.representanteId = body.representanteId
 
     await db
       .update(requisicoesCorte)
@@ -104,6 +110,9 @@ export async function PUT(
             cor: item.cor || null,
             desenho: item.desenho || null,
             quantidade: item.quantidade,
+            clienteId: item.clienteId || null,
+            fornecedorId: item.fornecedorId || null,
+            representanteId: item.representanteId || null,
           }))
         )
       }

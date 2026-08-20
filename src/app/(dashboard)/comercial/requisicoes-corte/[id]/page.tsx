@@ -37,10 +37,13 @@ interface ItemLinha {
   cor: string
   desenho: string
   quantidade: string
+  clienteId: number | null
+  fornecedorId: number | null
+  representanteId: number | null
 }
 
 function itemVazio(): ItemLinha {
-  return { codigoProduto: "", ordem: "", artigo: "", cor: "", desenho: "", quantidade: "" }
+  return { codigoProduto: "", ordem: "", artigo: "", cor: "", desenho: "", quantidade: "", clienteId: null, fornecedorId: null, representanteId: null }
 }
 
 function copiarItem(item: ItemLinha): ItemLinha {
@@ -60,10 +63,17 @@ export default function DetalheRequisicaoCortePage() {
   const [entreguePor, setEntreguePor] = useState("")
   const [dataSolicitacao, setDataSolicitacao] = useState("")
   const [dataEntrega, setDataEntrega] = useState("")
+  const [clienteIdGlobal, setClienteIdGlobal] = useState<number | null>(null)
+  const [fornecedorIdGlobal, setFornecedorIdGlobal] = useState<number | null>(null)
+  const [representanteIdGlobal, setRepresentanteIdGlobal] = useState<number | null>(null)
   const [status, setStatus] = useState("")
   const [itens, setItens] = useState<ItemLinha[]>([])
   const [statusOptions, setStatusOptions] = useState<{ value: string; label: string; cor?: string }[]>([])
   const [requisitanteNome, setRequisitanteNome] = useState("")
+
+  const [clientes, setClientes] = useState<{ id: number; nome: string }[]>([])
+  const [fornecedores, setFornecedores] = useState<{ id: number; nome: string }[]>([])
+  const [representantes, setRepresentantes] = useState<{ id: number; nome: string }[]>([])
 
   const [dialogCopiarAberto, setDialogCopiarAberto] = useState(false)
   const [qtdCopias, setQtdCopias] = useState("1")
@@ -76,6 +86,9 @@ export default function DetalheRequisicaoCortePage() {
         if (Array.isArray(data)) setStatusOptions(data.map((s: any) => ({ value: s.nome, label: s.rotulo || s.nome, cor: s.cor })))
       })
       .catch(console.error)
+    fetch("/api/clientes").then(r => r.json()).then(setClientes).catch(() => {})
+    fetch("/api/cadastros/fornecedores?limit=100").then(r => r.json()).then(d => setFornecedores(Array.isArray(d) ? d : [])).catch(() => {})
+    fetch("/api/representantes").then(r => r.json()).then(setRepresentantes).catch(() => {})
   }, [])
 
   useEffect(() => {
@@ -87,6 +100,9 @@ export default function DetalheRequisicaoCortePage() {
         setEntreguePor(d.entreguePor || "")
         setDataSolicitacao(d.dataSolicitacao || "")
         setDataEntrega(d.dataEntrega || "")
+        setClienteIdGlobal(d.clienteId || null)
+        setFornecedorIdGlobal(d.fornecedorId || null)
+        setRepresentanteIdGlobal(d.representanteId || null)
         setStatus(d.status || "")
         setRequisitanteNome(d.requisitanteNome || "")
         setItens(Array.isArray(d.itens) ? d.itens : [])
@@ -95,7 +111,7 @@ export default function DetalheRequisicaoCortePage() {
       .finally(() => setLoading(false))
   }, [mounted, id])
 
-  const handleItemChange = (index: number, field: keyof ItemLinha, value: string) => {
+  const handleItemChange = (index: number, field: keyof ItemLinha, value: any) => {
     setItens(prev => {
       const next = [...prev]
       next[index] = { ...next[index], [field]: value }
@@ -146,6 +162,9 @@ export default function DetalheRequisicaoCortePage() {
         cor: item.cor || "",
         desenho: item.desenho || "",
         quantidade: item.quantidade || "",
+        clienteId: null,
+        fornecedorId: null,
+        representanteId: null,
       })),
     ])
   }
@@ -162,7 +181,7 @@ export default function DetalheRequisicaoCortePage() {
       const res = await fetch(`/api/comercial/requisicoes-corte/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ itens: itensValidos, observacoes, entreguePor, status, dataSolicitacao, dataEntrega }),
+        body: JSON.stringify({ itens: itensValidos, observacoes, entreguePor, status, dataSolicitacao, dataEntrega, clienteId: clienteIdGlobal, fornecedorId: fornecedorIdGlobal, representanteId: representanteIdGlobal }),
       })
       if (!res.ok) {
         const err = await res.json().catch(() => ({}))
@@ -255,6 +274,9 @@ export default function DetalheRequisicaoCortePage() {
                 <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Cor</th>
                 <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Desenho</th>
                 <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Qtd <span className="text-red-500">*</span></th>
+                <th className="px-2 py-2 text-left text-xs font-medium text-slate-500 uppercase">Cliente</th>
+                <th className="px-2 py-2 text-left text-xs font-medium text-slate-500 uppercase">Fornec.</th>
+                <th className="px-2 py-2 text-left text-xs font-medium text-slate-500 uppercase">Repr.</th>
                 <th className="px-3 py-2 w-10"></th>
               </tr>
             </thead>
@@ -324,6 +346,36 @@ export default function DetalheRequisicaoCortePage() {
                       onChange={(e) => handleItemChange(index, "quantidade", e.target.value)}
                       className="h-9 text-sm"
                     />
+                  </td>
+                  <td className="px-2 py-2">
+                    <select
+                      value={item.clienteId ?? ""}
+                      onChange={(e) => handleItemChange(index, "clienteId", e.target.value ? Number(e.target.value) : null)}
+                      className="h-9 w-full text-xs rounded-md border border-input bg-transparent px-1"
+                    >
+                      <option value="">—</option>
+                      {clientes.map(c => <option key={c.id} value={c.id}>{c.nome}</option>)}
+                    </select>
+                  </td>
+                  <td className="px-2 py-2">
+                    <select
+                      value={item.fornecedorId ?? ""}
+                      onChange={(e) => handleItemChange(index, "fornecedorId", e.target.value ? Number(e.target.value) : null)}
+                      className="h-9 w-full text-xs rounded-md border border-input bg-transparent px-1"
+                    >
+                      <option value="">—</option>
+                      {fornecedores.map(f => <option key={f.id} value={f.id}>{f.nome}</option>)}
+                    </select>
+                  </td>
+                  <td className="px-2 py-2">
+                    <select
+                      value={item.representanteId ?? ""}
+                      onChange={(e) => handleItemChange(index, "representanteId", e.target.value ? Number(e.target.value) : null)}
+                      className="h-9 w-full text-xs rounded-md border border-input bg-transparent px-1"
+                    >
+                      <option value="">—</option>
+                      {representantes.map(r => <option key={r.id} value={r.id}>{r.nome}</option>)}
+                    </select>
                   </td>
                   <td className="px-3 py-2">
                     {itens.length > 1 && (
@@ -403,6 +455,45 @@ export default function DetalheRequisicaoCortePage() {
                 value={dataEntrega}
                 onChange={(e) => setDataEntrega(e.target.value)}
               />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="clienteGlobal">Cliente (geral)</Label>
+              <select
+                id="clienteGlobal"
+                value={clienteIdGlobal ?? ""}
+                onChange={(e) => setClienteIdGlobal(e.target.value ? Number(e.target.value) : null)}
+                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              >
+                <option value="">Nenhum</option>
+                {clientes.map(c => <option key={c.id} value={c.id}>{c.nome}</option>)}
+              </select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="fornecedorGlobal">Fornecedor (geral)</Label>
+              <select
+                id="fornecedorGlobal"
+                value={fornecedorIdGlobal ?? ""}
+                onChange={(e) => setFornecedorIdGlobal(e.target.value ? Number(e.target.value) : null)}
+                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              >
+                <option value="">Nenhum</option>
+                {fornecedores.map(f => <option key={f.id} value={f.id}>{f.nome}</option>)}
+              </select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="representanteGlobal">Representante (geral)</Label>
+              <select
+                id="representanteGlobal"
+                value={representanteIdGlobal ?? ""}
+                onChange={(e) => setRepresentanteIdGlobal(e.target.value ? Number(e.target.value) : null)}
+                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              >
+                <option value="">Nenhum</option>
+                {representantes.map(r => <option key={r.id} value={r.id}>{r.nome}</option>)}
+              </select>
             </div>
           </div>
 
