@@ -209,7 +209,7 @@ export async function gerarRequisicaoCortePdf(data: RequisicaoCorteData, orienta
   y += 7 + 3
 
   const NUM_COLS = 7
-  const tableHead = [["#", "Cód. Produto", "Ordem", "Artigo", "Cor", "Desenho", "Quantidade"]]
+  const tableHead = [["#", "Cód. Produto", "Ordem", "Artigo", "Cor", "Desenho", "Qtd."]]
   const tableBody: any[][] = []
 
   const produtosMap = new Map<string, RequisicaoCorteData["itens"]>()
@@ -222,6 +222,7 @@ export async function gerarRequisicaoCortePdf(data: RequisicaoCorteData, orienta
 
   let numSeq = 0
   let totalGeralQtd = 0
+  let totalGeralItens = 0
 
   for (const [prodNome, prodItens] of produtosOrdenados) {
     let prodQtd = 0
@@ -234,22 +235,42 @@ export async function gerarRequisicaoCortePdf(data: RequisicaoCorteData, orienta
       },
     ])
 
+    const aggMap = new Map<string, { item: RequisicaoCorteData["itens"][0]; qtd: number; count: number }>()
     for (const item of prodItens) {
-      numSeq++
+      const key = `${item.ordem}||${item.artigo}||${item.cor}||${item.desenho}`
       const num = parseFloat(item.quantidade.replace(/[^0-9.,]/g, "").replace(",", "."))
-      prodQtd += isNaN(num) ? 0 : num
+      const val = isNaN(num) ? 0 : num
+      if (aggMap.has(key)) {
+        const existing = aggMap.get(key)!
+        existing.qtd += val
+        existing.count++
+      } else {
+        aggMap.set(key, { item, qtd: val, count: 1 })
+      }
+    }
+
+    const aggSorted = Array.from(aggMap.values()).sort((a: any, b: any) => {
+      const aKey = `${a.item.ordem}||${a.item.artigo}||${a.item.cor}||${a.item.desenho}`
+      const bKey = `${b.item.ordem}||${b.item.artigo}||${b.item.cor}||${b.item.desenho}`
+      return aKey.localeCompare(bKey)
+    })
+
+    for (const agg of aggSorted) {
+      numSeq++
+      prodQtd += agg.qtd
       tableBody.push([
         String(numSeq),
-        item.codigoProduto || "—",
-        item.ordem || "—",
-        item.artigo || "—",
-        item.cor || "—",
-        item.desenho || "—",
-        item.quantidade,
+        agg.item.codigoProduto || "—",
+        agg.item.ordem || "—",
+        agg.item.artigo || "—",
+        agg.item.cor || "—",
+        agg.item.desenho || "—",
+        String(agg.qtd),
       ])
     }
 
     totalGeralQtd += prodQtd
+    totalGeralItens += prodItens.length
 
     tableBody.push([
       { content: `SUBTOTAL ${prodNome}: ${prodItens.length} item(ns)`, colSpan: NUM_COLS - 1, styles: { fontStyle: "bold", fontSize: 7, fillColor: [233, 213, 255] } },
@@ -258,7 +279,7 @@ export async function gerarRequisicaoCortePdf(data: RequisicaoCorteData, orienta
   }
 
   tableBody.push([
-    { content: `TOTAL GERAL: ${data.itens.length} item(ns)`, colSpan: NUM_COLS - 1, styles: { fontStyle: "bold", fontSize: 8, fillColor: [191, 219, 254] } },
+    { content: `TOTAL GERAL: ${totalGeralItens} item(ns)`, colSpan: NUM_COLS - 1, styles: { fontStyle: "bold", fontSize: 8, fillColor: [191, 219, 254] } },
     { content: String(totalGeralQtd), styles: { fontStyle: "bold", fontSize: 8, fillColor: [191, 219, 254], halign: "center" } },
   ])
 
@@ -499,7 +520,7 @@ export async function gerarRequisicaoCortePdfConsolidado(lista: RequisicaoCorteD
     y += 7 + 3
 
     const NUM_COLS_C = 7
-    const tableHeadC = [["#", "Cód. Produto", "Ordem", "Artigo", "Cor", "Desenho", "Quantidade"]]
+    const tableHeadC = [["#", "Cód. Produto", "Ordem", "Artigo", "Cor", "Desenho", "Qtd."]]
     const tableBodyC: any[][] = []
 
     const produtosMapC = new Map<string, RequisicaoCorteData["itens"]>()
@@ -524,18 +545,37 @@ export async function gerarRequisicaoCortePdfConsolidado(lista: RequisicaoCorteD
         },
       ])
 
+      const aggMapC = new Map<string, { item: RequisicaoCorteData["itens"][0]; qtd: number; count: number }>()
       for (const item of prodItens) {
-        numSeqC++
+        const key = `${item.ordem}||${item.artigo}||${item.cor}||${item.desenho}`
         const num = parseFloat(item.quantidade.replace(/[^0-9.,]/g, "").replace(",", "."))
-        prodQtd += isNaN(num) ? 0 : num
+        const val = isNaN(num) ? 0 : num
+        if (aggMapC.has(key)) {
+          const existing = aggMapC.get(key)!
+          existing.qtd += val
+          existing.count++
+        } else {
+          aggMapC.set(key, { item, qtd: val, count: 1 })
+        }
+      }
+
+      const aggSortedC = Array.from(aggMapC.values()).sort((a: any, b: any) => {
+        const aKey = `${a.item.ordem}||${a.item.artigo}||${a.item.cor}||${a.item.desenho}`
+        const bKey = `${b.item.ordem}||${b.item.artigo}||${b.item.cor}||${b.item.desenho}`
+        return aKey.localeCompare(bKey)
+      })
+
+      for (const agg of aggSortedC) {
+        numSeqC++
+        prodQtd += agg.qtd
         tableBodyC.push([
           String(numSeqC),
-          item.codigoProduto || "—",
-          item.ordem || "—",
-          item.artigo || "—",
-          item.cor || "—",
-          item.desenho || "—",
-          item.quantidade,
+          agg.item.codigoProduto || "—",
+          agg.item.ordem || "—",
+          agg.item.artigo || "—",
+          agg.item.cor || "—",
+          agg.item.desenho || "—",
+          String(agg.qtd),
         ])
       }
 
