@@ -37,6 +37,7 @@ describe("DetalheRequisicaoCortePage", () => {
     expect(screen.getByRole("button", { name: "Salvar" })).toBeInTheDocument()
     expect(screen.getByRole("button", { name: /Adicionar Item/ })).toBeInTheDocument()
     expect(screen.getByRole("button", { name: /Copiar Item/ })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /Inserir por OCR/ })).toBeInTheDocument()
   })
 
   it("salva as alterações via PUT", async () => {

@@ -6,6 +6,7 @@ import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import Link from "next/link"
 import { ArrowLeft, Plus, Trash2, FileText, Copy, ChevronUp, ChevronDown } from "lucide-react"
+import OcrInput from "@/components/ui/ocr-input"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -129,6 +130,20 @@ export default function DetalheRequisicaoCortePage() {
   const removeItem = (index: number) => {
     if (itens.length <= 1) return
     setItens(prev => prev.filter((_: any, i: any) => i !== index))
+  }
+
+  const handleOcrItens = (novosItens: any[]) => {
+    setItens(prev => [
+      ...prev.filter((item: any) => item.quantidade.trim()),
+      ...novosItens.map((item: any) => ({
+        codigoProduto: item.codigoProduto || "",
+        ordem: item.ordem || "",
+        artigo: item.artigo || "",
+        cor: item.cor || "",
+        desenho: item.desenho || "",
+        quantidade: item.quantidade || "",
+      })),
+    ])
   }
 
   const handleSave = async () => {
@@ -341,6 +356,7 @@ export default function DetalheRequisicaoCortePage() {
             <Copy size={14} />
             Copiar Item
           </Button>
+          <OcrInput onItensImportados={handleOcrItens} />
         </div>
       </div>
 

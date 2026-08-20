@@ -20,6 +20,7 @@ describe("NovaRequisicaoCortePage", () => {
     expect(screen.getByPlaceholderText("2 M")).toBeInTheDocument()
     expect(screen.getByRole("button", { name: /Adicionar Item/ })).toBeInTheDocument()
     expect(screen.getByRole("button", { name: /Copiar Item/ })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /Inserir por OCR/ })).toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Salvar Requisição" })).toBeInTheDocument()
   })
 

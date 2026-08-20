@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { SuggestionInput } from "@/components/ui/suggestion-input"
 import { Plus, Trash2, Copy, ChevronUp, ChevronDown } from "lucide-react"
+import OcrInput from "@/components/ui/ocr-input"
 import Link from "next/link"
 import { toast } from "sonner"
 import { PageSkeleton } from "@/components/ui/page-skeleton"
@@ -118,6 +119,21 @@ function NovaRequisicaoCortePageContent() {
   const removeItem = (index: number) => {
     if (itens.length <= 1) return
     setItens(prev => prev.filter((_: any, i: any) => i !== index))
+  }
+
+  const handleOcrItens = (novosItens: any[]) => {
+    setItens(prev => [
+      ...prev.filter((item: any) => item.quantidade.trim()),
+      ...novosItens.map((item: any) => ({
+        id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
+        codigoProduto: item.codigoProduto || "",
+        ordem: item.ordem || "",
+        artigo: item.artigo || "",
+        cor: item.cor || "",
+        desenho: item.desenho || "",
+        quantidade: item.quantidade || "",
+      })),
+    ])
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -290,6 +306,7 @@ function NovaRequisicaoCortePageContent() {
               <Copy size={14} />
               Copiar Item
             </Button>
+            <OcrInput onItensImportados={handleOcrItens} />
           </div>
         </div>
 
