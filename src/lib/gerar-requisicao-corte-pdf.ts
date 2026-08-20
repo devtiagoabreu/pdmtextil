@@ -72,6 +72,24 @@ export async function gerarRequisicaoCortePdf(data: RequisicaoCorteData, orienta
     return acc + (isNaN(num) ? 0 : num)
   }, 0)
 
+  function agruparItens(itens: RequisicaoCorteData["itens"]) {
+    const mapa = new Map<string, { item: RequisicaoCorteData["itens"][0]; qtd: string; qtdNum: number }>()
+    for (const item of itens) {
+      const chave = [item.codigoProduto, item.ordem, item.artigo, item.cor, item.desenho].join("||")
+      const num = parseFloat(item.quantidade.replace(/[^0-9.,]/g, "").replace(",", "."))
+      const existente = mapa.get(chave)
+      if (existente) {
+        existente.qtd += " + " + item.quantidade
+        existente.qtdNum += isNaN(num) ? 0 : num
+      } else {
+        mapa.set(chave, { item, qtd: item.quantidade, qtdNum: isNaN(num) ? 0 : num })
+      }
+    }
+    return Array.from(mapa.values())
+  }
+
+  const itensAgrupados = agruparItens(data.itens)
+
   // ── Header ──
   let logoImg: HTMLImageElement | null = null
   if (empresa && empresa.logoUrl) {
@@ -200,15 +218,23 @@ export async function gerarRequisicaoCortePdf(data: RequisicaoCorteData, orienta
   doc.text("ITENS DE CORTE", margin + 4, y + 5)
   y += 7 + 3
 
-  const tableHead = [["Cód. Produto", "Ordem", "Artigo", "Cor", "Desenho", "Quantidade"]]
-  const tableBody = data.itens.map((item: any) => [
-    item.codigoProduto || "—",
-    item.ordem || "—",
-    item.artigo || "—",
-    item.cor || "—",
-    item.desenho || "—",
-    item.quantidade,
-  ])
+  const tableHead = [["#", "Cód. Produto", "Ordem", "Artigo", "Cor", "Desenho", "Quantidade"]]
+  const tableBody: string[][] = []
+  let numSeq = 0
+  for (const g of itensAgrupados) {
+    numSeq++
+    tableBody.push([
+      String(numSeq),
+      g.item.codigoProduto || "—",
+      g.item.ordem || "—",
+      g.item.artigo || "—",
+      g.item.cor || "—",
+      g.item.desenho || "—",
+      g.qtd,
+    ])
+  }
+
+  const footerId = data.id
 
   const tableW = pageWidth - margin * 2
   ;(doc as any).autoTable({
@@ -222,28 +248,33 @@ export async function gerarRequisicaoCortePdf(data: RequisicaoCorteData, orienta
     tableLineColor: [...corBorda],
     tableLineWidth: 0.5,
     columnStyles: {
-      0: { cellWidth: tableW * 0.18 },
-      1: { cellWidth: tableW * 0.14 },
-      2: { cellWidth: tableW * 0.18 },
-      3: { cellWidth: tableW * 0.14 },
-      4: { cellWidth: tableW * 0.18 },
-      5: { cellWidth: tableW * 0.18, halign: "center" },
+      0: { cellWidth: tableW * 0.05, halign: "center" },
+      1: { cellWidth: tableW * 0.17 },
+      2: { cellWidth: tableW * 0.12 },
+      3: { cellWidth: tableW * 0.16 },
+      4: { cellWidth: tableW * 0.12 },
+      5: { cellWidth: tableW * 0.17 },
+      6: { cellWidth: tableW * 0.21, halign: "center" },
     },
-    didDrawPage: (data: any) => {
+    didDrawPage: (pageData: any) => {
       doc.setDrawColor(...corBorda)
       doc.line(margin, pageHeight - 14, pageWidth - margin, pageHeight - 14)
       doc.setTextColor(...corTextoSec)
       doc.setFontSize(7).setFont("helvetica", "normal")
-      doc.text(`Requisição de Corte Nº ${data.id}`, margin, pageHeight - 7)
-      doc.text(`Página ${data.pageNumber}`, pageWidth - margin, pageHeight - 7, { align: "right" })
+      doc.text(`Requisição de Corte Nº ${footerId}`, margin, pageHeight - 7)
+      doc.text(`Página ${pageData.pageNumber}`, pageWidth - margin, pageHeight - 7, { align: "right" })
       doc.setTextColor(...corTexto)
     },
-    didDrawCell: (data: any) => {
-      if (data.section === "head" && data.column.index === 0) {
-        // Already styled via headStyles
-      }
-    },
   })
+
+  // ── Total row ──
+  const afterTableY = (doc as any).lastAutoTable?.finalY ?? y + 10
+  doc.setFillColor(...corHeader)
+  doc.roundedRect(margin, afterTableY, pageWidth - margin * 2, 7, 1.5, 1.5, "F")
+  doc.setTextColor(...corHeaderText)
+  doc.setFontSize(7.5).setFont("helvetica", "bold")
+  const totalLabelX = margin + 4
+  doc.text(`TOTAL: ${itensAgrupados.length} grupo(s) — ${data.itens.length} item(ns) — Qtd: ${totalQtd}`, totalLabelX, afterTableY + 5)
 
   // ── Footer on each page (handled by didDrawPage in autoTable) ──
 
@@ -443,20 +474,45 @@ export async function gerarRequisicaoCortePdfConsolidado(lista: RequisicaoCorteD
     doc.text("ITENS DE CORTE", margin + 4, y + 5)
     y += 7 + 3
 
-    const tableHead = [["Cód. Produto", "Ordem", "Artigo", "Cor", "Desenho", "Quantidade"]]
-    const tableBody = data.itens.map((item: any) => [
-      item.codigoProduto || "—",
-      item.ordem || "—",
-      item.artigo || "—",
-      item.cor || "—",
-      item.desenho || "—",
-      item.quantidade,
-    ])
+    function agruparItensConsol(itens: RequisicaoCorteData["itens"]) {
+      const mapa = new Map<string, { item: RequisicaoCorteData["itens"][0]; qtd: string; qtdNum: number }>()
+      for (const item of itens) {
+        const chave = [item.codigoProduto, item.ordem, item.artigo, item.cor, item.desenho].join("||")
+        const num = parseFloat(item.quantidade.replace(/[^0-9.,]/g, "").replace(",", "."))
+        const existente = mapa.get(chave)
+        if (existente) {
+          existente.qtd += " + " + item.quantidade
+          existente.qtdNum += isNaN(num) ? 0 : num
+        } else {
+          mapa.set(chave, { item, qtd: item.quantidade, qtdNum: isNaN(num) ? 0 : num })
+        }
+      }
+      return Array.from(mapa.values())
+    }
+
+    const itensAgrupadosC = agruparItensConsol(data.itens)
+    const footerIdC = data.id
+
+    const tableHeadC = [["#", "Cód. Produto", "Ordem", "Artigo", "Cor", "Desenho", "Quantidade"]]
+    const tableBodyC: string[][] = []
+    let numSeqC = 0
+    for (const g of itensAgrupadosC) {
+      numSeqC++
+      tableBodyC.push([
+        String(numSeqC),
+        g.item.codigoProduto || "—",
+        g.item.ordem || "—",
+        g.item.artigo || "—",
+        g.item.cor || "—",
+        g.item.desenho || "—",
+        g.qtd,
+      ])
+    }
 
     const tableW = pageWidth - margin * 2
     ;(doc as any).autoTable({
-      head: tableHead,
-      body: tableBody,
+      head: tableHeadC,
+      body: tableBodyC,
       startY: y,
       styles: { fontSize: 7.5, cellPadding: 2 },
       headStyles: { fillColor: [...corHeader], textColor: [...corHeaderText], fontStyle: "bold", fontSize: 7 },
@@ -465,23 +521,32 @@ export async function gerarRequisicaoCortePdfConsolidado(lista: RequisicaoCorteD
       tableLineColor: [...corBorda],
       tableLineWidth: 0.5,
       columnStyles: {
-        0: { cellWidth: tableW * 0.18 },
-        1: { cellWidth: tableW * 0.14 },
-        2: { cellWidth: tableW * 0.18 },
-        3: { cellWidth: tableW * 0.14 },
-        4: { cellWidth: tableW * 0.18 },
-        5: { cellWidth: tableW * 0.18, halign: "center" },
+        0: { cellWidth: tableW * 0.05, halign: "center" },
+        1: { cellWidth: tableW * 0.17 },
+        2: { cellWidth: tableW * 0.12 },
+        3: { cellWidth: tableW * 0.16 },
+        4: { cellWidth: tableW * 0.12 },
+        5: { cellWidth: tableW * 0.17 },
+        6: { cellWidth: tableW * 0.21, halign: "center" },
       },
-      didDrawPage: (data: any) => {
+      didDrawPage: (pageData: any) => {
         doc.setDrawColor(...corBorda)
         doc.line(margin, pageHeight - 14, pageWidth - margin, pageHeight - 14)
         doc.setTextColor(...corTextoSec)
         doc.setFontSize(7).setFont("helvetica", "normal")
-        doc.text(`Requisição de Corte Nº ${data.id}`, margin, pageHeight - 7)
-        doc.text(`Página ${data.pageNumber}`, pageWidth - margin, pageHeight - 7, { align: "right" })
+        doc.text(`Requisição de Corte Nº ${footerIdC}`, margin, pageHeight - 7)
+        doc.text(`Página ${pageData.pageNumber}`, pageWidth - margin, pageHeight - 7, { align: "right" })
         doc.setTextColor(...corTexto)
       },
     })
+
+    // ── Total row per page ──
+    const afterTableYC = (doc as any).lastAutoTable?.finalY ?? y + 10
+    doc.setFillColor(...corHeader)
+    doc.roundedRect(margin, afterTableYC, pageWidth - margin * 2, 7, 1.5, 1.5, "F")
+    doc.setTextColor(...corHeaderText)
+    doc.setFontSize(7.5).setFont("helvetica", "bold")
+    doc.text(`TOTAL: ${itensAgrupadosC.length} grupo(s) — ${data.itens.length} item(ns) — Qtd: ${totalQtd}`, margin + 4, afterTableYC + 5)
   }
 
   const sufixo = lista.length <= 3 ? lista.map((r: any) => r.id).join("-") : `${lista[0].id}-${lista[lista.length - 1].id}`
