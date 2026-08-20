@@ -7,6 +7,8 @@ export interface RequisicaoCorteData {
   status: string
   observacoes?: string | null
   entreguePor?: string | null
+  dataSolicitacao?: string | null
+  dataEntrega?: string | null
   createdAt?: string | null
   requisitanteNome?: string | null
   itens: {
@@ -170,14 +172,19 @@ export async function gerarRequisicaoCortePdf(data: RequisicaoCorteData, orienta
       { title: "Data de Criação", value: data.createdAt ? new Date(data.createdAt).toLocaleDateString("pt-BR") : "—" },
     ],
     [
+      { title: "Data Solicitação", value: data.dataSolicitacao ? new Date(data.dataSolicitacao + "T12:00:00").toLocaleDateString("pt-BR") : "—" },
+      { title: "Data Entrega", value: data.dataEntrega ? new Date(data.dataEntrega + "T12:00:00").toLocaleDateString("pt-BR") : "—" },
+      { title: "Entregue por", value: data.entreguePor || "—" },
+    ],
+    [
       { title: "Total Itens", value: String(data.itens.length || 0) },
       { title: "Quantidade Total", value: String(totalQtd) },
-      { title: "Entregue por", value: data.entreguePor || "—" },
+      { title: "", value: "" },
     ],
   ]
 
   const colW = (pageWidth - margin * 2 - 16) / 3
-  const infoRowsH = 30
+  const infoRowsH = 45
   const obsParts = data.observacoes ? doc.splitTextToSize(data.observacoes, pageWidth - margin * 2 - 16) : []
   const obsBlockH = data.observacoes ? Math.max(14, obsParts.length * 4 + 10) : 0
   const infoBoxH = infoRowsH + 8 + obsBlockH
@@ -414,7 +421,7 @@ export async function gerarRequisicaoCortePdfConsolidado(lista: RequisicaoCorteD
     doc.text("INFORMAÇÕES", margin + 4, y + 5)
     y += 7 + 3
 
-    const infoBoxH = 38
+    const infoBoxH = 53
     doc.setFillColor(...corSecundaria)
     doc.setDrawColor(...corBorda)
     doc.roundedRect(margin, y, pageWidth - margin * 2, infoBoxH, 2, 2, "FD")
@@ -427,13 +434,18 @@ export async function gerarRequisicaoCortePdfConsolidado(lista: RequisicaoCorteD
         { title: "Data de Criação", value: data.createdAt ? new Date(data.createdAt).toLocaleDateString("pt-BR") : "—" },
       ],
       [
+        { title: "Data Solicitação", value: data.dataSolicitacao ? new Date(data.dataSolicitacao + "T12:00:00").toLocaleDateString("pt-BR") : "—" },
+        { title: "Data Entrega", value: data.dataEntrega ? new Date(data.dataEntrega + "T12:00:00").toLocaleDateString("pt-BR") : "—" },
+        { title: "Entregue por", value: data.entreguePor || "—" },
+      ],
+      [
         { title: "Total Itens", value: String(data.itens.length || 0) },
         { title: "Quantidade Total", value: String(totalQtd) },
-        { title: "Entregue por", value: data.entreguePor || "—" },
+        { title: "", value: "" },
       ],
     ]
 
-    const infoRowsH = 30
+    const infoRowsH = 45
     const obsPartsC = data.observacoes ? doc.splitTextToSize(data.observacoes, pageWidth - margin * 2 - 16) : []
     const obsBlockHC = data.observacoes ? Math.max(14, obsPartsC.length * 4 + 10) : 0
     const infoBoxHC = infoRowsH + 8 + obsBlockHC

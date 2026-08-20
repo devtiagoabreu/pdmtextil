@@ -26,6 +26,8 @@ export async function GET(
         status: requisicoesCorte.status,
         observacoes: requisicoesCorte.observacoes,
         entreguePor: requisicoesCorte.entreguePor,
+        dataSolicitacao: requisicoesCorte.dataSolicitacao,
+        dataEntrega: requisicoesCorte.dataEntrega,
         createdAt: requisicoesCorte.createdAt,
         updatedAt: requisicoesCorte.updatedAt,
       })
@@ -79,6 +81,8 @@ export async function PUT(
     if (body.observacoes !== undefined) setValues.observacoes = body.observacoes
     if (body.entreguePor !== undefined) setValues.entreguePor = body.entreguePor
     if (body.status !== undefined) setValues.status = body.status
+    if (body.dataSolicitacao !== undefined) setValues.dataSolicitacao = body.dataSolicitacao
+    if (body.dataEntrega !== undefined) setValues.dataEntrega = body.dataEntrega
 
     await db
       .update(requisicoesCorte)

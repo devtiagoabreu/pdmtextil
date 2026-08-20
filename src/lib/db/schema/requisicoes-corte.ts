@@ -1,4 +1,4 @@
-import { pgTable, serial, varchar, text, integer, timestamp } from "drizzle-orm/pg-core"
+import { pgTable, serial, varchar, text, integer, timestamp, date } from "drizzle-orm/pg-core"
 import { usuarios } from "./usuarios"
 
 export const requisicoesCorte = pgTable("requisicoes_corte", {
@@ -7,6 +7,8 @@ export const requisicoesCorte = pgTable("requisicoes_corte", {
   status: varchar("status", { length: 30 }).notNull().default("SOLICITADO"),
   observacoes: text("observacoes"),
   entreguePor: varchar("entregue_por", { length: 200 }),
+  dataSolicitacao: date("data_solicitacao"),
+  dataEntrega: date("data_entrega"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 })

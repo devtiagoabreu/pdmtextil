@@ -20,6 +20,8 @@ export async function GET() {
         status: requisicoesCorte.status,
         observacoes: requisicoesCorte.observacoes,
         entreguePor: requisicoesCorte.entreguePor,
+        dataSolicitacao: requisicoesCorte.dataSolicitacao,
+        dataEntrega: requisicoesCorte.dataEntrega,
         createdAt: requisicoesCorte.createdAt,
         updatedAt: requisicoesCorte.updatedAt,
         totalCortes: sql<number>`COALESCE(COUNT(${requisicoesCorteItens.id}), 0)`,
@@ -48,7 +50,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const parsed = validateRequest(requisicaoCorteSchema, body)
     if ("error" in parsed) return parsed.error
-    const { itens, observacoes, entreguePor } = parsed.data
+    const { itens, observacoes, entreguePor, dataSolicitacao, dataEntrega } = parsed.data
 
     const [novaRequisicao] = await db
       .insert(requisicoesCorte)
@@ -56,6 +58,8 @@ export async function POST(req: NextRequest) {
         requisitanteId: userId,
         observacoes: observacoes || null,
         entreguePor: entreguePor || null,
+        dataSolicitacao: dataSolicitacao || null,
+        dataEntrega: dataEntrega || null,
         status: "SOLICITADO",
       })
       .returning()

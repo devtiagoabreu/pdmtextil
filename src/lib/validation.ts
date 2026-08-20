@@ -109,6 +109,8 @@ export const requisicaoCorteSchema = z.object({
   itens: z.array(requisicaoCorteItemSchema).min(1, "Adicione pelo menos um item"),
   observacoes: z.string().optional().nullable(),
   entreguePor: z.string().optional().nullable(),
+  dataSolicitacao: z.string().optional().nullable(),
+  dataEntrega: z.string().optional().nullable(),
 })
 
 export const fornecedorSchema = z.object({

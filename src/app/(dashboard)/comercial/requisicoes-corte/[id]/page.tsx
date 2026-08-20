@@ -58,6 +58,8 @@ export default function DetalheRequisicaoCortePage() {
   const [saving, setSaving] = useState(false)
   const [observacoes, setObservacoes] = useState("")
   const [entreguePor, setEntreguePor] = useState("")
+  const [dataSolicitacao, setDataSolicitacao] = useState("")
+  const [dataEntrega, setDataEntrega] = useState("")
   const [status, setStatus] = useState("")
   const [itens, setItens] = useState<ItemLinha[]>([])
   const [statusOptions, setStatusOptions] = useState<{ value: string; label: string; cor?: string }[]>([])
@@ -83,6 +85,8 @@ export default function DetalheRequisicaoCortePage() {
       .then((d: any) => {
         setObservacoes(d.observacoes || "")
         setEntreguePor(d.entreguePor || "")
+        setDataSolicitacao(d.dataSolicitacao || "")
+        setDataEntrega(d.dataEntrega || "")
         setStatus(d.status || "")
         setRequisitanteNome(d.requisitanteNome || "")
         setItens(Array.isArray(d.itens) ? d.itens : [])
@@ -158,7 +162,7 @@ export default function DetalheRequisicaoCortePage() {
       const res = await fetch(`/api/comercial/requisicoes-corte/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ itens: itensValidos, observacoes, entreguePor, status }),
+        body: JSON.stringify({ itens: itensValidos, observacoes, entreguePor, status, dataSolicitacao, dataEntrega }),
       })
       if (!res.ok) {
         const err = await res.json().catch(() => ({}))
@@ -379,6 +383,27 @@ export default function DetalheRequisicaoCortePage() {
               value={entreguePor}
               onChange={(e) => setEntreguePor(e.target.value)}
             />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="dataSolicitacao">Data de Solicitação</Label>
+              <Input
+                id="dataSolicitacao"
+                type="date"
+                value={dataSolicitacao}
+                onChange={(e) => setDataSolicitacao(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="dataEntrega">Data de Entrega</Label>
+              <Input
+                id="dataEntrega"
+                type="date"
+                value={dataEntrega}
+                onChange={(e) => setDataEntrega(e.target.value)}
+              />
+            </div>
           </div>
 
           <div className="space-y-2">

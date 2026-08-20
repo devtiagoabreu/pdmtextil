@@ -53,6 +53,8 @@ function NovaRequisicaoCortePageContent() {
   const [itens, setItens] = useState<ItemLinha[]>([itemVazio()])
   const [observacoes, setObservacoes] = useState("")
   const [entreguePor, setEntreguePor] = useState("")
+  const [dataSolicitacao, setDataSolicitacao] = useState("")
+  const [dataEntrega, setDataEntrega] = useState("")
 
   const [dialogCopiarAberto, setDialogCopiarAberto] = useState(false)
   const [qtdCopias, setQtdCopias] = useState("1")
@@ -74,6 +76,8 @@ function NovaRequisicaoCortePageContent() {
         })))
         if (dados.observacoes) setObservacoes(dados.observacoes)
         if (dados.entreguePor) setEntreguePor(dados.entreguePor)
+        if (dados.dataSolicitacao) setDataSolicitacao(dados.dataSolicitacao)
+        if (dados.dataEntrega) setDataEntrega(dados.dataEntrega)
         toast.success(`Requisição copiada — ${dados.itens.length} item(ns) carregado(s)`)
       }
       router.replace(pathname, { scroll: false })
@@ -150,7 +154,7 @@ function NovaRequisicaoCortePageContent() {
       const res = await fetch("/api/comercial/requisicoes-corte", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ itens: itensValidos, observacoes, entreguePor }),
+        body: JSON.stringify({ itens: itensValidos, observacoes, entreguePor, dataSolicitacao, dataEntrega }),
       })
       if (!res.ok) {
         const err = await res.json().catch(() => ({}))
@@ -332,6 +336,27 @@ function NovaRequisicaoCortePageContent() {
               onChange={(e) => setEntreguePor(e.target.value)}
               placeholder="Vilma"
             />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="dataSolicitacao">Data de Solicitação</Label>
+              <Input
+                id="dataSolicitacao"
+                type="date"
+                value={dataSolicitacao}
+                onChange={(e) => setDataSolicitacao(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="dataEntrega">Data de Entrega</Label>
+              <Input
+                id="dataEntrega"
+                type="date"
+                value={dataEntrega}
+                onChange={(e) => setDataEntrega(e.target.value)}
+              />
+            </div>
           </div>
         </div>
 
