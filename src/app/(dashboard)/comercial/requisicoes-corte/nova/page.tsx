@@ -77,13 +77,22 @@ function NovaRequisicaoCortePageContent() {
 
   const [dialogCopiarAberto, setDialogCopiarAberto] = useState(false)
   const [qtdCopias, setQtdCopias] = useState("1")
+  const emptyCliente = { nome: "", cnpj: "", razaoSocial: "", email: "", emailNf: "", telefone: "", celular: "", contato: "", segmento: "", endereco: "", cidade: "", uf: "" }
+  const emptyFornecedor = { nome: "", cnpj: "", razaoSocial: "", email: "", telefone: "", contato: "", endereco: "", cidade: "", uf: "" }
+  const emptyRepresentante = { nome: "", cnpj: "", razaoSocial: "", email: "", telefone: "", contato: "", endereco: "", cidade: "", uf: "" }
+
   const [showNovoCliente, setShowNovoCliente] = useState(false)
-  const [novoClienteData, setNovoClienteData] = useState({
-    nome: "", cnpj: "", razaoSocial: "", email: "", emailNf: "",
-    telefone: "", celular: "", contato: "", segmento: "",
-    endereco: "", cidade: "", uf: "",
-  })
+  const [novoClienteData, setNovoClienteData] = useState(emptyCliente)
   const [isCriandoCliente, setIsCriandoCliente] = useState(false)
+
+  const [showNovoFornecedor, setShowNovoFornecedor] = useState(false)
+  const [novoFornecedorData, setNovoFornecedorData] = useState(emptyFornecedor)
+  const [isCriandoFornecedor, setIsCriandoFornecedor] = useState(false)
+
+  const [showNovoRepresentante, setShowNovoRepresentante] = useState(false)
+  const [novoRepresentanteData, setNovoRepresentanteData] = useState(emptyRepresentante)
+  const [isCriandoRepresentante, setIsCriandoRepresentante] = useState(false)
+
   const [isConsultandoCnpj, setIsConsultandoCnpj] = useState(false)
 
   useEffect(() => {
@@ -213,7 +222,7 @@ function NovaRequisicaoCortePageContent() {
       setClienteIdGlobal(cliente.id)
       setClienteNomeGlobal(cliente.nome)
       setShowNovoCliente(false)
-      setNovoClienteData({ nome: "", cnpj: "", razaoSocial: "", email: "", emailNf: "", telefone: "", celular: "", contato: "", segmento: "", endereco: "", cidade: "", uf: "" })
+      setNovoClienteData(emptyCliente)
       toast.success("Cliente criado com sucesso!")
     } catch (error: any) {
       toast.error(error.message || "Erro ao criar cliente.")
@@ -257,6 +266,110 @@ function NovaRequisicaoCortePageContent() {
     } finally {
       setIsConsultandoCnpj(false)
     }
+  }
+
+  const handleCriarFornecedor = async () => {
+    if (!novoFornecedorData.nome.trim()) {
+      toast.error("Nome do fornecedor é obrigatório")
+      return
+    }
+    setIsCriandoFornecedor(true)
+    try {
+      const res = await fetch("/api/cadastros/fornecedores", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(novoFornecedorData),
+      })
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.error || "Erro ao criar fornecedor")
+      }
+      const f = await res.json()
+      setFornecedorIdGlobal(f.id)
+      setFornecedorNomeGlobal(f.nome)
+      setShowNovoFornecedor(false)
+      setNovoFornecedorData(emptyFornecedor)
+      toast.success("Fornecedor criado com sucesso!")
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao criar fornecedor.")
+    } finally {
+      setIsCriandoFornecedor(false)
+    }
+  }
+
+  const handleConsultarCnpjFornecedor = async () => {
+    const digits = novoFornecedorData.cnpj.replace(/\D/g, "")
+    if (digits.length !== 14) { toast.error("CNPJ deve ter 14 dígitos"); return }
+    setIsConsultandoCnpj(true)
+    try {
+      const res = await fetch(`/api/crm/consulta-cnpj?cnpj=${digits}`)
+      if (!res.ok) throw new Error((await res.json()).error || "Erro na consulta")
+      const result = await res.json()
+      const api = result.apiData
+      if (!api) { toast.error("CNPJ não encontrado na Receita Federal"); return }
+      setNovoFornecedorData((prev) => ({
+        ...prev,
+        nome: api.nome_fantasia || prev.nome,
+        cnpj: api.cnpj || prev.cnpj,
+        razaoSocial: api.razao_social || prev.razaoSocial,
+        endereco: [api.logradouro, api.numero, api.bairro].filter(Boolean).join(", ") || prev.endereco,
+        cidade: api.municipio || prev.cidade,
+        uf: api.uf || prev.uf,
+      }))
+      toast.success("Dados preenchidos pela Receita Federal")
+    } catch (err: any) { toast.error(err.message || "Erro ao consultar CNPJ") }
+    finally { setIsConsultandoCnpj(false) }
+  }
+
+  const handleCriarRepresentante = async () => {
+    if (!novoRepresentanteData.nome.trim()) { toast.error("Nome do representante é obrigatório"); return }
+    if (!novoRepresentanteData.cnpj.trim()) { toast.error("CNPJ do representante é obrigatório"); return }
+    setIsCriandoRepresentante(true)
+    try {
+      const res = await fetch("/api/representantes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(novoRepresentanteData),
+      })
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.error || "Erro ao criar representante")
+      }
+      const r = await res.json()
+      setRepresentanteIdGlobal(r.id)
+      setRepresentanteNomeGlobal(r.nome)
+      setShowNovoRepresentante(false)
+      setNovoRepresentanteData(emptyRepresentante)
+      toast.success("Representante criado com sucesso!")
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao criar representante.")
+    } finally {
+      setIsCriandoRepresentante(false)
+    }
+  }
+
+  const handleConsultarCnpjRepresentante = async () => {
+    const digits = novoRepresentanteData.cnpj.replace(/\D/g, "")
+    if (digits.length !== 14) { toast.error("CNPJ deve ter 14 dígitos"); return }
+    setIsConsultandoCnpj(true)
+    try {
+      const res = await fetch(`/api/crm/consulta-cnpj?cnpj=${digits}`)
+      if (!res.ok) throw new Error((await res.json()).error || "Erro na consulta")
+      const result = await res.json()
+      const api = result.apiData
+      if (!api) { toast.error("CNPJ não encontrado na Receita Federal"); return }
+      setNovoRepresentanteData((prev) => ({
+        ...prev,
+        nome: api.nome_fantasia || prev.nome,
+        cnpj: api.cnpj || prev.cnpj,
+        razaoSocial: api.razao_social || prev.razaoSocial,
+        endereco: [api.logradouro, api.numero, api.bairro].filter(Boolean).join(", ") || prev.endereco,
+        cidade: api.municipio || prev.cidade,
+        uf: api.uf || prev.uf,
+      }))
+      toast.success("Dados preenchidos pela Receita Federal")
+    } catch (err: any) { toast.error(err.message || "Erro ao consultar CNPJ") }
+    finally { setIsConsultandoCnpj(false) }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -321,7 +434,7 @@ function NovaRequisicaoCortePageContent() {
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-4">
           <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">Itens de Corte</h2>
 
-          <div className="overflow-x-auto">
+          <div className="min-h-[350px]">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-slate-200 dark:border-slate-700">
@@ -550,23 +663,37 @@ function NovaRequisicaoCortePageContent() {
             </div>
             <div className="space-y-2">
               <Label>Fornecedor (geral)</Label>
-              <CreatableSelect
-                valueId={fornecedorIdGlobal}
-                valueNome={fornecedorNomeGlobal}
-                onChange={(id, nome) => { setFornecedorIdGlobal(id); setFornecedorNomeGlobal(nome) }}
-                fetchUrl="/api/cadastros/fornecedores"
-                placeholder="Nenhum"
-              />
+              <div className="flex gap-2">
+                <CreatableSelect
+                  valueId={fornecedorIdGlobal}
+                  valueNome={fornecedorNomeGlobal}
+                  onChange={(id, nome) => { setFornecedorIdGlobal(id); setFornecedorNomeGlobal(nome) }}
+                  fetchUrl="/api/cadastros/fornecedores"
+                  placeholder="Nenhum"
+                  extraField="cnpj"
+                  className="flex-1"
+                />
+                <Button type="button" variant="outline" size="sm" onClick={() => setShowNovoFornecedor(true)} className="h-9 px-2 shrink-0" title="Cadastrar novo fornecedor">
+                  <UserPlus size={14} />
+                </Button>
+              </div>
             </div>
             <div className="space-y-2">
               <Label>Representante (geral)</Label>
-              <CreatableSelect
-                valueId={representanteIdGlobal}
-                valueNome={representanteNomeGlobal}
-                onChange={(id, nome) => { setRepresentanteIdGlobal(id); setRepresentanteNomeGlobal(nome) }}
-                fetchUrl="/api/representantes"
-                placeholder="Nenhum"
-              />
+              <div className="flex gap-2">
+                <CreatableSelect
+                  valueId={representanteIdGlobal}
+                  valueNome={representanteNomeGlobal}
+                  onChange={(id, nome) => { setRepresentanteIdGlobal(id); setRepresentanteNomeGlobal(nome) }}
+                  fetchUrl="/api/representantes"
+                  placeholder="Nenhum"
+                  extraField="cnpj"
+                  className="flex-1"
+                />
+                <Button type="button" variant="outline" size="sm" onClick={() => setShowNovoRepresentante(true)} className="h-9 px-2 shrink-0" title="Cadastrar novo representante">
+                  <UserPlus size={14} />
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -728,6 +855,98 @@ function NovaRequisicaoCortePageContent() {
                 className="bg-blue-600 hover:bg-blue-700 text-white"
               >
                 {isCriandoCliente ? "Criando..." : "Criar Cliente"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showNovoFornecedor && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-lg max-h-[85vh] overflow-y-auto p-6 space-y-4">
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Novo Fornecedor</h3>
+            <p className="text-sm text-slate-500">Digite o CNPJ e clique em Consultar para preencher automaticamente.</p>
+            <div className="space-y-3">
+              <div>
+                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">CNPJ</Label>
+                <div className="flex gap-2">
+                  <Input value={novoFornecedorData.cnpj} onChange={(e) => setNovoFornecedorData((p) => ({ ...p, cnpj: e.target.value }))} placeholder="00.000.000/0001-00" className="font-mono flex-1" maxLength={18} />
+                  <Button type="button" variant="outline" size="sm" onClick={handleConsultarCnpjFornecedor} disabled={isConsultandoCnpj || novoFornecedorData.cnpj.replace(/\D/g, "").length !== 14} className="gap-1 shrink-0">
+                    {isConsultandoCnpj ? <Loader2 size={14} className="animate-spin" /> : <Search size={14} />} Consultar
+                  </Button>
+                </div>
+              </div>
+              <div>
+                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Nome <span className="text-red-500">*</span></Label>
+                <Input value={novoFornecedorData.nome} onChange={(e) => setNovoFornecedorData((p) => ({ ...p, nome: e.target.value }))} placeholder="Nome do fornecedor" />
+              </div>
+              <div>
+                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Razão Social</Label>
+                <Input value={novoFornecedorData.razaoSocial} onChange={(e) => setNovoFornecedorData((p) => ({ ...p, razaoSocial: e.target.value }))} placeholder="Razão Social" />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Email</Label><Input type="email" value={novoFornecedorData.email} onChange={(e) => setNovoFornecedorData((p) => ({ ...p, email: e.target.value }))} placeholder="contato@email.com" /></div>
+                <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Telefone</Label><Input value={novoFornecedorData.telefone} onChange={(e) => setNovoFornecedorData((p) => ({ ...p, telefone: e.target.value }))} placeholder="(11) 3333-4444" /></div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Contato</Label><Input value={novoFornecedorData.contato} onChange={(e) => setNovoFornecedorData((p) => ({ ...p, contato: e.target.value }))} placeholder="Nome do contato" /></div>
+              </div>
+              <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Endereço</Label><Input value={novoFornecedorData.endereco} onChange={(e) => setNovoFornecedorData((p) => ({ ...p, endereco: e.target.value }))} placeholder="Rua, número, bairro" /></div>
+              <div className="grid grid-cols-3 gap-3">
+                <div className="col-span-2"><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Cidade</Label><Input value={novoFornecedorData.cidade} onChange={(e) => setNovoFornecedorData((p) => ({ ...p, cidade: e.target.value }))} placeholder="São Paulo" /></div>
+                <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">UF</Label><Input value={novoFornecedorData.uf} onChange={(e) => setNovoFornecedorData((p) => ({ ...p, uf: e.target.value.toUpperCase() }))} placeholder="SP" maxLength={2} /></div>
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <Button type="button" variant="outline" size="sm" onClick={() => { setShowNovoFornecedor(false); setNovoFornecedorData(emptyFornecedor) }}>Cancelar</Button>
+              <Button type="button" size="sm" onClick={handleCriarFornecedor} disabled={isCriandoFornecedor || !novoFornecedorData.nome.trim()} className="bg-blue-600 hover:bg-blue-700 text-white">
+                {isCriandoFornecedor ? "Criando..." : "Criar Fornecedor"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showNovoRepresentante && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-lg max-h-[85vh] overflow-y-auto p-6 space-y-4">
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Novo Representante</h3>
+            <p className="text-sm text-slate-500">Digite o CNPJ e clique em Consultar para preencher automaticamente.</p>
+            <div className="space-y-3">
+              <div>
+                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">CNPJ <span className="text-red-500">*</span></Label>
+                <div className="flex gap-2">
+                  <Input value={novoRepresentanteData.cnpj} onChange={(e) => setNovoRepresentanteData((p) => ({ ...p, cnpj: e.target.value }))} placeholder="00.000.000/0001-00" className="font-mono flex-1" maxLength={18} />
+                  <Button type="button" variant="outline" size="sm" onClick={handleConsultarCnpjRepresentante} disabled={isConsultandoCnpj || novoRepresentanteData.cnpj.replace(/\D/g, "").length !== 14} className="gap-1 shrink-0">
+                    {isConsultandoCnpj ? <Loader2 size={14} className="animate-spin" /> : <Search size={14} />} Consultar
+                  </Button>
+                </div>
+              </div>
+              <div>
+                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Nome <span className="text-red-500">*</span></Label>
+                <Input value={novoRepresentanteData.nome} onChange={(e) => setNovoRepresentanteData((p) => ({ ...p, nome: e.target.value }))} placeholder="Nome do representante" />
+              </div>
+              <div>
+                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Razão Social</Label>
+                <Input value={novoRepresentanteData.razaoSocial} onChange={(e) => setNovoRepresentanteData((p) => ({ ...p, razaoSocial: e.target.value }))} placeholder="Razão Social" />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Email</Label><Input type="email" value={novoRepresentanteData.email} onChange={(e) => setNovoRepresentanteData((p) => ({ ...p, email: e.target.value }))} placeholder="contato@email.com" /></div>
+                <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Telefone</Label><Input value={novoRepresentanteData.telefone} onChange={(e) => setNovoRepresentanteData((p) => ({ ...p, telefone: e.target.value }))} placeholder="(11) 3333-4444" /></div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Contato</Label><Input value={novoRepresentanteData.contato} onChange={(e) => setNovoRepresentanteData((p) => ({ ...p, contato: e.target.value }))} placeholder="Nome do contato" /></div>
+              </div>
+              <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Endereço</Label><Input value={novoRepresentanteData.endereco} onChange={(e) => setNovoRepresentanteData((p) => ({ ...p, endereco: e.target.value }))} placeholder="Rua, número, bairro" /></div>
+              <div className="grid grid-cols-3 gap-3">
+                <div className="col-span-2"><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Cidade</Label><Input value={novoRepresentanteData.cidade} onChange={(e) => setNovoRepresentanteData((p) => ({ ...p, cidade: e.target.value }))} placeholder="São Paulo" /></div>
+                <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">UF</Label><Input value={novoRepresentanteData.uf} onChange={(e) => setNovoRepresentanteData((p) => ({ ...p, uf: e.target.value.toUpperCase() }))} placeholder="SP" maxLength={2} /></div>
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <Button type="button" variant="outline" size="sm" onClick={() => { setShowNovoRepresentante(false); setNovoRepresentanteData(emptyRepresentante) }}>Cancelar</Button>
+              <Button type="button" size="sm" onClick={handleCriarRepresentante} disabled={isCriandoRepresentante || !novoRepresentanteData.nome.trim() || !novoRepresentanteData.cnpj.trim()} className="bg-blue-600 hover:bg-blue-700 text-white">
+                {isCriandoRepresentante ? "Criando..." : "Criar Representante"}
               </Button>
             </div>
           </div>
