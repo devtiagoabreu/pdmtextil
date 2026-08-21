@@ -240,7 +240,7 @@ export default function DetalheRequisicaoCortePage() {
   }, 0)
 
   return (
-    <div className="max-w-4xl mx-auto py-8 space-y-6 animate-fade-in">
+    <div className="max-w-7xl mx-auto py-8 space-y-6 animate-fade-in">
       <div className="flex items-center gap-4">
         <Link
           href="/comercial/requisicoes-corte"
