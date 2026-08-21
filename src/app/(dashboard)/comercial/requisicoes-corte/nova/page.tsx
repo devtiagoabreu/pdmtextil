@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { SuggestionInput } from "@/components/ui/suggestion-input"
 import { CreatableSelect } from "@/components/ui/creatable-select"
 import { Plus, Trash2, Copy, ChevronUp, ChevronDown, UserPlus, Search, Loader2 } from "lucide-react"
 import OcrInput from "@/components/ui/ocr-input"
@@ -610,42 +609,43 @@ function NovaRequisicaoCortePageContent() {
                       </div>
                     </td>
                     <td className="px-3 py-2">
-                      <SuggestionInput
+                      <Input
                         value={item.codigoProduto}
-                        onChange={(v) => handleItemChange(index, "codigoProduto", v)}
-                        campo="codigoProduto"
+                        onChange={(e) => handleItemChange(index, "codigoProduto", e.target.value)}
                         placeholder="2.K2620..."
-                        className="w-48"
+                        className="h-9 text-sm w-48"
                       />
                     </td>
                     <td className="px-3 py-2">
-                      <SuggestionInput
+                      <Input
                         value={item.ordem}
-                        onChange={(v) => handleItemChange(index, "ordem", v)}
-                        campo="ordem"
+                        onChange={(e) => handleItemChange(index, "ordem", e.target.value)}
+                        placeholder="Ordem"
+                        className="h-9 text-sm"
                       />
                     </td>
                     <td className="px-3 py-2">
-                      <SuggestionInput
+                      <Input
                         value={item.artigo}
-                        onChange={(v) => handleItemChange(index, "artigo", v)}
-                        campo="artigo"
+                        onChange={(e) => handleItemChange(index, "artigo", e.target.value)}
+                        placeholder="Artigo"
+                        className="h-9 text-sm"
                       />
                     </td>
                     <td className="px-3 py-2">
-                      <SuggestionInput
+                      <Input
                         value={item.cor}
-                        onChange={(v) => handleItemChange(index, "cor", v)}
-                        campo="cor"
+                        onChange={(e) => handleItemChange(index, "cor", e.target.value)}
                         placeholder="Palha"
+                        className="h-9 text-sm"
                       />
                     </td>
                     <td className="px-3 py-2">
-                      <SuggestionInput
+                      <Input
                         value={item.desenho}
-                        onChange={(v) => handleItemChange(index, "desenho", v)}
-                        campo="desenho"
+                        onChange={(e) => handleItemChange(index, "desenho", e.target.value)}
                         placeholder="500101"
+                        className="h-9 text-sm"
                       />
                     </td>
                     <td className="px-3 py-2">

@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query"
 import { useRouter, useParams, usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
-import { ArrowLeft, Loader2 } from "lucide-react"
+import { ArrowLeft, Loader2, Search } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -50,6 +50,31 @@ export default function FornecedorFormPage() {
     idIntegracao: "",
   })
   const [saving, setSaving] = useState(false)
+  const [isConsultandoCnpj, setIsConsultandoCnpj] = useState(false)
+
+  const handleConsultarCnpj = async () => {
+    const digits = (fornecedor.cnpj || "").replace(/\D/g, "")
+    if (digits.length !== 14) { toast.error("CNPJ deve ter 14 dígitos"); return }
+    setIsConsultandoCnpj(true)
+    try {
+      const res = await fetch(`/api/crm/consulta-cnpj?cnpj=${digits}`)
+      if (!res.ok) throw new Error((await res.json()).error || "Erro na consulta")
+      const result = await res.json()
+      const api = result.apiData
+      if (!api) { toast.error("CNPJ não encontrado na Receita Federal"); return }
+      setFornecedor((prev) => ({
+        ...prev,
+        nome: api.nome_fantasia || prev.nome,
+        cnpj: api.cnpj || prev.cnpj,
+        razaoSocial: api.razao_social || prev.razaoSocial,
+        endereco: [api.logradouro, api.numero, api.bairro].filter(Boolean).join(", ") || prev.endereco,
+        cidade: api.municipio || prev.cidade,
+        uf: api.uf || prev.uf,
+      }))
+      toast.success("Dados preenchidos pela Receita Federal")
+    } catch (err: any) { toast.error(err.message || "Erro ao consultar CNPJ") }
+    finally { setIsConsultandoCnpj(false) }
+  }
 
   const { data: fornecedorData, isLoading: loading } = useQuery<any>({
     queryKey: ["cadastro-fornecedor", id],
@@ -154,12 +179,26 @@ export default function FornecedorFormPage() {
           </div>
           <div className="space-y-2">
             <Label htmlFor="cnpj">CNPJ</Label>
-            <Input
-              id="cnpj"
-              value={fornecedor.cnpj || ""}
-              onChange={e => handleChange("cnpj", e.target.value)}
-              placeholder="00.000.000/0001-00"
-            />
+            <div className="flex gap-2">
+              <Input
+                id="cnpj"
+                value={fornecedor.cnpj || ""}
+                onChange={e => handleChange("cnpj", e.target.value)}
+                placeholder="00.000.000/0001-00"
+                className="flex-1"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleConsultarCnpj}
+                disabled={isConsultandoCnpj || (fornecedor.cnpj || "").replace(/\D/g, "").length !== 14}
+                className="gap-1 shrink-0"
+              >
+                {isConsultandoCnpj ? <Loader2 size={14} className="animate-spin" /> : <Search size={14} />}
+                Consultar
+              </Button>
+            </div>
           </div>
         </div>
 
