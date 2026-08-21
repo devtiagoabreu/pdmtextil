@@ -310,7 +310,7 @@ export async function gerarRequisicaoCortePdf(data: RequisicaoCorteData, orienta
       2: { cellWidth: tableW * 0.12 },
       3: { cellWidth: tableW * 0.16 },
       4: { cellWidth: tableW * 0.12 },
-      5: { cellWidth: tableW * 0.17 },
+      5: { cellWidth: tableW * 0.17, fontSize: 6 },
       6: { cellWidth: tableW * 0.21, halign: "center" },
     },
     didDrawPage: (pageData: any) => {
@@ -620,7 +620,7 @@ export async function gerarRequisicaoCortePdfConsolidado(lista: RequisicaoCorteD
         2: { cellWidth: tableW * 0.12 },
         3: { cellWidth: tableW * 0.16 },
         4: { cellWidth: tableW * 0.12 },
-        5: { cellWidth: tableW * 0.17 },
+        5: { cellWidth: tableW * 0.17, fontSize: 6 },
         6: { cellWidth: tableW * 0.21, halign: "center" },
       },
       didDrawPage: (pageData: any) => {
