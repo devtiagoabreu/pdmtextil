@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { SuggestionInput } from "@/components/ui/suggestion-input"
 import { CreatableSelect } from "@/components/ui/creatable-select"
-import { Plus, Trash2, Copy, ChevronUp, ChevronDown } from "lucide-react"
+import { Plus, Trash2, Copy, ChevronUp, ChevronDown, UserPlus } from "lucide-react"
 import OcrInput from "@/components/ui/ocr-input"
 import Link from "next/link"
 import { toast } from "sonner"
@@ -77,6 +77,9 @@ function NovaRequisicaoCortePageContent() {
 
   const [dialogCopiarAberto, setDialogCopiarAberto] = useState(false)
   const [qtdCopias, setQtdCopias] = useState("1")
+  const [showNovoCliente, setShowNovoCliente] = useState(false)
+  const [novoClienteData, setNovoClienteData] = useState({ nome: "", cnpj: "" })
+  const [isCriandoCliente, setIsCriandoCliente] = useState(false)
 
   useEffect(() => {
     try {
@@ -183,6 +186,35 @@ function NovaRequisicaoCortePageContent() {
         representanteNome: null,
       })),
     ])
+  }
+
+  const handleCriarCliente = async () => {
+    if (!novoClienteData.nome.trim()) {
+      toast.error("Nome do cliente é obrigatório")
+      return
+    }
+    setIsCriandoCliente(true)
+    try {
+      const res = await fetch("/api/clientes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nome: novoClienteData.nome, cnpj: novoClienteData.cnpj }),
+      })
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.error || "Erro ao criar cliente")
+      }
+      const cliente = await res.json()
+      setClienteIdGlobal(cliente.id)
+      setClienteNomeGlobal(cliente.nome)
+      setShowNovoCliente(false)
+      setNovoClienteData({ nome: "", cnpj: "" })
+      toast.success("Cliente criado com sucesso!")
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao criar cliente.")
+    } finally {
+      setIsCriandoCliente(false)
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -452,13 +484,27 @@ function NovaRequisicaoCortePageContent() {
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label>Cliente (geral)</Label>
-              <CreatableSelect
-                valueId={clienteIdGlobal}
-                valueNome={clienteNomeGlobal}
-                onChange={(id, nome) => { setClienteIdGlobal(id); setClienteNomeGlobal(nome) }}
-                fetchUrl="/api/clientes"
-                placeholder="Nenhum"
-              />
+              <div className="flex gap-2">
+                <CreatableSelect
+                  valueId={clienteIdGlobal}
+                  valueNome={clienteNomeGlobal}
+                  onChange={(id, nome) => { setClienteIdGlobal(id); setClienteNomeGlobal(nome) }}
+                  fetchUrl="/api/clientes"
+                  placeholder="Nenhum"
+                  extraField="cnpj"
+                  className="flex-1"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowNovoCliente(true)}
+                  className="h-9 px-2 shrink-0"
+                  title="Cadastrar novo cliente"
+                >
+                  <UserPlus size={14} />
+                </Button>
+              </div>
             </div>
             <div className="space-y-2">
               <Label>Fornecedor (geral)</Label>
@@ -523,6 +569,54 @@ function NovaRequisicaoCortePageContent() {
               </Button>
               <Button type="button" size="sm" onClick={copiarItemAtual} className="bg-blue-600 hover:bg-blue-700 text-white">
                 Copiar
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showNovoCliente && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-md p-6 space-y-4">
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Novo Cliente</h3>
+            <div className="space-y-3">
+              <div>
+                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Nome <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  value={novoClienteData.nome}
+                  onChange={(e) => setNovoClienteData((prev) => ({ ...prev, nome: e.target.value }))}
+                  placeholder="Nome do cliente"
+                  autoFocus
+                />
+              </div>
+              <div>
+                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">CNPJ</Label>
+                <Input
+                  value={novoClienteData.cnpj}
+                  onChange={(e) => setNovoClienteData((prev) => ({ ...prev, cnpj: e.target.value }))}
+                  placeholder="00.000.000/0000-00"
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => { setShowNovoCliente(false); setNovoClienteData({ nome: "", cnpj: "" }) }}
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleCriarCliente}
+                disabled={isCriandoCliente}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                {isCriandoCliente ? "Criando..." : "Criar Cliente"}
               </Button>
             </div>
           </div>

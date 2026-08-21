@@ -18,6 +18,8 @@ interface CreatableSelectProps {
   fetchUrl: string
   placeholder?: string
   className?: string
+  extraField?: string
+  onSelect?: (option: CreatableSelectOption) => void
 }
 
 export function CreatableSelect({
@@ -27,6 +29,8 @@ export function CreatableSelect({
   fetchUrl,
   placeholder,
   className,
+  extraField,
+  onSelect,
 }: CreatableSelectProps) {
   const [query, setQuery] = useState(valueNome || "")
   const [isOpen, setIsOpen] = useState(false)
@@ -100,6 +104,7 @@ export function CreatableSelect({
     setQuery(option.nome)
     onChange(option.id, option.nome)
     setIsOpen(false)
+    onSelect?.(option)
   }
 
   const handleClear = () => {
@@ -149,11 +154,14 @@ export function CreatableSelect({
               role="option"
               onClick={() => handleSelect(option)}
               className={cn(
-                "w-full text-left px-3 py-2 text-sm hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center",
+                "w-full text-left px-3 py-2 text-sm hover:bg-slate-100 dark:hover:bg-slate-700 flex justify-between items-center",
                 valueId === option.id && "bg-blue-50 dark:bg-blue-900/30"
               )}
             >
               <span className="text-slate-900 dark:text-slate-100">{option.nome}</span>
+              {extraField && option[extraField] && (
+                <span className="text-xs text-slate-500 font-mono ml-2 shrink-0">{option[extraField]}</span>
+              )}
             </button>
           ))}
         </div>
