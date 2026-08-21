@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { SuggestionInput } from "@/components/ui/suggestion-input"
 import { CreatableSelect } from "@/components/ui/creatable-select"
-import { Plus, Trash2, Copy, ChevronUp, ChevronDown, UserPlus } from "lucide-react"
+import { Plus, Trash2, Copy, ChevronUp, ChevronDown, UserPlus, Search, Loader2 } from "lucide-react"
 import OcrInput from "@/components/ui/ocr-input"
 import Link from "next/link"
 import { toast } from "sonner"
@@ -78,8 +78,13 @@ function NovaRequisicaoCortePageContent() {
   const [dialogCopiarAberto, setDialogCopiarAberto] = useState(false)
   const [qtdCopias, setQtdCopias] = useState("1")
   const [showNovoCliente, setShowNovoCliente] = useState(false)
-  const [novoClienteData, setNovoClienteData] = useState({ nome: "", cnpj: "" })
+  const [novoClienteData, setNovoClienteData] = useState({
+    nome: "", cnpj: "", razaoSocial: "", email: "", emailNf: "",
+    telefone: "", celular: "", contato: "", segmento: "",
+    endereco: "", cidade: "", uf: "",
+  })
   const [isCriandoCliente, setIsCriandoCliente] = useState(false)
+  const [isConsultandoCnpj, setIsConsultandoCnpj] = useState(false)
 
   useEffect(() => {
     try {
@@ -198,7 +203,7 @@ function NovaRequisicaoCortePageContent() {
       const res = await fetch("/api/clientes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nome: novoClienteData.nome, cnpj: novoClienteData.cnpj }),
+        body: JSON.stringify(novoClienteData),
       })
       if (!res.ok) {
         const err = await res.json()
@@ -208,12 +213,49 @@ function NovaRequisicaoCortePageContent() {
       setClienteIdGlobal(cliente.id)
       setClienteNomeGlobal(cliente.nome)
       setShowNovoCliente(false)
-      setNovoClienteData({ nome: "", cnpj: "" })
+      setNovoClienteData({ nome: "", cnpj: "", razaoSocial: "", email: "", emailNf: "", telefone: "", celular: "", contato: "", segmento: "", endereco: "", cidade: "", uf: "" })
       toast.success("Cliente criado com sucesso!")
     } catch (error: any) {
       toast.error(error.message || "Erro ao criar cliente.")
     } finally {
       setIsCriandoCliente(false)
+    }
+  }
+
+  const handleConsultarCnpj = async () => {
+    const digits = novoClienteData.cnpj.replace(/\D/g, "")
+    if (digits.length !== 14) {
+      toast.error("CNPJ deve ter 14 dígitos")
+      return
+    }
+    setIsConsultandoCnpj(true)
+    try {
+      const res = await fetch(`/api/crm/consulta-cnpj?cnpj=${digits}`)
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.error || "Erro na consulta")
+      }
+      const result = await res.json()
+      const api = result.apiData
+      if (!api) {
+        toast.error("CNPJ não encontrado na Receita Federal")
+        return
+      }
+      setNovoClienteData((prev) => ({
+        ...prev,
+        nome: api.nome_fantasia || prev.nome,
+        cnpj: api.cnpj || prev.cnpj,
+        razaoSocial: api.razao_social || prev.razaoSocial,
+        endereco: [api.logradouro, api.numero, api.bairro].filter(Boolean).join(", ") || prev.endereco,
+        cidade: api.municipio || prev.cidade,
+        uf: api.uf || prev.uf,
+        segmento: api.cnae_principal_descricao || prev.segmento,
+      }))
+      toast.success("Dados preenchidos pela Receita Federal")
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao consultar CNPJ")
+    } finally {
+      setIsConsultandoCnpj(false)
     }
   }
 
@@ -577,35 +619,104 @@ function NovaRequisicaoCortePageContent() {
 
       {showNovoCliente && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-md p-6 space-y-4">
+          <div className="bg-white dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-lg max-h-[85vh] overflow-y-auto p-6 space-y-4">
             <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Novo Cliente</h3>
+            <p className="text-sm text-slate-500">Digite o CNPJ e clique em Consultar para preencher automaticamente.</p>
             <div className="space-y-3">
               <div>
                 <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                  Nome <span className="text-red-500">*</span>
+                  CNPJ <span className="text-red-500">*</span>
+                </Label>
+                <div className="flex gap-2">
+                  <Input
+                    value={novoClienteData.cnpj}
+                    onChange={(e) => setNovoClienteData((prev) => ({ ...prev, cnpj: e.target.value }))}
+                    placeholder="00.000.000/0001-00"
+                    className="font-mono flex-1"
+                    maxLength={18}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleConsultarCnpj}
+                    disabled={isConsultandoCnpj || novoClienteData.cnpj.replace(/\D/g, "").length !== 14}
+                    className="gap-1 shrink-0"
+                  >
+                    {isConsultandoCnpj ? <Loader2 size={14} className="animate-spin" /> : <Search size={14} />}
+                    Consultar
+                  </Button>
+                </div>
+              </div>
+              <div>
+                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Nome / Fantasia <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   value={novoClienteData.nome}
                   onChange={(e) => setNovoClienteData((prev) => ({ ...prev, nome: e.target.value }))}
                   placeholder="Nome do cliente"
-                  autoFocus
                 />
               </div>
               <div>
-                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">CNPJ</Label>
+                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Razão Social</Label>
                 <Input
-                  value={novoClienteData.cnpj}
-                  onChange={(e) => setNovoClienteData((prev) => ({ ...prev, cnpj: e.target.value }))}
-                  placeholder="00.000.000/0000-00"
+                  value={novoClienteData.razaoSocial}
+                  onChange={(e) => setNovoClienteData((prev) => ({ ...prev, razaoSocial: e.target.value }))}
+                  placeholder="Razão Social completa"
                 />
               </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Email</Label>
+                  <Input type="email" value={novoClienteData.email} onChange={(e) => setNovoClienteData((prev) => ({ ...prev, email: e.target.value }))} placeholder="contato@email.com" />
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Email NF</Label>
+                  <Input type="email" value={novoClienteData.emailNf} onChange={(e) => setNovoClienteData((prev) => ({ ...prev, emailNf: e.target.value }))} placeholder="nf@email.com" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Telefone</Label>
+                  <Input value={novoClienteData.telefone} onChange={(e) => setNovoClienteData((prev) => ({ ...prev, telefone: e.target.value }))} placeholder="(11) 3333-4444" />
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Celular</Label>
+                  <Input value={novoClienteData.celular} onChange={(e) => setNovoClienteData((prev) => ({ ...prev, celular: e.target.value }))} placeholder="(11) 99999-9999" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Contato</Label>
+                  <Input value={novoClienteData.contato} onChange={(e) => setNovoClienteData((prev) => ({ ...prev, contato: e.target.value }))} placeholder="Nome do contato" />
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Segmento</Label>
+                  <Input value={novoClienteData.segmento} onChange={(e) => setNovoClienteData((prev) => ({ ...prev, segmento: e.target.value }))} placeholder="Ex: Têxtil" />
+                </div>
+              </div>
+              <div>
+                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Endereço</Label>
+                <Input value={novoClienteData.endereco} onChange={(e) => setNovoClienteData((prev) => ({ ...prev, endereco: e.target.value }))} placeholder="Rua, número, bairro" />
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                <div className="col-span-2">
+                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Cidade</Label>
+                  <Input value={novoClienteData.cidade} onChange={(e) => setNovoClienteData((prev) => ({ ...prev, cidade: e.target.value }))} placeholder="São Paulo" />
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">UF</Label>
+                  <Input value={novoClienteData.uf} onChange={(e) => setNovoClienteData((prev) => ({ ...prev, uf: e.target.value.toUpperCase() }))} placeholder="SP" maxLength={2} />
+                </div>
+              </div>
             </div>
-            <div className="flex justify-end gap-2">
+            <div className="flex justify-end gap-2 pt-2">
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => { setShowNovoCliente(false); setNovoClienteData({ nome: "", cnpj: "" }) }}
+                onClick={() => { setShowNovoCliente(false); setNovoClienteData({ nome: "", cnpj: "", razaoSocial: "", email: "", emailNf: "", telefone: "", celular: "", contato: "", segmento: "", endereco: "", cidade: "", uf: "" }) }}
               >
                 Cancelar
               </Button>
@@ -613,7 +724,7 @@ function NovaRequisicaoCortePageContent() {
                 type="button"
                 size="sm"
                 onClick={handleCriarCliente}
-                disabled={isCriandoCliente}
+                disabled={isCriandoCliente || !novoClienteData.nome.trim() || !novoClienteData.cnpj.trim()}
                 className="bg-blue-600 hover:bg-blue-700 text-white"
               >
                 {isCriandoCliente ? "Criando..." : "Criar Cliente"}

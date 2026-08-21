@@ -6,7 +6,7 @@ import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { FileText, ClipboardList, Paperclip, CheckCircle } from "lucide-react"
+import { FileText, ClipboardList, Paperclip, CheckCircle, Search, Loader2 } from "lucide-react"
 import Link from "next/link"
 
 import { dadosComerciaisSchema, DadosComerciais, BriefingTecelagem } from "@/types/briefing"
@@ -57,10 +57,17 @@ export default function NovaSolicitacaoPage() {
     cnpj: "",
     razaoSocial: "",
     email: "",
+    emailNf: "",
     telefone: "",
+    celular: "",
     contato: "",
+    segmento: "",
+    endereco: "",
+    cidade: "",
+    uf: "",
   })
   const [isCriandoCliente, setIsCriandoCliente] = useState(false)
+  const [isConsultandoCnpj, setIsConsultandoCnpj] = useState(false)
 
   // STEP 1 FORM
   const { register, handleSubmit, control, formState: { errors }, setValue, watch, getValues } = useForm<DadosComerciais>({
@@ -101,12 +108,49 @@ export default function NovaSolicitacaoPage() {
       const cliente = await res.json()
       setComercialData((prev) => ({ ...prev, cliente: cliente.nome, cnpj: cliente.cnpj }))
       setShowNovoCliente(false)
-      setNovoClienteData({ nome: "", cnpj: "", razaoSocial: "", email: "", telefone: "", contato: "" })
+      setNovoClienteData({ nome: "", cnpj: "", razaoSocial: "", email: "", emailNf: "", telefone: "", celular: "", contato: "", segmento: "", endereco: "", cidade: "", uf: "" })
       toast.success("Cliente criado com sucesso!")
     } catch (error: any) {
       toast.error(error.message || "Erro ao criar cliente.")
     } finally {
       setIsCriandoCliente(false)
+    }
+  }
+
+  const handleConsultarCnpj = async () => {
+    const digits = novoClienteData.cnpj.replace(/\D/g, "")
+    if (digits.length !== 14) {
+      toast.error("CNPJ deve ter 14 dígitos")
+      return
+    }
+    setIsConsultandoCnpj(true)
+    try {
+      const res = await fetch(`/api/crm/consulta-cnpj?cnpj=${digits}`)
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.error || "Erro na consulta")
+      }
+      const result = await res.json()
+      const api = result.apiData
+      if (!api) {
+        toast.error("CNPJ não encontrado na Receita Federal")
+        return
+      }
+      setNovoClienteData((prev) => ({
+        ...prev,
+        nome: api.nome_fantasia || prev.nome,
+        cnpj: api.cnpj || prev.cnpj,
+        razaoSocial: api.razao_social || prev.razaoSocial,
+        endereco: [api.logradouro, api.numero, api.bairro].filter(Boolean).join(", ") || prev.endereco,
+        cidade: api.municipio || prev.cidade,
+        uf: api.uf || prev.uf,
+        segmento: api.cnae_principal_descricao || prev.segmento,
+      }))
+      toast.success("Dados preenchidos pela Receita Federal")
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao consultar CNPJ")
+    } finally {
+      setIsConsultandoCnpj(false)
     }
   }
 
@@ -360,14 +404,38 @@ export default function NovaSolicitacaoPage() {
       </div>
 
       <Dialog open={showNovoCliente} onOpenChange={setShowNovoCliente}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Novo Cliente</DialogTitle>
             <DialogDescription>
-              Cadastre um novo cliente para usar na solicitação.
+              Digite o CNPJ e clique em Consultar para preencher automaticamente.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
+          <div className="grid gap-4 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="novo-cnpj">CNPJ *</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="novo-cnpj"
+                  value={novoClienteData.cnpj}
+                  onChange={(e) => setNovoClienteData((p) => ({ ...p, cnpj: e.target.value }))}
+                  placeholder="00.000.000/0001-00"
+                  className="font-mono flex-1"
+                  maxLength={18}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleConsultarCnpj}
+                  disabled={isConsultandoCnpj || novoClienteData.cnpj.replace(/\D/g, "").length !== 14}
+                  className="gap-1 shrink-0"
+                >
+                  {isConsultandoCnpj ? <Loader2 size={14} className="animate-spin" /> : <Search size={14} />}
+                  Consultar
+                </Button>
+              </div>
+            </div>
             <div className="space-y-2">
               <Label htmlFor="novo-nome">Nome / Fantasia *</Label>
               <Input
@@ -375,16 +443,6 @@ export default function NovaSolicitacaoPage() {
                 value={novoClienteData.nome}
                 onChange={(e) => setNovoClienteData((p) => ({ ...p, nome: e.target.value }))}
                 placeholder="Ex: Moda Fitness SA"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="novo-cnpj">CNPJ *</Label>
-              <Input
-                id="novo-cnpj"
-                value={novoClienteData.cnpj}
-                onChange={(e) => setNovoClienteData((p) => ({ ...p, cnpj: e.target.value }))}
-                placeholder="00.000.000/0001-00"
-                className="font-mono"
               />
             </div>
             <div className="space-y-2">
@@ -408,12 +466,83 @@ export default function NovaSolicitacaoPage() {
                 />
               </div>
               <div className="space-y-2">
+                <Label htmlFor="novo-emailNf">Email NF</Label>
+                <Input
+                  id="novo-emailNf"
+                  type="email"
+                  value={novoClienteData.emailNf}
+                  onChange={(e) => setNovoClienteData((p) => ({ ...p, emailNf: e.target.value }))}
+                  placeholder="nf@email.com"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
                 <Label htmlFor="novo-telefone">Telefone</Label>
                 <Input
                   id="novo-telefone"
                   value={novoClienteData.telefone}
                   onChange={(e) => setNovoClienteData((p) => ({ ...p, telefone: e.target.value }))}
+                  placeholder="(11) 3333-4444"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="novo-celular">Celular</Label>
+                <Input
+                  id="novo-celular"
+                  value={novoClienteData.celular}
+                  onChange={(e) => setNovoClienteData((p) => ({ ...p, celular: e.target.value }))}
                   placeholder="(11) 99999-9999"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="novo-contato">Contato</Label>
+                <Input
+                  id="novo-contato"
+                  value={novoClienteData.contato}
+                  onChange={(e) => setNovoClienteData((p) => ({ ...p, contato: e.target.value }))}
+                  placeholder="Nome do contato"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="novo-segmento">Segmento</Label>
+                <Input
+                  id="novo-segmento"
+                  value={novoClienteData.segmento}
+                  onChange={(e) => setNovoClienteData((p) => ({ ...p, segmento: e.target.value }))}
+                  placeholder="Ex: Têxtil"
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="novo-endereco">Endereço</Label>
+              <Input
+                id="novo-endereco"
+                value={novoClienteData.endereco}
+                onChange={(e) => setNovoClienteData((p) => ({ ...p, endereco: e.target.value }))}
+                placeholder="Rua, número, bairro"
+              />
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <div className="col-span-2 space-y-2">
+                <Label htmlFor="novo-cidade">Cidade</Label>
+                <Input
+                  id="novo-cidade"
+                  value={novoClienteData.cidade}
+                  onChange={(e) => setNovoClienteData((p) => ({ ...p, cidade: e.target.value }))}
+                  placeholder="São Paulo"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="novo-uf">UF</Label>
+                <Input
+                  id="novo-uf"
+                  value={novoClienteData.uf}
+                  onChange={(e) => setNovoClienteData((p) => ({ ...p, uf: e.target.value.toUpperCase() }))}
+                  placeholder="SP"
+                  maxLength={2}
                 />
               </div>
             </div>
