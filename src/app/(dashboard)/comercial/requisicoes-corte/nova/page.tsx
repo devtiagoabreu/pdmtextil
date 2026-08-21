@@ -16,6 +16,8 @@ import Link from "next/link"
 import { toast } from "sonner"
 import { PageSkeleton } from "@/components/ui/page-skeleton"
 
+type DestinoTipo = "cliente" | "fornecedor" | "representante"
+
 interface ItemLinha {
   id: string
   codigoProduto: string
@@ -24,6 +26,7 @@ interface ItemLinha {
   cor: string
   desenho: string
   quantidade: string
+  destinoTipo: DestinoTipo | null
   clienteId: number | null
   clienteNome: string | null
   fornecedorId: number | null
@@ -41,6 +44,7 @@ function itemVazio(): ItemLinha {
     cor: "",
     desenho: "",
     quantidade: "",
+    destinoTipo: null,
     clienteId: null,
     clienteNome: null,
     fornecedorId: null,
@@ -55,6 +59,113 @@ function copiarItem(item: ItemLinha): ItemLinha {
     ...item,
     id: typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : String(Date.now() + Math.random()),
   }
+}
+
+const TIPO_LABELS: Record<DestinoTipo, string> = { cliente: "Cliente", fornecedor: "Fornecedor", representante: "Representante" }
+
+function ItemNovoModal({
+  tipo,
+  isConsultandoCnpj,
+  onConsultarCnpj,
+  onSuccess,
+  onCancel,
+}: {
+  tipo: DestinoTipo
+  isConsultandoCnpj: boolean
+  onConsultarCnpj: () => Promise<void>
+  onSuccess: (id: number, nome: string) => void
+  onCancel: () => void
+}) {
+  const isCliente = tipo === "cliente"
+  const isRepresentante = tipo === "representante"
+  const [data, setData] = useState(() => isCliente
+    ? { nome: "", cnpj: "", razaoSocial: "", email: "", emailNf: "", telefone: "", celular: "", contato: "", segmento: "", endereco: "", cidade: "", uf: "" }
+    : { nome: "", cnpj: "", razaoSocial: "", email: "", telefone: "", contato: "", endereco: "", cidade: "", uf: "" }
+  )
+  const [saving, setSaving] = useState(false)
+
+  const handleSave = async () => {
+    if (!data.nome.trim()) { toast.error("Nome é obrigatório"); return }
+    if (isRepresentante && !data.cnpj.trim()) { toast.error("CNPJ é obrigatório para representante"); return }
+    setSaving(true)
+    try {
+      const url = isCliente ? "/api/clientes" : tipo === "fornecedor" ? "/api/cadastros/fornecedores" : "/api/representantes"
+      const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) })
+      if (!res.ok) { const err = await res.json(); throw new Error(err.error || "Erro ao criar") }
+      const created = await res.json()
+      toast.success(`${TIPO_LABELS[tipo]} criado(a) com sucesso!`)
+      onSuccess(created.id, created.nome)
+    } catch (err: any) { toast.error(err.message) }
+    finally { setSaving(false) }
+  }
+
+  const handleCnpjLookup = async () => {
+    const digits = data.cnpj.replace(/\D/g, "")
+    if (digits.length !== 14) { toast.error("CNPJ deve ter 14 dígitos"); return }
+    try {
+      const res = await fetch(`/api/crm/consulta-cnpj?cnpj=${digits}`)
+      if (!res.ok) throw new Error((await res.json()).error)
+      const result = await res.json()
+      const api = result.apiData
+      if (!api) { toast.error("CNPJ não encontrado"); return }
+      setData((prev: any) => ({
+        ...prev,
+        nome: api.nome_fantasia || prev.nome,
+        cnpj: api.cnpj || prev.cnpj,
+        razaoSocial: api.razao_social || prev.razaoSocial,
+        endereco: [api.logradouro, api.numero, api.bairro].filter(Boolean).join(", ") || prev.endereco,
+        cidade: api.municipio || prev.cidade,
+        uf: api.uf || prev.uf,
+        ...(isCliente ? { segmento: api.cnae_principal_descricao || prev.segmento } : {}),
+      }))
+      toast.success("Dados preenchidos pela Receita Federal")
+    } catch (err: any) { toast.error(err.message) }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      <div className="bg-white dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-lg max-h-[85vh] overflow-y-auto p-6 space-y-4">
+        <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Novo {TIPO_LABELS[tipo]}</h3>
+        <p className="text-sm text-slate-500">Digite o CNPJ e clique em Consultar para preencher automaticamente.</p>
+        <div className="space-y-3">
+          <div>
+            <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">CNPJ {isRepresentante && <span className="text-red-500">*</span>}</Label>
+            <div className="flex gap-2">
+              <Input value={data.cnpj} onChange={(e) => setData((p) => ({ ...p, cnpj: e.target.value }))} placeholder="00.000.000/0001-00" className="font-mono flex-1" maxLength={18} />
+              <Button type="button" variant="outline" size="sm" onClick={handleCnpjLookup} disabled={isConsultandoCnpj || data.cnpj.replace(/\D/g, "").length !== 14} className="gap-1 shrink-0">
+                {isConsultandoCnpj ? <Loader2 size={14} className="animate-spin" /> : <Search size={14} />} Consultar
+              </Button>
+            </div>
+          </div>
+          <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Nome <span className="text-red-500">*</span></Label><Input value={data.nome} onChange={(e) => setData((p) => ({ ...p, nome: e.target.value }))} placeholder={`Nome do ${TIPO_LABELS[tipo].toLowerCase()}`} /></div>
+          <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Razão Social</Label><Input value={data.razaoSocial} onChange={(e) => setData((p) => ({ ...p, razaoSocial: e.target.value }))} placeholder="Razão Social" /></div>
+          <div className="grid grid-cols-2 gap-3">
+            <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Email</Label><Input type="email" value={data.email} onChange={(e) => setData((p) => ({ ...p, email: e.target.value }))} placeholder="contato@email.com" /></div>
+            {isCliente && <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Email NF</Label><Input type="email" value={(data as any).emailNf || ""} onChange={(e) => setData((p) => ({ ...p, emailNf: e.target.value } as any))} placeholder="nf@email.com" /></div>}
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Telefone</Label><Input value={data.telefone} onChange={(e) => setData((p) => ({ ...p, telefone: e.target.value }))} placeholder="(11) 3333-4444" /></div>
+            {isCliente && <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Celular</Label><Input value={(data as any).celular || ""} onChange={(e) => setData((p) => ({ ...p, celular: e.target.value } as any))} placeholder="(11) 99999-9999" /></div>}
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Contato</Label><Input value={data.contato} onChange={(e) => setData((p) => ({ ...p, contato: e.target.value }))} placeholder="Nome do contato" /></div>
+            {isCliente && <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Segmento</Label><Input value={(data as any).segmento || ""} onChange={(e) => setData((p) => ({ ...p, segmento: e.target.value } as any))} placeholder="Ex: Têxtil" /></div>}
+          </div>
+          <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Endereço</Label><Input value={data.endereco} onChange={(e) => setData((p) => ({ ...p, endereco: e.target.value }))} placeholder="Rua, número, bairro" /></div>
+          <div className="grid grid-cols-3 gap-3">
+            <div className="col-span-2"><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Cidade</Label><Input value={data.cidade} onChange={(e) => setData((p) => ({ ...p, cidade: e.target.value }))} placeholder="São Paulo" /></div>
+            <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">UF</Label><Input value={data.uf} onChange={(e) => setData((p) => ({ ...p, uf: e.target.value.toUpperCase() }))} placeholder="SP" maxLength={2} /></div>
+          </div>
+        </div>
+        <div className="flex justify-end gap-2 pt-2">
+          <Button type="button" variant="outline" size="sm" onClick={onCancel}>Cancelar</Button>
+          <Button type="button" size="sm" onClick={handleSave} disabled={saving || !data.nome.trim()} className="bg-blue-600 hover:bg-blue-700 text-white">
+            {saving ? "Criando..." : `Criar ${TIPO_LABELS[tipo]}`}
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 function NovaRequisicaoCortePageContent() {
@@ -94,6 +205,9 @@ function NovaRequisicaoCortePageContent() {
   const [isCriandoRepresentante, setIsCriandoRepresentante] = useState(false)
 
   const [isConsultandoCnpj, setIsConsultandoCnpj] = useState(false)
+
+  const [itemNovoTipo, setItemNovoTipo] = useState<DestinoTipo | null>(null)
+  const [itemNovoIdx, setItemNovoIdx] = useState<number | null>(null)
 
   useEffect(() => {
     try {
@@ -181,6 +295,26 @@ function NovaRequisicaoCortePageContent() {
     setItens(prev => prev.filter((_: any, i: any) => i !== index))
   }
 
+  const handleDestinoTipoChange = (index: number, novoTipo: DestinoTipo) => {
+    setItens(prev => prev.map((item, i) => {
+      if (i !== index) return item
+      const updated = { ...item, destinoTipo: novoTipo }
+      if (novoTipo === "cliente") { updated.fornecedorId = null; updated.fornecedorNome = null; updated.representanteId = null; updated.representanteNome = null }
+      else if (novoTipo === "fornecedor") { updated.clienteId = null; updated.clienteNome = null; updated.representanteId = null; updated.representanteNome = null }
+      else if (novoTipo === "representante") { updated.clienteId = null; updated.clienteNome = null; updated.fornecedorId = null; updated.fornecedorNome = null }
+      return updated
+    }))
+  }
+
+  const handleItemNovoSucesso = (id: number, nome: string) => {
+    if (itemNovoIdx === null || !itemNovoTipo) return
+    const idField = itemNovoTipo === "cliente" ? "clienteId" : itemNovoTipo === "fornecedor" ? "fornecedorId" : "representanteId"
+    const nomeField = itemNovoTipo === "cliente" ? "clienteNome" : itemNovoTipo === "fornecedor" ? "fornecedorNome" : "representanteNome"
+    setItens(prev => prev.map((item, i) => i === itemNovoIdx ? { ...item, destinoTipo: itemNovoTipo, [idField]: id, [nomeField]: nome } : item))
+    setItemNovoIdx(null)
+    setItemNovoTipo(null)
+  }
+
   const handleOcrItens = (novosItens: any[]) => {
     setItens(prev => [
       ...prev.filter((item: any) => item.quantidade.trim()),
@@ -192,6 +326,7 @@ function NovaRequisicaoCortePageContent() {
         cor: item.cor || "",
         desenho: item.desenho || "",
         quantidade: item.quantidade || "",
+        destinoTipo: null,
         clienteId: null,
         clienteNome: null,
         fornecedorId: null,
@@ -445,9 +580,7 @@ function NovaRequisicaoCortePageContent() {
                   <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Cor</th>
                   <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Desenho</th>
                   <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Qtd <span className="text-red-500">*</span></th>
-                  <th className="px-2 py-2 text-left text-xs font-medium text-slate-500 uppercase">Cliente</th>
-                  <th className="px-2 py-2 text-left text-xs font-medium text-slate-500 uppercase">Fornec.</th>
-                  <th className="px-2 py-2 text-left text-xs font-medium text-slate-500 uppercase">Repr.</th>
+                  <th className="px-2 py-2 text-left text-xs font-medium text-slate-500 uppercase min-w-[220px]">Destino</th>
                   <th className="px-3 py-2 w-10"></th>
                 </tr>
               </thead>
@@ -524,34 +657,44 @@ function NovaRequisicaoCortePageContent() {
                       />
                     </td>
                     <td className="px-2 py-2">
-                      <CreatableSelect
-                        valueId={item.clienteId}
-                        valueNome={item.clienteNome}
-                        onChange={(id, nome) => handleItemCreatableChange(index, "clienteId", "clienteNome", id, nome)}
-                        fetchUrl="/api/clientes"
-                        placeholder="—"
-                        className="text-xs"
-                      />
-                    </td>
-                    <td className="px-2 py-2">
-                      <CreatableSelect
-                        valueId={item.fornecedorId}
-                        valueNome={item.fornecedorNome}
-                        onChange={(id, nome) => handleItemCreatableChange(index, "fornecedorId", "fornecedorNome", id, nome)}
-                        fetchUrl="/api/cadastros/fornecedores"
-                        placeholder="—"
-                        className="text-xs"
-                      />
-                    </td>
-                    <td className="px-2 py-2">
-                      <CreatableSelect
-                        valueId={item.representanteId}
-                        valueNome={item.representanteNome}
-                        onChange={(id, nome) => handleItemCreatableChange(index, "representanteId", "representanteNome", id, nome)}
-                        fetchUrl="/api/representantes"
-                        placeholder="—"
-                        className="text-xs"
-                      />
+                      <div className="flex items-center gap-1">
+                        <select
+                          value={item.destinoTipo || ""}
+                          onChange={(e) => handleDestinoTipoChange(index, e.target.value as DestinoTipo)}
+                          className="h-9 text-xs rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-1.5 py-1 text-slate-700 dark:text-slate-300 w-20 shrink-0"
+                        >
+                          <option value="">Tipo</option>
+                          <option value="cliente">Cliente</option>
+                          <option value="fornecedor">Fornec.</option>
+                          <option value="representante">Repr.</option>
+                        </select>
+                        {item.destinoTipo && (
+                          <>
+                            <CreatableSelect
+                              valueId={item.destinoTipo === "cliente" ? item.clienteId : item.destinoTipo === "fornecedor" ? item.fornecedorId : item.representanteId}
+                              valueNome={item.destinoTipo === "cliente" ? item.clienteNome : item.destinoTipo === "fornecedor" ? item.fornecedorNome : item.representanteNome}
+                              onChange={(id, nome) => {
+                                const idField = item.destinoTipo === "cliente" ? "clienteId" : item.destinoTipo === "fornecedor" ? "fornecedorId" : "representanteId"
+                                const nomeField = item.destinoTipo === "cliente" ? "clienteNome" : item.destinoTipo === "fornecedor" ? "fornecedorNome" : "representanteNome"
+                                handleItemCreatableChange(index, idField, nomeField, id, nome)
+                              }}
+                              fetchUrl={item.destinoTipo === "cliente" ? "/api/clientes" : item.destinoTipo === "fornecedor" ? "/api/cadastros/fornecedores" : "/api/representantes"}
+                              placeholder="Buscar..."
+                              className="text-xs flex-1 min-w-0"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="h-7 w-7 p-0 shrink-0"
+                              onClick={() => { setItemNovoTipo(item.destinoTipo); setItemNovoIdx(index) }}
+                              title={`Novo ${item.destinoTipo}`}
+                            >
+                              <UserPlus size={11} />
+                            </Button>
+                          </>
+                        )}
+                      </div>
                     </td>
                     <td className="px-3 py-2">
                       {itens.length > 1 && (
@@ -952,6 +1095,16 @@ function NovaRequisicaoCortePageContent() {
             </div>
           </div>
         </div>
+      )}
+
+      {itemNovoTipo && itemNovoIdx !== null && (
+        <ItemNovoModal
+          tipo={itemNovoTipo}
+          isConsultandoCnpj={isConsultandoCnpj}
+          onConsultarCnpj={itemNovoTipo === "cliente" ? handleConsultarCnpj : itemNovoTipo === "fornecedor" ? handleConsultarCnpjFornecedor : handleConsultarCnpjRepresentante}
+          onSuccess={handleItemNovoSucesso}
+          onCancel={() => { setItemNovoTipo(null); setItemNovoIdx(null) }}
+        />
       )}
     </div>
   )
