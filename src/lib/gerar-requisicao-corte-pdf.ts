@@ -174,7 +174,7 @@ export async function gerarRequisicaoCortePdf(data: RequisicaoCorteData, orienta
   ]
 
   const colW = (pageWidth - margin * 2 - 16) / 3
-  const infoRowsH = 45
+  const infoRowsH = 39
   const obsParts = data.observacoes ? doc.splitTextToSize(data.observacoes, pageWidth - margin * 2 - 16) : []
   const obsBlockH = data.observacoes ? Math.max(14, obsParts.length * 4 + 10) : 0
   const infoBoxH = infoRowsH + 8 + obsBlockH
@@ -184,14 +184,14 @@ export async function gerarRequisicaoCortePdf(data: RequisicaoCorteData, orienta
   doc.roundedRect(margin, y, pageWidth - margin * 2, infoBoxH, 2, 2, "FD")
 
   infoRows.forEach((row: any, ri: any) => {
-    const rowY = y + 4 + ri * 15
+    const rowY = y + 4 + ri * 13
     row.forEach((cell: any, ci: any) => {
       const cx = margin + 8 + ci * (colW + 4)
       doc.setFont("helvetica", "bold").setFontSize(7)
       doc.setTextColor(...corTexto)
       doc.text(cell.title, cx, rowY)
       doc.setFont("helvetica", "normal").setFontSize(8)
-      doc.text(cell.value, cx, rowY + 4)
+      doc.text(cell.value, cx, rowY + 3.5)
     })
   })
 
@@ -486,7 +486,7 @@ export async function gerarRequisicaoCortePdfConsolidado(lista: RequisicaoCorteD
       ],
     ]
 
-    const infoRowsH = 45
+    const infoRowsH = 39
     const obsPartsC = data.observacoes ? doc.splitTextToSize(data.observacoes, pageWidth - margin * 2 - 16) : []
     const obsBlockHC = data.observacoes ? Math.max(14, obsPartsC.length * 4 + 10) : 0
     const infoBoxHC = infoRowsH + 8 + obsBlockHC
@@ -496,14 +496,14 @@ export async function gerarRequisicaoCortePdfConsolidado(lista: RequisicaoCorteD
     doc.roundedRect(margin, y, pageWidth - margin * 2, infoBoxHC, 2, 2, "FD")
 
     infoData.forEach((row: any, ri: any) => {
-      const rowY = y + 4 + ri * 15
+      const rowY = y + 4 + ri * 13
       row.forEach((cell: any, ci: any) => {
         const cx = margin + 8 + ci * (colW + 4)
         doc.setFont("helvetica", "bold").setFontSize(7)
         doc.setTextColor(...corTexto)
         doc.text(cell.title, cx, rowY)
         doc.setFont("helvetica", "normal").setFontSize(8)
-        doc.text(cell.value, cx, rowY + 4)
+        doc.text(cell.value, cx, rowY + 3.5)
       })
     })
 
