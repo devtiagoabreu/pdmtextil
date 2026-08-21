@@ -107,15 +107,16 @@ export async function PUT(
         .where(eq(requisicoesCorteItens.requisicaoCorteId, parseInt(id)))
 
       if (body.itens.length > 0) {
-        await db.insert(requisicoesCorteItens).values(
-          body.        itens.map((item: any) => ({
+        const itensParaInserir = body.itens
+          .filter((item: any) => item.quantidade && String(item.quantidade).trim())
+          .map((item: any) => ({
             requisicaoCorteId: parseInt(id),
             codigoProduto: item.codigoProduto || null,
             ordem: item.ordem || null,
             artigo: item.artigo || null,
             cor: item.cor || null,
             desenho: item.desenho || null,
-            quantidade: item.quantidade,
+            quantidade: String(item.quantidade).trim(),
             clienteId: item.clienteId || null,
             clienteNome: item.clienteNome || null,
             fornecedorId: item.fornecedorId || null,
@@ -123,7 +124,9 @@ export async function PUT(
             representanteId: item.representanteId || null,
             representanteNome: item.representanteNome || null,
           }))
-        )
+        if (itensParaInserir.length > 0) {
+          await db.insert(requisicoesCorteItens).values(itensParaInserir)
+        }
       }
     }
 
