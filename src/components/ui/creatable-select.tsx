@@ -1,12 +1,14 @@
 "use client"
 
-import { useState, useEffect, useRef, useCallback } from "react"
+import { useState, useEffect, useRef } from "react"
+import { Search, X, Loader2 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 
 interface CreatableSelectOption {
   id: number
   nome: string
+  [key: string]: any
 }
 
 interface CreatableSelectProps {
@@ -26,171 +28,133 @@ export function CreatableSelect({
   placeholder,
   className,
 }: CreatableSelectProps) {
-  const [opcoes, setOpcoes] = useState<CreatableSelectOption[]>([])
-  const [filtro, setFiltro] = useState(valueNome || "")
-  const [aberto, setAberto] = useState(false)
-  const [indiceFocado, setIndiceFocado] = useState(-1)
-  const [carregando, setCarregando] = useState(false)
+  const [query, setQuery] = useState(valueNome || "")
+  const [isOpen, setIsOpen] = useState(false)
+  const [debouncedQuery, setDebouncedQuery] = useState("")
+  const [results, setResults] = useState<CreatableSelectOption[]>([])
+  const [isLoading, setIsLoading] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
-
-  const textoExibicao = valueNome || ""
-
-  const buscarOpcoes = useCallback(
-    async (busca: string) => {
-      setCarregando(true)
-      try {
-        const url = busca.trim().length > 0
-          ? `${fetchUrl}?limit=20&q=${encodeURIComponent(busca)}`
-          : `${fetchUrl}?limit=20`
-        const res = await fetch(url)
-        if (res.ok) {
-          const data = await res.json()
-          const items: CreatableSelectOption[] = Array.isArray(data)
-            ? data.map((d: any) => ({ id: d.id, nome: d.nome }))
-            : data.items
-              ? data.items.map((d: any) => ({ id: d.id, nome: d.nome }))
-              : []
-          setOpcoes(items)
-        }
-      } catch {
-        setOpcoes([])
-      } finally {
-        setCarregando(false)
-      }
-    },
-    [fetchUrl]
-  )
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current)
-    timeoutRef.current = setTimeout(() => buscarOpcoes(filtro), 300)
-    return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    if (valueNome !== undefined && valueNome !== null) {
+      setQuery(valueNome)
     }
-  }, [filtro, buscarOpcoes])
-
-  useEffect(() => {
-    function handleClickFora(e: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setAberto(false)
-        if (valueId && valueNome) {
-          setFiltro(valueNome)
-        } else if (!valueId && !valueNome) {
-          setFiltro("")
-        }
-      }
-    }
-    document.addEventListener("mousedown", handleClickFora)
-    return () => document.removeEventListener("mousedown", handleClickFora)
-  }, [valueId, valueNome])
-
-  useEffect(() => {
-    setFiltro(valueNome || "")
   }, [valueNome])
 
-  function selecionar(opcao: CreatableSelectOption) {
-    onChange(opcao.id, opcao.nome)
-    setFiltro(opcao.nome)
-    setAberto(false)
-    setIndiceFocado(-1)
-  }
-
-  function handleInputChange(valor: string) {
-    setFiltro(valor)
-    setAberto(true)
-    setIndiceFocado(-1)
-    if (!valor.trim()) {
-      onChange(null, null)
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => {
+      setDebouncedQuery(query.length >= 2 ? query : "")
+    }, 300)
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current)
     }
-  }
+  }, [query])
 
-  function handleInputBlur() {
-    setTimeout(() => {
-      if (!filtro.trim()) {
-        onChange(null, null)
-      } else if (filtro.trim() && !valueId) {
-        onChange(null, filtro.trim())
+  useEffect(() => {
+    if (!debouncedQuery) {
+      setResults([])
+      return
+    }
+    let cancelled = false
+    setIsLoading(true)
+    fetch(`${fetchUrl}?q=${encodeURIComponent(debouncedQuery)}&limit=20`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (cancelled) return
+        const items: CreatableSelectOption[] = Array.isArray(data)
+          ? data
+          : data.items
+            ? data.items
+            : []
+        setResults(items)
+      })
+      .catch(() => {
+        if (!cancelled) setResults([])
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false)
+      })
+    return () => { cancelled = true }
+  }, [debouncedQuery, fetchUrl])
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
       }
-    }, 150)
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value
+    setQuery(val)
+    onChange(null, val || null)
+    setIsOpen(true)
   }
 
-  function handleKeyDown(e: React.KeyboardEvent) {
-    if (!aberto || opcoes.length === 0) return
+  const handleSelect = (option: CreatableSelectOption) => {
+    setQuery(option.nome)
+    onChange(option.id, option.nome)
+    setIsOpen(false)
+  }
 
-    if (e.key === "ArrowDown") {
-      e.preventDefault()
-      setIndiceFocado(prev => (prev < opcoes.length - 1 ? prev + 1 : 0))
-    } else if (e.key === "ArrowUp") {
-      e.preventDefault()
-      setIndiceFocado(prev => (prev > 0 ? prev - 1 : opcoes.length - 1))
-    } else if (e.key === "Enter" && indiceFocado >= 0) {
-      e.preventDefault()
-      selecionar(opcoes[indiceFocado])
-    } else if (e.key === "Escape") {
-      setAberto(false)
-    }
+  const handleClear = () => {
+    setQuery("")
+    onChange(null, null)
+    setIsOpen(false)
   }
 
   return (
-    <div ref={containerRef} className="relative">
-      <Input
-        ref={inputRef}
-        value={filtro}
-        onChange={(e) => handleInputChange(e.target.value)}
-        onFocus={() => {
-          buscarOpcoes(filtro)
-          setAberto(true)
-        }}
-        onBlur={handleInputBlur}
-        placeholder={placeholder || "Buscar ou digitar..."}
-        className={cn("h-9 text-sm", className)}
-        onKeyDown={handleKeyDown}
-        role="combobox"
-        aria-expanded={aberto}
-        aria-autocomplete="list"
-      />
-      {aberto && (
+    <div ref={containerRef} className={cn("relative", className)}>
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+        <Input
+          value={query}
+          onChange={handleChange}
+          onFocus={() => setIsOpen(true)}
+          placeholder={placeholder || "Digite para buscar..."}
+          role="combobox"
+          aria-expanded={isOpen && results.length > 0}
+          aria-autocomplete="list"
+          className="pl-9 pr-8 h-9 text-sm"
+        />
+        {query && (
+          <button
+            type="button"
+            onClick={handleClear}
+            aria-label="Limpar"
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+          >
+            <X size={14} />
+          </button>
+        )}
+        {isLoading && (
+          <Loader2 className="absolute right-8 top-1/2 -translate-y-1/2 text-slate-400 animate-spin" size={14} />
+        )}
+      </div>
+
+      {isOpen && results.length > 0 && (
         <div
           role="listbox"
-          className="absolute z-50 mt-1 w-full max-h-48 overflow-y-auto rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-lg"
+          className="absolute z-50 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg max-h-48 overflow-auto"
         >
-          {carregando && (
-            <div className="px-3 py-1.5 text-xs text-muted-foreground">Buscando...</div>
-          )}
-          {!carregando && opcoes.length === 0 && filtro.trim().length > 0 && (
-            <div
+          {results.map((option) => (
+            <button
+              key={option.id}
+              type="button"
               role="option"
-              className="px-3 py-1.5 text-sm cursor-pointer text-blue-600 dark:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-800"
-              onMouseDown={(e) => {
-                e.preventDefault()
-                onChange(null, filtro.trim())
-                setAberto(false)
-              }}
-            >
-              Usar &quot;{filtro.trim()}&quot;
-            </div>
-          )}
-          {!carregando && opcoes.map((opcao, i) => (
-            <div
-              key={opcao.id}
-              role="option"
-              aria-selected={i === indiceFocado}
+              onClick={() => handleSelect(option)}
               className={cn(
-                "px-3 py-1.5 text-sm cursor-pointer",
-                i === indiceFocado
-                  ? "bg-blue-100 dark:bg-blue-900/50 text-blue-900 dark:text-blue-100"
-                  : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
+                "w-full text-left px-3 py-2 text-sm hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center",
+                valueId === option.id && "bg-blue-50 dark:bg-blue-900/30"
               )}
-              onMouseDown={(e) => {
-                e.preventDefault()
-                selecionar(opcao)
-              }}
-              onMouseEnter={() => setIndiceFocado(i)}
             >
-              {opcao.nome}
-            </div>
+              <span className="text-slate-900 dark:text-slate-100">{option.nome}</span>
+            </button>
           ))}
         </div>
       )}
