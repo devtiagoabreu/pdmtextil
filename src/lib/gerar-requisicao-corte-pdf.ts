@@ -22,6 +22,13 @@ export interface RequisicaoCorteData {
   }[]
 }
 
+function formatarQtdCorte(qtd: number, count: number, pecas: number[]): string {
+  if (count <= 1) return String(qtd)
+  const todosIguais = pecas.every((p) => p === pecas[0])
+  if (todosIguais) return `${pecas[0]}m × ${count}pç`
+  return `${count}pç (${pecas.join("+")})`
+}
+
 const STATUS_LABEL: Record<string, string> = {
   SOLICITADO: "Solicitado",
   PROCESSANDO: "Processando",
@@ -235,7 +242,7 @@ export async function gerarRequisicaoCortePdf(data: RequisicaoCorteData, orienta
       },
     ])
 
-    const aggMap = new Map<string, { item: RequisicaoCorteData["itens"][0]; qtd: number; count: number }>()
+    const aggMap = new Map<string, { item: RequisicaoCorteData["itens"][0]; qtd: number; count: number; pecas: number[] }>()
     for (const item of prodItens) {
       const key = `${item.ordem}||${item.artigo}||${item.cor}||${item.desenho}`
       const num = parseFloat(item.quantidade.replace(/[^0-9.,]/g, "").replace(",", "."))
@@ -244,8 +251,9 @@ export async function gerarRequisicaoCortePdf(data: RequisicaoCorteData, orienta
         const existing = aggMap.get(key)!
         existing.qtd += val
         existing.count++
+        existing.pecas.push(val)
       } else {
-        aggMap.set(key, { item, qtd: val, count: 1 })
+        aggMap.set(key, { item, qtd: val, count: 1, pecas: [val] })
       }
     }
 
@@ -265,7 +273,7 @@ export async function gerarRequisicaoCortePdf(data: RequisicaoCorteData, orienta
         agg.item.artigo || "—",
         agg.item.cor || "—",
         agg.item.desenho || "—",
-        String(agg.qtd),
+        formatarQtdCorte(agg.qtd, agg.count, agg.pecas),
       ])
     }
 
@@ -545,7 +553,7 @@ export async function gerarRequisicaoCortePdfConsolidado(lista: RequisicaoCorteD
         },
       ])
 
-      const aggMapC = new Map<string, { item: RequisicaoCorteData["itens"][0]; qtd: number; count: number }>()
+      const aggMapC = new Map<string, { item: RequisicaoCorteData["itens"][0]; qtd: number; count: number; pecas: number[] }>()
       for (const item of prodItens) {
         const key = `${item.ordem}||${item.artigo}||${item.cor}||${item.desenho}`
         const num = parseFloat(item.quantidade.replace(/[^0-9.,]/g, "").replace(",", "."))
@@ -554,8 +562,9 @@ export async function gerarRequisicaoCortePdfConsolidado(lista: RequisicaoCorteD
           const existing = aggMapC.get(key)!
           existing.qtd += val
           existing.count++
+          existing.pecas.push(val)
         } else {
-          aggMapC.set(key, { item, qtd: val, count: 1 })
+          aggMapC.set(key, { item, qtd: val, count: 1, pecas: [val] })
         }
       }
 
@@ -575,7 +584,7 @@ export async function gerarRequisicaoCortePdfConsolidado(lista: RequisicaoCorteD
           agg.item.artigo || "—",
           agg.item.cor || "—",
           agg.item.desenho || "—",
-          String(agg.qtd),
+          formatarQtdCorte(agg.qtd, agg.count, agg.pecas),
         ])
       }
 
