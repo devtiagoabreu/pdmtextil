@@ -84,11 +84,11 @@ export async function PUT(
       updatedAt: new Date(),
     }
 
-    if (body.observacoes !== undefined) setValues.observacoes = body.observacoes
-    if (body.entreguePor !== undefined) setValues.entreguePor = body.entreguePor
+    if (body.observacoes !== undefined) setValues.observacoes = body.observacoes || null
+    if (body.entreguePor !== undefined) setValues.entreguePor = body.entreguePor || null
     if (body.status !== undefined) setValues.status = body.status
-    if (body.dataSolicitacao !== undefined) setValues.dataSolicitacao = body.dataSolicitacao
-    if (body.dataEntrega !== undefined) setValues.dataEntrega = body.dataEntrega
+    if (body.dataSolicitacao !== undefined) setValues.dataSolicitacao = body.dataSolicitacao || null
+    if (body.dataEntrega !== undefined) setValues.dataEntrega = body.dataEntrega || null
     if (body.clienteId !== undefined) setValues.clienteId = body.clienteId
     if (body.clienteNome !== undefined) setValues.clienteNome = body.clienteNome
     if (body.fornecedorId !== undefined) setValues.fornecedorId = body.fornecedorId
