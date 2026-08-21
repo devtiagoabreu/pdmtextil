@@ -9,18 +9,12 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { SuggestionInput } from "@/components/ui/suggestion-input"
+import { CreatableSelect } from "@/components/ui/creatable-select"
 import { Plus, Trash2, Copy, ChevronUp, ChevronDown } from "lucide-react"
 import OcrInput from "@/components/ui/ocr-input"
 import Link from "next/link"
 import { toast } from "sonner"
 import { PageSkeleton } from "@/components/ui/page-skeleton"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 
 interface ItemLinha {
   id: string
@@ -31,8 +25,11 @@ interface ItemLinha {
   desenho: string
   quantidade: string
   clienteId: number | null
+  clienteNome: string | null
   fornecedorId: number | null
+  fornecedorNome: string | null
   representanteId: number | null
+  representanteNome: string | null
 }
 
 function itemVazio(): ItemLinha {
@@ -45,8 +42,11 @@ function itemVazio(): ItemLinha {
     desenho: "",
     quantidade: "",
     clienteId: null,
+    clienteNome: null,
     fornecedorId: null,
+    fornecedorNome: null,
     representanteId: null,
+    representanteNome: null,
   }
 }
 
@@ -69,18 +69,11 @@ function NovaRequisicaoCortePageContent() {
   const [dataSolicitacao, setDataSolicitacao] = useState("")
   const [dataEntrega, setDataEntrega] = useState("")
   const [clienteIdGlobal, setClienteIdGlobal] = useState<number | null>(null)
+  const [clienteNomeGlobal, setClienteNomeGlobal] = useState<string | null>(null)
   const [fornecedorIdGlobal, setFornecedorIdGlobal] = useState<number | null>(null)
+  const [fornecedorNomeGlobal, setFornecedorNomeGlobal] = useState<string | null>(null)
   const [representanteIdGlobal, setRepresentanteIdGlobal] = useState<number | null>(null)
-
-  const [clientes, setClientes] = useState<{ id: number; nome: string }[]>([])
-  const [fornecedores, setFornecedores] = useState<{ id: number; nome: string }[]>([])
-  const [representantes, setRepresentantes] = useState<{ id: number; nome: string }[]>([])
-
-  useEffect(() => {
-    fetch("/api/clientes").then(r => r.json()).then(setClientes).catch(() => {})
-    fetch("/api/cadastros/fornecedores?limit=100").then(r => r.json()).then(d => setFornecedores(Array.isArray(d) ? d : [])).catch(() => {})
-    fetch("/api/representantes").then(r => r.json()).then(setRepresentantes).catch(() => {})
-  }, [])
+  const [representanteNomeGlobal, setRepresentanteNomeGlobal] = useState<string | null>(null)
 
   const [dialogCopiarAberto, setDialogCopiarAberto] = useState(false)
   const [qtdCopias, setQtdCopias] = useState("1")
@@ -100,16 +93,22 @@ function NovaRequisicaoCortePageContent() {
           desenho: item.desenho || "",
           quantidade: item.quantidade || "",
           clienteId: item.clienteId || null,
+          clienteNome: item.clienteNome || null,
           fornecedorId: item.fornecedorId || null,
+          fornecedorNome: item.fornecedorNome || null,
           representanteId: item.representanteId || null,
+          representanteNome: item.representanteNome || null,
         })))
         if (dados.observacoes) setObservacoes(dados.observacoes)
         if (dados.entreguePor) setEntreguePor(dados.entreguePor)
         if (dados.dataSolicitacao) setDataSolicitacao(dados.dataSolicitacao)
         if (dados.dataEntrega) setDataEntrega(dados.dataEntrega)
         if (dados.clienteId) setClienteIdGlobal(dados.clienteId)
+        if (dados.clienteNome) setClienteNomeGlobal(dados.clienteNome)
         if (dados.fornecedorId) setFornecedorIdGlobal(dados.fornecedorId)
+        if (dados.fornecedorNome) setFornecedorNomeGlobal(dados.fornecedorNome)
         if (dados.representanteId) setRepresentanteIdGlobal(dados.representanteId)
+        if (dados.representanteNome) setRepresentanteNomeGlobal(dados.representanteNome)
         toast.success(`Requisição copiada — ${dados.itens.length} item(ns) carregado(s)`)
       }
       router.replace(pathname, { scroll: false })
@@ -120,6 +119,14 @@ function NovaRequisicaoCortePageContent() {
     setItens(prev => {
       const next = [...prev]
       next[index] = { ...next[index], [field]: value }
+      return next
+    })
+  }
+
+  const handleItemCreatableChange = (index: number, idField: keyof ItemLinha, nomeField: keyof ItemLinha, id: number | null, nome: string | null) => {
+    setItens(prev => {
+      const next = [...prev]
+      next[index] = { ...next[index], [idField]: id, [nomeField]: nome }
       return next
     })
   }
@@ -169,8 +176,11 @@ function NovaRequisicaoCortePageContent() {
         desenho: item.desenho || "",
         quantidade: item.quantidade || "",
         clienteId: null,
+        clienteNome: null,
         fornecedorId: null,
+        fornecedorNome: null,
         representanteId: null,
+        representanteNome: null,
       })),
     ])
   }
@@ -189,7 +199,19 @@ function NovaRequisicaoCortePageContent() {
       const res = await fetch("/api/comercial/requisicoes-corte", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ itens: itensValidos, observacoes, entreguePor, dataSolicitacao, dataEntrega, clienteId: clienteIdGlobal, fornecedorId: fornecedorIdGlobal, representanteId: representanteIdGlobal }),
+        body: JSON.stringify({
+          itens: itensValidos,
+          observacoes,
+          entreguePor,
+          dataSolicitacao,
+          dataEntrega,
+          clienteId: clienteIdGlobal,
+          clienteNome: clienteNomeGlobal,
+          fornecedorId: fornecedorIdGlobal,
+          fornecedorNome: fornecedorNomeGlobal,
+          representanteId: representanteIdGlobal,
+          representanteNome: representanteNomeGlobal,
+        }),
       })
       if (!res.ok) {
         const err = await res.json().catch(() => ({}))
@@ -314,37 +336,34 @@ function NovaRequisicaoCortePageContent() {
                       />
                     </td>
                     <td className="px-2 py-2">
-                      <Select value={item.clienteId != null ? String(item.clienteId) : ""} onValueChange={(v) => handleItemChange(index, "clienteId", v && v !== "none" ? Number(v) : null)}>
-                        <SelectTrigger className="h-9 text-xs">
-                          <SelectValue placeholder="—" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="none">—</SelectItem>
-                          {clientes.map(c => <SelectItem key={c.id} value={String(c.id)}>{c.nome}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
+                      <CreatableSelect
+                        valueId={item.clienteId}
+                        valueNome={item.clienteNome}
+                        onChange={(id, nome) => handleItemCreatableChange(index, "clienteId", "clienteNome", id, nome)}
+                        fetchUrl="/api/clientes"
+                        placeholder="—"
+                        className="text-xs"
+                      />
                     </td>
                     <td className="px-2 py-2">
-                      <Select value={item.fornecedorId != null ? String(item.fornecedorId) : ""} onValueChange={(v) => handleItemChange(index, "fornecedorId", v && v !== "none" ? Number(v) : null)}>
-                        <SelectTrigger className="h-9 text-xs">
-                          <SelectValue placeholder="—" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="none">—</SelectItem>
-                          {fornecedores.map(f => <SelectItem key={f.id} value={String(f.id)}>{f.nome}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
+                      <CreatableSelect
+                        valueId={item.fornecedorId}
+                        valueNome={item.fornecedorNome}
+                        onChange={(id, nome) => handleItemCreatableChange(index, "fornecedorId", "fornecedorNome", id, nome)}
+                        fetchUrl="/api/cadastros/fornecedores"
+                        placeholder="—"
+                        className="text-xs"
+                      />
                     </td>
                     <td className="px-2 py-2">
-                      <Select value={item.representanteId != null ? String(item.representanteId) : ""} onValueChange={(v) => handleItemChange(index, "representanteId", v && v !== "none" ? Number(v) : null)}>
-                        <SelectTrigger className="h-9 text-xs">
-                          <SelectValue placeholder="—" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="none">—</SelectItem>
-                          {representantes.map(r => <SelectItem key={r.id} value={String(r.id)}>{r.nome}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
+                      <CreatableSelect
+                        valueId={item.representanteId}
+                        valueNome={item.representanteNome}
+                        onChange={(id, nome) => handleItemCreatableChange(index, "representanteId", "representanteNome", id, nome)}
+                        fetchUrl="/api/representantes"
+                        placeholder="—"
+                        className="text-xs"
+                      />
                     </td>
                     <td className="px-3 py-2">
                       {itens.length > 1 && (
@@ -432,40 +451,34 @@ function NovaRequisicaoCortePageContent() {
 
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="clienteGlobal">Cliente (geral)</Label>
-              <Select value={clienteIdGlobal != null ? String(clienteIdGlobal) : ""} onValueChange={(v) => setClienteIdGlobal(v ? Number(v) : null)}>
-                <SelectTrigger id="clienteGlobal">
-                  <SelectValue placeholder="Nenhum" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">Nenhum</SelectItem>
-                  {clientes.map(c => <SelectItem key={c.id} value={String(c.id)}>{c.nome}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <Label>Cliente (geral)</Label>
+              <CreatableSelect
+                valueId={clienteIdGlobal}
+                valueNome={clienteNomeGlobal}
+                onChange={(id, nome) => { setClienteIdGlobal(id); setClienteNomeGlobal(nome) }}
+                fetchUrl="/api/clientes"
+                placeholder="Nenhum"
+              />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="fornecedorGlobal">Fornecedor (geral)</Label>
-              <Select value={fornecedorIdGlobal != null ? String(fornecedorIdGlobal) : ""} onValueChange={(v) => setFornecedorIdGlobal(v ? Number(v) : null)}>
-                <SelectTrigger id="fornecedorGlobal">
-                  <SelectValue placeholder="Nenhum" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">Nenhum</SelectItem>
-                  {fornecedores.map(f => <SelectItem key={f.id} value={String(f.id)}>{f.nome}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <Label>Fornecedor (geral)</Label>
+              <CreatableSelect
+                valueId={fornecedorIdGlobal}
+                valueNome={fornecedorNomeGlobal}
+                onChange={(id, nome) => { setFornecedorIdGlobal(id); setFornecedorNomeGlobal(nome) }}
+                fetchUrl="/api/cadastros/fornecedores"
+                placeholder="Nenhum"
+              />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="representanteGlobal">Representante (geral)</Label>
-              <Select value={representanteIdGlobal != null ? String(representanteIdGlobal) : ""} onValueChange={(v) => setRepresentanteIdGlobal(v ? Number(v) : null)}>
-                <SelectTrigger id="representanteGlobal">
-                  <SelectValue placeholder="Nenhum" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">Nenhum</SelectItem>
-                  {representantes.map(r => <SelectItem key={r.id} value={String(r.id)}>{r.nome}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <Label>Representante (geral)</Label>
+              <CreatableSelect
+                valueId={representanteIdGlobal}
+                valueNome={representanteNomeGlobal}
+                onChange={(id, nome) => { setRepresentanteIdGlobal(id); setRepresentanteNomeGlobal(nome) }}
+                fetchUrl="/api/representantes"
+                placeholder="Nenhum"
+              />
             </div>
           </div>
         </div>

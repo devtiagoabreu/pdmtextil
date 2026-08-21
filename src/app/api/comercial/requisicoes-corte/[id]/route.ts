@@ -29,8 +29,11 @@ export async function GET(
         dataSolicitacao: requisicoesCorte.dataSolicitacao,
         dataEntrega: requisicoesCorte.dataEntrega,
         clienteId: requisicoesCorte.clienteId,
+        clienteNome: requisicoesCorte.clienteNome,
         fornecedorId: requisicoesCorte.fornecedorId,
+        fornecedorNome: requisicoesCorte.fornecedorNome,
         representanteId: requisicoesCorte.representanteId,
+        representanteNome: requisicoesCorte.representanteNome,
         createdAt: requisicoesCorte.createdAt,
         updatedAt: requisicoesCorte.updatedAt,
       })
@@ -87,8 +90,11 @@ export async function PUT(
     if (body.dataSolicitacao !== undefined) setValues.dataSolicitacao = body.dataSolicitacao
     if (body.dataEntrega !== undefined) setValues.dataEntrega = body.dataEntrega
     if (body.clienteId !== undefined) setValues.clienteId = body.clienteId
+    if (body.clienteNome !== undefined) setValues.clienteNome = body.clienteNome
     if (body.fornecedorId !== undefined) setValues.fornecedorId = body.fornecedorId
+    if (body.fornecedorNome !== undefined) setValues.fornecedorNome = body.fornecedorNome
     if (body.representanteId !== undefined) setValues.representanteId = body.representanteId
+    if (body.representanteNome !== undefined) setValues.representanteNome = body.representanteNome
 
     await db
       .update(requisicoesCorte)
@@ -111,8 +117,11 @@ export async function PUT(
             desenho: item.desenho || null,
             quantidade: item.quantidade,
             clienteId: item.clienteId || null,
+            clienteNome: item.clienteNome || null,
             fornecedorId: item.fornecedorId || null,
+            fornecedorNome: item.fornecedorNome || null,
             representanteId: item.representanteId || null,
+            representanteNome: item.representanteNome || null,
           }))
         )
       }

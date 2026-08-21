@@ -104,8 +104,11 @@ const requisicaoCorteItemSchema = z.object({
   desenho: z.string().optional().nullable(),
   quantidade: z.string().min(1, "Quantidade é obrigatória"),
   clienteId: z.number().optional().nullable(),
+  clienteNome: z.string().optional().nullable(),
   fornecedorId: z.number().optional().nullable(),
+  fornecedorNome: z.string().optional().nullable(),
   representanteId: z.number().optional().nullable(),
+  representanteNome: z.string().optional().nullable(),
 })
 
 export const requisicaoCorteSchema = z.object({
@@ -115,8 +118,11 @@ export const requisicaoCorteSchema = z.object({
   dataSolicitacao: z.string().optional().nullable(),
   dataEntrega: z.string().optional().nullable(),
   clienteId: z.number().optional().nullable(),
+  clienteNome: z.string().optional().nullable(),
   fornecedorId: z.number().optional().nullable(),
+  fornecedorNome: z.string().optional().nullable(),
   representanteId: z.number().optional().nullable(),
+  representanteNome: z.string().optional().nullable(),
 })
 
 export const fornecedorSchema = z.object({
