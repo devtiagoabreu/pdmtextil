@@ -167,6 +167,10 @@ export async function DELETE(
     }
 
     await db
+      .delete(requisicoesCorteItens)
+      .where(eq(requisicoesCorteItens.requisicaoCorteId, requisicaoId))
+
+    await db
       .delete(requisicoesCorte)
       .where(eq(requisicoesCorte.id, requisicaoId))
 
