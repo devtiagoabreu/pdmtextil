@@ -108,7 +108,7 @@ export async function PUT(
 
       if (body.itens.length > 0) {
         await db.insert(requisicoesCorteItens).values(
-          body.itens.map((item: any) => ({
+          body.        itens.map((item: any) => ({
             requisicaoCorteId: parseInt(id),
             codigoProduto: item.codigoProduto || null,
             ordem: item.ordem || null,
