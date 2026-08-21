@@ -14,6 +14,13 @@ import OcrInput from "@/components/ui/ocr-input"
 import Link from "next/link"
 import { toast } from "sonner"
 import { PageSkeleton } from "@/components/ui/page-skeleton"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 interface ItemLinha {
   id: string
@@ -307,34 +314,37 @@ function NovaRequisicaoCortePageContent() {
                       />
                     </td>
                     <td className="px-2 py-2">
-                      <select
-                        value={item.clienteId ?? ""}
-                        onChange={(e) => handleItemChange(index, "clienteId", e.target.value ? Number(e.target.value) : null)}
-                        className="h-9 w-full text-xs rounded-md border border-input bg-transparent px-1"
-                      >
-                        <option value="">—</option>
-                        {clientes.map(c => <option key={c.id} value={c.id}>{c.nome}</option>)}
-                      </select>
+                      <Select value={item.clienteId != null ? String(item.clienteId) : ""} onValueChange={(v) => handleItemChange(index, "clienteId", v && v !== "none" ? Number(v) : null)}>
+                        <SelectTrigger className="h-9 text-xs">
+                          <SelectValue placeholder="—" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">—</SelectItem>
+                          {clientes.map(c => <SelectItem key={c.id} value={String(c.id)}>{c.nome}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
                     </td>
                     <td className="px-2 py-2">
-                      <select
-                        value={item.fornecedorId ?? ""}
-                        onChange={(e) => handleItemChange(index, "fornecedorId", e.target.value ? Number(e.target.value) : null)}
-                        className="h-9 w-full text-xs rounded-md border border-input bg-transparent px-1"
-                      >
-                        <option value="">—</option>
-                        {fornecedores.map(f => <option key={f.id} value={f.id}>{f.nome}</option>)}
-                      </select>
+                      <Select value={item.fornecedorId != null ? String(item.fornecedorId) : ""} onValueChange={(v) => handleItemChange(index, "fornecedorId", v && v !== "none" ? Number(v) : null)}>
+                        <SelectTrigger className="h-9 text-xs">
+                          <SelectValue placeholder="—" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">—</SelectItem>
+                          {fornecedores.map(f => <SelectItem key={f.id} value={String(f.id)}>{f.nome}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
                     </td>
                     <td className="px-2 py-2">
-                      <select
-                        value={item.representanteId ?? ""}
-                        onChange={(e) => handleItemChange(index, "representanteId", e.target.value ? Number(e.target.value) : null)}
-                        className="h-9 w-full text-xs rounded-md border border-input bg-transparent px-1"
-                      >
-                        <option value="">—</option>
-                        {representantes.map(r => <option key={r.id} value={r.id}>{r.nome}</option>)}
-                      </select>
+                      <Select value={item.representanteId != null ? String(item.representanteId) : ""} onValueChange={(v) => handleItemChange(index, "representanteId", v && v !== "none" ? Number(v) : null)}>
+                        <SelectTrigger className="h-9 text-xs">
+                          <SelectValue placeholder="—" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">—</SelectItem>
+                          {representantes.map(r => <SelectItem key={r.id} value={String(r.id)}>{r.nome}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
                     </td>
                     <td className="px-3 py-2">
                       {itens.length > 1 && (
@@ -423,39 +433,39 @@ function NovaRequisicaoCortePageContent() {
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="clienteGlobal">Cliente (geral)</Label>
-              <select
-                id="clienteGlobal"
-                value={clienteIdGlobal ?? ""}
-                onChange={(e) => setClienteIdGlobal(e.target.value ? Number(e.target.value) : null)}
-                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-              >
-                <option value="">Nenhum</option>
-                {clientes.map(c => <option key={c.id} value={c.id}>{c.nome}</option>)}
-              </select>
+              <Select value={clienteIdGlobal != null ? String(clienteIdGlobal) : ""} onValueChange={(v) => setClienteIdGlobal(v ? Number(v) : null)}>
+                <SelectTrigger id="clienteGlobal">
+                  <SelectValue placeholder="Nenhum" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Nenhum</SelectItem>
+                  {clientes.map(c => <SelectItem key={c.id} value={String(c.id)}>{c.nome}</SelectItem>)}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label htmlFor="fornecedorGlobal">Fornecedor (geral)</Label>
-              <select
-                id="fornecedorGlobal"
-                value={fornecedorIdGlobal ?? ""}
-                onChange={(e) => setFornecedorIdGlobal(e.target.value ? Number(e.target.value) : null)}
-                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-              >
-                <option value="">Nenhum</option>
-                {fornecedores.map(f => <option key={f.id} value={f.id}>{f.nome}</option>)}
-              </select>
+              <Select value={fornecedorIdGlobal != null ? String(fornecedorIdGlobal) : ""} onValueChange={(v) => setFornecedorIdGlobal(v ? Number(v) : null)}>
+                <SelectTrigger id="fornecedorGlobal">
+                  <SelectValue placeholder="Nenhum" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Nenhum</SelectItem>
+                  {fornecedores.map(f => <SelectItem key={f.id} value={String(f.id)}>{f.nome}</SelectItem>)}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label htmlFor="representanteGlobal">Representante (geral)</Label>
-              <select
-                id="representanteGlobal"
-                value={representanteIdGlobal ?? ""}
-                onChange={(e) => setRepresentanteIdGlobal(e.target.value ? Number(e.target.value) : null)}
-                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-              >
-                <option value="">Nenhum</option>
-                {representantes.map(r => <option key={r.id} value={r.id}>{r.nome}</option>)}
-              </select>
+              <Select value={representanteIdGlobal != null ? String(representanteIdGlobal) : ""} onValueChange={(v) => setRepresentanteIdGlobal(v ? Number(v) : null)}>
+                <SelectTrigger id="representanteGlobal">
+                  <SelectValue placeholder="Nenhum" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Nenhum</SelectItem>
+                  {representantes.map(r => <SelectItem key={r.id} value={String(r.id)}>{r.nome}</SelectItem>)}
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </div>
