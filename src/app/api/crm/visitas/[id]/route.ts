@@ -7,10 +7,9 @@ import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
 import { clientes } from "@/lib/db/schema/clientes"
 import { crmOportunidades } from "@/lib/db/schema/crm-oportunidades"
 import { crmContatos } from "@/lib/db/schema/crm-contatos"
-import { representantes } from "@/lib/db/schema/representantes"
 import { crmPesquisasSatisfacao } from "@/lib/db/schema/crm-pesquisas-satisfacao"
 import { usuarios } from "@/lib/db/schema/usuarios"
-import { eq, sql } from "drizzle-orm"
+import { eq } from "drizzle-orm"
 import { registrarLog, notificar, notificarDelecao } from "@/lib/notificar"
 import { inserirTimelineEvento, excluirTimelineEventosEntidade } from "@/lib/crm-timeline"
 import { handleApiError } from "@/lib/api-error"
@@ -51,7 +50,7 @@ export async function GET(
         viagemId: crmVisitas.viagemId,
         viagemTitulo: crmViagens.titulo,
         representanteId: crmVisitas.representanteId,
-        representanteNome: sql<string>`COALESCE(${crmVisitas.representanteNome}, ${representantes.nome})`.as("representanteNome"),
+        representanteNome: crmVisitas.representanteNome,
         nomeAvulso: crmVisitas.nomeAvulso,
         dataVisita: crmVisitas.dataVisita,
         hora: crmVisitas.hora,
@@ -86,7 +85,6 @@ export async function GET(
       .leftJoin(crmOportunidades, eq(crmVisitas.oportunidadeId, crmOportunidades.id))
       .leftJoin(crmContatos, eq(crmVisitas.contatoId, crmContatos.id))
       .leftJoin(crmViagens, eq(crmVisitas.viagemId, crmViagens.id))
-      .leftJoin(representantes, eq(crmVisitas.representanteId, representantes.id))
       .leftJoin(usuarios, eq(crmVisitas.criadoPor, usuarios.id))
       .where(eq(crmVisitas.id, parseInt(id)))
       .limit(1)
