@@ -107,20 +107,22 @@ export default function VisitReportButton({ visita }: { visita: Visita }) {
       doc.setDrawColor(200, 200, 200)
 
       let ly = y + 8
-      const col1X = marginX + 4
-      const col2X = marginX + contentW / 2 + 4
+      const col1X = marginX + 6
+      const col2X = marginX + contentW / 2 + 6
 
       const pessoaNome = visita.nomeAvulso || visita.empresaNome || visita.clienteNome || "—"
-      const pessoaLines = doc.splitTextToSize(pessoaNome, contentW - 22)
+      const pessoaLines = doc.splitTextToSize(pessoaNome, contentW / 2 - 24)
 
       doc.setFontSize(8)
       doc.setTextColor(0, 0, 0)
-      let boxLines = 1 + pessoaLines.length
+
+      let row1Lines = 1 + pessoaLines.length
+      let boxLines = row1Lines
       if (visita.oportunidadeTitulo) boxLines++
       if (visita.contatoNome) boxLines++
       if (visita.representanteNome) boxLines++
       if (visita.criadoPorNome) boxLines++
-      const boxH = boxLines * 7 + 6
+      const boxH = boxLines * 7 + 12
       doc.roundedRect(marginX, y, contentW, boxH, 2, 2, "FD")
 
       doc.setFont("helvetica", "bold")
@@ -134,23 +136,23 @@ export default function VisitReportButton({ visita }: { visita: Visita }) {
           doc.text(pessoaLines[i], col1X + 18, ly)
           ly += 4
         }
-        ly += 1
       }
+      ly += 2
 
       doc.setFont("helvetica", "bold")
       doc.text("Status:", col1X, ly)
       doc.setFont("helvetica", "normal")
       doc.text(visita.status, col1X + 16, ly)
+      doc.setFont("helvetica", "bold")
+      doc.text("Tipo:", col2X, ly)
+      doc.setFont("helvetica", "normal")
+      doc.text(TIPO_LABELS[visita.tipo] || visita.tipo, col2X + 12, ly)
       ly += 7
 
       doc.setFont("helvetica", "bold")
       doc.text("Data:", col1X, ly)
       doc.setFont("helvetica", "normal")
       doc.text(visita.dataVisita ? `${new Date(visita.dataVisita + "T12:00:00").toLocaleDateString("pt-BR")}${visita.hora ? ` às ${visita.hora}` : ""}` : "—", col1X + 12, ly)
-      doc.setFont("helvetica", "bold")
-      doc.text("Tipo:", col2X, ly)
-      doc.setFont("helvetica", "normal")
-      doc.text(TIPO_LABELS[visita.tipo] || visita.tipo, col2X + 12, ly)
       ly += 7
 
       if (visita.oportunidadeTitulo) {
@@ -179,9 +181,9 @@ export default function VisitReportButton({ visita }: { visita: Visita }) {
 
       if (visita.criadoPorNome) {
         doc.setFont("helvetica", "bold")
-        doc.text("Criado por:", col1X, ly)
+        doc.text("Gerente Comercial:", col1X, ly)
         doc.setFont("helvetica", "normal")
-        doc.text(visita.criadoPorNome, col1X + 24, ly)
+        doc.text(visita.criadoPorNome, col1X + 40, ly)
         ly += 7
       }
 
