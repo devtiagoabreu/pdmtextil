@@ -20,6 +20,7 @@ interface Visita {
   id: number
   empresaNome: string | null
   clienteNome: string | null
+  nomeAvulso: string | null
   oportunidadeTitulo: string | null
   contatoNome: string | null
   dataVisita: string | null
@@ -108,7 +109,7 @@ export default function VisitReportButton({ visita }: { visita: Visita }) {
       const col1X = marginX + 4
       const col2X = marginX + contentW / 2 + 4
 
-      const pessoaNome = visita.empresaNome || visita.clienteNome || "—"
+      const pessoaNome = visita.nomeAvulso || visita.empresaNome || visita.clienteNome || "—"
       const pessoaLines = doc.splitTextToSize(pessoaNome, contentW - 22)
 
       doc.setFontSize(8)
