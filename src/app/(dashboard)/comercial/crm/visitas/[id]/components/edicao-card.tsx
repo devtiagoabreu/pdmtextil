@@ -62,6 +62,19 @@ export function EdicaoCard({
               className="w-full"
             />
           </div>
+          <div>
+            <label className="block text-xs font-medium text-slate-500 mb-1">Proposta Vinculada</label>
+            <CreatableSelect
+              valueId={form.propostaId || null}
+              valueNome={form.propostaTitulo || null}
+              onChange={(id) => {
+                setField("propostaId", id)
+              }}
+              fetchUrl="/api/crm/propostas"
+              placeholder="Buscar proposta..."
+              className="w-full"
+            />
+          </div>
           {form.status === "CANCELADA" && (
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1">Motivo do Cancelamento</label>

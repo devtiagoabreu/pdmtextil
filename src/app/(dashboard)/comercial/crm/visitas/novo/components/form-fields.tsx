@@ -320,6 +320,23 @@ export function FormFields({
         </p>
       </div>
 
+      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-4">
+        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Proposta Vinculada</label>
+        <CreatableSelect
+          valueId={form.propostaId ? parseInt(form.propostaId) : null}
+          valueNome={null}
+          onChange={(id) => {
+            setField("propostaId", id ? String(id) : "")
+          }}
+          fetchUrl="/api/crm/propostas"
+          placeholder="Buscar proposta..."
+          className="w-full"
+        />
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+          Opcional. Vincule esta visita a uma proposta existente.
+        </p>
+      </div>
+
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
         <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Viagem</label>
         <ViagemSelect

@@ -84,6 +84,17 @@ export function VisualizacaoCard({ visita, statusLabel, statusColor }: Visualiza
               <p className="text-slate-900 dark:text-slate-200">{visita.representanteNome}</p>
             </div>
           )}
+          {visita.propostaId && (
+            <div>
+              <span className="text-xs text-slate-500 block mb-0.5">Proposta Vinculada</span>
+              <Link
+                href={`/comercial/crm/propostas/${visita.propostaId}`}
+                className="text-blue-600 hover:underline dark:text-blue-400 font-medium"
+              >
+                {visita.propostaTitulo || `Proposta #${visita.propostaId}`}
+              </Link>
+            </div>
+          )}
           {visita.criadoPorNome && (
             <div>
               <span className="text-xs text-slate-500 block mb-0.5">Criado por</span>

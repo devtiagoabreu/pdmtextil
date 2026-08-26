@@ -6,7 +6,7 @@ import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
 import { crmOportunidades } from "@/lib/db/schema/crm-oportunidades"
 import { clientes } from "@/lib/db/schema/clientes"
 import { usuarios } from "@/lib/db/schema/usuarios"
-import { eq, desc, sql } from "drizzle-orm"
+import { eq, desc, sql, like, and } from "drizzle-orm"
 import { registrarLog, notificar } from "@/lib/notificar"
 import { inserirTimelineEvento } from "@/lib/crm-timeline"
 
@@ -20,6 +20,8 @@ export async function GET(req: NextRequest) {
     const status = searchParams.get("status")
     const oportunidadeId = searchParams.get("oportunidadeId")
     const mine = searchParams.get("mine")
+    const q = searchParams.get("q")
+    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "50")))
 
     const conditions = []
     if (empresaId) conditions.push(eq(crmPropostas.empresaId, parseInt(empresaId)))
@@ -28,6 +30,10 @@ export async function GET(req: NextRequest) {
     if (oportunidadeId) conditions.push(eq(crmPropostas.oportunidadeId, parseInt(oportunidadeId)))
     if (mine === "true" && (auth.session.user?.role ?? "") !== "ADMIN" && (auth.session.user?.role ?? "") !== "SUDO") {
       conditions.push(eq(crmPropostas.criadoPor, auth.userId))
+    }
+    if (q) {
+      const searchPattern = `%${q}%`
+      conditions.push(like(crmPropostas.titulo, searchPattern))
     }
 
     const where = conditions.length > 0 ? sql`${conditions.reduce((a: any, b: any) => sql`${a} AND ${b}`)}` : undefined
@@ -61,6 +67,7 @@ export async function GET(req: NextRequest) {
       .leftJoin(usuarios, eq(crmPropostas.criadoPor, usuarios.id))
       .where(where)
       .orderBy(desc(crmPropostas.createdAt))
+      .limit(limit)
 
     return NextResponse.json(lista)
   } catch (error) {

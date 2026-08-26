@@ -24,6 +24,7 @@ interface Visita {
   oportunidadeTitulo: string | null
   contatoNome: string | null
   representanteNome: string | null
+  propostaTitulo: string | null
   dataVisita: string | null
   hora: string | null
   tipo: string
@@ -121,6 +122,7 @@ export default function VisitReportButton({ visita }: { visita: Visita }) {
       if (visita.oportunidadeTitulo) boxLines++
       if (visita.contatoNome) boxLines++
       if (visita.representanteNome) boxLines++
+      if (visita.propostaTitulo) boxLines++
       if (visita.criadoPorNome) boxLines++
       const boxH = boxLines * 7 + 12
       doc.roundedRect(marginX, y, contentW, boxH, 2, 2, "FD")
@@ -176,6 +178,14 @@ export default function VisitReportButton({ visita }: { visita: Visita }) {
         doc.text("Representante:", col1X, ly)
         doc.setFont("helvetica", "normal")
         doc.text(visita.representanteNome, col1X + 30, ly)
+        ly += 7
+      }
+
+      if (visita.propostaTitulo) {
+        doc.setFont("helvetica", "bold")
+        doc.text("Proposta:", col1X, ly)
+        doc.setFont("helvetica", "normal")
+        doc.text(visita.propostaTitulo, col1X + 22, ly)
         ly += 7
       }
 

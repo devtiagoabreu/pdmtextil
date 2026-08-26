@@ -7,6 +7,7 @@ import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
 import { clientes } from "@/lib/db/schema/clientes"
 import { crmOportunidades } from "@/lib/db/schema/crm-oportunidades"
 import { crmContatos } from "@/lib/db/schema/crm-contatos"
+import { crmPropostas } from "@/lib/db/schema/crm-propostas"
 import { crmPesquisasSatisfacao } from "@/lib/db/schema/crm-pesquisas-satisfacao"
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq } from "drizzle-orm"
@@ -51,6 +52,8 @@ export async function GET(
         viagemTitulo: crmViagens.titulo,
         representanteId: crmVisitas.representanteId,
         representanteNome: crmVisitas.representanteNome,
+        propostaId: crmVisitas.propostaId,
+        propostaTitulo: crmPropostas.titulo,
         nomeAvulso: crmVisitas.nomeAvulso,
         dataVisita: crmVisitas.dataVisita,
         hora: crmVisitas.hora,
@@ -85,6 +88,7 @@ export async function GET(
       .leftJoin(crmOportunidades, eq(crmVisitas.oportunidadeId, crmOportunidades.id))
       .leftJoin(crmContatos, eq(crmVisitas.contatoId, crmContatos.id))
       .leftJoin(crmViagens, eq(crmVisitas.viagemId, crmViagens.id))
+      .leftJoin(crmPropostas, eq(crmVisitas.propostaId, crmPropostas.id))
       .leftJoin(usuarios, eq(crmVisitas.criadoPor, usuarios.id))
       .where(eq(crmVisitas.id, parseInt(id)))
       .limit(1)
@@ -135,6 +139,7 @@ export async function PUT(
     if (body.viagemId !== undefined) values.viagemId = body.viagemId ? parseInt(body.viagemId) : null
     if (body.representanteId !== undefined) values.representanteId = body.representanteId ? parseInt(body.representanteId) : null
     if (body.representanteNome !== undefined) values.representanteNome = body.representanteNome || null
+    if (body.propostaId !== undefined) values.propostaId = body.propostaId ? (typeof body.propostaId === "number" ? body.propostaId : parseInt(body.propostaId)) : null
     if (body.dataVisita !== undefined) values.dataVisita = body.dataVisita
     if (body.hora !== undefined) values.hora = body.hora || null
     if (body.tipo !== undefined) values.tipo = body.tipo
