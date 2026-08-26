@@ -78,6 +78,12 @@ export function VisualizacaoCard({ visita, statusLabel, statusColor }: Visualiza
               </Link>
             </div>
           )}
+          {visita.representanteNome && (
+            <div>
+              <span className="text-xs text-slate-500 block mb-0.5">Representante</span>
+              <p className="text-slate-900 dark:text-slate-200">{visita.representanteNome}</p>
+            </div>
+          )}
           {visita.criadoPorNome && (
             <div>
               <span className="text-xs text-slate-500 block mb-0.5">Criado por</span>

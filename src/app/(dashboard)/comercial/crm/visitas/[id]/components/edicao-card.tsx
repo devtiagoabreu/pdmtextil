@@ -2,6 +2,7 @@ import { AlertTriangle } from "lucide-react"
 import { SelectUf } from "@/components/crm/select-uf"
 import { SelectCidade } from "@/components/crm/select-cidade"
 import { ViagemSelect } from "@/components/crm/viagem-select"
+import { CreatableSelect } from "@/components/ui/creatable-select"
 import { STATUS_OPTIONS, TIPO_OPTIONS } from "./constants"
 
 interface EdicaoCardProps {
@@ -45,6 +46,20 @@ export function EdicaoCard({
             <ViagemSelect
               value={form.viagemId ? String(form.viagemId) : ""}
               onChange={v => setField("viagemId", v)}
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-slate-500 mb-1">Representante</label>
+            <CreatableSelect
+              valueId={form.representanteId || null}
+              valueNome={form.representanteNome || null}
+              onChange={(id, nome) => {
+                setField("representanteId", id)
+                setField("representanteNome", nome)
+              }}
+              fetchUrl="/api/representantes"
+              placeholder="Buscar representante ou digitar nome..."
+              className="w-full"
             />
           </div>
           {form.status === "CANCELADA" && (

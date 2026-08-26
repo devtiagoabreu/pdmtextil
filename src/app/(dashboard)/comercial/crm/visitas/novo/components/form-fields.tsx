@@ -5,6 +5,7 @@ import { QuickCreateCliente } from "@/components/crm/quick-create-cliente"
 import { QuickCreateContato } from "@/components/crm/quick-create-contato"
 import { QuickCreateOportunidade } from "@/components/crm/quick-create-oportunidade"
 import { ViagemSelect } from "@/components/crm/viagem-select"
+import { CreatableSelect } from "@/components/ui/creatable-select"
 import { TIPO_OPTIONS } from "./constants"
 
 interface FormFieldsProps {
@@ -299,6 +300,24 @@ export function FormFields({
           </select>
         </div>
       )}
+      </div>
+
+      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-4">
+        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Representante</label>
+        <CreatableSelect
+          valueId={form.representanteId ? parseInt(form.representanteId) : null}
+          valueNome={form.representanteNome || null}
+          onChange={(id, nome) => {
+            setField("representanteId", id ? String(id) : "")
+            setField("representanteNome", nome || "")
+          }}
+          fetchUrl="/api/representantes"
+          placeholder="Buscar representante ou digitar nome..."
+          className="w-full"
+        />
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+          Opcional. Selecione um representante cadastrado ou digite um nome avulso.
+        </p>
       </div>
 
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">

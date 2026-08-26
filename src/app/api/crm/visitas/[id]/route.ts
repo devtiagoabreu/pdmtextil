@@ -7,9 +7,10 @@ import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
 import { clientes } from "@/lib/db/schema/clientes"
 import { crmOportunidades } from "@/lib/db/schema/crm-oportunidades"
 import { crmContatos } from "@/lib/db/schema/crm-contatos"
+import { representantes } from "@/lib/db/schema/representantes"
 import { crmPesquisasSatisfacao } from "@/lib/db/schema/crm-pesquisas-satisfacao"
 import { usuarios } from "@/lib/db/schema/usuarios"
-import { eq } from "drizzle-orm"
+import { eq, sql } from "drizzle-orm"
 import { registrarLog, notificar, notificarDelecao } from "@/lib/notificar"
 import { inserirTimelineEvento, excluirTimelineEventosEntidade } from "@/lib/crm-timeline"
 import { handleApiError } from "@/lib/api-error"
@@ -49,6 +50,8 @@ export async function GET(
         contatoEmail: crmContatos.email,
         viagemId: crmVisitas.viagemId,
         viagemTitulo: crmViagens.titulo,
+        representanteId: crmVisitas.representanteId,
+        representanteNome: sql<string>`COALESCE(${crmVisitas.representanteNome}, ${representantes.nome})`.as("representanteNome"),
         nomeAvulso: crmVisitas.nomeAvulso,
         dataVisita: crmVisitas.dataVisita,
         hora: crmVisitas.hora,
@@ -83,6 +86,7 @@ export async function GET(
       .leftJoin(crmOportunidades, eq(crmVisitas.oportunidadeId, crmOportunidades.id))
       .leftJoin(crmContatos, eq(crmVisitas.contatoId, crmContatos.id))
       .leftJoin(crmViagens, eq(crmVisitas.viagemId, crmViagens.id))
+      .leftJoin(representantes, eq(crmVisitas.representanteId, representantes.id))
       .leftJoin(usuarios, eq(crmVisitas.criadoPor, usuarios.id))
       .where(eq(crmVisitas.id, parseInt(id)))
       .limit(1)
@@ -131,6 +135,8 @@ export async function PUT(
     if (body.oportunidadeId !== undefined) values.oportunidadeId = body.oportunidadeId
     if (body.contatoId !== undefined) values.contatoId = body.contatoId
     if (body.viagemId !== undefined) values.viagemId = body.viagemId ? parseInt(body.viagemId) : null
+    if (body.representanteId !== undefined) values.representanteId = body.representanteId ? parseInt(body.representanteId) : null
+    if (body.representanteNome !== undefined) values.representanteNome = body.representanteNome || null
     if (body.dataVisita !== undefined) values.dataVisita = body.dataVisita
     if (body.hora !== undefined) values.hora = body.hora || null
     if (body.tipo !== undefined) values.tipo = body.tipo

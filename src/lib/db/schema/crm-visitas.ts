@@ -4,6 +4,7 @@ import { crmOportunidades } from "./crm-oportunidades"
 import { crmContatos } from "./crm-contatos"
 import { clientes } from "./clientes"
 import { crmViagens } from "./crm-viagens"
+import { representantes } from "./representantes"
 import { usuarios } from "./usuarios"
 import type { VisitaFoto } from "@/lib/crm/visita-fotos"
 
@@ -14,6 +15,8 @@ export const crmVisitas = pgTable("crm_visitas", {
   oportunidadeId: integer("oportunidade_id").references(() => crmOportunidades.id),
   contatoId: integer("contato_id").references(() => crmContatos.id),
   viagemId: integer("viagem_id").references(() => crmViagens.id),
+  representanteId: integer("representante_id").references(() => representantes.id),
+  representanteNome: varchar("representante_nome", { length: 300 }),
   dataVisita: date("data_visita").notNull(),
   hora: varchar("hora", { length: 5 }),
   tipo: varchar("tipo", { length: 20 }).notNull().default("PRESENCIAL"),
