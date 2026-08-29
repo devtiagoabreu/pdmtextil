@@ -81,7 +81,7 @@ export function ComposicaoTab({
             {composicao.map((c) => (
               <div key={c.id} className="flex items-center justify-between p-3 bg-slate-100 dark:bg-slate-800 rounded-lg">
                 <span>{c.material} — {c.percentual}%</span>
-                <Button variant="ghost" size="icon" onClick={() => onExcluirComposicao(c)}>
+                <Button type="button" variant="ghost" size="icon" onClick={() => onExcluirComposicao(c)}>
                   <Trash2 size={16} />
                 </Button>
               </div>
@@ -101,7 +101,7 @@ export function ComposicaoTab({
             <Label>%</Label>
             <Input value={novoPercentual} onChange={e => setNovoPercentual(e.target.value)} placeholder="63" />
           </div>
-          <Button onClick={onAddComposicao} size="sm"><Plus size={16} /></Button>
+          <Button type="button" onClick={onAddComposicao} size="sm"><Plus size={16} /></Button>
         </div>
       </div>
 
@@ -119,7 +119,7 @@ export function ComposicaoTab({
                   }
                   {e.ordem ? ` (Ordem: ${e.ordem})` : ""}
                 </span>
-                <Button variant="ghost" size="icon" onClick={() => onExcluirEstrutura(e)}>
+                <Button type="button" variant="ghost" size="icon" onClick={() => onExcluirEstrutura(e)}>
                   <Trash2 size={16} />
                 </Button>
               </div>
@@ -158,7 +158,7 @@ export function ComposicaoTab({
             <Label>Ordem</Label>
             <Input value={novaEstruturaOrdem} onChange={e => setNovaEstruturaOrdem(e.target.value)} placeholder="1" />
           </div>
-          <Button onClick={onAddEstrutura} size="sm"><Plus size={16} /></Button>
+          <Button type="button" onClick={onAddEstrutura} size="sm"><Plus size={16} /></Button>
         </div>
       </div>
     </div>

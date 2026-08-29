@@ -161,17 +161,17 @@ export function AmostrasTab({
                     </p>
                   </div>
                   <div className="flex items-center gap-1">
-                    <Button variant="ghost" size="sm" className="text-xs" onClick={() => onGerarPdfAmostra(a, "TECIDO_CRU")} disabled={gerandoPdf === `TECIDO_CRU-${a.id}`}>
+                    <Button type="button" variant="ghost" size="sm" className="text-xs" onClick={() => onGerarPdfAmostra(a, "TECIDO_CRU")} disabled={gerandoPdf === `TECIDO_CRU-${a.id}`}>
                       {gerandoPdf === `TECIDO_CRU-${a.id}` ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />}
                       Solic. Amostra
                     </Button>
-                    <Button variant="ghost" size="sm" className="text-xs" onClick={() => onEditarAmostra(a)}>
+                    <Button type="button" variant="ghost" size="sm" className="text-xs" onClick={() => onEditarAmostra(a)}>
                       Editar
                     </Button>
-                    <Button variant="ghost" size="sm" className="text-xs" onClick={() => setAmostraLinksAberta(amostraLinksAberta === a.id ? null : a.id)}>
+                    <Button type="button" variant="ghost" size="sm" className="text-xs" onClick={() => setAmostraLinksAberta(amostraLinksAberta === a.id ? null : a.id)}>
                       Links {a.links?.length ? `(${a.links.length})` : ""}
                     </Button>
-                    <Button variant="ghost" size="icon" onClick={() => onExcluirAmostra(a)}>
+                    <Button type="button" variant="ghost" size="icon" onClick={() => onExcluirAmostra(a)}>
                       <Trash2 size={16} />
                     </Button>
                   </div>
@@ -206,7 +206,7 @@ export function AmostrasTab({
             <Label>ERP (Cru)</Label>
             <Input value={novaAmostraErp} onChange={e => setNovaAmostraErp(e.target.value)} placeholder="ERP.00001" />
           </div>
-          <Button onClick={onAddAmostra} size="sm"><Plus size={16} /></Button>
+          <Button type="button" onClick={onAddAmostra} size="sm"><Plus size={16} /></Button>
         </div>
       </div>
 
@@ -231,7 +231,7 @@ export function AmostrasTab({
                       <span className="text-xs text-slate-400">ERP: {acab.idIntegracaoErpAcabado}</span>
                     )}
                   </div>
-                  <Button variant="ghost" size="icon" onClick={(e: MouseEvent<HTMLButtonElement>) => { e.stopPropagation(); onExcluirAcabamento(acab) }}>
+                  <Button type="button" variant="ghost" size="icon" onClick={(e: MouseEvent<HTMLButtonElement>) => { e.stopPropagation(); onExcluirAcabamento(acab) }}>
                     <Trash2 size={16} />
                   </Button>
                 </div>
@@ -241,7 +241,7 @@ export function AmostrasTab({
                     <div>
                       <div className="flex items-center justify-between mb-2">
                         <h3 className="text-sm font-medium">Amostras</h3>
-                        <Button size="sm" variant="outline" onClick={() => setExpandedAmostraForm(expandedAmostraForm === acab.id ? null : acab.id)}>
+                        <Button type="button" size="sm" variant="outline" onClick={() => setExpandedAmostraForm(expandedAmostraForm === acab.id ? null : acab.id)}>
                           <Plus size={14} /> Amostra
                         </Button>
                       </div>
@@ -263,10 +263,10 @@ export function AmostrasTab({
                                 )}
                               </div>
                               <div className="flex items-center gap-1">
-                                <Button variant="ghost" size="sm" className="text-xs h-6" onClick={() => onGerarPdfAmostra(as, "ACABAMENTO")} disabled={gerandoPdf === `ACABAMENTO-${as.id}`}>
+                                <Button type="button" variant="ghost" size="sm" className="text-xs h-6" onClick={() => onGerarPdfAmostra(as, "ACABAMENTO")} disabled={gerandoPdf === `ACABAMENTO-${as.id}`}>
                                   {gerandoPdf === `ACABAMENTO-${as.id}` ? <Loader2 size={12} className="animate-spin" /> : <FileText size={12} />}
                                 </Button>
-                                <Button variant="ghost" size="sm" className="text-xs h-6" onClick={() => setAcabAmostraLinksAberta(acabAmostraLinksAberta === key ? null : key)}>
+                                <Button type="button" variant="ghost" size="sm" className="text-xs h-6" onClick={() => setAcabAmostraLinksAberta(acabAmostraLinksAberta === key ? null : key)}>
                                   Links {as.links?.length ? `(${as.links.length})` : ""}
                                 </Button>
                                 <select
@@ -282,7 +282,7 @@ export function AmostrasTab({
                                     <option key={s.value} value={s.value} className="bg-white text-slate-900">{s.label}</option>
                                   ))}
                                 </select>
-                                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => onExcluirAmostraAcabamento(acab.id, as.id)}>
+                                <Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={() => onExcluirAmostraAcabamento(acab.id, as.id)}>
                                   <Trash2 size={12} />
                                 </Button>
                               </div>
@@ -302,7 +302,7 @@ export function AmostrasTab({
                         <div className="flex gap-2 mt-2">
                           <Input value={novaAmostraAcabDescricao} onChange={e => setNovaAmostraAcabDescricao(e.target.value)} placeholder="Descrição da amostra" />
                           <Input value={novaAmostraAcabQtd} onChange={e => setNovaAmostraAcabQtd(e.target.value)} placeholder="Qtd produzida" className="w-32" />
-                          <Button size="sm" onClick={() => onAddAmostraAcabamento(acab.id)}>Adicionar</Button>
+                          <Button type="button" size="sm" onClick={() => onAddAmostraAcabamento(acab.id)}>Adicionar</Button>
                         </div>
                       )}
                     </div>
@@ -321,7 +321,7 @@ export function AmostrasTab({
                                 "bg-yellow-100 text-yellow-700"
                               }`}>{as.status}</span>
                             </span>
-                            <Button size="sm" variant="ghost" onClick={() => onAbrirReceita(acab.id, as.id)}>
+                            <Button type="button" size="sm" variant="ghost" onClick={() => onAbrirReceita(acab.id, as.id)}>
                               <FlaskConical size={14} className="mr-1" /> Receita
                             </Button>
                           </div>
@@ -354,7 +354,7 @@ export function AmostrasTab({
             <Label>ERP (Acabado)</Label>
             <Input value={novoAcabamentoErp} onChange={e => setNovoAcabamentoErp(e.target.value)} placeholder="2.K1820.TIN.000001" />
           </div>
-          <Button onClick={onAddAcabamento} size="sm"><Plus size={16} /> Acabamento</Button>
+          <Button type="button" onClick={onAddAcabamento} size="sm"><Plus size={16} /> Acabamento</Button>
         </div>
       </div>
     </div>

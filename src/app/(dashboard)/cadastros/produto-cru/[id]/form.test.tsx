@@ -32,7 +32,15 @@ const produtoData = {
       data: "2026-08-13T00:00:00.000Z",
     },
   ],
-  acabamentos: [],
+  acabamentos: [
+    {
+      id: 1,
+      tipoAcabamento: "LAVAGEM",
+      descricao: "RÚSTICO CAQUI",
+      idIntegracaoErpAcabado: null,
+      amostras: [],
+    },
+  ],
 }
 
 function setup(paramsId: string, deleteAmostraResponse: { status?: number; json?: unknown } = { status: 200, json: { success: true } }) {
@@ -60,6 +68,24 @@ function setup(paramsId: string, deleteAmostraResponse: { status?: number; json?
     }
     if (method === "DELETE" && isEditing && url === `/api/cadastros/produto-cru/${paramsId}/amostras/15`) {
       return { status: deleteAmostraResponse.status ?? 200, json: deleteAmostraResponse.json ?? { success: true } }
+    }
+    if (method === "POST" && isEditing && url === `/api/cadastros/produto-cru/${paramsId}/acabamentos/1/amostras`) {
+      return {
+        status: 201,
+        json: {
+          id: 20,
+          acabamentoId: 1,
+          descricao: "AMOSTRA BENEF 001",
+          status: "PENDENTE",
+          observacoes: null,
+          quantidadeProduzida: "10 M",
+          motivoAprovacao: null,
+          links: [],
+          dados: null,
+          data: "2026-08-28T00:00:00.000Z",
+          createdAt: "2026-08-28T00:00:00.000Z",
+        },
+      }
     }
     return { status: 404, json: { error: "Rota não mockada" } }
   })
@@ -136,5 +162,25 @@ describe("ProdutoCruFormPage", () => {
     await userEvent.click(screen.getByRole("button", { name: "Remover" }))
     await waitFor(() => expect(toastMock.error).toHaveBeenCalledWith("Apenas administradores podem excluir amostras"))
     expect(screen.getByText("AMOSTRA - PILOTAGEM 001")).toBeDefined()
+  })
+
+  it("adiciona amostra de acabamento sem disparar submit do form", async () => {
+    const { fetchMock } = setup("7")
+    await screen.findByDisplayValue("D28")
+    await userEvent.click(screen.getByRole("button", { name: "Amostras" }))
+    await screen.findByText("RÚSTICO CAQUI")
+    fireEvent.click(screen.getByText("RÚSTICO CAQUI"))
+    await userEvent.click(screen.getByRole("button", { name: "Amostra" }))
+    await userEvent.type(screen.getByPlaceholderText("Descrição da amostra"), "AMOSTRA BENEF 001")
+    await userEvent.type(screen.getByPlaceholderText("Qtd produzida"), "10 M")
+    await userEvent.click(screen.getByRole("button", { name: "Adicionar" }))
+
+    await waitFor(() => {
+      const call = findCall(fetchMock.calls, `/api/cadastros/produto-cru/7/acabamentos/1/amostras`, "POST")
+      expect(call?.body?.descricao).toBe("AMOSTRA BENEF 001")
+    })
+    expect(toastMock.success).toHaveBeenCalledWith("Amostra adicionada")
+    expect((await screen.findAllByText("AMOSTRA BENEF 001")).length).toBeGreaterThan(0)
+    expect(navMock.router.push).not.toHaveBeenCalledWith("/cadastros/produto-cru")
   })
 })
