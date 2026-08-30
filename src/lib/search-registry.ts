@@ -1,3 +1,5 @@
+import { ehHrefRotinaValida } from "@/lib/rotina-url"
+
 export type SearchItem = {
   id: string
   label: string
@@ -18,27 +20,22 @@ export const searchRegistry: SearchItem[] = [
   // Comercial - Solicitações
   { id: "solicitacoes", label: "Solicitações de Desenvolvimento", keywords: ["solicitacao", "pedido", "comercial", "lista", "solicitacoes", "desenvolvimento"], href: "/comercial/solicitacoes", description: "Lista de solicitações de desenvolvimento", module: "Comercial" },
   { id: "solicitacoes-nova", label: "Nova Solicitação de Desenvolvimento", keywords: ["solicitacao", "nova", "criar", "pedido", "cadastro", "desenvolvimento"], href: "/comercial/solicitacoes/nova", description: "Criar nova solicitação de desenvolvimento", module: "Comercial" },
-  { id: "solicitacoes-detalhe", label: "Solicitação de Desenvolvimento (Detalhe)", keywords: ["solicitacao", "detalhe", "editar", "ficha", "desenvolvimento"], href: "/comercial/solicitacoes/[id]", description: "Ficha completa da solicitação de desenvolvimento", module: "Comercial" },
-  { id: "solicitacoes-editar", label: "Solicitação de Desenvolvimento (Editar)", keywords: ["solicitacao", "editar", "alterar", "desenvolvimento"], href: "/comercial/solicitacoes/[id]/editar", description: "Editar solicitação de desenvolvimento existente", module: "Comercial" },
   { id: "solicitacoes-kanban", label: "Kanban — Solicitações de Desenvolvimento", keywords: ["solicitacao", "kanban", "quadro", "status", "arrastar", "desenvolvimento"], href: "/comercial/solicitacoes/kanban", description: "Kanban de solicitações de desenvolvimento com drag-and-drop", module: "Comercial" },
 
   // Comercial - Requisições de Corte
   { id: "requisicoes-corte", label: "Requisições de Corte", keywords: ["requisicao", "corte", "comercial", "lista", "requisicoes"], href: "/comercial/requisicoes-corte", description: "Lista de requisições de corte", module: "Comercial" },
   { id: "requisicoes-corte-nova", label: "Nova Requisição de Corte", keywords: ["requisicao", "corte", "nova", "criar", "cadastro"], href: "/comercial/requisicoes-corte/nova", description: "Criar nova requisição de corte", module: "Comercial" },
-  { id: "requisicoes-corte-detalhe", label: "Requisição de Corte (Detalhe)", keywords: ["requisicao", "corte", "detalhe", "editar"], href: "/comercial/requisicoes-corte/[id]", description: "Ficha da requisição de corte", module: "Comercial" },
   { id: "requisicoes-corte-por-romaneio", label: "Requisição de Corte por Romaneio", keywords: ["requisicao", "corte", "romaneio", "expedicao", "criar"], href: "/comercial/requisicoes-corte/por-romaneio", description: "Criar requisição de corte a partir de romaneios", module: "Comercial" },
   { id: "requisicoes-corte-kanban", label: "Kanban — Requisições de Corte", keywords: ["requisicao", "corte", "kanban", "quadro", "status", "arrastar"], href: "/comercial/requisicoes-corte?view=kanban", description: "Kanban de requisições de corte com drag-and-drop", module: "Comercial" },
 
   // Comercial - Requisições de Amostra Comercial
   { id: "requisicoes-amostra-comercial", label: "Requisições de Amostra Comercial", keywords: ["amostra", "comercial", "requisição", "lista", "amostras"], href: "/comercial/requisicoes-amostra-comercial", description: "Lista de requisições de amostra comercial", module: "Comercial" },
   { id: "requisicoes-amostra-comercial-nova", label: "Nova Requisição de Amostra Comercial", keywords: ["amostra", "comercial", "nova", "criar", "requisição"], href: "/comercial/requisicoes-amostra-comercial/novo", description: "Criar nova requisição de amostra comercial", module: "Comercial" },
-  { id: "requisicoes-amostra-comercial-detalhe", label: "Requisição de Amostra Comercial (Detalhe)", keywords: ["amostra", "comercial", "detalhe", "ficha"], href: "/comercial/requisicoes-amostra-comercial/[id]", description: "Ficha completa da requisição de amostra comercial", module: "Comercial" },
   { id: "requisicoes-amostra-comercial-kanban", label: "Kanban — Amostras Comerciais", keywords: ["amostra", "comercial", "kanban", "quadro", "status", "arrastar"], href: "/comercial/requisicoes-amostra-comercial/kanban", description: "Kanban de amostras comerciais com drag-and-drop", module: "Comercial" },
 
   // Comercial - Clientes
   { id: "clientes", label: "Clientes", keywords: ["cliente", "comercial", "lista", "empresa"], href: "/comercial/clientes", description: "Lista de clientes", module: "Comercial" },
   { id: "clientes-novo", label: "Novo Cliente", keywords: ["cliente", "novo", "criar", "cadastro", "empresa"], href: "/comercial/clientes/novo", description: "Cadastrar novo cliente", module: "Comercial" },
-  { id: "clientes-detalhe", label: "Cliente (Detalhe)", keywords: ["cliente", "detalhe", "editar", "ficha"], href: "/comercial/clientes/[id]", description: "Ficha completa do cliente", module: "Comercial" },
 
   // Cadastros
   { id: "cadastros", label: "Cadastros", keywords: ["cadastro", "dados", "tabelas", "config"], href: "/cadastros", description: "Módulo de cadastros do sistema", module: "Cadastros" },
@@ -46,31 +43,24 @@ export const searchRegistry: SearchItem[] = [
 
   // Cadastros - Produtos
   { id: "produto-cru", label: "Produtos (Tecidos/Malhas)", keywords: ["produto", "tecido", "malha", "listagem", "cru"], href: "/cadastros/produto-cru", description: "Lista de produtos (tecidos/malhas)", module: "Cadastros" },
-  { id: "produto-cru-detalhe", label: "Produto (Tecido/Malha) (Detalhe)", keywords: ["produto", "tecido", "malha", "detalhe", "editar", "ficha", "cru"], href: "/cadastros/produto-cru/[id]", description: "Ficha completa do produto (tecido/malha)", module: "Cadastros" },
 
   // Cadastros - Fios
   { id: "fios", label: "Fios", keywords: ["fio", "fios", "listagem", "cadastro"], href: "/cadastros/fios", description: "Lista de fios", module: "Cadastros" },
-  { id: "fios-detalhe", label: "Fios (Detalhe)", keywords: ["fio", "detalhe", "editar"], href: "/cadastros/fios/[id]", description: "Ficha do fio", module: "Cadastros" },
 
   // Cadastros - Fornecedores
   { id: "fornecedores", label: "Fornecedores", keywords: ["fornecedor", "fornecedores", "lista", "parceiro"], href: "/cadastros/fornecedores", description: "Lista de fornecedores", module: "Cadastros" },
-  { id: "fornecedores-detalhe", label: "Fornecedores (Detalhe)", keywords: ["fornecedor", "detalhe", "editar"], href: "/cadastros/fornecedores/[id]", description: "Ficha do fornecedor", module: "Cadastros" },
 
   // Cadastros - Bases Urdume
   { id: "bases-urdume", label: "Bases Urdume", keywords: ["base", "urdume", "listagem", "tecelagem"], href: "/cadastros/bases-urdume", description: "Lista de bases de urdume", module: "Cadastros" },
-  { id: "bases-urdume-detalhe", label: "Bases Urdume (Detalhe)", keywords: ["base", "urdume", "detalhe", "editar"], href: "/cadastros/bases-urdume/[id]", description: "Ficha da base de urdume", module: "Cadastros" },
 
   // Cadastros - Cores
   { id: "cores", label: "Cores", keywords: ["cor", "cores", "lista", "paleta", "tinta"], href: "/cadastros/cores", description: "Lista de cores", module: "Cadastros" },
-  { id: "cores-detalhe", label: "Cores (Detalhe)", keywords: ["cor", "detalhe", "editar"], href: "/cadastros/cores/[id]", description: "Ficha da cor", module: "Cadastros" },
 
   // Cadastros - Estampas
   { id: "estampas", label: "Estampas", keywords: ["estampa", "estampas", "lista", "design", "padrao"], href: "/cadastros/estampas", description: "Lista de estampas", module: "Cadastros" },
-  { id: "estampas-detalhe", label: "Estampas (Detalhe)", keywords: ["estampa", "detalhe", "editar"], href: "/cadastros/estampas/[id]", description: "Ficha da estampa", module: "Cadastros" },
 
   // Cadastros - Produtos Químicos
   { id: "produtos-quimicos", label: "Produtos Químicos", keywords: ["quimico", "produto", "quimica", "insumo", "lista"], href: "/cadastros/produtos-quimicos", description: "Lista de produtos químicos", module: "Cadastros" },
-  { id: "produtos-quimicos-detalhe", label: "Produtos Químicos (Detalhe)", keywords: ["quimico", "detalhe", "editar"], href: "/cadastros/produtos-quimicos/[id]", description: "Ficha do produto químico", module: "Cadastros" },
 
   // Receitas
   { id: "receitas", label: "Receitas de Beneficiamento", keywords: ["receita", "receitas", "formula", "beneficiamento", "quimica"], href: "/cadastros/receitas", description: "Receitas de beneficiamento", module: "Cadastros" },
@@ -93,7 +83,6 @@ export const searchRegistry: SearchItem[] = [
 
   // Admin
   { id: "admin-usuarios", label: "Usuários", keywords: ["usuario", "admin", "lista", "pessoa", "colaborador"], href: "/admin/usuarios", description: "Gerenciamento de usuários do sistema", module: "Administrativo" },
-  { id: "admin-usuarios-detalhe", label: "Usuário (Detalhe)", keywords: ["usuario", "detalhe", "editar", "admin"], href: "/admin/usuarios/[id]", description: "Ficha do usuário", module: "Administrativo" },
   { id: "admin-roles", label: "Perfis (Roles)", keywords: ["role", "perfil", "acesso", "permissao", "admin"], href: "/admin/roles", description: "Gerenciamento de perfis de acesso", module: "Administrativo" },
   { id: "admin-email-massa", label: "Email em Massa", keywords: ["email", "massa", "disparo", "notificacao", "admin"], href: "/admin/email-massa", description: "Envio de emails em massa", module: "Administrativo" },
   { id: "admin-notificacoes", label: "Notificações", keywords: ["notificacao", "admin", "alerta", "aviso"], href: "/admin/notificacoes", description: "Gerenciamento de notificações do sistema", module: "Administrativo" },
@@ -127,7 +116,6 @@ export const searchRegistry: SearchItem[] = [
   { id: "crm-dashboard", label: "CRM — Dashboard", keywords: ["crm", "dashboard", "comercial", "painel", "leads", "pessoas", "clientes"], href: "/comercial/crm", description: "Dashboard do CRM com métricas de leads e pessoas", module: "CRM" },
   { id: "crm-pessoas", label: "CRM — Pessoas", keywords: ["crm", "pessoa", "pessoas", "lista", "prospecto", "comercial"], href: "/comercial/crm/pessoas", description: "Lista de pessoas do CRM", module: "CRM" },
   { id: "crm-pessoas-nova", label: "CRM — Nova Pessoa", keywords: ["crm", "pessoa", "nova", "criar", "cadastro", "prospecto"], href: "/comercial/crm/pessoas/novo", description: "Cadastrar nova pessoa no CRM", module: "CRM" },
-  { id: "crm-pessoas-detalhe", label: "CRM — Pessoa (Detalhe)", keywords: ["crm", "pessoa", "detalhe", "ficha", "contatos"], href: "/comercial/crm/pessoas/[id]", description: "Ficha completa da pessoa com contatos", module: "CRM" },
   { id: "crm-pessoas-kanban", label: "Kanban — Pessoas CRM", keywords: ["crm", "pessoa", "pessoas", "kanban", "quadro", "status", "arrastar"], href: "/comercial/crm/pessoas?view=kanban", description: "Kanban de pessoas do CRM com drag-and-drop", module: "CRM" },
   { id: "crm-contatos", label: "CRM — Contatos", keywords: ["crm", "contato", "contatos", "lista", "comercial"], href: "/comercial/crm/contatos", description: "Lista de contatos do CRM", module: "CRM" },
   { id: "crm-contatos-novo", label: "CRM — Novo Contato", keywords: ["crm", "contato", "novo", "criar", "cadastro"], href: "/comercial/crm/contatos/novo", description: "Cadastrar novo contato no CRM", module: "CRM" },
@@ -138,13 +126,11 @@ export const searchRegistry: SearchItem[] = [
   // CRM — Oportunidades
   { id: "crm-oportunidades", label: "CRM — Oportunidades", keywords: ["crm", "oportunidade", "oportunidades", "lista", "pipeline", "funil", "venda", "comercial"], href: "/comercial/crm/oportunidades", description: "Lista de oportunidades de venda do CRM", module: "CRM" },
   { id: "crm-oportunidades-nova", label: "CRM — Nova Oportunidade", keywords: ["crm", "oportunidade", "nova", "criar", "pipeline", "venda"], href: "/comercial/crm/oportunidades/novo", description: "Criar nova oportunidade de venda no CRM", module: "CRM" },
-  { id: "crm-oportunidades-detalhe", label: "CRM — Oportunidade (Detalhe)", keywords: ["crm", "oportunidade", "detalhe", "ficha", "pipeline"], href: "/comercial/crm/oportunidades/[id]", description: "Ficha completa da oportunidade de venda", module: "CRM" },
   { id: "crm-oportunidades-kanban", label: "Kanban — Oportunidades CRM", keywords: ["crm", "oportunidade", "kanban", "quadro", "status", "arrastar", "pipeline", "funil", "venda"], href: "/comercial/crm/oportunidades/kanban", description: "Kanban de oportunidades com drag-and-drop para o pipeline de vendas", module: "CRM" },
 
   // CRM — Visitas
   { id: "crm-visitas", label: "CRM — Visitas", keywords: ["crm", "visita", "visitas", "agenda", "ata", "comercial"], href: "/comercial/crm/visitas", description: "Agenda de visitas comerciais", module: "CRM" },
   { id: "crm-visitas-nova", label: "CRM — Nova Visita", keywords: ["crm", "visita", "nova", "agendar", "ata"], href: "/comercial/crm/visitas/novo", description: "Agendar nova visita comercial", module: "CRM" },
-  { id: "crm-visitas-detalhe", label: "CRM — Visita (Detalhe)", keywords: ["crm", "visita", "detalhe", "ata", "fotos"], href: "/comercial/crm/visitas/[id]", description: "Detalhe da visita com ata e fotos", module: "CRM" },
   { id: "crm-visitas-kanban", label: "Kanban — Visitas CRM", keywords: ["crm", "visita", "visitas", "kanban", "quadro", "status", "arrastar", "agenda"], href: "/comercial/crm/visitas?view=kanban", description: "Kanban de visitas comerciais com drag-and-drop", module: "CRM" },
   { id: "crm-visitas-dashboard", label: "CRM — Dashboard de Visitas", keywords: ["crm", "visita", "dashboard", "metricas", "painel", "performance", "checkin"], href: "/comercial/crm/visitas/dashboard", description: "Dashboard de métricas de visitas comerciais", module: "CRM" },
   { id: "crm-email-config", label: "CRM — Config Email", keywords: ["crm", "email", "smtp", "config", "configuracao", "pesquisa"], href: "/comercial/crm/configuracoes/email", description: "Configuração de email para pesquisas do CRM", module: "CRM" },
@@ -156,7 +142,6 @@ export const searchRegistry: SearchItem[] = [
   // CRM — Propostas
   { id: "crm-propostas", label: "CRM — Propostas", keywords: ["crm", "proposta", "propostas", "lista", "comercial", "pdf", "venda"], href: "/comercial/crm/propostas", description: "Lista de propostas comerciais", module: "CRM" },
   { id: "crm-propostas-nova", label: "CRM — Nova Proposta", keywords: ["crm", "proposta", "nova", "criar", "comercial", "pdf"], href: "/comercial/crm/propostas/novo", description: "Criar nova proposta comercial", module: "CRM" },
-  { id: "crm-propostas-detalhe", label: "CRM — Proposta (Detalhe)", keywords: ["crm", "proposta", "detalhe", "ficha", "pdf"], href: "/comercial/crm/propostas/[id]", description: "Detalhe da proposta comercial com status e PDF", module: "CRM" },
   { id: "crm-propostas-kanban", label: "Kanban — Propostas CRM", keywords: ["crm", "proposta", "propostas", "kanban", "quadro", "status", "arrastar", "venda"], href: "/comercial/crm/propostas?view=kanban", description: "Kanban de propostas comerciais com drag-and-drop", module: "CRM" },
 
   // CRM — Regiões
@@ -177,7 +162,6 @@ export const searchRegistry: SearchItem[] = [
   // CRM — Campanhas
   { id: "crm-campanhas", label: "CRM — Campanhas", keywords: ["crm", "campanha", "campanhas", "marketing", "whatsapp", "email", "comercial"], href: "/comercial/crm/campanhas", description: "Campanhas de marketing e comunicação", module: "CRM" },
   { id: "crm-campanhas-nova", label: "CRM — Nova Campanha", keywords: ["crm", "campanha", "nova", "criar", "marketing"], href: "/comercial/crm/campanhas/nova", description: "Criar nova campanha de marketing", module: "CRM" },
-  { id: "crm-campanhas-detalhe", label: "CRM — Campanha (Detalhe)", keywords: ["crm", "campanha", "detalhe", "ficha", "marketing"], href: "/comercial/crm/campanhas/[id]", description: "Detalhe da campanha de marketing", module: "CRM" },
   { id: "crm-campanhas-kanban", label: "Kanban — Campanhas CRM", keywords: ["crm", "campanha", "campanhas", "kanban", "quadro", "status", "arrastar", "marketing"], href: "/comercial/crm/campanhas?view=kanban", description: "Kanban de campanhas de marketing com drag-and-drop", module: "CRM" },
 
   // CRM — Representantes
@@ -204,6 +188,7 @@ export function searchItems(query: string): SearchItem[] {
   if (!query || query.length < 2) return []
   const q = query.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
   return searchRegistry.filter((item: any) => {
+    if (!ehHrefRotinaValida(item.href)) return false
     const label = item.label.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
     if (label.includes(q)) return true
     return item.keywords.some((k: any) =>

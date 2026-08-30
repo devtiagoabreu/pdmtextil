@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
-import { userMenuItens } from "@/lib/db/schema/user-menus"
+import { userMenus, userMenuItens } from "@/lib/db/schema/user-menus"
+import { eq } from "drizzle-orm"
 import { handleApiError } from "@/lib/api-error"
+import { validarUrlRotina } from "@/lib/rotina-url"
 
 async function requireAdmin() {
   const auth = await requireAuth()
@@ -16,13 +18,20 @@ async function requireAdmin() {
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    await requireAdmin()
+    const admin = await requireAdmin()
+    if (admin instanceof NextResponse) return admin
     const { id } = await params
     const menuId = parseInt(id)
     if (isNaN(menuId)) return NextResponse.json({ error: "Menu inválido" }, { status: 400 })
 
     const body = await req.json()
     if (!body.titulo || !body.url) return NextResponse.json({ error: "Título e URL são obrigatórios" }, { status: 400 })
+
+    const [menu] = await db.select().from(userMenus).where(eq(userMenus.id, menuId))
+    if (!menu) return NextResponse.json({ error: "Menu não encontrado" }, { status: 404 })
+
+    const erroUrl = validarUrlRotina(body.url, menu.role === "ADMIN" || menu.role === "SUDO")
+    if (erroUrl) return NextResponse.json({ error: erroUrl }, { status: 400 })
 
     const [item] = await db
       .insert(userMenuItens)

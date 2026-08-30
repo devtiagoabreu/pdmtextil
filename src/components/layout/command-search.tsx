@@ -2,11 +2,15 @@
 
 import { useState, useRef, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
+import { useSession } from "next-auth/react"
 import { Search } from "lucide-react"
 import { searchItems, type SearchItem } from "@/lib/search-registry"
 
 export function CommandSearch() {
   const router = useRouter()
+  const { data: session } = useSession()
+  const role = session?.user?.role
+  const ehAdministrador = role === "ADMIN" || role === "SUDO"
   const [query, setQuery] = useState("")
   const [results, setResults] = useState<SearchItem[]>([])
   const [selectedIndex, setSelectedIndex] = useState(0)
@@ -20,11 +24,13 @@ export function CommandSearch() {
       setIsOpen(false)
       return
     }
-    const filtered = searchItems(query)
+    const filtered = searchItems(query).filter(
+      (item) => ehAdministrador || !item.href.startsWith("/admin"),
+    )
     setResults(filtered)
     setSelectedIndex(0)
     setIsOpen(filtered.length > 0)
-  }, [query])
+  }, [query, ehAdministrador])
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {

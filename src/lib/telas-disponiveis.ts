@@ -1,6 +1,7 @@
 import fs from "fs"
 import path from "path"
 import { searchRegistry, type SearchItem } from "@/lib/search-registry"
+import { ehHrefRotinaValida } from "@/lib/rotina-url"
 
 const IGNORAR_HREFS = new Set(["/", "/login"])
 
@@ -76,7 +77,7 @@ export function todasTelas(): SearchItem[] {
     if (!porHref.has(href)) porHref.set(href, item)
   }
 
-  const resultados: SearchItem[] = [...searchRegistry]
+  const resultados: SearchItem[] = [...searchRegistry].filter((item) => ehHrefRotinaValida(item.href))
   const diretorio = path.join(process.cwd(), "src", "app")
   if (fs.existsSync(diretorio)) {
     for (const arquivo of caminhar(diretorio)) {

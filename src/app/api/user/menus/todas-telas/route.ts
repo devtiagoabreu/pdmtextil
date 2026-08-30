@@ -8,7 +8,11 @@ export async function GET() {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
 
+    const role = auth.session?.user?.role
+    const ehAdministrador = role === "ADMIN" || role === "SUDO"
+
     const telas = todasTelas()
+      .filter((item) => ehAdministrador || !item.href.startsWith("/admin"))
       .map((item: any) => ({
         id: item.id,
         label: item.label,
