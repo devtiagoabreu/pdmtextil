@@ -22,7 +22,17 @@ type VisitasDashboardData = {
   esteMes: number
   byTipo: { tipo: string; total: number }[]
   byStatus: { status: string; total: number }[]
-  porRepresentante: { representanteId: number | null; representanteNome: string; total: number }[]
+  porDia: { dia: string; total: number }[]
+  porGerente: {
+    gerenteId: number | null
+    gerenteNome: string
+    visitas: number
+    diasAtivos: number
+    mediaPorDia: number
+    melhorDia: { dia: string; total: number } | null
+    piorDia: { dia: string; total: number } | null
+  }[]
+  viagens: { viagemId: number | null; viagemTitulo: string; total: number }[]
   ultimasVisitas: { id: number; empresaId: number; clienteId: number | null; dataVisita: string; hora: string | null; tipo: string; status: string; endereco: string | null; numero: string | null; complemento: string | null; bairro: string | null; cidade: string | null; uf: string | null }[]
   pesquisas: { enviadas: number; abertas: number; respondidas: number }
 }
@@ -201,30 +211,80 @@ export default function VisitasDashboardPage() {
           {/* Linha 2: Graficos */}
           <VisitasCharts data={data} openModal={openModal} />
 
-          {/* Linha 3: Performance por Representante */}
+          {/* Linha 3: Viagens */}
+          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800">
+              <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 flex items-center gap-2">
+                <Navigation size={16} className="text-cyan-500" />
+                Viagens
+              </h2>
+              <Link href="/comercial/crm/viagens" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
+                Ver todas <ArrowRight size={12} />
+              </Link>
+            </div>
+            {data?.viagens && data.viagens.length > 0 ? (
+              <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                {data.viagens.map((vg: any) => (
+                  <div key={vg.viagemId ?? "sem"} className="flex items-center justify-between p-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <Navigation size={14} className={vg.viagemId ? "text-cyan-500" : "text-slate-300"} />
+                      <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
+                        {vg.viagemTitulo ?? "Sem viagem"}
+                      </p>
+                    </div>
+                    <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                      {vg.total} visitas
+                    </p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <Navigation className="w-10 h-10 text-slate-300 dark:text-slate-700 mb-2" />
+                <p className="text-sm text-slate-400">Nenhuma viagem vinculada</p>
+              </div>
+            )}
+          </div>
+
+          {/* Linha 4: Performance por Gerente Comercial */}
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
             <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800">
               <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 flex items-center gap-2">
                 <Users size={16} className="text-blue-500" />
-                Performance por Representante
+                Performance por Gerente Comercial
               </h2>
               <Link href="/comercial/crm/visitas" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
                 Ver todas <ArrowRight size={12} />
               </Link>
             </div>
-            {data?.porRepresentante && data.porRepresentante.length > 0 ? (
+            {data?.porGerente && data.porGerente.length > 0 ? (
               <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                {data.porRepresentante.map((rep: any, i: any) => (
-                  <div key={rep.representanteId ?? i} className="flex items-center justify-between p-3">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <span className="text-xs font-bold text-slate-400 w-5">{i + 1}.</span>
-                      <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
-                        {rep.representanteNome}
+                {data.porGerente.map((g: any, i: any) => (
+                  <div key={g.gerenteId ?? i} className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <span className="text-xs font-bold text-slate-400 w-5">{i + 1}.</span>
+                        <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
+                          {g.gerenteNome}
+                        </p>
+                      </div>
+                      <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                        {g.visitas} visitas
                       </p>
                     </div>
-                    <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                      {rep.total} visitas
-                    </p>
+                    <div className="mt-2 grid grid-cols-2 sm:grid-cols-3 gap-3 pl-8">
+                      <KpiMini label="Média/dia" value={`${g.mediaPorDia}`} />
+                      <KpiMini
+                        label="Melhor dia"
+                        value={g.melhorDia ? `${fmtData(g.melhorDia.dia)} (${g.melhorDia.total})` : "—"}
+                        tone="green"
+                      />
+                      <KpiMini
+                        label="Pior dia"
+                        value={g.piorDia ? `${fmtData(g.piorDia.dia)} (${g.piorDia.total})` : "—"}
+                        tone="red"
+                      />
+                    </div>
                   </div>
                 ))}
               </div>
@@ -236,7 +296,7 @@ export default function VisitasDashboardPage() {
             )}
           </div>
 
-          {/* Linha 4: —altimas Visitas */}
+          {/* Linha 5: —altimas Visitas */}
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
             <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800">
               <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 flex items-center gap-2">
@@ -431,5 +491,25 @@ function QuickAction({
       </div>
       <span className="text-xs font-medium text-slate-700 dark:text-slate-300">{label}</span>
     </Link>
+  )
+}
+
+function fmtData(dia: string): string {
+  const d = new Date(dia + "T12:00:00")
+  return isNaN(d.getTime()) ? dia : d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })
+}
+
+function KpiMini({ label, value, tone }: { label: string; value: string; tone?: "green" | "red" }) {
+  const valueCls =
+    tone === "green"
+      ? "text-green-600 dark:text-green-400"
+      : tone === "red"
+      ? "text-red-600 dark:text-red-400"
+      : "text-slate-800 dark:text-slate-100"
+  return (
+    <div className="rounded-lg bg-slate-50 dark:bg-slate-800/50 px-3 py-2">
+      <p className="text-[10px] text-slate-400">{label}</p>
+      <p className={`text-sm font-semibold ${valueCls}`}>{value}</p>
+    </div>
   )
 }

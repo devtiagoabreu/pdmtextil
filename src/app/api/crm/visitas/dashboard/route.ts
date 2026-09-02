@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { crmVisitas } from "@/lib/db/schema/crm-visitas"
+import { crmViagens } from "@/lib/db/schema/crm-viagens"
 import { crmPesquisasSatisfacao } from "@/lib/db/schema/crm-pesquisas-satisfacao"
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq, desc, sql, and, gte, count } from "drizzle-orm"
@@ -22,6 +23,10 @@ export async function GET(req: NextRequest) {
     const hoje = now.toISOString().split("T")[0]
     const inicioMes = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split("T")[0]
 
+    const realizadasCondition = mineCondition
+      ? and(mineCondition, eq(crmVisitas.status, "REALIZADA"))
+      : eq(crmVisitas.status, "REALIZADA")
+
     const [
       totalVisitas,
       realizadas,
@@ -31,7 +36,9 @@ export async function GET(req: NextRequest) {
       visitasMes,
       byTipo,
       byStatus,
-      porRepresentante,
+      porDia,
+      porGerenteRaw,
+      viagens,
       ultimasVisitas,
       pesquisasEnviadas,
       pesquisasAbertas,
@@ -54,17 +61,32 @@ export async function GET(req: NextRequest) {
         .where(mineCondition)
         .groupBy(crmVisitas.status),
       db
+        .select({ dia: crmVisitas.dataVisita, total: count() })
+        .from(crmVisitas)
+        .where(realizadasCondition)
+        .groupBy(crmVisitas.dataVisita)
+        .orderBy(crmVisitas.dataVisita),
+      db
         .select({
-          representanteId: crmVisitas.criadoPor,
-          representanteNome: usuarios.name,
+          gerenteId: crmVisitas.criadoPor,
+          gerenteNome: usuarios.name,
+          dataVisita: crmVisitas.dataVisita,
           total: count(),
         })
         .from(crmVisitas)
         .leftJoin(usuarios, eq(crmVisitas.criadoPor, usuarios.id))
+        .where(realizadasCondition)
+        .groupBy(crmVisitas.criadoPor, usuarios.name, crmVisitas.dataVisita),
+      db
+        .select({
+          viagemId: crmVisitas.viagemId,
+          viagemTitulo: crmViagens.titulo,
+          total: count(),
+        })
+        .from(crmVisitas)
+        .leftJoin(crmViagens, eq(crmVisitas.viagemId, crmViagens.id))
         .where(mineCondition)
-        .groupBy(crmVisitas.criadoPor, usuarios.name)
-        .orderBy(desc(count()))
-        .limit(10),
+        .groupBy(crmVisitas.viagemId, crmViagens.titulo),
       db
         .select({
           id: crmVisitas.id,
@@ -92,6 +114,53 @@ export async function GET(req: NextRequest) {
 
     const getCount = (rows: { total: number }[]) => Number(rows[0]?.total ?? 0)
 
+    type GerenteAcc = {
+      gerenteId: number | null
+      gerenteNome: string
+      visitas: number
+      diasAtivos: number
+      melhorDia: { dia: string; total: number } | null
+      piorDia: { dia: string; total: number } | null
+      _dias: Map<string, number>
+    }
+
+    const gerentes = new Map<number | null, GerenteAcc>()
+    for (const r of porGerenteRaw as any[]) {
+      let g = gerentes.get(r.gerenteId)
+      if (!g) {
+        g = {
+          gerenteId: r.gerenteId,
+          gerenteNome: r.gerenteNome || "Sem nome",
+          visitas: 0,
+          diasAtivos: 0,
+          melhorDia: null,
+          piorDia: null,
+          _dias: new Map(),
+        }
+        gerentes.set(r.gerenteId, g)
+      }
+      const total = Number(r.total)
+      g.visitas += total
+      g._dias.set(r.dataVisita, (g._dias.get(r.dataVisita) || 0) + total)
+    }
+
+    const porGerente = [...gerentes.values()].map((g) => {
+      g.diasAtivos = g._dias.size
+      const dias = [...g._dias.entries()]
+      if (dias.length > 0) {
+        dias.sort((a, b) => a[1] - b[1])
+        g.piorDia = { dia: dias[0][0], total: dias[0][1] }
+        dias.reverse()
+        g.melhorDia = { dia: dias[0][0], total: dias[0][1] }
+      }
+      const { _dias, ...rest } = g
+      return {
+        ...rest,
+        mediaPorDia: g.diasAtivos > 0 ? Number((g.visitas / g.diasAtivos).toFixed(1)) : 0,
+      }
+    })
+    porGerente.sort((a, b) => b.visitas - a.visitas)
+
     return NextResponse.json({
       total: getCount(totalVisitas),
       realizadas: getCount(realizadas),
@@ -101,9 +170,11 @@ export async function GET(req: NextRequest) {
       esteMes: getCount(visitasMes),
       byTipo: byTipo.map((r: any) => ({ tipo: r.tipo, total: Number(r.total) })),
       byStatus: byStatus.map((r: any) => ({ status: r.status, total: Number(r.total) })),
-      porRepresentante: porRepresentante.map((r: any) => ({
-        representanteId: r.representanteId,
-        representanteNome: r.representanteNome || "Sem nome",
+      porDia: porDia.map((r: any) => ({ dia: r.dia, total: Number(r.total) })),
+      porGerente,
+      viagens: viagens.map((r: any) => ({
+        viagemId: r.viagemId,
+        viagemTitulo: r.viagemId ? r.viagemTitulo : "Sem viagem",
         total: Number(r.total),
       })),
       ultimasVisitas: ultimasVisitas.map((r: any) => ({

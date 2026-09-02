@@ -4,7 +4,7 @@ import {
   BarChart, Bar, PieChart as RPieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts"
-import { PieChart as PieChartIcon, BarChart3 } from "lucide-react"
+import { PieChart as PieChartIcon, BarChart3, CalendarDays } from "lucide-react"
 import { ChartTooltip } from "@/components/ui/chart-tooltip"
 
 type VisitasDashboardData = {
@@ -16,7 +16,17 @@ type VisitasDashboardData = {
   esteMes: number
   byTipo: { tipo: string; total: number }[]
   byStatus: { status: string; total: number }[]
-  porRepresentante: { representanteId: number | null; representanteNome: string; total: number }[]
+  porDia: { dia: string; total: number }[]
+  porGerente: {
+    gerenteId: number | null
+    gerenteNome: string
+    visitas: number
+    diasAtivos: number
+    mediaPorDia: number
+    melhorDia: { dia: string; total: number } | null
+    piorDia: { dia: string; total: number } | null
+  }[]
+  viagens: { viagemId: number | null; viagemTitulo: string; total: number }[]
   ultimasVisitas: { id: number; empresaId: number; clienteId: number | null; dataVisita: string; hora: string | null; tipo: string; status: string; endereco: string | null; numero: string | null; complemento: string | null; bairro: string | null; cidade: string | null; uf: string | null }[]
   pesquisas: { enviadas: number; abertas: number; respondidas: number }
 }
@@ -49,6 +59,11 @@ const TIPO_LABELS: Record<string, string> = {
 
 const CHART_COLORS = ["#6366f1", "#06b6d4", "#f97316", "#22c55e", "#ef4444", "#8b5cf6"]
 
+function formatDia(dia: string): string {
+  const d = new Date(dia + "T12:00:00")
+  return isNaN(d.getTime()) ? dia : d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })
+}
+
 export function VisitasCharts({
   data,
   openModal,
@@ -56,8 +71,36 @@ export function VisitasCharts({
   data: VisitasDashboardData | undefined
   openModal: (filtro: string) => void
 }) {
+  const diasData = (data?.porDia ?? []).map((d) => ({
+    dia: d.dia,
+    label: formatDia(d.dia),
+    visitas: d.total,
+  }))
+
   return (
-    <div className="grid gap-6 md:grid-cols-2">
+    <div className="space-y-6">
+      {/* Visitas Realizadas por Dia (Barra) */}
+      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <CalendarDays size={16} className="text-slate-400" />
+          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50">Visitas Realizadas por Dia</h2>
+        </div>
+        {diasData.length > 0 ? (
+          <ResponsiveContainer width="100%" height={260}>
+            <BarChart data={diasData} margin={{ left: 10, right: 10 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+              <XAxis dataKey="label" tick={{ fontSize: 10 }} stroke="#94a3b8" />
+              <YAxis tick={{ fontSize: 11 }} stroke="#94a3b8" allowDecimals={false} />
+              <Tooltip content={<ChartTooltip formatter={(v) => `${v} visitas`} />} />
+              <Bar dataKey="visitas" fill="#22c55e" radius={[4, 4, 0, 0]} animationDuration={1800} animationEasing="ease-in-out" animationBegin={400} />
+            </BarChart>
+          </ResponsiveContainer>
+        ) : (
+          <p className="text-sm text-slate-400 text-center py-8">Nenhuma visita realizada</p>
+        )}
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2">
       {/* Visitas por Tipo (Pizza) */}
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
         <div className="flex items-center gap-2 mb-4">
@@ -154,6 +197,7 @@ export function VisitasCharts({
         ) : (
           <p className="text-sm text-slate-400 text-center py-8">Nenhuma visita registrada</p>
         )}
+      </div>
       </div>
     </div>
   )
