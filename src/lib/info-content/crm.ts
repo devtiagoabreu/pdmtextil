@@ -115,6 +115,9 @@ export const crmContent: Record<string, InfoContent> = {
       "Use o Kanban para arrastar oportunidades entre estágios do pipeline.",
       "Oportunidades FECHADO_PERDIDO podem ser reativadas pela IA após 90 dias.",
       "Ao fechar como GANHO, a pessoa é automaticamente sincronizada como Cliente no PDM.",
+      "Oportunidade (crm_oportunidades): é a negociação em si, o \"deal\" no pipeline de vendas. Avança por etapas (Novo → Qualificação → Proposta → Negociação → Ganho/Perdido) e guarda valorEstimado, probabilidade, responsável, previsão de fechamento, motivo da perda. É usada na previsão de vendas.",
+      "Proposta (crm_propostas): é o documento comercial formal enviado ao cliente (o orçamento/PDF). Vinculada a uma oportunidade (oportunidadeId), guarda valor, condições de pagamento, prazo de entrega, link do PDF e status (Enviada → Aceita/Recusada/Em revisão).",
+      "Por que ambas têm valor? São números de naturezas diferentes: a oportunidade guarda o valor estimado do negócio (projeção/previsão), e a proposta guarda o valor efetivamente cotado/oferecido ao cliente. Os dois são legítimos e complementares para acompanhar o funil.",
     ],
     fields: [
       { name: "Título", desc: "Nome da oportunidade (ex: Venda de 500m de malha)" },
@@ -249,6 +252,9 @@ export const crmContent: Record<string, InfoContent> = {
       "Ao ACEITAR uma proposta, a oportunidade vinculada avança no pipeline.",
       "Propostas podem ser impressas em PDF diretamente do sistema.",
       "O valor total e as condições são registrados para controle histórico.",
+      "Oportunidade (crm_oportunidades): é a negociação em si, o \"deal\" no pipeline de vendas. Avança por etapas (Novo → Qualificação → Proposta → Negociação → Ganho/Perdido) e guarda valorEstimado, probabilidade, responsável, previsão de fechamento, motivo da perda. É usada na previsão de vendas.",
+      "Proposta (crm_propostas): é o documento comercial formal enviado ao cliente (o orçamento/PDF). Vinculada a uma oportunidade (oportunidadeId), guarda valor, condições de pagamento, prazo de entrega, link do PDF e status (Enviada → Aceita/Recusada/Em revisão).",
+      "Por que ambas têm valor? São números de naturezas diferentes: a oportunidade guarda o valor estimado do negócio (projeção/previsão), e a proposta guarda o valor efetivamente cotado/oferecido ao cliente. Os dois são legítimos e complementares para acompanhar o funil.",
     ],
     fields: [
       { name: "Pessoa", desc: "Pessoa destinatária da proposta" },
