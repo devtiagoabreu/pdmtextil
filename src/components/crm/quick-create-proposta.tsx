@@ -8,11 +8,18 @@ import {
 } from "@/components/ui/dialog"
 
 type Props = {
-  empresaId: string
+  empresaId?: string
+  clienteId?: string
+  oportunidadeId?: string
   onCreated: (id: number, titulo: string) => void
 }
 
-export function QuickCreateProposta({ empresaId, onCreated }: Props) {
+export function QuickCreateProposta({
+  empresaId,
+  clienteId,
+  oportunidadeId,
+  onCreated,
+}: Props) {
   const [open, setOpen] = useState(false)
   const [saving, setSaving] = useState(false)
   const [titulo, setTitulo] = useState("")
@@ -34,7 +41,9 @@ export function QuickCreateProposta({ empresaId, onCreated }: Props) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           titulo,
-          empresaId: parseInt(empresaId),
+          empresaId: empresaId ? parseInt(empresaId) : null,
+          clienteId: clienteId ? parseInt(clienteId) : null,
+          oportunidadeId: oportunidadeId ? parseInt(oportunidadeId) : null,
           valor: valor ? parseFloat(valor) : null,
           prazoEntrega: prazoEntrega || null,
           descricao: descricao || null,

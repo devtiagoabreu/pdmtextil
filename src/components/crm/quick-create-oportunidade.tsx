@@ -9,10 +9,11 @@ import {
 
 type Props = {
   empresaId?: string
+  clienteId?: string
   onCreated: (id: number, titulo: string) => void
 }
 
-export function QuickCreateOportunidade({ empresaId, onCreated }: Props) {
+export function QuickCreateOportunidade({ empresaId, clienteId, onCreated }: Props) {
   const [open, setOpen] = useState(false)
   const [saving, setSaving] = useState(false)
   const [titulo, setTitulo] = useState("")
@@ -33,6 +34,7 @@ export function QuickCreateOportunidade({ empresaId, onCreated }: Props) {
         body: JSON.stringify({
           titulo,
           empresaId: empresaId ? parseInt(empresaId) : null,
+          clienteId: clienteId ? parseInt(clienteId) : null,
           valorEstimado: valorEstimado || null,
         }),
       })

@@ -345,6 +345,45 @@ describe("DetalheVisitaPage", () => {
     })
   })
 
+  it("cria uma proposta via quick create na edição da visita", async () => {
+    const handler = ({ method, url }: { method: string; url: string }) => {
+      if (method === "GET" && url === "/api/crm/oportunidades") return { json: [] }
+      if (method === "GET" && url === "/api/crm/estados") return { json: [{ id: 35, uf: "SP", nome: "São Paulo" }] }
+      if (method === "GET" && url === "/api/crm/viagens?all=true") return { json: [] }
+      if (method === "GET" && url === "/api/admin/status?tipo=VISITA") return { json: statusesVisita }
+      if (method === "GET" && url === "/api/crm/visitas/1") return { json: visita }
+      if (method === "GET" && url === "/api/crm/cidades?estadoId=35") return { json: [{ id: 1, nome: "São Paulo", estadoId: 35 }] }
+      if (method === "GET" && url === "/api/crm/pessoas/1") return { json: { id: 1, razaoSocial: "Tecelagem Alpha", uf: "SP", cidade: "São Paulo" } }
+      if (method === "GET" && url === "/api/crm/pessoas") return { json: [{ id: 1, razaoSocial: "Tecelagem Alpha" }] }
+      if (method === "GET" && url.startsWith("/api/crm/visitas/conflictos?")) return { json: { conflictos: [] } }
+      if (method === "GET" && url.includes("/api/crm/propostas")) return { json: [] }
+      if (method === "POST" && url === "/api/crm/propostas") return { json: { id: 22, titulo: "Proposta Edit" } }
+      if (method === "PUT" && url === "/api/crm/visitas/1") return { json: { ok: true } }
+      return { json: null }
+    }
+    const mock = createFetchMock(handler)
+    vi.stubGlobal("fetch", mock.fn)
+    renderPage(<DetalheVisitaPage />)
+
+    await screen.findByRole("heading", { name: "Visita — Tecelagem Alpha" })
+    fireEvent.click(screen.getByRole("button", { name: "Editar" }))
+    await screen.findByRole("button", { name: "Salvar" })
+
+    fireEvent.click(screen.getByTitle("Cadastrar nova proposta"))
+    const dialog = await screen.findByRole("dialog")
+    fireEvent.change(within(dialog).getByPlaceholderText("Ex: Proposta Comercial - Tecido X"), {
+      target: { value: "Proposta Edit" },
+    })
+    fireEvent.click(within(dialog).getByRole("button", { name: /^Criar$/ }))
+
+    await waitFor(() => {
+      const call = findCall(mock.calls, "/api/crm/propostas", "POST")
+      expect(call).toBeDefined()
+      expect(call!.body).toEqual(expect.objectContaining({ titulo: "Proposta Edit", empresaId: 1, clienteId: null }))
+    })
+    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Proposta criada com sucesso"))
+  })
+
   it("mostra mensagem quando a visita não existe", async () => {
     navMock.setParams({ id: "999" })
     const notFound = createFetchMock(() => ({ status: 404, json: { error: "não encontrada" } }))

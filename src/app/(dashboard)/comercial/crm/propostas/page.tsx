@@ -6,11 +6,13 @@ import { getInfoContent } from "@/lib/info-content"
 import Link from "next/link"
 import {Suspense, useState} from "react"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
-import { PlusCircle, FileText, Search, Table, Columns, Users, User } from "lucide-react"
+import { PlusCircle, FileText, Search, Table, Columns, Users, User, Pencil, Trash2 } from "lucide-react"
 import PropostasKanban from "@/components/crm/propostas-kanban"
 import { FloatableKanban } from "@/components/crm/floatable-kanban"
 import ListFilters, { useListFilters } from "@/components/ui/list-filters"
 import { PageSkeleton } from "@/components/ui/page-skeleton"
+import { ConfirmModal } from "@/components/ui/confirm-modal"
+import { toast } from "sonner"
 
 async function fetchPropostas(mine: boolean) {
   const res = await fetch(`/api/crm/propostas${mine ? "?mine=true" : ""}`)
@@ -40,12 +42,34 @@ function PropostasPageContent() {
   const [modo, setModo] = useState<"tabela" | "kanban">(searchParams.get("view") === "kanban" ? "kanban" : "tabela")
 
   const [visitasFilter, setVisitasFilter] = useState<"todas" | "minhas">("minhas")
+  const [deleteTarget, setDeleteTarget] = useState<any>(null)
+  const [deleteLoading, setDeleteLoading] = useState(false)
+  const [deleteBlocked, setDeleteBlocked] = useState(false)
 
-  const { data: propostas, isLoading } = useQuery({
+  const { data: propostas, isLoading, refetch } = useQuery({
     queryKey: ["crm-propostas", visitasFilter],
     queryFn: () => fetchPropostas(visitasFilter === "minhas"),
     retry: 1,
   })
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return
+    setDeleteLoading(true)
+    setDeleteBlocked(false)
+    try {
+      const res = await fetch(`/api/crm/propostas/${deleteTarget.id}`, { method: "DELETE" })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || "Erro ao excluir")
+      toast.success("Proposta excluída com sucesso")
+      setDeleteTarget(null)
+      refetch()
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao excluir proposta")
+      setDeleteTarget(null)
+    } finally {
+      setDeleteLoading(false)
+    }
+  }
 
   const filterState = useListFilters(
     { searchFields: ["titulo", "empresaNome", "clienteNome"],
@@ -167,6 +191,7 @@ function PropostasPageContent() {
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Valor</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Status</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Data</th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Ações</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -189,6 +214,21 @@ function PropostasPageContent() {
                     <td className="px-4 py-3 text-sm text-slate-500">
                       {p.createdAt ? new Date(p.createdAt).toLocaleDateString("pt-BR") : "—"}
                     </td>
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <Link href={`/comercial/crm/propostas/${p.id}`} className="p-1 text-slate-400 hover:text-blue-600 rounded transition-colors" title="Editar proposta">
+                          <Pencil size={15} />
+                        </Link>
+                        <button
+                          type="button"
+                          className="p-1 text-slate-400 hover:text-red-600 rounded transition-colors"
+                          title="Excluir proposta"
+                          onClick={() => { setDeleteTarget(p); setDeleteBlocked(false) }}
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -208,6 +248,18 @@ function PropostasPageContent() {
           <FloatableKanban tipo="PROPOSTA"><PropostasKanban propostas={filteredData} /></FloatableKanban>
         )
       )}
+
+      <ConfirmModal
+        open={deleteTarget !== null}
+        title="Excluir proposta?"
+        message={`Tem certeza que deseja excluir a proposta "${deleteTarget?.titulo || ""}"?`}
+        subMessage="Apenas esta proposta será excluída. Propostas vinculadas de outras visitas não são afetadas."
+        confirmLabel="Excluir"
+        variant="danger"
+        loading={deleteLoading}
+        onConfirm={handleDelete}
+        onCancel={() => { setDeleteTarget(null); setDeleteBlocked(false) }}
+      />
     </div>
   )
 }

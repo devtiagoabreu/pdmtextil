@@ -6,11 +6,12 @@ import { getInfoContent } from "@/lib/info-content"
 import Link from "next/link"
 import { useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
-import { PlusCircle, Target, Search, Table, Columns, Users, User } from "lucide-react"
+import { PlusCircle, Target, Search, Table, Columns, Users, User, Pencil, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import { FloatableKanban } from "@/components/crm/floatable-kanban"
 import OportunidadesKanban from "@/components/crm/oportunidades-kanban"
 import ListFilters, { useListFilters } from "@/components/ui/list-filters"
+import { ConfirmModal } from "@/components/ui/confirm-modal"
 
 async function fetchOportunidades(mine: boolean) {
   const res = await fetch(`/api/crm/oportunidades${mine ? "?mine=true" : ""}`)
@@ -43,12 +44,34 @@ export default function OportunidadesPage() {
   const [modo, setModo] = useState<"tabela" | "kanban">("tabela")
 
   const [visitasFilter, setVisitasFilter] = useState<"todas" | "minhas">("minhas")
+  const [deleteTarget, setDeleteTarget] = useState<any>(null)
+  const [deleteLoading, setDeleteLoading] = useState(false)
+  const [deleteBlocked, setDeleteBlocked] = useState(false)
 
-  const { data: oportunidades, isLoading } = useQuery({
+  const { data: oportunidades, isLoading, refetch } = useQuery({
     queryKey: ["crm-oportunidades", visitasFilter],
     queryFn: () => fetchOportunidades(visitasFilter === "minhas"),
     retry: 1,
   })
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return
+    setDeleteLoading(true)
+    setDeleteBlocked(false)
+    try {
+      const res = await fetch(`/api/crm/oportunidades/${deleteTarget.id}`, { method: "DELETE" })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || "Erro ao excluir")
+      toast.success("Oportunidade excluída com sucesso")
+      setDeleteTarget(null)
+      refetch()
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao excluir oportunidade")
+      setDeleteTarget(null)
+    } finally {
+      setDeleteLoading(false)
+    }
+  }
 
   const filterState = useListFilters(
     { searchFields: ["titulo", "empresaNome", "clienteNome", "responsavelNome"],
@@ -181,6 +204,7 @@ export default function OportunidadesPage() {
                   <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden md:table-cell">Responsável</th>
                   <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden sm:table-cell">Prob.</th>
                   <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden sm:table-cell">Data</th>
+                  <th className="px-2 py-2 md:px-4 md:py-3 text-right text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">Ações</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -206,6 +230,21 @@ export default function OportunidadesPage() {
                     <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 whitespace-nowrap hidden sm:table-cell">
                       {op.createdAt ? new Date(op.createdAt).toLocaleDateString("pt-BR") : "—"}
                     </td>
+                    <td className="px-2 py-2 md:px-4 md:py-3 text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <Link href={`/comercial/crm/oportunidades/${op.id}`} className="p-1 text-slate-400 hover:text-blue-600 rounded transition-colors" title="Editar oportunidade">
+                          <Pencil size={15} />
+                        </Link>
+                        <button
+                          type="button"
+                          className="p-1 text-slate-400 hover:text-red-600 rounded transition-colors"
+                          title="Excluir oportunidade"
+                          onClick={() => { setDeleteTarget(op); setDeleteBlocked(false) }}
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -225,6 +264,18 @@ export default function OportunidadesPage() {
           <FloatableKanban tipo="OPORTUNIDADE"><OportunidadesKanban oportunidades={oportunidades || []} /></FloatableKanban>
         )
       )}
+
+      <ConfirmModal
+        open={deleteTarget !== null}
+        title="Excluir oportunidade?"
+        message={`Tem certeza que deseja excluir a oportunidade "${deleteTarget?.titulo || ""}"?`}
+        subMessage="Todas as propostas vinculadas a esta oportunidade também serão excluídas."
+        confirmLabel="Excluir"
+        variant="danger"
+        loading={deleteLoading}
+        onConfirm={handleDelete}
+        onCancel={() => { setDeleteTarget(null); setDeleteBlocked(false) }}
+      />
     </div>
   )
 }

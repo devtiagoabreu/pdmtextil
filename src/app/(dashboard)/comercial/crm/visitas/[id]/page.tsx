@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useSession } from "next-auth/react"
 import { getInfoContent } from "@/lib/info-content"
 import { useRouter, useParams, usePathname } from "next/navigation"
@@ -20,6 +20,7 @@ import { RelatoFotos } from "./components/relato-fotos"
 
 export default function DetalheVisitaPage() {
   const router = useRouter()
+  const queryClient = useQueryClient()
   const { data: session } = useSession()
   const isGoogleUser = (session?.user as any)?.provider === "google"
   const pathname = usePathname()
@@ -97,6 +98,18 @@ export default function DetalheVisitaPage() {
 
   function setField(field: string, value: any) {
     setForm((prev: any) => ({ ...prev, [field]: value }))
+  }
+
+  function handleOportunidadeCreated(id: number) {
+    queryClient.invalidateQueries({ queryKey: ["crm-oportunidades"] })
+    setField("oportunidadeId", id)
+    setField("propostaId", null)
+    setField("propostaTitulo", null)
+  }
+
+  function handlePropostaCreated(id: number, titulo: string) {
+    setField("propostaId", id)
+    setField("propostaTitulo", titulo)
   }
 
   function startEditing() {
@@ -332,6 +345,8 @@ export default function DetalheVisitaPage() {
             estadoId={estadoId}
             getStatusLabel={getLabel}
             onCopiarEndereco={handleCopiarEndereco}
+            onOportunidadeCreated={handleOportunidadeCreated}
+            onPropostaCreated={handlePropostaCreated}
             oportunidades={oportunidades}
           />
         ) : (

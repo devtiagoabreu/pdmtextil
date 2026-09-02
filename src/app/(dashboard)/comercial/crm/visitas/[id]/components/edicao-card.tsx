@@ -3,6 +3,8 @@ import { SelectUf } from "@/components/crm/select-uf"
 import { SelectCidade } from "@/components/crm/select-cidade"
 import { ViagemSelect } from "@/components/crm/viagem-select"
 import { CreatableSelect } from "@/components/ui/creatable-select"
+import { QuickCreateOportunidade } from "@/components/crm/quick-create-oportunidade"
+import { QuickCreateProposta } from "@/components/crm/quick-create-proposta"
 import { STATUS_OPTIONS, TIPO_OPTIONS } from "./constants"
 
 interface EdicaoCardProps {
@@ -13,6 +15,8 @@ interface EdicaoCardProps {
   estadoId: number | null
   getStatusLabel: (status: string) => string
   onCopiarEndereco: () => void
+  onOportunidadeCreated: (id: number) => void
+  onPropostaCreated: (id: number, titulo: string) => void
   oportunidades?: any[]
 }
 
@@ -24,6 +28,8 @@ export function EdicaoCard({
   estadoId,
   getStatusLabel,
   onCopiarEndereco,
+  onOportunidadeCreated,
+  onPropostaCreated,
   oportunidades = [],
 }: EdicaoCardProps) {
   const listaOportunidades = oportunidades ?? []
@@ -66,7 +72,14 @@ export function EdicaoCard({
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-500 mb-1">Oportunidade</label>
+            <label className="block text-xs font-medium text-slate-500 mb-1">
+              Oportunidade
+              {form.empresaId ? (
+                <QuickCreateOportunidade empresaId={form.empresaId} onCreated={onOportunidadeCreated} />
+              ) : form.clienteId ? (
+                <QuickCreateOportunidade clienteId={form.clienteId} onCreated={onOportunidadeCreated} />
+              ) : null}
+            </label>
             <select
               value={form.oportunidadeId ? String(form.oportunidadeId) : ""}
               onChange={e => {
@@ -89,7 +102,22 @@ export function EdicaoCard({
             </select>
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-500 mb-1">Proposta Vinculada</label>
+            <label className="block text-xs font-medium text-slate-500 mb-1">
+              Proposta Vinculada
+              {form.empresaId ? (
+                <QuickCreateProposta
+                  empresaId={form.empresaId}
+                  oportunidadeId={String(form.oportunidadeId || "")}
+                  onCreated={onPropostaCreated}
+                />
+              ) : form.clienteId ? (
+                <QuickCreateProposta
+                  clienteId={form.clienteId}
+                  oportunidadeId={String(form.oportunidadeId || "")}
+                  onCreated={onPropostaCreated}
+                />
+              ) : null}
+            </label>
             <CreatableSelect
               valueId={form.propostaId ? parseInt(form.propostaId) : null}
               valueNome={form.propostaTitulo || null}

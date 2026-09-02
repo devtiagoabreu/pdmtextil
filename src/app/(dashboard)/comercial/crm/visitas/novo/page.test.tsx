@@ -289,4 +289,98 @@ describe("NovaVisitaPage", () => {
     expect(await screen.findByRole("option", { name: "Oportunidade Confecções" })).toBeInTheDocument()
     expect(screen.queryByRole("option", { name: "Oportunidade Expansão" })).not.toBeInTheDocument()
   })
+
+  it("cria uma proposta via quick create (PESSOA) e vincula na visita sem salvar", async () => {
+    const handler = ({ method, url }: { method: string; url: string }) => {
+      if (method === "GET" && url === "/api/crm/pessoas") return { json: [{ id: 1, razaoSocial: "Tecelagem Alpha" }] }
+      if (method === "GET" && url === "/api/crm/oportunidades") return { json: [] }
+      if (method === "GET" && url === "/api/crm/viagens?all=true") return { json: [] }
+      if (method === "GET" && url === "/api/crm/estados") return { json: [] }
+      if (method === "POST" && url === "/api/crm/propostas") {
+        return { json: { id: 20, titulo: "Proposta Nova" } }
+      }
+      if (method === "GET" && url.includes("/api/crm/propostas")) return { json: [] }
+      return { json: null }
+    }
+    const mock = createFetchMock(handler)
+    vi.stubGlobal("fetch", mock.fn)
+    renderPage(<NovaVisitaPage />)
+
+    await screen.findByRole("heading", { name: "Nova Visita" })
+    fireEvent.click(screen.getByRole("button", { name: /^Pessoa/ }))
+    await screen.findByText("Visitando Pessoa (Negócio)")
+
+    fireEvent.change(screen.getAllByRole("combobox")[0], { target: { value: "1" } })
+
+    fireEvent.click(screen.getByTitle("Cadastrar nova proposta"))
+    const dialog = await screen.findByRole("dialog")
+    expect(within(dialog).getByRole("heading", { name: "Nova Proposta" })).toBeInTheDocument()
+
+    fireEvent.change(within(dialog).getByPlaceholderText("Ex: Proposta Comercial - Tecido X"), {
+      target: { value: "Proposta Nova" },
+    })
+    fireEvent.click(within(dialog).getByRole("button", { name: /^Criar$/ }))
+
+    await waitFor(() => {
+      const call = findCall(mock.calls, "/api/crm/propostas", "POST")
+      expect(call).toBeDefined()
+      expect(call!.body).toEqual({
+        titulo: "Proposta Nova",
+        empresaId: 1,
+        clienteId: null,
+        oportunidadeId: null,
+        valor: null,
+        prazoEntrega: null,
+        descricao: null,
+      })
+    })
+    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Proposta criada com sucesso"))
+
+    const visitaCall = findCall(mock.calls, "/api/crm/visitas", "POST")
+    expect(visitaCall).toBeUndefined()
+  })
+
+  it("cria uma proposta via quick create (CLIENTE) vinculando ao cliente", async () => {
+    const handler = ({ method, url }: { method: string; url: string }) => {
+      if (method === "GET" && url === "/api/clientes") return { json: [{ id: 5, nome: "Confecções Lima" }] }
+      if (method === "GET" && url === "/api/crm/oportunidades") return { json: [] }
+      if (method === "GET" && url === "/api/crm/viagens?all=true") return { json: [] }
+      if (method === "GET" && url === "/api/crm/estados") return { json: [] }
+      if (method === "POST" && url === "/api/crm/propostas") {
+        return { json: { id: 21, titulo: "Proposta Cliente" } }
+      }
+      if (method === "GET" && url.includes("/api/crm/propostas")) return { json: [] }
+      return { json: null }
+    }
+    const mock = createFetchMock(handler)
+    vi.stubGlobal("fetch", mock.fn)
+    renderPage(<NovaVisitaPage />)
+
+    await screen.findByRole("heading", { name: "Nova Visita" })
+    fireEvent.click(screen.getByRole("button", { name: /^Cliente/ }))
+    await screen.findByText("Visitando Cliente")
+
+    fireEvent.change(screen.getAllByRole("combobox")[0], { target: { value: "5" } })
+
+    fireEvent.click(screen.getByTitle("Cadastrar nova proposta"))
+    const dialog = await screen.findByRole("dialog")
+    fireEvent.change(within(dialog).getByPlaceholderText("Ex: Proposta Comercial - Tecido X"), {
+      target: { value: "Proposta Cliente" },
+    })
+    fireEvent.click(within(dialog).getByRole("button", { name: /^Criar$/ }))
+
+    await waitFor(() => {
+      const call = findCall(mock.calls, "/api/crm/propostas", "POST")
+      expect(call).toBeDefined()
+      expect(call!.body).toEqual({
+        titulo: "Proposta Cliente",
+        empresaId: null,
+        clienteId: 5,
+        oportunidadeId: null,
+        valor: null,
+        prazoEntrega: null,
+        descricao: null,
+      })
+    })
+  })
 })

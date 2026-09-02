@@ -4,6 +4,7 @@ import { QuickCreatePessoa } from "@/components/crm/quick-create-pessoa"
 import { QuickCreateCliente } from "@/components/crm/quick-create-cliente"
 import { QuickCreateContato } from "@/components/crm/quick-create-contato"
 import { QuickCreateOportunidade } from "@/components/crm/quick-create-oportunidade"
+import { QuickCreateProposta } from "@/components/crm/quick-create-proposta"
 import { ViagemSelect } from "@/components/crm/viagem-select"
 import { CreatableSelect } from "@/components/ui/creatable-select"
 import { TIPO_OPTIONS } from "./constants"
@@ -25,6 +26,7 @@ interface FormFieldsProps {
   onClienteCreated: (id: number, nome: string) => void
   onContatoCreated: (id: number) => void
   onOportunidadeCreated: (id: number) => void
+  onPropostaCreated: (id: number, titulo: string) => void
   onTrocar: () => void
 }
 
@@ -45,6 +47,7 @@ export function FormFields({
   onClienteCreated,
   onContatoCreated,
   onOportunidadeCreated,
+  onPropostaCreated,
   onTrocar,
 }: FormFieldsProps) {
   const entidadeIcone =
@@ -262,6 +265,9 @@ export function FormFields({
             {tipoEntidade === "PESSOA" && (
               <QuickCreateOportunidade empresaId={form.empresaId} onCreated={onOportunidadeCreated} />
             )}
+            {tipoEntidade === "CLIENTE" && (
+              <QuickCreateOportunidade clienteId={form.clienteId} onCreated={onOportunidadeCreated} />
+            )}
           </label>
           <select
             value={form.oportunidadeId}
@@ -336,7 +342,23 @@ export function FormFields({
       </div>
 
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-4">
-        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Proposta Vinculada</label>
+        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+          Proposta Vinculada
+          {tipoEntidade === "PESSOA" && (
+            <QuickCreateProposta
+              empresaId={form.empresaId}
+              oportunidadeId={form.oportunidadeId}
+              onCreated={onPropostaCreated}
+            />
+          )}
+          {tipoEntidade === "CLIENTE" && (
+            <QuickCreateProposta
+              clienteId={form.clienteId}
+              oportunidadeId={form.oportunidadeId}
+              onCreated={onPropostaCreated}
+            />
+          )}
+        </label>
         <CreatableSelect
           valueId={form.propostaId ? parseInt(form.propostaId) : null}
           valueNome={form.propostaTitulo || null}

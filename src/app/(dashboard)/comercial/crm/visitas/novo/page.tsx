@@ -205,6 +205,11 @@ function NovaVisitaPageContent() {
     setField("oportunidadeId", String(id))
   }
 
+  function handlePropostaCreated(id: number, titulo: string) {
+    setField("propostaId", String(id))
+    setField("propostaTitulo", titulo)
+  }
+
   function copiarEnderecoEmpresa() {
     setForm(prev => ({
       ...prev,
@@ -335,6 +340,7 @@ function NovaVisitaPageContent() {
             onClienteCreated={handleClienteCreated}
             onContatoCreated={handleContatoCreated}
             onOportunidadeCreated={handleOportunidadeCreated}
+            onPropostaCreated={handlePropostaCreated}
             onTrocar={handleTrocar}
           />
 
