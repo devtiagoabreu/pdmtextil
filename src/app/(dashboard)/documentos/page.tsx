@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { FileText, Truck, FileSpreadsheet, ShoppingCart, BarChart3 } from "lucide-react"
+import { FileText, Truck, FileSpreadsheet, ShoppingCart, BarChart3, ScanLine } from "lucide-react"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 
@@ -9,6 +9,12 @@ const modulos = [
     label: "Romaneios",
     desc: "Emissão e consulta de romaneios de carga",
     icon: Truck,
+  },
+  {
+    href: "/documentos/conferencia-op-tecelagem",
+    label: "Conferência de OP de Tecelagem",
+    desc: "Consulta e conferência de rolos gerados por ordem de produção (OP)",
+    icon: ScanLine,
   },
   {
     href: "/documentos/pre-danfe",

@@ -23,4 +23,16 @@ export const documentosContent: Record<string, InfoContent> = {
       "Configure a integração em Configurações > Integrações com a tela 'romaneios'.",
     ],
   },
+  "/documentos/conferencia-op-tecelagem": {
+    title: "Conferência de OP de Tecelagem",
+    description:
+      "Consulta e conferência dos rolos gerados por ordem de produção (OP) na tecelagem. Os dados são obtidos da integração com a tela 'conferencia-op-tecelagem'.",
+    rules: [
+      "Clique em 'Carregar Todas' para listar os rolos disponíveis (últimos 6 meses, nível 2 / cru).",
+      "Digite o número da OP ou leia o código de barras pela câmera para filtrar os rolos da OP.",
+      "Os rolos são agrupados por OP para facilitar a conferência.",
+      "Funciona no desktop e no celular — a leitura de código de barras usa a câmera do aparelho.",
+      "Configure a integração em Configurações > Integrações com a tela 'conferencia-op-tecelagem'.",
+    ],
+  },
 }
