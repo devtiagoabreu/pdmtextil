@@ -3,4 +3,5 @@ export type InfoContent = {
   description: string
   rules?: string[]
   fields?: { name: string; desc: string }[]
+  examples?: { title: string; desc: string }[]
 }

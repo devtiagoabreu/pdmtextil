@@ -75,6 +75,20 @@ export function InfoButton({ content }: InfoButtonProps) {
                   </div>
                 </div>
               )}
+
+              {content.examples && content.examples.length > 0 && (
+                <div>
+                  <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Exemplos Práticos</h3>
+                  <div className="space-y-3">
+                    {content.examples.map((ex: any, i: any) => (
+                      <div key={i} className="rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50/60 dark:bg-blue-950/30 p-3">
+                        <p className="text-sm font-semibold text-blue-700 dark:text-blue-300 mb-1">{ex.title}</p>
+                        <p className="text-sm text-slate-600 dark:text-slate-400 whitespace-pre-wrap">{ex.desc}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

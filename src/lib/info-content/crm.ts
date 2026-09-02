@@ -125,6 +125,16 @@ export const crmContent: Record<string, InfoContent> = {
       { name: "Valor Estimado", desc: "Valor potencial da negociação" },
       { name: "Status", desc: "Estágio no pipeline: Novo → Qualificação → Proposta → Negociação → Fechado" },
     ],
+    examples: [
+      {
+        title: "Exemplo do dia a dia",
+        desc: "A Tecelagem Y pediu 10.000 kg de malha penteada. Você cadastra a Oportunidade \"Fornecimento Malha Penteada - Tecelagem Y\" com valorEstimado de R$ 120.000 (sua projeção). À medida que o cliente negocia, você avança o status: Novo → Qualificação → Proposta → Negociação. Se fechar, o valor estimado é que alimenta a previsão de vendas.",
+      },
+      {
+        title: "Quando cada uma é usada",
+        desc: "Use a Oportunidade para acompanhar o funil e a previsão de venda. A Proposta surge um passo depois, quando você formaliza o orçamento ao cliente com o valor efetivamente cotado, condições e prazo. A mesma negociação pode ter 1 oportunidade e várias propostas (ex: revisões).",
+      },
+    ],
   },
   "/comercial/crm/oportunidades/novo": {
     title: "Nova Oportunidade",
@@ -261,6 +271,16 @@ export const crmContent: Record<string, InfoContent> = {
       { name: "Valor Total", desc: "Valor total da proposta" },
       { name: "Status", desc: "Enviada, Aceita, Recusada ou Em Revisão" },
       { name: "Validade", desc: "Prazo de validade da proposta" },
+    ],
+    examples: [
+      {
+        title: "Exemplo de proposta concreta",
+        desc: "Depois da negociação, você cria a Proposta \"Orçamento Malha Penteada - Tecelagem Y\" para o cliente, com valor de R$ 118.500 (o preço final cotado), condicoesPagamento \"30/60/90 dias\" e prazoEntrega \"45 dias\". Você anexa o link do PDF e o status vai de Enviada → Aceita (ou Recusada/Em revisão).",
+      },
+      {
+        title: "Proposta x Oportunidade no exemplo",
+        desc: "Na mesma negociação, a Oportunidade tinha valorEstimado R$ 120.000 (projeção do funil), mas a Proposta enviada ficou em R$ 118.500 (valor efetivamente cotado). Por isso os dois números existem: um alimenta a previsão de vendas, o outro é o compromisso formal com o cliente. A diferença é normal.",
+      },
     ],
   },
   "/comercial/crm/propostas/novo": {
