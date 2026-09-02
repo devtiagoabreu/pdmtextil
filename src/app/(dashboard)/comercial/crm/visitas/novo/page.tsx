@@ -46,6 +46,7 @@ function NovaVisitaPageContent() {
     representanteId: "",
     representanteNome: "",
     propostaId: "",
+    propostaTitulo: "",
     dataVisita: dataParam || new Date().toISOString().split("T")[0],
     hora: "",
     tipo: "PRESENCIAL",
@@ -184,6 +185,8 @@ function NovaVisitaPageContent() {
     setField("empresaId", String(id))
     setField("oportunidadeId", "")
     setField("contatoId", "")
+    setField("propostaId", "")
+    setField("propostaTitulo", "")
   }
 
   function handleClienteCreated(id: number, nome: string) {
@@ -221,6 +224,8 @@ function NovaVisitaPageContent() {
     setField("clienteId", "")
     setField("oportunidadeId", "")
     setField("contatoId", "")
+    setField("propostaId", "")
+    setField("propostaTitulo", "")
     setField("nomeAvulso", "")
   }
 

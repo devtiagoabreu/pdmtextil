@@ -288,6 +288,63 @@ describe("DetalheVisitaPage", () => {
     expect(screen.getByRole("button", { name: "Remover item 1" })).toBeInTheDocument()
   })
 
+  it("permite definir a oportunidade na edição da visita", async () => {
+    const handler = ({ method, url }: { method: string; url: string }) => {
+      if (method === "GET" && url === "/api/crm/oportunidades") {
+        return { json: [{ id: 3, titulo: "Venda de malha", empresaId: 1, clienteId: null }] }
+      }
+      if (method === "GET" && url === "/api/crm/estados") {
+        return { json: [{ id: 35, uf: "SP", nome: "São Paulo" }] }
+      }
+      if (method === "GET" && url === "/api/crm/viagens?all=true") {
+        return { json: [] }
+      }
+      if (method === "GET" && url === "/api/admin/status?tipo=VISITA") {
+        return { json: statusesVisita }
+      }
+      if (method === "GET" && url === "/api/crm/visitas/1") {
+        return { json: visita }
+      }
+      if (method === "GET" && url === "/api/crm/cidades?estadoId=35") {
+        return { json: [{ id: 1, nome: "São Paulo", estadoId: 35 }] }
+      }
+      if (method === "GET" && url === "/api/crm/pessoas/1") {
+        return { json: { id: 1, razaoSocial: "Tecelagem Alpha", endereco: "Rua das Rosas", uf: "SP", cidade: "São Paulo" } }
+      }
+      if (method === "GET" && url === "/api/crm/pessoas") {
+        return { json: [{ id: 1, razaoSocial: "Tecelagem Alpha" }] }
+      }
+      if (method === "GET" && url.startsWith("/api/crm/visitas/conflictos?")) {
+        return { json: { conflictos: [] } }
+      }
+      if (method === "PUT" && url === "/api/crm/visitas/1") {
+        return { json: { ok: true } }
+      }
+      return { json: null }
+    }
+    const mock = createFetchMock(handler)
+    vi.stubGlobal("fetch", mock.fn)
+    renderPage(<DetalheVisitaPage />)
+
+    await screen.findByRole("heading", { name: "Visita — Tecelagem Alpha" })
+    fireEvent.click(screen.getByRole("button", { name: "Editar" }))
+    await screen.findByRole("button", { name: "Salvar" })
+
+    const opSelect = screen.getAllByRole("combobox").find(
+      (c) => c.tagName === "SELECT" && Array.from((c as HTMLSelectElement).options).some(o => o.textContent === "Venda de malha")
+    ) as HTMLSelectElement
+    expect(opSelect).toBeDefined()
+    fireEvent.change(opSelect, { target: { value: "3" } })
+
+    fireEvent.click(screen.getByRole("button", { name: "Salvar" }))
+
+    await waitFor(() => {
+      const call = findCall(mock.calls, "/api/crm/visitas/1", "PUT")
+      expect(call).toBeDefined()
+      expect(call!.body).toEqual(expect.objectContaining({ oportunidadeId: 3, propostaId: null }))
+    })
+  })
+
   it("mostra mensagem quando a visita não existe", async () => {
     navMock.setParams({ id: "999" })
     const notFound = createFetchMock(() => ({ status: 404, json: { error: "não encontrada" } }))

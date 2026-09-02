@@ -180,9 +180,113 @@ describe("NovaVisitaPage", () => {
     })
     await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Contato criado com sucesso"))
 
-    await waitFor(() => expect(screen.getAllByRole("combobox")[4]).toHaveValue("9"))
+    await waitFor(() =>
+      expect(screen.getAllByRole("combobox").some(c => (c as HTMLSelectElement).value === "9")).toBe(true)
+    )
     const visitaCall = findCall(fetchMock.calls, "/api/crm/visitas", "POST")
     expect(visitaCall).toBeUndefined()
     expect(navMock.router.push).not.toHaveBeenCalled()
+  })
+
+  function novoHandler(propostas: any[]) {
+    return ({ method, url }: { method: string; url: string }) => {
+      if (method === "GET" && url === "/api/crm/pessoas") {
+        return { json: [{ id: 1, razaoSocial: "Tecelagem Alpha" }] }
+      }
+      if (method === "GET" && url === "/api/clientes") {
+        return { json: [{ id: 5, nome: "Confecções Lima" }] }
+      }
+      if (method === "GET" && url === "/api/crm/oportunidades") {
+        return {
+          json: [
+            { id: 3, titulo: "Oportunidade Expansão", empresaId: 1, clienteId: null },
+            { id: 7, titulo: "Oportunidade Confecções", empresaId: null, clienteId: 5 },
+          ],
+        }
+      }
+      if (method === "GET" && url === "/api/crm/viagens?all=true") {
+        return { json: [] }
+      }
+      if (method === "GET" && url === "/api/crm/estados") {
+        return { json: [{ id: 35, uf: "SP", nome: "São Paulo" }] }
+      }
+      if (method === "GET" && url === "/api/crm/cidades?estadoId=35") {
+        return { json: [{ id: 1, nome: "São Paulo", estadoId: 35 }] }
+      }
+      if (method === "GET" && url.includes("/api/crm/propostas")) {
+        return { json: propostas }
+      }
+      return { json: null }
+    }
+  }
+
+  it("carrega as propostas pelo título no dropdown de proposta vinculada", async () => {
+    const mock = createFetchMock(novoHandler([{ id: 10, titulo: "Orçamento Tecido", oportunidadeId: 3 }]))
+    vi.stubGlobal("fetch", mock.fn)
+    renderPage(<NovaVisitaPage />)
+
+    await screen.findByRole("heading", { name: "Nova Visita" })
+    fireEvent.click(screen.getByRole("button", { name: /^Pessoa/ }))
+    await screen.findByText("Visitando Pessoa (Negócio)")
+
+    fireEvent.change(screen.getByPlaceholderText("Buscar proposta..."), { target: { value: "orç" } })
+
+    expect(await screen.findByRole("option", { name: "Orçamento Tecido" })).toBeInTheDocument()
+  })
+
+  it("ao selecionar uma proposta preenche a oportunidade da proposta na visita", async () => {
+    const mock = createFetchMock(novoHandler([{ id: 10, titulo: "Orçamento Tecido", oportunidadeId: 3 }]))
+    vi.stubGlobal("fetch", mock.fn)
+    renderPage(<NovaVisitaPage />)
+
+    await screen.findByRole("heading", { name: "Nova Visita" })
+    fireEvent.click(screen.getByRole("button", { name: /^Pessoa/ }))
+    await screen.findByText("Visitando Pessoa (Negócio)")
+
+    fireEvent.change(screen.getByPlaceholderText("Buscar proposta..."), { target: { value: "orç" } })
+    fireEvent.click(await screen.findByRole("option", { name: "Orçamento Tecido" }))
+
+    await waitFor(() =>
+      expect(
+        screen.getAllByRole("combobox").some(c => c.tagName === "SELECT" && (c as HTMLSelectElement).value === "3")
+      ).toBe(true)
+    )
+  })
+
+  it("ao selecionar uma oportunidade filtra as propostas daquela oportunidade", async () => {
+    const mock = createFetchMock(novoHandler([{ id: 10, titulo: "Orçamento Tecido", oportunidadeId: 3 }]))
+    vi.stubGlobal("fetch", mock.fn)
+    renderPage(<NovaVisitaPage />)
+
+    await screen.findByRole("heading", { name: "Nova Visita" })
+    fireEvent.click(screen.getByRole("button", { name: /^Pessoa/ }))
+    await screen.findByText("Visitando Pessoa (Negócio)")
+
+    const opSelect = screen.getAllByRole("combobox").find(
+      (c) => c.tagName === "SELECT" && Array.from((c as HTMLSelectElement).options).some(o => o.textContent === "Oportunidade Expansão")
+    ) as HTMLSelectElement
+    fireEvent.change(opSelect, { target: { value: "3" } })
+
+    fireEvent.change(screen.getByPlaceholderText("Buscar proposta..."), { target: { value: "orç" } })
+
+    await waitFor(() => {
+      const call = findCall(mock.calls, "/api/crm/propostas?oportunidadeId=3&q=or%C3%A7&limit=20", "GET")
+      expect(call).toBeDefined()
+    })
+  })
+
+  it("mostra o campo Oportunidade também para visitas a Cliente (filtrado pelo cliente)", async () => {
+    const mock = createFetchMock(novoHandler([]))
+    vi.stubGlobal("fetch", mock.fn)
+    renderPage(<NovaVisitaPage />)
+
+    await screen.findByRole("heading", { name: "Nova Visita" })
+    fireEvent.click(screen.getByRole("button", { name: /^Cliente/ }))
+    await screen.findByText("Visitando Cliente")
+
+    fireEvent.change(screen.getAllByRole("combobox")[0], { target: { value: "5" } })
+
+    expect(await screen.findByRole("option", { name: "Oportunidade Confecções" })).toBeInTheDocument()
+    expect(screen.queryByRole("option", { name: "Oportunidade Expansão" })).not.toBeInTheDocument()
   })
 })

@@ -19,6 +19,7 @@ interface CreatableSelectProps {
   placeholder?: string
   className?: string
   extraField?: string
+  labelField?: string
   onSelect?: (option: CreatableSelectOption) => void
 }
 
@@ -30,6 +31,7 @@ export function CreatableSelect({
   placeholder,
   className,
   extraField,
+  labelField = "nome",
   onSelect,
 }: CreatableSelectProps) {
   const [query, setQuery] = useState(valueNome || "")
@@ -63,7 +65,8 @@ export function CreatableSelect({
     }
     let cancelled = false
     setIsLoading(true)
-    fetch(`${fetchUrl}?q=${encodeURIComponent(debouncedQuery)}&limit=20`)
+    const sep = fetchUrl.includes("?") ? "&" : "?"
+    fetch(`${fetchUrl}${sep}q=${encodeURIComponent(debouncedQuery)}&limit=20`)
       .then((r) => r.json())
       .then((data) => {
         if (cancelled) return
@@ -101,8 +104,8 @@ export function CreatableSelect({
   }
 
   const handleSelect = (option: CreatableSelectOption) => {
-    setQuery(option.nome)
-    onChange(option.id, option.nome)
+    setQuery(String(option[labelField] ?? ""))
+    onChange(option.id, String(option[labelField] ?? ""))
     setIsOpen(false)
     onSelect?.(option)
   }
@@ -158,7 +161,7 @@ export function CreatableSelect({
                 valueId === option.id && "bg-blue-50 dark:bg-blue-900/30"
               )}
             >
-              <span className="text-slate-900 dark:text-slate-100">{option.nome}</span>
+              <span className="text-slate-900 dark:text-slate-100">{option[labelField]}</span>
               {extraField && option[extraField] && (
                 <span className="text-xs text-slate-500 font-mono ml-2 shrink-0">{option[extraField]}</span>
               )}

@@ -43,6 +43,11 @@ export default function DetalheVisitaPage() {
     queryFn: () => fetch("/api/crm/estados").then((r: any) => r.json()),
   })
 
+  const { data: oportunidades = [] } = useQuery<any[]>({
+    queryKey: ["crm-oportunidades"],
+    queryFn: () => fetch("/api/crm/oportunidades").then((r: any) => r.json()),
+  })
+
   const visitaQuery = useQuery<any>({
     queryKey: ["visita", params.id],
     queryFn: async () => {
@@ -327,6 +332,7 @@ export default function DetalheVisitaPage() {
             estadoId={estadoId}
             getStatusLabel={getLabel}
             onCopiarEndereco={handleCopiarEndereco}
+            oportunidades={oportunidades}
           />
         ) : (
           <VisualizacaoCard

@@ -107,6 +107,9 @@ export function FormFields({
             onChange={e => {
               setField("clienteId", e.target.value)
               setField("contatoId", "")
+              setField("oportunidadeId", "")
+              setField("propostaId", "")
+              setField("propostaTitulo", "")
             }}
             className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
@@ -129,6 +132,8 @@ export function FormFields({
               setField("empresaId", e.target.value)
               setField("oportunidadeId", "")
               setField("contatoId", "")
+              setField("propostaId", "")
+              setField("propostaTitulo", "")
             }}
             className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
@@ -250,20 +255,30 @@ export function FormFields({
           </p>
         )}
       </div>
-      {tipoEntidade === "PESSOA" && (
+      {tipoEntidade !== "AVULSA" && (
         <div>
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
             Oportunidade
-            <QuickCreateOportunidade empresaId={form.empresaId} onCreated={onOportunidadeCreated} />
+            {tipoEntidade === "PESSOA" && (
+              <QuickCreateOportunidade empresaId={form.empresaId} onCreated={onOportunidadeCreated} />
+            )}
           </label>
           <select
             value={form.oportunidadeId}
-            onChange={e => setField("oportunidadeId", e.target.value)}
+            onChange={e => {
+              setField("oportunidadeId", e.target.value)
+              setField("propostaId", "")
+              setField("propostaTitulo", "")
+            }}
             className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">Selecione...</option>
             {oportunidades
-              .filter((o: any) => !form.empresaId || String(o.empresaId) === form.empresaId)
+              .filter((o: any) =>
+                tipoEntidade === "PESSOA"
+                  ? !form.empresaId || String(o.empresaId) === form.empresaId
+                  : !form.clienteId || String(o.clienteId) === form.clienteId
+              )
               .map((o: any) => (
                 <option key={o.id} value={String(o.id)}>{o.titulo}</option>
               ))}
@@ -324,16 +339,21 @@ export function FormFields({
         <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Proposta Vinculada</label>
         <CreatableSelect
           valueId={form.propostaId ? parseInt(form.propostaId) : null}
-          valueNome={null}
-          onChange={(id) => {
+          valueNome={form.propostaTitulo || null}
+          onChange={(id, nome) => {
             setField("propostaId", id ? String(id) : "")
+            setField("propostaTitulo", nome || "")
           }}
-          fetchUrl="/api/crm/propostas"
+          onSelect={(opt) => {
+            if (opt.oportunidadeId) setField("oportunidadeId", String(opt.oportunidadeId))
+          }}
+          fetchUrl={form.oportunidadeId ? `/api/crm/propostas?oportunidadeId=${form.oportunidadeId}` : "/api/crm/propostas"}
+          labelField="titulo"
           placeholder="Buscar proposta..."
           className="w-full"
         />
         <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-          Opcional. Vincule esta visita a uma proposta existente.
+          Opcional. Vincule esta visita a uma proposta existente. Ao selecionar, a oportunidade da proposta é preenchida automaticamente.
         </p>
       </div>
 

@@ -13,6 +13,7 @@ interface EdicaoCardProps {
   estadoId: number | null
   getStatusLabel: (status: string) => string
   onCopiarEndereco: () => void
+  oportunidades?: any[]
 }
 
 export function EdicaoCard({
@@ -23,7 +24,9 @@ export function EdicaoCard({
   estadoId,
   getStatusLabel,
   onCopiarEndereco,
+  oportunidades = [],
 }: EdicaoCardProps) {
+  const listaOportunidades = oportunidades ?? []
   return (
     <>
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
@@ -63,14 +66,42 @@ export function EdicaoCard({
             />
           </div>
           <div>
+            <label className="block text-xs font-medium text-slate-500 mb-1">Oportunidade</label>
+            <select
+              value={form.oportunidadeId ? String(form.oportunidadeId) : ""}
+              onChange={e => {
+                setField("oportunidadeId", e.target.value ? parseInt(e.target.value) : null)
+                setField("propostaId", null)
+                setField("propostaTitulo", null)
+              }}
+              className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+            >
+              <option value="">Sem oportunidade</option>
+              {listaOportunidades
+                .filter((o: any) =>
+                  form.empresaId
+                    ? String(o.empresaId) === String(form.empresaId)
+                    : String(o.clienteId) === String(form.clienteId)
+                )
+                .map((o: any) => (
+                  <option key={o.id} value={String(o.id)}>{o.titulo}</option>
+                ))}
+            </select>
+          </div>
+          <div>
             <label className="block text-xs font-medium text-slate-500 mb-1">Proposta Vinculada</label>
             <CreatableSelect
-              valueId={form.propostaId || null}
+              valueId={form.propostaId ? parseInt(form.propostaId) : null}
               valueNome={form.propostaTitulo || null}
-              onChange={(id) => {
-                setField("propostaId", id)
+              onChange={(id, nome) => {
+                setField("propostaId", id || null)
+                setField("propostaTitulo", nome || null)
               }}
-              fetchUrl="/api/crm/propostas"
+              onSelect={(opt) => {
+                if (opt.oportunidadeId) setField("oportunidadeId", String(opt.oportunidadeId))
+              }}
+              fetchUrl={form.oportunidadeId ? `/api/crm/propostas?oportunidadeId=${form.oportunidadeId}` : "/api/crm/propostas"}
+              labelField="titulo"
               placeholder="Buscar proposta..."
               className="w-full"
             />
