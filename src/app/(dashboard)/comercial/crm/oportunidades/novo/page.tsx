@@ -87,7 +87,7 @@ export default function NovaOportunidadePage() {
       const [empresasRes, leadsRes, usuariosRes] = await Promise.allSettled([
         fetch("/api/crm/pessoas").then((r: any) => r.json()),
         fetch("/api/crm/leads").then((r: any) => r.json()),
-        fetch("/api/usuarios").then((r: any) => r.json()),
+        fetch("/api/usuarios/ativos?role=COMERCIAL,ADMIN,SUDO").then((r: any) => r.json()),
       ])
       if (empresasRes.status === "fulfilled" && Array.isArray(empresasRes.value)) setEmpresas(empresasRes.value)
       if (leadsRes.status === "fulfilled" && Array.isArray(leadsRes.value)) setLeads(leadsRes.value)

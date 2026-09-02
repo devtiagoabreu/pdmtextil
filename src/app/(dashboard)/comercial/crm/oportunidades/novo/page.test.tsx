@@ -26,7 +26,7 @@ describe("NovaOportunidadePage", () => {
       if (method === "GET" && url === "/api/crm/leads") {
         return { json: [{ id: 2, nome: "Carlos Lead" }] }
       }
-      if (method === "GET" && url === "/api/usuarios") {
+      if (method === "GET" && url === "/api/usuarios/ativos?role=COMERCIAL,ADMIN,SUDO") {
         return { json: [{ id: 3, name: "Ana Vendas" }] }
       }
       if (method === "POST" && url === "/api/crm/oportunidades") {
@@ -47,6 +47,15 @@ describe("NovaOportunidadePage", () => {
     expect(screen.getByRole("button", { name: /Pessoa/i })).toBeInTheDocument()
     expect(screen.getByRole("button", { name: /Avulso/i })).toBeInTheDocument()
     expect(screen.queryByRole("button", { name: "Salvar" })).not.toBeInTheDocument()
+  })
+
+  it("carrega todos os usuários do comercial no campo Responsável", async () => {
+    renderPage(<NovaOportunidadePage />)
+    await screen.findByRole("heading", { name: "Nova Oportunidade" })
+    fireEvent.click(screen.getByRole("button", { name: /Pessoa/i }))
+
+    expect(findCall(fetchMock.calls, "/api/usuarios/ativos?role=COMERCIAL,ADMIN,SUDO", "GET")).toBeDefined()
+    await waitFor(() => expect(screen.getByRole("option", { name: "Ana Vendas" })).toBeInTheDocument())
   })
 
   it("valida Título obrigatório", async () => {
