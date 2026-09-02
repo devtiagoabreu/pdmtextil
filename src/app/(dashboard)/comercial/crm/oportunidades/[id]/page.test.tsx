@@ -16,6 +16,15 @@ const oportunidade = {
   status: "NOVO",
   contato: null,
   createdAt: "2026-07-01T10:00:00Z",
+  propostas: [],
+}
+
+const oportunidadeComPropostas = {
+  ...oportunidade,
+  propostas: [
+    { id: 10, titulo: "Orçamento Malha - Tecelagem Alpha", valor: "5000", status: "ENVIADA", createdAt: "2026-07-02T10:00:00Z" },
+    { id: 11, titulo: "Orçamento Rev.2 - Malha", valor: "4800", status: "REVISAO", createdAt: "2026-07-05T10:00:00Z" },
+  ],
 }
 
 const statuses = [
@@ -99,5 +108,61 @@ describe("DetalheOportunidadePage", () => {
 
     expect(await screen.findByText("Oportunidade não encontrada")).toBeInTheDocument()
     expect(screen.getByRole("link", { name: "Voltar" })).toHaveAttribute("href", "/comercial/crm/oportunidades")
+  })
+
+  it("exibe o grid de propostas vinculadas à oportunidade", async () => {
+    const gridMock = createFetchMock(({ method, url }) => {
+      if (method === "GET" && url === "/api/admin/status?tipo=OPORTUNIDADE") return { json: statuses }
+      if (method === "GET" && url === "/api/crm/oportunidades/1") return { json: oportunidadeComPropostas }
+      return { json: null }
+    })
+    vi.stubGlobal("fetch", gridMock.fn)
+    navMock.setParams({ id: "1" })
+    navMock.setPathname("/comercial/crm/oportunidades/1")
+    renderPage(<DetalheOportunidadePage />)
+
+    expect(await screen.findByText("Propostas da Oportunidade")).toBeInTheDocument()
+    expect(screen.getByText("(2)")).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: "Orçamento Malha - Tecelagem Alpha" })).toHaveAttribute(
+      "href",
+      "/comercial/crm/propostas/10"
+    )
+    expect(screen.getByRole("link", { name: "Orçamento Rev.2 - Malha" })).toHaveAttribute(
+      "href",
+      "/comercial/crm/propostas/11"
+    )
+    expect(screen.getAllByText("R$ 5.000,00").length).toBeGreaterThan(0)
+  })
+
+  it('o botão "Nova Proposta" aponta para criar vinclado à oportunidade', async () => {
+    const buttonMock = createFetchMock(({ method, url }) => {
+      if (method === "GET" && url === "/api/admin/status?tipo=OPORTUNIDADE") return { json: statuses }
+      if (method === "GET" && url === "/api/crm/oportunidades/1") return { json: oportunidadeComPropostas }
+      return { json: null }
+    })
+    vi.stubGlobal("fetch", buttonMock.fn)
+    navMock.setParams({ id: "1" })
+    navMock.setPathname("/comercial/crm/oportunidades/1")
+    renderPage(<DetalheOportunidadePage />)
+
+    await screen.findByText("Propostas da Oportunidade")
+    expect(screen.getByRole("link", { name: /Nova Proposta/ })).toHaveAttribute(
+      "href",
+      "/comercial/crm/propostas/novo?oportunidadeId=1"
+    )
+  })
+
+  it("exibe estado vazio quando a oportunidade não tem propostas", async () => {
+    const emptyMock = createFetchMock(({ method, url }) => {
+      if (method === "GET" && url === "/api/admin/status?tipo=OPORTUNIDADE") return { json: statuses }
+      if (method === "GET" && url === "/api/crm/oportunidades/1") return { json: { ...oportunidade, propostas: [] } }
+      return { json: null }
+    })
+    vi.stubGlobal("fetch", emptyMock.fn)
+    navMock.setParams({ id: "1" })
+    navMock.setPathname("/comercial/crm/oportunidades/1")
+    renderPage(<DetalheOportunidadePage />)
+
+    expect(await screen.findByText("Nenhuma proposta vinculada a esta oportunidade.")).toBeInTheDocument()
   })
 })

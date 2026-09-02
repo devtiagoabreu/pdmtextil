@@ -85,6 +85,26 @@ describe("NovaPropostaPage", () => {
     expect(navMock.router.push).toHaveBeenCalledWith("/comercial/crm/propostas/7")
   })
 
+  it("pré-seleciona a oportunidade e a pessoa quando vem com ?oportunidadeId", async () => {
+    navMock.setSearchParams({ oportunidadeId: "3" })
+    const preFillMock = createFetchMock(({ method, url }) => {
+      if (method === "GET" && url === "/api/crm/oportunidades") {
+        return { json: [{ id: 3, titulo: "Oportunidade Expansão", empresaId: 1 }] }
+      }
+      if (method === "GET" && url === "/api/crm/pessoas") {
+        return { json: [{ id: 1, razaoSocial: "Tecelagem Alpha" }] }
+      }
+      return { json: null }
+    })
+    vi.stubGlobal("fetch", preFillMock.fn)
+    renderPage(<NovaPropostaPage />)
+
+    expect(await screen.findByRole("heading", { name: "Nova Proposta" })).toBeInTheDocument()
+    expect(await screen.findByText("Proposta para Pessoa (Negócio)")).toBeInTheDocument()
+
+    await waitFor(() => expect(screen.getByDisplayValue("Oportunidade Expansão")).toBeInTheDocument())
+  })
+
   it("cria proposta vinculada a Cliente", async () => {
     renderPage(<NovaPropostaPage />)
     await screen.findByRole("heading", { name: "Nova Proposta" })

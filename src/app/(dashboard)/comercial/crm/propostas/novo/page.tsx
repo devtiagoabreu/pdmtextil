@@ -3,9 +3,10 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
-import { useState } from "react"
-import { useRouter, usePathname } from "next/navigation"
+import { Suspense, useEffect, useState } from "react"
+import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import { Loader2, ArrowLeft, Building2, User, UserCheck } from "lucide-react"
+import { PageSkeleton } from "@/components/ui/page-skeleton"
 import Link from "next/link"
 import { QuickCreatePessoa } from "@/components/crm/quick-create-pessoa"
 import { QuickCreateCliente } from "@/components/crm/quick-create-cliente"
@@ -27,9 +28,10 @@ async function fetchOportunidades() {
 
 type TipoEntidade = "CLIENTE" | "PESSOA" | "AVULSO"
 
-export default function NovaPropostaPage() {
+function NovaPropostaContent() {
   const router = useRouter()
   const pathname = usePathname()
+  const searchParams = useSearchParams()
   const info = getInfoContent(pathname)
   const queryClient = useQueryClient()
   const [tipoEntidade, setTipoEntidade] = useState<TipoEntidade | "">("")
@@ -43,8 +45,28 @@ export default function NovaPropostaPage() {
   const [prazoEntrega, setPrazoEntrega] = useState("")
   const [arquivoUrl, setArquivoUrl] = useState("")
 
+  useEffect(() => {
+    const opId = searchParams.get("oportunidadeId")
+    if (!opId) return
+    setOportunidadeId(opId)
+  }, [searchParams])
+
   const { data: empresas } = useQuery({ queryKey: ["crm-pessoas"], queryFn: fetchEmpresas })
   const { data: oportunidades } = useQuery({ queryKey: ["crm-oportunidades"], queryFn: fetchOportunidades })
+
+  useEffect(() => {
+    if (!oportunidadeId || !Array.isArray(oportunidades)) return
+    const opId = Number(oportunidadeId)
+    const op = oportunidades.find((o: any) => Number(o.id) === opId)
+    if (!op) return
+    if (op.empresaId) {
+      setTipoEntidade("PESSOA")
+      setEmpresaId(String(op.empresaId))
+    } else if (op.clienteId) {
+      setTipoEntidade("CLIENTE")
+      setClienteId(String(op.clienteId))
+    }
+  }, [oportunidadeId, oportunidades])
 
   function handleEmpresaCreated(id: number) {
     queryClient.invalidateQueries({ queryKey: ["crm-pessoas"] })
@@ -317,5 +339,13 @@ export default function NovaPropostaPage() {
       </div>
       )}
     </div>
+  )
+}
+
+export default function NovaPropostaPage() {
+  return (
+    <Suspense fallback={<PageSkeleton />}>
+      <NovaPropostaContent />
+    </Suspense>
   )
 }

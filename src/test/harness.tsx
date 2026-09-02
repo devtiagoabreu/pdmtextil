@@ -12,15 +12,20 @@ export const navMock = {
   },
   params: {} as Record<string, string>,
   pathname: "/",
+  searchParams: new URLSearchParams(),
   setPathname(pathname: string) {
     navMock.pathname = pathname
   },
   setParams(params: Record<string, string>) {
     navMock.params = params
   },
+  setSearchParams(params: Record<string, string> | URLSearchParams) {
+    navMock.searchParams = params instanceof URLSearchParams ? params : new URLSearchParams(params)
+  },
   reset() {
     navMock.pathname = "/"
     navMock.params = {}
+    navMock.searchParams = new URLSearchParams()
     for (const key of Object.keys(navMock.router) as (keyof typeof navMock.router)[]) {
       navMock.router[key].mockClear()
     }

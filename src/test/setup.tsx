@@ -5,7 +5,7 @@ vi.mock("next/navigation", () => ({
   useRouter: () => navMock.router,
   useParams: () => navMock.params,
   usePathname: () => navMock.pathname,
-  useSearchParams: () => new URLSearchParams(),
+  useSearchParams: () => navMock.searchParams,
 }))
 
 vi.mock("next/link", () => ({

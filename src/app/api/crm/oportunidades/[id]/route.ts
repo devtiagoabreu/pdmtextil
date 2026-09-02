@@ -2,11 +2,12 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { crmOportunidades } from "@/lib/db/schema/crm-oportunidades"
+import { crmPropostas } from "@/lib/db/schema/crm-propostas"
 import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
 import { crmContatos } from "@/lib/db/schema/crm-contatos"
 import { clientes } from "@/lib/db/schema/clientes"
 import { usuarios } from "@/lib/db/schema/usuarios"
-import { eq } from "drizzle-orm"
+import { eq, desc } from "drizzle-orm"
 import { registrarLog, notificar, notificarDelecao } from "@/lib/notificar"
 import { handleApiError } from "@/lib/api-error"
 import { excluirOportunidadeCascade } from "@/lib/crm-cascade"
@@ -58,7 +59,20 @@ export async function GET(
       .where(eq(crmContatos.id, oportunidade.contatoId))
       .limit(1) : []
 
-    return NextResponse.json({ ...oportunidade, contato: contatos[0] || null })
+    const propostas = await db
+      .select({
+        id: crmPropostas.id,
+        titulo: crmPropostas.titulo,
+        valor: crmPropostas.valor,
+        status: crmPropostas.status,
+        dataEnvio: crmPropostas.dataEnvio,
+        createdAt: crmPropostas.createdAt,
+      })
+      .from(crmPropostas)
+      .where(eq(crmPropostas.oportunidadeId, parseInt(id)))
+      .orderBy(desc(crmPropostas.createdAt))
+
+    return NextResponse.json({ ...oportunidade, contato: contatos[0] || null, propostas })
   } catch (error) {
     return handleApiError(error, "GET /api/crm/oportunidades/[id]")
   }

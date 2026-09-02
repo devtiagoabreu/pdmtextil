@@ -5,10 +5,22 @@ import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { useRouter, useParams, usePathname } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Trash2, Pencil, Check, X } from "lucide-react"
+import { ArrowLeft, Trash2, Pencil, Check, X, FileText, PlusCircle } from "lucide-react"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { useStatuses } from "@/hooks/use-statuses"
+
+const PROPOSTA_STATUS: Record<string, { label: string; cor: string }> = {
+  ENVIADA: { label: "Enviada", cor: "text-blue-600 bg-blue-50 dark:bg-blue-950/50 dark:text-blue-400" },
+  ACEITA: { label: "Aceita", cor: "text-green-600 bg-green-50 dark:bg-green-950/50 dark:text-green-400" },
+  RECUSADA: { label: "Recusada", cor: "text-red-600 bg-red-50 dark:bg-red-950/50 dark:text-red-400" },
+  REVISAO: { label: "Em Revisão", cor: "text-amber-600 bg-amber-50 dark:bg-amber-950/50 dark:text-amber-400" },
+}
+
+function formatarMoedaProposta(valor: string | null | undefined) {
+  if (!valor) return "—"
+  return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(Number(valor))
+}
 
 export default function DetalheOportunidadePage() {
   const router = useRouter()
@@ -175,6 +187,61 @@ export default function DetalheOportunidadePage() {
           <p className="text-sm text-red-600 dark:text-red-300 whitespace-pre-wrap">{oportunidade.motivoPerda}</p>
         </div>
       )}
+
+      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50">
+            Propostas da Oportunidade
+            <span className="ml-2 text-xs text-slate-400">({(oportunidade.propostas || []).length})</span>
+          </h2>
+          <Link
+            href={`/comercial/crm/propostas/novo?oportunidadeId=${oportunidade.id}`}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 transition-colors"
+          >
+            <PlusCircle size={14} />
+            Nova Proposta
+          </Link>
+        </div>
+
+        {(oportunidade.propostas || []).length === 0 ? (
+          <p className="text-sm text-slate-400 text-center py-6">
+            Nenhuma proposta vinculada a esta oportunidade.
+          </p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+                <tr>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">Proposta</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">Valor</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">Status</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">Data</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                {oportunidade.propostas.map((p: any) => (
+                  <tr key={p.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                    <td className="px-4 py-2.5">
+                      <Link href={`/comercial/crm/propostas/${p.id}`} className="text-sm font-medium text-slate-900 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                        {p.titulo}
+                      </Link>
+                    </td>
+                    <td className="px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300">{formatarMoedaProposta(p.valor)}</td>
+                    <td className="px-4 py-2.5">
+                      <span className={`inline-flex text-[10px] px-2 py-0.5 rounded-full font-medium ${PROPOSTA_STATUS[p.status]?.cor || ""}`}>
+                        {PROPOSTA_STATUS[p.status]?.label || p.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-2.5 text-sm text-slate-500">
+                      {p.createdAt ? new Date(p.createdAt).toLocaleDateString("pt-BR") : "—"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
 
       <ConfirmModal
         open={showDelete}
