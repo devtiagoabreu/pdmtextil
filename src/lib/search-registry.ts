@@ -91,7 +91,7 @@ export const searchRegistry: SearchItem[] = [
   { id: "admin-empresa", label: "Empresa", keywords: ["empresa", "dados", "admin", "configuracao"], href: "/admin/configuracoes/empresa", description: "Dados da empresa", module: "Administrativo" },
   { id: "admin-integracoes", label: "Integrações", keywords: ["integracao", "api", "admin", "configuracao"], href: "/admin/configuracoes/integracoes", description: "Configuração de integrações", module: "Administrativo" },
   { id: "admin-permissoes", label: "Permissões", keywords: ["permissao", "acesso", "admin", "seguranca", "role"], href: "/admin/configuracoes/permissoes", description: "Configuração de permissões por perfil", module: "Administrativo" },
-  { id: "admin-smtp", label: "SMTP", keywords: ["smtp", "email", "admin", "configuracao", "servidor"], href: "/admin/configuracoes/smtp", description: "Configuração de servidor SMTP", module: "Administrativo" },
+  { id: "admin-email-config", label: "Configuração de Email", keywords: ["email", "smtp", "admin", "configuracao", "servidor", "massa", "crm", "notificacao"], href: "/admin/configuracoes/email", description: "Configuração de SMTP do sistema, email por usuário e email do CRM", module: "Administrativo" },
   { id: "admin-status", label: "Status", keywords: ["status", "admin", "configuracao", "tipo"], href: "/admin/configuracoes/status", description: "Configuração de status por módulo", module: "Administrativo" },
   { id: "admin-telas", label: "Telas (Menus)", keywords: ["tela", "menu", "admin", "configuracao", "perfil"], href: "/admin/configuracoes/telas", description: "Configuração de menus por perfil de acesso", module: "Administrativo" },
 
@@ -133,7 +133,7 @@ export const searchRegistry: SearchItem[] = [
   { id: "crm-visitas-nova", label: "CRM — Nova Visita", keywords: ["crm", "visita", "nova", "agendar", "ata"], href: "/comercial/crm/visitas/novo", description: "Agendar nova visita comercial", module: "CRM" },
   { id: "crm-visitas-kanban", label: "Kanban — Visitas CRM", keywords: ["crm", "visita", "visitas", "kanban", "quadro", "status", "arrastar", "agenda"], href: "/comercial/crm/visitas?view=kanban", description: "Kanban de visitas comerciais com drag-and-drop", module: "CRM" },
   { id: "crm-visitas-dashboard", label: "CRM — Dashboard de Visitas", keywords: ["crm", "visita", "dashboard", "metricas", "painel", "performance", "checkin"], href: "/comercial/crm/visitas/dashboard", description: "Dashboard de métricas de visitas comerciais", module: "CRM" },
-  { id: "crm-email-config", label: "CRM — Config Email", keywords: ["crm", "email", "smtp", "config", "configuracao", "pesquisa"], href: "/comercial/crm/configuracoes/email", description: "Configuração de email para pesquisas do CRM", module: "CRM" },
+  { id: "crm-email-config", label: "CRM — Config Email", keywords: ["crm", "email", "smtp", "config", "configuracao", "pesquisa"], href: "/admin/configuracoes/email", description: "Configuração de email do CRM (pesquisas de satisfação)", module: "Administrativo" },
 
   // CRM — Tarefas
   { id: "crm-tarefas", label: "CRM — Minhas Tarefas", keywords: ["crm", "tarefa", "tarefas", "agenda", "produtividade", "comercial"], href: "/comercial/crm/tarefas", description: "Minhas tarefas e agenda CRM", module: "CRM" },

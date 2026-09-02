@@ -91,14 +91,16 @@ export const adminContent: Record<string, InfoContent> = {
       "Apenas usuários ADMIN podem gerenciar integrações.",
     ],
   },
-  "/admin/configuracoes/smtp": {
-    title: "SMTP",
-    description: "Configuração do servidor de email para envio de notificações e disparos em massa.",
+  "/admin/configuracoes/email": {
+    title: "Configuração de Email",
+    description: "Unificação do SMTP do sistema, email por usuário e email do CRM em uma única tela.",
     rules: [
-      "O servidor SMTP é utilizado por todas as funcionalidades de email do sistema.",
+      "A aba SMTP Sistema define o servidor usado por notificações do sistema, menções no chat e envio em massa com remetente sistema.",
+      "A aba Email por Usuário configura o SMTP pessoal de cada usuário, usado no envio em massa quando o remetente é o usuário.",
+      "A aba SMTP CRM define o servidor usado pelo envio automático de pesquisas de satisfação do CRM; se não configurado, usa o SMTP do sistema.",
       "Recomenda-se utilizar portas 587 (STARTTLS) ou 465 (SSL/TLS).",
-      "O remetente padrão é configurado com o nome da empresa.",
       "Teste o envio após configurar para validar as credenciais.",
+      "Apenas usuários ADMIN podem alterar configurações.",
     ],
   },
   "/admin/notificacoes": {
