@@ -12,10 +12,14 @@ vi.mock("next-auth/react", () => ({
   signOut: vi.fn(),
 }))
 
-function setup() {
+function setup(getConfig: any = null) {
   navMock.setPathname("/perfil")
   const fetchMock = createFetchMock(({ method, url, body }) => {
     if (method === "PUT" && url === "/api/perfil/senha") return { json: { ok: true }, body }
+    if (method === "GET" && url === "/api/user/email-config") return { json: { config: getConfig } }
+    if (method === "PUT" && url === "/api/user/email-config") return { json: { success: true }, body }
+    if (method === "POST" && url === "/api/user/email-config") return { json: { success: true, message: "Conexão SMTP realizada com sucesso" }, body }
+    if (method === "DELETE" && url === "/api/user/email-config") return { json: { success: true } }
     return { json: null }
   })
   vi.stubGlobal("fetch", fetchMock.fn)
@@ -69,5 +73,74 @@ describe("PerfilPage", () => {
     fireEvent.click(screen.getByRole("button", { name: "Salvar Senha" }))
 
     expect(toastMock.error).toHaveBeenCalledWith("As senhas não conferem")
+  })
+
+  it("exibe o card de email de envio em massa com a configuração existente", async () => {
+    setup({ email: "remetente@gmail.com", ativo: true, limiteDiario: 3000, hasPassword: true })
+    renderPage(<PerfilPage />)
+
+    expect(await screen.findByText("Email de Envio em Massa")).toBeInTheDocument()
+    expect(await screen.findByDisplayValue("remetente@gmail.com")).toBeInTheDocument()
+    expect(screen.getByDisplayValue("3000")).toBeInTheDocument()
+    expect(await screen.findByRole("button", { name: "Testar conexão" })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Remover" })).toBeInTheDocument()
+  })
+
+  it("mostra 'Não configurado' quando não há configuração", async () => {
+    setup(null)
+    renderPage(<PerfilPage />)
+
+    expect(await screen.findByText("Não configurado")).toBeInTheDocument()
+    expect(await screen.findByRole("button", { name: "Testar conexão" })).toBeInTheDocument()
+  })
+
+  it("salva o email de envio via PUT /api/user/email-config", async () => {
+    const fetchMock = setup(null)
+    renderPage(<PerfilPage />)
+
+    fireEvent.change(await screen.findByPlaceholderText("seuemail@gmail.com"), {
+      target: { value: "remetente@gmail.com" },
+    })
+    fireEvent.change(screen.getByPlaceholderText("Senha de app do Gmail"), {
+      target: { value: "senhaApp123" },
+    })
+    fireEvent.change(screen.getByDisplayValue("1500"), {
+      target: { value: "2500" },
+    })
+    fireEvent.click(screen.getByRole("button", { name: "Salvar" }))
+
+    const call = findCall(fetchMock.calls, "/api/user/email-config", "PUT")
+    expect(call).toBeDefined()
+    expect(call?.body).toEqual({
+      email: "remetente@gmail.com",
+      senha_app: "senhaApp123",
+      limite_diario: 2500,
+      ativo: true,
+    })
+    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Configuração de email salva!"))
+  })
+
+  it("valida senha de app obrigatória ao criar configuração", async () => {
+    setup(null)
+    renderPage(<PerfilPage />)
+
+    fireEvent.change(await screen.findByPlaceholderText("seuemail@gmail.com"), {
+      target: { value: "remetente@gmail.com" },
+    })
+    fireEvent.click(screen.getByRole("button", { name: "Salvar" }))
+
+    expect(toastMock.error).toHaveBeenCalledWith("Informe a senha de app para criar a configuração")
+  })
+
+  it("remove a configuração via DELETE /api/user/email-config", async () => {
+    const fetchMock = setup({ email: "remetente@gmail.com", ativo: true, limiteDiario: 1500, hasPassword: true })
+    renderPage(<PerfilPage />)
+
+    const removeBtn = await screen.findByRole("button", { name: "Remover" })
+    fireEvent.click(removeBtn)
+
+    const call = findCall(fetchMock.calls, "/api/user/email-config", "DELETE")
+    expect(call).toBeDefined()
+    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Configuração de email removida"))
   })
 })

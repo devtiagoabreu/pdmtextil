@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { userEmailConfig } from "@/lib/db/schema/user-email-config"
-import { encrypt, decrypt } from "@/lib/crypto"
+import { encrypt } from "@/lib/crypto"
 import { eq } from "drizzle-orm"
 import nodemailer from "nodemailer"
 
@@ -23,8 +23,16 @@ export async function GET() {
   const cfg = config[0]
   return NextResponse.json({
     config: {
-      ...cfg,
-      senhaApp: decrypt(cfg.senhaApp),
+      id: cfg.id,
+      usuarioId: cfg.usuarioId,
+      email: cfg.email,
+      host: cfg.host,
+      port: cfg.port,
+      ativo: cfg.ativo,
+      limiteDiario: cfg.limiteDiario,
+      hasPassword: true,
+      createdAt: cfg.createdAt,
+      updatedAt: cfg.updatedAt,
     },
   })
 }

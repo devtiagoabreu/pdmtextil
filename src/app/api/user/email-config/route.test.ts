@@ -63,9 +63,8 @@ describe("GET /api/user/email-config", () => {
     expect(await res.json()).toEqual({ config: null })
   })
 
-  it("retorna a configuração com a senha decifrada", async () => {
+  it("retorna a configuração sem expor a senha decifrada", async () => {
     vi.mocked(getServerSession).mockResolvedValue(session as any)
-    vi.mocked(decrypt).mockReturnValue("senha-decifrada")
     db.select = vi.fn(() =>
       createQueryBuilder([{ id: 1, usuarioId: 7, email: "teste@exemplo.com", senhaApp: "cripto", limiteDiario: 2000 }]),
     )
@@ -73,9 +72,10 @@ describe("GET /api/user/email-config", () => {
     expect(res.status).toBe(200)
     const data = await res.json()
     expect(data.config.email).toBe("teste@exemplo.com")
-    expect(data.config.senhaApp).toBe("senha-decifrada")
+    expect(data.config.hasPassword).toBe(true)
     expect(data.config.limiteDiario).toBe(2000)
-    expect(decrypt).toHaveBeenCalledWith("cripto")
+    expect(data.config.senhaApp).toBeUndefined()
+    expect(decrypt).not.toHaveBeenCalled()
   })
 })
 

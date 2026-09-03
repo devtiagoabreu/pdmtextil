@@ -1,6 +1,7 @@
 "use client"
 
 import type { RefObject, Dispatch, SetStateAction } from "react"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -124,7 +125,8 @@ export function EnviarTab(props: EnviarTabProps) {
             </div>
             {!userEmailConfig && (
               <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
-                Nenhuma configuração encontrada. Vá em Meu Perfil.
+                Nenhuma configuração encontrada.{" "}
+                <Link href="/perfil" className="underline">Configure em Meu Perfil.</Link>
               </p>
             )}
           </fieldset>

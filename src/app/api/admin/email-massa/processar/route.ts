@@ -154,6 +154,10 @@ export async function POST(req: NextRequest) {
           continue
         }
         const cfg = cfgs[0]
+        if (!cfg.ativo) {
+          await marcarErroTransporte(d.id, "Configuração de email do usuário está inativa")
+          continue
+        }
         tc = { host: cfg.host, port: cfg.port, user: cfg.email, pass: decrypt(cfg.senhaApp), fromName: cfg.email.split("@")[0], limiteDiario: cfg.limiteDiario }
       } else {
         const cfgs = await db.select().from(emailConfig).where(eq(emailConfig.ativo, true)).limit(1)
