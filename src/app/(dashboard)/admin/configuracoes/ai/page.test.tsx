@@ -5,7 +5,7 @@ import AiChavesPage from "./page"
 import { createFetchMock, findCall, renderPage, toastMock } from "@/test/harness"
 
 const chaves = [
-  { id: 1, provedor: "groq", nome: "Groq Principal", chaveApi: "gsk_abc", urlBase: "https://api.groq.com/openai/v1", modelo: "llama-3.3-70b-versatile", ordem: 1, ativo: true, failCount: 0, ultimaFalha: null },
+  { id: 1, provedor: "groq", nome: "Groq Principal", chaveApi: "gsk_abc", urlBase: "https://api.groq.com/openai/v1", modelo: "qwen/qwen3.8-27b", ordem: 1, ativo: true, failCount: 0, ultimaFalha: null },
 ]
 
 function setup() {
@@ -69,7 +69,7 @@ describe("AiChavesPage", () => {
 
     fireEvent.click(screen.getByLabelText("Editar"))
     fireEvent.change(screen.getByPlaceholderText("Ex: Groq Principal"), { target: { value: "Groq Renomeado" } })
-    fireEvent.change(screen.getByDisplayValue("llama-3.3-70b-versatile"), { target: { value: "gemini-3.6-flash" } })
+    fireEvent.change(screen.getByDisplayValue("qwen/qwen3.8-27b"), { target: { value: "gemini-3.6-flash" } })
     fireEvent.click(screen.getByRole("button", { name: "Salvar" }))
 
     await waitFor(() => {

@@ -105,7 +105,7 @@ Busca últimas 30 mensagens de `crm_whatsapp_mensagens` ordenadas por `created_a
 | Campo | Valor |
 |---|---|
 | **Endpoint** | `https://api.groq.com/openai/v1/chat/completions` |
-| **Modelo** | `GROQ_MODEL` ou `llama-3.3-70b-versatile` |
+| **Modelo** | `GROQ_MODEL` ou `qwen/qwen3.8-27b` |
 | **Temperature** | 0.7 |
 | **Max tokens** | 300 |
 
@@ -189,7 +189,7 @@ Quando `dados.finalizado === true` e `dados.nome` existe:
 | `EVOLUTION_API_KEY` | Sim | — | API key da Evolution |
 | `EVOLUTION_INSTANCE_NAME` | Sim | — | Nome da instância |
 | `GROQ_API_KEY` | Sim | — | Chave da API Groq |
-| `GROQ_MODEL` | Não | `llama-3.3-70b-versatile` | Modelo Groq |
+| `GROQ_MODEL` | Não | `qwen/qwen3.8-27b` | Modelo Groq |
 | `WHATSAPP_REPRESENTANTE_PJ` | Não | `5519999999999` | Número do representante PJ |
 | `WHATSAPP_REPRESENTANTE_PF` | Não | `5519999999998` | Número do representante PF |
 

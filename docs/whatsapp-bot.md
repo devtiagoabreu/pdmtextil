@@ -25,7 +25,7 @@ POST /api/crm/whatsapp/ai-webhook/route.ts
     ├── 6. Detectar "reiniciar" → resetar conversa
     ├── 7. Detectar "atendente/humano" → escalar para representante
     ├── 8. Buscar linhas ativas do DB → montar linhaMap
-    ├── 9. Chamar Groq API (llama-3.3-70b-versatile) com system prompt dinamico
+    ├── 9. Chamar Groq API (qwen/qwen3.8-27b) com system prompt dinamico
     ├── 10. Executar maquina de estados (validar resposta do usuario)
     ├── 11. Salvar mensagens no DB (crm_whatsapp_mensagens)
     ├── 12. Enviar resposta via Evolution API (com retry queue se falhar)
@@ -274,7 +274,7 @@ Exibe execucoes do bot em tempo real com diagrama de fluxo:
 | Variavel | Descricao |
 |---|---|
 | `GROQ_API_KEY` | Chave da API Groq para processamento de IA |
-| `GROQ_MODEL` | Modelo Groq (default: `llama-3.3-70b-versatile`) |
+| `GROQ_MODEL` | Modelo Groq (default: `qwen/qwen3.8-27b`) |
 | `EVOLUTION_API_URL` | URL da instancia Evolution API |
 | `EVOLUTION_API_KEY` | Chave da API Evolution |
 | `EVOLUTION_INSTANCE_NAME` | Nome da instancia Evolution |

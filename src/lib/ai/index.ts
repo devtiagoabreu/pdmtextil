@@ -2,7 +2,14 @@ import { db } from "@/lib/db"
 import { aiChaves, type AiChave } from "@/lib/db/schema/ai-chaves"
 import { eq, and, lt, sql } from "drizzle-orm"
 
-export type ProvedorIA = "groq" | "openai" | "anthropic" | "gemini" | "deepseek" | "openai_compatible"
+export type ProvedorIA =
+  | "groq"
+  | "openai"
+  | "anthropic"
+  | "gemini"
+  | "deepseek"
+  | "openai_compatible"
+  | "openrouter"
 
 export interface MensagemIA {
   role: "system" | "user" | "assistant"
@@ -37,15 +44,17 @@ export const BASE_URLS: Record<ProvedorIA, string> = {
   gemini: "https://generativelanguage.googleapis.com/v1beta",
   deepseek: "https://api.deepseek.com/v1",
   openai_compatible: "",
+  openrouter: "https://openrouter.ai/api/v1",
 }
 
 export const MODELOS_PADRAO: Record<ProvedorIA, string> = {
-  groq: "llama-3.3-70b-versatile",
+  groq: "qwen/qwen3.8-27b",
   openai: "gpt-4o-mini",
   anthropic: "claude-3-5-sonnet-latest",
   gemini: "gemini-3.6-flash",
   deepseek: "deepseek-chat",
   openai_compatible: "",
+  openrouter: "openai/gpt-4o-mini",
 }
 
 export const PROVEDOR_LABELS: Record<ProvedorIA, string> = {
@@ -55,7 +64,11 @@ export const PROVEDOR_LABELS: Record<ProvedorIA, string> = {
   gemini: "Google Gemini",
   deepseek: "DeepSeek",
   openai_compatible: "OpenAI Compatível (URL custom)",
+  openrouter: "OpenRouter",
 }
+
+export const OPENROUTER_SITE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://pdmtextil.com.br"
+export const OPENROUTER_APP_NAME = "PDM Pro Têxtil"
 
 interface ChaveReserva {
   id: number
@@ -194,12 +207,18 @@ async function chamarProvedor(
     return texto || MSG_ERRO_TECNICO
   }
 
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${chave.chave}`,
+  }
+  if (chave.prov === "openrouter") {
+    headers["HTTP-Referer"] = OPENROUTER_SITE_URL
+    headers["X-Title"] = OPENROUTER_APP_NAME
+  }
+
   const res = await fetch(`${chave.url}/chat/completions`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${chave.chave}`,
-    },
+    headers,
     body: JSON.stringify({
       model: chave.modelo,
       messages,
@@ -207,7 +226,10 @@ async function chamarProvedor(
       max_tokens: maxTokens,
     }),
   })
-  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+  if (!res.ok) {
+    const errBody = await res.text().catch(() => "")
+    throw new Error(`HTTP ${res.status}${errBody ? `: ${errBody.slice(0, 300)}` : ""}`)
+  }
   const data = await res.json()
   const texto = data.choices?.[0]?.message?.content
   return texto || MSG_ERRO_TECNICO

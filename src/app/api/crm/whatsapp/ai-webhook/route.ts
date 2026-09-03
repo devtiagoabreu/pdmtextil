@@ -355,7 +355,7 @@ export async function POST(req: NextRequest) {
     const aiResponse = aiResult.conteudo
 
     const groqError = aiResponse.includes("dificuldades tecnicas") || aiResponse.includes("nao consegui processar")
-    await logStep(executionId, remoteJid, pushName, "groq_call", groqError ? "error" : "success", { model: aiResult.modelo || process.env.GROQ_MODEL || "llama-3.3-70b-versatile", provedor: aiResult.provedor, tentativas: aiResult.tentativas, estado: conversa.estado, historicoSize: historico.length, userMessage: mensagem.substring(0, 100) }, { response: aiResponse.substring(0, 200) }, groqError ? "Todos os provedores de IA falharam" : null, groqDuration)
+    await logStep(executionId, remoteJid, pushName, "groq_call", groqError ? "error" : "success", { model: aiResult.modelo || process.env.GROQ_MODEL || "qwen/qwen3.8-27b", provedor: aiResult.provedor, tentativas: aiResult.tentativas, estado: conversa.estado, historicoSize: historico.length, userMessage: mensagem.substring(0, 100) }, { response: aiResponse.substring(0, 200) }, groqError ? "Todos os provedores de IA falharam" : null, groqDuration)
 
     if (groqError) {
       const retryMsg = "Tive uma dificuldade tecnica. Pode repetir sua mensagem, por favor?"

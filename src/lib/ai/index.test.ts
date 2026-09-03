@@ -31,7 +31,7 @@ afterEach(() => {
 describe("chamarIA — prioridade env (Vercel) primeiro", () => {
   it("usa a chave do env (GROQ_API_KEY) primeiro quando ela responde OK", async () => {
     process.env.GROQ_API_KEY = "env-groq-chave"
-    process.env.GROQ_MODEL = "llama-3.3-70b-versatile"
+    process.env.GROQ_MODEL = "qwen/qwen3.8-27b"
 
     const fetchMock = mockFetch(200, { choices: [{ message: { content: "resposta da env" } }] })
     vi.stubGlobal("fetch", fetchMock)
@@ -43,18 +43,18 @@ describe("chamarIA — prioridade env (Vercel) primeiro", () => {
     expect(res.provedor).toBe("groq")
     const callArg = fetchMock.mock.calls[0][0]
     const fetchBody = JSON.parse(fetchMock.mock.calls[0][1].body)
-    expect(fetchBody.model).toBe("llama-3.3-70b-versatile")
+    expect(fetchBody.model).toBe("qwen/qwen3.8-27b")
     expect(callArg).toContain("https://api.groq.com/openai/v1")
   })
 
   it("cai para a chave do banco quando a chave do env falha", async () => {
     process.env.GROQ_API_KEY = "env-groq-chave"
-    process.env.GROQ_MODEL = "llama-3.3-70b-versatile"
+    process.env.GROQ_MODEL = "qwen/qwen3.8-27b"
 
     let envFirst = true
     const fetchMock = vi.fn((_url: string, init: RequestInit) => {
       const body = JSON.parse(String(init?.body))
-      if (envFirst && body.model === "llama-3.3-70b-versatile" && body.messages) {
+      if (envFirst && body.model === "qwen/qwen3.8-27b" && body.messages) {
         envFirst = false
         return Promise.resolve({ ok: false, status: 500, json: vi.fn().mockResolvedValue({}) })
       }
@@ -68,7 +68,7 @@ describe("chamarIA — prioridade env (Vercel) primeiro", () => {
 
     db.select = vi.fn(() =>
       createQueryBuilder([
-        { id: 1, provedor: "groq", nome: "Groq do Banco", chaveApi: "banco-chave", urlBase: null, modelo: "llama-3.3-70b-versatile", ordem: 1, ativo: true, failCount: 0 },
+        { id: 1, provedor: "groq", nome: "Groq do Banco", chaveApi: "banco-chave", urlBase: null, modelo: "qwen/qwen3.8-27b", ordem: 1, ativo: true, failCount: 0 },
       ]),
     )
 
@@ -143,6 +143,70 @@ describe("chamarIA — Gemini", () => {
 
     expect(res.provedor).toBe("gemini")
     expect(res.conteudo).toBe("ok")
+  })
+})
+
+describe("chamarIA — OpenRouter", () => {
+  it("usa /chat/completions e envia headers HTTP-Referer e X-Title", async () => {
+    db.select = vi.fn(() =>
+      createQueryBuilder([
+        { id: 9, provedor: "openrouter", nome: "OpenRouter Principal", chaveApi: "or-chave", urlBase: "https://openrouter.ai/api/v1", modelo: "openai/gpt-4o-mini", ordem: 1, ativo: true, failCount: 0 },
+      ]),
+    )
+
+    const fetchMock = vi.fn((_url: string, init: RequestInit) => {
+      const body = JSON.parse(String(init?.body))
+      expect(body.model).toBe("openai/gpt-4o-mini")
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        json: vi.fn().mockResolvedValue({ choices: [{ message: { content: "resposta openrouter" } }] }),
+      })
+    })
+    vi.stubGlobal("fetch", fetchMock)
+
+    const res = await chamarIA(MENSAGENS)
+
+    expect(res.conteudo).toBe("resposta openrouter")
+    expect(res.provedor).toBe("openrouter")
+    expect(fetchMock.mock.calls[0][0]).toContain("https://openrouter.ai/api/v1/chat/completions")
+
+    const headers = fetchMock.mock.calls[0][1].headers as Record<string, string>
+    expect(headers["HTTP-Referer"]).toBeTruthy()
+    expect(headers["X-Title"]).toBe("PDM Pro Têxtil")
+  })
+
+  it("propaga a mensagem de erro rica quando a API retorna erro", async () => {
+    db.select = vi.fn(() =>
+      createQueryBuilder([
+        { id: 9, provedor: "openrouter", nome: "OpenRouter", chaveApi: "or-chave", urlBase: "https://openrouter.ai/api/v1", modelo: "openai/gpt-4o-mini", ordem: 1, ativo: true, failCount: 0 },
+      ]),
+    )
+
+    const fetchMock = vi.fn(() =>
+      Promise.resolve({
+        ok: false,
+        status: 429,
+        text: vi.fn().mockResolvedValue(JSON.stringify({ error: { message: "Rate limit atingido" } })),
+      }),
+    )
+    vi.stubGlobal("fetch", fetchMock)
+
+    const res = await testarChave({
+      id: 9,
+      provedor: "openrouter",
+      nome: "OpenRouter",
+      chaveApi: "or-chave",
+      urlBase: "https://openrouter.ai/api/v1",
+      modelo: "openai/gpt-4o-mini",
+      ordem: 1,
+      ativo: true,
+      failCount: 0,
+    })
+
+    expect(res.ok).toBe(false)
+    expect(res.mensagem).toContain("HTTP 429")
+    expect(res.mensagem).toContain("Rate limit atingido")
   })
 })
 

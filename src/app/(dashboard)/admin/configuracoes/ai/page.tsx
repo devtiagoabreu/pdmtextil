@@ -9,12 +9,13 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
 const PROVEDORES: Record<string, { label: string; defaultModel: string; defaultUrl: string }> = {
-  groq: { label: "Groq", defaultModel: "llama-3.3-70b-versatile", defaultUrl: "https://api.groq.com/openai/v1" },
+  groq: { label: "Groq", defaultModel: "qwen/qwen3.8-27b", defaultUrl: "https://api.groq.com/openai/v1" },
   openai: { label: "OpenAI", defaultModel: "gpt-4o-mini", defaultUrl: "https://api.openai.com/v1" },
   anthropic: { label: "Anthropic (Claude)", defaultModel: "claude-3-5-sonnet-latest", defaultUrl: "https://api.anthropic.com/v1" },
   gemini: { label: "Google Gemini", defaultModel: "gemini-3.6-flash", defaultUrl: "https://generativelanguage.googleapis.com/v1beta" },
   deepseek: { label: "DeepSeek", defaultModel: "deepseek-chat", defaultUrl: "https://api.deepseek.com/v1" },
-  openai_compatible: { label: "OpenAI CompatÃ­vel (URL custom)", defaultModel: "", defaultUrl: "" },
+  openrouter: { label: "OpenRouter", defaultModel: "openai/gpt-4o-mini", defaultUrl: "https://openrouter.ai/api/v1" },
+  openai_compatible: { label: "OpenAI Compatível (URL custom)", defaultModel: "", defaultUrl: "" },
 }
 
 const PROVEDOR_COLORS: Record<string, string> = {
@@ -23,6 +24,7 @@ const PROVEDOR_COLORS: Record<string, string> = {
   anthropic: "text-amber-600 bg-amber-50 dark:bg-amber-950/50",
   gemini: "text-blue-600 bg-blue-50 dark:bg-blue-950/50",
   deepseek: "text-violet-600 bg-violet-50 dark:bg-violet-950/50",
+  openrouter: "text-orange-600 bg-orange-50 dark:bg-orange-950/50",
   openai_compatible: "text-slate-600 bg-slate-100 dark:bg-slate-800",
 }
 
@@ -222,13 +224,13 @@ export default function AiChavesPage() {
             <Bot className="text-purple-600" size={24} />
             <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Chaves de IA</h1>
           </div>
-          <p className="text-sm text-slate-500 mt-1">Cadastre vÃ¡rias chaves de IA. Se a principal (Groq) falhar, o sistema tenta automaticamente as prÃ³ximas.</p>
+          <p className="text-sm text-slate-500 mt-1">Cadastre várias chaves de IA. Se a principal falhar, o sistema tenta automaticamente as próximas.</p>
         </div>
       </div>
 
       <div className="rounded-xl border border-purple-200 dark:border-purple-900 bg-purple-50 dark:bg-purple-950/30 p-4 text-sm text-purple-700 dark:text-purple-300 space-y-1">
         <p className="font-medium flex items-center gap-2"><ArrowUpDown size={14} /> Como funciona o fallback</p>
-        <p>A ordem das chaves (menor nÃºmero primeiro) define a prioridade. Em cada mensagem, o sistema tenta a primeira chave ativa; se ela falhar ou nÃ£o responder, avanÃ§a automaticamente para a prÃ³xima â€” sem perder o histÃ³rico da conversa. ApÃ³s 5 falhas seguidas, a chave sai da rotaÃ§Ã£o por 10 minutos.</p>
+        <p>A ordem das chaves (menor número primeiro) define a prioridade. Em cada mensagem, o sistema tenta a primeira chave ativa; se ela falhar ou não responder, avança automaticamente para a próxima — sem perder o histórico da conversa. Após 5 falhas seguidas, a chave sai da rotação por 10 minutos.</p>
       </div>
 
       <div className="grid gap-4">
@@ -236,7 +238,7 @@ export default function AiChavesPage() {
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-10 text-center">
             <Bot size={40} className="mx-auto text-slate-300 mb-3" />
             <p className="text-sm text-slate-500">Nenhuma chave de IA cadastrada</p>
-            <p className="text-xs text-slate-400 mt-1">Enquanto isso, o sistema usa a chave do Groq configurada nas variÃ¡veis de ambiente.</p>
+            <p className="text-xs text-slate-400 mt-1">Enquanto isso, o sistema usa a chave do Groq configurada nas variáveis de ambiente.</p>
           </div>
         ) : (
           [...lista].sort((a, b) => a.ordem - b.ordem).map(item => {
@@ -270,7 +272,7 @@ export default function AiChavesPage() {
                         {item.urlBase && <span className="text-xs font-mono">{item.urlBase}</span>}
                       </div>
                       {item.ultimaFalha && (
-                        <p className="text-xs text-slate-400 mt-1">Ãšltima falha: {new Date(item.ultimaFalha).toLocaleString("pt-BR")}</p>
+                        <p className="text-xs text-slate-400 mt-1">Última falha: {new Date(item.ultimaFalha).toLocaleString("pt-BR")}</p>
                       )}
                     </div>
                   </div>
