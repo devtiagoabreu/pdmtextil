@@ -271,19 +271,69 @@ export async function POST(req: NextRequest) {
     }
 
     if (conversa.estado === "AGUARDANDO_REPRESENTANTE" || conversa.estado === "ENCERRADO") {
+      const numeroRetorno = extrairNumero(remoteJid)
+      const leadRetorno = await db
+        .select({ id: crmLeads.id, nome: crmLeads.nome, tipoPessoa: crmLeads.tipoPessoa })
+        .from(crmLeads)
+        .where(
+          sql`(${eq(crmLeads.idIntegracao, `whatsapp:${remoteJid}`)} OR ${eq(crmLeads.celular, numeroRetorno)}) AND ${crmLeads.status} != 'CONVERTIDO'`
+        )
+        .limit(1)
+        .then((r: any) => r[0] || null)
+
       const msgEncerrada = conversa.estado === "ENCERRADO"
         ? "Sua atendimento ja foi finalizado e os catalogos foram enviados. Um representante comercial entrara em contato."
         : "Voce ja esta sendo atendido por um representante comercial. Aguarde o contato dele."
+      const msgRetorno =
+        "Que bom te-lo(a) de volta! Este canal de contato nao realiza atendimento direto. Vou informar seu representante que voce esta precisando falar e ele entrara em contato em breve."
+
+      const textoCliente = leadRetorno ? msgRetorno : msgEncerrada
+
+      await db.insert(crmWhatsappMensagens).values({ mensagem, tipo: "RECEBIDA", status: "RECEBIDA", remoteJid })
+      await db.insert(crmWhatsappMensagens).values({ mensagem: textoCliente, tipo: "ENVIADA", status: "ENVIADA", remoteJid })
 
       if (evolutionConfigurado()) {
-        const envio = await enviarMensagem(remoteJid, msgEncerrada)
+        const envio = await enviarMensagem(remoteJid, textoCliente)
         if (!envio.sucesso) {
-          await enfileirarRetry(remoteJid, msgEncerrada, envio.erro || "send_failed")
+          await enfileirarRetry(remoteJid, textoCliente, envio.erro || "send_failed")
         }
       }
 
-      await logStep(executionId, remoteJid, pushName, "state_machine", "ignored", { estado: conversa.estado }, { reason: "conversation_ended" }, null, 0)
-      return NextResponse.json({ status: "ignored", reason: "conversation_ended", estado: conversa.estado })
+      if (leadRetorno) {
+        const tipoLabelRetorno = leadRetorno.tipoPessoa === "PJ" ? "Pessoa Juridica" : "Pessoa Fisica"
+        const repNumeroRetorno = leadRetorno.tipoPessoa === "PJ" ? REPRESENTANTE_PJ : REPRESENTANTE_PF
+        const nomeRetorno = leadRetorno.nome || pushName || "Cliente"
+        const msgRepRetorno = [
+          "*Cliente antigo entrou em contato novamente*",
+          "",
+          `Nome: ${nomeRetorno}`,
+          `WhatsApp: https://wa.me/${numeroRetorno}`,
+          `Tipo: ${tipoLabelRetorno}`,
+          "",
+          "Este cliente ja foi atendido antes pelo bot e esta retornando. Ele deseja falar com voce.",
+        ].join("\n")
+
+        try {
+          await enviarMensagem(`${repNumeroRetorno}@s.whatsapp.net`, msgRepRetorno)
+        } catch (repErr) {
+          console.error("[AI-Webhook] Erro ao notificar representante no retorno:", repErr)
+        }
+
+        try {
+          await db.insert(crmNotificacoes).values({
+            tipo: "WHATSAPP_RETORNO",
+            titulo: "Cliente antigo retornou",
+            mensagem: `${nomeRetorno} (${remoteJid}) entrou em contato novamente. Encaminhado para representante ${tipoLabelRetorno}.`,
+            metadados: { remoteJid, nome: nomeRetorno, tipoPessoa: leadRetorno.tipoPessoa, leadId: leadRetorno.id },
+            lida: false,
+          })
+        } catch (notifErr) {
+          console.error("[AI-Webhook] Erro ao criar notificacao de retorno:", notifErr)
+        }
+      }
+
+      await logStep(executionId, remoteJid, pushName, "state_machine", "ignored", { estado: conversa.estado, retorno: !!leadRetorno }, { reason: "conversation_ended" }, null, 0)
+      return NextResponse.json({ status: "ignored", reason: "conversation_ended", estado: conversa.estado, retorno: !!leadRetorno })
     }
 
     const historicoRows = await db
@@ -822,6 +872,9 @@ export async function POST(req: NextRequest) {
         if (dados._cnpjConsulta) descricaoParts.push(`Razao Social: ${dados._cnpjConsulta.razaoSocial}`)
         if (dados._cnpjSemDados) descricaoParts.push("CNPJ nao consultado na Receita Federal")
         descricaoParts.push(`Lead finalizado via WhatsApp | Score: ${leadScore.score}/100 (${leadScore.prioridade})`)
+        descricaoParts.push(
+          `Encaminhado para representante: ${dados.tipoPessoa === "PJ" ? "Pessoa Juridica" : "Pessoa Fisica"} | Atendido pela IA: ${aiResult.nomeChave ? `${aiResult.provedor} (${aiResult.nomeChave})` : `${aiResult.provedor} (${aiResult.modelo})`}`
+        )
 
         let nomeLead = dados.nome
         if (dados.tipoPessoa === "PJ" && dados._cnpjConsulta?.razaoSocial) {
@@ -851,18 +904,26 @@ export async function POST(req: NextRequest) {
         await logStep(executionId, remoteJid, pushName, "create_lead", "success", { nome: dados.nome, numero, tipoPessoa: dados.tipoPessoa, documento: dados.documento, score: leadScore.score, prioridade: leadScore.prioridade }, { leadId: novo.id, idIntegracao: `whatsapp:${remoteJid}`, motivos: leadScore.motivos }, null, leadDuration)
 
         const tNotif = Date.now()
-        const numeroNotificacao = dados.tipoPessoa === "PJ" ? REPRESENTANTE_PJ : REPRESENTANTE_PF
+        const ehPJ = dados.tipoPessoa === "PJ"
+        const numeroNotificacao = ehPJ ? REPRESENTANTE_PJ : REPRESENTANTE_PF
+        const tipoLabelLead = ehPJ ? "Pessoa Juridica" : "Pessoa Fisica"
+        const iaUsada = aiResult.nomeChave
+          ? `${aiResult.provedor} (${aiResult.nomeChave})`
+          : `${aiResult.provedor} (${aiResult.modelo})`
         const scoreTexto = `Score: ${leadScore.score}/100 (${leadScore.prioridade})`
         const textoNotificacao = [
           "*Novo lead cadastrado no CRM*",
           "",
           `Nome: ${nomeLead}`,
           `WhatsApp: https://wa.me/${numero}`,
-          `Tipo: ${dados.tipoPessoa === "PJ" ? "Pessoa Juridica" : "Pessoa Fisica"}`,
+          `Tipo: ${tipoLabelLead}`,
           `Documento: ${dados.documento || "Nao informado"}`,
           dados._cnpjConsulta?.razaoSocial ? `Razao Social: ${dados._cnpjConsulta.razaoSocial}` : "",
           dados._cnpjConsulta?.nomeFantasia ? `Nome Fantasia: ${dados._cnpjConsulta.nomeFantasia}` : "",
           dados.linhasInteresseNomes ? `Interesse: ${dados.linhasInteresseNomes}` : "",
+          "",
+          `Encaminhado para representante: ${tipoLabelLead}`,
+          `Atendido pela IA: ${iaUsada}`,
           "",
           scoreTexto,
           leadScore.motivos.length > 0 ? `Motivos: ${leadScore.motivos.join(", ")}` : "",
@@ -875,7 +936,7 @@ export async function POST(req: NextRequest) {
           mensagem: textoNotificacao,
           tipo: "lead_novo",
           link: "/comercial/crm/leads",
-          metadados: { leadId: novo.id, remoteJid, pushName },
+          metadados: { leadId: novo.id, remoteJid, pushName, representante: tipoLabelLead, iaProvedor: aiResult.provedor, iaModelo: aiResult.modelo, iaNomeChave: aiResult.nomeChave || null },
         })
 
         if (evolutionConfigurado()) {
