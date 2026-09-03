@@ -169,8 +169,8 @@ async function chamarProvedor(
       role: m.role === "assistant" ? "model" : "user",
       parts: [{ text: m.content }],
     }))
-    if (systemContent) {
-      contents.unshift({ role: "user", parts: [{ text: `Contexto: ${systemContent}` }] })
+    if (contents.length > 0 && contents[0].role !== "user") {
+      contents.unshift({ role: "user", parts: [{ text: "Iniciar conversa" }] })
     }
     const res = await fetch(`${chave.url}/models/${chave.modelo}:generateContent`, {
       method: "POST",
@@ -180,6 +180,7 @@ async function chamarProvedor(
       },
       body: JSON.stringify({
         contents,
+        systemInstruction: systemContent ? { parts: [{ text: systemContent }] } : undefined,
         generationConfig: { temperature: temperatura, maxOutputTokens: maxTokens },
       }),
     })
@@ -230,11 +231,9 @@ export async function chamarIA(
   messages: MensagemIA[],
   opcoes: { temperatura?: number; maxTokens?: number } = {}
 ): Promise<ResultadoIA> {
-  let chaves = await buscarChavesAtivas().catch(() => [])
-
-  if (chaves.length === 0) {
-    chaves = await carregarChavesEnvFallback()
-  }
+  const chavesEnv = await carregarChavesEnvFallback()
+  const chavesBanco = await buscarChavesAtivas().catch(() => [])
+  const chaves = [...chavesEnv, ...chavesBanco]
 
   if (chaves.length === 0) {
     console.error("[IA] Nenhuma chave de IA configurada")
