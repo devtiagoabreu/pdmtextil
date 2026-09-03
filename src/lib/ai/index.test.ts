@@ -28,8 +28,8 @@ afterEach(() => {
   delete process.env.GROQ_MODEL
 })
 
-describe("chamarIA — prioridade env (Vercel) primeiro", () => {
-  it("usa a chave do env (GROQ_API_KEY) primeiro quando ela responde OK", async () => {
+describe("chamarIA — prioridade banco (DB) primeiro, env (Vercel) como fallback", () => {
+  it("usa a chave do env (GROQ_API_KEY) quando não há chave no banco", async () => {
     process.env.GROQ_API_KEY = "env-groq-chave"
     process.env.GROQ_MODEL = "qwen/qwen3.8-27b"
 
@@ -47,17 +47,13 @@ describe("chamarIA — prioridade env (Vercel) primeiro", () => {
     expect(callArg).toContain("https://api.groq.com/openai/v1")
   })
 
-  it("cai para a chave do banco quando a chave do env falha", async () => {
+  it("usa a chave do banco primeiro quando ela responde OK, mesmo com env configurada", async () => {
     process.env.GROQ_API_KEY = "env-groq-chave"
     process.env.GROQ_MODEL = "qwen/qwen3.8-27b"
 
-    let envFirst = true
+    const urlsChamadas: string[] = []
     const fetchMock = vi.fn((_url: string, init: RequestInit) => {
-      const body = JSON.parse(String(init?.body))
-      if (envFirst && body.model === "qwen/qwen3.8-27b" && body.messages) {
-        envFirst = false
-        return Promise.resolve({ ok: false, status: 500, json: vi.fn().mockResolvedValue({}) })
-      }
+      urlsChamadas.push(String(_url))
       return Promise.resolve({
         ok: true,
         status: 200,
@@ -76,6 +72,38 @@ describe("chamarIA — prioridade env (Vercel) primeiro", () => {
 
     expect(res.nomeChave).toBe("Groq do Banco")
     expect(res.conteudo).toBe("resposta do banco")
+    expect(urlsChamadas).toHaveLength(1)
+  })
+
+  it("cai para a chave do env quando a chave do banco falha (banco primeiro)", async () => {
+    process.env.GROQ_API_KEY = "env-groq-chave"
+    process.env.GROQ_MODEL = "qwen/qwen3.8-27b"
+
+    let primeiro = true
+    const fetchMock = vi.fn((_url: string, init: RequestInit) => {
+      const body = JSON.parse(String(init?.body))
+      if (primeiro && body.model === "qwen/qwen3.8-27b" && body.messages) {
+        primeiro = false
+        return Promise.resolve({ ok: false, status: 500, json: vi.fn().mockResolvedValue({}) })
+      }
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        json: vi.fn().mockResolvedValue({ choices: [{ message: { content: "resposta da env" } }] }),
+      })
+    })
+    vi.stubGlobal("fetch", fetchMock)
+
+    db.select = vi.fn(() =>
+      createQueryBuilder([
+        { id: 1, provedor: "groq", nome: "Groq do Banco", chaveApi: "banco-chave", urlBase: null, modelo: "qwen/qwen3.8-27b", ordem: 1, ativo: true, failCount: 0 },
+      ]),
+    )
+
+    const res = await chamarIA(MENSAGENS)
+
+    expect(res.nomeChave).toBe("Groq (env)")
+    expect(res.conteudo).toBe("resposta da env")
   })
 
   it("retorna erro tecnico quando não há env nem chave no banco", async () => {

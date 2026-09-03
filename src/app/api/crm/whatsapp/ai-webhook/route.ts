@@ -14,7 +14,7 @@ import { buildSystemPrompt } from "@/lib/whatsapp/prompt"
 import { rejeitarNome, negou, confirmou, pareceNome, detectarTipo, extrairDoc, parseLinhas, linhasNomes, pediuAtendente, pediuReiniciar } from "@/lib/whatsapp/validation"
 import { maquinaEstados, type MaquinaEstadoResult } from "@/lib/whatsapp/state-machine"
 import { calcularLeadScore } from "@/lib/whatsapp/lead-scoring"
-import { chamarGroq } from "@/lib/whatsapp/groq"
+import { chamarGroq, extrairDadosLead } from "@/lib/whatsapp/groq"
 import { consultarCNPJ } from "@/lib/whatsapp/cnpj"
 import { extrairMensagem, extrairNumero, logStep, type EvolutionWebhookBody } from "@/lib/whatsapp/helpers"
 import { verificarAbandonos } from "@/lib/whatsapp/abandon-checker"
@@ -884,13 +884,30 @@ export async function POST(req: NextRequest) {
           nomeLead = "Anonimo"
         }
 
+        const dadosExtraidos = await extrairDadosLead(historico, pushName).catch((): Partial<import("@/lib/whatsapp/groq").DadosLeadExtraidos> => ({}))
+        if (dadosExtraidos.nome && (!nomeLead || nomeLead === "Anonimo")) {
+          nomeLead = dadosExtraidos.nome
+        }
+        if (!nomeLead || nomeLead.trim().length === 0) {
+          nomeLead = "Anonimo"
+        }
+
+        const documentoLead = dados.documento || dadosExtraidos.documento || null
+        const tipoPessoaLead = dados.tipoPessoa || (dadosExtraidos.tipoPessoa ? (dadosExtraidos.tipoPessoa === "PJ" ? "PJ" : "PF") : null)
+        const emailLead = dadosExtraidos.email || null
+        const telefoneLead = dadosExtraidos.telefone || null
+        const empresaNomeLead = dados._cnpjConsulta?.razaoSocial || dados.razaoSocial || dadosExtraidos.empresa || null
+
         const [novo] = await db
           .insert(crmLeads)
           .values({
             nome: nomeLead,
             celular: numero,
-            documento: dados.documento || null,
-            tipoPessoa: dados.tipoPessoa || null,
+            email: emailLead,
+            telefone: telefoneLead,
+            empresaNome: empresaNomeLead,
+            documento: documentoLead,
+            tipoPessoa: tipoPessoaLead,
             origem: "WHATSAPP",
             descricao: descricaoParts.join(" | "),
             idIntegracao: `whatsapp:${remoteJid}`,

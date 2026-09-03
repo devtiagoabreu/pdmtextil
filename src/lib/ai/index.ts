@@ -259,7 +259,7 @@ export async function chamarIA(
 ): Promise<ResultadoIA> {
   const chavesEnv = await carregarChavesEnvFallback()
   const chavesBanco = await buscarChavesAtivas().catch(() => [])
-  const chaves = [...chavesEnv, ...chavesBanco]
+  const chaves = [...chavesBanco, ...chavesEnv]
 
   if (chaves.length === 0) {
     console.error("[IA] Nenhuma chave de IA configurada")
