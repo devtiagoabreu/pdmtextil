@@ -12,6 +12,7 @@ function setup() {
   const fetchMock = createFetchMock(({ method, url }) => {
     if (method === "GET" && url === "/api/admin/ai-chaves") return { json: chaves }
     if (method === "POST" && url === "/api/admin/ai-chaves") return { status: 201, json: { id: 2 } }
+    if (method === "PUT" && url === "/api/admin/ai-chaves") return { status: 200, json: { success: true } }
     return { status: 404, json: { error: "Rota não mockada" } }
   })
   vi.stubGlobal("fetch", fetchMock.fn)
@@ -59,5 +60,26 @@ describe("AiChavesPage", () => {
       expect(call?.body?.ativo).toBe(true)
     })
     await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Chave adicionada!"))
+  })
+
+  it("edita chave mantendo a chave da API atual (sem redigitar)", async () => {
+    const fetchMock = setup()
+    renderPage(<AiChavesPage />)
+    await screen.findByText("Groq Principal")
+
+    fireEvent.click(screen.getByLabelText("Editar"))
+    fireEvent.change(screen.getByPlaceholderText("Ex: Groq Principal"), { target: { value: "Groq Renomeado" } })
+    fireEvent.change(screen.getByDisplayValue("llama-3.3-70b-versatile"), { target: { value: "gemini-3.6-flash" } })
+    fireEvent.click(screen.getByRole("button", { name: "Salvar" }))
+
+    await waitFor(() => {
+      const call = findCall(fetchMock.calls, "/api/admin/ai-chaves", "PUT")
+      expect(call).toBeDefined()
+      expect(call?.body?.id).toBe(1)
+      expect(call?.body?.nome).toBe("Groq Renomeado")
+      expect(call?.body?.modelo).toBe("gemini-3.6-flash")
+      expect(call?.body?.chaveApi).toBe("")
+    })
+    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Chave atualizada!"))
   })
 })

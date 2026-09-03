@@ -101,8 +101,8 @@ export default function AiChavesPage() {
   }
 
   async function handleSave() {
-    if (!form.nome || !form.chaveApi) {
-      toast.error("Nome e chave da API sÃ£o obrigatÃ³rios")
+    if (!form.nome || (!editItem && !form.chaveApi)) {
+      toast.error(editItem ? "O nome é obrigatório" : "Nome e chave da API são obrigatórios")
       return
     }
     setSaving(true)
@@ -283,7 +283,7 @@ export default function AiChavesPage() {
                         <RefreshCw size={14} />
                       </Button>
                     )}
-                    <Button size="sm" variant="ghost" onClick={() => openForm(item)} className="gap-1">
+                    <Button size="sm" variant="ghost" onClick={() => openForm(item)} className="gap-1" title="Editar" aria-label="Editar">
                       <Edit3 size={14} />
                     </Button>
                     <Button size="sm" variant="ghost" onClick={() => handleToggle(item)} className="gap-1">
