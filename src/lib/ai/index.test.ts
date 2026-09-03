@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
 import { createQueryBuilder } from "@/test/route-db-mock"
-import { chamarIA } from "./index"
+import { chamarIA, testarChave } from "./index"
 
 vi.mock("@/lib/db", () => ({ db: { select: vi.fn(), update: vi.fn() } }))
 import { db } from "@/lib/db"
@@ -93,7 +93,7 @@ describe("chamarIA — Gemini", () => {
   it("monta body com systemInstruction e roles user/model em :generateContent", async () => {
     db.select = vi.fn(() =>
       createQueryBuilder([
-        { id: 5, provedor: "gemini", nome: "Gemini", chaveApi: "gem-chave", urlBase: "https://generativelanguage.googleapis.com/v1beta", modelo: "gemini-1.5-flash", ordem: 1, ativo: true, failCount: 0 },
+        { id: 5, provedor: "gemini", nome: "Gemini", chaveApi: "gem-chave", urlBase: "https://generativelanguage.googleapis.com/v1beta", modelo: "gemini-3.6-flash", ordem: 1, ativo: true, failCount: 0 },
       ]),
     )
 
@@ -117,14 +117,14 @@ describe("chamarIA — Gemini", () => {
     expect(res.conteudo).toBe("resposta gemini")
     expect(res.provedor).toBe("gemini")
     expect(fetchMock.mock.calls[0][0]).toContain(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent",
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent",
     )
   })
 
   it("não inclui systemInstruction quando não há mensagem de sistema", async () => {
     db.select = vi.fn(() =>
       createQueryBuilder([
-        { id: 5, provedor: "gemini", nome: "Gemini", chaveApi: "gem-chave", urlBase: "https://generativelanguage.googleapis.com/v1beta", modelo: "gemini-1.5-flash", ordem: 1, ativo: true, failCount: 0 },
+        { id: 5, provedor: "gemini", nome: "Gemini", chaveApi: "gem-chave", urlBase: "https://generativelanguage.googleapis.com/v1beta", modelo: "gemini-3.6-flash", ordem: 1, ativo: true, failCount: 0 },
       ]),
     )
 
@@ -143,5 +143,38 @@ describe("chamarIA — Gemini", () => {
 
     expect(res.provedor).toBe("gemini")
     expect(res.conteudo).toBe("ok")
+  })
+})
+
+describe("testarChave — Gemini", () => {
+  it("propaga a mensagem de erro da API quando o modelo retorna 404", async () => {
+    db.select = vi.fn(() => createQueryBuilder([]))
+
+    const fetchMock = vi.fn(() =>
+      Promise.resolve({
+        ok: false,
+        status: 404,
+        text: vi.fn().mockResolvedValue(
+          JSON.stringify({ error: { code: 404, message: "models/gemini-1.5-flash is not found for API version v1beta" } }),
+        ),
+      }),
+    )
+    vi.stubGlobal("fetch", fetchMock)
+
+    const res = await testarChave({
+      id: 7,
+      provedor: "gemini",
+      nome: "Gemini",
+      chaveApi: "gem-chave",
+      urlBase: "https://generativelanguage.googleapis.com/v1beta",
+      modelo: "gemini-1.5-flash",
+      ordem: 1,
+      ativo: true,
+      failCount: 0,
+    })
+
+    expect(res.ok).toBe(false)
+    expect(res.mensagem).toContain("Gemini HTTP 404")
+    expect(res.mensagem).toContain("models/gemini-1.5-flash is not found")
   })
 })

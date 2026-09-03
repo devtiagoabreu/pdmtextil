@@ -12,7 +12,7 @@ const PROVEDORES: Record<string, { label: string; defaultModel: string; defaultU
   groq: { label: "Groq", defaultModel: "llama-3.3-70b-versatile", defaultUrl: "https://api.groq.com/openai/v1" },
   openai: { label: "OpenAI", defaultModel: "gpt-4o-mini", defaultUrl: "https://api.openai.com/v1" },
   anthropic: { label: "Anthropic (Claude)", defaultModel: "claude-3-5-sonnet-latest", defaultUrl: "https://api.anthropic.com/v1" },
-  gemini: { label: "Google Gemini", defaultModel: "gemini-1.5-flash", defaultUrl: "https://generativelanguage.googleapis.com/v1beta" },
+  gemini: { label: "Google Gemini", defaultModel: "gemini-3.6-flash", defaultUrl: "https://generativelanguage.googleapis.com/v1beta" },
   deepseek: { label: "DeepSeek", defaultModel: "deepseek-chat", defaultUrl: "https://api.deepseek.com/v1" },
   openai_compatible: { label: "OpenAI CompatÃ­vel (URL custom)", defaultModel: "", defaultUrl: "" },
 }

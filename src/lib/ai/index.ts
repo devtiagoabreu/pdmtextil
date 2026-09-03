@@ -43,7 +43,7 @@ export const MODELOS_PADRAO: Record<ProvedorIA, string> = {
   groq: "llama-3.3-70b-versatile",
   openai: "gpt-4o-mini",
   anthropic: "claude-3-5-sonnet-latest",
-  gemini: "gemini-1.5-flash",
+  gemini: "gemini-3.6-flash",
   deepseek: "deepseek-chat",
   openai_compatible: "",
 }
@@ -184,7 +184,10 @@ async function chamarProvedor(
         generationConfig: { temperature: temperatura, maxOutputTokens: maxTokens },
       }),
     })
-    if (!res.ok) throw new Error(`Gemini HTTP ${res.status}`)
+    if (!res.ok) {
+      const errBody = await res.text().catch(() => "")
+      throw new Error(`Gemini HTTP ${res.status}${errBody ? `: ${errBody.slice(0, 300)}` : ""}`)
+    }
     const data = await res.json()
     const texto = data.candidates?.[0]?.content?.parts?.[0]?.text
     return texto || MSG_ERRO_TECNICO
