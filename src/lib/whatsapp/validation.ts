@@ -69,7 +69,7 @@ export function rejeitarNome(texto: string): string | null {
   if (/^(nao sei|não sei|nao quero|não quero|deixa pra la|deixa pra la|se foda|foda-se|tanto faz|indiferente|whatever|ok|sim|nao|não|s|n)\b/.test(t)) return "resposta_evaziva"
   if (/^(cpf|cnpj|documento|doc|registro)\b/.test(t)) return "documento_no_nome"
   if (/^(preco|preço|valor|quanto|custa|frete)\b/.test(t)) return "pergunta_fora_do_fluxo"
-  if (/^(oi|ola|olá|bom dia|boa tarde|boa noite|hello|hi|hey)\b/.test(t) && t.split(" ").length <= 3) return "saudacao_sem_nome"
+  if (/^(oi|ola|olá|bom dia|boa tarde|boa noite|hello|hi|hey)(?:\s|$)/i.test(t) && t.split(" ").length <= 3) return "saudacao_sem_nome"
   return null
 }
 

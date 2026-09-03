@@ -33,7 +33,7 @@ vi.mock("@/lib/whatsapp/state-machine", () => ({
   maquinaEstados: vi.fn(() => ({ nextEstado: "SAUDACAO", dados: {}, finalizado: false, enviarCatalogo: [], needsCnpjLookup: false, redirecionarPf: false })),
 }))
 vi.mock("@/lib/whatsapp/lead-scoring", () => ({ calcularLeadScore: vi.fn(() => ({ score: 0, prioridade: "BAIXA", motivos: [] })) }))
-vi.mock("@/lib/whatsapp/groq", () => ({ chamarGroq: vi.fn() }))
+vi.mock("@/lib/whatsapp/groq", () => ({ chamarGroq: vi.fn(async () => ({ conteudo: "", provedor: "groq", modelo: "x", nomeChave: "", tentativas: 1 })), extrairDadosLead: vi.fn(async () => ({})) }))
 vi.mock("@/lib/whatsapp/cnpj", () => ({ consultarCNPJ: vi.fn() }))
 vi.mock("@/lib/whatsapp/prompt", () => ({ buildSystemPrompt: vi.fn(() => "") }))
 vi.mock("@/lib/whatsapp/abandon-checker", () => ({ verificarAbandonos: vi.fn() }))

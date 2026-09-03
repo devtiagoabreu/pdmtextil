@@ -54,7 +54,7 @@ export function maquinaEstados(
     if (tipoEscolhido) dados.tipoPessoa = tipoEscolhido
     if (doc) dados.documento = doc.doc
     if (!dados.tipoPessoa && doc) dados.tipoPessoa = doc.tipo
-    if (!dados.nome && pareceNome(msgOriginal) && msgOriginal.length < 50) {
+    if (!dados.nome && pareceNome(msgOriginal) && !rejeitarNome(msgOriginal) && msgOriginal.length < 50) {
       dados.nome = msgOriginal
     }
 

@@ -876,19 +876,16 @@ export async function POST(req: NextRequest) {
           `Encaminhado para representante: ${dados.tipoPessoa === "PJ" ? "Pessoa Juridica" : "Pessoa Fisica"} | Atendido pela IA: ${aiResult.nomeChave ? `${aiResult.provedor} (${aiResult.nomeChave})` : `${aiResult.provedor} (${aiResult.modelo})`}`
         )
 
-        let nomeLead = dados.nome
+        const dadosExtraidos = await extrairDadosLead(historico, pushName).catch((): Partial<import("@/lib/whatsapp/groq").DadosLeadExtraidos> => ({}))
+
+        let nomeLead: string
         if (dados.tipoPessoa === "PJ" && dados._cnpjConsulta?.razaoSocial) {
           nomeLead = dados._cnpjConsulta.nomeFantasia || dados._cnpjConsulta.razaoSocial
+        } else {
+          nomeLead = dadosExtraidos.nome || dados.nome
         }
-        if (!nomeLead || nomeLead.trim().length === 0) {
-          nomeLead = "Anonimo"
-        }
-
-        const dadosExtraidos = await extrairDadosLead(historico, pushName).catch((): Partial<import("@/lib/whatsapp/groq").DadosLeadExtraidos> => ({}))
-        if (dadosExtraidos.nome && (!nomeLead || nomeLead === "Anonimo")) {
-          nomeLead = dadosExtraidos.nome
-        }
-        if (!nomeLead || nomeLead.trim().length === 0) {
+        const ehSaudacao = /^(ola|olá|oi|oe|eai|e aí|cliente|anonimo|bom dia|boa tarde|boa noite)$/i.test((nomeLead || "").trim())
+        if (!nomeLead || nomeLead.trim().length === 0 || ehSaudacao) {
           nomeLead = "Anonimo"
         }
 
