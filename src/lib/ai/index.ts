@@ -181,7 +181,7 @@ async function chamarProvedor(
       body: JSON.stringify({
         contents,
         systemInstruction: systemContent ? { parts: [{ text: systemContent }] } : undefined,
-        generationConfig: { temperature: temperatura, maxOutputTokens: maxTokens },
+        generationConfig: { temperature: temperatura, maxOutputTokens: Math.max(1024, maxTokens * 4) },
       }),
     })
     if (!res.ok) {
@@ -189,7 +189,8 @@ async function chamarProvedor(
       throw new Error(`Gemini HTTP ${res.status}${errBody ? `: ${errBody.slice(0, 300)}` : ""}`)
     }
     const data = await res.json()
-    const texto = data.candidates?.[0]?.content?.parts?.[0]?.text
+    const parts: { text?: string }[] = data.candidates?.[0]?.content?.parts ?? []
+    const texto = (parts.map(p => p.text).filter(Boolean) as string[]).join(" ")
     return texto || MSG_ERRO_TECNICO
   }
 
@@ -283,7 +284,7 @@ export async function testarChave(chave: ChaveIA): Promise<{ ok: boolean; mensag
         { role: "system", content: "Voce e um assistente." },
         { role: "user", content: "Responda apenas: OK" },
       ],
-      { maxTokens: 10 }
+      { maxTokens: 100 }
     )
     if (isErroTecnico(conteudo)) {
       return { ok: false, mensagem: "Provedor respondeu com erro tecnico", detalhe: conteudo }

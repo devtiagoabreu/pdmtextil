@@ -103,7 +103,7 @@ describe("chamarIA — Gemini", () => {
         { role: "user", parts: [{ text: "Ola" }] },
       ])
       expect(body.systemInstruction).toEqual({ parts: [{ text: "Voce e um assistente." }] })
-      expect(body.generationConfig).toEqual({ temperature: 0.7, maxOutputTokens: 300 })
+      expect(body.generationConfig).toEqual({ temperature: 0.7, maxOutputTokens: 1200 })
       return Promise.resolve({
         ok: true,
         status: 200,
