@@ -124,12 +124,29 @@ describe("ConferenciaOpTecelagemPage", () => {
     fireEvent.click(screen.getByRole("button", { name: /Carregar Todas/ }))
     await screen.findByRole("heading", { name: /OP 12345/ })
 
-    fireEvent.change(screen.getByPlaceholderText("Ex: 12345"), { target: { value: "99999" } })
+    fireEvent.change(screen.getByPlaceholderText(/OP 12345 ou rolo 1001/), { target: { value: "99999" } })
     fireEvent.click(screen.getByRole("button", { name: /Buscar/ }))
 
     expect(await screen.findByRole("heading", { name: /OP 99999/ })).toBeInTheDocument()
-    expect(screen.getByText(/Filtrando por OP "99999"/)).toBeInTheDocument()
+    expect(screen.getByText(/Filtrando por "99999"/)).toBeInTheDocument()
     expect(screen.queryByRole("heading", { name: /OP 12345/ })).not.toBeInTheDocument()
+  })
+
+  it("filtra os rolos pelo número do rolo", async () => {
+    const fetchMock = createFetchMock(handler())
+    vi.stubGlobal("fetch", fetchMock.fn)
+    renderPage(<ConferenciaOpTecelagemPage />)
+
+    await screen.findByRole("button", { name: "Estoques Rolos Nível 2" })
+    fireEvent.click(screen.getByRole("button", { name: /Carregar Todas/ }))
+    await screen.findByRole("heading", { name: /OP 12345/ })
+
+    fireEvent.change(screen.getByPlaceholderText(/OP 12345 ou rolo 1001/), { target: { value: "1002" } })
+    fireEvent.click(screen.getByRole("button", { name: /Buscar/ }))
+
+    expect(await screen.findByRole("heading", { name: /OP 12345/ })).toBeInTheDocument()
+    expect(screen.getByText(/Filtrando por "1002" — 1 de 3 rolo\(s\)/)).toBeInTheDocument()
+    expect(screen.queryByRole("heading", { name: /OP 99999/ })).not.toBeInTheDocument()
   })
 
   it("ordena as OPs por padrão de forma decrescente (maior primeiro)", async () => {

@@ -29,7 +29,7 @@ export const documentosContent: Record<string, InfoContent> = {
       "Consulta e conferência dos rolos gerados por ordem de produção (OP) na tecelagem. Os dados são obtidos da integração com a tela 'conferencia-op-tecelagem'.",
     rules: [
       "Clique em 'Carregar Todas' para listar os rolos disponíveis (últimos 6 meses, nível 2 / cru).",
-      "Digite o número da OP ou leia o código de barras pela câmera para filtrar os rolos da OP.",
+      "Digite o número da OP, o número do rolo ou leia o código de barras pela câmera para filtrar os rolos.",
       "Os rolos são agrupados por OP para facilitar a conferência.",
       "O produto (nível, grupo, sub e item) aparece concatenado no cabeçalho de cada OP, pois é o mesmo para todos os rolos.",
       "Na listagem de rolos você vê situação, depósito, endereço, lote e lote do produto.",

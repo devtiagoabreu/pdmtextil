@@ -56,7 +56,9 @@ export default function ConferenciaOpTecelagemPage() {
     if (!searchTerm) return itens
     const termo = searchTerm.trim().toLowerCase()
     return itens.filter(
-      (item) => String(item.op).toLowerCase().includes(termo),
+      (item) =>
+        String(item.op).toLowerCase().includes(termo) ||
+        String(item.codigoRolo ?? "").toLowerCase().includes(termo),
     )
   }, [itens, searchTerm])
 
@@ -181,7 +183,7 @@ export default function ConferenciaOpTecelagemPage() {
             <div className="space-y-3">
               {searchTerm && (
                 <p className="text-xs text-slate-500">
-                  Filtrando por OP &quot;{searchTerm}&quot; — {itensFiltrados.length} de{" "}
+                  Filtrando por &quot;{searchTerm}&quot; — {itensFiltrados.length} de{" "}
                   {itens.length} rolo(s)
                 </p>
               )}
@@ -202,20 +204,20 @@ export default function ConferenciaOpTecelagemPage() {
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-12 text-center">
               <ScanLine size={44} className="mx-auto text-slate-300 mb-3" />
               <p className="text-sm font-medium text-slate-500">
-                Digite o número da OP, leia o código de barras ou clique em &quot;Carregar Todas&quot;
+                Digite o número da OP ou do rolo, leia o código de barras ou clique em &quot;Carregar Todas&quot;
               </p>
               <p className="text-xs text-slate-400 mt-1">
-                Após carregar, use a busca para filtrar os rolos pela OP
+                Após carregar, use a busca para filtrar os rolos pela OP ou pelo número do rolo
               </p>
             </div>
           ) : itens.length > 0 && grupos.length === 0 && !loadingData ? (
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-12 text-center">
               <Search size={44} className="mx-auto text-slate-300 mb-3" />
               <p className="text-sm font-medium text-slate-500">
-                Nenhum resultado para a OP &quot;{searchTerm}&quot;
+                Nenhum resultado para &quot;{searchTerm}&quot;
               </p>
               <p className="text-xs text-slate-400 mt-1">
-                Confira se a OP existe na integração selecionada
+                Confira se a OP ou o rolo existe na integração selecionada
               </p>
             </div>
           ) : null}

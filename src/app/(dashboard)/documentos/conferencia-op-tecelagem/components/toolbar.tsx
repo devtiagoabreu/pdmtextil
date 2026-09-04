@@ -66,12 +66,12 @@ export function Toolbar({
         </div>
         <div className="flex gap-2 items-end flex-wrap">
           <div>
-            <label className="text-xs font-medium text-slate-500 mb-1 block">Nº da OP</label>
+            <label className="text-xs font-medium text-slate-500 mb-1 block">OP / Rolo</label>
             <Input
               value={searchInput}
               onChange={(e) => onSearchInputChange(e.target.value)}
               onKeyDown={onKeyDown}
-              placeholder="Ex: 12345"
+              placeholder="Ex: OP 12345 ou rolo 1001"
               className="w-44 sm:w-48"
               inputMode="numeric"
             />
