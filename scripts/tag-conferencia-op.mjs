@@ -11,7 +11,7 @@ const TARGETS = [
 ]
 
 const NOME = "api_estoques_rolos_nivel2_ultimos6meses_pdm"
-const TELA = "conferencia-op-tecelagem"
+const TELA = "conferencia-op-tecido-cru"
 
 async function run() {
   for (const { name, url } of TARGETS) {

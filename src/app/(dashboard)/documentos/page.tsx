@@ -11,7 +11,7 @@ const modulos = [
     icon: Truck,
   },
   {
-    href: "/documentos/conferencia-op-tecelagem",
+    href: "/documentos/conferencia-op-tecido-cru",
     label: "Conferência de OP de Tecelagem",
     desc: "Consulta e conferência de rolos gerados por ordem de produção (OP)",
     icon: ScanLine,

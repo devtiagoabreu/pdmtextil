@@ -23,10 +23,10 @@ export const documentosContent: Record<string, InfoContent> = {
       "Configure a integração em Configurações > Integrações com a tela 'romaneios'.",
     ],
   },
-  "/documentos/conferencia-op-tecelagem": {
+  "/documentos/conferencia-op-tecido-cru": {
     title: "Conferência de OP de Tecelagem",
     description:
-      "Consulta e conferência dos rolos gerados por ordem de produção (OP) na tecelagem. Os dados são obtidos da integração com a tela 'conferencia-op-tecelagem'.",
+      "Consulta e conferência dos rolos gerados por ordem de produção (OP) na tecelagem. Os dados são obtidos da integração com a tela 'conferencia-op-tecido-cru'.",
     rules: [
       "Clique em 'Carregar Todas' para listar os rolos disponíveis (últimos 6 meses, nível 2 / cru).",
       "Digite o número da OP, o número do rolo ou leia o código de barras pela câmera para filtrar os rolos.",
@@ -35,7 +35,7 @@ export const documentosContent: Record<string, InfoContent> = {
       "Na listagem de rolos você vê situação, depósito, endereço, lote e lote do produto.",
       "Use o seletor de ordenação para listar as OPs em ordem crescente ou decrescente (padrão: decrescente).",
       "Funciona no desktop e no celular — a leitura de código de barras usa a câmera do aparelho.",
-      "Configure a integração em Configurações > Integrações com a tela 'conferencia-op-tecelagem'.",
+      "Configure a integração em Configurações > Integrações com a tela 'conferencia-op-tecido-cru'.",
     ],
   },
 }

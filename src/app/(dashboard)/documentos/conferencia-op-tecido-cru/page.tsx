@@ -18,7 +18,7 @@ const BarcodeScanner = dynamic(() =>
   { ssr: false },
 )
 
-export default function ConferenciaOpTecelagemPage() {
+export default function ConferenciaOpTecidoCruPage() {
   const pathname = usePathname()
   const info = getInfoContent(pathname)
 
@@ -32,9 +32,9 @@ export default function ConferenciaOpTecelagemPage() {
   const [ordemOp, setOrdemOp] = useState<"asc" | "desc">("desc")
 
   const { data: integracoesData, isLoading: loadingInt, isError: integracoesError } = useQuery<Integracao[]>({
-    queryKey: ["integracao-listar", "conferencia-op-tecelagem"],
+    queryKey: ["integracao-listar", "conferencia-op-tecido-cru"],
     queryFn: async () => {
-      const res = await fetch("/api/integracao/listar?tela=conferencia-op-tecelagem")
+      const res = await fetch("/api/integracao/listar?tela=conferencia-op-tecido-cru")
       if (!res.ok) throw new Error("Erro ao carregar integrações")
       const data = await res.json()
       return Array.isArray(data) ? data : []
@@ -150,7 +150,7 @@ export default function ConferenciaOpTecelagemPage() {
           </p>
           <p className="text-xs text-slate-400 mt-1">
             Cadastre uma integração em Configurações &gt; Integrações com a tela{" "}
-            &quot;conferencia-op-tecelagem&quot;
+            &quot;conferencia-op-tecido-cru&quot;
           </p>
         </div>
       ) : (

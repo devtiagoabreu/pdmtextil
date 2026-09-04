@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { screen, fireEvent } from "@testing-library/react"
-import ConferenciaOpTecelagemPage from "./page"
+import ConferenciaOpTecidoCruPage from "./page"
 import { createFetchMock, navMock, renderPage } from "@/test/harness"
 
 const integracoes = [
@@ -10,7 +10,7 @@ const integracoes = [
     nome: "Estoques Rolos Nível 2",
     baseUrl: "http://erp.local/rolos",
     tipoAuth: "oauth2",
-    telas: ["conferencia-op-tecelagem"],
+    telas: ["conferencia-op-tecido-cru"],
   },
 ]
 
@@ -73,7 +73,7 @@ const rolos = [
 
 function handler() {
   return ({ method, url }: { method: string; url: string }) => {
-    if (method === "GET" && url === "/api/integracao/listar?tela=conferencia-op-tecelagem") {
+    if (method === "GET" && url === "/api/integracao/listar?tela=conferencia-op-tecido-cru") {
       return { json: integracoes }
     }
     if (method === "GET" && url === "/api/integracao/1/executar") {
@@ -83,15 +83,15 @@ function handler() {
   }
 }
 
-describe("ConferenciaOpTecelagemPage", () => {
+describe("ConferenciaOpTecidoCruPage", () => {
   beforeEach(() => {
     navMock.reset()
-    navMock.setPathname("/documentos/conferencia-op-tecelagem")
+    navMock.setPathname("/documentos/conferencia-op-tecido-cru")
   })
 
   it("renderiza o heading, a integração e o botão de leitura de código de barras", async () => {
     vi.stubGlobal("fetch", createFetchMock(handler()).fn)
-    renderPage(<ConferenciaOpTecelagemPage />)
+    renderPage(<ConferenciaOpTecidoCruPage />)
 
     expect(
       screen.getByRole("heading", { name: /Conferência de OP de Tecelagem/ }),
@@ -104,7 +104,7 @@ describe("ConferenciaOpTecelagemPage", () => {
   it("carrega os rolos ao clicar em Carregar Todas e agrupa por OP", async () => {
     const fetchMock = createFetchMock(handler())
     vi.stubGlobal("fetch", fetchMock.fn)
-    renderPage(<ConferenciaOpTecelagemPage />)
+    renderPage(<ConferenciaOpTecidoCruPage />)
 
     await screen.findByRole("button", { name: "Estoques Rolos Nível 2" })
     fireEvent.click(screen.getByRole("button", { name: /Carregar Todas/ }))
@@ -118,7 +118,7 @@ describe("ConferenciaOpTecelagemPage", () => {
   it("filtra os rolos pela OP digitada", async () => {
     const fetchMock = createFetchMock(handler())
     vi.stubGlobal("fetch", fetchMock.fn)
-    renderPage(<ConferenciaOpTecelagemPage />)
+    renderPage(<ConferenciaOpTecidoCruPage />)
 
     await screen.findByRole("button", { name: "Estoques Rolos Nível 2" })
     fireEvent.click(screen.getByRole("button", { name: /Carregar Todas/ }))
@@ -135,7 +135,7 @@ describe("ConferenciaOpTecelagemPage", () => {
   it("filtra os rolos pelo número do rolo", async () => {
     const fetchMock = createFetchMock(handler())
     vi.stubGlobal("fetch", fetchMock.fn)
-    renderPage(<ConferenciaOpTecelagemPage />)
+    renderPage(<ConferenciaOpTecidoCruPage />)
 
     await screen.findByRole("button", { name: "Estoques Rolos Nível 2" })
     fireEvent.click(screen.getByRole("button", { name: /Carregar Todas/ }))
@@ -152,7 +152,7 @@ describe("ConferenciaOpTecelagemPage", () => {
   it("ordena as OPs por padrão de forma decrescente (maior primeiro)", async () => {
     const fetchMock = createFetchMock(handler())
     vi.stubGlobal("fetch", fetchMock.fn)
-    renderPage(<ConferenciaOpTecelagemPage />)
+    renderPage(<ConferenciaOpTecidoCruPage />)
 
     await screen.findByRole("button", { name: "Estoques Rolos Nível 2" })
     fireEvent.click(screen.getByRole("button", { name: /Carregar Todas/ }))
@@ -170,7 +170,7 @@ describe("ConferenciaOpTecelagemPage", () => {
   it("permite alternar a ordenação para OP crescente", async () => {
     const fetchMock = createFetchMock(handler())
     vi.stubGlobal("fetch", fetchMock.fn)
-    renderPage(<ConferenciaOpTecelagemPage />)
+    renderPage(<ConferenciaOpTecidoCruPage />)
 
     await screen.findByRole("button", { name: "Estoques Rolos Nível 2" })
     fireEvent.click(screen.getByRole("button", { name: /Carregar Todas/ }))
@@ -188,7 +188,7 @@ describe("ConferenciaOpTecelagemPage", () => {
   it("mostra o produto (nivel.grupo.sub.item) concatenado no cabeçalho da OP", async () => {
     const fetchMock = createFetchMock(handler())
     vi.stubGlobal("fetch", fetchMock.fn)
-    renderPage(<ConferenciaOpTecelagemPage />)
+    renderPage(<ConferenciaOpTecidoCruPage />)
 
     await screen.findByRole("button", { name: "Estoques Rolos Nível 2" })
     fireEvent.click(screen.getByRole("button", { name: /Carregar Todas/ }))
@@ -200,7 +200,7 @@ describe("ConferenciaOpTecelagemPage", () => {
   it("listagem exibe situacao, deposito, lote e lote produto, sem a coluna Item", async () => {
     const fetchMock = createFetchMock(handler())
     vi.stubGlobal("fetch", fetchMock.fn)
-    renderPage(<ConferenciaOpTecelagemPage />)
+    renderPage(<ConferenciaOpTecidoCruPage />)
 
     await screen.findByRole("button", { name: "Estoques Rolos Nível 2" })
     fireEvent.click(screen.getByRole("button", { name: /Carregar Todas/ }))
@@ -220,13 +220,13 @@ describe("ConferenciaOpTecelagemPage", () => {
 
   it("mostra estado vazio quando não há integrações", async () => {
     const empty = createFetchMock(({ method, url }) => {
-      if (method === "GET" && url === "/api/integracao/listar?tela=conferencia-op-tecelagem") {
+      if (method === "GET" && url === "/api/integracao/listar?tela=conferencia-op-tecido-cru") {
         return { json: [] }
       }
       return { status: 404, json: { error: "Rota não mockada" } }
     })
     vi.stubGlobal("fetch", empty.fn)
-    renderPage(<ConferenciaOpTecelagemPage />)
+    renderPage(<ConferenciaOpTecidoCruPage />)
 
     expect(
       await screen.findByText("Nenhuma integração configurada para conferência de OP"),
