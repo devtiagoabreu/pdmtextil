@@ -91,40 +91,51 @@ describe("EmailMassaPage", () => {
     expect(screen.getByText("Falhas")).toBeInTheDocument()
   })
 
-  it("mostra aviso quando o usuário não tem email configurado", async () => {
+  it("mostra aviso quando o usuário não tem email configurado e oferece link para o cadastro", async () => {
     setup(null)
     renderPage(<EmailMassaPage />)
 
     expect(await screen.findByText(/Nenhuma configuração encontrada/)).toBeInTheDocument()
-    const radio = screen.getByLabelText("Meu Email") as HTMLInputElement
+    expect(screen.getByRole("link", { name: /Configure em Meu Perfil/ })).toHaveAttribute("href", "/perfil")
+    const radio = screen.getByLabelText("Meu e-mail de envio em massa") as HTMLInputElement
     expect(radio).toBeDisabled()
   })
 
-  it("habilita Meu Email quando o usuário tem configuração ativa", async () => {
+  it("habilita Meu e-mail de envio em massa quando o usuário tem configuração ativa e o usa como padrão", async () => {
     setup({ email: "usuario@gmail.com", ativo: true })
     renderPage(<EmailMassaPage />)
 
-    expect(await screen.findByLabelText("Meu Email (usuario@gmail.com)")).toBeInTheDocument()
-    const radio = screen.getByLabelText("Meu Email (usuario@gmail.com)") as HTMLInputElement
+    expect(await screen.findByLabelText("Meu e-mail de envio em massa (usuario@gmail.com)")).toBeInTheDocument()
+    const radio = screen.getByLabelText("Meu e-mail de envio em massa (usuario@gmail.com)") as HTMLInputElement
     expect(radio).toBeEnabled()
+    expect(radio).toBeChecked()
   })
 
-  it("mostra Meu Email como inativa e desabilitado quando a configuração está inativa", async () => {
+  it("usa a primeira opção (Sistema) como padrão quando não tem email configurado", async () => {
+    setup(null)
+    renderPage(<EmailMassaPage />)
+
+    await screen.findByText(/Nenhuma configuração encontrada/)
+    const sistema = screen.getByRole("radio", { name: /Sistema.*SMTP padrão/ }) as HTMLInputElement
+    expect(sistema).toBeChecked()
+  })
+
+  it("mostra Meu e-mail de envio em massa como inativa e desabilitado quando a configuração está inativa", async () => {
     setup({ email: "usuario@gmail.com", ativo: false })
     renderPage(<EmailMassaPage />)
 
     expect(await screen.findByText(/inativa/)).toBeInTheDocument()
-    const radio = screen.getByRole("radio", { name: /Meu Email \(usuario@gmail\.com\)/ }) as HTMLInputElement
+    const radio = screen.getByRole("radio", { name: /Meu e-mail de envio em massa \(usuario@gmail\.com\)/ }) as HTMLInputElement
     expect(radio).toBeDisabled()
   })
 
-  it("exibe as três opções de remetente: Sistema, Meu Email e CRM", async () => {
+  it("exibe as três opções de remetente: Sistema, Meu e-mail de envio em massa e CRM", async () => {
     setup({ email: "usuario@gmail.com", ativo: true })
     renderPage(<EmailMassaPage />)
 
-    expect(await screen.findByLabelText(/Meu Email \(usuario@gmail\.com\)/)).toBeInTheDocument()
+    expect(await screen.findByLabelText(/Meu e-mail de envio em massa \(usuario@gmail\.com\)/)).toBeInTheDocument()
     const sistema = screen.getByRole("radio", { name: /Sistema.*SMTP padrão/ })
-    const meuEmail = screen.getByRole("radio", { name: /Meu Email/ })
+    const meuEmail = screen.getByRole("radio", { name: /Meu e-mail de envio em massa/ })
     const crm = screen.getByRole("radio", { name: /CRM.*SMTP CRM/ })
     expect(sistema).toBeInTheDocument()
     expect(meuEmail).toBeInTheDocument()

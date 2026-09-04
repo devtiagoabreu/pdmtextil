@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, type Dispatch, type SetStateAction } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
@@ -70,6 +70,11 @@ export default function EmailMassaPage() {
 
   const [remetente, setRemetente] = useState("sistema")
   const [userEmailConfig, setUserEmailConfig] = useState<{ email: string; ativo: boolean } | null>(null)
+  const remetenteTouched = useRef(false)
+  const handleSetRemetente: Dispatch<SetStateAction<string>> = (v) => {
+    remetenteTouched.current = true
+    setRemetente(v)
+  }
 
   useEffect(() => {
     let ativo = true
@@ -85,6 +90,11 @@ export default function EmailMassaPage() {
       })
     return () => { ativo = false }
   }, [])
+
+  useEffect(() => {
+    if (remetenteTouched.current || userEmailConfig === null) return
+    setRemetente(userEmailConfig.ativo ? "usuario" : "sistema")
+  }, [userEmailConfig])
 
   const [agendadoForm, setAgendadoForm] = useState({ nome: "", agendadoPara: "" })
   const [editAgendado, setEditAgendado] = useState<Agendado | null>(null)
@@ -235,7 +245,7 @@ export default function EmailMassaPage() {
     setPreheader(a.preheader || "")
     setPara(a.para)
     setModoEnvio(a.modoEnvio || "bcc")
-    setRemetente(a.remetente || "sistema")
+    setRemetente(a.remetente || (userEmailConfig?.ativo ? "usuario" : "sistema"))
     setSelectedListaIds(a.listas || [])
     setAgendadoForm({ nome: a.nome, agendadoPara: a.agendadoPara ? new Date(a.agendadoPara).toISOString().slice(0, 16) : "" })
     setActiveTab("enviar")
@@ -337,7 +347,7 @@ export default function EmailMassaPage() {
             modoEnvio={modoEnvio}
             setModoEnvio={setModoEnvio}
             remetente={remetente}
-            setRemetente={setRemetente}
+            setRemetente={handleSetRemetente}
             userEmailConfig={userEmailConfig}
             listas={listas}
             selectedListaIds={selectedListaIds}

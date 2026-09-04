@@ -79,7 +79,7 @@ describe("PerfilPage", () => {
     setup({ email: "remetente@gmail.com", ativo: true, limiteDiario: 3000, hasPassword: true })
     renderPage(<PerfilPage />)
 
-    expect(await screen.findByText("Email de Envio em Massa")).toBeInTheDocument()
+    expect(await screen.findByText("Meu E-mail de Envio em Massa")).toBeInTheDocument()
     expect(await screen.findByDisplayValue("remetente@gmail.com")).toBeInTheDocument()
     expect(screen.getByDisplayValue("3000")).toBeInTheDocument()
     expect(await screen.findByRole("button", { name: "Testar conexão" })).toBeInTheDocument()

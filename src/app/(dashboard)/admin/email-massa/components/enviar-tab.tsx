@@ -119,7 +119,9 @@ export function EnviarTab(props: EnviarTabProps) {
                   onChange={e => setRemetente(e.target.value)} className="text-blue-600"
                   disabled={!userEmailConfig || userEmailConfig.ativo === false} />
                 <span className="text-sm">
-                  {userEmailConfig ? `Meu Email (${userEmailConfig.email})` : "Meu Email"}
+                  {userEmailConfig
+                    ? `Meu e-mail de envio em massa (${userEmailConfig.email})`
+                    : "Meu e-mail de envio em massa"}
                   {userEmailConfig?.ativo === false && (
                     <span className="ml-1 text-xs text-amber-600 dark:text-amber-400">(inativa)</span>
                   )}

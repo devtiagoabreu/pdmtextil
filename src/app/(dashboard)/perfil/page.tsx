@@ -327,7 +327,7 @@ export default function PerfilPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Mail className="w-5 h-5" />
-            Email de Envio em Massa
+            Meu E-mail de Envio em Massa
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -368,7 +368,7 @@ export default function PerfilPage() {
                 />
                 <p className="text-xs text-muted-foreground">
                   Para Gmail, use uma senha de app criada em Conta Google &gt; Segurança &gt; Senhas de app.
-                  Usada como remetente do email em massa quando o envio é <strong>&quot;Meu Email&quot;</strong>.
+                  Usada como remetente padrão do email em massa (opção <strong>&quot;Meu e-mail de envio em massa&quot;</strong>).
                 </p>
               </div>
 
