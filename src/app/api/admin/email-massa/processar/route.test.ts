@@ -407,4 +407,63 @@ describe("POST /api/admin/email-massa/processar", () => {
     const strings = collectStrings(builders[2].where.mock.calls[0][0])
     expect(strings.some((s: string) => s.includes("interval") && s.includes("24")), JSON.stringify(strings)).toBe(true)
   })
+
+  it("usa o SMTP do CRM quando o disparo tem remetente CRM", async () => {
+    vi.mocked(getServerSession).mockResolvedValue(session as any)
+    const updBuilder = createQueryBuilder(undefined)
+    db.update = vi.fn(() => updBuilder)
+    const transporter = mockTransporter(vi.fn().mockResolvedValue(true))
+    mockSelectSequence(
+      [{ ...disparo, remetente: "crm" }],
+      [{ id: 1, host: "smtp.crm.com", port: 587, user: "crm@empresa.com", pass: "crmsenha", fromName: "PDM CRM", ativo: true }],
+      [{ total: 0 }],
+      [pendente],
+      [],
+      [{ total: 0 }],
+      [{ total: 0 }],
+    )
+
+    const res = await post()
+    expect(res.status).toBe(200)
+    const data = await res.json()
+    expect(data.disparosProcessados).toBe(1)
+    expect(data.enviados).toBe(1)
+    expect(data.restantes).toBe(0)
+
+    expect(vi.mocked(nodemailer.createTransport)).toHaveBeenCalledWith(
+      expect.objectContaining({ host: "smtp.crm.com", auth: { user: "crm@empresa.com", pass: "crmsenha" } })
+    )
+    const chamada = transporter.sendMail.mock.calls[0][0] as any
+    expect(chamada.from).toBe('"PDM CRM" <crm@empresa.com>')
+  })
+
+  it("usa o SMTP do sistema quando remetente CRM sem config CRM ativa", async () => {
+    vi.mocked(getServerSession).mockResolvedValue(session as any)
+    const updBuilder = createQueryBuilder(undefined)
+    db.update = vi.fn(() => updBuilder)
+    const transporter = mockTransporter(vi.fn().mockResolvedValue(true))
+    mockSelectSequence(
+      [{ ...disparo, remetente: "crm" }],
+      [],
+      [cfg],
+      [{ total: 0 }],
+      [pendente],
+      [],
+      [{ total: 0 }],
+      [{ total: 0 }],
+    )
+
+    const res = await post()
+    expect(res.status).toBe(200)
+    const data = await res.json()
+    expect(data.disparosProcessados).toBe(1)
+    expect(data.enviados).toBe(1)
+    expect(data.restantes).toBe(0)
+
+    expect(vi.mocked(nodemailer.createTransport)).toHaveBeenCalledWith(
+      expect.objectContaining({ host: "smtp.gmail.com", auth: { user: "pdmprotextil@gmail.com", pass: "apppass" } })
+    )
+    const chamada = transporter.sendMail.mock.calls[0][0] as any
+    expect(chamada.from).toBe('"PDM Pro Moda Têxtil" <pdmprotextil@gmail.com>')
+  })
 })

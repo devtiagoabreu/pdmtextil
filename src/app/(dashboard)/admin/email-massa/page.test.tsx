@@ -7,10 +7,13 @@ import { createFetchMock, renderPage, toastMock } from "@/test/harness"
 const modelos = [{ id: 1, nome: "Promoção de Verão", assunto: "Oferta imperdível", html: "<p>oi</p>" }]
 const listas = [{ id: 1, nome: "Clientes SP", totalContatos: 10 }]
 
-function setup() {
+function setup(config: { email?: string; ativo?: boolean } | null = null) {
   const fetchMock = createFetchMock(({ method, url }) => {
     if (method === "GET" && url === "/api/admin/email-massa/modelos") return { json: modelos }
     if (method === "GET" && url === "/api/admin/email-massa/listas") return { json: listas }
+    if (method === "GET" && url === "/api/user/email-config") {
+      return { json: config ? { config: { email: config.email, ativo: config.ativo ?? true } } : { config: null } }
+    }
     return { json: [] }
   })
   vi.stubGlobal("fetch", fetchMock.fn)
@@ -86,5 +89,45 @@ describe("EmailMassaPage", () => {
     expect(screen.getByText("Enviando")).toBeInTheDocument()
     expect(screen.getByText("380")).toBeInTheDocument()
     expect(screen.getByText("Falhas")).toBeInTheDocument()
+  })
+
+  it("mostra aviso quando o usuário não tem email configurado", async () => {
+    setup(null)
+    renderPage(<EmailMassaPage />)
+
+    expect(await screen.findByText(/Nenhuma configuração encontrada/)).toBeInTheDocument()
+    const radio = screen.getByLabelText("Meu Email") as HTMLInputElement
+    expect(radio).toBeDisabled()
+  })
+
+  it("habilita Meu Email quando o usuário tem configuração ativa", async () => {
+    setup({ email: "usuario@gmail.com", ativo: true })
+    renderPage(<EmailMassaPage />)
+
+    expect(await screen.findByLabelText("Meu Email (usuario@gmail.com)")).toBeInTheDocument()
+    const radio = screen.getByLabelText("Meu Email (usuario@gmail.com)") as HTMLInputElement
+    expect(radio).toBeEnabled()
+  })
+
+  it("mostra Meu Email como inativa e desabilitado quando a configuração está inativa", async () => {
+    setup({ email: "usuario@gmail.com", ativo: false })
+    renderPage(<EmailMassaPage />)
+
+    expect(await screen.findByText(/inativa/)).toBeInTheDocument()
+    const radio = screen.getByRole("radio", { name: /Meu Email \(usuario@gmail\.com\)/ }) as HTMLInputElement
+    expect(radio).toBeDisabled()
+  })
+
+  it("exibe as três opções de remetente: Sistema, Meu Email e CRM", async () => {
+    setup({ email: "usuario@gmail.com", ativo: true })
+    renderPage(<EmailMassaPage />)
+
+    expect(await screen.findByLabelText(/Meu Email \(usuario@gmail\.com\)/)).toBeInTheDocument()
+    const sistema = screen.getByRole("radio", { name: /Sistema.*SMTP padrão/ })
+    const meuEmail = screen.getByRole("radio", { name: /Meu Email/ })
+    const crm = screen.getByRole("radio", { name: /CRM.*SMTP CRM/ })
+    expect(sistema).toBeInTheDocument()
+    expect(meuEmail).toBeInTheDocument()
+    expect(crm).toBeInTheDocument()
   })
 })

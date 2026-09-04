@@ -7,6 +7,7 @@ import { emailDisparos } from "@/lib/db/schema/email-disparos"
 import { emailEnviados, type EmailEnviado } from "@/lib/db/schema/email-enviados"
 import { emailConfig } from "@/lib/db/schema/email-config"
 import { userEmailConfig } from "@/lib/db/schema/user-email-config"
+import { crmEmailConfig } from "@/lib/db/schema/crm-email-config"
 import { and, asc, eq, inArray, or, sql } from "drizzle-orm"
 import { decrypt } from "@/lib/crypto"
 import { aplicarTracking, injectPreheader, injectUnsubscribe, montarLinkDescadastro } from "@/lib/email-massa"
@@ -65,6 +66,15 @@ async function finalizar(disparoId: number) {
     .update(emailDisparos)
     .set({ status: "concluido", concluidoEm: new Date() })
     .where(eq(emailDisparos.id, disparoId))
+}
+
+type TransportConfig = { host: string; port: number; user: string; pass: string; fromName: string; limiteDiario: number }
+
+async function tcSistema(): Promise<TransportConfig | null> {
+  const cfgs = await db.select().from(emailConfig).where(eq(emailConfig.ativo, true)).limit(1)
+  if (cfgs.length === 0) return null
+  const cfg = cfgs[0]
+  return { host: cfg.host, port: cfg.port, user: cfg.user, pass: decrypt(cfg.pass), fromName: cfg.fromName || "PDM Têxtil", limiteDiario: LIMITE_DIARIO_PADRAO }
 }
 
 async function marcarErroTransporte(disparoId: number, msg: string) {
@@ -146,7 +156,7 @@ export async function POST(req: NextRequest) {
 
       disparosProcessados++
 
-      let tc: { host: string; port: number; user: string; pass: string; fromName: string; limiteDiario: number }
+      let tc: TransportConfig | null = null
       if (d.remetente === "usuario" && d.criadoPor) {
         const cfgs = await db.select().from(userEmailConfig).where(eq(userEmailConfig.usuarioId, d.criadoPor)).limit(1)
         if (cfgs.length === 0) {
@@ -159,14 +169,17 @@ export async function POST(req: NextRequest) {
           continue
         }
         tc = { host: cfg.host, port: cfg.port, user: cfg.email, pass: decrypt(cfg.senhaApp), fromName: cfg.email.split("@")[0], limiteDiario: cfg.limiteDiario }
+      } else if (d.remetente === "crm") {
+        const cfgsCrm = await db.select().from(crmEmailConfig).where(eq(crmEmailConfig.ativo, true)).limit(1)
+        tc = cfgsCrm.length > 0
+          ? { host: cfgsCrm[0].host, port: cfgsCrm[0].port, user: cfgsCrm[0].user, pass: decrypt(cfgsCrm[0].pass), fromName: cfgsCrm[0].fromName || "PDM PRO TEXTIL - CRM", limiteDiario: LIMITE_DIARIO_PADRAO }
+          : await tcSistema()
       } else {
-        const cfgs = await db.select().from(emailConfig).where(eq(emailConfig.ativo, true)).limit(1)
-        if (cfgs.length === 0) {
-          await marcarErroTransporte(d.id, "Nenhuma configuração SMTP ativa encontrada")
-          continue
-        }
-        const cfg = cfgs[0]
-        tc = { host: cfg.host, port: cfg.port, user: cfg.user, pass: decrypt(cfg.pass), fromName: cfg.fromName || "PDM Têxtil", limiteDiario: LIMITE_DIARIO_PADRAO }
+        tc = await tcSistema()
+      }
+      if (!tc) {
+        await marcarErroTransporte(d.id, "Nenhuma configuração SMTP ativa encontrada")
+        continue
       }
 
       const enviadasHoje = await contagemEnviadasJanela(d.remetente === "usuario" ? "usuario" : "sistema", d.criadoPor ?? undefined)

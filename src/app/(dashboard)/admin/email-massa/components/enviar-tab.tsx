@@ -26,7 +26,7 @@ export interface EnviarTabProps {
   setModoEnvio: Dispatch<SetStateAction<string>>
   remetente: string
   setRemetente: Dispatch<SetStateAction<string>>
-  userEmailConfig: { email: string } | null
+  userEmailConfig: { email: string; ativo: boolean } | null
   listas: Lista[]
   selectedListaIds: number[]
   toggleListaSelecionada: (id: number) => void
@@ -114,13 +114,21 @@ export function EnviarTab(props: EnviarTabProps) {
                   onChange={e => setRemetente(e.target.value)} className="text-blue-600" />
                 <span className="text-sm">Sistema (<code className="bg-slate-100 dark:bg-slate-700 px-1 rounded text-xs">SMTP padrão</code>)</span>
               </label>
-              <label className={`flex items-center gap-2 cursor-pointer min-h-6 ${!userEmailConfig ? "opacity-50" : ""}`}>
+              <label className={`flex items-center gap-2 cursor-pointer min-h-6 ${userEmailConfig?.ativo === false ? "opacity-70" : ""}`}>
                 <input type="radio" name="remetente" value="usuario" checked={remetente === "usuario"}
                   onChange={e => setRemetente(e.target.value)} className="text-blue-600"
-                  disabled={!userEmailConfig} />
+                  disabled={!userEmailConfig || userEmailConfig.ativo === false} />
                 <span className="text-sm">
                   {userEmailConfig ? `Meu Email (${userEmailConfig.email})` : "Meu Email"}
+                  {userEmailConfig?.ativo === false && (
+                    <span className="ml-1 text-xs text-amber-600 dark:text-amber-400">(inativa)</span>
+                  )}
                 </span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer min-h-6">
+                <input type="radio" name="remetente" value="crm" checked={remetente === "crm"}
+                  onChange={e => setRemetente(e.target.value)} className="text-blue-600" />
+                <span className="text-sm">CRM (<code className="bg-slate-100 dark:bg-slate-700 px-1 rounded text-xs">SMTP CRM</code>)</span>
               </label>
             </div>
             {!userEmailConfig && (

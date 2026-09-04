@@ -26,7 +26,7 @@ export const adminContent: Record<string, InfoContent> = {
     rules: [
       "Os destinatários podem ser: todos (clientes + utilizadores), apenas clientes, apenas utilizadores do sistema, ou listas personalizadas.",
       "O modo de envio define se o email vai como Cópia Oculta (BCC), Para (TO), ou Individual com placeholder [NOME].",
-      "O remetente pode ser o SMTP padrão do sistema ou uma configuração de email pessoal do utilizador.",
+      "O remetente pode ser o SMTP padrão do sistema, uma configuração de email pessoal do utilizador (Meu Email) ou o SMTP do CRM.",
       "O editor WYSIWYG suporta formatação de texto (negrito, itálico, sublinhado, tachado), alinhamento, listas, fontes, cores, links e imagens com posicionamento (inline, flutuante, livre, z-index).",
       "O conteúdo do editor é convertido automaticamente para um formato estruturado de blocos JSON ao guardar modelos, preservando headings, alinhamento, fontes e cores.",
       "Modelos de email podem ser salvos, editados, visualizados e reutilizados. O formato estruturado garante compatibilidade com o editor.",
@@ -41,7 +41,7 @@ export const adminContent: Record<string, InfoContent> = {
       { name: "Enviar para", desc: "Destinatários: Todos, Clientes, Utilizadores ou Lista personalizada" },
       { name: "Assunto", desc: "Linha de assunto do email" },
       { name: "Selecionar Listas", desc: "Escolha uma ou mais listas de contactos (visível apenas com destino Lista)" },
-      { name: "Remetente", desc: "SMTP do sistema ou configuração de email pessoal" },
+      { name: "Remetente", desc: "SMTP do sistema, configuração de email pessoal (Meu Email) ou SMTP do CRM" },
       { name: "Modo de Envio", desc: "BCC (oculto), TO (visível) ou Individual com personalização [NOME]" },
       { name: "Modelos Rápidos", desc: "Atalhos para carregar modelos salvos diretamente no editor" },
       { name: "Editor WYSIWYG", desc: "Editor de conteúdo rico: formatação, alinhamento, fontes, cores, links, imagens" },
@@ -97,7 +97,7 @@ export const adminContent: Record<string, InfoContent> = {
     rules: [
       "A aba SMTP Sistema define o servidor usado por notificações do sistema, menções no chat e envio em massa com remetente sistema.",
       "A aba Email por Usuário configura o SMTP pessoal de cada usuário, usado no envio em massa quando o remetente é o usuário.",
-      "A aba SMTP CRM define o servidor usado pelo envio automático de pesquisas de satisfação do CRM; se não configurado, usa o SMTP do sistema.",
+      "A aba SMTP CRM define o servidor usado pelo envio automático de pesquisas de satisfação do CRM e pelo envio em massa quando o remetente é o CRM; se não configurado, usa o SMTP do sistema.",
       "Recomenda-se utilizar portas 587 (STARTTLS) ou 465 (SSL/TLS).",
       "Teste o envio após configurar para validar as credenciais.",
       "Apenas usuários ADMIN podem alterar configurações.",

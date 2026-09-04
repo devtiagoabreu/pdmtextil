@@ -69,7 +69,22 @@ export default function EmailMassaPage() {
   const [modeloDeleteLoading, setModeloDeleteLoading] = useState(false)
 
   const [remetente, setRemetente] = useState("sistema")
-  const [userEmailConfig, setUserEmailConfig] = useState<{ email: string } | null>(null)
+  const [userEmailConfig, setUserEmailConfig] = useState<{ email: string; ativo: boolean } | null>(null)
+
+  useEffect(() => {
+    let ativo = true
+    fetch("/api/user/email-config")
+      .then((res) => (res.ok ? res.json() : { config: null }))
+      .then((data) => {
+        if (!ativo) return
+        const cfg = data?.config
+        setUserEmailConfig(cfg ? { email: cfg.email, ativo: cfg.ativo ?? true } : null)
+      })
+      .catch(() => {
+        if (ativo) setUserEmailConfig(null)
+      })
+    return () => { ativo = false }
+  }, [])
 
   const [agendadoForm, setAgendadoForm] = useState({ nome: "", agendadoPara: "" })
   const [editAgendado, setEditAgendado] = useState<Agendado | null>(null)
