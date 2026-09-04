@@ -18,6 +18,9 @@ interface ToolbarProps {
   carregarTodosDisabled: boolean
   loadingData: boolean
   onLerCodigo: () => void
+  ordemOp: "asc" | "desc"
+  onOrdemOpChange: (value: "asc" | "desc") => void
+  ordemEnabled: boolean
 }
 
 export function Toolbar({
@@ -35,6 +38,9 @@ export function Toolbar({
   carregarTodosDisabled,
   loadingData,
   onLerCodigo,
+  ordemOp,
+  onOrdemOpChange,
+  ordemEnabled,
 }: ToolbarProps) {
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
@@ -82,6 +88,23 @@ export function Toolbar({
             <Button variant="outline" onClick={onLimparBusca} className="gap-2">
               Limpar Filtro
             </Button>
+          )}
+          {ordemEnabled && (
+            <div>
+              <label htmlFor="ordem-op" className="text-xs font-medium text-slate-500 mb-1 block">
+                Ordenação
+              </label>
+              <select
+                id="ordem-op"
+                value={ordemOp}
+                onChange={(e) => onOrdemOpChange(e.target.value as "asc" | "desc")}
+                aria-label="Ordenar por OP"
+                className="h-9 rounded-md border border-slate-200 dark:border-slate-700 bg-transparent px-3 text-sm text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-slate-900"
+              >
+                <option value="desc">OP decrescente (maior → menor)</option>
+                <option value="asc">OP crescente (menor → maior)</option>
+              </select>
+            </div>
           )}
           <Button variant="outline" onClick={onCarregarTodos} disabled={carregarTodosDisabled} className="gap-2">
             {loadingData ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />}

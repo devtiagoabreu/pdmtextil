@@ -123,6 +123,42 @@ describe("ConferenciaOpTecelagemPage", () => {
     expect(screen.queryByRole("heading", { name: /OP 12345/ })).not.toBeInTheDocument()
   })
 
+  it("ordena as OPs por padrão de forma decrescente (maior primeiro)", async () => {
+    const fetchMock = createFetchMock(handler())
+    vi.stubGlobal("fetch", fetchMock.fn)
+    renderPage(<ConferenciaOpTecelagemPage />)
+
+    await screen.findByRole("button", { name: "Estoques Rolos Nível 2" })
+    fireEvent.click(screen.getByRole("button", { name: /Carregar Todas/ }))
+
+    await screen.findByRole("heading", { name: /OP 12345/ })
+    const ops = screen
+      .getAllByRole("heading")
+      .map((h) => h.textContent?.trim() ?? "")
+      .filter((t) => /^OP /.test(t))
+    expect(ops).toEqual(["OP 99999", "OP 12345"])
+    const select = screen.getByLabelText("Ordenar por OP") as HTMLSelectElement
+    expect(select.value).toBe("desc")
+  })
+
+  it("permite alternar a ordenação para OP crescente", async () => {
+    const fetchMock = createFetchMock(handler())
+    vi.stubGlobal("fetch", fetchMock.fn)
+    renderPage(<ConferenciaOpTecelagemPage />)
+
+    await screen.findByRole("button", { name: "Estoques Rolos Nível 2" })
+    fireEvent.click(screen.getByRole("button", { name: /Carregar Todas/ }))
+    await screen.findByRole("heading", { name: /OP 12345/ })
+
+    fireEvent.change(screen.getByLabelText("Ordenar por OP"), { target: { value: "asc" } })
+
+    const ops = screen
+      .getAllByRole("heading")
+      .map((h) => h.textContent?.trim() ?? "")
+      .filter((t) => /^OP /.test(t))
+    expect(ops).toEqual(["OP 12345", "OP 99999"])
+  })
+
   it("mostra estado vazio quando não há integrações", async () => {
     const empty = createFetchMock(({ method, url }) => {
       if (method === "GET" && url === "/api/integracao/listar?tela=conferencia-op-tecelagem") {

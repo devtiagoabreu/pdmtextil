@@ -29,6 +29,7 @@ export default function ConferenciaOpTecelagemPage() {
   const [loadingData, setLoadingData] = useState(false)
   const [expandedOp, setExpandedOp] = useState<string | null>(null)
   const [scanOpen, setScanOpen] = useState(false)
+  const [ordemOp, setOrdemOp] = useState<"asc" | "desc">("desc")
 
   const { data: integracoesData, isLoading: loadingInt, isError: integracoesError } = useQuery<Integracao[]>({
     queryKey: ["integracao-listar", "conferencia-op-tecelagem"],
@@ -59,7 +60,7 @@ export default function ConferenciaOpTecelagemPage() {
     )
   }, [itens, searchTerm])
 
-  const grupos: GrupoOp[] = useMemo(() => buildGrupos(itensFiltrados), [itensFiltrados])
+  const grupos: GrupoOp[] = useMemo(() => buildGrupos(itensFiltrados, ordemOp), [itensFiltrados, ordemOp])
 
   const buscar = useCallback(async () => {
     if (!selectedId) return
@@ -167,6 +168,9 @@ export default function ConferenciaOpTecelagemPage() {
             carregarTodosDisabled={!selectedId || loadingData}
             loadingData={loadingData}
             onLerCodigo={() => setScanOpen(true)}
+            ordemOp={ordemOp}
+            onOrdemOpChange={setOrdemOp}
+            ordemEnabled={itens.length > 0}
           />
 
           {loadingData ? (

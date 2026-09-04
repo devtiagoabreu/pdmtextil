@@ -75,7 +75,7 @@ export function formatarPeso(valor: number | null | undefined): string {
   return `${Number(valor).toFixed(2)} kg`
 }
 
-export function buildGrupos(itens: ConferenciaRolo[]): GrupoOp[] {
+export function buildGrupos(itens: ConferenciaRolo[], ordem: "asc" | "desc" = "desc"): GrupoOp[] {
   const map = new Map<string, GrupoOp>()
   for (const item of itens) {
     const op = item.op || "SEM OP"
@@ -89,5 +89,8 @@ export function buildGrupos(itens: ConferenciaRolo[]): GrupoOp[] {
     grupo.totalMetragem += item.quantidade || 0
     grupo.totalPesoBruto += item.pesoBruto || 0
   }
-  return Array.from(map.values()).sort((a, b) => a.op.localeCompare(b.op, undefined, { numeric: true }))
+  const fator = ordem === "desc" ? -1 : 1
+  return Array.from(map.values()).sort(
+    (a, b) => fator * a.op.localeCompare(b.op, undefined, { numeric: true }),
+  )
 }
