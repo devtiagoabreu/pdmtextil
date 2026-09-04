@@ -130,7 +130,7 @@ export default function ConferenciaOpTecidoCruPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
-            Conferência de OP de Tecelagem{info && <InfoButton content={info} />}
+            Conferência de OPs de Tecido Cru{info && <InfoButton content={info} />}
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             Consulta e conferência de rolos gerados por ordem de produção (OP)

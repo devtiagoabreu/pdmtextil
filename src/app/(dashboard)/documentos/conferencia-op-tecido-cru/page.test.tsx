@@ -94,7 +94,7 @@ describe("ConferenciaOpTecidoCruPage", () => {
     renderPage(<ConferenciaOpTecidoCruPage />)
 
     expect(
-      screen.getByRole("heading", { name: /Conferência de OP de Tecelagem/ }),
+      screen.getByRole("heading", { name: /Conferência de OPs de Tecido Cru/ }),
     ).toBeInTheDocument()
     expect(await screen.findByRole("button", { name: "Estoques Rolos Nível 2" })).toBeInTheDocument()
     expect(screen.getByRole("button", { name: /Ler código de barras/ })).toBeEnabled()

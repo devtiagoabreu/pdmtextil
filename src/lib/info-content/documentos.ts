@@ -24,10 +24,11 @@ export const documentosContent: Record<string, InfoContent> = {
     ],
   },
   "/documentos/conferencia-op-tecido-cru": {
-    title: "Conferência de OP de Tecelagem",
+    title: "Conferência de OPs de Tecido Cru",
     description:
-      "Consulta e conferência dos rolos gerados por ordem de produção (OP) na tecelagem. Os dados são obtidos da integração com a tela 'conferencia-op-tecido-cru'.",
+      "Conferência das ordens de produção (OP) que resultaram em tecido cru — podem vir da tecelagem ou do beneficiamento. Os dados são obtidos da integração com a tela 'conferencia-op-tecido-cru'.",
     rules: [
+      "É a conferência das OPs que resultaram em rolos de tecido cru, vindos da tecelagem ou do beneficiamento.",
       "Clique em 'Carregar Todas' para listar os rolos disponíveis (últimos 6 meses, nível 2 / cru).",
       "Digite o número da OP, o número do rolo ou leia o código de barras pela câmera para filtrar os rolos.",
       "Os rolos são agrupados por OP para facilitar a conferência.",

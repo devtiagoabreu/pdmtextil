@@ -12,8 +12,8 @@ const modulos = [
   },
   {
     href: "/documentos/conferencia-op-tecido-cru",
-    label: "Conferência de OP de Tecelagem",
-    desc: "Consulta e conferência de rolos gerados por ordem de produção (OP)",
+    label: "Conferência de OPs de Tecido Cru",
+    desc: "Consulta e conferência de rolos de tecido cru gerados por OP (tecelagem ou beneficiamento)",
     icon: ScanLine,
   },
   {
