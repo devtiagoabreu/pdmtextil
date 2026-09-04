@@ -29,3 +29,24 @@ describe("maquinaEstados — captura de nome", () => {
     expect(res.dados.nome).toBe("Tiago")
   })
 })
+
+describe("maquinaEstados — saudação em etapa de coleta não bloqueia", () => {
+  it("COLETANDO_INTERESSE: 'Olá' mantém o estado e não conta tentativa", () => {
+    const res = rodar("COLETANDO_INTERESSE", { _tentativas: 2 }, "Olá")
+    expect(res.nextEstado).toBe("COLETANDO_INTERESSE")
+    expect(res.dados._tentativas).toBe(2)
+  })
+
+  it("CONFIRMANDO_DADOS_CNPJ: 'Bom dia' mantém o estado e não conta tentativa", () => {
+    const res = rodar("CONFIRMANDO_DADOS_CNPJ", { _tentativas: 2 }, "Bom dia")
+    expect(res.nextEstado).toBe("CONFIRMANDO_DADOS_CNPJ")
+    expect(res.dados._tentativas).toBe(2)
+  })
+
+  it("COLETANDO_INTERESSE: resposta real ainda avança e zera tentativas", () => {
+    const res = rodar("COLETANDO_INTERESSE", { _tentativas: 2 }, "1,2")
+    expect(res.nextEstado).toBe("CONFIRMACAO")
+    expect(res.dados.linhasInteresse).toEqual([1, 2])
+    expect(res.dados._tentativas).toBe(0)
+  })
+})

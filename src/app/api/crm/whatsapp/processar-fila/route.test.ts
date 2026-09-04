@@ -41,6 +41,13 @@ function post(authHeader?: string) {
   return POST(new NextRequest("http://localhost/api/crm/whatsapp/processar-fila", { method: "POST", headers }))
 }
 
+const filaItemStaleProcessando = {
+  ...filaItem,
+  id: 8,
+  status: "PROCESSANDO",
+  updatedAt: new Date(Date.now() - 10 * 60 * 1000),
+}
+
 describe("POST /api/crm/whatsapp/processar-fila (drain)", () => {
   beforeEach(() => {
     vi.mocked(getServerSession).mockReset()
@@ -88,5 +95,19 @@ describe("POST /api/crm/whatsapp/processar-fila (drain)", () => {
     expect(res.status).toBe(200)
     expect(json.processadas).toBe(0)
     expect(json.comErro).toBe(1)
+  })
+
+  it("reprocessa item PROCESSANDO preso (stale) há mais de 3 minutos", async () => {
+    process.env.CRON_SECRET = "s3cr3t"
+    vi.mocked(executarFluxo).mockResolvedValue(NextResponse.json({ ok: true }) as any)
+    db.select = vi.fn()
+    vi.mocked(db.select).mockImplementation(() => createQueryBuilder([filaItemStaleProcessando]))
+
+    const res = await post("Bearer s3cr3t")
+    const json = await res.json()
+
+    expect(res.status).toBe(200)
+    expect(json.processadas).toBe(1)
+    expect(executarFluxo).toHaveBeenCalledWith(expect.any(Object), 8)
   })
 })

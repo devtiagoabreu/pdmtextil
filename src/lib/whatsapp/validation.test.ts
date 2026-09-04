@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect } from "vitest"
-import { rejeitarNome, extrairNomeDaResposta } from "./validation"
+import { rejeitarNome, extrairNomeDaResposta, ehSaudacao } from "./validation"
 
 describe("rejeitarNome — saudações acentuadas", () => {
   it("rejeita 'Olá' como nome", () => {
@@ -22,5 +22,23 @@ describe("rejeitarNome — saudações acentuadas", () => {
   it("aceita nome real 'Tiago'", () => {
     expect(rejeitarNome("Tiago")).toBeNull()
     expect(extrairNomeDaResposta("Tiago")).toBe("Tiago")
+  })
+})
+
+describe("ehSaudacao", () => {
+  it("reconhece saudações simples", () => {
+    expect(ehSaudacao("Olá")).toBe(true)
+    expect(ehSaudacao("oi")).toBe(true)
+    expect(ehSaudacao("Bom dia")).toBe(true)
+    expect(ehSaudacao("Boa tarde!")).toBe(true)
+    expect(ehSaudacao("Oi, tudo bem?")).toBe(true)
+    expect(ehSaudacao("Olá, tudo bem")).toBe(true)
+  })
+
+  it("não reconhece respostas de conteúdo como saudação", () => {
+    expect(ehSaudacao("sim")).toBe(false)
+    expect(ehSaudacao("Tiago")).toBe(false)
+    expect(ehSaudacao("Ola, qual linha te interessa")).toBe(false)
+    expect(ehSaudacao("1,2")).toBe(false)
   })
 })

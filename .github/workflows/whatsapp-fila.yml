@@ -1,0 +1,25 @@
+name: whatsapp-fila-drain
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: whatsapp-fila-drain
+  cancel-in-progress: false
+
+jobs:
+  processar:
+    runs-on: ubuntu-latest
+    env:
+      CRON_SECRET: ${{ secrets.CRON_SECRET }}
+    steps:
+      - name: Drenar fila de mensagens do WhatsApp
+        run: |
+          AUTH=()
+          if [ -n "$CRON_SECRET" ]; then
+            AUTH=(-H "Authorization: Bearer $CRON_SECRET")
+          fi
+          curl -fsS -X POST "${AUTH[@]}" \
+            https://pdmprotextil.vercel.app/api/crm/whatsapp/processar-fila

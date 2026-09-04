@@ -77,6 +77,11 @@ export function negou(texto: string): boolean {
   return /\b(nao|não|errado|incorreto|alterar|corrigir|voltar|diferente|trocar|mudar)\b/.test(texto)
 }
 
+export function ehSaudacao(texto: string): boolean {
+  const t = texto.toLowerCase().trim()
+  return /^(?:oi|olá|ola|opa|eai|e aí|eae|bom dia|boa tarde|boa noite|hello|hi|hey|bem vindo|bem-vindo)[!?.,]*(?:\s+tudo\s+bem\??[!?.,]*)?$/.test(t)
+}
+
 export function pediuAtendente(texto: string): boolean {
   const t = texto.toLowerCase().trim()
   return /\b(falar com|falar pra|atendente|humano|pessoa|representante|suporte|ajuda humana|atencao|admin|gerente)\b/.test(t)

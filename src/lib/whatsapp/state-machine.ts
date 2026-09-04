@@ -1,4 +1,4 @@
-import { rejeitarNome, negou, confirmou, parseLinhas, linhasNomes, pareceNome, detectarTipo, extrairDoc, extrairNomeDaResposta } from "./validation"
+import { rejeitarNome, negou, confirmou, parseLinhas, linhasNomes, pareceNome, detectarTipo, extrairDoc, extrairNomeDaResposta, ehSaudacao } from "./validation"
 
 export interface MaquinaEstadoResult {
   nextEstado: string
@@ -24,9 +24,15 @@ export function maquinaEstados(
   let enviarCatalogo: number[] | undefined
   let needsCnpjLookup: boolean | undefined
   let redirecionarPf: boolean | undefined
+  const MAX_TENTATIVAS = 3
+
+  // Saudação em etapas de coleta não avança o fluxo nem conta como tentativa inválida
+  // (evita que um cliente que já foi atendido e apenas cumprimenta seja bloqueado).
+  if (ehSaudacao(msgOriginal) && (curEstado.startsWith("COLETANDO_") || curEstado.startsWith("CONFIRMANDO_"))) {
+    return { nextEstado: curEstado, dados, finalizado: !!dados.finalizado }
+  }
 
   dados._tentativas = (dados._tentativas || 0) + 1
-  const MAX_TENTATIVAS = 3
 
   if (curEstado === "SAUDACAO") {
     const nomeDetectado = extrairNomeDaResposta(msgOriginal)

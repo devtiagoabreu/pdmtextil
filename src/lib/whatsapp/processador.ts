@@ -12,7 +12,7 @@ import { enviarMensagem, evolutionConfigurado } from "@/lib/evolution-api"
 import { enfileirarRetry } from "@/lib/whatsapp/retry-processor"
 import crypto from "crypto"
 import { buildSystemPrompt } from "@/lib/whatsapp/prompt"
-import { rejeitarNome, negou, confirmou, pareceNome, detectarTipo, extrairDoc, parseLinhas, linhasNomes, pediuAtendente, pediuReiniciar } from "@/lib/whatsapp/validation"
+import { rejeitarNome, negou, confirmou, pareceNome, detectarTipo, extrairDoc, parseLinhas, linhasNomes, pediuAtendente, pediuReiniciar, ehSaudacao } from "@/lib/whatsapp/validation"
 import { maquinaEstados, type MaquinaEstadoResult } from "@/lib/whatsapp/state-machine"
 import { calcularLeadScore } from "@/lib/whatsapp/lead-scoring"
 import { chamarGroq, extrairDadosLead } from "@/lib/whatsapp/groq"
@@ -406,6 +406,76 @@ async function executarFluxoInterno(req: NextRequest) {
 
       await logStep(executionId, remoteJid, pushName, "state_machine", "ignored", { estado: conversa.estado, retorno: !!leadRetorno }, { reason: "conversation_ended" }, null, 0)
       return NextResponse.json({ status: "ignored", reason: "conversation_ended", estado: conversa.estado, retorno: !!leadRetorno })
+    }
+
+    if (
+      ehSaudacao(mensagem) &&
+      (conversa.estado.startsWith("COLETANDO_") || conversa.estado.startsWith("CONFIRMANDO_"))
+    ) {
+      const numeroRetorno = extrairNumero(remoteJid)
+      const leadRetornando = await db
+        .select({ id: crmLeads.id, nome: crmLeads.nome, tipoPessoa: crmLeads.tipoPessoa })
+        .from(crmLeads)
+        .where(
+          sql`(${eq(crmLeads.idIntegracao, `whatsapp:${remoteJid}`)} OR ${eq(crmLeads.celular, numeroRetorno)}) AND ${crmLeads.status} != 'CONVERTIDO'`
+        )
+        .limit(1)
+        .then((r: any) => r[0] || null)
+
+      if (leadRetornando) {
+        const tipoLabelRetorno = leadRetornando.tipoPessoa === "PJ" ? "Pessoa Juridica" : "Pessoa Fisica"
+        const repNumeroRetorno = leadRetornando.tipoPessoa === "PJ" ? REPRESENTANTE_PJ : REPRESENTANTE_PF
+        const nomeRetorno = leadRetornando.nome || pushName || "Cliente"
+        const msgRetornoSaudacao =
+          "Que bom te-lo(a) de volta! Este canal de contato nao realiza atendimento direto. Vou informar seu representante que voce esta precisando falar e ele entrara em contato em breve."
+
+        await db.insert(crmWhatsappMensagens).values({ mensagem, tipo: "RECEBIDA", status: "RECEBIDA", remoteJid })
+        await db.insert(crmWhatsappMensagens).values({ mensagem: msgRetornoSaudacao, tipo: "ENVIADA", status: "ENVIADA", remoteJid })
+        await db
+          .insert(crmWhatsappConversas)
+          .values({ remoteJid, estado: "AGUARDANDO_REPRESENTANTE", dados: conversa.dados || {} })
+          .onConflictDoUpdate({
+            target: crmWhatsappConversas.remoteJid,
+            set: { estado: sql`EXCLUDED.estado`, dados: sql`EXCLUDED.dados`, updatedAt: sql`NOW()` },
+          })
+
+        if (evolutionConfigurado()) {
+          const envio = await enviarMensagem(remoteJid, msgRetornoSaudacao)
+          if (!envio.sucesso) {
+            await enfileirarRetry(remoteJid, msgRetornoSaudacao, envio.erro || "send_failed")
+          }
+        }
+
+        try {
+          const msgRep = [
+            "*Cliente antigo entrou em contato novamente*",
+            "",
+            `Nome: ${nomeRetorno}`,
+            `WhatsApp: https://wa.me/${numeroRetorno}`,
+            `Tipo: ${tipoLabelRetorno}`,
+            "",
+            "Este cliente ja completou o cadastro anteriormente e retornou. Ele deseja falar com voce.",
+          ].join("\n")
+          await enviarMensagem(`${repNumeroRetorno}@s.whatsapp.net`, msgRep)
+        } catch (repErr) {
+          console.error("[AI-Webhook] Erro ao notificar representante no retorno (saudacao):", repErr)
+        }
+
+        try {
+          await db.insert(crmNotificacoes).values({
+            tipo: "WHATSAPP_RETORNO",
+            titulo: "Cliente antigo retornou",
+            mensagem: `${nomeRetorno} (${remoteJid}) entrou em contato novamente. Encaminhado para representante ${tipoLabelRetorno}.`,
+            metadados: { remoteJid, nome: nomeRetorno, tipoPessoa: leadRetornando.tipoPessoa, leadId: leadRetornando.id },
+            lida: false,
+          })
+        } catch (notifErr) {
+          console.error("[AI-Webhook] Erro ao criar notificacao de retorno (saudacao):", notifErr)
+        }
+
+        await logStep(executionId, remoteJid, pushName, "return_greeting", "success", { estado: conversa.estado, leadId: leadRetornando.id }, { reason: "known_lead_returned" }, null, 0)
+        return NextResponse.json({ ok: true, retornoSaudacao: true })
+      }
     }
 
     const historicoRows = await db

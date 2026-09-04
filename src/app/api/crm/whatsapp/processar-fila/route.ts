@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { crmWhatsappFila } from "@/lib/db/schema/crm-whatsapp-fila"
-import { and, inArray, lt, asc } from "drizzle-orm"
+import { and, inArray, lt, asc, or, eq } from "drizzle-orm"
 import { executarFluxo, marcarFilaStatus } from "@/lib/whatsapp/processador"
 
 export const dynamic = "force-dynamic"
@@ -29,13 +29,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Webhook não configurado" }, { status: 500 })
     }
 
+    const staleProcessando = new Date(Date.now() - 3 * 60 * 1000)
     const pendentes = await db
       .select()
       .from(crmWhatsappFila)
       .where(
         and(
           inArray(crmWhatsappFila.status, ["PENDENTE", "PROCESSANDO"]),
-          lt(crmWhatsappFila.tentativas, crmWhatsappFila.maxTentativas)
+          lt(crmWhatsappFila.tentativas, crmWhatsappFila.maxTentativas),
+          or(
+            eq(crmWhatsappFila.status, "PENDENTE"),
+            lt(crmWhatsappFila.updatedAt, staleProcessando)
+          )
         )
       )
       .orderBy(asc(crmWhatsappFila.createdAt))
