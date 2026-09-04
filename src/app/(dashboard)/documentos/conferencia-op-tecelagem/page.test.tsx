@@ -17,6 +17,9 @@ const integracoes = [
 const rolos = [
   {
     OP: 12345,
+    NIVEL: "3",
+    GRUPO: "1",
+    SUB: "2",
     CODIGO_ROLO: 1001,
     DEP: "T2",
     ENDERECO_ROLO: "A-01",
@@ -32,11 +35,15 @@ const rolos = [
   },
   {
     OP: 12345,
+    NIVEL: "3",
+    GRUPO: "1",
+    SUB: "2",
     CODIGO_ROLO: 1002,
     DEP: "T2",
     ENDERECO_ROLO: "A-02",
     SIT: "EM ESTOQUE",
     ITEM: "SARJA 1001",
+    LOTE: "L123",
     LOTE_PRODUTO: "LP1",
     QUANTIDADE: 800.0,
     PESO_BRUTO: 200.0,
@@ -47,6 +54,8 @@ const rolos = [
   },
   {
     OP: 99999,
+    NIVEL: "2",
+    GRUPO: "4",
     CODIGO_ROLO: 2001,
     DEP: "T1",
     ENDERECO_ROLO: "B-01",
@@ -157,6 +166,39 @@ describe("ConferenciaOpTecelagemPage", () => {
       .map((h) => h.textContent?.trim() ?? "")
       .filter((t) => /^OP /.test(t))
     expect(ops).toEqual(["OP 12345", "OP 99999"])
+  })
+
+  it("mostra o produto (nivel.grupo.sub.item) concatenado no cabeçalho da OP", async () => {
+    const fetchMock = createFetchMock(handler())
+    vi.stubGlobal("fetch", fetchMock.fn)
+    renderPage(<ConferenciaOpTecelagemPage />)
+
+    await screen.findByRole("button", { name: "Estoques Rolos Nível 2" })
+    fireEvent.click(screen.getByRole("button", { name: /Carregar Todas/ }))
+
+    expect(await screen.findByText("3.1.2.SARJA 1001")).toBeInTheDocument()
+    expect(screen.getByText("2.4.Brim 2002")).toBeInTheDocument()
+  })
+
+  it("listagem exibe situacao, deposito, lote e lote produto, sem a coluna Item", async () => {
+    const fetchMock = createFetchMock(handler())
+    vi.stubGlobal("fetch", fetchMock.fn)
+    renderPage(<ConferenciaOpTecelagemPage />)
+
+    await screen.findByRole("button", { name: "Estoques Rolos Nível 2" })
+    fireEvent.click(screen.getByRole("button", { name: /Carregar Todas/ }))
+    await screen.findByRole("heading", { name: /OP 12345/ })
+
+    expect(screen.getByRole("columnheader", { name: /Situação/ })).toBeInTheDocument()
+    expect(screen.getByRole("columnheader", { name: /Depósito/ })).toBeInTheDocument()
+    expect(screen.getByRole("columnheader", { name: /Endereço/ })).toBeInTheDocument()
+    expect(screen.getByRole("columnheader", { name: /^Lote$/ })).toBeInTheDocument()
+    expect(screen.getByRole("columnheader", { name: "Lote Prod." })).toBeInTheDocument()
+    expect(screen.queryByRole("columnheader", { name: "Item" })).not.toBeInTheDocument()
+
+    expect(screen.getAllByText("EM ESTOQUE").length).toBeGreaterThan(0)
+    expect(screen.getAllByText("T2").length).toBeGreaterThan(0)
+    expect(screen.getByText("L123")).toBeInTheDocument()
   })
 
   it("mostra estado vazio quando não há integrações", async () => {

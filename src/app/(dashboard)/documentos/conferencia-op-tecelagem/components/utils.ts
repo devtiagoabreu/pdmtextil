@@ -27,6 +27,9 @@ export function str(val: unknown): string {
 export function normalizeRolo(raw: Record<string, unknown>): ConferenciaRolo {
   return {
     op: str(pick(raw, "op", "OP")),
+    nivel: str(pick(raw, "nivel", "NIVEL")).trim() || null,
+    grupo: str(pick(raw, "grupo", "GRUPO")).trim() || null,
+    sub: str(pick(raw, "sub", "SUB")).trim() || null,
     codigoRolo: str(pick(raw, "codigoRolo", "CODIGO_ROLO", "codigo_rolo")),
     dep: str(pick(raw, "dep", "DEP")),
     enderecoRolo: pick(raw, "enderecoRolo", "ENDERECO_ROLO", "endereco_rolo") != null
@@ -75,13 +78,21 @@ export function formatarPeso(valor: number | null | undefined): string {
   return `${Number(valor).toFixed(2)} kg`
 }
 
+export function montarProduto(rolo: Pick<ConferenciaRolo, "nivel" | "grupo" | "sub" | "item"> | null | undefined): string {
+  if (!rolo) return ""
+  return [rolo.nivel, rolo.grupo, rolo.sub, rolo.item]
+    .filter((parte): parte is string => typeof parte === "string" && parte.trim() !== "")
+    .map((parte) => parte.trim())
+    .join(".")
+}
+
 export function buildGrupos(itens: ConferenciaRolo[], ordem: "asc" | "desc" = "desc"): GrupoOp[] {
   const map = new Map<string, GrupoOp>()
   for (const item of itens) {
     const op = item.op || "SEM OP"
     let grupo = map.get(op)
     if (!grupo) {
-      grupo = { op, capa: item, rolos: [], totalRolos: 0, totalMetragem: 0, totalPesoBruto: 0 }
+      grupo = { op, produto: montarProduto(item), capa: item, rolos: [], totalRolos: 0, totalMetragem: 0, totalPesoBruto: 0 }
       map.set(op, grupo)
     }
     grupo.rolos.push(item)

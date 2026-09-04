@@ -31,6 +31,11 @@ export function OpCard({ grupo, expanded, onToggleExpand }: OpCardProps) {
                   </span>
                 )}
               </div>
+              {grupo.produto && (
+                <p className="mt-0.5 text-[13px] font-mono text-slate-500 dark:text-slate-400">
+                  {grupo.produto}
+                </p>
+              )}
             </div>
           </div>
           <button
@@ -72,11 +77,13 @@ export function OpCard({ grupo, expanded, onToggleExpand }: OpCardProps) {
                 <tr>
                   <th className="px-3 py-2.5 text-center text-[11px] font-medium text-slate-500 uppercase w-10">#</th>
                   <th className="px-4 py-2.5 text-left text-[11px] font-medium text-slate-500 uppercase">Cód. Rolo</th>
-                  <th className="px-4 py-2.5 text-left text-[11px] font-medium text-slate-500 uppercase">Item</th>
+                  <th className="px-4 py-2.5 text-left text-[11px] font-medium text-slate-500 uppercase">Situação</th>
+                  <th className="px-4 py-2.5 text-left text-[11px] font-medium text-slate-500 uppercase">Depósito</th>
+                  <th className="px-4 py-2.5 text-left text-[11px] font-medium text-slate-500 uppercase">Endereço</th>
+                  <th className="px-4 py-2.5 text-left text-[11px] font-medium text-slate-500 uppercase">Lote</th>
                   <th className="px-4 py-2.5 text-left text-[11px] font-medium text-slate-500 uppercase">Lote Prod.</th>
                   <th className="px-4 py-2.5 text-right text-[11px] font-medium text-slate-500 uppercase">Metragem</th>
                   <th className="px-4 py-2.5 text-right text-[11px] font-medium text-slate-500 uppercase">P. Bruto</th>
-                  <th className="px-4 py-2.5 text-center text-[11px] font-medium text-slate-500 uppercase">Endereço</th>
                   <th className="px-4 py-2.5 text-center text-[11px] font-medium text-slate-500 uppercase">Ins.</th>
                 </tr>
               </thead>
@@ -87,20 +94,26 @@ export function OpCard({ grupo, expanded, onToggleExpand }: OpCardProps) {
                     <td className="px-4 py-2 text-sm font-medium text-slate-900 dark:text-slate-200 font-mono">
                       {rolo.codigoRolo || "—"}
                     </td>
+                    <td className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 text-left">
+                      {rolo.sit || "—"}
+                    </td>
                     <td className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 font-mono text-[12px]">
-                      {rolo.item || "—"}
+                      {rolo.dep || "—"}
+                    </td>
+                    <td className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 text-center font-mono">
+                      {rolo.enderecoRolo || "—"}
                     </td>
                     <td className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 font-mono">
-                      {rolo.loteProduto || rolo.lote || "—"}
+                      {rolo.lote || "—"}
+                    </td>
+                    <td className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 font-mono">
+                      {rolo.loteProduto || "—"}
                     </td>
                     <td className="px-4 py-2 text-sm text-slate-700 dark:text-slate-300 text-right font-mono">
                       {formatarMetragem(rolo.quantidade)}
                     </td>
                     <td className="px-4 py-2 text-sm text-slate-700 dark:text-slate-300 text-right font-mono">
                       {formatarPeso(rolo.pesoBruto)}
-                    </td>
-                    <td className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 text-center font-mono">
-                      {rolo.enderecoRolo || "—"}
                     </td>
                     <td className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 text-center font-mono">
                       {formatarData(rolo.dataInsercao)}
@@ -113,7 +126,7 @@ export function OpCard({ grupo, expanded, onToggleExpand }: OpCardProps) {
                   <td className="px-3 py-2.5 text-sm font-bold text-slate-800 dark:text-slate-200 text-center">
                     {grupo.totalRolos}
                   </td>
-                  <td colSpan={3} className="px-4 py-2.5 text-sm font-bold text-slate-800 dark:text-slate-200">
+                  <td colSpan={6} className="px-4 py-2.5 text-sm font-bold text-slate-800 dark:text-slate-200">
                     Total da OP {grupo.op}
                   </td>
                   <td className="px-4 py-2.5 text-sm font-bold text-slate-800 dark:text-slate-200 text-right font-mono">
@@ -122,7 +135,7 @@ export function OpCard({ grupo, expanded, onToggleExpand }: OpCardProps) {
                   <td className="px-4 py-2.5 text-sm font-bold text-slate-800 dark:text-slate-200 text-right font-mono">
                     {formatarPeso(grupo.totalPesoBruto)}
                   </td>
-                  <td colSpan={2}></td>
+                  <td></td>
                 </tr>
               </tfoot>
             </table>

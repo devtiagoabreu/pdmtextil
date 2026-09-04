@@ -8,6 +8,9 @@ export interface Integracao {
 
 export interface ConferenciaRolo {
   op: string
+  nivel: string | null
+  grupo: string | null
+  sub: string | null
   codigoRolo: string | null
   dep: string | null
   enderecoRolo: string | null
@@ -26,6 +29,7 @@ export interface ConferenciaRolo {
 
 export interface GrupoOp {
   op: string
+  produto: string
   capa: ConferenciaRolo
   rolos: ConferenciaRolo[]
   totalRolos: number
