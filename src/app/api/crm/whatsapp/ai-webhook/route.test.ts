@@ -5,8 +5,9 @@ import { createQueryBuilder } from "@/test/route-db-mock"
 import { db } from "@/lib/db"
 import { enviarMensagem, evolutionConfigurado } from "@/lib/evolution-api"
 import { POST } from "./route"
+import { executarFluxo } from "@/lib/whatsapp/processador"
 
-vi.mock("@/lib/db", () => ({ db: { select: vi.fn(), insert: vi.fn() } }))
+vi.mock("@/lib/db", () => ({ db: { select: vi.fn(), insert: vi.fn(), update: vi.fn() } }))
 vi.mock("@/lib/evolution-api", () => ({
   evolutionConfigurado: vi.fn(() => false),
   enviarMensagem: vi.fn(async () => ({ sucesso: true })),
@@ -39,10 +40,11 @@ vi.mock("@/lib/whatsapp/prompt", () => ({ buildSystemPrompt: vi.fn(() => "") }))
 vi.mock("@/lib/whatsapp/abandon-checker", () => ({ verificarAbandonos: vi.fn() }))
 
 const PJ = "5519988887777@s.whatsapp.net"
+const FILA = "crm_whatsapp_fila"
 
 const insertedValues: any[] = []
 
-function capturarInsert(result = undefined) {
+function capturarInsert(result: any = undefined) {
   const builder = createQueryBuilder(result)
   const originalValues = builder.values
   builder.values = vi.fn((v: any) => {
@@ -65,10 +67,46 @@ beforeEach(() => {
   insertedValues.length = 0
   vi.mocked(db.select).mockReset()
   vi.mocked(db.insert).mockReset()
+  vi.mocked(db.update).mockReset()
   vi.mocked(db.insert).mockImplementation(() => capturarInsert())
 })
 
-describe("ai-webhook — retorno de cliente antigo", () => {
+describe("ai-webhook — POST (enfileiramento async)", () => {
+  it("responde 200 imediatamente com enfileirado=true ao enfileirar a mensagem", async () => {
+    // dedup na fila não acha duplicado
+    vi.mocked(db.select).mockImplementation(() => createQueryBuilder([]))
+    // insert da fila retorna a linha criada (para o .returning() do enfileirarMensagem)
+    vi.mocked(db.insert).mockImplementation(() => capturarInsert([{ id: 1, remoteJid: PJ }]))
+
+    const res = await POST(makeRequest())
+    const json = await res.json()
+
+    expect(res.status).toBe(200)
+    expect(json.status).toBe("ok")
+    expect(json.enfileirado).toBe(true)
+    expect(json.executionId).toBeTruthy()
+
+    // o insert da fila foi feito
+    const filaInsert = insertedValues.find(v => v?.remoteJid === PJ)
+    expect(filaInsert).toBeDefined()
+    expect(filaInsert?.mensagem).toBe("Oi, preciso de atendimento")
+  })
+
+  it("responde 200 mesmo quando nao consegue enfileirar (fire-and-forget resiliente)", async () => {
+    vi.mocked(db.insert).mockImplementation(() => {
+      throw new Error("db fora")
+    })
+
+    const res = await POST(makeRequest())
+    const json = await res.json()
+
+    expect(res.status).toBe(200)
+    expect(json.status).toBe("ok")
+    expect(json.enfileirado).toBe(false)
+  })
+})
+
+describe("executarFluxo — retorno de cliente antigo", () => {
   it("avisa 'que bom te-lo de volta', re-notifica o representante e cria notificacao WHENATSAPP_RETORNO", async () => {
     vi.mocked(evolutionConfigurado).mockReturnValue(true)
 
@@ -92,7 +130,7 @@ describe("ai-webhook — retorno de cliente antigo", () => {
       return createQueryBuilder([])
     })
 
-    const res = await POST(makeRequest())
+    const res = await executarFluxo(makeRequest())
     const json = await res.json()
 
     expect(res.status).toBe(200)
