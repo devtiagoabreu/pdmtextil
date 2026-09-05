@@ -14,6 +14,7 @@ import crypto from "crypto"
 import { buildSystemPrompt } from "@/lib/whatsapp/prompt"
 import { rejeitarNome, negou, confirmou, pareceNome, detectarTipo, extrairDoc, parseLinhas, linhasNomes, ehSaudacao } from "@/lib/whatsapp/validation"
 import { analisarEscalacao, analisarLinhas, temIndicioDeLinhas } from "@/lib/whatsapp/intencao"
+import { prepararHistoricoIA, gerarResumoIA } from "@/lib/whatsapp/resumo"
 import { maquinaEstados, type MaquinaEstadoResult } from "@/lib/whatsapp/state-machine"
 import { calcularLeadScore } from "@/lib/whatsapp/lead-scoring"
 import { chamarGroq, extrairDadosLead } from "@/lib/whatsapp/groq"
@@ -506,8 +507,28 @@ async function processarConversa(params: {
     content: row.mensagem,
   }))
 
+  const historicoIA = prepararHistoricoIA(historico, conversa.dados || {})
+  if (historicoIA.gerarResumo) {
+    const tResumo = Date.now()
+    const novoResumo = await gerarResumoIA(historicoIA.segmentoParaResumo, historicoIA.resumoAnterior)
+    if (novoResumo) {
+      conversa.dados = {
+        ...(conversa.dados || {}),
+        _resumo: { resumo: novoResumo, turnos: historico.length, em: new Date().toISOString() },
+      }
+      historicoIA.mensagens = [
+        { role: "assistant", content: `[Resumo anterior] ${novoResumo}` },
+        ...historicoIA.mensagens.filter((m: any) => !m.content.startsWith("[Resumo anterior]")),
+      ]
+      await logStep(executionId, remoteJid, pushName, "resumo", "success", { historicoSize: historico.length }, { resumo: novoResumo.slice(0, 150) }, null, Date.now() - tResumo)
+    } else {
+      await logStep(executionId, remoteJid, pushName, "resumo", "error", { historicoSize: historico.length }, { } , "IA nao gerou resumo", 0)
+    }
+  }
+  const historicoParaIA = historicoIA.mensagens
+
   const tGroq = Date.now()
-  const aiResult = await chamarGroq(mensagem, pushName, conversa.estado, conversa.dados || {}, historico, linhasAtivas)
+  const aiResult = await chamarGroq(mensagem, pushName, conversa.estado, conversa.dados || {}, historicoParaIA, linhasAtivas)
   const groqDuration = Date.now() - tGroq
   const aiResponse = aiResult.conteudo
 
