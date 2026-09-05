@@ -69,6 +69,7 @@ beforeEach(() => {
   vi.mocked(db.insert).mockReset()
   vi.mocked(db.update).mockReset()
   vi.mocked(db.insert).mockImplementation(() => capturarInsert())
+  vi.mocked(db.update).mockImplementation(() => createQueryBuilder([{ id: 1 }]))
 })
 
 describe("ai-webhook — POST (enfileiramento async)", () => {
@@ -130,12 +131,21 @@ describe("executarFluxo — retorno de cliente antigo", () => {
       return createQueryBuilder([])
     })
 
+    const chainBuilder = createQueryBuilder([{ id: 1 }])
+    vi.mocked(db.update).mockImplementation(() => chainBuilder)
+
     const res = await executarFluxo(makeRequest())
     const json = await res.json()
 
     expect(res.status).toBe(200)
     expect(json.reason).toBe("conversation_ended")
     expect(json.retorno).toBe(true)
+
+    // lock foi adquirido (claim) e liberado (release) ao redor do processamento
+    const setPayloads = chainBuilder.set.mock.calls.map((c: any) => c[0])
+    const dadosSets = setPayloads.filter((s: any) => s?.dados !== undefined)
+    expect(dadosSets.some((s: any) => JSON.stringify(s.dados).includes("jsonb_build_object"))).toBe(true)
+    expect(dadosSets.some((s: any) => JSON.stringify(s.dados).includes("dados - "))).toBe(true)
 
     const enviadas = vi.mocked(enviarMensagem).mock.calls
     const msgCliente = enviadas.find(c => c[0] === PJ)
@@ -151,5 +161,65 @@ describe("executarFluxo — retorno de cliente antigo", () => {
     const inserts = insertedValues
     expect(inserts.some(v => v?.tipo === "WHATSAPP_RETORNO")).toBe(true)
     expect(selectCall).toBeGreaterThanOrEqual(4)
+  })
+})
+
+describe("executarFluxo — serialização por JID (lock de conversa)", () => {
+  it("responde 202 conversation_busy quando a conversa já está sendo processada", async () => {
+    const conversa = {
+      id: 1,
+      remoteJid: PJ,
+      estado: "COLETANDO_NOME",
+      dados: { _processandoEm: new Date().toISOString() },
+      updatedAt: new Date(),
+    }
+
+    let selectCall = 0
+    vi.mocked(db.select).mockImplementation(() => {
+      selectCall++
+      if (selectCall === 1) return createQueryBuilder([]) // idempotency
+      if (selectCall === 2) return createQueryBuilder([conversa]) // existência (lock ocupado)
+      return createQueryBuilder([])
+    })
+    // claim falha: lock presente e recente
+    vi.mocked(db.update).mockImplementation(() => createQueryBuilder([]))
+
+    const res = await executarFluxo(makeRequest())
+    const json = await res.json()
+
+    expect(res.status).toBe(202)
+    expect(json.status).toBe("retry")
+    expect(json.reason).toBe("conversation_busy")
+    // nenhuma mensagem/notificação foi gravada para a conversa ocupada
+    expect(insertedValues).toHaveLength(0)
+  })
+
+  it("mantém o item PENDENTE (não conclui) quando o drain reprocessa com lock ocupado", async () => {
+    const conversa = {
+      id: 1,
+      remoteJid: PJ,
+      estado: "COLETANDO_NOME",
+      dados: { _processandoEm: new Date().toISOString() },
+      updatedAt: new Date(),
+    }
+
+    let selectCall = 0
+    vi.mocked(db.select).mockImplementation(() => {
+      selectCall++
+      if (selectCall === 1) return createQueryBuilder([]) // idempotency
+      if (selectCall === 2) return createQueryBuilder([conversa]) // existência (lock ocupado)
+      return createQueryBuilder([])
+    })
+    const chainBuilder = createQueryBuilder([])
+    vi.mocked(db.update).mockImplementation(() => chainBuilder)
+
+    const res = await executarFluxo(makeRequest(), 7)
+
+    expect(res.status).toBe(202)
+
+    const setPayloads = chainBuilder.set.mock.calls.map((c: any) => c[0])
+    expect(setPayloads.some((s: any) => s?.status === "PENDENTE")).toBe(true)
+    expect(setPayloads.some((s: any) => s?.status === "CONCLUIDO")).toBe(false)
+    expect(setPayloads.some((s: any) => s?.status === "FALHOU")).toBe(false)
   })
 })
