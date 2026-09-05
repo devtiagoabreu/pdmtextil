@@ -51,7 +51,7 @@ describe("extrairDadosLead", () => {
     expect(chamarIA_mock).toHaveBeenCalledTimes(1)
   })
 
-  it("nunca devolve saudacao como nome (fallback do prompt)", async () => {
+  it("nunca devolve saudacao como nome (valida e rejeita)", async () => {
     chamarIA_mock.mockResolvedValue({
       conteudo: '{"nome":"Ola","tipoPessoa":null,"documento":null,"email":null,"empresa":null,"telefone":null,"linhasInteresse":null}',
       provedor: "groq",
@@ -62,7 +62,7 @@ describe("extrairDadosLead", () => {
 
     const res = await extrairDadosLead(historico, "Tiago Abreu")
 
-    expect(res.nome).toBe("Ola")
+    expect(res.nome).toBeUndefined()
   })
 
   it("tolera JSON com bloco markdown", async () => {
@@ -94,5 +94,50 @@ describe("extrairDadosLead", () => {
 
     expect(res.nome).toBeUndefined()
     expect(res.documento).toBeUndefined()
+  })
+
+  it("valida nome numerico e tipoPessoa fora de PF/PJ", async () => {
+    chamarIA_mock.mockResolvedValue({
+      conteudo: '{"nome":"12345","tipoPessoa":"fisica","documento":"00000000000","linhasInteresse":null}',
+      provedor: "groq",
+      modelo: "qwen/qwen3.8-27b",
+      nomeChave: "DB key 1",
+      tentativas: 1,
+    })
+
+    const res = await extrairDadosLead(historico, "Tiago")
+
+    expect(res.nome).toBeUndefined()
+    expect(res.documento).toBeUndefined()
+  })
+
+  it("rejeita documento com tamanho invalido e normaliza linhas string", async () => {
+    chamarIA_mock.mockResolvedValue({
+      conteudo: '{"nome":"Joao","documento":"123","linhasInteresse":"1, 2"}',
+      provedor: "groq",
+      modelo: "qwen/qwen3.8-27b",
+      nomeChave: "DB key 1",
+      tentativas: 1,
+    })
+
+    const res = await extrairDadosLead(historico, "Joao")
+
+    expect(res.documento).toBeUndefined()
+    expect(res.linhasInteresse).toEqual([1, 2])
+  })
+
+  it("aceita documento de 14 digitos (CNPJ) e tipo juridica", async () => {
+    chamarIA_mock.mockResolvedValue({
+      conteudo: '{"nome":"Empresa X","tipoPessoa":"juridica","documento":"12.345.678/0001-99"}',
+      provedor: "groq",
+      modelo: "qwen/qwen3.8-27b",
+      nomeChave: "DB key 1",
+      tentativas: 1,
+    })
+
+    const res = await extrairDadosLead(historico, "Empresa X")
+
+    expect(res.tipoPessoa).toBe("PJ")
+    expect(res.documento).toBe("12345678000199")
   })
 })
