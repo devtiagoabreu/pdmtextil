@@ -70,6 +70,8 @@ export const PROVEDOR_LABELS: Record<ProvedorIA, string> = {
 export const OPENROUTER_SITE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://pdmtextil.com.br"
 export const OPENROUTER_APP_NAME = "PDM Pro Têxtil"
 
+export const TIMEOUT_IA_MS = 30_000
+
 interface ChaveReserva {
   id: number
   prov: ProvedorIA
@@ -163,6 +165,7 @@ async function chamarProvedor(
         "x-api-key": chave.chave,
         "anthropic-version": "2023-06-01",
       },
+      signal: AbortSignal.timeout(TIMEOUT_IA_MS),
       body: JSON.stringify({
         model: chave.modelo,
         max_tokens: maxTokens,
@@ -191,6 +194,7 @@ async function chamarProvedor(
         "Content-Type": "application/json",
         "x-goog-api-key": chave.chave,
       },
+      signal: AbortSignal.timeout(TIMEOUT_IA_MS),
       body: JSON.stringify({
         contents,
         systemInstruction: systemContent ? { parts: [{ text: systemContent }] } : undefined,
@@ -219,6 +223,7 @@ async function chamarProvedor(
   const res = await fetch(`${chave.url}/chat/completions`, {
     method: "POST",
     headers,
+    signal: AbortSignal.timeout(TIMEOUT_IA_MS),
     body: JSON.stringify({
       model: chave.modelo,
       messages,

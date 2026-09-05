@@ -238,6 +238,59 @@ describe("chamarIA — OpenRouter", () => {
   })
 })
 
+describe("chamarIA — timeout", () => {
+  it("envia AbortSignal.timeout em toda chamada HTTP (sem abortar em resposta normal)", async () => {
+    db.select = vi.fn(() =>
+      createQueryBuilder([
+        { id: 201, provedor: "groq", nome: "Groq do Banco", chaveApi: "banco-chave-201", urlBase: null, modelo: "qwen/qwen3.8-27b", ordem: 1, ativo: true, failCount: 0 },
+      ]),
+    )
+
+    const fetchMock = vi.fn((_url: string, init: RequestInit) => {
+      expect(init.signal).toBeInstanceOf(AbortSignal)
+      expect(init.signal?.aborted).toBe(false)
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        json: vi.fn().mockResolvedValue({ choices: [{ message: { content: "resposta com timeout" } }] }),
+      })
+    })
+    vi.stubGlobal("fetch", fetchMock)
+
+    const res = await chamarIA(MENSAGENS)
+
+    expect(res.conteudo).toBe("resposta com timeout")
+  })
+
+  it("cai para a próxima chave quando o provedor é abortado (AbortError)", async () => {
+    process.env.GROQ_API_KEY = "env-groq-chave"
+    process.env.GROQ_MODEL = "qwen/qwen3.8-27b"
+
+    db.select = vi.fn(() =>
+      createQueryBuilder([
+        { id: 202, provedor: "groq", nome: "Groq do Banco", chaveApi: "banco-chave-202", urlBase: null, modelo: "qwen/qwen3.8-27b", ordem: 1, ativo: true, failCount: 0 },
+      ]),
+    )
+
+    const fetchMock = vi.fn((_url: string, init: RequestInit) => {
+      const headers = (init.headers ?? {}) as Record<string, string>
+      if (headers.Authorization === "Bearer banco-chave-202") {
+        return Promise.reject(Object.assign(new Error("The operation was aborted"), { name: "AbortError" }))
+      }
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        json: vi.fn().mockResolvedValue({ choices: [{ message: { content: "resposta da env" } }] }),
+      })
+    })
+    vi.stubGlobal("fetch", fetchMock)
+
+    const res = await chamarIA(MENSAGENS)
+
+    expect(res.nomeChave).toBe("Groq (env)")
+  })
+})
+
 describe("testarChave — Gemini", () => {
   it("propaga a mensagem de erro da API quando o modelo retorna 404", async () => {
     db.select = vi.fn(() => createQueryBuilder([]))
