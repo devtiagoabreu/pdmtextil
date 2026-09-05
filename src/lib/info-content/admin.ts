@@ -119,12 +119,15 @@ export const adminContent: Record<string, InfoContent> = {
   "/admin/bot-config": {
     title: "Config Bot WhatsApp",
     description:
-      "Define quais usuários recebem o contato quando o bot de atendimento do WhatsApp identifica um novo lead (pessoa física ou jurídica). Utilizado pelo bot no momento do encaminhamento e na notificação por e-mail.",
+      "Define quais usuários recebem o contato quando o bot de atendimento do WhatsApp identifica um novo lead (pessoa física ou jurídica) e acompanha a saúde do bot (conexão com a instância da Evolution API). Utilizado pelo bot no momento do encaminhamento e na notificação por e-mail.",
     rules: [
       "Apenas usuários ADMIN e SUDO podem alterar a configuração.",
       "A seleção é separada por tipo de pessoa: PF e PJ.",
       "Quando não há ninguém configurado, o bot mantém o comportamento anterior (notifica todos os usuários ativos com celular WhatsApp).",
       "O e-mail é enviado para o e-mail cadastrado dos usuários configurados.",
+      "O monitoramento roda 1x ao dia no cron da Vercel e pode ser acionado manualmente em Verificar agora.",
+      "O alerta de instância fora do ar é enviado por e-mail e/ou notificação no PDM apenas para ADMIN e SUDO, e só é reenviado quando o bot volta e cai de novo (sem spam).",
+      "O log guarda o histórico de tudo que acontece com o bot: monitoramento, alertas, fila, retry e leads criados.",
     ],
   },
   "/admin/configuracoes/permissoes": {

@@ -8,7 +8,7 @@ import { GET, PUT } from "./route"
 vi.mock("next-auth", () => ({ getServerSession: vi.fn() }))
 vi.mock("@/lib/auth", () => ({ authOptions: {} }))
 vi.mock("@/lib/db", () => ({
-  db: { select: vi.fn(), transaction: vi.fn() },
+  db: { select: vi.fn(), transaction: vi.fn(), insert: vi.fn() },
 }))
 
 const admin = { user: { id: "1", role: "ADMIN" } }
@@ -18,6 +18,32 @@ const usuarios = [
   { id: 1, name: "Ana", email: "ana@empresa.com", role: "COMERCIAL", ativo: true, celWhatsapp: "5519999999999" },
   { id: 2, name: "Beto", email: "beto@empresa.com", role: "COMERCIAL", ativo: true, celWhatsapp: "5519999999998" },
   { id: 3, name: "Carla", email: "carla@empresa.com", role: "ADMIN", ativo: false, celWhatsapp: null },
+]
+
+const configItem = [
+  {
+    chave: "bot_monitoramento",
+    valor: JSON.stringify({
+      ativo: true,
+      emailAlerta: true,
+      notificacaoPdm: true,
+      ultimoCheck: null,
+      ultimoStatus: "ok",
+      ultimoErro: null,
+    }),
+  },
+]
+
+const logs = [
+  {
+    id: 10,
+    tipo: "OK",
+    origem: "monitor",
+    status: "ok",
+    detalhe: { instanciaStatus: "open" },
+    erro: null,
+    createdAt: "2026-09-05T14:00:00.000Z",
+  },
 ]
 
 function getReq() {
@@ -38,6 +64,14 @@ function mockGet(result: unknown) {
   db.select = vi.fn(() => createQueryBuilder(result))
 }
 
+function mockSelectSequencia(itens: any[]) {
+  const fila = [...itens]
+  db.select = vi.fn(() => {
+    const r = fila.length ? fila.shift() : itens[itens.length - 1]
+    return createQueryBuilder(r)
+  })
+}
+
 describe("GET /api/admin/bot-config", () => {
   beforeEach(() => {
     vi.mocked(getServerSession).mockReset()
@@ -54,23 +88,18 @@ describe("GET /api/admin/bot-config", () => {
     expect(res.status).toBe(401)
   })
 
-  it("retorna destinatários agrupados por tipo e lista de usuários", async () => {
+  it("retorna destinatários agrupados por tipo, usuários, monitoramento e logs", async () => {
     vi.mocked(getServerSession).mockResolvedValue(comum as any)
-    const builders: any[] = []
-    const mk = (result: any) => {
-      const b = createQueryBuilder(result)
-      builders.push(b)
-      return b
-    }
-    db.select = vi.fn()
-    vi.mocked(db.select).mockImplementationOnce(() =>
-      mk([
+    mockSelectSequencia([
+      [
         { usuarioId: 1, tipoPessoa: "PJ" },
         { usuarioId: 2, tipoPessoa: "PF" },
         { usuarioId: 3, tipoPessoa: "PJ" },
-      ])
-    )
-    vi.mocked(db.select).mockImplementationOnce(() => mk(usuarios))
+      ],
+      usuarios,
+      configItem,
+      logs,
+    ])
 
     const res = await getReq()
     expect(res.status).toBe(200)
@@ -78,7 +107,10 @@ describe("GET /api/admin/bot-config", () => {
     expect(data.pj).toEqual([1, 3])
     expect(data.pf).toEqual([2])
     expect(data.usuarios).toHaveLength(3)
-    expect(builders.length).toBe(2)
+    expect(data.monitoramento.ativo).toBe(true)
+    expect(data.monitoramento.ultimoStatus).toBe("ok")
+    expect(data.logs).toHaveLength(1)
+    expect(data.logs[0]).toMatchObject({ tipo: "OK", status: "ok" })
   })
 })
 
@@ -153,5 +185,36 @@ describe("PUT /api/admin/bot-config", () => {
     const res = await putReq({ pj: [], pf: [] })
     expect(res.status).toBe(200)
     expect(tx.insert).not.toHaveBeenCalled()
+  })
+
+  it("rejeita monitoramento com campos não booleanos", async () => {
+    vi.mocked(getServerSession).mockResolvedValue(admin as any)
+    mockGet(usuarios)
+    const res = await putReq({ pj: [], pf: [], monitoramento: { ativo: "sim", emailAlerta: true, notificacaoPdm: true } })
+    expect(res.status).toBe(400)
+  })
+
+  it("salva o monitoramento quando fornecido (upsert em config_geral)", async () => {
+    vi.mocked(getServerSession).mockResolvedValue(admin as any)
+    mockSelectSequencia([configItem])
+    let configBuilder: any
+    db.insert = vi.fn(() => {
+      configBuilder = createQueryBuilder("ok")
+      return configBuilder
+    })
+    const tx: any = { delete: vi.fn(() => createQueryBuilder(undefined)), insert: vi.fn(() => createQueryBuilder([])) }
+    vi.mocked(db.transaction).mockImplementation(async (cb: any) => cb(tx))
+
+    const res = await putReq({ pj: [], pf: [], monitoramento: { ativo: false, emailAlerta: true, notificacaoPdm: false } })
+    expect(res.status).toBe(200)
+
+    const v = configBuilder.values.mock.calls[0][0]
+    expect(v.chave).toBe("bot_monitoramento")
+    const salvo = JSON.parse(v.valor) as any
+    expect(salvo.ativo).toBe(false)
+    expect(salvo.emailAlerta).toBe(true)
+    expect(salvo.notificacaoPdm).toBe(false)
+    expect(salvo.ultimoStatus).toBe("ok")
+    expect(configBuilder.onConflictDoUpdate).toHaveBeenCalled()
   })
 })

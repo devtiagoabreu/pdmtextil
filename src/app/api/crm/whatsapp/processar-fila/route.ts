@@ -5,6 +5,7 @@ import { db } from "@/lib/db"
 import { crmWhatsappFila } from "@/lib/db/schema/crm-whatsapp-fila"
 import { and, inArray, lt, asc, or, eq } from "drizzle-orm"
 import { executarFluxo, marcarFilaStatus } from "@/lib/whatsapp/processador"
+import { registrarLogBot } from "@/lib/whatsapp/bot-log"
 
 export const dynamic = "force-dynamic"
 export const maxDuration = 120
@@ -74,6 +75,16 @@ export async function POST(req: NextRequest) {
         console.error("[WhatsappFila] Erro ao processar item", item.id, e)
         await marcarFilaStatus(item.id, "PENDENTE", e instanceof Error ? e.message : "erro")
       }
+    }
+
+    if (pendentes.length > 0 || comErro > 0) {
+      await registrarLogBot({
+        tipo: "FILA",
+        origem: "processar-fila",
+        status: comErro > 0 ? "falha" : "ok",
+        detalhe: { processadas, comErro, itens: pendentes.length },
+        erro: comErro > 0 ? `${comErro} item(ns) com erro` : null,
+      })
     }
 
     return NextResponse.json({ status: "ok", processadas, comErro, filaId: pendentes.map((p: any) => p.id) })

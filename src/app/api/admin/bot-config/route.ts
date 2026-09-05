@@ -3,8 +3,10 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { crmWhatsappDestinatarios } from "@/lib/db/schema/crm-whatsapp-destinatarios"
+import { crmWhatsappBotLogs } from "@/lib/db/schema/crm-whatsapp-bot-logs"
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { desc, inArray } from "drizzle-orm"
+import { lerConfigMonitoramento, salvarConfigMonitoramento } from "@/lib/whatsapp/monitoramento"
 
 export const dynamic = "force-dynamic"
 
@@ -38,7 +40,7 @@ export async function GET() {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
-    const [{ pj, pf }, listaUsuarios] = await Promise.all([
+    const [destinatarios, listaUsuarios, monitoramento, logs] = await Promise.all([
       carregarDestinatarios(),
       db
         .select({
@@ -51,9 +53,23 @@ export async function GET() {
         })
         .from(usuarios)
         .orderBy(desc(usuarios.ativo), usuarios.name),
+      lerConfigMonitoramento().catch(() => null),
+      db
+        .select({
+          id: crmWhatsappBotLogs.id,
+          tipo: crmWhatsappBotLogs.tipo,
+          origem: crmWhatsappBotLogs.origem,
+          status: crmWhatsappBotLogs.status,
+          detalhe: crmWhatsappBotLogs.detalhe,
+          erro: crmWhatsappBotLogs.erro,
+          createdAt: crmWhatsappBotLogs.createdAt,
+        })
+        .from(crmWhatsappBotLogs)
+        .orderBy(desc(crmWhatsappBotLogs.createdAt))
+        .limit(20),
     ])
 
-    return NextResponse.json({ pj, pf, usuarios: listaUsuarios })
+    return NextResponse.json({ pj: destinatarios.pj, pf: destinatarios.pf, usuarios: listaUsuarios, monitoramento, logs })
   } catch (error) {
     console.error("[GET /api/admin/bot-config]", error)
     return NextResponse.json({ error: "Erro interno" }, { status: 500 })
@@ -115,6 +131,25 @@ export async function PUT(req: NextRequest) {
         await tx.insert(crmWhatsappDestinatarios).values(valores)
       }
     })
+
+    const monitoramento = body?.monitoramento
+    if (monitoramento !== undefined && monitoramento !== null) {
+      if (
+        typeof monitoramento.ativo !== "boolean" ||
+        typeof monitoramento.emailAlerta !== "boolean" ||
+        typeof monitoramento.notificacaoPdm !== "boolean"
+      ) {
+        return NextResponse.json(
+          { error: "monitoramento deve conter ativo, emailAlerta e notificacaoPdm como booleanos" },
+          { status: 400 }
+        )
+      }
+      await salvarConfigMonitoramento({
+        ativo: monitoramento.ativo,
+        emailAlerta: monitoramento.emailAlerta,
+        notificacaoPdm: monitoramento.notificacaoPdm,
+      })
+    }
 
     return NextResponse.json({ ok: true, pj: ids.pj, pf: ids.pf })
   } catch (error: any) {

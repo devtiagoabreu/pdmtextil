@@ -23,6 +23,7 @@ import { consultarCNPJ } from "@/lib/whatsapp/cnpj"
 import { extrairMensagem, extrairNumero, logStep, type EvolutionWebhookBody } from "@/lib/whatsapp/helpers"
 import { adquirirLockConversa, liberarLockConversa } from "@/lib/whatsapp/conversation-lock"
 import { notificarRepresentantes, notificarDestinatariosEmail } from "@/lib/whatsapp/representantes"
+import { registrarLogBot } from "@/lib/whatsapp/bot-log"
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://pdmprotextil.vercel.app"
 
@@ -239,6 +240,13 @@ async function executarFluxoInterno(req: NextRequest) {
     const errStack = error instanceof Error ? error.stack : ""
     console.error("[AI-Webhook] Erro:", errMsg, errStack)
     await logStep(executionId, remoteJidGlobal, pushNameGlobal, "unknown", "error", {}, {}, errMsg, 0)
+    await registrarLogBot({
+      tipo: "ERRO",
+      origem: "processador",
+      status: "falha",
+      detalhe: { executionId, remoteJid: remoteJidGlobal },
+      erro: errMsg,
+    })
     return NextResponse.json({ error: "Erro interno", detail: errMsg }, { status: 500 })
   }
 }
@@ -1032,6 +1040,12 @@ async function processarConversa(params: {
       leadCriado = novo
       const leadDuration = Date.now() - tLead
       await logStep(executionId, remoteJid, pushName, "create_lead", "success", { nome: dados.nome, numero, tipoPessoa: dados.tipoPessoa, documento: dados.documento, score: leadScore.score, prioridade: leadScore.prioridade }, { leadId: novo.id, idIntegracao: `whatsapp:${remoteJid}`, motivos: leadScore.motivos }, null, leadDuration)
+      await registrarLogBot({
+        tipo: "FLUXO",
+        origem: "processador",
+        status: "ok",
+        detalhe: { leadId: novo.id, remoteJid, tipoPessoa: dados.tipoPessoa, score: leadScore.score, executionId },
+      })
 
       const tNotif = Date.now()
       const ehPJ = dados.tipoPessoa === "PJ"

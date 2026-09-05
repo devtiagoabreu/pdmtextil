@@ -2,6 +2,7 @@ import { db } from "@/lib/db"
 import { crmWhatsappRetryQueue } from "@/lib/db/schema/crm-whatsapp-retry-queue"
 import { eq, and, lte } from "drizzle-orm"
 import { enviarMensagem, evolutionConfigurado } from "@/lib/evolution-api"
+import { registrarLogBot } from "@/lib/whatsapp/bot-log"
 
 export async function processarRetryQueue(): Promise<{ processados: number; sucessos: number; falhas: number }> {
   if (!evolutionConfigurado()) return { processados: 0, sucessos: 0, falhas: 0 }
@@ -45,6 +46,16 @@ export async function processarRetryQueue(): Promise<{ processados: number; suce
         .where(eq(crmWhatsappRetryQueue.id, item.id))
       falhas++
     }
+  }
+
+  if (pendentes.length > 0) {
+    await registrarLogBot({
+      tipo: "RETRY",
+      origem: "retry-processor",
+      status: falhas > 0 ? "falha" : "ok",
+      detalhe: { processados: pendentes.length, sucessos, falhas },
+      erro: falhas > 0 ? `${falhas} envio(s) falharam no retry` : null,
+    })
   }
 
   return { processados: pendentes.length, sucessos, falhas }
