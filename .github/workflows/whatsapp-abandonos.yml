@@ -1,0 +1,25 @@
+name: whatsapp-abandonos
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: whatsapp-abandonos
+  cancel-in-progress: false
+
+jobs:
+  processar:
+    runs-on: ubuntu-latest
+    env:
+      CRON_SECRET: ${{ secrets.CRON_SECRET }}
+    steps:
+      - name: Verificar conversas abandonadas
+        run: |
+          AUTH=()
+          if [ -n "$CRON_SECRET" ]; then
+            AUTH=(-H "Authorization: Bearer $CRON_SECRET")
+          fi
+          curl -fsS -X POST "${AUTH[@]}" \
+            https://pdmprotextil.vercel.app/api/crm/whatsapp/verificar-abandonos

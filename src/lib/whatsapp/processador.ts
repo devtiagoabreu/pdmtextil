@@ -21,9 +21,7 @@ import { calcularLeadScore } from "@/lib/whatsapp/lead-scoring"
 import { chamarGroq, extrairDadosLead } from "@/lib/whatsapp/groq"
 import { consultarCNPJ } from "@/lib/whatsapp/cnpj"
 import { extrairMensagem, extrairNumero, logStep, type EvolutionWebhookBody } from "@/lib/whatsapp/helpers"
-import { verificarAbandonos } from "@/lib/whatsapp/abandon-checker"
 import { adquirirLockConversa, liberarLockConversa } from "@/lib/whatsapp/conversation-lock"
-
 const REPRESENTANTE_PJ = process.env.WHATSAPP_REPRESENTANTE_PJ || "5519999999999"
 const REPRESENTANTE_PF = process.env.WHATSAPP_REPRESENTANTE_PF || "5519999999998"
 
@@ -1157,12 +1155,7 @@ async function processarConversa(params: {
     }
   }
 
-  // Check for abandoned conversations (lightweight, runs on each webhook)
-  try {
-    await verificarAbandonos()
-  } catch (e) {
-    // silent - abandonment check is non-critical
-  }
+  // Abandonment check movido para cron dedicado (P1-7): src/app/api/crm/whatsapp/verificar-abandonos
 
   return NextResponse.json({
     status: "ok",
