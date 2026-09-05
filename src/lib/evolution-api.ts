@@ -6,7 +6,7 @@ export function evolutionConfigurado() {
   return !!(EVOLUTION_API_URL && EVOLUTION_API_KEY && EVOLUTION_INSTANCE_NAME)
 }
 
-type EnviarResult = {
+export type EnviarResult = {
   sucesso: boolean
   externalId?: string
   erro?: string

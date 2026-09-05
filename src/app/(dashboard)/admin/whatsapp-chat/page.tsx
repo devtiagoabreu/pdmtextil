@@ -333,9 +333,9 @@ export default function WhatsAppChatPage() {
                             {msg.createdAt ? (() => { const d = new Date(msg.createdAt); const dias = ["dom","seg","ter","qua","qui","sex","sab"]; return `${String(d.getDate()).padStart(2,"0")}/${String(d.getMonth()+1).padStart(2,"0")} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")} (${dias[d.getDay()]})` })() : ""}
                           </span>
                           {isFromBot && (
-                            msg.status === "ENTREGUE" ? <CheckCheck size={12} className="text-blue-200" /> :
-                            msg.status === "ERRO" ? <AlertTriangle size={12} className="text-red-300" /> :
-                            <Check size={12} className="text-blue-300" />
+                            msg.status === "ENTREGUE" || msg.status === "LIDA" ? <CheckCheck size={12} className="text-blue-200" data-testid={`status-${msg.status}`} /> :
+                            msg.status === "ERRO" ? <AlertTriangle size={12} className="text-red-300" data-testid={`status-${msg.status}`} /> :
+                            <Check size={12} className="text-blue-300" data-testid={`status-${msg.status}`} />
                           )}
                         </div>
                       </div>

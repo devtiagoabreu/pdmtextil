@@ -9,6 +9,7 @@ import { crmWhatsAppCatalogos } from "@/lib/db/schema/crm-whatsapp-catalogos"
 import { crmWhatsAppLinhas } from "@/lib/db/schema/crm-whatsapp-linhas"
 import { eq, sql, desc, and } from "drizzle-orm"
 import { enviarMensagem, evolutionConfigurado } from "@/lib/evolution-api"
+import { registrarExternalIdEnviada } from "@/lib/whatsapp/status"
 import { enfileirarRetry } from "@/lib/whatsapp/retry-processor"
 import crypto from "crypto"
 import { buildSystemPrompt } from "@/lib/whatsapp/prompt"
@@ -25,6 +26,14 @@ import { adquirirLockConversa, liberarLockConversa } from "@/lib/whatsapp/conver
 
 const REPRESENTANTE_PJ = process.env.WHATSAPP_REPRESENTANTE_PJ || "5519999999999"
 const REPRESENTANTE_PF = process.env.WHATSAPP_REPRESENTANTE_PF || "5519999999998"
+
+async function enviarMensagemRastreada(remoteJid: string, texto: string) {
+  const envio = await enviarMensagem(remoteJid, texto)
+  if (envio.sucesso && envio.externalId) {
+    await registrarExternalIdEnviada(remoteJid, envio.externalId).catch(() => {})
+  }
+  return envio
+}
 
 async function extrairEnvelope(texto: string): Promise<EvolutionWebhookBody | null> {
   try {
@@ -286,7 +295,7 @@ async function processarConversa(params: {
     await db.insert(crmWhatsappMensagens).values({ mensagem: "Claro! Vamos comecar novamente. Qual o seu nome?", tipo: "ENVIADA", status: "ENVIADA", remoteJid })
 
     if (evolutionConfigurado()) {
-      const envio = await enviarMensagem(remoteJid, "Claro! Vamos comecar novamente. Qual o seu nome?")
+      const envio = await enviarMensagemRastreada(remoteJid, "Claro! Vamos comecar novamente. Qual o seu nome?")
       if (!envio.sucesso) {
         await enfileirarRetry(remoteJid, "Claro! Vamos comecar novamente. Qual o seu nome?", envio.erro || "send_failed")
       }
@@ -311,7 +320,7 @@ async function processarConversa(params: {
       })
 
     if (evolutionConfigurado()) {
-      const envio = await enviarMensagem(remoteJid, "Entendido! Vou te conectar com um representante comercial. Aguarde um momento.")
+      const envio = await enviarMensagemRastreada(remoteJid, "Entendido! Vou te conectar com um representante comercial. Aguarde um momento.")
       if (!envio.sucesso) {
         await enfileirarRetry(remoteJid, "Entendido! Vou te conectar com um representante comercial. Aguarde um momento.", envio.erro || "send_failed")
       }
@@ -381,7 +390,7 @@ async function processarConversa(params: {
     await db.insert(crmWhatsappMensagens).values({ mensagem: textoCliente, tipo: "ENVIADA", status: "ENVIADA", remoteJid })
 
     if (evolutionConfigurado()) {
-      const envio = await enviarMensagem(remoteJid, textoCliente)
+      const envio = await enviarMensagemRastreada(remoteJid, textoCliente)
       if (!envio.sucesso) {
         await enfileirarRetry(remoteJid, textoCliente, envio.erro || "send_failed")
       }
@@ -456,7 +465,7 @@ async function processarConversa(params: {
         })
 
       if (evolutionConfigurado()) {
-        const envio = await enviarMensagem(remoteJid, msgRetornoSaudacao)
+        const envio = await enviarMensagemRastreada(remoteJid, msgRetornoSaudacao)
         if (!envio.sucesso) {
           await enfileirarRetry(remoteJid, msgRetornoSaudacao, envio.erro || "send_failed")
         }
@@ -541,7 +550,7 @@ async function processarConversa(params: {
     await db.insert(crmWhatsappMensagens).values({ mensagem: retryMsg, tipo: "ENVIADA", status: "ENVIADA", remoteJid })
 
     if (evolutionConfigurado()) {
-      const envio = await enviarMensagem(remoteJid, retryMsg)
+      const envio = await enviarMensagemRastreada(remoteJid, retryMsg)
       if (!envio.sucesso) {
         await enfileirarRetry(remoteJid, retryMsg, envio.erro || "send_failed")
       }
@@ -596,7 +605,7 @@ async function processarConversa(params: {
         })
 
       if (evolutionConfigurado()) {
-        const envio = await enviarMensagem(remoteJid, encaminharMsg)
+        const envio = await enviarMensagemRastreada(remoteJid, encaminharMsg)
         if (!envio.sucesso) {
           await enfileirarRetry(remoteJid, encaminharMsg, envio.erro || "send_failed")
         }
@@ -706,7 +715,7 @@ async function processarConversa(params: {
       })
 
     if (evolutionConfigurado()) {
-      const envio = await enviarMensagem(remoteJid, bloqueioMsg)
+      const envio = await enviarMensagemRastreada(remoteJid, bloqueioMsg)
       if (!envio.sucesso) {
         await enfileirarRetry(remoteJid, bloqueioMsg, envio.erro || "send_failed")
       }
@@ -795,7 +804,7 @@ async function processarConversa(params: {
       })
 
     if (evolutionConfigurado()) {
-      const envio = await enviarMensagem(remoteJid, bloqueioMsg)
+      const envio = await enviarMensagemRastreada(remoteJid, bloqueioMsg)
       if (!envio.sucesso) {
         await enfileirarRetry(remoteJid, bloqueioMsg, envio.erro || "send_failed")
       }
@@ -867,7 +876,7 @@ async function processarConversa(params: {
         })
 
       if (evolutionConfigurado()) {
-        const envio = await enviarMensagem(remoteJid, partesMsg)
+        const envio = await enviarMensagemRastreada(remoteJid, partesMsg)
         if (!envio.sucesso) {
           await enfileirarRetry(remoteJid, partesMsg, envio.erro || "send_failed")
         }
@@ -894,7 +903,7 @@ async function processarConversa(params: {
           })
 
         if (evolutionConfigurado()) {
-          const envio = await enviarMensagem(remoteJid, retryMsg)
+          const envio = await enviarMensagemRastreada(remoteJid, retryMsg)
           if (!envio.sucesso) {
             await enfileirarRetry(remoteJid, retryMsg, envio.erro || "send_failed")
           }
@@ -919,7 +928,7 @@ async function processarConversa(params: {
           })
 
         if (evolutionConfigurado()) {
-          const envio = await enviarMensagem(remoteJid, confirmarMsg)
+          const envio = await enviarMensagemRastreada(remoteJid, confirmarMsg)
           if (!envio.sucesso) {
             await enfileirarRetry(remoteJid, confirmarMsg, envio.erro || "send_failed")
           }
@@ -949,7 +958,7 @@ async function processarConversa(params: {
   let envioOk = true
   if (evolutionConfigurado()) {
     const tSend = Date.now()
-    const envio = await enviarMensagem(remoteJid, aiResponse)
+    const envio = await enviarMensagemRastreada(remoteJid, aiResponse)
     const sendDuration = Date.now() - tSend
     envioOk = envio.sucesso
     await logStep(executionId, remoteJid, pushName, "send_response", envio.sucesso ? "success" : "error", { remoteJid, msgLength: aiResponse.length }, { sucesso: envio.sucesso, externalId: envio.externalId }, envio.erro || null, sendDuration)

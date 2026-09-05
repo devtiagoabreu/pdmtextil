@@ -77,9 +77,7 @@ beforeEach(() => {
 
 describe("ai-webhook — POST (enfileiramento async)", () => {
   it("responde 200 imediatamente com enfileirado=true ao enfileirar a mensagem", async () => {
-    // dedup na fila não acha duplicado
     vi.mocked(db.select).mockImplementation(() => createQueryBuilder([]))
-    // insert da fila retorna a linha criada (para o .returning() do enfileirarMensagem)
     vi.mocked(db.insert).mockImplementation(() => capturarInsert([{ id: 1, remoteJid: PJ }]))
 
     const res = await POST(makeRequest())
@@ -90,7 +88,6 @@ describe("ai-webhook — POST (enfileiramento async)", () => {
     expect(json.enfileirado).toBe(true)
     expect(json.executionId).toBeTruthy()
 
-    // o insert da fila foi feito
     const filaInsert = insertedValues.find(v => v?.remoteJid === PJ)
     expect(filaInsert).toBeDefined()
     expect(filaInsert?.mensagem).toBe("Oi, preciso de atendimento")
@@ -107,6 +104,34 @@ describe("ai-webhook — POST (enfileiramento async)", () => {
     expect(res.status).toBe(200)
     expect(json.status).toBe("ok")
     expect(json.enfileirado).toBe(false)
+  })
+
+  it("processa status update do Evolution sem enfileirar", async () => {
+    const statusBody = JSON.stringify({
+      event: "messages.update",
+      data: {
+        key: { id: "ABC123EXT", remoteJid: PJ, fromMe: true },
+        status: "READ",
+      },
+    })
+
+    const req = new NextRequest("https://pdm.vercel.app/api/crm/whatsapp/ai-webhook", {
+      method: "POST",
+      headers: { authorization: "Bearer secret-teste" },
+      body: statusBody,
+    })
+
+    vi.mocked(db.select).mockImplementation(() => createQueryBuilder([{ id: 50, status: "ENTREGUE" }]))
+    vi.mocked(db.update).mockImplementation(() => createQueryBuilder([]))
+
+    const res = await POST(req)
+    const json = await res.json()
+
+    expect(res.status).toBe(200)
+    expect(json.status).toBe("ok")
+    expect(json.webhookType).toBe("status_update")
+    expect(json.novoStatus).toBe("LIDA")
+    expect(insertedValues).toHaveLength(0)
   })
 })
 
