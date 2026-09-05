@@ -90,6 +90,7 @@ describe("UsuariosPage", () => {
     fireEvent.change(screen.getByPlaceholderText("Nome completo"), { target: { value: "Carla Dias" } })
     fireEvent.change(screen.getByPlaceholderText("email@exemplo.com"), { target: { value: "carla@empresa.com" } })
     fireEvent.change(screen.getByPlaceholderText("Mínimo 6 caracteres"), { target: { value: "123456" } })
+    fireEvent.change(screen.getByPlaceholderText("Ex.: 5519999999999"), { target: { value: "5519999999998" } })
     fireEvent.click(screen.getByRole("button", { name: "Criar" }))
 
     await waitFor(() => {
@@ -99,6 +100,7 @@ describe("UsuariosPage", () => {
       expect(call?.body?.name).toBe("Carla Dias")
       expect(call?.body?.password).toBe("123456")
       expect(call?.body?.role).toBe("COMERCIAL")
+      expect(call?.body?.celWhatsapp).toBe("5519999999998")
     })
     await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Usuário criado!"))
   })

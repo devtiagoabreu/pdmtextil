@@ -144,6 +144,7 @@ export const usuarioSchema = z.object({
   email: z.string().trim().email("Email inválido"),
   password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres"),
   role: z.string().min(1, "Role é obrigatória"),
+  celWhatsapp: z.string().trim().max(20).optional().nullable(),
 })
 
 

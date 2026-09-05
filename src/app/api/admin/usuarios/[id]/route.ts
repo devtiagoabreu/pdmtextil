@@ -27,6 +27,7 @@ export async function GET(
         name: usuarios.name,
         role: usuarios.role,
         ativo: usuarios.ativo,
+        celWhatsapp: usuarios.celWhatsapp,
         ultimoAcesso: usuarios.ultimoAcesso,
         createdAt: usuarios.createdAt,
       })
@@ -63,6 +64,7 @@ export async function PUT(
       role: body.role,
       ativo: body.ativo,
       idIntegracao: body.idIntegracao || null,
+      celWhatsapp: body.celWhatsapp || null,
       updatedAt: new Date(),
     }
 

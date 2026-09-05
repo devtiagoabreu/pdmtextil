@@ -12,6 +12,12 @@ DO $$ BEGIN
 EXCEPTION WHEN duplicate_column THEN NULL; WHEN undefined_table THEN NULL;
 END $$;
 
+-- usuarios: celular whatsapp do representante
+DO $$ BEGIN
+  ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS cel_whatsapp varchar(20);
+EXCEPTION WHEN duplicate_column THEN NULL; WHEN undefined_table THEN NULL;
+END $$;
+
 -- crm_visitas: adicionar colunas faltantes
 DO $$ BEGIN
   ALTER TABLE crm_visitas ADD COLUMN IF NOT EXISTS cliente_id integer REFERENCES clientes(id);

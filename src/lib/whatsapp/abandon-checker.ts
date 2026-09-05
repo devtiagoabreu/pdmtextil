@@ -2,9 +2,9 @@ import { db } from "@/lib/db"
 import { crmWhatsappConversas } from "@/lib/db/schema/crm-whatsapp-conversas"
 import { crmNotificacoes } from "@/lib/db/schema/crm-notificacoes"
 import { and, sql, eq } from "drizzle-orm"
-import { enviarMensagem, evolutionConfigurado } from "@/lib/evolution-api"
+import { evolutionConfigurado } from "@/lib/evolution-api"
+import { notificarRepresentantes } from "@/lib/whatsapp/representantes"
 
-const REPRESENTANTE_PF = process.env.WHATSAPP_REPRESENTANTE_PF || "5519999999998"
 const ABANDONMENT_THRESHOLD_MINUTES = 15
 
 export async function verificarAbandonos(): Promise<{ notificados: number }> {
@@ -65,7 +65,7 @@ export async function verificarAbandonos(): Promise<{ notificados: number }> {
     })
 
     if (evolutionConfigurado()) {
-      await enviarMensagem(`${REPRESENTANTE_PF}@s.whatsapp.net`, notificacaoMsg)
+      await notificarRepresentantes(notificacaoMsg, "PF")
     }
 
     notificados++

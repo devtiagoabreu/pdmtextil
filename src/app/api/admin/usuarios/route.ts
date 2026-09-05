@@ -23,6 +23,7 @@ export async function GET() {
         name: usuarios.name,
         role: usuarios.role,
         ativo: usuarios.ativo,
+        celWhatsapp: usuarios.celWhatsapp,
         ultimoAcesso: usuarios.ultimoAcesso,
         createdAt: usuarios.createdAt,
       })
@@ -61,10 +62,11 @@ export async function POST(req: NextRequest) {
         password: passwordHash,
         role: userData.role,
         ativo: true,
+        celWhatsapp: userData.celWhatsapp || null,
       })
       .returning()
 
-    return NextResponse.json({ id: novo.id, email: novo.email, name: novo.name, role: novo.role })
+    return NextResponse.json({ id: novo.id, email: novo.email, name: novo.name, role: novo.role, celWhatsapp: novo.celWhatsapp })
   } catch (error) {
     return handleApiError(error, "POST /api/admin/usuarios", session?.user?.name)
   }

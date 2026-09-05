@@ -30,6 +30,7 @@ export default function EditarUsuarioPage() {
   const [email, setEmail] = useState("")
   const [role, setRole] = useState("COMERCIAL")
   const [ativo, setAtivo] = useState(true)
+  const [celWhatsapp, setCelWhatsapp] = useState("")
   const [password, setPassword] = useState("")
   const [saving, setSaving] = useState(false)
 
@@ -56,6 +57,7 @@ export default function EditarUsuarioPage() {
       setEmail(userData.email || "")
       setRole(userData.role || "COMERCIAL")
       setAtivo(userData.ativo ?? true)
+      setCelWhatsapp(userData.celWhatsapp || "")
     }
   }, [userData])
 
@@ -70,7 +72,7 @@ export default function EditarUsuarioPage() {
     }
     setSaving(true)
     try {
-      const body: Record<string, unknown> = { name, email, role, ativo }
+      const body: Record<string, unknown> = { name, email, role, ativo, celWhatsapp }
       if (password.length >= 6) body.password = password
 
       const res = await fetch(`/api/admin/usuarios/${id}`, {
@@ -123,6 +125,10 @@ export default function EditarUsuarioPage() {
         <div className="flex items-center gap-2">
           <input type="checkbox" id="ativo" checked={ativo} onChange={e => setAtivo(e.target.checked)} className="w-4 h-4" />
           <Label htmlFor="ativo">Usuário Ativo</Label>
+        </div>
+        <div className="space-y-2">
+          <Label>WhatsApp (celular do representante p/ notificações do bot)</Label>
+          <Input value={celWhatsapp} onChange={e => setCelWhatsapp(e.target.value)} placeholder="Ex.: 5519999999999" />
         </div>
         <div className="space-y-2">
           <Label>Nova Senha (deixe em branco para manter)</Label>

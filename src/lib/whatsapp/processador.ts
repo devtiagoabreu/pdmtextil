@@ -22,8 +22,7 @@ import { chamarGroq, extrairDadosLead } from "@/lib/whatsapp/groq"
 import { consultarCNPJ } from "@/lib/whatsapp/cnpj"
 import { extrairMensagem, extrairNumero, logStep, type EvolutionWebhookBody } from "@/lib/whatsapp/helpers"
 import { adquirirLockConversa, liberarLockConversa } from "@/lib/whatsapp/conversation-lock"
-const REPRESENTANTE_PJ = process.env.WHATSAPP_REPRESENTANTE_PJ || "5519999999999"
-const REPRESENTANTE_PF = process.env.WHATSAPP_REPRESENTANTE_PF || "5519999999998"
+import { notificarRepresentantes } from "@/lib/whatsapp/representantes"
 
 async function enviarMensagemRastreada(remoteJid: string, texto: string) {
   const envio = await enviarMensagem(remoteJid, texto)
@@ -325,7 +324,6 @@ async function processarConversa(params: {
     }
 
     try {
-      const numeroRep = REPRESENTANTE_PF
       const msgRep = [
         "*Solicitacao de atendimento*",
         "",
@@ -333,7 +331,7 @@ async function processarConversa(params: {
         `WhatsApp: https://wa.me/${numero}`,
         "Cliente solicitou falar com um atendente.",
       ].join("\n")
-      await enviarMensagem(`${numeroRep}@s.whatsapp.net`, msgRep)
+      await notificarRepresentantes(msgRep, "PF")
       await db.insert(crmNotificacoes).values({
         tipo: "WHATSAPP_ESCALACAO",
         titulo: "Cliente pediu atendente",
@@ -396,7 +394,7 @@ async function processarConversa(params: {
 
     if (leadRetorno) {
       const tipoLabelRetorno = leadRetorno.tipoPessoa === "PJ" ? "Pessoa Juridica" : "Pessoa Fisica"
-      const repNumeroRetorno = leadRetorno.tipoPessoa === "PJ" ? REPRESENTANTE_PJ : REPRESENTANTE_PF
+      const tipoPessoaRetorno: "PJ" | "PF" = leadRetorno.tipoPessoa === "PJ" ? "PJ" : "PF"
       const nomeRetorno = leadRetorno.nome || pushName || "Cliente"
       const msgRepRetorno = [
         "*Cliente antigo entrou em contato novamente*",
@@ -409,7 +407,7 @@ async function processarConversa(params: {
       ].join("\n")
 
       try {
-        await enviarMensagem(`${repNumeroRetorno}@s.whatsapp.net`, msgRepRetorno)
+        await notificarRepresentantes(msgRepRetorno, tipoPessoaRetorno)
       } catch (repErr) {
         console.error("[AI-Webhook] Erro ao notificar representante no retorno:", repErr)
       }
@@ -447,7 +445,7 @@ async function processarConversa(params: {
 
     if (leadRetornando) {
       const tipoLabelRetorno = leadRetornando.tipoPessoa === "PJ" ? "Pessoa Juridica" : "Pessoa Fisica"
-      const repNumeroRetorno = leadRetornando.tipoPessoa === "PJ" ? REPRESENTANTE_PJ : REPRESENTANTE_PF
+      const tipoPessoaRetorno: "PJ" | "PF" = leadRetornando.tipoPessoa === "PJ" ? "PJ" : "PF"
       const nomeRetorno = leadRetornando.nome || pushName || "Cliente"
       const msgRetornoSaudacao =
         "Que bom te-lo(a) de volta! Este canal de contato nao realiza atendimento direto. Vou informar seu representante que voce esta precisando falar e ele entrara em contato em breve."
@@ -479,7 +477,7 @@ async function processarConversa(params: {
           "",
           "Este cliente ja completou o cadastro anteriormente e retornou. Ele deseja falar com voce.",
         ].join("\n")
-        await enviarMensagem(`${repNumeroRetorno}@s.whatsapp.net`, msgRep)
+        await notificarRepresentantes(msgRep, tipoPessoaRetorno)
       } catch (repErr) {
         console.error("[AI-Webhook] Erro ao notificar representante no retorno (saudacao):", repErr)
       }
@@ -619,7 +617,7 @@ async function processarConversa(params: {
             "",
             "Cliente aguarda atendimento.",
           ].join("\n")
-          await enviarMensagem(`${REPRESENTANTE_PF}@s.whatsapp.net`, msgRep)
+          await notificarRepresentantes(msgRep, "PF")
         } catch (repErr) {
           console.error("[AI-Webhook] Erro ao notificar rep groq error:", repErr)
         }
@@ -740,7 +738,7 @@ async function processarConversa(params: {
           "",
           "Cliente recusou informar CNPJ/CPF correto e foi redirecionado para voce.",
         ].join("\n")
-        await enviarMensagem(`${REPRESENTANTE_PF}@s.whatsapp.net`, msgRep)
+        await notificarRepresentantes(msgRep, "PF")
       }
     } catch (notifErr) {
       console.error("[AI-Webhook] Erro ao criar notificacao:", notifErr)
@@ -756,7 +754,7 @@ async function processarConversa(params: {
     const nomeFinal = dados.nome && dados.nome.trim().length > 0 ? dados.nome.trim() : "Anonimo"
     const numero = extrairNumero(remoteJid)
     const tipoPessoaFinal = dados.tipoPessoa || "PF"
-    const repNumero = tipoPessoaFinal === "PJ" ? REPRESENTANTE_PJ : REPRESENTANTE_PF
+    const repTipo: "PJ" | "PF" = tipoPessoaFinal === "PJ" ? "PJ" : "PF"
     const bloqueioMsg = "Parece que nao estou conseguindo entender suas respostas. Um representante comercial entrara em contato para ajudar voce."
 
     try {
@@ -831,13 +829,13 @@ async function processarConversa(params: {
           "",
           "Cliente deu respostas invalidas 3x seguidas e foi redirecionado para voce.",
         ].join("\n")
-        await enviarMensagem(`${repNumero}@s.whatsapp.net`, msgRep)
+        await notificarRepresentantes(msgRep, repTipo)
       }
     } catch (notifErr) {
       console.error("[AI-Webhook] Erro ao criar notificacao de bloqueio:", notifErr)
     }
 
-    await logStep(executionId, remoteJid, pushName, "blocked_transfer", "success", { motivo, representante: repNumero, nomeFinal, leadId: dados.leadId }, { estadoFinal: "AGUARDANDO_REPRESENTANTE" }, null, 0)
+    await logStep(executionId, remoteJid, pushName, "blocked_transfer", "success", { motivo, representante: repTipo, nomeFinal, leadId: dados.leadId }, { estadoFinal: "AGUARDANDO_REPRESENTANTE" }, null, 0)
 
     return NextResponse.json({ ok: true, blocked: true })
   }
@@ -1111,7 +1109,7 @@ async function processarConversa(params: {
 
       const tNotif = Date.now()
       const ehPJ = dados.tipoPessoa === "PJ"
-      const numeroNotificacao = ehPJ ? REPRESENTANTE_PJ : REPRESENTANTE_PF
+      const repTipoNotificacao: "PJ" | "PF" = ehPJ ? "PJ" : "PF"
       const tipoLabelLead = ehPJ ? "Pessoa Juridica" : "Pessoa Fisica"
       const iaUsada = aiResult.nomeChave
         ? `${aiResult.provedor} (${aiResult.nomeChave})`
@@ -1146,10 +1144,10 @@ async function processarConversa(params: {
       })
 
       if (evolutionConfigurado()) {
-        await enviarMensagem(`${numeroNotificacao}@s.whatsapp.net`, textoNotificacao)
+        await notificarRepresentantes(textoNotificacao, repTipoNotificacao)
       }
       const notifDuration = Date.now() - tNotif
-      await logStep(executionId, remoteJid, pushName, "notify", "success", { numeroNotificacao, tipoPessoa: dados.tipoPessoa }, { notificacaoSalva: true, whatsappEnviado: evolutionConfigurado() }, null, notifDuration)
+      await logStep(executionId, remoteJid, pushName, "notify", "success", { representante: repTipoNotificacao, tipoPessoa: dados.tipoPessoa }, { notificacaoSalva: true, whatsappEnviado: evolutionConfigurado() }, null, notifDuration)
     } else {
       await logStep(executionId, remoteJid, pushName, "create_lead", "skipped", { remoteJid }, { reason: "lead_already_exists", existingLeadId: existing.id }, null, 0)
     }

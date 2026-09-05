@@ -40,6 +40,7 @@ export default function UsuariosPage() {
   const [novoNome, setNovoNome] = useState("")
   const [novoPassword, setNovoPassword] = useState("")
   const [novoRole, setNovoRole] = useState("COMERCIAL")
+  const [novoCelWhatsapp, setNovoCelWhatsapp] = useState("")
   const [saving, setSaving] = useState(false)
 
   const queryClient = useQueryClient()
@@ -80,7 +81,7 @@ export default function UsuariosPage() {
       const res = await fetch("/api/admin/usuarios", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: novoEmail, name: novoNome, password: novoPassword, role: novoRole }),
+        body: JSON.stringify({ email: novoEmail, name: novoNome, password: novoPassword, role: novoRole, celWhatsapp: novoCelWhatsapp }),
       })
       if (!res.ok) {
         const err = await res.json()
@@ -92,6 +93,7 @@ export default function UsuariosPage() {
       setNovoNome("")
       setNovoPassword("")
       setNovoRole("COMERCIAL")
+      setNovoCelWhatsapp("")
       fetchUsuarios()
     } catch (err: any) {
       toast.error(err.message)
@@ -151,6 +153,10 @@ export default function UsuariosPage() {
                 className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600">
                 {(roles ?? []).filter((r: any) => r.ativo).map((r: any) => <option key={r.name} value={r.name}>{r.label}</option>)}
               </select>
+            </div>
+            <div className="space-y-2">
+              <Label>WhatsApp (celular do representante p/ notificações do bot)</Label>
+              <Input value={novoCelWhatsapp} onChange={e => setNovoCelWhatsapp(e.target.value)} placeholder="Ex.: 5519999999999" />
             </div>
           </div>
           <div className="flex gap-2">

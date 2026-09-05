@@ -11,6 +11,7 @@ export const usuarios = pgTable("usuarios", {
   paginaInicial: varchar("pagina_inicial", { length: 255 }),
   ultimoAcesso: timestamp("ultimo_acesso"),
   createdAt: timestamp("created_at").defaultNow(),
+  celWhatsapp: varchar("cel_whatsapp", { length: 20 }),
   updatedAt: timestamp("updated_at").defaultNow(),
 })
 

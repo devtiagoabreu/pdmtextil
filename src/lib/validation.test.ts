@@ -254,6 +254,28 @@ describe("usuarioSchema", () => {
     expect(result.success).toBe(true)
   })
 
+  it("accepts celWhatsapp opcional", () => {
+    const result = usuarioSchema.safeParse({
+      name: "Rep",
+      email: "rep@example.com",
+      password: "123456",
+      role: "COMERCIAL",
+      celWhatsapp: "5519999999999",
+    })
+    expect(result.success).toBe(true)
+  })
+
+  it("rejects celWhatsapp muito longo", () => {
+    const result = usuarioSchema.safeParse({
+      name: "Rep",
+      email: "rep@example.com",
+      password: "123456",
+      role: "COMERCIAL",
+      celWhatsapp: "5519999999999999912345",
+    })
+    expect(result.success).toBe(false)
+  })
+
   it("rejects short password", () => {
     const result = usuarioSchema.safeParse({
       name: "User",

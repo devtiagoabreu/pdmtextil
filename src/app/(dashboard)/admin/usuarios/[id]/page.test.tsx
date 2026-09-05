@@ -4,7 +4,7 @@ import { screen, fireEvent, waitFor } from "@testing-library/react"
 import EditarUsuarioPage from "./page"
 import { createFetchMock, findCall, navMock, renderPage, toastMock } from "@/test/harness"
 
-const usuario = { id: 5, name: "Ana Souza", email: "ana@empresa.com", role: "COMERCIAL", ativo: true }
+const usuario = { id: 5, name: "Ana Souza", email: "ana@empresa.com", role: "COMERCIAL", ativo: true, celWhatsapp: "5519999999999" }
 const roles = [{ id: 1, name: "COMERCIAL", label: "Comercial", ativo: true }]
 
 function setup() {
@@ -28,6 +28,7 @@ describe("EditarUsuarioPage", () => {
     expect(await screen.findByRole("heading", { name: "Editar Usuário" })).toBeInTheDocument()
     expect(screen.getByDisplayValue("Ana Souza")).toBeInTheDocument()
     expect(screen.getByDisplayValue("ana@empresa.com")).toBeInTheDocument()
+    expect(screen.getByDisplayValue("5519999999999")).toBeInTheDocument()
   })
 
   it("valida nome e email obrigatórios", async () => {
@@ -48,6 +49,7 @@ describe("EditarUsuarioPage", () => {
     await screen.findByDisplayValue("Ana Souza")
 
     fireEvent.change(screen.getByDisplayValue("ana@empresa.com"), { target: { value: "ana.nova@empresa.com" } })
+    fireEvent.change(screen.getByDisplayValue("5519999999999"), { target: { value: "5519999999998" } })
     fireEvent.click(screen.getByRole("button", { name: "Salvar" }))
 
     await waitFor(() => {
@@ -57,6 +59,7 @@ describe("EditarUsuarioPage", () => {
       expect(call?.body?.email).toBe("ana.nova@empresa.com")
       expect(call?.body?.role).toBe("COMERCIAL")
       expect(call?.body?.ativo).toBe(true)
+      expect(call?.body?.celWhatsapp).toBe("5519999999998")
       expect(call?.body?.password).toBeUndefined()
     })
     await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Usuário atualizado!"))
