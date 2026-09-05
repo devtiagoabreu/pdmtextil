@@ -176,7 +176,7 @@ describe("executarFluxo — funil completo PJ (CNPJ via API)", () => {
       },
       updatedAt: new Date(),
     }
-    setupTurn([[],[conv5],[LINHA],[],[]], 500)
+    setupTurn([[],[conv5],[LINHA],[],[],[]], 500)
 
     const res5 = await executarFluxo(makeRequest("sim"))
     const j5 = await res5.json()
@@ -240,7 +240,7 @@ describe("executarFluxo — funil completo PF (CPF direto, sem consulta)", () =>
       dados: { nome: "Carlos", tipoPessoa: "PF", documento: "12345678901", linhasInteresse: [1], linhasInteresseNomes: "1 - Malha" },
       updatedAt: new Date(),
     }
-    setupTurn([[],[conv4],[LINHA],[],[]], 501)
+    setupTurn([[],[conv4],[LINHA],[],[],[]], 501)
 
     const res4 = await executarFluxo(makeRequest("sim"))
     const j4 = await res4.json()

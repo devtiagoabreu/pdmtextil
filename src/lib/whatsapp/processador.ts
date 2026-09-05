@@ -22,7 +22,18 @@ import { chamarGroq, extrairDadosLead } from "@/lib/whatsapp/groq"
 import { consultarCNPJ } from "@/lib/whatsapp/cnpj"
 import { extrairMensagem, extrairNumero, logStep, type EvolutionWebhookBody } from "@/lib/whatsapp/helpers"
 import { adquirirLockConversa, liberarLockConversa } from "@/lib/whatsapp/conversation-lock"
-import { notificarRepresentantes } from "@/lib/whatsapp/representantes"
+import { notificarRepresentantes, notificarDestinatariosEmail } from "@/lib/whatsapp/representantes"
+
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://pdmprotextil.vercel.app"
+
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;")
+}
 
 async function enviarMensagemRastreada(remoteJid: string, texto: string) {
   const envio = await enviarMensagem(remoteJid, texto)
@@ -1061,6 +1072,26 @@ async function processarConversa(params: {
       if (evolutionConfigurado()) {
         await notificarRepresentantes(textoNotificacao, repTipoNotificacao)
       }
+
+      const emailHtml = [
+        `<p><strong>Novo lead cadastrado no CRM</strong></p>`,
+        `<p><strong>Nome:</strong> ${escapeHtml(nomeLead)}</p>`,
+        `<p><strong>WhatsApp:</strong> <a href="https://wa.me/${numero}">${numero}</a></p>`,
+        `<p><strong>Tipo:</strong> ${tipoLabelLead}</p>`,
+        dados.documento ? `<p><strong>Documento:</strong> ${escapeHtml(dados.documento)}</p>` : "",
+        dados._cnpjConsulta?.razaoSocial ? `<p><strong>Razão Social:</strong> ${escapeHtml(dados._cnpjConsulta.razaoSocial)}</p>` : "",
+        dados._cnpjConsulta?.nomeFantasia ? `<p><strong>Nome Fantasia:</strong> ${escapeHtml(dados._cnpjConsulta.nomeFantasia)}</p>` : "",
+        dados.linhasInteresseNomes ? `<p><strong>Interesse:</strong> ${escapeHtml(dados.linhasInteresseNomes)}</p>` : "",
+        `<p><strong>Score:</strong> ${leadScore.score}/100 (${leadScore.prioridade})</p>`,
+        ``,
+        `<p><a href="${BASE_URL}/comercial/crm/leads">Abrir lead no CRM</a></p>`,
+      ].filter(Boolean).join("\n")
+
+      await notificarDestinatariosEmail({
+        tipoPessoa: repTipoNotificacao,
+        assunto: `Novo lead ${tipoLabelLead} via WhatsApp — ${nomeLead}`,
+        html: emailHtml,
+      })
       const notifDuration = Date.now() - tNotif
       await logStep(executionId, remoteJid, pushName, "notify", "success", { representante: repTipoNotificacao, tipoPessoa: dados.tipoPessoa }, { notificacaoSalva: true, whatsappEnviado: evolutionConfigurado() }, null, notifDuration)
     } else {

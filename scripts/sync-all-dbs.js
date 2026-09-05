@@ -254,6 +254,15 @@ CREATE INDEX IF NOT EXISTS idx_flow_logs_execution_id ON crm_whatsapp_flow_logs(
 CREATE INDEX IF NOT EXISTS idx_flow_logs_created_at ON crm_whatsapp_flow_logs(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_flow_logs_status ON crm_whatsapp_flow_logs(status);
 
+-- crm_whatsapp_destinatarios: usuarios que recebem o contato dos leads do bot (PF/PJ)
+CREATE TABLE IF NOT EXISTS crm_whatsapp_destinatarios (
+  id SERIAL PRIMARY KEY,
+  usuario_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+  tipo_pessoa VARCHAR(2) NOT NULL,
+  created_at TIMESTAMP DEFAULT now(),
+  CONSTRAINT crm_whatsapp_destinatarios_usuario_tipo_uq UNIQUE (usuario_id, tipo_pessoa)
+);
+
 -- crm_whatsapp_retry_queue: fila de retry para mensagens WhatsApp
 CREATE TABLE IF NOT EXISTS crm_whatsapp_retry_queue (
   id SERIAL PRIMARY KEY,

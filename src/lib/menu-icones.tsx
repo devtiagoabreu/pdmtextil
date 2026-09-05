@@ -43,6 +43,7 @@ import {
   DollarSign,
   GitBranch,
   Plane,
+  Bot,
 } from "lucide-react"
 
 // [título (pt-BR), nome do ícone (lucide), componente]
@@ -173,6 +174,7 @@ const URL_ICONES: [string, LucideIcon][] = [
   ["/ferramentas", Wrench],
   ["/chat", MessageSquare],
   ["/admin/whatsapp", MessageCircle],
+  ["/admin/bot-config", Bot],
   ["/admin/email-massa", Mail],
   ["/admin/notificacoes", Bell],
   ["/admin/usuarios", Users],

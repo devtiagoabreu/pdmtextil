@@ -116,6 +116,17 @@ export const adminContent: Record<string, InfoContent> = {
       { name: "Perfis", desc: "Selecione um ou mais perfis que devem receber a notificação" },
     ],
   },
+  "/admin/bot-config": {
+    title: "Config Bot WhatsApp",
+    description:
+      "Define quais usuários recebem o contato quando o bot de atendimento do WhatsApp identifica um novo lead (pessoa física ou jurídica). Utilizado pelo bot no momento do encaminhamento e na notificação por e-mail.",
+    rules: [
+      "Apenas usuários ADMIN e SUDO podem alterar a configuração.",
+      "A seleção é separada por tipo de pessoa: PF e PJ.",
+      "Quando não há ninguém configurado, o bot mantém o comportamento anterior (notifica todos os usuários ativos com celular WhatsApp).",
+      "O e-mail é enviado para o e-mail cadastrado dos usuários configurados.",
+    ],
+  },
   "/admin/configuracoes/permissoes": {
     title: "Permissões",
     description: "Configuração detalhada de permissões de acesso por entidade e ação para cada perfil.",

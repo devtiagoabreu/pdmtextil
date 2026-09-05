@@ -175,6 +175,7 @@ export const searchRegistry: SearchItem[] = [
   { id: "admin-whatsapp-chat", label: "Admin — Chat WhatsApp", keywords: ["admin", "whatsapp", "chat", "atendimento", "humano", "conversa", "mensagem"], href: "/admin/whatsapp-chat", description: "Chat de atendimento WhatsApp com modo humano", module: "Admin" },
   { id: "admin-whatsapp-monitor", label: "Admin — Monitor WhatsApp", keywords: ["admin", "whatsapp", "monitor", "webhook", "flow", "logs", "diagnostico", "debug"], href: "/admin/whatsapp-monitor", description: "Monitor de fluxo do webhook WhatsApp com logs detalhados", module: "Admin" },
   { id: "admin-whatsapp-catalogos", label: "Admin — Catalogos WhatsApp", keywords: ["admin", "whatsapp", "catalogo", "catalogos", "mostruario", "linhas", "tecidos", "links"], href: "/admin/whatsapp-catalogos", description: "Gerenciar links de catalogo por linha de tecidos", module: "Admin" },
+  { id: "admin-bot-config", label: "Admin — Config Bot WhatsApp", keywords: ["admin", "whatsapp", "bot", "config", "destinatario", "representante", "pf", "pj", "lead", "email", "notificacao"], href: "/admin/bot-config", description: "Configurar quem recebe o contato dos leads do bot WhatsApp (PF/PJ) e notificação por email", module: "Admin" },
 
   // CRM — Relatórios
   { id: "crm-relatorios", label: "CRM — Relatórios", keywords: ["crm", "relatorio", "relatorios", "grafico", "dashboard", "analise", "metricas", "conversao", "pipeline"], href: "/comercial/crm/relatorios", description: "Relatórios e análises do CRM", module: "CRM" },
