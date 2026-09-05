@@ -90,7 +90,7 @@ Ignora e retorna 200 imediatamente:
 **Conversa nova:**
 1. Busca lead existente no CRM por `idIntegracao = whatsapp:{remoteJid}` ou `celular = numero`
 2. Se lead existe com `empresaNome` → estado inicial = `AGUARDANDO_REPRESENTANTE` (ignora mensagens)
-3. Se lead existe sem empresa → estado inicial = `COLETANDO_DADOS`
+3. Se lead existe sem empresa → estado inicial = `AGUARDANDO_REPRESENTANTE`
 4. Se não existe → estado inicial = `SAUDACAO`
 5. Insere nova conversa no banco
 

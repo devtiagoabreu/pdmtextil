@@ -63,7 +63,7 @@ export async function adquirirLockConversa(remoteJid: string): Promise<LockConve
     if (leadExistenteData.empresaNome) dadosIniciais.razaoSocial = leadExistenteData.empresaNome
     if (leadExistenteData.nome) dadosIniciais.nomeContato = leadExistenteData.nome
     if (leadExistenteData.tipoPessoa) dadosIniciais.tipoPessoa = leadExistenteData.tipoPessoa
-    estadoInicial = leadExistenteData.empresaNome ? "AGUARDANDO_REPRESENTANTE" : "COLETANDO_DADOS"
+    estadoInicial = "AGUARDANDO_REPRESENTANTE"
   }
 
   const [nova] = await db

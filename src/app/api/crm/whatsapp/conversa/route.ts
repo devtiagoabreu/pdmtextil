@@ -52,7 +52,7 @@ export async function GET(req: NextRequest) {
         if (leadExistente.nome) dados.nomeContato = leadExistente.nome
         if (leadExistente.tipoPessoa) dados.tipoPessoa = leadExistente.tipoPessoa
 
-        const estado = leadExistente.empresaNome ? "AGUARDANDO_REPRESENTANTE" : "COLETANDO_DADOS"
+        const estado = "AGUARDANDO_REPRESENTANTE"
 
         const [nova] = await db
           .insert(crmWhatsappConversas)

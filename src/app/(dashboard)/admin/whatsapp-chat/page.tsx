@@ -47,7 +47,6 @@ const ESTADO_LABELS: Record<string, { label: string; color: string }> = {
   SAUDACAO: { label: "Saudacao", color: "bg-green-100 text-green-700" },
   COLETANDO_NOME: { label: "Coletando nome", color: "bg-blue-100 text-blue-700" },
   COLETANDO_DOC: { label: "Coletando documento", color: "bg-blue-100 text-blue-700" },
-  CONFIRMANDO_TIPO_PESSOA: { label: "Confirmando tipo", color: "bg-yellow-100 text-yellow-700" },
   COLETANDO_INTERESSE: { label: "Coletando interesse", color: "bg-blue-100 text-blue-700" },
   CONFIRMACAO: { label: "Confirmacao", color: "bg-purple-100 text-purple-700" },
   ENCERRADO: { label: "Encerrado", color: "bg-slate-100 text-slate-600" },

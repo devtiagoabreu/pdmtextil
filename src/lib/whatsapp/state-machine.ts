@@ -7,7 +7,6 @@ export interface MaquinaEstadoResult {
   finalizado: boolean
   enviarCatalogo?: number[]
   needsCnpjLookup?: boolean
-  redirecionarPf?: boolean
 }
 
 export function maquinaEstados(
@@ -24,7 +23,6 @@ export function maquinaEstados(
   const dados = JSON.parse(JSON.stringify(curDados))
   let enviarCatalogo: number[] | undefined
   let needsCnpjLookup: boolean | undefined
-  let redirecionarPf: boolean | undefined
   const MAX_TENTATIVAS = 3
 
   // Saudação em etapas de coleta não avança o fluxo nem conta como tentativa inválida
@@ -83,22 +81,6 @@ export function maquinaEstados(
       dados._bloqueado = true
       dados._motivoBloqueio = "doc_invalido_repetido"
     }
-  } else if (curEstado === "CONFIRMANDO_TIPO_PESSOA") {
-    if (confirmou(msg)) {
-      dados.tipoPessoa = "PJ"
-      dados.documento = dados._docRecebido || dados.documento
-      needsCnpjLookup = true
-      nextEstado = "CONFIRMANDO_DADOS_CNPJ"
-      dados._tentativas = 0
-    } else if (negou(msg)) {
-      redirecionarPf = true
-      dados._bloqueado = true
-      dados._motivoBloqueio = "recusou_corrigir_tipo"
-    } else if (dados._tentativas >= MAX_TENTATIVAS) {
-      redirecionarPf = true
-      dados._bloqueado = true
-      dados._motivoBloqueio = "confirmacao_tipo_invalida_repetido"
-    }
   } else if (curEstado === "CONFIRMANDO_DADOS_CNPJ") {
     if (confirmou(msg)) {
       nextEstado = "COLETANDO_INTERESSE"
@@ -152,6 +134,6 @@ export function maquinaEstados(
     dados.finalizado = true
   }
 
-  return { nextEstado, dados, finalizado: !!dados.finalizado, enviarCatalogo, needsCnpjLookup, redirecionarPf }
+  return { nextEstado, dados, finalizado: !!dados.finalizado, enviarCatalogo, needsCnpjLookup }
 }
 

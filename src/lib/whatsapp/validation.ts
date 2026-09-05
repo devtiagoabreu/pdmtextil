@@ -31,7 +31,7 @@ export function confirmou(texto: string): boolean {
 }
 
 export function parseLinhas(texto: string, maxNumero: number): number[] {
-  const nums = texto.match(/\d/g)
+  const nums = texto.match(/\d+/g)
   if (!nums) return []
   return [...new Set(nums.map(Number))].filter((n: any) => n >= 1 && n <= maxNumero).sort()
 }

@@ -23,7 +23,6 @@ interface DashboardData {
 
 const ESTADO_LABELS: Record<string, string> = {
   SAUDACAO: "Saudacao",
-  COLETANDO_DADOS: "Coletando Dados",
   CONFIRMANDO_DADOS_CNPJ: "Confirmando CNPJ",
   AGUARDANDO_REPRESENTANTE: "Aguardando Rep.",
   HUMANO_ASSUMINDO: "Humano Assumindo",
@@ -32,7 +31,6 @@ const ESTADO_LABELS: Record<string, string> = {
 
 const ESTADO_COLORS: Record<string, string> = {
   SAUDACAO: "bg-blue-500",
-  COLETANDO_DADOS: "bg-amber-500",
   CONFIRMANDO_DADOS_CNPJ: "bg-orange-500",
   AGUARDANDO_REPRESENTANTE: "bg-purple-500",
   HUMANO_ASSUMINDO: "bg-emerald-500",

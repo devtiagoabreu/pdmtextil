@@ -58,15 +58,12 @@ O bot opera como uma maquina de estados. Cada mensagem do cliente avanca ou mant
 
 ```
 SAUDACAO → COLETANDO_NOME → COLETANDO_DOC → COLETANDO_INTERESSE → CONFIRMACAO → ENCERRADO
-                  │                │
-                  │                ▼
-                  │         CONFIRMANDO_TIPO_PESSOA (se PF digitou CNPJ)
-                  │                │
-                  │                ▼
-                  │         CONFIRMANDO_DADOS_CNPJ (pos-consulta API)
                   │
                   ▼
-            AGUARDANDO_REPRESENTANTE (escalamacao / bloqueio)
+            CONFIRMANDO_DADOS_CNPJ (pos-consulta API)
+                  │
+                  ▼
+            AGUARDANDO_REPRESENTANTE (escalacao / bloqueio)
                   │
                   ▼
             HUMANO_ASSUMINDO (representante assumiu no chat)
@@ -78,8 +75,7 @@ SAUDACAO → COLETANDO_NOME → COLETANDO_DOC → COLETANDO_INTERESSE → CONFIR
 |---|---|---|
 | `SAUDACAO` | Bot se apresenta e pergunta "Qual o seu nome?" | `COLETANDO_NOME` |
 | `COLETANDO_NOME` | Extrai nome proprio, confirma "Prazer em te conhecer, [NOME]!" | `COLETANDO_DOC` |
-| `COLETANDO_DOC` | Pergunta PF/PJ e solicita CPF/CNPJ | `COLETANDO_INTERESSE`, `CONFIRMANDO_TIPO_PESSOA` ou `CONFIRMANDO_DADOS_CNPJ` |
-| `CONFIRMANDO_TIPO_PESSOA` | Detectou mismatch PF vs CNPJ. Pergunta se pode seguir como PJ | `CONFIRMANDO_DADOS_CNPJ` ou `AGUARDANDO_REPRESENTANTE` |
+| `COLETANDO_DOC` | Pergunta PF/PJ e solicita CPF/CNPJ | `COLETANDO_INTERESSE` ou `CONFIRMANDO_DADOS_CNPJ` |
 | `CONFIRMANDO_DADOS_CNPJ` | Consulta API OpenCNPJ, mostra dados e pede confirmacao | `COLETANDO_INTERESSE` ou `AGUARDANDO_REPRESENTANTE` |
 | `COLETANDO_INTERESSE` | Mostra linhas disponiveis, cliente escolhe por numero ou nome | `CONFIRMACAO` |
 | `CONFIRMACAO` | Mostra resumo de todos os dados, pede SIM para confirmar | `ENCERRADO` |
@@ -108,13 +104,7 @@ Rejeita:
 
 - Detecta tipo (PF/PJ) por palavras-chave: `"pessoa fisica"`, `"pj"`, `"cnpj"`, `"1"`, `"2"`
 - Extrai documento por regex: CPF (11 digitos) ou CNPJ (14 digitos)
-- Se escolheu PF mas digitou CNPJ → vai para `CONFIRMANDO_TIPO_PESSOA`
 - Se escolheu PJ e digitou CNPJ → faz lookup na API OpenCNPJ
-
-### CONFIRMANDO_TIPO_PESSOA
-
-- Confirmou (`"sim"`, `"pode ser"`, `"claro"`) → segue como PJ, faz lookup CNPJ
-- Negou (`"nao"`, `"quero PF"`) → redireciona para representante PF
 
 ### CONFIRMANDO_DADOS_CNPJ
 
@@ -159,8 +149,7 @@ Retorna: razao social, nome fantasia, situacao cadastral, endereco.
 
 **Fluxo de falha:**
 1. Primeira falha → pede para o cliente verificar o numero
-2. Segunda falha → assume CNPJ correto, pergunta se pode seguir como PJ
-3. Se o cliente confirmou PF mas digitou CNPJ → vai para `CONFIRMANDO_TIPO_PESSOA`
+2. Segunda falha → assume CNPJ correto e questiona se pode seguir como PJ
 
 ---
 
@@ -168,13 +157,11 @@ Retorna: razao social, nome fantasia, situacao cadastral, endereco.
 
 O bot sempre notifica o representante quando:
 - Lead e finalizado (estado `ENCERRADO`)
-- Cliente solicitou atendimento humano (escalamacao)
+- Cliente solicitou atendimento humano (escalacao)
 - Cliente foi bloqueado por invalidacoes repetidas
-- Cliente redirecionado (recusou corrigir PF/PJ)
+- Lead existente retorna ao bot (estado `AGUARDANDO_REPRESENTANTE`)
 
-A notificacao vai para:
-- **PF:** `WHATSAPP_REPRESENTANTE_PF` (configurado via .env.local)
-- **PJ:** `WHATSAPP_REPRESENTANTE_PJ` (configurado via .env.local)
+A notificacao vai para os representantes configurados (usuarios ativos com `cel_whatsapp` preenchido; fallback `WHATSAPP_REPRESENTANTE_PF`/`WHATSAPP_REPRESENTANTE_PJ` via .env.local).
 
 A notificacao contem: nome do lead, link WhatsApp, tipo (PF/PJ), documento, linhas de interesse.
 
@@ -377,7 +364,7 @@ Bot: [NOTIFICA REPRESENTANTE PJ via WhatsApp]
 | `e401475` | Prompt dinamico com buildSystemPrompt |
 | `f0800ca` | Validacao por estado + rejeitarNome |
 | `71607fa` | Controle de repeticao (MAX_TENTATIVAS) |
-| `386b837` | CNPJ/PF mismatch + CONFIRMANDO_TIPO_PESSOA |
+| `386b837` | CNPJ/PF mismatch (estado removido posteriormente) |
 | `30c6721` | Lookup de CNPJ via API OpenCJPJ |
 | `645e82b` | Lead sempre criado + notificacao ao representante |
 | `6dffba3` | Bloqueio/redirect para PF + motivo |

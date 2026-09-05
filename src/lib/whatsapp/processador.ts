@@ -659,95 +659,10 @@ async function processarConversa(params: {
       await logStep(executionId, remoteJid, pushName, "intent_linhas", "success", { msg: mensagem.substring(0, 100) }, { linhas: linhasSugeridas, nomes: linhasNomes(linhasSugeridas, linhaMap) }, null, 0)
     }
   }
-  const { nextEstado, dados, finalizado, enviarCatalogo, needsCnpjLookup, redirecionarPf } = maquinaEstados(conversa.estado, conversa.dados || {}, mensagem, aiResponse, linhaMap, maxNumero, linhasSugeridas)
+  const { nextEstado, dados, finalizado, enviarCatalogo, needsCnpjLookup } = maquinaEstados(conversa.estado, conversa.dados || {}, mensagem, aiResponse, linhaMap, maxNumero, linhasSugeridas)
   const stateDuration = Date.now() - tState
 
-  await logStep(executionId, remoteJid, pushName, "state_machine", "success", { curEstado: conversa.estado, msg: mensagem.substring(0, 100) }, { nextEstado, dados, finalizado, enviarCatalogo, needsCnpjLookup, redirecionarPf }, null, stateDuration)
-
-  if (redirecionarPf && dados._bloqueado) {
-    const motivo = dados._motivoBloqueio || "recusou_corrigir_tipo"
-    const nomeFinal = dados.nome && dados.nome.trim().length > 0 ? dados.nome.trim() : "Anonimo"
-    const numero = extrairNumero(remoteJid)
-    const bloqueioMsg = "Entendido. Um representante comercial entrara em contato para ajudar voce."
-
-    try {
-      const existente = await db
-        .select({ id: crmLeads.id })
-        .from(crmLeads)
-        .where(sql`${eq(crmLeads.idIntegracao, `whatsapp:${remoteJid}`)} OR ${eq(crmLeads.celular, numero)}`)
-        .limit(1)
-        .then((r: any) => r[0] || null)
-
-      if (!existente) {
-        const pfLeadScore = calcularLeadScore({ tipoPessoa: "PF", documento: null })
-        const [novoLead] = await db.insert(crmLeads).values({
-          nome: nomeFinal,
-          celular: numero,
-          tipoPessoa: "PF",
-          origem: "WHATSAPP",
-          status: "NOVO",
-          descricao: `Lead criado via bot. Motivo: ${motivo}. Cliente recusou corrigir tipo/pessoa. | Score: ${pfLeadScore.score}/100 (${pfLeadScore.prioridade})`,
-          idIntegracao: `whatsapp:${remoteJid}`,
-          score: pfLeadScore.score,
-          prioridade: pfLeadScore.prioridade,
-        }).returning()
-        dados.leadId = novoLead.id
-      } else {
-        dados.leadId = existente.id
-        await db.update(crmLeads).set({ nome: nomeFinal, tipoPessoa: "PF", updatedAt: sql`NOW()` }).where(eq(crmLeads.id, existente.id))
-      }
-    } catch (leadErr) {
-      console.error("[AI-Webhook] Erro ao criar lead redirecionado PF:", leadErr)
-    }
-
-    await db.insert(crmWhatsappMensagens).values({ mensagem, tipo: "RECEBIDA", status: "RECEBIDA", remoteJid })
-    await db.insert(crmWhatsappMensagens).values({ mensagem: bloqueioMsg, tipo: "ENVIADA", status: "ENVIADA", remoteJid })
-    await db
-      .insert(crmWhatsappConversas)
-      .values({ remoteJid, estado: "AGUARDANDO_REPRESENTANTE", dados })
-      .onConflictDoUpdate({
-        target: crmWhatsappConversas.remoteJid,
-        set: { estado: sql`EXCLUDED.estado`, dados: sql`EXCLUDED.dados`, updatedAt: sql`NOW()` },
-      })
-
-    if (evolutionConfigurado()) {
-      const envio = await enviarMensagemRastreada(remoteJid, bloqueioMsg)
-      if (!envio.sucesso) {
-        await enfileirarRetry(remoteJid, bloqueioMsg, envio.erro || "send_failed")
-      }
-    }
-
-    try {
-      await db.insert(crmNotificacoes).values({
-        tipo: "WHATSAPP_REDIRECIONADO_PF",
-        titulo: "Cliente redirecionado para PF",
-        mensagem: `Cliente ${nomeFinal} (${remoteJid}) recusou corrigir tipo. Motivo: ${motivo}. Redirecionado para representante PF.`,
-        metadados: { remoteJid, motivo, nome: nomeFinal, leadId: dados.leadId },
-        lida: false,
-      })
-
-      if (evolutionConfigurado()) {
-        const numero = extrairNumero(remoteJid)
-        const msgRep = [
-          "*Novo lead - atendimento automatico*",
-          "",
-          `Nome: ${nomeFinal}`,
-          `WhatsApp: https://wa.me/${numero}`,
-          `Tipo: Pessoa Fisica`,
-          `Motivo: ${motivo}`,
-          "",
-          "Cliente recusou informar CNPJ/CPF correto e foi redirecionado para voce.",
-        ].join("\n")
-        await notificarRepresentantes(msgRep, "PF")
-      }
-    } catch (notifErr) {
-      console.error("[AI-Webhook] Erro ao criar notificacao:", notifErr)
-    }
-
-    await logStep(executionId, remoteJid, pushName, "pf_redirect", "success", { motivo, leadId: dados.leadId }, { estadoFinal: "AGUARDANDO_REPRESENTANTE" }, null, 0)
-
-    return NextResponse.json({ ok: true, redirected: true })
-  }
+  await logStep(executionId, remoteJid, pushName, "state_machine", "success", { curEstado: conversa.estado, msg: mensagem.substring(0, 100) }, { nextEstado, dados, finalizado, enviarCatalogo, needsCnpjLookup }, null, stateDuration)
 
   if (dados._bloqueado) {
     const motivo = dados._motivoBloqueio || "respostas_invalidas"
