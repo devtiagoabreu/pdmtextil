@@ -16,7 +16,8 @@ export function maquinaEstados(
   msgOriginal: string,
   aiResponse: string,
   linhaMap: Record<number, string>,
-  maxNumero: number
+  maxNumero: number,
+  linhasSugeridas?: number[]
 ): MaquinaEstadoResult {
   const msg = msgOriginal.toLowerCase().trim()
   let nextEstado = curEstado
@@ -114,9 +115,10 @@ export function maquinaEstados(
   } else if (curEstado === "COLETANDO_INTERESSE") {
     const linhas = parseLinhas(msgOriginal, maxNumero)
     const temNomeLinha = linhas.map((n: any) => linhaMap[n]?.toLowerCase() || "").some((nome: any) => msg.includes(nome))
-    if (linhas.length > 0 || temNomeLinha) {
-      dados.linhasInteresse = linhas
-      dados.linhasInteresseNomes = linhasNomes(linhas, linhaMap)
+    const escolhidas = linhas.length > 0 ? linhas : (linhasSugeridas && linhasSugeridas.length > 0 ? linhasSugeridas : [])
+    if (escolhidas.length > 0 || temNomeLinha) {
+      dados.linhasInteresse = escolhidas
+      dados.linhasInteresseNomes = linhasNomes(escolhidas, linhaMap)
       nextEstado = "CONFIRMACAO"
       dados._tentativas = 0
     } else if (msg.match(/\b(todos|todas|tudo|qualquer|tanto faz|indiferente|foda-se|se foda)\b/)) {

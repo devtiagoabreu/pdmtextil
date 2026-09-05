@@ -12,7 +12,8 @@ import { enviarMensagem, evolutionConfigurado } from "@/lib/evolution-api"
 import { enfileirarRetry } from "@/lib/whatsapp/retry-processor"
 import crypto from "crypto"
 import { buildSystemPrompt } from "@/lib/whatsapp/prompt"
-import { rejeitarNome, negou, confirmou, pareceNome, detectarTipo, extrairDoc, parseLinhas, linhasNomes, pediuAtendente, pediuReiniciar, ehSaudacao } from "@/lib/whatsapp/validation"
+import { rejeitarNome, negou, confirmou, pareceNome, detectarTipo, extrairDoc, parseLinhas, linhasNomes, ehSaudacao } from "@/lib/whatsapp/validation"
+import { analisarEscalacao, analisarLinhas, temIndicioDeLinhas } from "@/lib/whatsapp/intencao"
 import { maquinaEstados, type MaquinaEstadoResult } from "@/lib/whatsapp/state-machine"
 import { calcularLeadScore } from "@/lib/whatsapp/lead-scoring"
 import { chamarGroq, extrairDadosLead } from "@/lib/whatsapp/groq"
@@ -264,7 +265,12 @@ async function processarConversa(params: {
     await logStep(executionId, remoteJid, pushName, "ttl_reset", "success", { previousState: conversa.estado }, { reason: "conversation_expired_24h" }, null, 0)
   }
 
-  if (pediuReiniciar(mensagem) && conversa.estado !== "SAUDACAO") {
+  const intencao = await analisarEscalacao(mensagem, conversa.estado)
+  if (intencao.via === "llm") {
+    await logStep(executionId, remoteJid, pushName, "intent", "success", { estado: conversa.estado, msg: mensagem.substring(0, 100) }, { querAtendente: intencao.querAtendente, querReiniciar: intencao.querReiniciar }, null, 0)
+  }
+
+  if (intencao.querReiniciar && conversa.estado !== "SAUDACAO") {
     const dadosReset: Record<string, any> = { _processandoEm: lockToken }
     await db
       .insert(crmWhatsappConversas)
@@ -289,7 +295,7 @@ async function processarConversa(params: {
     return NextResponse.json({ ok: true, restarted: true })
   }
 
-  if (pediuAtendente(mensagem) && conversa.estado !== "AGUARDANDO_REPRESENTANTE" && conversa.estado !== "ENCERRADO" && conversa.estado !== "HUMANO_ASSUMINDO") {
+  if (intencao.querAtendente && conversa.estado !== "AGUARDANDO_REPRESENTANTE" && conversa.estado !== "ENCERRADO" && conversa.estado !== "HUMANO_ASSUMINDO") {
     const nomeFinal = conversa.dados?.nome || pushName || "Anonimo"
     const numero = extrairNumero(remoteJid)
 
@@ -620,7 +626,14 @@ async function processarConversa(params: {
   }
 
   const tState = Date.now()
-  const { nextEstado, dados, finalizado, enviarCatalogo, needsCnpjLookup, redirecionarPf } = maquinaEstados(conversa.estado, conversa.dados || {}, mensagem, aiResponse, linhaMap, maxNumero)
+  let linhasSugeridas: number[] | undefined
+  if (conversa.estado === "COLETANDO_INTERESSE" && parseLinhas(mensagem, maxNumero).length === 0 && temIndicioDeLinhas(mensagem)) {
+    linhasSugeridas = await analisarLinhas(mensagem, linhaMap, maxNumero)
+    if (linhasSugeridas) {
+      await logStep(executionId, remoteJid, pushName, "intent_linhas", "success", { msg: mensagem.substring(0, 100) }, { linhas: linhasSugeridas, nomes: linhasNomes(linhasSugeridas, linhaMap) }, null, 0)
+    }
+  }
+  const { nextEstado, dados, finalizado, enviarCatalogo, needsCnpjLookup, redirecionarPf } = maquinaEstados(conversa.estado, conversa.dados || {}, mensagem, aiResponse, linhaMap, maxNumero, linhasSugeridas)
   const stateDuration = Date.now() - tState
 
   await logStep(executionId, remoteJid, pushName, "state_machine", "success", { curEstado: conversa.estado, msg: mensagem.substring(0, 100) }, { nextEstado, dados, finalizado, enviarCatalogo, needsCnpjLookup, redirecionarPf }, null, stateDuration)

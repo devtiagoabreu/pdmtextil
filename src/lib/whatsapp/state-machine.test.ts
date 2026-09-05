@@ -49,4 +49,17 @@ describe("maquinaEstados — saudação em etapa de coleta não bloqueia", () =>
     expect(res.dados.linhasInteresse).toEqual([1, 2])
     expect(res.dados._tentativas).toBe(0)
   })
+
+  it("COLETANDO_INTERESSE: linhas sugeridas pela intenção avançam sem números", () => {
+    const res = maquinaEstados("COLETANDO_INTERESSE", { _tentativas: 2 }, "quero a linha azul", "", { 1: "Azul", 2: "Vermelho" }, 10, [1])
+    expect(res.nextEstado).toBe("CONFIRMACAO")
+    expect(res.dados.linhasInteresse).toEqual([1])
+    expect(res.dados.linhasInteresseNomes).toBe("1 - Azul")
+    expect(res.dados._tentativas).toBe(0)
+  })
+
+  it("COLETANDO_INTERESSE: números explícitos vencem as linhas sugeridas", () => {
+    const res = maquinaEstados("COLETANDO_INTERESSE", {}, "2", "", { 1: "Azul", 2: "Vermelho" }, 10, [1])
+    expect(res.dados.linhasInteresse).toEqual([2])
+  })
 })
