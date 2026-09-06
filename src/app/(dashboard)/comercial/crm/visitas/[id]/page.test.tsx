@@ -66,6 +66,9 @@ function buildHandler(data: any) {
     if (method === "GET" && url === "/api/crm/pessoas/1") {
       return { json: { id: 1, razaoSocial: "Tecelagem Alpha", endereco: "Rua das Rosas", numero: "100", bairro: "Centro", cidade: "São Paulo", uf: "SP", cep: "01000-000" } }
     }
+    if (method === "GET" && url === "/api/clientes/5") {
+      return { json: { id: 5, nome: "Cliente Beta", endereco: "Av. Paulista", cidade: "São Paulo", uf: "SP" } }
+    }
     if (method === "GET" && url === "/api/crm/pessoas") {
       return { json: [{ id: 1, razaoSocial: "Tecelagem Alpha" }] }
     }
@@ -382,6 +385,64 @@ describe("DetalheVisitaPage", () => {
       expect(call!.body).toEqual(expect.objectContaining({ titulo: "Proposta Edit", empresaId: 1, clienteId: null }))
     })
     await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Proposta criada com sucesso"))
+  })
+
+  it("copia o endereço do cliente quando a visita está vinculada a um cliente", async () => {
+    navMock.setParams({ id: "3" })
+    const comCliente = {
+      ...visita,
+      id: 3,
+      empresaId: null,
+      clienteId: 5,
+      empresaNome: null,
+      clienteNome: "Cliente Beta",
+      oportunidadeTitulo: null,
+      contatoNome: null,
+      endereco: null,
+    }
+    const clienteMock = createFetchMock(buildHandler(comCliente))
+    vi.stubGlobal("fetch", clienteMock.fn)
+
+    renderPage(<DetalheVisitaPage />)
+    await screen.findByRole("heading", { name: "Visita — Cliente Beta" })
+
+    fireEvent.click(screen.getByRole("button", { name: "Editar" }))
+    await screen.findByRole("button", { name: "Salvar" })
+    fireEvent.click(screen.getByRole("button", { name: "Copiar endereço da cliente" }))
+
+    await waitFor(() => expect(findCall(clienteMock.calls, "/api/clientes/5", "GET")).toBeDefined())
+    fireEvent.click(screen.getByRole("button", { name: "Salvar" }))
+
+    await waitFor(() => {
+      const call = findCall(clienteMock.calls, "/api/crm/visitas/3", "PUT")
+      expect(call).toBeDefined()
+      expect(call!.body).toEqual(
+        expect.objectContaining({ endereco: "Av. Paulista", cidade: "São Paulo", uf: "SP" }),
+      )
+    })
+  })
+
+  it("copia o endereço da pessoa vinculada (empresa)", async () => {
+    navMock.setParams({ id: "4" })
+    const comPessoa = { ...visita, id: 4, endereco: null, numero: null, bairro: null, cidade: null, uf: null, cep: null }
+    const pessoaMock = createFetchMock(buildHandler(comPessoa))
+    vi.stubGlobal("fetch", pessoaMock.fn)
+
+    renderPage(<DetalheVisitaPage />)
+    await screen.findByRole("heading", { name: "Visita — Tecelagem Alpha" })
+
+    fireEvent.click(screen.getByRole("button", { name: "Editar" }))
+    await screen.findByRole("button", { name: "Salvar" })
+    fireEvent.click(screen.getByRole("button", { name: "Copiar endereço da pessoa" }))
+    fireEvent.click(screen.getByRole("button", { name: "Salvar" }))
+
+    await waitFor(() => {
+      const call = findCall(pessoaMock.calls, "/api/crm/visitas/4", "PUT")
+      expect(call).toBeDefined()
+      expect(call!.body).toEqual(
+        expect.objectContaining({ endereco: "Rua das Rosas", numero: "100", bairro: "Centro", cidade: "São Paulo", uf: "SP", cep: "01000-000" }),
+      )
+    })
   })
 
   it("mostra mensagem quando a visita não existe", async () => {

@@ -217,7 +217,7 @@ export function EdicaoCard({
             onClick={onCopiarEndereco}
             className="text-xs text-blue-600 hover:underline flex items-center gap-1"
           >
-            Copiar endereço do negócio
+            Copiar endereço da {form.empresaId ? "pessoa" : form.clienteId ? "cliente" : "pessoa ou cliente"}
           </button>
         </div>
         <div className="space-y-3">

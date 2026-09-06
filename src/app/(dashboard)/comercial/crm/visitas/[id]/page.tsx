@@ -36,6 +36,7 @@ export default function DetalheVisitaPage() {
   const conflictTimerRef = useRef<NodeJS.Timeout | null>(null)
   const [estadoId, setEstadoId] = useState<number | null>(null)
   const [empresaEndereco, setEmpresaEndereco] = useState<Record<string, string>>({})
+  const [clienteEndereco, setClienteEndereco] = useState<Record<string, string>>({})
   const [checkLoading, setCheckLoading] = useState<"in" | "out" | null>(null)
   const [showVincular, setShowVincular] = useState(false)
 
@@ -115,7 +116,8 @@ export default function DetalheVisitaPage() {
   function startEditing() {
     setForm({ ...visita })
     setFotos(normalizeVisitaFotos(visita.fotos))
-    if (visita.empresaId) loadEmpresaEndereco(visita.empresaId)
+    if (visita.empresaId) loadEmpresaEndereco(visita.empresaId).then(setEmpresaEndereco)
+    else if (visita.clienteId) loadClienteEndereco(visita.clienteId).then(setClienteEndereco)
     setEditing(true)
   }
 
@@ -197,11 +199,11 @@ export default function DetalheVisitaPage() {
     }
   }
 
-  async function loadEmpresaEndereco(empresaId: number) {
+  async function loadEmpresaEndereco(empresaId: number): Promise<Record<string, string>> {
     try {
       const res = await fetch(`/api/crm/pessoas/${empresaId}`)
       const data = await res.json()
-      setEmpresaEndereco({
+      return {
         endereco: data.endereco || "",
         numero: data.numero || "",
         complemento: data.complemento || "",
@@ -209,29 +211,46 @@ export default function DetalheVisitaPage() {
         cidade: data.cidade || "",
         uf: data.uf || "",
         cep: data.cep || "",
-      })
-    } catch { setEmpresaEndereco({}) }
+      }
+    } catch { return {} }
   }
 
-  function copiarEnderecoEmpresa() {
-    setForm((prev: any) => ({
-      ...prev,
-      endereco: empresaEndereco.endereco || "",
-      numero: empresaEndereco.numero || "",
-      complemento: empresaEndereco.complemento || "",
-      bairro: empresaEndereco.bairro || "",
-      cidade: empresaEndereco.cidade || "",
-      uf: empresaEndereco.uf || "",
-      cep: empresaEndereco.cep || "",
-    }))
+  async function loadClienteEndereco(clienteId: number): Promise<Record<string, string>> {
+    try {
+      const res = await fetch(`/api/clientes/${clienteId}`)
+      const data = await res.json()
+      return {
+        endereco: data.endereco || "",
+        cidade: data.cidade || "",
+        uf: data.uf || "",
+      }
+    } catch { return {} }
   }
 
-  function handleCopiarEndereco() {
-    if (!visita.empresaId) {
-      toast.error("Visita sem pessoa vinculada")
-      return
+  async function handleCopiarEndereco() {
+    if (visita.empresaId) {
+      const end = empresaEndereco.endereco ? empresaEndereco : await loadEmpresaEndereco(visita.empresaId)
+      setForm((prev: any) => ({
+        ...prev,
+        endereco: end.endereco || "",
+        numero: end.numero || "",
+        complemento: end.complemento || "",
+        bairro: end.bairro || "",
+        cidade: end.cidade || "",
+        uf: end.uf || "",
+        cep: end.cep || "",
+      }))
+    } else if (visita.clienteId) {
+      const end = clienteEndereco.endereco ? clienteEndereco : await loadClienteEndereco(visita.clienteId)
+      setForm((prev: any) => ({
+        ...prev,
+        endereco: end.endereco || "",
+        cidade: end.cidade || "",
+        uf: end.uf || "",
+      }))
+    } else {
+      toast.error("Visita sem pessoa ou cliente vinculado")
     }
-    copiarEnderecoEmpresa()
   }
 
   async function handleCheck(tipo: "check_in" | "check_out") {
