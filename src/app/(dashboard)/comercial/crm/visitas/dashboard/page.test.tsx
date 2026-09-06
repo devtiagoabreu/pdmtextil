@@ -23,15 +23,15 @@ const viagemCronograma = {
     {
       id: 11, nome: "Tecelagem Alpha", empresaId: 1, clienteId: null, dataVisita: "2026-08-10", hora: "09:00",
       tipo: "PRESENCIAL", status: "REALIZADA", enderecoTexto: "Av. X, 100 - Centro, Goiânia - GO",
-      checkInTime: "2026-08-10T12:00:00Z", checkOutTime: null, latitude: -23.55, longitude: -46.63, km: 0,
+      checkInTime: "2026-08-10T12:00:00Z", checkOutTime: null, latitude: -23.55, longitude: -46.63, localizacaoFonte: "checkin", km: 0,
     },
     {
       id: 12, nome: "Cliente Beta", empresaId: null, clienteId: 5, dataVisita: "2026-08-10", hora: "11:00",
       tipo: "PRESENCIAL", status: "REALIZADA", enderecoTexto: "Av. Y - Rio de Janeiro - RJ",
-      checkInTime: null, checkOutTime: "2026-08-10T14:00:00Z", latitude: -22.9, longitude: -43.17, km: 357.8,
+      checkInTime: null, checkOutTime: null, latitude: -22.9, longitude: -43.17, localizacaoFonte: "geocodificada", km: 357.8,
     },
   ],
-  resumo: { total: 2, realizadas: 2, canceladas: 0, agendadas: 0, comLocalizacao: 2, kmTotal: 357.8, kmSemLocalizacao: 0 },
+  resumo: { total: 2, realizadas: 2, canceladas: 0, agendadas: 0, comLocalizacao: 2, geocodificadas: 1, kmTotal: 357.8, kmSemLocalizacao: 0 },
 }
 
 function dashboardPayload(withViagem = true) {
@@ -155,6 +155,8 @@ expect(screen.getByText("Viagem Goiania - Ernandes")).toBeInTheDocument()
     await waitFor(() => expect(within(dialog).getByTestId("mapa-roteiro")).toBeInTheDocument())
     expect(within(dialog).getByRole("link", { name: "Tecelagem Alpha" })).toHaveAttribute("href", "/comercial/crm/visitas/11")
     expect(within(dialog).getByText(/\+357\.8/)).toBeInTheDocument()
+    expect(within(dialog).getByText("Estimada pelo endereço")).toBeInTheDocument()
+    expect(within(dialog).getByText(/Localização de 1 visita/)).toBeInTheDocument()
   })
 
   it("fecha o cronograma ao clicar no botão Fechar", async () => {
