@@ -2,6 +2,10 @@
 // Usa a mesma lógica da rota de cronograma: endereço da visita -> pessoa (empresa) -> cliente.
 // Idempotente e resumível: só processa visitas onde endereco_lat/lng ainda são NULL.
 //
+// Estratégia de geocodificação (igual ao geocoder de runtime em src/lib/crm/geocode.ts):
+//   endereço completo -> endereço sem número -> cidade + UF
+// Com cache de sucessos em arquivo (node_modules/.cache) entre execuções e 1 retry por candidato.
+//
 // Uso:
 //   node scripts/geocode-visitas.js                 (todas as DBs)
 //   node scripts/geocode-visitas.js --db=pdm_textil  (só a principal)
@@ -13,6 +17,8 @@
 
 require("dotenv").config({ path: ".env.local" })
 const postgres = require("postgres")
+const fs = require("fs")
+const path = require("path")
 
 const DATABASES = [
   { name: "pdm_textil", url: process.env.DATABASE_URL },
@@ -32,9 +38,30 @@ const dryRun = args.includes("--dry-run")
 
 const NOMINATIM_URL = "https://nominatim.openstreetmap.org/search"
 const USER_AGENT = "pdm-textil/1.0 (backfill de coordenadas)"
-
 const ESPACAMENTO_MS = 1100
-const cacheCoords = new Map()
+
+const CACHE_FILE = path.join(__dirname, "..", "node_modules", ".cache", "geocode-visitas.json")
+let cacheCoords = {}
+try {
+  fs.mkdirSync(path.dirname(CACHE_FILE), { recursive: true })
+  cacheCoords = JSON.parse(fs.readFileSync(CACHE_FILE, "utf8")) || {}
+} catch {
+  cacheCoords = {}
+}
+let cacheSujo = 0
+let salvando = null
+function persistirCache() {
+  if (salvando) return salvando
+  salvando = (async () => {
+    const tmp = CACHE_FILE + ".tmp"
+    fs.writeFileSync(tmp, JSON.stringify(cacheCoords, null, 0))
+    fs.renameSync(tmp, CACHE_FILE)
+    cacheSujo = 0
+    salvando = null
+  })()
+  return salvando
+}
+
 let fila = Promise.resolve()
 function enfileirar(fn) {
   const executar = fila.then(fn)
@@ -44,22 +71,41 @@ function enfileirar(fn) {
   return executar
 }
 
-function montar(fields) {
-  return [fields.endereco, fields.numero, fields.complemento, fields.bairro, fields.cidade, fields.uf]
-    .filter(Boolean)
-    .map((v) => String(v).trim())
-    .join(", ")
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
+
+function normalizar(texto) {
+  return texto.trim().replace(/\s+/g, " ").toLowerCase()
 }
 
-async function geocodificar(texto) {
-  const chave = texto.trim().replace(/\s+/g, " ").toLowerCase()
-  if (cacheCoords.has(chave)) return cacheCoords.get(chave)
+function candidatosEndereco(texto) {
+  const segs = texto
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean)
+  if (segs.length === 0) return []
+  const full = segs.join(", ")
+  const semNumero = segs.filter((s) => !/^\d+$/.test(s) && !/^s\.?\/?\s*n\.?$/i.test(s)).join(", ")
+  const cidade = segs.length >= 2 ? segs.slice(-2).join(", ") : ""
+  const vistos = new Set()
+  const unicos = []
+  for (const c of [full, semNumero, cidade]) {
+    if (c.length >= 10) {
+      const cn = normalizar(c)
+      if (!vistos.has(cn)) {
+        vistos.add(cn)
+        unicos.push(c)
+      }
+    }
+  }
+  return unicos
+}
+
+async function consultarNominatim(texto) {
   const url = new URL(NOMINATIM_URL)
   url.searchParams.set("q", texto)
   url.searchParams.set("format", "json")
   url.searchParams.set("limit", "1")
   url.searchParams.set("countrycodes", "br")
-  let coords = null
   try {
     const res = await fetch(url, { headers: { "User-Agent": USER_AGENT, Accept: "application/json" } })
     if (!res.ok) return null
@@ -69,12 +115,42 @@ async function geocodificar(texto) {
     const lat = Number(item.lat)
     const lng = Number(item.lon)
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null
-    coords = { lat, lng }
+    return { lat, lng }
   } catch {
-    coords = null
+    return null
   }
-  cacheCoords.set(chave, coords)
-  return coords
+}
+
+async function geocodificar(texto) {
+  const chave = normalizar(texto)
+  if (cacheCoords[chave]) return cacheCoords[chave]
+  for (const candidato of candidatosEndereco(texto)) {
+    const cn = normalizar(candidato)
+    if (cacheCoords[cn]) {
+      cacheCoords[chave] = cacheCoords[cn]
+      return cacheCoords[cn]
+    }
+    let coords = null
+    for (let tentativa = 0; tentativa < 2 && !coords; tentativa++) {
+      if (tentativa > 0) await sleep(2000)
+      coords = await enfileirar(() => consultarNominatim(candidato))
+    }
+    if (coords) {
+      cacheCoords[cn] = coords
+      cacheCoords[chave] = coords
+      cacheSujo++
+      if (cacheSujo % 10 === 0) await persistirCache()
+      return coords
+    }
+  }
+  return null
+}
+
+function montar(fields) {
+  return [fields.endereco, fields.numero, fields.complemento, fields.bairro, fields.cidade, fields.uf]
+    .filter(Boolean)
+    .map((v) => String(v).trim())
+    .join(", ")
 }
 
 async function processarBanco(dbInfo) {
@@ -140,7 +216,7 @@ async function processarBanco(dbInfo) {
         continue
       }
 
-      const coords = await enfileirar(() => geocodificar(enderecoTexto))
+      const coords = await geocodificar(enderecoTexto)
       if (!coords) {
         semResultado++
         continue
@@ -172,11 +248,13 @@ async function main() {
   for (const db of alvos) {
     await processarBanco(db)
   }
+  await persistirCache()
   console.log("\n✅ Backfill concluído")
   process.exit(0)
 }
 
-main().catch((e) => {
+main().catch(async (e) => {
+  await persistirCache()
   console.error(e)
   process.exit(1)
 })

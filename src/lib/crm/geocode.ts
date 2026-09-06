@@ -69,17 +69,57 @@ async function consultar(chave: string, enderecoTexto: string): Promise<Coordena
   }
 }
 
+export function candidatosEndereco(texto: string): string[] {
+  const segs = texto
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean)
+  if (segs.length === 0) return []
+  const full = segs.join(", ")
+  const semNumero = segs.filter((s) => !/^\d+$/.test(s) && !/^s\.?\/?\s*n\.?$/i.test(s)).join(", ")
+  const cidade = segs.length >= 2 ? segs.slice(-2).join(", ") : ""
+  const vistos = new Set<string>()
+  const unicos: string[] = []
+  for (const c of [full, semNumero, cidade]) {
+    if (c.length >= 10) {
+      const cn = normalizar(c)
+      if (!vistos.has(cn)) {
+        vistos.add(cn)
+        unicos.push(c)
+      }
+    }
+  }
+  return unicos
+}
+
 export async function geocodificarEndereco(enderecoTexto: string): Promise<Coordenadas | null> {
   const chave = normalizar(enderecoTexto)
   if (chave.length < 10) return null
   if (cache.has(chave)) return cache.get(chave)!
   if (emAndamento.has(chave)) return emAndamento.get(chave)!
 
-  const promessa = enfileirar(() => consultar(chave, enderecoTexto))
+  const promessa = enfileirar(() => consultarProgressivo(chave, enderecoTexto))
   emAndamento.set(chave, promessa)
   try {
     return await promessa
   } finally {
     emAndamento.delete(chave)
   }
+}
+
+async function consultarProgressivo(chave: string, enderecoTexto: string): Promise<Coordenadas | null> {
+  for (const candidato of candidatosEndereco(enderecoTexto)) {
+    const candidatoNormalizado = normalizar(candidato)
+    const conhecido = cache.get(candidatoNormalizado)
+    if (conhecido) {
+      cache.set(chave, conhecido)
+      return conhecido
+    }
+    const coords = await consultar(candidatoNormalizado, candidato)
+    if (coords) {
+      cache.set(chave, coords)
+      return coords
+    }
+  }
+  return null
 }

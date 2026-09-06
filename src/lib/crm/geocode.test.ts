@@ -43,13 +43,27 @@ describe("geocodificarEndereco", () => {
   it("retorna null quando a API não encontra resultados", async () => {
     const fetchMock = mockFetch([])
     expect(await geocodificarEndereco("Endereco inexistente 99999, Lugar Nenhum, MG")).toBeNull()
-    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(fetchMock).toHaveBeenCalledTimes(2)
   })
 
   it("retorna null quando a resposta não é ok", async () => {
     const fetchMock = mockFetch({ error: "erro" }, false)
     expect(await geocodificarEndereco("Av. X, 100 - Centro, Goiânia, GO")).toBeNull()
-    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+  })
+
+  it("usa cidade+UF como fallback quando o endereço completo não resolve", async () => {
+    const fn = vi.fn()
+    fn.mockImplementation(async (input: string | URL) => {
+      const q = new URL(String(input)).searchParams.get("q")
+      if (q === "Rua Desconhecida, 999, Cidade Nova, GO") return { ok: true, json: async () => [] }
+      if (q === "Cidade Nova, GO") return { ok: true, json: async () => [{ lat: "-16.68", lon: "-49.25" }] }
+      return { ok: true, json: async () => [] }
+    })
+    vi.stubGlobal("fetch", fn)
+    const coords = await geocodificarEndereco("Rua Desconhecida, 999, Cidade Nova, GO")
+    expect(coords).toEqual({ latitude: -16.68, longitude: -49.25 })
+    expect(fn.mock.calls.length).toBeGreaterThanOrEqual(3)
   })
 
   it("usa o cache: mesma consulta não chama a API de novo", async () => {
