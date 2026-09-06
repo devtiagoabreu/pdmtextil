@@ -6,11 +6,13 @@ import dynamic from "next/dynamic"
 import { useState, useCallback } from "react"
 import {
   Calendar, CheckCircle2, XCircle, Clock, MapPin, Users,
-  ArrowRight, BarChart3, PieChart as PieChartIcon, ClipboardCheck, Navigation, User, X, Loader2,
+  ArrowRight, BarChart3, PieChart as PieChartIcon, ClipboardCheck, Navigation, User, Loader2,
 } from "lucide-react"
 import VisitLocationModal from "@/components/crm/visit-location-modal"
 import ViagemCronogramaModal from "@/components/crm/viagem-cronograma"
-import { useEscapeClose } from "@/lib/use-escape-close"
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle,
+} from "@/components/ui/dialog"
 
 const VisitasCharts = dynamic(() => import("./charts").then((m) => m.VisitasCharts), { ssr: false })
 
@@ -72,9 +74,6 @@ export default function VisitasDashboardPage() {
   const [visitasFilter, setVisitasFilter] = useState<"todas" | "minhas">("minhas")
   const [selectedViagem, setSelectedViagem] = useState<{ viagemId: number; viagemTitulo: string } | null>(null)
 
-  useEscapeClose(!!modalFiltro, () => setModalFiltro(null))
-  useEscapeClose(!!selectedViagem, () => setSelectedViagem(null))
-
   const { data, isLoading } = useQuery<VisitasDashboardData>({
     queryKey: ["visitas-dashboard", visitasFilter],
     queryFn: () => fetch(`/api/crm/visitas/dashboard${visitasFilter === "minhas" ? "?mine=true" : ""}`).then((r: any) => r.json()),
@@ -111,9 +110,15 @@ export default function VisitasDashboardPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-0.5 shadow-sm">
+          <div
+            role="group"
+            aria-label="Filtro de visitas"
+            className="flex rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-0.5 shadow-sm"
+          >
             <button
+              type="button"
               onClick={() => setVisitasFilter("todas")}
+              aria-pressed={visitasFilter === "todas"}
               className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
                 visitasFilter === "todas"
                   ? "bg-blue-600 text-white shadow-sm"
@@ -124,7 +129,9 @@ export default function VisitasDashboardPage() {
               Todas
             </button>
             <button
+              type="button"
               onClick={() => setVisitasFilter("minhas")}
+              aria-pressed={visitasFilter === "minhas"}
               className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
                 visitasFilter === "minhas"
                   ? "bg-blue-600 text-white shadow-sm"
@@ -145,8 +152,9 @@ export default function VisitasDashboardPage() {
       </div>
 
       {isLoading ? (
-        <div className="flex justify-center py-20">
+        <div role="status" className="flex justify-center py-20">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+          <span className="sr-only">Carregando dashboard de visitas...</span>
         </div>
       ) : (
         <>
@@ -352,7 +360,7 @@ export default function VisitasDashboardPage() {
             <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800">
               <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 flex items-center gap-2">
                 <Calendar size={16} className="text-amber-500" />
-                —altimas Visitas
+                Últimas Visitas
               </h2>
               <Link href="/comercial/crm/visitas" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
                 Ver todas <ArrowRight size={12} />
@@ -362,7 +370,7 @@ export default function VisitasDashboardPage() {
               <div className="divide-y divide-slate-100 dark:divide-slate-800">
                 {data.ultimasVisitas.map((visita: any) => (
                   <div key={visita.id} className="flex items-center justify-between gap-2 p-3">
-                    <div className="flex items-center gap-2 min-w-0 shrink">
+                    <div className="flex items-center gap-2 min-w-0 shrink-0">
                       <Link
                         href={`/comercial/crm/visitas/${visita.id}`}
                         className="text-xs md:text-sm font-medium text-slate-900 dark:text-slate-100 truncate hover:underline whitespace-nowrap"
@@ -383,7 +391,7 @@ export default function VisitasDashboardPage() {
                           ? "bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-400"
                           : "bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
                       }`}>
-                        {visita.status}
+                        {STATUS_LABELS[visita.status] || visita.status}
                       </span>
                       {(visita.endereco || visita.cidade) && (
                         <a
@@ -391,15 +399,16 @@ export default function VisitasDashboardPage() {
                           target="_blank"
                           rel="noopener noreferrer"
                           className="p-2 md:p-1.5 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-950/50 transition-colors"
-                          title="Abrir no Google Maps"
+                          aria-label="Abrir no Google Maps"
                         >
                           <Navigation size={12} className="text-emerald-500 md:text-emerald-500" />
                         </a>
                       )}
                       <button
+                        type="button"
                         onClick={() => setSelectedVisita({ id: visita.id, nome: `Visita #${visita.id}` })}
                         className="p-2 md:p-1.5 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-950/50 transition-colors"
-                        title="Gerenciar localizações"
+                        aria-label="Gerenciar localizações"
                       >
                         <MapPin size={12} className="text-blue-500 md:text-blue-500" />
                       </button>
@@ -446,67 +455,65 @@ export default function VisitasDashboardPage() {
         />
       )}
 
-      {modalFiltro && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center pt-12 sm:pt-20 bg-black/50" onClick={() => setModalFiltro(null)} role="dialog" aria-modal="true" aria-label={modalTitle}>
-          <div
-            className="bg-white dark:bg-slate-900 rounded-xl shadow-xl w-full max-w-2xl mx-4 max-h-[75vh] flex flex-col border border-slate-200 dark:border-slate-700"
-            onClick={e => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
-              <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">{modalTitle}</h2>
-              <button type="button" onClick={() => setModalFiltro(null)} aria-label="Fechar" className="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800">
-                <X size={18} className="text-slate-500" />
-              </button>
-            </div>
-            <div className="overflow-y-auto p-4 flex-1">
-              {modalLoading ? (
-                <div className="flex items-center justify-center py-12">
-                  <Loader2 className="animate-spin text-slate-400" size={24} />
-                </div>
-              ) : modalLista.length === 0 ? (
-                <p className="text-center text-slate-500 py-12">Nenhuma visita encontrada</p>
-              ) : (
-                <div className="space-y-1">
-                  {modalLista.map((v: any) => (
-                    <Link
-                      key={v.id}
-                      href={`/comercial/crm/visitas/${v.id}`}
-                      onClick={() => setModalFiltro(null)}
-                      className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/50 text-left"
-                    >
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium text-slate-900 dark:text-slate-200 truncate">
-                          {v.empresaNome || v.clienteNome || v.nomeAvulso || `Visita #${v.id}`}
-                        </p>
-                        <p className="text-xs text-slate-400">
-                          {v.dataVisita
-                            ? new Date(v.dataVisita + "T12:00:00").toLocaleDateString("pt-BR")
-                            : ""}
-                          {v.hora ? ` ${v.hora}` : ""}
-                          {` · ${TIPO_LABELS[v.tipo] || v.tipo}`}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-3 ml-3 shrink-0">
-                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${
-                          v.status === "REALIZADA"
-                            ? "bg-green-100 text-green-700 dark:bg-green-950/50 dark:text-green-400"
-                            : v.status === "CANCELADA"
-                            ? "bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-400"
-                            : v.status === "EM_ANDAMENTO"
-                            ? "bg-orange-100 text-orange-700 dark:bg-orange-950/50 dark:text-orange-400"
-                            : "bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
-                        }`}>
-                          {STATUS_LABELS[v.status] || v.status}
-                        </span>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
+      <Dialog
+        open={!!modalFiltro}
+        onOpenChange={(open) => {
+          if (!open) setModalFiltro(null)
+        }}
+      >
+        <DialogContent className="sm:max-w-2xl max-h-[75vh] flex flex-col overflow-hidden p-0 gap-0">
+          <DialogHeader className="flex-row items-center justify-between gap-2 p-4 pr-12 border-b border-slate-100 dark:border-slate-800">
+            <DialogTitle className="text-lg font-semibold text-slate-900 dark:text-slate-50">{modalTitle}</DialogTitle>
+          </DialogHeader>
+          <div className="overflow-y-auto p-4 flex-1">
+            {modalLoading ? (
+              <div role="status" className="flex items-center justify-center py-12">
+                <Loader2 className="animate-spin text-slate-400" size={24} />
+                <span className="sr-only">Carregando visitas...</span>
+              </div>
+            ) : modalLista.length === 0 ? (
+              <p className="text-center text-slate-500 py-12">Nenhuma visita encontrada</p>
+            ) : (
+              <div className="space-y-1">
+                {modalLista.map((v: any) => (
+                  <Link
+                    key={v.id}
+                    href={`/comercial/crm/visitas/${v.id}`}
+                    onClick={() => setModalFiltro(null)}
+                    className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/50 text-left"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium text-slate-900 dark:text-slate-200 truncate">
+                        {v.empresaNome || v.clienteNome || v.nomeAvulso || `Visita #${v.id}`}
+                      </p>
+                      <p className="text-xs text-slate-400">
+                        {v.dataVisita
+                          ? new Date(v.dataVisita + "T12:00:00").toLocaleDateString("pt-BR")
+                          : ""}
+                        {v.hora ? ` ${v.hora}` : ""}
+                        {` · ${TIPO_LABELS[v.tipo] || v.tipo}`}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3 ml-3 shrink-0">
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${
+                        v.status === "REALIZADA"
+                          ? "bg-green-100 text-green-700 dark:bg-green-950/50 dark:text-green-400"
+                          : v.status === "CANCELADA"
+                          ? "bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-400"
+                          : v.status === "EM_ANDAMENTO"
+                          ? "bg-orange-100 text-orange-700 dark:bg-orange-950/50 dark:text-orange-400"
+                          : "bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
+                      }`}>
+                        {STATUS_LABELS[v.status] || v.status}
+                      </span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

@@ -3,8 +3,10 @@
 import dynamic from "next/dynamic"
 import Link from "next/link"
 import { useQuery } from "@tanstack/react-query"
-import { Loader2, MapPin, Navigation, X, Clock, CheckCircle2, Calendar } from "lucide-react"
-import { useEscapeClose } from "@/lib/use-escape-close"
+import { Loader2, MapPin, Navigation, Clock, CheckCircle2, Calendar } from "lucide-react"
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle,
+} from "@/components/ui/dialog"
 import type { PontoMapa } from "./viagem-rota-mapa"
 
 const ViagemRotaMapa = dynamic(() => import("./viagem-rota-mapa"), {
@@ -77,16 +79,12 @@ interface ViagemCronogramaModalProps {
 }
 
 export default function ViagemCronogramaModal({ viagemId, viagemTitulo, open, onClose }: ViagemCronogramaModalProps) {
-  useEscapeClose(open, onClose)
-
   const { data, isLoading } = useQuery<ViagemCronogramaData>({
     queryKey: ["viagem-cronograma", viagemId],
     queryFn: () => fetch(`/api/crm/visitas/dashboard/viagem?viagemId=${viagemId}`).then((r: any) => r.json()),
     enabled: open && !!viagemId,
     retry: 1,
   })
-
-  if (!open) return null
 
   const visitas = data?.visitas ?? []
   const resumo = data?.resumo
@@ -95,25 +93,27 @@ export default function ViagemCronogramaModal({ viagemId, viagemTitulo, open, on
     .map((v: any) => ({ id: v.id, latitude: v.latitude, longitude: v.longitude, rotulo: v.nome }))
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-8 sm:pt-14 bg-black/50" onClick={onClose} role="dialog" aria-modal="true" aria-label="Cronograma da Viagem">
-      <div
-        className="bg-white dark:bg-slate-900 rounded-xl shadow-xl w-full max-w-3xl mx-4 max-h-[85vh] flex flex-col border border-slate-200 dark:border-slate-700"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
+    <Dialog
+      open={open}
+      onOpenChange={(opened) => {
+        if (!opened) onClose()
+      }}
+    >
+      <DialogContent className="sm:max-w-3xl max-h-[85vh] flex flex-col overflow-hidden p-0 gap-0">
+        <DialogHeader className="flex-row items-start justify-between gap-2 p-4 pr-12 border-b border-slate-100 dark:border-slate-800">
           <div className="min-w-0">
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">Cronograma da Viagem</h2>
-            <p className="text-sm text-slate-500 dark:text-slate-400 truncate">{viagemTitulo}</p>
+            <DialogTitle className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+              Cronograma da Viagem
+            </DialogTitle>
+            <p className="text-sm text-slate-500 dark:text-slate-400 truncate mt-1">{viagemTitulo}</p>
           </div>
-          <button type="button" onClick={onClose} aria-label="Fechar" className="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800">
-            <X size={18} className="text-slate-500" />
-          </button>
-        </div>
+        </DialogHeader>
 
         <div className="overflow-y-auto p-4 flex-1 space-y-4">
           {isLoading && !data ? (
-            <div className="flex items-center justify-center py-16">
+            <div role="status" className="flex items-center justify-center py-16">
               <Loader2 className="animate-spin text-slate-400" size={24} />
+              <span className="sr-only">Carregando cronograma da viagem...</span>
             </div>
           ) : (
             <>
@@ -206,8 +206,8 @@ export default function ViagemCronogramaModal({ viagemId, viagemTitulo, open, on
             </>
           )}
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   )
 }
 

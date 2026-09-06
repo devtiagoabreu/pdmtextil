@@ -161,14 +161,14 @@ export default function ViagemRotaMapa({ pontos }: { pontos: PontoMapa[] }) {
             </ul>
           )}
           {foco && (
-            <div className="mt-1 rounded-lg bg-amber-100 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 px-2.5 py-1.5">
+            <div role="status" className="mt-1 rounded-lg bg-amber-100 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 px-2.5 py-1.5">
               <p className="text-[10px] font-medium text-amber-800 dark:text-amber-300">{foco.rotulo}</p>
               <p className="text-[10px] text-amber-700 dark:text-amber-400">Coordenadas: {formatarCoordenadas(foco.latitude, foco.longitude)}</p>
             </div>
           )}
         </div>
       </div>
-      {erro && <p className="text-xs text-slate-400">Não foi possível carregar o mapa do trajeto.</p>}
+      {erro && <p role="status" className="text-xs text-slate-400">Não foi possível carregar o mapa do trajeto.</p>}
     </div>
   )
 }

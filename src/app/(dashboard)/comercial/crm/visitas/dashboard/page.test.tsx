@@ -76,9 +76,22 @@ describe("VisitasDashboardPage", () => {
     vi.stubGlobal("fetch", fetchMock.fn)
     renderPage(<VisitasDashboardPage />)
     expect(screen.getByRole("heading", { name: "Dashboard de Visitas" })).toBeInTheDocument()
-    expect(await screen.findByText("Ações Rápidas")).toBeInTheDocument()
+expect(await screen.findByText("Ações Rápidas")).toBeInTheDocument()
     expect(screen.getByText("Performance por Gerente Comercial")).toBeInTheDocument()
     expect(screen.getByText("Viagens")).toBeInTheDocument()
+    expect(screen.getByText("Últimas Visitas")).toBeInTheDocument()
+  })
+
+  it("marca a aba ativa do filtro com aria-pressed", async () => {
+    const fetchMock = createFetchMock(routeJson({
+      "GET /api/crm/visitas/dashboard?mine=true": dashboardPayload(),
+    }))
+    vi.stubGlobal("fetch", fetchMock.fn)
+    renderPage(<VisitasDashboardPage />)
+
+    await screen.findByText("Ações Rápidas")
+    expect(screen.getByRole("button", { name: /Minhas Visitas/ })).toHaveAttribute("aria-pressed", "true")
+    expect(screen.getByRole("button", { name: "Todas" })).toHaveAttribute("aria-pressed", "false")
   })
 
   it("renderiza viagens e performance por gerente comercial com KPIs", async () => {

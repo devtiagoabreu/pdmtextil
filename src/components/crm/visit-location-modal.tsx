@@ -2,8 +2,10 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
-import { X, MapPin, Navigation, Trash2, ExternalLink, Loader2 } from "lucide-react"
-import { useEscapeClose } from "@/lib/use-escape-close"
+import { MapPin, Navigation, Trash2, ExternalLink, Loader2 } from "lucide-react"
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle,
+} from "@/components/ui/dialog"
 
 type Localizacao = {
   id: number
@@ -30,8 +32,6 @@ export default function VisitLocationModal({ visitaId, empresaNome, open, onClos
   const [observacao, setObservacao] = useState("")
   const [capturing, setCapturing] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
-  useEscapeClose(open, onClose)
 
   const { data: localizacoes = [], isLoading } = useQuery<Localizacao[]>({
     queryKey: ["visitas-localizacoes", visitaId],
@@ -104,30 +104,30 @@ export default function VisitLocationModal({ visitaId, empresaNome, open, onClos
     window.open(`https://www.google.com/maps?q=${lat},${lng}`, "_blank")
   }
 
-  if (!open) return null
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-label="Localizações da Visita">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-      <div className="relative bg-white dark:bg-slate-900 rounded-xl shadow-xl w-full max-w-lg mx-4 max-h-[80vh] flex flex-col">
-        <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
+    <Dialog
+      open={open}
+      onOpenChange={(opened) => {
+        if (!opened) onClose()
+      }}
+    >
+      <DialogContent className="sm:max-w-lg max-h-[80vh] flex flex-col overflow-hidden p-0 gap-0">
+        <DialogHeader className="flex-row items-start justify-between gap-2 p-4 pr-12 border-b border-slate-100 dark:border-slate-800">
           <div>
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+            <DialogTitle className="text-lg font-semibold text-slate-900 dark:text-slate-50">
               Localizações da Visita
-            </h2>
+            </DialogTitle>
             {empresaNome && (
-              <p className="text-sm text-slate-500 dark:text-slate-400">{empresaNome}</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{empresaNome}</p>
             )}
           </div>
-          <button onClick={onClose} aria-label="Fechar" className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
-            <X size={20} className="text-slate-500" />
-          </button>
-        </div>
+        </DialogHeader>
 
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {isLoading ? (
-            <div className="flex justify-center py-8">
+            <div role="status" className="flex justify-center py-8">
               <Loader2 className="animate-spin text-blue-600" size={24} />
+              <span className="sr-only">Carregando localizações...</span>
             </div>
           ) : localizacoes.length === 0 ? (
             <div className="text-center py-8">
@@ -175,20 +175,21 @@ export default function VisitLocationModal({ visitaId, empresaNome, open, onClos
                   </div>
                   <div className="flex items-center gap-1">
                     <button
+                      type="button"
                       onClick={() => openGoogleMaps(loc.latitude, loc.longitude)}
                       className="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-                      title="Abrir no Google Maps"
+                      aria-label="Abrir no Google Maps"
                     >
                       <ExternalLink size={14} className="text-slate-500" />
                     </button>
                     <button
+                      type="button"
                       onClick={() => {
                         if (window.confirm("Excluir esta localização?")) {
                           deleteMutation.mutate(loc.id)
                         }
                       }}
                       className="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-950/50 transition-colors"
-                      title="Excluir localização"
                       aria-label="Excluir localização"
                     >
                       <Trash2 size={14} className="text-red-500" />
@@ -200,7 +201,7 @@ export default function VisitLocationModal({ visitaId, empresaNome, open, onClos
           )}
 
           {error && (
-            <div className="p-3 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800">
+            <div role="status" className="p-3 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800">
               <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
             </div>
           )}
@@ -208,10 +209,14 @@ export default function VisitLocationModal({ visitaId, empresaNome, open, onClos
 
         <div className="p-4 border-t border-slate-200 dark:border-slate-700 space-y-3">
           <div>
-            <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+            <label
+              htmlFor="obs-localizacao"
+              className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1"
+            >
               Observação (opcional)
             </label>
             <input
+              id="obs-localizacao"
               type="text"
               value={observacao}
               onChange={(e) => setObservacao(e.target.value)}
@@ -220,6 +225,7 @@ export default function VisitLocationModal({ visitaId, empresaNome, open, onClos
             />
           </div>
           <button
+            type="button"
             onClick={handleCaptureLocation}
             disabled={capturing || addMutation.isPending}
             className="w-full flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -237,7 +243,7 @@ export default function VisitLocationModal({ visitaId, empresaNome, open, onClos
             )}
           </button>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   )
 }
