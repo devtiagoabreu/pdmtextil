@@ -9,6 +9,7 @@ import {
   ArrowRight, BarChart3, PieChart as PieChartIcon, ClipboardCheck, Navigation, User, X, Loader2,
 } from "lucide-react"
 import VisitLocationModal from "@/components/crm/visit-location-modal"
+import ViagemCronogramaModal from "@/components/crm/viagem-cronograma"
 import { useEscapeClose } from "@/lib/use-escape-close"
 
 const VisitasCharts = dynamic(() => import("./charts").then((m) => m.VisitasCharts), { ssr: false })
@@ -69,8 +70,10 @@ export default function VisitasDashboardPage() {
   const [modalFiltro, setModalFiltro] = useState<string | null>(null)
   const [modalTitle, setModalTitle] = useState("")
   const [visitasFilter, setVisitasFilter] = useState<"todas" | "minhas">("minhas")
+  const [selectedViagem, setSelectedViagem] = useState<{ viagemId: number; viagemTitulo: string } | null>(null)
 
   useEscapeClose(!!modalFiltro, () => setModalFiltro(null))
+  useEscapeClose(!!selectedViagem, () => setSelectedViagem(null))
 
   const { data, isLoading } = useQuery<VisitasDashboardData>({
     queryKey: ["visitas-dashboard", visitasFilter],
@@ -224,19 +227,45 @@ export default function VisitasDashboardPage() {
             </div>
             {data?.viagens && data.viagens.length > 0 ? (
               <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                {data.viagens.map((vg: any) => (
-                  <div key={vg.viagemId ?? "sem"} className="flex items-center justify-between p-3">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <Navigation size={14} className={vg.viagemId ? "text-cyan-500" : "text-slate-300"} />
-                      <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
-                        {vg.viagemTitulo ?? "Sem viagem"}
-                      </p>
+                {data.viagens.map((vg: any) => {
+                  const periodo = vg.dataInicio ? `${fmtData(vg.dataInicio)} a ${fmtData(vg.dataFim)}` : null
+                  const row = (
+                    <div className="flex items-center justify-between gap-3 p-3">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <Navigation size={14} className={vg.viagemId ? "text-cyan-500" : "text-slate-300"} />
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
+                            {vg.viagemTitulo ?? "Sem viagem"}
+                          </p>
+                          {periodo && (
+                            <p className="text-xs text-slate-400">{periodo} · {vg.realizadas ?? 0} realizada(s)</p>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                          {vg.total} visitas
+                        </p>
+                        {vg.viagemId && (
+                          <ArrowRight size={14} className="text-cyan-500" />
+                        )}
+                      </div>
                     </div>
-                    <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                      {vg.total} visitas
-                    </p>
-                  </div>
-                ))}
+                  )
+                  return vg.viagemId ? (
+                    <button
+                      key={vg.viagemId}
+                      type="button"
+                      onClick={() => setSelectedViagem({ viagemId: vg.viagemId, viagemTitulo: vg.viagemTitulo })}
+                      className="w-full text-left hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
+                      title={`Ver cronograma da ${vg.viagemTitulo}`}
+                    >
+                      {row}
+                    </button>
+                  ) : (
+                    <div key="sem" className="cursor-default">{row}</div>
+                  )
+                })}
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -383,6 +412,15 @@ export default function VisitasDashboardPage() {
           empresaNome={selectedVisita.nome}
           open={!!selectedVisita}
           onClose={() => setSelectedVisita(null)}
+        />
+      )}
+
+      {selectedViagem && (
+        <ViagemCronogramaModal
+          viagemId={selectedViagem.viagemId}
+          viagemTitulo={selectedViagem.viagemTitulo}
+          open={!!selectedViagem}
+          onClose={() => setSelectedViagem(null)}
         />
       )}
 

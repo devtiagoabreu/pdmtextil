@@ -82,6 +82,9 @@ export async function GET(req: NextRequest) {
           viagemId: crmVisitas.viagemId,
           viagemTitulo: crmViagens.titulo,
           total: count(),
+          realizadas: sql<number>`sum(case when ${crmVisitas.status} = 'REALIZADA' then 1 else 0 end)`,
+          minData: sql<string | null>`min(${crmVisitas.dataVisita})`,
+          maxData: sql<string | null>`max(${crmVisitas.dataVisita})`,
         })
         .from(crmVisitas)
         .leftJoin(crmViagens, eq(crmVisitas.viagemId, crmViagens.id))
@@ -176,6 +179,9 @@ export async function GET(req: NextRequest) {
         viagemId: r.viagemId,
         viagemTitulo: r.viagemId ? r.viagemTitulo : "Sem viagem",
         total: Number(r.total),
+        realizadas: Number(r.realizadas ?? 0),
+        dataInicio: r.minData || null,
+        dataFim: r.maxData || null,
       })),
       ultimasVisitas: ultimasVisitas.map((r: any) => ({
         id: r.id,
