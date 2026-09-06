@@ -68,7 +68,10 @@ Compara colunas entre os 4 bancos e lista diferenças.
 - Ao **criar/editar** uma visita (`POST /api/crm/visitas` e `PUT /api/crm/visitas/[id]`), o sistema geocodifica o endereço (visita → pessoa/empresa → cliente) via Nominatim e **persiste as coordenadas** na própria visita (1 geocode por endereço; vale para recorrências).
 - A rota `GET /api/crm/visitas/dashboard/viagem` usa a ordem: **check-in/check-out → `endereco_lat/lng` (fonte `"endereco"`) → geocode runtime (fonte `"geocodificada"`)**.
 - `src/lib/crm/geocode.ts` tem geocoder Nominatim com cache/dedup/fila (~1 req/s); `src/lib/crm/endereco.ts` monta o texto do endereço.
-- **Backfill**: `node scripts/geocode-visitas.js` (opcional `--db=`, `--limit=`, `--dry-run`) percorre os 4 bancos e preenche `endereco_lat/lng` de visitas sem coordenadas (idempotente/resumível). As colunas também estão no `scripts/sync-all-dbs.js`.
+- **Estratégia de geocodificação**: **structured search** (parâmetros `street`/`city`/`state`/`country`) — o `q` livre do Nominatim é instável e retorna o centro da cidade quando o endereço completo falha. Cadeia: rua+número → rua → cidade+UF → fallback `q`. `geocodificarCamposEndereco(campos)` recebe `EnderecoCampos`; `geocodificarEndereco(texto)` é fallback/compat.
+- **Histórico**: backfill inicial (commit `fe4719c9`/`22c4df9f`) gravou 26/37 visitas no centro das cidades por flakiness do `q`; corrigido com `node scripts/geocode-visitas.js --precisar` (structured) que atualizou 19 visitas para nível de rua.
+- O mapa (`viagem-rota-mapa.tsx`) **agrupa pins coincidentes** via `src/lib/crm/agrupar-pontos.ts` (`agruparPontos` por `toFixed(3)`, popup lista as visitas do grupo).
+- **Backfill**: `node scripts/geocode-visitas.js` (opcional `--db=`, `--limit=`, `--dry-run`, `--precisar`) percorre os 4 bancos e preenche `endereco_lat/lng` de visitas sem coordenadas (idempotente/resumível). As colunas também estão no `scripts/sync-all-dbs.js`.
 
 # Email em Massa — Agendamento e Envio
 

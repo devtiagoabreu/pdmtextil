@@ -10,9 +10,9 @@ vi.mock("@/lib/auth", () => ({ requireAuth: vi.fn() }))
 vi.mock("@/lib/db", () => ({
   db: { select: vi.fn() },
 }))
-vi.mock("@/lib/crm/geocode", () => ({ geocodificarEndereco: vi.fn() }))
+vi.mock("@/lib/crm/geocode", () => ({ geocodificarCamposEndereco: vi.fn() }))
 
-import { geocodificarEndereco } from "@/lib/crm/geocode"
+import { geocodificarCamposEndereco } from "@/lib/crm/geocode"
 
 const sessionAdmin = { session: { user: { id: "1", role: "ADMIN", name: "Tiago" } }, userId: 1 }
 
@@ -73,8 +73,8 @@ describe("GET /api/crm/visitas/dashboard/viagem", () => {
     vi.mocked(requireAuth).mockReset()
     resetDb(db)
     vi.mocked(requireAuth).mockResolvedValue(sessionAdmin as any)
-    vi.mocked(geocodificarEndereco).mockReset()
-    vi.mocked(geocodificarEndereco).mockResolvedValue(null)
+    vi.mocked(geocodificarCamposEndereco).mockReset()
+    vi.mocked(geocodificarCamposEndereco).mockResolvedValue(null)
   })
 
   it("retorna 401 sem autenticação", async () => {
@@ -147,7 +147,7 @@ describe("GET /api/crm/visitas/dashboard/viagem", () => {
   })
 
   it("geocodifica o endereço da própria visita quando não há coordenadas de check-in", async () => {
-    vi.mocked(geocodificarEndereco).mockResolvedValue({ latitude: -23.5, longitude: -46.63 })
+    vi.mocked(geocodificarCamposEndereco).mockResolvedValue({ latitude: -23.5, longitude: -46.63 })
     ;(db.select as ReturnType<typeof vi.fn>).mockReturnValueOnce(createQueryBuilder([viagem]))
     ;(db.select as ReturnType<typeof vi.fn>).mockReturnValueOnce(
       createQueryBuilder([
@@ -159,7 +159,7 @@ describe("GET /api/crm/visitas/dashboard/viagem", () => {
     const res = await GET(new NextRequest("http://localhost/api/crm/visitas/dashboard/viagem?viagemId=7"))
     const body = await res.json()
 
-    expect(geocodificarEndereco).toHaveBeenCalledWith("Av. X, 100, Centro, Goiânia, GO")
+    expect(geocodificarCamposEndereco).toHaveBeenCalledWith({ endereco: "Av. X", numero: "100", complemento: null, bairro: "Centro", cidade: "Goiânia", uf: "GO" })
     expect(body.visitas[0]).toMatchObject({
       id: 31,
       latitude: -23.5,
@@ -173,7 +173,7 @@ describe("GET /api/crm/visitas/dashboard/viagem", () => {
   })
 
   it("usa o endereço da pessoa (empresa) quando a visita não tem endereço", async () => {
-    vi.mocked(geocodificarEndereco).mockResolvedValue({ latitude: -16.82, longitude: -49.25 })
+    vi.mocked(geocodificarCamposEndereco).mockResolvedValue({ latitude: -16.82, longitude: -49.25 })
     ;(db.select as ReturnType<typeof vi.fn>).mockReturnValueOnce(createQueryBuilder([viagem]))
     ;(db.select as ReturnType<typeof vi.fn>).mockReturnValueOnce(
       createQueryBuilder([
@@ -199,12 +199,12 @@ describe("GET /api/crm/visitas/dashboard/viagem", () => {
     const res = await GET(new NextRequest("http://localhost/api/crm/visitas/dashboard/viagem?viagemId=7"))
     const body = await res.json()
 
-    expect(geocodificarEndereco).toHaveBeenCalledWith("Av. das Empresas, 500, Industrial, Aparecida de Goiânia, GO")
+    expect(geocodificarCamposEndereco).toHaveBeenCalledWith({ endereco: "Av. das Empresas", numero: "500", complemento: null, bairro: "Industrial", cidade: "Aparecida de Goiânia", uf: "GO" })
     expect(body.visitas[0].localizacaoFonte).toBe("geocodificada")
   })
 
   it("usa o endereço do cliente quando visita e pessoa não têm endereço", async () => {
-    vi.mocked(geocodificarEndereco).mockResolvedValue({ latitude: -16.33, longitude: -48.95 })
+    vi.mocked(geocodificarCamposEndereco).mockResolvedValue({ latitude: -16.33, longitude: -48.95 })
     ;(db.select as ReturnType<typeof vi.fn>).mockReturnValueOnce(createQueryBuilder([viagem]))
     ;(db.select as ReturnType<typeof vi.fn>).mockReturnValueOnce(
       createQueryBuilder([
@@ -229,7 +229,7 @@ describe("GET /api/crm/visitas/dashboard/viagem", () => {
     const res = await GET(new NextRequest("http://localhost/api/crm/visitas/dashboard/viagem?viagemId=7"))
     const body = await res.json()
 
-    expect(geocodificarEndereco).toHaveBeenCalledWith("Rua do Cliente, 90, Anápolis, GO")
+    expect(geocodificarCamposEndereco).toHaveBeenCalledWith({ endereco: "Rua do Cliente, 90", cidade: "Anápolis", uf: "GO" })
     expect(body.visitas[0]).toMatchObject({ id: 51, latitude: -16.33, longitude: -48.95, localizacaoFonte: "geocodificada" })
   })
 
@@ -245,7 +245,7 @@ describe("GET /api/crm/visitas/dashboard/viagem", () => {
     const res = await GET(new NextRequest("http://localhost/api/crm/visitas/dashboard/viagem?viagemId=7"))
     const body = await res.json()
 
-    expect(geocodificarEndereco).not.toHaveBeenCalled()
+    expect(geocodificarCamposEndereco).not.toHaveBeenCalled()
     expect(body.visitas[0]).toMatchObject({ id: 71, latitude: -23.55, longitude: -46.63, localizacaoFonte: "endereco", km: 0 })
     expect(body.visitas[1]).toMatchObject({ id: 72, latitude: -22.9, longitude: -43.17, localizacaoFonte: "endereco" })
     expect(body.resumo).toMatchObject({ comLocalizacao: 2, comEndereco: 2, geocodificadas: 0, kmSemLocalizacao: 0 })
@@ -277,7 +277,7 @@ describe("GET /api/crm/visitas/dashboard/viagem", () => {
     const res = await GET(new NextRequest("http://localhost/api/crm/visitas/dashboard/viagem?viagemId=7"))
     const body = await res.json()
 
-    expect(geocodificarEndereco).not.toHaveBeenCalled()
+    expect(geocodificarCamposEndereco).not.toHaveBeenCalled()
     expect(body.visitas[0]).toMatchObject({ latitude: null, longitude: null, localizacaoFonte: null, km: null })
     expect(body.resumo).toMatchObject({ comLocalizacao: 0, geocodificadas: 0, kmSemLocalizacao: 1 })
   })

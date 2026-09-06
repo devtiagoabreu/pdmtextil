@@ -3,14 +3,19 @@
 // Idempotente e resumível: só processa visitas onde endereco_lat/lng ainda são NULL.
 //
 // Estratégia de geocodificação (igual ao geocoder de runtime em src/lib/crm/geocode.ts):
-//   endereço completo -> endereço sem número -> cidade + UF
+//   busca estruturada (street+city+state) com número -> sem número -> cidade + UF
+// O Nominatim structured é muito mais estável que o `q` livre, que varia e retorna o
+// centro da cidade quando o endereço completo falha.
 // Com cache de sucessos em arquivo (node_modules/.cache) entre execuções e 1 retry por candidato.
 //
 // Uso:
-//   node scripts/geocode-visitas.js                 (todas as DBs)
-//   node scripts/geocode-visitas.js --db=pdm_textil  (só a principal)
-//   node scripts/geocode-visitas.js --limit=50       (máx 50 por banco)
-//   node scripts/geocode-visitas.js --dry-run        (só conta, não consulta o Nominatim)
+//   node scripts/geocode-visitas.js                  (todas as DBs, só visitas sem coords)
+//   node scripts/geocode-visitas.js --db=pdm_textil   (só a principal)
+//   node scripts/geocode-visitas.js --limit=50        (máx 50 por banco)
+//   node scripts/geocode-visitas.js --dry-run         (só conta, não consulta o Nominatim)
+//   node scripts/geocode-visitas.js --precisar        (re-geocodifica visitas JÁ com coords,
+//                                                      ignorando o cache do endereço completo;
+//                                                      atualiza quando melhorar a precisão)
 //
 // Requer as env vars do .env.local (DATABASE_URL, DATABASE_URL_PDM_PRO_TEXTIL,
 // DATABASE_URL_PDM_IBIRAPUERA, DATABASE_URL_NEON).
@@ -35,6 +40,7 @@ function argValue(flag) {
 const onlyDb = argValue("--db")
 const limit = Number(argValue("--limit") || 0)
 const dryRun = args.includes("--dry-run")
+const precisar = args.includes("--precisar")
 
 const NOMINATIM_URL = "https://nominatim.openstreetmap.org/search"
 const USER_AGENT = "pdm-textil/1.0 (backfill de coordenadas)"
@@ -77,35 +83,31 @@ function normalizar(texto) {
   return texto.trim().replace(/\s+/g, " ").toLowerCase()
 }
 
-function candidatosEndereco(texto) {
-  const segs = texto
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean)
-  if (segs.length === 0) return []
-  const full = segs.join(", ")
-  const semNumero = segs.filter((s) => !/^\d+$/.test(s) && !/^s\.?\/?\s*n\.?$/i.test(s)).join(", ")
-  const cidade = segs.length >= 2 ? segs.slice(-2).join(", ") : ""
-  const vistos = new Set()
-  const unicos = []
-  for (const c of [full, semNumero, cidade]) {
-    if (c.length >= 10) {
-      const cn = normalizar(c)
-      if (!vistos.has(cn)) {
-        vistos.add(cn)
-        unicos.push(c)
-      }
-    }
-  }
-  return unicos
+function candidatosCampos(campos) {
+  const rua = (campos.endereco || "").trim()
+  const numero = (campos.numero || "").trim()
+  const cidade = (campos.cidade || "").trim()
+  const uf = (campos.uf || "").trim()
+  const cands = []
+  if (rua && numero) cands.push({ street: `${rua}, ${numero}`, city: cidade, state: uf })
+  if (rua) cands.push({ street: rua, city: cidade, state: uf })
+  if (cidade || uf) cands.push({ street: "", city: cidade, state: uf })
+  return cands
 }
 
-async function consultarNominatim(texto) {
+function chaveCandidato(cand) {
+  const rua = cand.street ? `${cand.street}, ` : ""
+  return normalizar(`${rua}${cand.city || ""} ${cand.state || ""}`)
+}
+
+async function consultarStructured(cand) {
   const url = new URL(NOMINATIM_URL)
-  url.searchParams.set("q", texto)
+  if (cand.street) url.searchParams.set("street", cand.street)
+  if (cand.city) url.searchParams.set("city", cand.city)
+  if (cand.state) url.searchParams.set("state", cand.state)
+  url.searchParams.set("country", "br")
   url.searchParams.set("format", "json")
   url.searchParams.set("limit", "1")
-  url.searchParams.set("countrycodes", "br")
   try {
     const res = await fetch(url, { headers: { "User-Agent": USER_AGENT, Accept: "application/json" } })
     if (!res.ok) return null
@@ -121,19 +123,22 @@ async function consultarNominatim(texto) {
   }
 }
 
-async function geocodificar(texto) {
-  const chave = normalizar(texto)
-  if (cacheCoords[chave]) return cacheCoords[chave]
-  for (const candidato of candidatosEndereco(texto)) {
-    const cn = normalizar(candidato)
-    if (cacheCoords[cn]) {
+async function geocodificarCampos(campos, opts = {}) {
+  const chave = normalizar(montar(campos))
+  if (chave.length < 10) return null
+  if (!opts.ignorarCacheCompleta && cacheCoords[chave]) return cacheCoords[chave]
+  const cands = candidatosCampos(campos)
+  for (let i = 0; i < cands.length; i++) {
+    const cn = chaveCandidato(cands[i])
+    const usarCache = !(opts.ignorarCacheCompleta && i === 0)
+    if (usarCache && cacheCoords[cn]) {
       cacheCoords[chave] = cacheCoords[cn]
       return cacheCoords[cn]
     }
     let coords = null
     for (let tentativa = 0; tentativa < 2 && !coords; tentativa++) {
       if (tentativa > 0) await sleep(2000)
-      coords = await enfileirar(() => consultarNominatim(candidato))
+      coords = await enfileirar(() => consultarStructured(cands[i]))
     }
     if (coords) {
       cacheCoords[cn] = coords
@@ -153,6 +158,35 @@ function montar(fields) {
     .join(", ")
 }
 
+function camposDaVisita(row) {
+  const visita = {
+    endereco: row.endereco,
+    numero: row.numero,
+    complemento: row.complemento,
+    bairro: row.bairro,
+    cidade: row.cidade,
+    uf: row.uf,
+  }
+  const pessoa = {
+    endereco: row.p_endereco,
+    numero: row.p_numero,
+    complemento: row.p_complemento,
+    bairro: row.p_bairro,
+    cidade: row.p_cidade,
+    uf: row.p_uf,
+  }
+  const cliente = {
+    endereco: row.c_endereco,
+    complemento: null,
+    bairro: null,
+    numero: null,
+    cidade: row.c_cidade,
+    uf: row.c_uf,
+  }
+  const temEndereco = (c) => [c.endereco, c.numero, c.complemento, c.bairro, c.cidade, c.uf].some(Boolean)
+  return [visita, pessoa, cliente].find(temEndereco) || null
+}
+
 async function processarBanco(dbInfo) {
   const { name, url } = dbInfo
   if (!url) {
@@ -163,6 +197,7 @@ async function processarBanco(dbInfo) {
   try {
     const rows = await sql`
       SELECT v.id,
+             v.endereco_lat, v.endereco_lng,
              v.endereco, v.numero, v.complemento, v.bairro, v.cidade, v.uf,
              v.empresa_id, v.cliente_id,
              p.endereco AS p_endereco, p.numero AS p_numero, p.complemento AS p_complemento,
@@ -171,12 +206,16 @@ async function processarBanco(dbInfo) {
       FROM crm_visitas v
       LEFT JOIN crm_pessoas p ON p.id = v.empresa_id
       LEFT JOIN clientes c ON c.id = v.cliente_id
-      WHERE v.endereco_lat IS NULL AND v.endereco_lng IS NULL
+      WHERE ${precisar
+        ? sql`v.endereco_lat IS NOT NULL AND v.endereco_lng IS NOT NULL`
+        : sql`v.endereco_lat IS NULL AND v.endereco_lng IS NULL`}
       ORDER BY v.id
       ${limit ? sql`LIMIT ${limit}` : sql``}
     `
 
-    console.log(`🔄 ${name}: ${rows.length} visita(s) sem coordenadas de endereço`)
+    console.log(
+      `🔄 ${name}: ${rows.length} visita(s) ${precisar ? "com coordenadas (re-geocodificando)" : "sem coordenadas de endereço"}`,
+    )
 
     if (dryRun) {
       console.log(`   (dry-run: não será feita nenhuma geocodificação)`)
@@ -185,40 +224,33 @@ async function processarBanco(dbInfo) {
 
     let ok = 0
     let semResultado = 0
+    let jaPreciso = 0
     let erro = 0
 
     for (const row of rows) {
-      const enderecoTexto =
-        montar({
-          endereco: row.endereco,
-          numero: row.numero,
-          complemento: row.complemento,
-          bairro: row.bairro,
-          cidade: row.cidade,
-          uf: row.uf,
-        }) ||
-        montar({
-          endereco: row.p_endereco,
-          numero: row.p_numero,
-          complemento: row.p_complemento,
-          bairro: row.p_bairro,
-          cidade: row.p_cidade,
-          uf: row.p_uf,
-        }) ||
-        montar({
-          endereco: row.c_endereco,
-          cidade: row.c_cidade,
-          uf: row.c_uf,
-        })
-
-      if (!enderecoTexto || enderecoTexto.trim().length < 10) {
+      const campos = camposDaVisita(row)
+      if (!campos) {
         semResultado++
         continue
       }
 
-      const coords = await geocodificar(enderecoTexto)
+      const enderecoTexto = montar(campos)
+      if (enderecoTexto.trim().length < 10) {
+        semResultado++
+        continue
+      }
+
+      const coords = await geocodificarCampos(campos, { ignorarCacheCompleta: precisar })
       if (!coords) {
         semResultado++
+        continue
+      }
+
+      const antigoLat = Number(row.endereco_lat)
+      const antigoLng = Number(row.endereco_lng)
+      const mudou = !precisar || Math.abs(antigoLat - coords.lat) > 0.001 || Math.abs(antigoLng - coords.lng) > 0.001
+      if (!mudou) {
+        jaPreciso++
         continue
       }
 
@@ -230,7 +262,7 @@ async function processarBanco(dbInfo) {
       }
     }
 
-    console.log(`   ✅ ${ok} atualizada(s) | sem endereço/resultado: ${semResultado} | erro: ${erro}`)
+    console.log(`   ✅ ${ok} atualizada(s) | sem endereço/resultado: ${semResultado} | já precisas: ${jaPreciso} | erro: ${erro}`)
   } catch (e) {
     console.error(`   ❌ ${name}: ${e.message.split("\n")[0]}`)
   } finally {

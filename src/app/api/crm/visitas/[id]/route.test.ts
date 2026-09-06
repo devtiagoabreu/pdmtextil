@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { notificarDelecao } from "@/lib/notificar"
-import { geocodificarEndereco } from "@/lib/crm/geocode"
+import { geocodificarCamposEndereco } from "@/lib/crm/geocode"
 import { createDbMock, createQueryBuilder, resetDb } from "@/test/route-db-mock"
 import { DELETE, PUT } from "./route"
 
@@ -18,7 +18,7 @@ vi.mock("@/lib/notificar", () => ({
 vi.mock("@/lib/db", () => ({
   db: { select: vi.fn(), insert: vi.fn(), update: vi.fn(), delete: vi.fn(), execute: vi.fn(), transaction: vi.fn() },
 }))
-vi.mock("@/lib/crm/geocode", () => ({ geocodificarEndereco: vi.fn() }))
+vi.mock("@/lib/crm/geocode", () => ({ geocodificarCamposEndereco: vi.fn() }))
 
 const sessionAdmin = { session: { user: { id: "1", role: "ADMIN", name: "Tiago" } }, userId: 1 }
 
@@ -112,11 +112,11 @@ describe("DELETE /api/crm/visitas/[id]", () => {
 
 describe("PUT /api/crm/visitas/[id]", () => {
   beforeEach(() => {
-    vi.mocked(requireAuth).mockReset()
-    resetDb(db)
-    vi.mocked(geocodificarEndereco).mockReset()
+vi.mocked(requireAuth).mockReset()
+
+    vi.mocked(geocodificarCamposEndereco).mockReset()
     vi.mocked(requireAuth).mockResolvedValue(sessionAdmin as any)
-    vi.mocked(geocodificarEndereco).mockResolvedValue(null)
+    vi.mocked(geocodificarCamposEndereco).mockResolvedValue(null)
   })
 
   function put(id: string, body: Record<string, any>) {
@@ -132,7 +132,7 @@ describe("PUT /api/crm/visitas/[id]", () => {
   })
 
   it("geocodifica e salva as coordenadas ao atualizar o endereço da visita", async () => {
-    vi.mocked(geocodificarEndereco).mockResolvedValue({ latitude: -16.82, longitude: -49.25 })
+    vi.mocked(geocodificarCamposEndereco).mockResolvedValue({ latitude: -16.82, longitude: -49.25 })
     ;(db.select as ReturnType<typeof vi.fn>).mockReturnValueOnce(createQueryBuilder([visitaExistente()]))
     const builder = createQueryBuilder([visitaExistente({ enderecoLat: -16.82, enderecoLng: -49.25 })])
     ;(db.update as ReturnType<typeof vi.fn>).mockReturnValue(builder)
@@ -140,7 +140,7 @@ describe("PUT /api/crm/visitas/[id]", () => {
     const res = await put("10", { endereco: "Av. X", numero: "100", bairro: "Centro", cidade: "Goiânia", uf: "GO" })
 
     expect(res.status).toBe(200)
-    expect(geocodificarEndereco).toHaveBeenCalledWith("Av. X, 100, Centro, Goiânia, GO")
+    expect(geocodificarCamposEndereco).toHaveBeenCalledWith({ endereco: "Av. X", numero: "100", complemento: null, bairro: "Centro", cidade: "Goiânia", uf: "GO" })
     const setArgs = builder.set.mock.calls[0][0]
     expect(setArgs.enderecoLat).toBe(-16.82)
     expect(setArgs.enderecoLng).toBe(-49.25)
@@ -156,14 +156,14 @@ describe("PUT /api/crm/visitas/[id]", () => {
     const res = await put("10", { endereco: null, numero: null, complemento: null, bairro: null, cidade: null, uf: null })
 
     expect(res.status).toBe(200)
-    expect(geocodificarEndereco).not.toHaveBeenCalled()
+    expect(geocodificarCamposEndereco).not.toHaveBeenCalled()
     const setArgs = builder.set.mock.calls[0][0]
     expect(setArgs.enderecoLat).toBeNull()
     expect(setArgs.enderecoLng).toBeNull()
   })
 
   it("usa o endereço da pessoa (empresa) quando a visita fica sem endereço", async () => {
-    vi.mocked(geocodificarEndereco).mockResolvedValue({ latitude: -16.68, longitude: -49.26 })
+    vi.mocked(geocodificarCamposEndereco).mockResolvedValue({ latitude: -16.68, longitude: -49.26 })
     ;(db.select as ReturnType<typeof vi.fn>)
       .mockReturnValueOnce(createQueryBuilder([visitaExistente({ empresaId: 9, endereco: null, numero: null, bairro: null, cidade: null, uf: null })]))
       .mockReturnValueOnce(
@@ -177,7 +177,7 @@ describe("PUT /api/crm/visitas/[id]", () => {
     const res = await put("10", { endereco: null })
 
     expect(res.status).toBe(200)
-    expect(geocodificarEndereco).toHaveBeenCalledWith("Av. das Empresas, 500, Industrial, Aparecida de Goiânia, GO")
+    expect(geocodificarCamposEndereco).toHaveBeenCalledWith({ endereco: "Av. das Empresas", numero: "500", complemento: null, bairro: "Industrial", cidade: "Aparecida de Goiânia", uf: "GO" })
   })
 
   it("não geocodifica quando nenhum campo de endereço é enviado", async () => {
@@ -188,7 +188,7 @@ describe("PUT /api/crm/visitas/[id]", () => {
     const res = await put("10", { relato: "relato sem mudança de endereço" })
 
     expect(res.status).toBe(200)
-    expect(geocodificarEndereco).not.toHaveBeenCalled()
+    expect(geocodificarCamposEndereco).not.toHaveBeenCalled()
     const setArgs = builder.set.mock.calls[0][0]
     expect(setArgs.enderecoLat).toBeUndefined()
   })

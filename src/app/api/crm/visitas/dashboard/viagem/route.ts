@@ -7,7 +7,8 @@ import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
 import { clientes } from "@/lib/db/schema/clientes"
 import { eq, asc } from "drizzle-orm"
 import { calcularTrajeto, type PontoRota } from "@/lib/crm/roteiro-geo"
-import { geocodificarEndereco } from "@/lib/crm/geocode"
+import { montarEnderecoTexto, temEndereco, type EnderecoCampos } from "@/lib/crm/endereco"
+import { geocodificarCamposEndereco } from "@/lib/crm/geocode"
 
 export const dynamic = "force-dynamic"
 
@@ -76,35 +77,37 @@ export async function GET(req: NextRequest) {
     const viagem = viagemResult[0]
 
     const visitasOrdenadas = visitas.map((r: any) => {
-      const montar = (base: Record<string, string | null>) =>
-        [base.endereco, base.numero, base.complemento, base.bairro, base.cidade, base.uf]
-          .filter(Boolean)
-          .join(", ")
-      const enderecoTexto = montar(r)
-      const enderecoGeocode =
-        montar({
-          endereco: r.endereco,
-          numero: r.numero,
-          complemento: r.complemento,
-          bairro: r.bairro,
-          cidade: r.cidade,
-          uf: r.uf,
-        }) ||
-        montar({
-          endereco: r.empresaEndereco,
-          numero: r.empresaNumero,
-          complemento: r.empresaComplemento,
-          bairro: r.empresaBairro,
-          cidade: r.empresaCidade,
-          uf: r.empresaUf,
-        }) ||
-        montar({
-          endereco: r.clienteEndereco,
-          cidade: r.clienteCidade,
-          uf: r.clienteUf,
-        })
+      const camposVisita: EnderecoCampos = {
+        endereco: r.endereco,
+        numero: r.numero,
+        complemento: r.complemento,
+        bairro: r.bairro,
+        cidade: r.cidade,
+        uf: r.uf,
+      }
+      const camposEmpresa: EnderecoCampos = {
+        endereco: r.empresaEndereco,
+        numero: r.empresaNumero,
+        complemento: r.empresaComplemento,
+        bairro: r.empresaBairro,
+        cidade: r.empresaCidade,
+        uf: r.empresaUf,
+      }
+      const camposCliente: EnderecoCampos = {
+        endereco: r.clienteEndereco,
+        cidade: r.clienteCidade,
+        uf: r.clienteUf,
+      }
+      const enderecoCampos: EnderecoCampos | null = temEndereco(camposVisita)
+        ? camposVisita
+        : temEndereco(camposEmpresa)
+          ? camposEmpresa
+          : temEndereco(camposCliente)
+            ? camposCliente
+            : null
+      const enderecoTexto = enderecoCampos ? montarEnderecoTexto(enderecoCampos) : ""
       const nome = r.empresaNome || r.clienteNome || r.nomeAvulso || `Visita #${r.id}`
-      return { ...r, nome, enderecoTexto, enderecoGeocode }
+      return { ...r, nome, enderecoTexto, enderecoCampos }
     })
 
     const geocodificadas = new Map<number, { latitude: number; longitude: number }>()
@@ -113,8 +116,8 @@ export async function GET(req: NextRequest) {
       const temCheckOut = v.checkOutLat != null || v.checkOutLng != null
       const temEnderecoCoords = v.enderecoLat != null || v.enderecoLng != null
       if (temCheckIn || temCheckOut || temEnderecoCoords) continue
-      if (!v.enderecoGeocode) continue
-      const coords = await geocodificarEndereco(v.enderecoGeocode)
+      if (!v.enderecoCampos) continue
+      const coords = await geocodificarCamposEndereco(v.enderecoCampos)
       if (coords) geocodificadas.set(v.id, coords)
     }
 

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
-import { configurarEspacamentoGeocode, geocodificarEndereco, limparCacheGeocode } from "./geocode"
+import { configurarEspacamentoGeocode, geocodificarCamposEndereco, geocodificarEndereco, limparCacheGeocode } from "./geocode"
 
 const ORIGINAL_FETCH = globalThis.fetch
 
@@ -83,5 +83,61 @@ describe("geocodificarEndereco", () => {
     ])
     expect(a).toEqual(b)
     expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe("geocodificarCamposEndereco", () => {
+  beforeEach(() => {
+    configurarEspacamentoGeocode(0)
+    limparCacheGeocode()
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    globalThis.fetch = ORIGINAL_FETCH
+    configurarEspacamentoGeocode(1050)
+  })
+
+  it("consulta o Nominatim com parâmetros estruturados (street/city/state) em vez de q livre", async () => {
+    const fetchMock = mockFetch([{ lat: "-23.5505", lon: "-46.6333" }])
+    const coords = await geocodificarCamposEndereco({
+      endereco: "Av. X",
+      numero: "100",
+      complemento: null,
+      bairro: "Centro",
+      cidade: "Goiânia",
+      uf: "GO",
+    })
+    expect(coords).toEqual({ latitude: -23.5505, longitude: -46.6333 })
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    const url = new URL(fetchMock.mock.calls[0][0])
+    expect(url.searchParams.get("street")).toBe("Av. X, 100")
+    expect(url.searchParams.get("city")).toBe("Goiânia")
+    expect(url.searchParams.get("state")).toBe("GO")
+    expect(url.searchParams.get("country")).toBe("br")
+    expect(url.searchParams.get("q")).toBeNull()
+  })
+
+  it("usa a busca estruturada de cidade+UF quando rua e número não resolvem", async () => {
+    const fn = vi.fn()
+    fn.mockImplementation(async (input: string | URL) => {
+      const url = new URL(String(input))
+      if (url.searchParams.has("street")) return { ok: true, json: async () => [] }
+      if (!url.searchParams.has("q")) return { ok: true, json: async () => [{ lat: "-16.68", lon: "-49.25" }] }
+      return { ok: true, json: async () => [] }
+    })
+    vi.stubGlobal("fetch", fn)
+    const coords = await geocodificarCamposEndereco({
+      endereco: "Rua Torta, 999",
+      numero: null,
+      complemento: null,
+      bairro: null,
+      cidade: "Cidade Nova",
+      uf: "GO",
+    })
+    expect(coords).toEqual({ latitude: -16.68, longitude: -49.25 })
+    const chamadas = fn.mock.calls.map((c) => new URL(String(c[0])).searchParams)
+    expect(chamadas.filter((p) => p.has("street"))).toHaveLength(1)
+    expect(chamadas.some((p) => !p.has("street") && !p.has("q"))).toBe(true)
   })
 })

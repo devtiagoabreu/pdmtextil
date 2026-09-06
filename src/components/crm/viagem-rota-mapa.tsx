@@ -2,13 +2,9 @@
 
 import { useEffect, useRef, useState } from "react"
 import { MapPin } from "lucide-react"
+import { agruparPontos, type PontoMapa } from "@/lib/crm/agrupar-pontos"
 
-export type PontoMapa = {
-  id: number
-  latitude: number
-  longitude: number
-  rotulo: string
-}
+export type { PontoMapa } from "@/lib/crm/agrupar-pontos"
 
 export default function ViagemRotaMapa({ pontos }: { pontos: PontoMapa[] }) {
   const containerRef = useRef<HTMLDivElement | null>(null)
@@ -24,22 +20,31 @@ export default function ViagemRotaMapa({ pontos }: { pontos: PontoMapa[] }) {
       try {
         const L = (await import("leaflet")).default
         if (cancelled || !el || pontos.length === 0) return
-        const latlngs = pontos.map((p) => [p.latitude, p.longitude] as [number, number])
+        const grupos = agruparPontos(pontos)
+        const latlngs = grupos.map((g) => [g.latitude, g.longitude] as [number, number])
         mapa = L.map(el, { scrollWheelZoom: false })
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
           attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
         }).addTo(mapa)
         L.polyline(latlngs, { color: "#2563eb", weight: 4, opacity: 0.85 }).addTo(mapa)
-        pontos.forEach((p, i) => {
+        grupos.forEach((grupo) => {
+          const todos = grupo.ordem.length === 1
+          const cor = todos ? "#2563eb" : "#b91c1c"
+          const tamanho = todos ? 26 : 30
+          const rotulo = todos ? String(grupo.ordem[0]) : String(grupo.ordem.length)
           const icone = L.divIcon({
             className: "",
-            html: `<div style="width:26px;height:26px;border-radius:50%;background:#2563eb;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35)">${i + 1}</div>`,
-            iconSize: [26, 26],
-            iconAnchor: [13, 13],
+            html: `<div style="width:${tamanho}px;height:${tamanho}px;border-radius:50%;background:${cor};color:#fff;display:flex;align-items:center;justify-content:center;font-size:${todos ? 12 : 13}px;font-weight:700;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35)">${rotulo}</div>`,
+            iconSize: [tamanho, tamanho],
+            iconAnchor: [tamanho / 2, tamanho / 2],
           })
-          L.marker([p.latitude, p.longitude], { icon: icone })
+          const popup = todos
+            ? `<strong>${grupo.ordem[0]}.</strong> ${grupo.rotulos[0]}`
+            : `<strong>${grupo.ordem.length} visitas neste ponto</strong><br>` +
+              grupo.ordem.map((n, i) => `<strong>${n}.</strong> ${grupo.rotulos[i]}`).join("<br>")
+          L.marker([grupo.latitude, grupo.longitude], { icon: icone })
             .addTo(mapa)
-            .bindPopup(`<strong>${i + 1}.</strong> ${p.rotulo}`)
+            .bindPopup(popup)
         })
         if (latlngs.length === 1) {
           mapa.setView(latlngs[0], 14)

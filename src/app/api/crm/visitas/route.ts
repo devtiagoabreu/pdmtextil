@@ -11,8 +11,8 @@ import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq, desc, like, or, and, count, gte, lte, inArray } from "drizzle-orm"
 import { registrarLog, notificar } from "@/lib/notificar"
 import { inserirTimelineEvento } from "@/lib/crm-timeline"
-import { montarEnderecoTexto, temEndereco, type EnderecoCampos } from "@/lib/crm/endereco"
-import { geocodificarEndereco } from "@/lib/crm/geocode"
+import { temEndereco, type EnderecoCampos } from "@/lib/crm/endereco"
+import { geocodificarCamposEndereco } from "@/lib/crm/geocode"
 
 export async function GET(req: NextRequest) {
   try {
@@ -239,33 +239,33 @@ async function buscarCoordenadasDaVisita(baseValues: Record<string, any>): Promi
     uf: baseValues.uf || null,
   }
 
-  let enderecoTexto = temEndereco(enderecoVisita) ? montarEnderecoTexto(enderecoVisita) : ""
+  let campos: EnderecoCampos | null = temEndereco(enderecoVisita) ? enderecoVisita : null
 
-  if (!enderecoTexto) {
-    const [pessoa] = baseValues.empresaId
-      ? await db
-          .select({
-            endereco: crmPessoas.endereco,
-            numero: crmPessoas.numero,
-            complemento: crmPessoas.complemento,
-            bairro: crmPessoas.bairro,
-            cidade: crmPessoas.cidade,
-            uf: crmPessoas.uf,
-          })
-          .from(crmPessoas)
-          .where(eq(crmPessoas.id, baseValues.empresaId))
-          .limit(1)
-      : []
-    const [cliente] = baseValues.clienteId
-      ? await db
-          .select({ endereco: clientes.endereco, cidade: clientes.cidade, uf: clientes.uf })
-          .from(clientes)
-          .where(eq(clientes.id, baseValues.clienteId))
-          .limit(1)
-      : []
-    enderecoTexto = montarEnderecoTexto(pessoa || {}) || montarEnderecoTexto(cliente || {})
+  if (!campos && baseValues.empresaId) {
+    const [pessoa] = await db
+      .select({
+        endereco: crmPessoas.endereco,
+        numero: crmPessoas.numero,
+        complemento: crmPessoas.complemento,
+        bairro: crmPessoas.bairro,
+        cidade: crmPessoas.cidade,
+        uf: crmPessoas.uf,
+      })
+      .from(crmPessoas)
+      .where(eq(crmPessoas.id, baseValues.empresaId))
+      .limit(1)
+    if (temEndereco(pessoa || {})) campos = pessoa as EnderecoCampos
   }
 
-  if (!enderecoTexto) return null
-  return geocodificarEndereco(enderecoTexto)
+  if (!campos && baseValues.clienteId) {
+    const [cliente] = await db
+      .select({ endereco: clientes.endereco, cidade: clientes.cidade, uf: clientes.uf })
+      .from(clientes)
+      .where(eq(clientes.id, baseValues.clienteId))
+      .limit(1)
+    if (temEndereco(cliente || {})) campos = cliente as EnderecoCampos
+  }
+
+  if (!campos) return null
+  return geocodificarCamposEndereco(campos)
 }
