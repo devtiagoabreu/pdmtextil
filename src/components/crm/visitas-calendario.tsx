@@ -2,8 +2,8 @@
 
 import { useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
-import { ChevronLeft, ChevronRight, CalendarDays, Navigation, Plus, X, MapPin } from "lucide-react"
-import { useEscapeClose } from "@/lib/use-escape-close"
+import { ChevronLeft, ChevronRight, CalendarDays, Navigation, Plus, X } from "lucide-react"
+import { Dialog as DialogPrimitive } from "@base-ui/react/dialog"
 
 const TIPO_LABELS: Record<string, string> = {
   PRESENCIAL: "Presencial",
@@ -67,8 +67,6 @@ export default function VisitasCalendario({ visitas }: { visitas: Visita[] }) {
   const router = useRouter()
   const [currentDate, setCurrentDate] = useState(new Date())
   const [modalDay, setModalDay] = useState<string | null>(null)
-
-  useEscapeClose(!!modalDay, () => setModalDay(null))
 
   const year = currentDate.getFullYear()
   const month = currentDate.getMonth()
@@ -156,14 +154,16 @@ export default function VisitasCalendario({ visitas }: { visitas: Visita[] }) {
             const isToday = dateKey === hojeStr
 
             return (
-              <div
+              <button
                 key={dateKey}
+                type="button"
                 onClick={() => handleDayClick(dateKey)}
-                className={`min-h-[50px] md:min-h-[90px] p-1 md:p-1.5 border-b border-r border-slate-100 dark:border-slate-800 cursor-pointer transition-colors hover:bg-blue-50/60 dark:hover:bg-blue-950/20 ${
+                className={`min-h-[50px] md:min-h-[90px] p-1 md:p-1.5 border-b border-r border-slate-100 dark:border-slate-800 cursor-pointer transition-colors hover:bg-blue-50/60 dark:hover:bg-blue-950/20 text-left ${
                   isToday ? "bg-blue-50/60 dark:bg-blue-950/20" : ""
                 }`}
+                aria-label={`${formatarDataBR(dateKey)}${diaVisitas.length > 0 ? `, ${diaVisitas.length} visita(s)` : ""}`}
               >
-                <div className="flex items-center justify-between mb-1">
+                <span className="flex items-center justify-between mb-1">
                   <span
                     className={`text-[10px] md:text-xs font-semibold w-5 h-5 md:w-6 md:h-6 flex items-center justify-center rounded-full ${
                       isToday
@@ -178,10 +178,10 @@ export default function VisitasCalendario({ visitas }: { visitas: Visita[] }) {
                       {diaVisitas.length}
                     </span>
                   )}
-                </div>
-                <div className="space-y-0.5">
+                </span>
+                <span className="space-y-0.5">
                   {diaVisitas.slice(0, 2).map((v: any) => (
-                    <div
+                    <span
                       key={v.id}
                       className="flex items-center gap-1"
                       title={`${v.nomeAvulso || v.empresaNome || v.clienteNome || "Sem entidade"} - ${TIPO_LABELS[v.tipo] || v.tipo}${v.hora ? ` às ${v.hora}` : ""}`}
@@ -190,128 +190,135 @@ export default function VisitasCalendario({ visitas }: { visitas: Visita[] }) {
                       <span className="text-[10px] text-slate-600 dark:text-slate-400 truncate leading-tight">
                         {v.hora && <span className="font-semibold">{v.hora} </span>}{v.nomeAvulso || v.empresaNome || v.clienteNome || "—"}
                       </span>
-                    </div>
+                    </span>
                   ))}
                   {diaVisitas.length > 2 && (
                     <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">
                       +{diaVisitas.length - 2} mais
                     </span>
                   )}
-                </div>
-              </div>
+                </span>
+              </button>
             )
           })}
         </div>
       </div>
 
       {/* Modal ao clicar em um dia */}
-      {modalDay && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in" onClick={() => setModalDay(null)} role="dialog" aria-modal="true" aria-label="Visitas do dia">
-          <div
-            className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 w-full max-w-md mx-4 overflow-hidden animate-in zoom-in-95"
-            onClick={(e) => e.stopPropagation()}
+      <DialogPrimitive.Root open={!!modalDay} onOpenChange={(next) => { if (!next) setModalDay(null) }}>
+        <DialogPrimitive.Portal>
+          <DialogPrimitive.Popup
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in"
+            onClick={() => setModalDay(null)}
           >
-            {/* Header */}
-            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-800">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/50">
-                  <CalendarDays size={18} className="text-blue-600 dark:text-blue-400" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                    {formatarDataBR(modalDay)}
-                  </h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    {modalVisitas.length === 0
-                      ? "Nenhuma visita agendada"
-                      : `${modalVisitas.length} visita(s) agendada(s)`}
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => setModalDay(null)}
-                aria-label="Fechar"
-                className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-              >
-                <X size={16} className="text-slate-400" />
-              </button>
-            </div>
-
-            {/* Lista de visitas ou mensagem vazia */}
-            <div className="max-h-[300px] overflow-y-auto">
-              {modalVisitas.length === 0 ? (
-                <div className="px-5 py-8 text-center">
-                  <div className="mx-auto w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-3">
-                    <CalendarDays size={24} className="text-slate-300 dark:text-slate-600" />
+            <div
+              className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 w-full max-w-md mx-4 overflow-hidden animate-in zoom-in-95"
+              onClick={(e) => e.stopPropagation()}
+              data-testid="dialog-panel"
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-800">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/50">
+                    <CalendarDays size={18} className="text-blue-600 dark:text-blue-400" />
                   </div>
-                  <p className="text-sm text-slate-500 dark:text-slate-400 mb-1">Nenhuma visita neste dia</p>
-                  <p className="text-xs text-slate-400 dark:text-slate-500">Deseja agendar uma visita?</p>
+                  <div>
+                    <DialogPrimitive.Title className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                      {modalDay ? formatarDataBR(modalDay) : ""}
+                    </DialogPrimitive.Title>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      {modalVisitas.length === 0
+                        ? "Nenhuma visita agendada"
+                        : `${modalVisitas.length} visita(s) agendada(s)`}
+                    </p>
+                  </div>
                 </div>
-              ) : (
-                <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                  {modalVisitas.map((v: any) => (
-                    <div
-                      key={v.id}
-                      className="px-5 py-3 flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors"
-                      onClick={() => {
-                        setModalDay(null)
-                        router.push(`/comercial/crm/visitas/${v.id}`)
-                      }}
-                    >
-                      <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${TIPO_CORES[v.tipo] || "bg-slate-400"}`} />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
-                          {!v.empresaId && !v.clienteId ? (
-                            <span><span className="text-orange-500">Avulsa:</span> {v.nomeAvulso || "Sem entidade"}</span>
-                          ) : (
-                            v.empresaNome || v.clienteNome || "Sem entidade"
-                          )}
-                        </p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">
-                          {TIPO_LABELS[v.tipo] || v.tipo}
-                          {v.hora ? ` às ${v.hora}` : ""}
-                          {v.oportunidadeTitulo && ` • ${v.oportunidadeTitulo}`}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-1 shrink-0">
-                        {buildGoogleMapsUrl(v) && (
-                          <a
-                            href={buildGoogleMapsUrl(v)!}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={(e) => e.stopPropagation()}
-                            className="p-1.5 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-950/50 transition-colors"
-                            title="Abrir no Google Maps"
-                          >
-                            <Navigation size={14} className="text-emerald-500" />
-                          </a>
-                        )}
-                        <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium bg-slate-100 dark:bg-slate-800 text-slate-500">
-                          {v.status}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+                <DialogPrimitive.Close
+                  aria-label="Fechar"
+                  className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                >
+                  <X size={16} className="text-slate-400" />
+                </DialogPrimitive.Close>
+              </div>
 
-            {/* Footer com botão Nova Visita */}
-            <div className="px-5 py-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
-              <button
-                onClick={() => {
-                  setModalDay(null)
-                  router.push(`/comercial/crm/visitas/novo?data=${modalDay}`)
-                }}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm"
-              >
-                <Plus size={16} />
-                Nova Visita para {new Date(modalDay + "T12:00:00").toLocaleDateString("pt-BR", { day: "numeric", month: "short" })}
-              </button>
+              {/* Lista de visitas ou mensagem vazia */}
+              <div className="max-h-[300px] overflow-y-auto">
+                {modalVisitas.length === 0 ? (
+                  <div className="px-5 py-8 text-center">
+                    <div className="mx-auto w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-3">
+                      <CalendarDays size={24} className="text-slate-300 dark:text-slate-600" />
+                    </div>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mb-1">Nenhuma visita neste dia</p>
+                    <p className="text-xs text-slate-400 dark:text-slate-500">Deseja agendar uma visita?</p>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                    {modalVisitas.map((v: any) => (
+                      <div
+                        key={v.id}
+                        className="px-5 py-3 flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors"
+                        onClick={() => {
+                          setModalDay(null)
+                          router.push(`/comercial/crm/visitas/${v.id}`)
+                        }}
+                      >
+                        <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${TIPO_CORES[v.tipo] || "bg-slate-400"}`} />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
+                            {!v.empresaId && !v.clienteId ? (
+                              <span><span className="text-orange-500">Avulsa:</span> {v.nomeAvulso || "Sem entidade"}</span>
+                            ) : (
+                              v.empresaNome || v.clienteNome || "Sem entidade"
+                            )}
+                          </p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400">
+                            {TIPO_LABELS[v.tipo] || v.tipo}
+                            {v.hora ? ` às ${v.hora}` : ""}
+                            {v.oportunidadeTitulo && ` • ${v.oportunidadeTitulo}`}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-1 shrink-0">
+                          {buildGoogleMapsUrl(v) && (
+                            <a
+                              href={buildGoogleMapsUrl(v)!}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              className="p-1.5 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-950/50 transition-colors"
+                              aria-label="Abrir no Google Maps"
+                              title="Abrir no Google Maps"
+                            >
+                              <Navigation size={14} className="text-emerald-500" />
+                            </a>
+                          )}
+                          <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium bg-slate-100 dark:bg-slate-800 text-slate-500">
+                            {v.status}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Footer com botão Nova Visita */}
+              <div className="px-5 py-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setModalDay(null)
+                    router.push(`/comercial/crm/visitas/novo?data=${modalDay}`)
+                  }}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm"
+                >
+                  <Plus size={16} />
+                  Nova Visita para {new Date(modalDay + "T12:00:00").toLocaleDateString("pt-BR", { day: "numeric", month: "short" })}
+                </button>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </DialogPrimitive.Popup>
+        </DialogPrimitive.Portal>
+      </DialogPrimitive.Root>
     </div>
   )
 }

@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react"
 import { Folder, File, ChevronRight, Home, ArrowLeft, Search, Loader2, X, ExternalLink } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { useEscapeClose } from "@/lib/use-escape-close"
+import { Dialog as DialogPrimitive } from "@base-ui/react/dialog"
 
 interface DriveItem {
   id: string
@@ -43,8 +43,6 @@ export function GoogleDrivePicker({ open, onClose, onSelect }: GoogleDrivePicker
   const [breadcrumb, setBreadcrumb] = useState<Breadcrumb[]>([{ id: "", name: "Meu Drive" }])
   const [searchQuery, setSearchQuery] = useState("")
   const [searching, setSearching] = useState(false)
-
-  useEscapeClose(open, onClose)
 
   const loadFolder = useCallback(async (folderId: string | null, isRoot = false) => {
     setLoading(true)
@@ -119,14 +117,16 @@ export function GoogleDrivePicker({ open, onClose, onSelect }: GoogleDrivePicker
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" role="dialog" aria-modal="true" aria-label="Selecionar do Google Drive">
-      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-2xl w-full max-w-2xl max-h-[80vh] flex flex-col">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 dark:border-slate-800">
-          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">Selecionar do Google Drive</h2>
-          <button onClick={onClose} aria-label="Fechar" className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
-            <X size={18} className="text-slate-400" />
-          </button>
-        </div>
+    <DialogPrimitive.Root open={open} onOpenChange={(next) => { if (!next) onClose() }}>
+      <DialogPrimitive.Portal>
+        <DialogPrimitive.Backdrop className="fixed inset-0 z-50 bg-black/50" />
+        <DialogPrimitive.Popup className="fixed top-1/2 left-1/2 z-50 w-full max-w-2xl -translate-x-1/2 -translate-y-1/2 max-h-[80vh] flex flex-col rounded-xl bg-white dark:bg-slate-900 shadow-2xl border border-slate-200 dark:border-slate-800 outline-none">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 dark:border-slate-800">
+            <DialogPrimitive.Title className="text-lg font-semibold text-slate-900 dark:text-slate-50">Selecionar do Google Drive</DialogPrimitive.Title>
+            <DialogPrimitive.Close aria-label="Fechar" className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+              <X size={18} className="text-slate-400" />
+            </DialogPrimitive.Close>
+          </div>
 
         <div className="px-5 py-3 border-b border-slate-200 dark:border-slate-800 flex gap-2 items-center">
           <div className="flex-1 flex gap-2">
@@ -197,8 +197,9 @@ export function GoogleDrivePicker({ open, onClose, onSelect }: GoogleDrivePicker
             </div>
           )}
         </div>
-      </div>
-    </div>
+        </DialogPrimitive.Popup>
+      </DialogPrimitive.Portal>
+    </DialogPrimitive.Root>
   )
 }
 

@@ -4,7 +4,7 @@ import { useMutation } from "@tanstack/react-query"
 import { useState } from "react"
 import { Mail, Loader2, X } from "lucide-react"
 import { toast } from "sonner"
-import { useEscapeClose } from "@/lib/use-escape-close"
+import { Dialog as DialogPrimitive } from "@base-ui/react/dialog"
 
 interface SendSurveyButtonProps {
   visitaId: number
@@ -17,8 +17,6 @@ export default function SendSurveyButton({ visitaId, empresaNome, contatoEmail, 
   const [open, setOpen] = useState(false)
   const [email, setEmail] = useState("")
   const [nome, setNome] = useState("")
-
-  useEscapeClose(open, () => setOpen(false))
 
   function handleOpen() {
     setEmail(contatoEmail || "")
@@ -51,27 +49,26 @@ export default function SendSurveyButton({ visitaId, empresaNome, contatoEmail, 
   })
 
   return (
-    <>
-      <button
+    <DialogPrimitive.Root open={open} onOpenChange={(next) => { if (!next) setOpen(false) }}>
+      <DialogPrimitive.Trigger
         onClick={handleOpen}
         className="flex items-center gap-1.5 text-xs font-medium text-violet-600 hover:underline px-2 py-1.5 rounded-lg min-h-[36px]"
       >
         <Mail size={14} />
         Enviar Pesquisa
-      </button>
+      </DialogPrimitive.Trigger>
 
-      {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-label="Enviar Pesquisa de Satisfação">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setOpen(false)} />
-          <div className="relative bg-white dark:bg-slate-900 rounded-xl shadow-xl w-full max-w-md mx-4">
-            <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
-              <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">
-                Enviar Pesquisa de Satisfação
-              </h2>
-              <button onClick={() => setOpen(false)} aria-label="Fechar" className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
-                <X size={20} className="text-slate-500" />
-              </button>
-            </div>
+      <DialogPrimitive.Portal>
+        <DialogPrimitive.Backdrop className="fixed inset-0 z-50 bg-black/50" onClick={() => setOpen(false)} />
+        <DialogPrimitive.Popup className="fixed top-1/2 left-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white dark:bg-slate-900 shadow-xl border border-slate-200 dark:border-slate-800 outline-none">
+          <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
+            <DialogPrimitive.Title className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+              Enviar Pesquisa de Satisfação
+            </DialogPrimitive.Title>
+            <DialogPrimitive.Close aria-label="Fechar" className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+              <X size={20} className="text-slate-500" />
+            </DialogPrimitive.Close>
+          </div>
 
             <div className="p-4 space-y-4">
               {empresaNome && (
@@ -81,10 +78,11 @@ export default function SendSurveyButton({ visitaId, empresaNome, contatoEmail, 
               )}
 
               <div>
-                <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                <label htmlFor="survey-email" className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
                   Email do destinatario *
                 </label>
                 <input
+                  id="survey-email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -94,10 +92,11 @@ export default function SendSurveyButton({ visitaId, empresaNome, contatoEmail, 
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                <label htmlFor="survey-nome" className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
                   Nome (opcional)
                 </label>
                 <input
+                  id="survey-nome"
                   type="text"
                   value={nome}
                   onChange={(e) => setNome(e.target.value)}
@@ -109,12 +108,14 @@ export default function SendSurveyButton({ visitaId, empresaNome, contatoEmail, 
 
             <div className="p-4 border-t border-slate-200 dark:border-slate-700 flex justify-end gap-2">
               <button
+                type="button"
                 onClick={() => setOpen(false)}
                 className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
               >
                 Cancelar
               </button>
               <button
+                type="button"
                 onClick={() => sendMutation.mutate()}
                 disabled={!email.includes("@") || sendMutation.isPending}
                 className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#073fb8] rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -127,9 +128,8 @@ export default function SendSurveyButton({ visitaId, empresaNome, contatoEmail, 
                 {sendMutation.isPending ? "Enviando..." : "Enviar Pesquisa"}
               </button>
             </div>
-          </div>
-        </div>
-      )}
-    </>
+        </DialogPrimitive.Popup>
+      </DialogPrimitive.Portal>
+    </DialogPrimitive.Root>
   )
 }

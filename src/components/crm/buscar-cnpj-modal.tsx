@@ -5,7 +5,7 @@ import { Search, Building2, Loader2, X, Check, ExternalLink, AlertCircle } from 
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { useEscapeClose } from "@/lib/use-escape-close"
+import { Dialog as DialogPrimitive } from "@base-ui/react/dialog"
 
 interface BuscarCnpjModalProps {
   tipo: "pessoa" | "representante"
@@ -28,8 +28,6 @@ export default function BuscarCnpjModal({ tipo, onClose, onCreated }: BuscarCnpj
   const [existentes, setExistentes] = useState<{ crmPessoas: any[]; representantes: any[] }>({ crmPessoas: [], representantes: [] })
   const [creating, setCreating] = useState(false)
   const [consultado, setConsultado] = useState(false)
-
-  useEscapeClose(true, onClose)
 
   const titulo = tipo === "pessoa" ? "Pessoa (Negócio)" : "Representante"
 
@@ -131,18 +129,20 @@ export default function BuscarCnpjModal({ tipo, onClose, onCreated }: BuscarCnpj
     : existentes.representantes.length > 0
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" role="dialog" aria-modal="true" aria-label="Buscar CNPJ">
-      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-xl max-w-lg w-full mx-4 max-h-[90vh] overflow-y-auto">
+    <DialogPrimitive.Root open onOpenChange={(next) => { if (!next) onClose() }}>
+      <DialogPrimitive.Portal>
+        <DialogPrimitive.Backdrop className="fixed inset-0 z-50 bg-black/40" />
+        <DialogPrimitive.Popup className="fixed top-1/2 left-1/2 z-50 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 max-h-[90vh] overflow-y-auto rounded-xl bg-white dark:bg-slate-900 shadow-xl border border-slate-200 dark:border-slate-800 outline-none">
         <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-800">
           <div className="flex items-center gap-2">
             <Building2 size={18} className="text-blue-600" />
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+            <DialogPrimitive.Title className="text-lg font-semibold text-slate-900 dark:text-slate-50">
               Buscar CNPJ
-            </h2>
+            </DialogPrimitive.Title>
           </div>
-          <button onClick={onClose} aria-label="Fechar" className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+          <DialogPrimitive.Close aria-label="Fechar" className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
             <X size={18} className="text-slate-500" />
-          </button>
+          </DialogPrimitive.Close>
         </div>
 
         <div className="p-5 space-y-4">
@@ -153,6 +153,7 @@ export default function BuscarCnpjModal({ tipo, onClose, onCreated }: BuscarCnpj
               onChange={(e) => setCnpj(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleConsultar()}
               placeholder="Digite o CNPJ (com ou sem pontuação)"
+              aria-label="CNPJ"
               className="flex-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
               maxLength={18}
             />
@@ -277,7 +278,8 @@ export default function BuscarCnpjModal({ tipo, onClose, onCreated }: BuscarCnpj
         <div className="flex justify-end p-5 border-t border-slate-200 dark:border-slate-800">
           <Button variant="outline" onClick={onClose}>Fechar</Button>
         </div>
-      </div>
-    </div>
+        </DialogPrimitive.Popup>
+      </DialogPrimitive.Portal>
+    </DialogPrimitive.Root>
   )
 }

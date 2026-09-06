@@ -7,7 +7,7 @@ import { DndContext, DragOverlay, useDraggable, PointerSensor, useSensor, useSen
 import { X } from "lucide-react"
 import { useStatuses } from "@/hooks/use-statuses"
 import { DroppableColumn, KanbanSkeleton } from "./kanban-column"
-import { useEscapeClose } from "@/lib/use-escape-close"
+import { Dialog as DialogPrimitive } from "@base-ui/react/dialog"
 
 interface OportunidadeCard {
   id: number
@@ -89,8 +89,6 @@ export default function OportunidadesKanban({ oportunidades }: { oportunidades: 
   const [showMotivoPerda, setShowMotivoPerda] = useState(false)
   const [motivoPerda, setMotivoPerda] = useState("")
   const [pendingMove, setPendingMove] = useState<{ id: number; status: string; statusAntigo: string } | null>(null)
-
-  useEscapeClose(showMotivoPerda, cancelarPerda)
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
@@ -232,14 +230,15 @@ export default function OportunidadesKanban({ oportunidades }: { oportunidades: 
         )}
       </DndContext>
 
-      {showMotivoPerda && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={cancelarPerda} role="dialog" aria-modal="true" aria-label="Motivo da Perda">
-          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 p-6 w-full max-w-md mx-4" onClick={e => e.stopPropagation()}>
+      <DialogPrimitive.Root open={showMotivoPerda} onOpenChange={(next) => { if (!next) cancelarPerda() }}>
+        <DialogPrimitive.Portal>
+          <DialogPrimitive.Backdrop className="fixed inset-0 z-50 bg-black/50" />
+          <DialogPrimitive.Popup className="fixed top-1/2 left-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white dark:bg-slate-900 shadow-xl border border-slate-200 dark:border-slate-800 p-6 outline-none">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-50">Motivo da Perda</h3>
-              <button onClick={cancelarPerda} aria-label="Fechar" className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+              <DialogPrimitive.Title className="text-lg font-semibold text-slate-900 dark:text-slate-50">Motivo da Perda</DialogPrimitive.Title>
+              <DialogPrimitive.Close aria-label="Fechar" className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
                 <X size={18} className="text-slate-400" />
-              </button>
+              </DialogPrimitive.Close>
             </div>
             <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
               Informe o motivo pelo qual esta oportunidade foi perdida:
@@ -249,6 +248,7 @@ export default function OportunidadesKanban({ oportunidades }: { oportunidades: 
               onChange={e => setMotivoPerda(e.target.value)}
               className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 min-h-[100px] resize-none"
               placeholder="Ex: Cliente optou por concorrente, orçamento acima do esperado..."
+              aria-label="Motivo da perda"
               autoFocus
             />
             <div className="flex gap-2 justify-end mt-4">
@@ -263,9 +263,9 @@ export default function OportunidadesKanban({ oportunidades }: { oportunidades: 
                 Confirmar Perda
               </button>
             </div>
-          </div>
-        </div>
-      )}
+          </DialogPrimitive.Popup>
+        </DialogPrimitive.Portal>
+      </DialogPrimitive.Root>
     </div>
   )
 }
