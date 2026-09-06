@@ -15,6 +15,8 @@ import { registrarLog, notificar, notificarDelecao } from "@/lib/notificar"
 import { inserirTimelineEvento, excluirTimelineEventosEntidade } from "@/lib/crm-timeline"
 import { handleApiError } from "@/lib/api-error"
 import { sendCrmEmail } from "@/lib/email"
+import { montarEnderecoTexto, temEndereco, type EnderecoCampos } from "@/lib/crm/endereco"
+import { geocodificarEndereco } from "@/lib/crm/geocode"
 import crypto from "crypto"
 
 export async function GET(
@@ -156,6 +158,13 @@ export async function PUT(
     if (body.fotos !== undefined) values.fotos = body.fotos
     if (body.duracaoEstimada !== undefined) values.duracaoEstimada = body.duracaoEstimada
 
+    const veioEndereco = ["endereco", "numero", "complemento", "bairro", "cidade", "uf"].some((campo) => body[campo] !== undefined)
+    if (veioEndereco) {
+      const coordsEndereco = await buscarCoordenadasDaVisita(existente, body)
+      values.enderecoLat = coordsEndereco?.latitude ?? null
+      values.enderecoLng = coordsEndereco?.longitude ?? null
+    }
+
     const [atualizada] = await db
       .update(crmVisitas)
       .set(values)
@@ -237,6 +246,50 @@ export async function DELETE(
   } catch (error) {
     return handleApiError(error, "DELETE /api/crm/visitas/[id]")
   }
+}
+
+async function buscarCoordenadasDaVisita(
+  existente: Record<string, any>,
+  body: Record<string, any>
+): Promise<{ latitude: number; longitude: number } | null> {
+  const efetivo: EnderecoCampos = {
+    endereco: body.endereco !== undefined ? body.endereco : existente.endereco,
+    numero: body.numero !== undefined ? body.numero : existente.numero,
+    complemento: body.complemento !== undefined ? body.complemento : existente.complemento,
+    bairro: body.bairro !== undefined ? body.bairro : existente.bairro,
+    cidade: body.cidade !== undefined ? body.cidade : existente.cidade,
+    uf: body.uf !== undefined ? body.uf : existente.uf,
+  }
+
+  let enderecoTexto = temEndereco(efetivo) ? montarEnderecoTexto(efetivo) : ""
+
+  if (!enderecoTexto) {
+    const [pessoa] = existente.empresaId
+      ? await db
+          .select({
+            endereco: crmPessoas.endereco,
+            numero: crmPessoas.numero,
+            complemento: crmPessoas.complemento,
+            bairro: crmPessoas.bairro,
+            cidade: crmPessoas.cidade,
+            uf: crmPessoas.uf,
+          })
+          .from(crmPessoas)
+          .where(eq(crmPessoas.id, existente.empresaId))
+          .limit(1)
+      : []
+    const [cliente] = existente.clienteId
+      ? await db
+          .select({ endereco: clientes.endereco, cidade: clientes.cidade, uf: clientes.uf })
+          .from(clientes)
+          .where(eq(clientes.id, existente.clienteId))
+          .limit(1)
+      : []
+    enderecoTexto = montarEnderecoTexto(pessoa || {}) || montarEnderecoTexto(cliente || {})
+  }
+
+  if (!enderecoTexto) return null
+  return geocodificarEndereco(enderecoTexto)
 }
 
 async function enviarPesquisaSatisfacao(

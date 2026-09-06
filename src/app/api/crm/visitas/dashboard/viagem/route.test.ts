@@ -46,6 +46,8 @@ function visitaRow(id: number, extra: Record<string, unknown>) {
     cidade: "Goiânia",
     uf: "GO",
     cep: null,
+    enderecoLat: null,
+    enderecoLng: null,
     clienteEndereco: null,
     clienteCidade: null,
     clienteUf: null,
@@ -229,6 +231,25 @@ describe("GET /api/crm/visitas/dashboard/viagem", () => {
 
     expect(geocodificarEndereco).toHaveBeenCalledWith("Rua do Cliente, 90, Anápolis, GO")
     expect(body.visitas[0]).toMatchObject({ id: 51, latitude: -16.33, longitude: -48.95, localizacaoFonte: "geocodificada" })
+  })
+
+  it("usa as coordenadas de endereço persistidas sem chamar o Nominatim", async () => {
+    ;(db.select as ReturnType<typeof vi.fn>).mockReturnValueOnce(createQueryBuilder([viagem]))
+    ;(db.select as ReturnType<typeof vi.fn>).mockReturnValueOnce(
+      createQueryBuilder([
+        visitaRow(71, { enderecoLat: -23.55, enderecoLng: -46.63 }),
+        visitaRow(72, { enderecoLat: -22.90, enderecoLng: -43.17 }),
+      ])
+    )
+
+    const res = await GET(new NextRequest("http://localhost/api/crm/visitas/dashboard/viagem?viagemId=7"))
+    const body = await res.json()
+
+    expect(geocodificarEndereco).not.toHaveBeenCalled()
+    expect(body.visitas[0]).toMatchObject({ id: 71, latitude: -23.55, longitude: -46.63, localizacaoFonte: "endereco", km: 0 })
+    expect(body.visitas[1]).toMatchObject({ id: 72, latitude: -22.9, longitude: -43.17, localizacaoFonte: "endereco" })
+    expect(body.resumo).toMatchObject({ comLocalizacao: 2, comEndereco: 2, geocodificadas: 0, kmSemLocalizacao: 0 })
+    expect(body.resumo.kmTotal).toBeCloseTo(body.visitas[1].km, 0)
   })
 
   it("não chama geocodificação quando nenhuma origem tem endereço", async () => {

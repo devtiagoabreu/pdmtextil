@@ -62,6 +62,14 @@ Compara colunas entre os 4 bancos e lista diferenças.
 - **Diagnósticos auxiliares**: `scripts/diag-*.js` (mensagem 50, colisões de cidades, duplicatas, órfãos pós-fix, email config, etc.).
 - Se o fix for refeito (novo backup/restore), use o mesmo fluxo e SEMPRE re-sincronize os 4 bancos (`node scripts/sync-all-dbs.js`).
 
+# Geocodificação de endereço em visitas (cronograma da viagem)
+
+- `crm_visitas` tem `endereco_lat`/`endereco_lng` (coordinates do endereço, salvas no cadastro).
+- Ao **criar/editar** uma visita (`POST /api/crm/visitas` e `PUT /api/crm/visitas/[id]`), o sistema geocodifica o endereço (visita → pessoa/empresa → cliente) via Nominatim e **persiste as coordenadas** na própria visita (1 geocode por endereço; vale para recorrências).
+- A rota `GET /api/crm/visitas/dashboard/viagem` usa a ordem: **check-in/check-out → `endereco_lat/lng` (fonte `"endereco"`) → geocode runtime (fonte `"geocodificada"`)**.
+- `src/lib/crm/geocode.ts` tem geocoder Nominatim com cache/dedup/fila (~1 req/s); `src/lib/crm/endereco.ts` monta o texto do endereço.
+- **Backfill**: `node scripts/geocode-visitas.js` (opcional `--db=`, `--limit=`, `--dry-run`) percorre os 4 bancos e preenche `endereco_lat/lng` de visitas sem coordenadas (idempotente/resumível). As colunas também estão no `scripts/sync-all-dbs.js`.
+
 # Email em Massa — Agendamento e Envio
 
 ## Fluxo

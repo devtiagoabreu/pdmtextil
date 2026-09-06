@@ -30,6 +30,8 @@ export const crmVisitas = pgTable("crm_visitas", {
   cidade: varchar("cidade", { length: 150 }),
   uf: varchar("uf", { length: 2 }),
   cep: varchar("cep", { length: 10 }),
+  enderecoLat: doublePrecision("endereco_lat"),
+  enderecoLng: doublePrecision("endereco_lng"),
   motivoCancelamento: text("motivo_cancelamento"),
   nomeAvulso: varchar("nome_avulso", { length: 300 }),
   relato: text("relato"),

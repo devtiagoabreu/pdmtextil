@@ -46,6 +46,8 @@ export async function GET(req: NextRequest) {
           cidade: crmVisitas.cidade,
           uf: crmVisitas.uf,
           cep: crmVisitas.cep,
+          enderecoLat: crmVisitas.enderecoLat,
+          enderecoLng: crmVisitas.enderecoLng,
           empresaEndereco: crmPessoas.endereco,
           empresaNumero: crmPessoas.numero,
           empresaComplemento: crmPessoas.complemento,
@@ -109,7 +111,8 @@ export async function GET(req: NextRequest) {
     for (const v of visitasOrdenadas) {
       const temCheckIn = v.checkInLat != null || v.checkInLng != null
       const temCheckOut = v.checkOutLat != null || v.checkOutLng != null
-      if (temCheckIn || temCheckOut) continue
+      const temEnderecoCoords = v.enderecoLat != null || v.enderecoLng != null
+      if (temCheckIn || temCheckOut || temEnderecoCoords) continue
       if (!v.enderecoGeocode) continue
       const coords = await geocodificarEndereco(v.enderecoGeocode)
       if (coords) geocodificadas.set(v.id, coords)
@@ -117,8 +120,8 @@ export async function GET(req: NextRequest) {
 
     const pontos: PontoRota[] = []
     for (const v of visitasOrdenadas) {
-      const latitude = v.checkInLat ?? v.checkOutLat ?? geocodificadas.get(v.id)?.latitude
-      const longitude = v.checkInLng ?? v.checkOutLng ?? geocodificadas.get(v.id)?.longitude
+      const latitude = v.checkInLat ?? v.checkOutLat ?? v.enderecoLat ?? geocodificadas.get(v.id)?.latitude
+      const longitude = v.checkInLng ?? v.checkOutLng ?? v.enderecoLng ?? geocodificadas.get(v.id)?.longitude
       if (latitude != null && longitude != null) {
         pontos.push({ id: v.id, latitude: Number(latitude), longitude: Number(longitude) })
       }
@@ -129,9 +132,17 @@ export async function GET(req: NextRequest) {
 
     const visitasComKm = visitasOrdenadas.map((v: any) => {
       const geocoded = geocodificadas.get(v.id)
-      const latitude = v.checkInLat ?? v.checkOutLat ?? geocoded?.latitude ?? null
-      const longitude = v.checkInLng ?? v.checkOutLng ?? geocoded?.longitude ?? null
+      const latitude = v.checkInLat ?? v.checkOutLat ?? v.enderecoLat ?? geocoded?.latitude ?? null
+      const longitude = v.checkInLng ?? v.checkOutLng ?? v.enderecoLng ?? geocoded?.longitude ?? null
       const temPonto = latitude != null && longitude != null
+      let localizacaoFonte: "checkin" | "endereco" | "geocodificada" | null = null
+      if (v.checkInLat != null || v.checkInLng != null || v.checkOutLat != null || v.checkOutLng != null) {
+        localizacaoFonte = "checkin"
+      } else if (v.enderecoLat != null || v.enderecoLng != null) {
+        localizacaoFonte = "endereco"
+      } else if (geocoded) {
+        localizacaoFonte = "geocodificada"
+      }
       let km: number | null = null
       if (temPonto) {
         km = pontoIndex === 0 ? 0 : kmEntrePontos[pontoIndex - 1] ?? 0
@@ -151,10 +162,12 @@ export async function GET(req: NextRequest) {
         checkOutTime: v.checkOutTime,
         latitude: temPonto ? Number(latitude) : null,
         longitude: temPonto ? Number(longitude) : null,
-        localizacaoFonte: geocoded ? "geocodificada" : temPonto ? "checkin" : null,
+        localizacaoFonte,
         km: km == null ? null : Number(km.toFixed(1)),
       }
     })
+
+    const comEndereco = visitasComKm.filter((v: any) => v.localizacaoFonte === "endereco").length
 
     return NextResponse.json({
       viagem: {
@@ -174,6 +187,7 @@ export async function GET(req: NextRequest) {
         canceladas: visitasComKm.filter((v: any) => v.status === "CANCELADA").length,
         agendadas: visitasComKm.filter((v: any) => v.status === "AGENDADA").length,
         comLocalizacao: pontos.length,
+        comEndereco,
         geocodificadas: geocodificadas.size,
         kmTotal: Number(totalKm.toFixed(1)),
         kmSemLocalizacao: visitasComKm.length - pontos.length,

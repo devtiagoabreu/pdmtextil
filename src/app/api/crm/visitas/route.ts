@@ -8,9 +8,11 @@ import { clientes } from "@/lib/db/schema/clientes"
 import { crmOportunidades } from "@/lib/db/schema/crm-oportunidades"
 import { crmPropostas } from "@/lib/db/schema/crm-propostas"
 import { usuarios } from "@/lib/db/schema/usuarios"
-import { eq, desc, like, or, and, count, gte, lte } from "drizzle-orm"
+import { eq, desc, like, or, and, count, gte, lte, inArray } from "drizzle-orm"
 import { registrarLog, notificar } from "@/lib/notificar"
 import { inserirTimelineEvento } from "@/lib/crm-timeline"
+import { montarEnderecoTexto, temEndereco, type EnderecoCampos } from "@/lib/crm/endereco"
+import { geocodificarEndereco } from "@/lib/crm/geocode"
 
 export async function GET(req: NextRequest) {
   try {
@@ -188,6 +190,18 @@ export async function POST(req: NextRequest) {
 
     const primeira = inserted[0]
 
+    const coordsEndereco = await buscarCoordenadasDaVisita(baseValues)
+    if (coordsEndereco) {
+      await db
+        .update(crmVisitas)
+        .set({ enderecoLat: coordsEndereco.latitude, enderecoLng: coordsEndereco.longitude })
+        .where(inArray(crmVisitas.id, inserted.map((v: any) => v.id)))
+      for (const v of inserted) {
+        v.enderecoLat = coordsEndereco.latitude
+        v.enderecoLng = coordsEndereco.longitude
+      }
+    }
+
     await registrarLog({
       tipo: "CADASTRO",
       acao: "criar",
@@ -213,4 +227,45 @@ export async function POST(req: NextRequest) {
     console.error("[POST /api/crm/visitas]", error)
     return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
   }
+}
+
+async function buscarCoordenadasDaVisita(baseValues: Record<string, any>): Promise<{ latitude: number; longitude: number } | null> {
+  const enderecoVisita: EnderecoCampos = {
+    endereco: baseValues.endereco || null,
+    numero: baseValues.numero || null,
+    complemento: baseValues.complemento || null,
+    bairro: baseValues.bairro || null,
+    cidade: baseValues.cidade || null,
+    uf: baseValues.uf || null,
+  }
+
+  let enderecoTexto = temEndereco(enderecoVisita) ? montarEnderecoTexto(enderecoVisita) : ""
+
+  if (!enderecoTexto) {
+    const [pessoa] = baseValues.empresaId
+      ? await db
+          .select({
+            endereco: crmPessoas.endereco,
+            numero: crmPessoas.numero,
+            complemento: crmPessoas.complemento,
+            bairro: crmPessoas.bairro,
+            cidade: crmPessoas.cidade,
+            uf: crmPessoas.uf,
+          })
+          .from(crmPessoas)
+          .where(eq(crmPessoas.id, baseValues.empresaId))
+          .limit(1)
+      : []
+    const [cliente] = baseValues.clienteId
+      ? await db
+          .select({ endereco: clientes.endereco, cidade: clientes.cidade, uf: clientes.uf })
+          .from(clientes)
+          .where(eq(clientes.id, baseValues.clienteId))
+          .limit(1)
+      : []
+    enderecoTexto = montarEnderecoTexto(pessoa || {}) || montarEnderecoTexto(cliente || {})
+  }
+
+  if (!enderecoTexto) return null
+  return geocodificarEndereco(enderecoTexto)
 }

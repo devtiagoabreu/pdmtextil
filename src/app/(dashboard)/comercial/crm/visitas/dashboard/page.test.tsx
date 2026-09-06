@@ -28,10 +28,10 @@ const viagemCronograma = {
     {
       id: 12, nome: "Cliente Beta", empresaId: null, clienteId: 5, dataVisita: "2026-08-10", hora: "11:00",
       tipo: "PRESENCIAL", status: "REALIZADA", enderecoTexto: "Av. Y - Rio de Janeiro - RJ",
-      checkInTime: null, checkOutTime: null, latitude: -22.9, longitude: -43.17, localizacaoFonte: "geocodificada", km: 357.8,
+      checkInTime: null, checkOutTime: null, latitude: -22.9, longitude: -43.17, localizacaoFonte: "endereco", km: 357.8,
     },
   ],
-  resumo: { total: 2, realizadas: 2, canceladas: 0, agendadas: 0, comLocalizacao: 2, geocodificadas: 1, kmTotal: 357.8, kmSemLocalizacao: 0 },
+  resumo: { total: 2, realizadas: 2, canceladas: 0, agendadas: 0, comLocalizacao: 2, comEndereco: 1, geocodificadas: 0, kmTotal: 357.8, kmSemLocalizacao: 0 },
 }
 
 function dashboardPayload(withViagem = true) {

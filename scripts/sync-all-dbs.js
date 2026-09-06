@@ -55,6 +55,14 @@ DO $$ BEGIN
   ALTER TABLE crm_visitas ADD COLUMN IF NOT EXISTS duracao_estimada integer;
 EXCEPTION WHEN duplicate_column THEN NULL; WHEN undefined_table THEN NULL;
 END $$;
+DO $$ BEGIN
+  ALTER TABLE crm_visitas ADD COLUMN IF NOT EXISTS endereco_lat double precision;
+EXCEPTION WHEN duplicate_column THEN NULL; WHEN undefined_table THEN NULL;
+END $$;
+DO $$ BEGIN
+  ALTER TABLE crm_visitas ADD COLUMN IF NOT EXISTS endereco_lng double precision;
+EXCEPTION WHEN duplicate_column THEN NULL; WHEN undefined_table THEN NULL;
+END $$;
 
 -- crm_visitas_localizacoes: adicionar colunas faltantes
 DO $$ BEGIN

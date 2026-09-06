@@ -26,7 +26,7 @@ type VisitaCronograma = {
   checkOutTime: string | null
   latitude: number | null
   longitude: number | null
-  localizacaoFonte: "checkin" | "geocodificada" | null
+  localizacaoFonte: "checkin" | "endereco" | "geocodificada" | null
   km: number | null
 }
 
@@ -48,6 +48,7 @@ type ViagemCronogramaData = {
     canceladas: number
     agendadas: number
     comLocalizacao: number
+    comEndereco: number
     geocodificadas: number
     kmTotal: number
     kmSemLocalizacao: number
@@ -131,9 +132,9 @@ export default function ViagemCronogramaModal({ viagemId, viagemTitulo, open, on
                 <Chip icon={<MapPin size={14} />} label="Com localização" value={`${resumo?.comLocalizacao ?? 0}`} tone="text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-950/50" />
               </div>
 
-              {resumo && resumo.geocodificadas > 0 && (
+              {resumo && resumo.geocodificadas + resumo.comEndereco > 0 && (
                 <p className="text-[11px] text-amber-600 dark:text-amber-400">
-                  Localização de {resumo.geocodificadas} visita(s) estimada pelo endereço (sem check-in).
+                  Localização de {resumo.geocodificadas + resumo.comEndereco} visita(s) estimada pelo endereço (sem check-in).
                 </p>
               )}
 
@@ -179,12 +180,12 @@ export default function ViagemCronogramaModal({ viagemId, viagemTitulo, open, on
                               )}
                             </div>
                             {v.enderecoTexto && <p className="text-xs text-slate-400 mt-0.5 truncate">{v.enderecoTexto}</p>}
-                            {v.localizacaoFonte === "geocodificada" && (
+                            {v.localizacaoFonte === "geocodificada" || v.localizacaoFonte === "endereco" ? (
                               <span className="inline-flex items-center gap-1 text-[10px] text-amber-600 dark:text-amber-400 mt-0.5">
                                 <MapPin size={10} />
                                 Estimada pelo endereço
                               </span>
-                            )}
+                            ) : null}
                           </div>
                           <div className="flex flex-col items-end gap-1 shrink-0">
                             <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${STATUS_BADGES[v.status] || STATUS_BADGES.AGENDADA}`}>
