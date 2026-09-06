@@ -47,7 +47,7 @@ function dashboardPayload(withViagem = true) {
     porDia: [],
     porGerente: [],
     viagens: withViagem
-      ? [{ viagemId: 1, viagemTitulo: "Viagem Goiania - Ernandes", total: 37, realizadas: 35, dataInicio: "2026-08-10", dataFim: "2026-08-20" }]
+      ? [{ viagemId: 1, viagemTitulo: "Viagem Goiania - Ernandes", total: 37, realizadas: 35, dataInicio: "2026-08-10", dataFim: "2026-08-20", totalInvestimento: 5200, possivelRetorno: 125000, retornoReal: 0 }]
       : [],
     ultimasVisitas: [],
     pesquisas: { enviadas: 0, abertas: 0, respondidas: 0 },
@@ -105,8 +105,8 @@ describe("VisitasDashboardPage", () => {
           },
         ],
 viagens: [
-          { viagemId: 1, viagemTitulo: "Viagem Goiania - Ernandes", total: 37, realizadas: 35, dataInicio: "2026-08-10", dataFim: "2026-08-20" },
-          { viagemId: null, viagemTitulo: "Sem viagem", total: 0 },
+          { viagemId: 1, viagemTitulo: "Viagem Goiania - Ernandes", total: 37, realizadas: 35, dataInicio: "2026-08-10", dataFim: "2026-08-20", totalInvestimento: 0, possivelRetorno: 0, retornoReal: 0 },
+          { viagemId: null, viagemTitulo: "Sem viagem", total: 0, realizadas: 0, dataInicio: null, dataFim: null, totalInvestimento: 0, possivelRetorno: 0, retornoReal: 0 },
         ],
         ultimasVisitas: [],
         pesquisas: { enviadas: 0, abertas: 0, respondidas: 0 },
@@ -121,7 +121,22 @@ viagens: [
     expect(screen.getByText("Melhor dia")).toBeInTheDocument()
     expect(screen.getByText(/Pior dia/)).toBeInTheDocument()
 expect(screen.getByText("Viagem Goiania - Ernandes")).toBeInTheDocument()
-    expect(screen.getAllByText("37 visitas").length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/37 visitas/).length).toBeGreaterThan(0)
+  })
+
+  it("mostra investimento realizado, possível retorno e retorno real no card da viagem", async () => {
+    const fetchMock = createFetchMock(routeJson({
+      "GET /api/crm/visitas/dashboard?mine=true": dashboardPayload(),
+    }))
+    vi.stubGlobal("fetch", fetchMock.fn)
+    renderPage(<VisitasDashboardPage />)
+
+    expect(await screen.findByText("Investimento")).toBeInTheDocument()
+    expect(screen.getByText("R$ 5.200,00")).toBeInTheDocument()
+    expect(screen.getByText("Possível retorno")).toBeInTheDocument()
+    expect(screen.getByText("R$ 125.000,00")).toBeInTheDocument()
+    expect(screen.getByText("Retorno real")).toBeInTheDocument()
+    expect(screen.getByText("—")).toBeInTheDocument()
   })
 
   it("mostra resumo da viagem (período e realizadas) no card", async () => {

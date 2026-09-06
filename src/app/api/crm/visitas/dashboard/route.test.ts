@@ -49,6 +49,12 @@ describe("GET /api/crm/visitas/dashboard", () => {
         { gerenteId: 8, gerenteNome: "Ernandes", dataVisita: "2026-08-12", total: 3 },
       ], // porGerenteRaw
       [{ viagemId: 1, viagemTitulo: "Viagem Goiania - Ernandes", total: 37, realizadas: 35, minData: "2026-08-10", maxData: "2026-08-20" }], // viagens
+      [{ viagemId: 1, totalInvestimento: "5200" }], // investimentosPorViagem
+      [
+        { oportunidadeId: 10, valorEstimado: "120000", viagemId: 1 },
+        { oportunidadeId: 10, valorEstimado: "120000", viagemId: 1 },
+        { oportunidadeId: 11, valorEstimado: "5000", viagemId: 1 },
+      ], // possiveisRetornos
       [], // ultimasVisitas
       [{ total: 0 }], // pesquisasEnviadas
       [{ total: 0 }], // pesquisasAbertas
@@ -79,6 +85,9 @@ describe("GET /api/crm/visitas/dashboard", () => {
       realizadas: 35,
       dataInicio: "2026-08-10",
       dataFim: "2026-08-20",
+      totalInvestimento: 5200,
+      possivelRetorno: 125000,
+      retornoReal: 0,
     })
   })
 
@@ -87,11 +96,12 @@ describe("GET /api/crm/visitas/dashboard", () => {
       [{ total: 0 }], [{ total: 0 }], [{ total: 0 }], [{ total: 0 }],
       [{ total: 0 }], [{ total: 0 }], [], [], [], [], 
       [{ viagemId: null, viagemTitulo: null, total: 3, realizadas: 0, minData: null, maxData: null }],
+      [], [], [],
       [], [{ total: 0 }], [{ total: 0 }], [{ total: 0 }],
     ])
     const res = await GET(new NextRequest("http://localhost/api/crm/visitas/dashboard"))
     expect(res.status).toBe(200)
     const body = await res.json()
-    expect(body.viagens[0]).toEqual({ viagemId: null, viagemTitulo: "Sem viagem", total: 3, realizadas: 0, dataInicio: null, dataFim: null })
+    expect(body.viagens[0]).toEqual({ viagemId: null, viagemTitulo: "Sem viagem", total: 3, realizadas: 0, dataInicio: null, dataFim: null, totalInvestimento: 0, possivelRetorno: 0, retornoReal: 0 })
   })
 })

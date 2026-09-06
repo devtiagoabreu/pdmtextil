@@ -33,7 +33,7 @@ type VisitasDashboardData = {
     melhorDia: { dia: string; total: number } | null
     piorDia: { dia: string; total: number } | null
   }[]
-  viagens: { viagemId: number | null; viagemTitulo: string; total: number }[]
+  viagens: { viagemId: number | null; viagemTitulo: string; total: number; realizadas: number; dataInicio: string | null; dataFim: string | null; totalInvestimento: number; possivelRetorno: number; retornoReal: number }[]
   ultimasVisitas: { id: number; empresaId: number; clienteId: number | null; dataVisita: string; hora: string | null; tipo: string; status: string; endereco: string | null; numero: string | null; complemento: string | null; bairro: string | null; cidade: string | null; uf: string | null }[]
   pesquisas: { enviadas: number; abertas: number; respondidas: number }
 }
@@ -230,22 +230,44 @@ export default function VisitasDashboardPage() {
                 {data.viagens.map((vg: any) => {
                   const periodo = vg.dataInicio ? `${fmtData(vg.dataInicio)} a ${fmtData(vg.dataFim)}` : null
                   const row = (
-                    <div className="flex items-center justify-between gap-3 p-3">
-                      <div className="flex items-center gap-3 min-w-0">
+                    <div className="flex items-center gap-3 p-3">
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
                         <Navigation size={14} className={vg.viagemId ? "text-cyan-500" : "text-slate-300"} />
                         <div className="min-w-0">
                           <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
                             {vg.viagemTitulo ?? "Sem viagem"}
                           </p>
-                          {periodo && (
-                            <p className="text-xs text-slate-400">{periodo} · {vg.realizadas ?? 0} realizada(s)</p>
-                          )}
+                          <p className="text-xs text-slate-400">
+                            {periodo
+                              ? `${periodo} · ${vg.realizadas ?? 0} realizada(s) · ${vg.total} visitas`
+                              : `${vg.total} visitas`}
+                          </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                          {vg.total} visitas
-                        </p>
+                      <div className="flex items-center gap-4 shrink-0">
+                        <div className="flex flex-col items-end gap-1.5">
+                          <div className="text-right">
+                            <p className="text-[10px] leading-none text-slate-400 dark:text-slate-500">Investimento</p>
+                            <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                              {fmtBRL(vg.totalInvestimento ?? 0)}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-[10px] leading-none text-slate-400 dark:text-slate-500">Possível retorno</p>
+                            <p className="text-xs font-semibold text-cyan-600 dark:text-cyan-400">
+                              {fmtBRL(vg.possivelRetorno ?? 0)}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-[10px] leading-none text-slate-400 dark:text-slate-500">Retorno real</p>
+                            <p
+                              className="text-xs font-semibold text-slate-400"
+                              title="Faturamento efetivo dos pedidos (próximo módulo)"
+                            >
+                              {vg.retornoReal ? fmtBRL(vg.retornoReal) : "—"}
+                            </p>
+                          </div>
+                        </div>
                         {vg.viagemId && (
                           <ArrowRight size={14} className="text-cyan-500" />
                         )}
@@ -535,6 +557,10 @@ function QuickAction({
 function fmtData(dia: string): string {
   const d = new Date(dia + "T12:00:00")
   return isNaN(d.getTime()) ? dia : d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })
+}
+
+function fmtBRL(value: number): string {
+  return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
 }
 
 function KpiMini({ label, value, tone }: { label: string; value: string; tone?: "green" | "red" }) {

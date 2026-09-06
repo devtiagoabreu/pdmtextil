@@ -3,6 +3,8 @@ import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { crmVisitas } from "@/lib/db/schema/crm-visitas"
 import { crmViagens } from "@/lib/db/schema/crm-viagens"
+import { crmViagensInvestimentos } from "@/lib/db/schema/crm-viagens-investimentos"
+import { crmOportunidades } from "@/lib/db/schema/crm-oportunidades"
 import { crmPesquisasSatisfacao } from "@/lib/db/schema/crm-pesquisas-satisfacao"
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq, desc, sql, and, gte, count } from "drizzle-orm"
@@ -39,6 +41,8 @@ export async function GET(req: NextRequest) {
       porDia,
       porGerenteRaw,
       viagens,
+      investimentosPorViagem,
+      possiveisRetornos,
       ultimasVisitas,
       pesquisasEnviadas,
       pesquisasAbertas,
@@ -90,6 +94,21 @@ export async function GET(req: NextRequest) {
         .leftJoin(crmViagens, eq(crmVisitas.viagemId, crmViagens.id))
         .where(mineCondition)
         .groupBy(crmVisitas.viagemId, crmViagens.titulo),
+      db
+        .select({
+          viagemId: crmViagensInvestimentos.viagemId,
+          totalInvestimento: sql<string | null>`sum(${crmViagensInvestimentos.valor})`,
+        })
+        .from(crmViagensInvestimentos)
+        .groupBy(crmViagensInvestimentos.viagemId),
+      db
+        .select({
+          oportunidadeId: crmOportunidades.id,
+          valorEstimado: crmOportunidades.valorEstimado,
+          viagemId: crmVisitas.viagemId,
+        })
+        .from(crmOportunidades)
+        .innerJoin(crmVisitas, eq(crmVisitas.oportunidadeId, crmOportunidades.id)),
       db
         .select({
           id: crmVisitas.id,
@@ -164,6 +183,19 @@ export async function GET(req: NextRequest) {
     })
     porGerente.sort((a, b) => b.visitas - a.visitas)
 
+    const investimentoPorViagem = new Map<number | null, number>(
+      investimentosPorViagem.map((r: any) => [r.viagemId, Number(r.totalInvestimento ?? 0)])
+    )
+
+    const seenOportunidades = new Set<string>()
+    const possivelRetornoPorViagem = new Map<number | null, number>()
+    for (const r of possiveisRetornos as any[]) {
+      const key = `${r.viagemId}:${r.oportunidadeId}`
+      if (r.viagemId == null || r.oportunidadeId == null || seenOportunidades.has(key)) continue
+      seenOportunidades.add(key)
+      possivelRetornoPorViagem.set(r.viagemId, (possivelRetornoPorViagem.get(r.viagemId) ?? 0) + Number(r.valorEstimado ?? 0))
+    }
+
     return NextResponse.json({
       total: getCount(totalVisitas),
       realizadas: getCount(realizadas),
@@ -182,6 +214,9 @@ export async function GET(req: NextRequest) {
         realizadas: Number(r.realizadas ?? 0),
         dataInicio: r.minData || null,
         dataFim: r.maxData || null,
+        totalInvestimento: investimentoPorViagem.get(r.viagemId) ?? 0,
+        possivelRetorno: possivelRetornoPorViagem.get(r.viagemId) ?? 0,
+        retornoReal: 0,
       })),
       ultimasVisitas: ultimasVisitas.map((r: any) => ({
         id: r.id,
