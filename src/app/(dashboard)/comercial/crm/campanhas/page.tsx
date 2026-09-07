@@ -11,6 +11,13 @@ import CampanhasKanban from "@/components/crm/campanhas-kanban"
 import { FloatableKanban } from "@/components/crm/floatable-kanban"
 import ListFilters, { useListFilters } from "@/components/ui/list-filters"
 import { PageSkeleton } from "@/components/ui/page-skeleton"
+import type { Campanha } from "./types"
+
+async function fetchCampanhas() {
+  const res = await fetch("/api/crm/campanhas")
+  if (!res.ok) throw new Error("Falha ao carregar")
+  return res.json() as Promise<Campanha[]>
+}
 
 const TIPO_LABELS: Record<string, string> = {
   EMAIL: "E-mail",
@@ -37,9 +44,9 @@ function CampanhasPageContent() {
   const searchParams = useSearchParams()
   const info = getInfoContent(pathname)
   const [modo, setModo] = useState<"tabela" | "kanban">(searchParams.get("view") === "kanban" ? "kanban" : "tabela")
-  const { data, isLoading } = useQuery({
+  const { data, isLoading } = useQuery<Campanha[]>({
     queryKey: ["crm-campanhas"],
-    queryFn: () => fetch("/api/crm/campanhas").then((r: any) => r.json()),
+    queryFn: fetchCampanhas,
   })
 
   const campanhas = Array.isArray(data) ? data : []
@@ -131,7 +138,7 @@ function CampanhasPageContent() {
           </div>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {filteredData.map((camp: any) => (
+            {filteredData.map((camp) => (
               <Link
                 key={camp.id}
                 href={`/comercial/crm/campanhas/${camp.id}`}

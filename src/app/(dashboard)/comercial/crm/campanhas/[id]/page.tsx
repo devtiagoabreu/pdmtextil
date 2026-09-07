@@ -7,6 +7,7 @@ import { useRouter, useParams, usePathname } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft, Megaphone, Calendar, Users, DollarSign, TrendingUp, Edit3, Loader2 } from "lucide-react"
 import { toast } from "sonner"
+import type { Campanha, CampanhaForm } from "../types"
 
 const TIPO_LABELS: Record<string, string> = {
   EMAIL: "E-mail",
@@ -22,16 +23,16 @@ export default function CampanhaDetailPage() {
   const pathname = usePathname()
   const info = getInfoContent(pathname)
   const params = useParams()
-  const [campanha, setCampanha] = useState<any>(null)
+  const [campanha, setCampanha] = useState<Campanha | null>(null)
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(false)
-  const [form, setForm] = useState<any>({})
+  const [form, setForm] = useState<Partial<CampanhaForm>>({})
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
     fetch(`/api/crm/campanhas/${params.id}`)
-      .then((r: any) => r.json())
-      .then((data: any) => {
+      .then((r) => r.json() as Promise<Campanha>)
+      .then((data: Campanha) => {
         setCampanha(data)
         setForm(data)
       })
@@ -111,7 +112,7 @@ export default function CampanhaDetailPage() {
                   onChange={(e) => setForm({ ...form, status: e.target.value })}
                   className="rounded border border-slate-200 dark:border-slate-700 px-2 py-1 text-xs bg-white dark:bg-slate-900"
                 >
-                  {STATUS_OPTIONS.map((s: any) => (
+                  {STATUS_OPTIONS.map((s) => (
                     <option key={s} value={s}>{s}</option>
                   ))}
                 </select>
@@ -123,7 +124,7 @@ export default function CampanhaDetailPage() {
               <span className="text-slate-500">Tipo: </span>
               <span className="font-medium text-slate-900 dark:text-slate-200">{TIPO_LABELS[campanha.tipo] || campanha.tipo}</span>
             </div>
-            {campanha.leadsGerados > 0 && (
+            {(campanha.leadsGerados ?? 0) > 0 && (
               <div className="flex items-center gap-2">
                 <Users size={14} className="text-slate-400" />
                 <span className="text-slate-500">Leads gerados:</span>
