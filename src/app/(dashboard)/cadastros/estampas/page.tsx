@@ -72,7 +72,7 @@ export default function EstampasPage() {
     }
   }
 
-  const filteredEstampas = estampas.filter((e: any) => matchesSearch(e, search))
+  const filteredEstampas = estampas.filter((e: Estampa) => matchesSearch(e, search))
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -140,7 +140,7 @@ export default function EstampasPage() {
               </tr>
             </thead>
             <tbody>
-              {filteredEstampas.map((estampa: any) => (
+              {filteredEstampas.map((estampa: Estampa) => (
                 <tr
                   key={estampa.id}
                   className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50"

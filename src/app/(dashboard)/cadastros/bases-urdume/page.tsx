@@ -75,7 +75,7 @@ export default function BasesUrdumePage() {
     }
   }
 
-  const filteredBases = bases.filter((b: any) => matchesSearch(b, search))
+  const filteredBases = bases.filter((b: BaseUrdume) => matchesSearch(b, search))
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -144,7 +144,7 @@ export default function BasesUrdumePage() {
               </tr>
             </thead>
             <tbody>
-              {filteredBases.map((base: any) => (
+              {filteredBases.map((base: BaseUrdume) => (
                 <tr
                   key={base.id}
                   className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50"

@@ -53,7 +53,7 @@ export default function ProdutoCruPage() {
     queryFn: fetchProdutos,
   })
 
-  const filtered = produtos.filter((p: any) => matchesSearch(p, search))
+  const filtered = produtos.filter((p: ProdutoCru) => matchesSearch(p, search))
 
   const handleDelete = async () => {
     if (!deleteTarget) return
@@ -145,7 +145,7 @@ export default function ProdutoCruPage() {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((produto: any) => (
+              {filtered.map((produto: ProdutoCru) => (
                 <tr
                   key={produto.id}
                   className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50"

@@ -48,7 +48,7 @@ export default function RepresentantesPage() {
     queryFn: fetchRepresentantes,
   })
 
-  const filteredRepresentantes = representantes.filter((c: any) => matchesSearch(c, search))
+  const filteredRepresentantes = representantes.filter((c: Representante) => matchesSearch(c, search))
 
   const handleDelete = async () => {
     if (!deleteTarget) return
@@ -137,7 +137,7 @@ export default function RepresentantesPage() {
               </tr>
             </thead>
             <tbody>
-              {filteredRepresentantes.map((r: any) => (
+              {filteredRepresentantes.map((r: Representante) => (
                 <tr
                   key={r.id}
                   className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50"

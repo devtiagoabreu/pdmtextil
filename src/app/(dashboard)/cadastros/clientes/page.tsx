@@ -50,7 +50,7 @@ export default function ClientesPage() {
     queryFn: fetchClientes,
   })
 
-  const filteredClientes = clientes.filter((c: any) => matchesSearch(c, search))
+  const filteredClientes = clientes.filter((c: Cliente) => matchesSearch(c, search))
 
   const handleDelete = async () => {
     if (!deleteTarget) return
@@ -144,7 +144,7 @@ export default function ClientesPage() {
               </tr>
             </thead>
             <tbody>
-              {filteredClientes.map((cliente: any) => (
+              {filteredClientes.map((cliente: Cliente) => (
                 <tr
                   key={cliente.id}
                   className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50"

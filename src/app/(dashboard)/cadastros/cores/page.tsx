@@ -71,7 +71,7 @@ export default function CoresPage() {
     }
   }
 
-  const filteredCores = cores.filter((c: any) => matchesSearch(c, search))
+  const filteredCores = cores.filter((c: CorSolida) => matchesSearch(c, search))
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -140,7 +140,7 @@ export default function CoresPage() {
               </tr>
             </thead>
             <tbody>
-              {filteredCores.map((cor: any) => (
+              {filteredCores.map((cor: CorSolida) => (
                 <tr
                   key={cor.id}
                   className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50"

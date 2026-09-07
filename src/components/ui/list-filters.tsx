@@ -17,8 +17,8 @@ export type FilterConfig = {
   dateField?: string
 }
 
-export type ListFiltersState = {
-  filtered: any[]
+export type ListFiltersState<T> = {
+  filtered: T[]
   search: string
   setSearch: (v: string) => void
   statusFilter: string
@@ -46,14 +46,14 @@ function valorBusca(v: unknown, q: string, vistos: Set<object>): boolean {
   return normalizar(String(v)).includes(q)
 }
 
-export function matchesSearch(item: any, query: string): boolean {
+export function matchesSearch<T>(item: T, query: string): boolean {
   const q = normalizar((query || "").trim())
   if (!q) return true
   const vistos = new Set<object>()
   return Object.values(item || {}).some((v) => valorBusca(v, q, vistos))
 }
 
-export function useListFilters(config: FilterConfig, data: any[]) {
+export function useListFilters<T>(config: FilterConfig, data: T[]) {
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [dateFrom, setDateFrom] = useState("")
@@ -65,25 +65,25 @@ export function useListFilters(config: FilterConfig, data: any[]) {
     let result = [...data]
 
     if (search.trim()) {
-      result = result.filter((item: any) => matchesSearch(item, search))
+      result = result.filter((item) => matchesSearch(item, search))
     }
 
     if (statusFilter && statusFilter !== "all") {
-      result = result.filter((item: any) => item.status === statusFilter)
+      result = result.filter((item) => (item as { status?: string }).status === statusFilter)
     }
 
     const dateField = config.dateField || "createdAt"
     if (dateFrom) {
       const from = new Date(dateFrom + "T00:00:00")
-      result = result.filter((item: any) => {
-        const d = item[dateField] ? new Date(item[dateField]) : null
+      result = result.filter((item) => {
+        const d = (item as Record<string, unknown>)[dateField] ? new Date((item as Record<string, unknown>)[dateField] as string) : null
         return d && d >= from
       })
     }
     if (dateTo) {
       const to = new Date(dateTo + "T23:59:59")
-      result = result.filter((item: any) => {
-        const d = item[dateField] ? new Date(item[dateField]) : null
+      result = result.filter((item) => {
+        const d = (item as Record<string, unknown>)[dateField] ? new Date((item as Record<string, unknown>)[dateField] as string) : null
         return d && d <= to
       })
     }
@@ -94,14 +94,14 @@ export function useListFilters(config: FilterConfig, data: any[]) {
   return { filtered, search, setSearch, statusFilter, setStatusFilter, dateFrom, setDateFrom, dateTo, setDateTo }
 }
 
-type Props = {
+type Props<T> = {
   config: FilterConfig
-  data: any[]
-  filterState: ListFiltersState
+  data: T[]
+  filterState: ListFiltersState<T>
   placeholder?: string
 }
 
-export default function ListFilters({ config, data, filterState, placeholder }: Props) {
+export default function ListFilters<T>({ config, data, filterState, placeholder }: Props<T>) {
   const { search, setSearch, statusFilter, setStatusFilter, dateFrom, setDateFrom, dateTo, setDateTo, filtered } = filterState
 
   const hasActiveFilters = search || statusFilter !== "all" || dateFrom || dateTo

@@ -1,8 +1,16 @@
 import Link from "next/link"
 import { Package, Building2, Users, Palette, Scissors, Droplets, Layers, FlaskConical, Beaker } from "lucide-react"
 import { PageInfoButton } from "@/components/ui/page-info-button"
+import type { LucideIcon } from "lucide-react"
 
-const modulos = [
+type ModuloCadastro = {
+  titulo: string
+  descricao: string
+  href: string
+  icon: LucideIcon
+}
+
+const modulos: ModuloCadastro[] = [
   {
     titulo: "Fios",
     descricao: "Cadastro de fios têxteis",
@@ -73,7 +81,7 @@ export default function CadastrosPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {modulos.map((modulo: any) => {
+        {modulos.map((modulo) => {
           const Icon = modulo.icon
           return (
             <Link

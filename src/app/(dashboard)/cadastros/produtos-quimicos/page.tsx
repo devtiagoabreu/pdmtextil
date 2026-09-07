@@ -47,7 +47,7 @@ export default function ProdutosQuimicosPage() {
     queryFn: fetchProdutosQuimicos,
   })
 
-  const filtered = produtos.filter((p: any) => matchesSearch(p, search))
+  const filtered = produtos.filter((p: ProdutoQuimico) => matchesSearch(p, search))
 
   const handleDelete = async () => {
     if (!deleteTarget) return
@@ -156,7 +156,7 @@ export default function ProdutosQuimicosPage() {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((p: any) => (
+              {filtered.map((p: ProdutoQuimico) => (
                 <tr
                   key={p.id}
                   className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50"

@@ -50,7 +50,7 @@ export default function FiosPage() {
     queryFn: fetchFios,
   })
 
-  const filteredFios = fios.filter((f: any) => matchesSearch(f, search))
+  const filteredFios = fios.filter((f: Fio) => matchesSearch(f, search))
 
   const handleDelete = async () => {
     if (!deleteTarget) return
@@ -144,7 +144,7 @@ export default function FiosPage() {
               </tr>
             </thead>
             <tbody>
-              {filteredFios.map((fio: any) => (
+              {filteredFios.map((fio: Fio) => (
                 <tr
                   key={fio.id}
                   className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50"

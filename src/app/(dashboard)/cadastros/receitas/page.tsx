@@ -76,7 +76,7 @@ export default function ListaReceitasPage() {
           Receitas de beneficiamento associadas a produtos, acabamentos e amostras
         </p>
       </div>
-      <ExportarDados data={completas.map((r: any) => ({ produto: r.produtoCodigo, descricao: r.descricao, versao: r.versao, itens: r.totalItens, acabamento: r.acabamento }))} columns={[
+      <ExportarDados data={completas.map((r: ReceitaCompleta) => ({ produto: r.produtoCodigo, descricao: r.descricao, versao: r.versao, itens: r.totalItens, acabamento: r.acabamento }))} columns={[
         { key: "produto", label: "Produto" }, { key: "descricao", label: "Descrição" },
         { key: "versao", label: "Versão" }, { key: "itens", label: "Itens" },
         { key: "acabamento", label: "Acabamento" },
@@ -131,7 +131,7 @@ export default function ListaReceitasPage() {
                 </tr>
               </thead>
               <tbody>
-                {completas.map((r: any) => (
+                {completas.map((r: ReceitaCompleta) => (
                   <tr key={`c-${r.id}`} className="border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/30">
                     <td className="p-3">
                       <Link href={`/cadastros/produto-cru/${r.produtoId}`} className="font-medium text-blue-600 dark:text-blue-400 hover:underline">
@@ -184,7 +184,7 @@ export default function ListaReceitasPage() {
                 </tr>
               </thead>
               <tbody>
-                {simples.map((r: any) => (
+                {simples.map((r: ReceitaSimples) => (
                   <tr key={`s-${r.id}`} className="border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/30">
                     <td className="p-3">
                       <Link href={`/cadastros/produto-cru/${r.produtoId}`} className="font-medium text-blue-600 dark:text-blue-400 hover:underline">
