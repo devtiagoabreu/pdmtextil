@@ -9,6 +9,7 @@ import { ArrowLeft, Plane, Loader2, MapPin, Calendar, Users, Wallet } from "luci
 import { toast } from "sonner"
 import { ViagemForm, VIAGEM_STATUS_OPTIONS } from "@/components/crm/viagem-form"
 import { linhaParaForm, type InvestimentoLinha } from "@/lib/crm/viagem"
+import type { Viagem, Investimento, ViagemForm as ViagemFormType } from "../types"
 
 const STATUS_CORES: Record<string, string> = {
   PLANEJADA: "text-blue-600 bg-blue-50 dark:bg-blue-950/50 dark:text-blue-400",
@@ -22,21 +23,21 @@ export default function ViagemDetailPage() {
   const pathname = usePathname()
   const info = getInfoContent(pathname)
   const params = useParams()
-  const [viagem, setViagem] = useState<any>(null)
+  const [viagem, setViagem] = useState<Viagem | null>(null)
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(false)
-  const [form, setForm] = useState<any>({})
+  const [form, setForm] = useState<Partial<ViagemFormType>>({})
   const [investimentos, setInvestimentos] = useState<InvestimentoLinha[]>([])
   const [saving, setSaving] = useState(false)
 
-  function setField(field: string, value: any) {
-    setForm((prev: any) => ({ ...prev, [field]: value }))
+  function setField(field: string, value: string) {
+    setForm(prev => ({ ...prev, [field]: value }))
   }
 
   useEffect(() => {
     fetch(`/api/crm/viagens/${params.id}`)
-      .then((r: any) => r.json())
-      .then((data: any) => {
+      .then((r) => r.json() as Promise<Viagem>)
+      .then((data: Viagem) => {
         setViagem(data)
         setForm(data)
         setInvestimentos((data.investimentos || []).map(linhaParaForm))
@@ -46,6 +47,7 @@ export default function ViagemDetailPage() {
   }, [params.id])
 
   function startEditing() {
+    if (!viagem) return
     setForm(viagem)
     setInvestimentos((viagem.investimentos || []).map(linhaParaForm))
     setEditing(true)
@@ -82,8 +84,8 @@ export default function ViagemDetailPage() {
       setViagem({ ...viagem, ...updated, investimentos })
       setEditing(false)
       toast.success("Viagem atualizada")
-    } catch (err: any) {
-      toast.error(err.message)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao atualizar viagem")
     } finally {
       setSaving(false)
     }
@@ -107,7 +109,7 @@ export default function ViagemDetailPage() {
   }
 
   const totalInvestimento = (viagem.investimentos || []).reduce(
-    (acc: number, i: any) => acc + (Number(i.valor) || 0),
+    (acc: number, i: Investimento) => acc + (Number(i.valor) || 0),
     0
   )
   const statusLabel = VIAGEM_STATUS_OPTIONS.find(s => s.value === viagem.status)?.label || viagem.status
@@ -210,7 +212,7 @@ export default function ViagemDetailPage() {
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 mb-4">
               <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-3">Investimentos</h2>
               <div className="space-y-2">
-                {viagem.investimentos.map((inv: any) => (
+                {viagem.investimentos.map((inv) => (
                   <div key={inv.id} className="flex items-center justify-between rounded-lg border border-slate-200 dark:border-slate-700 px-4 py-2.5 text-sm">
                     <div>
                       <p className="font-medium text-slate-900 dark:text-slate-100">{inv.tipo}</p>
@@ -235,7 +237,7 @@ export default function ViagemDetailPage() {
               </p>
             ) : (
               <div className="space-y-2">
-                {viagem.visitas.map((v: any) => (
+                {viagem.visitas.map((v) => (
                   <Link
                     key={v.id}
                     href={`/comercial/crm/visitas/${v.id}`}

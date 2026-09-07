@@ -13,7 +13,7 @@ export default function NovaViagemPage() {
   const router = useRouter()
   const pathname = usePathname()
   const info = getInfoContent(pathname)
-  const [form, setForm] = useState<any>({
+  const [form, setForm] = useState({
     titulo: "",
     descricao: "",
     destinoCidade: "",
@@ -25,8 +25,8 @@ export default function NovaViagemPage() {
   const [investimentos, setInvestimentos] = useState<InvestimentoLinha[]>([])
   const [saving, setSaving] = useState(false)
 
-  function setField(field: string, value: any) {
-    setForm((prev: any) => ({ ...prev, [field]: value }))
+  function setField(field: string, value: string) {
+    setForm(prev => ({ ...prev, [field]: value }))
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -61,8 +61,8 @@ export default function NovaViagemPage() {
       const viagem = await res.json()
       toast.success("Viagem criada")
       router.push(`/comercial/crm/viagens/${viagem.id}`)
-    } catch (err: any) {
-      toast.error(err.message)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao criar viagem")
     } finally {
       setSaving(false)
     }

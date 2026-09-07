@@ -10,6 +10,7 @@ import { useRouter, usePathname } from "next/navigation"
 import { PlusCircle, Plane, Search, ChevronLeft, ChevronRight, Trash2, Pencil, CalendarRange, MapPin, Wallet, Users } from "lucide-react"
 import { toast } from "sonner"
 import { PageSkeleton } from "@/components/ui/page-skeleton"
+import type { ViagemResumo } from "./types"
 
 const PAGE_SIZE = 50
 
@@ -27,13 +28,21 @@ const STATUS_CORES: Record<string, string> = {
   CANCELADA: "text-red-600 bg-red-50 dark:bg-red-950/50 dark:text-red-400",
 }
 
-function formatarMoeda(v: any) {
+function formatarMoeda(v: number | string | null | undefined) {
   return Number(v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
 }
 
 function formatarData(d: string) {
   if (!d) return "—"
   return new Date(d + "T12:00:00").toLocaleDateString("pt-BR")
+}
+
+type ViagensPage = {
+  data: ViagemResumo[]
+  total: number
+  page: number
+  totalPages: number
+  limit: number
 }
 
 async function fetchViagensPaginated(params: { page: number; q: string; status: string }) {
@@ -44,7 +53,7 @@ async function fetchViagensPaginated(params: { page: number; q: string; status: 
   if (params.status && params.status !== "all") sp.set("status", params.status)
   const res = await fetch(`/api/crm/viagens?${sp}`)
   if (!res.ok) throw new Error("Falha ao carregar")
-  return res.json()
+  return res.json() as Promise<ViagensPage>
 }
 
 function ViagensPageContent() {
@@ -55,7 +64,7 @@ function ViagensPageContent() {
   const [debouncedSearch, setDebouncedSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [page, setPage] = useState(1)
-  const [excluirViagem, setExcluirViagem] = useState<any>(null)
+  const [excluirViagem, setExcluirViagem] = useState<ViagemResumo | null>(null)
   const debounceRef = useRef<NodeJS.Timeout | null>(null)
   const queryClient = useQueryClient()
 
@@ -72,7 +81,7 @@ function ViagensPageContent() {
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current) }
   }, [])
 
-  const { data: tableData, isLoading } = useQuery({
+  const { data: tableData, isLoading } = useQuery<ViagensPage>({
     queryKey: ["crm-viagens", page, debouncedSearch, statusFilter],
     queryFn: () => fetchViagensPaginated({ page, q: debouncedSearch, status: statusFilter }),
     retry: 1,
@@ -178,7 +187,7 @@ function ViagensPageContent() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                  {rows.map((v: any) => (
+                  {rows.map((v) => (
                     <tr
                       key={v.id}
                       onClick={() => router.push(`/comercial/crm/viagens/${v.id}`)}
