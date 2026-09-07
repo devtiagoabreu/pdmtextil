@@ -6,7 +6,7 @@ import { Loader2, Globe, Download, X, Check, Database, Search } from "lucide-rea
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { useEscapeClose } from "@/lib/use-escape-close"
+import { Dialog as DialogPrimitive } from "@base-ui/react/dialog"
 
 interface MappingConfig {
   fields?: Record<string, string>
@@ -50,8 +50,6 @@ export default function ImportarApiModal({ tela, existingRecords, existingKey = 
       .catch(() => { if (ativo) setExistingRecordsCarregados([]) })
     return () => { ativo = false } // eslint-disable-line react-hooks/exhaustive-deps
   }, [])
-
-  useEscapeClose(true, onClose)
 
   const { data: integracoes, isLoading: loadingInt, isError: integracoesError } = useQuery<Integracao[]>({
     queryKey: ["admin-integracoes", tela],
@@ -234,16 +232,18 @@ export default function ImportarApiModal({ tela, existingRecords, existingKey = 
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose} role="dialog" aria-modal="true" aria-label="Importar via API">
-      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-2xl w-[95vw] max-w-5xl max-h-[90vh] overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
+    <DialogPrimitive.Root open onOpenChange={(next) => { if (!next) onClose() }}>
+      <DialogPrimitive.Portal>
+        <DialogPrimitive.Backdrop className="fixed inset-0 z-50 bg-black/50" />
+        <DialogPrimitive.Popup className="fixed top-1/2 left-1/2 z-50 w-[95vw] max-w-5xl -translate-x-1/2 -translate-y-1/2 max-h-[90vh] overflow-hidden flex flex-col rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl outline-none">
         <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-800">
-          <h2 className="text-lg font-semibold flex items-center gap-2">
+          <DialogPrimitive.Title className="text-lg font-semibold flex items-center gap-2">
             <Database size={18} className="text-blue-500" />
             Importar via API
-          </h2>
-          <button onClick={onClose} aria-label="Fechar" className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+          </DialogPrimitive.Title>
+          <DialogPrimitive.Close aria-label="Fechar" className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
             <X size={18} />
-          </button>
+          </DialogPrimitive.Close>
         </div>
 
         <div className="p-5 space-y-4 flex-1 overflow-auto">
@@ -375,7 +375,8 @@ export default function ImportarApiModal({ tela, existingRecords, existingKey = 
             </Button>
           </div>
         )}
-      </div>
-    </div>
+        </DialogPrimitive.Popup>
+      </DialogPrimitive.Portal>
+    </DialogPrimitive.Root>
   )
 }

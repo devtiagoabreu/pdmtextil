@@ -12,7 +12,7 @@ import { getInfoContent } from "@/lib/info-content"
 import { useStatuses, hexToRgba } from "@/hooks/use-statuses"
 import { ChartCard } from "@/components/ui/chart-card"
 import { AnimatedNumber } from "@/components/ui/animated-number"
-import { useEscapeClose } from "@/lib/use-escape-close"
+import { Dialog as DialogPrimitive } from "@base-ui/react/dialog"
 
 const DashboardCharts = dynamic(() => import("./dashboard-charts"), { ssr: false })
 
@@ -51,8 +51,6 @@ export default function DashboardPage() {
 
   const [modalFiltro, setModalFiltro] = useState<string | null>(null)
   const [modalTitle, setModalTitle] = useState("")
-
-  useEscapeClose(!!modalFiltro, () => setModalFiltro(null))
 
   const statsQuery = useQuery({
     queryKey: ["dashboard-stats"],
@@ -211,17 +209,15 @@ export default function DashboardPage() {
         </>
       )}
 
-      {modalFiltro && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center pt-12 sm:pt-20 bg-black/50" onClick={() => setModalFiltro(null)} role="dialog" aria-modal="true" aria-label={modalTitle}>
-          <div
-            className="bg-white dark:bg-slate-900 rounded-xl shadow-xl w-full max-w-2xl mx-4 max-h-[75vh] flex flex-col border border-slate-200 dark:border-slate-700"
-            onClick={e => e.stopPropagation()}
-          >
+      <DialogPrimitive.Root open={!!modalFiltro} onOpenChange={(next) => { if (!next) setModalFiltro(null) }}>
+        <DialogPrimitive.Portal>
+          <DialogPrimitive.Backdrop className="fixed inset-0 z-50 bg-black/50" onClick={() => setModalFiltro(null)} />
+          <DialogPrimitive.Popup className="fixed top-1/2 left-1/2 z-50 w-full max-w-2xl -translate-x-1/2 -translate-y-1/2 max-h-[75vh] flex flex-col rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-xl outline-none">
             <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
-              <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">{modalTitle}</h2>
-              <button type="button" onClick={() => setModalFiltro(null)} aria-label="Fechar" className="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800">
+              <DialogPrimitive.Title className="text-lg font-semibold text-slate-900 dark:text-slate-50">{modalTitle}</DialogPrimitive.Title>
+              <DialogPrimitive.Close aria-label="Fechar" className="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800">
                 <X size={18} className="text-slate-500" />
-              </button>
+              </DialogPrimitive.Close>
             </div>
             <div className="overflow-y-auto p-4 flex-1">
               {modalLoading ? (
@@ -282,9 +278,9 @@ export default function DashboardPage() {
                 </div>
               )}
             </div>
-          </div>
-        </div>
-      )}
+          </DialogPrimitive.Popup>
+        </DialogPrimitive.Portal>
+      </DialogPrimitive.Root>
     </div>
   )
 }
