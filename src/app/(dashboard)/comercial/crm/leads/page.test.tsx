@@ -74,7 +74,7 @@ describe("LeadsPage ações", () => {
   it("altera o status do lead pela ação Contatar", async () => {
     renderPage(<CrmLeadsPage />)
 
-    fireEvent.click(await screen.findByRole("button", { name: "Contatar" }))
+    fireEvent.click(await screen.findByRole("button", { name: /^Contatar/ }))
 
     await waitFor(() => {
       const call = findCall(fetchMock.calls, "/api/crm/leads/1", "PUT")
@@ -112,7 +112,7 @@ describe("LeadsPage exclusão", () => {
   it("admin exclui lead pela tabela via modal", async () => {
     renderPage(<CrmLeadsPage />)
 
-    fireEvent.click(await screen.findByRole("button", { name: "Excluir lead" }))
+    fireEvent.click(await screen.findByRole("button", { name: /^Excluir João Pereira/ }))
     const dialog = screen.getByRole("dialog", { name: "Excluir lead?" })
     fireEvent.click(within(dialog).getByRole("button", { name: "Excluir" }))
 
@@ -128,6 +128,6 @@ describe("LeadsPage exclusão", () => {
     renderPage(<CrmLeadsPage />)
 
     await screen.findByText("João Pereira")
-    expect(screen.queryByRole("button", { name: "Excluir lead" })).not.toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: /^Excluir João Pereira/ })).not.toBeInTheDocument()
   })
 })

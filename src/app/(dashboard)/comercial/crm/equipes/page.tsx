@@ -10,34 +10,77 @@ import { PlusCircle, Users, Pencil, Trash2, Loader2, Search, X, UserPlus, MapPin
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 
-async function fetchEquipes() {
+async function fetchEquipes(): Promise<Equipe[]> {
   const res = await fetch("/api/crm/equipes")
   if (!res.ok) throw new Error("Falha ao carregar")
   return res.json()
 }
 
-async function fetchRegioes() {
+async function fetchRegioes(): Promise<Regiao[]> {
   const res = await fetch("/api/crm/regioes")
   if (!res.ok) throw new Error("Falha ao carregar regiões")
   return res.json()
 }
 
-async function fetchUsuarios() {
+async function fetchUsuarios(): Promise<Usuario[]> {
   const res = await fetch("/api/usuarios/ativos")
   if (!res.ok) throw new Error("Falha ao carregar usuários")
   return res.json()
 }
 
-async function fetchMembros(equipeId: number) {
+async function fetchMembros(equipeId: number): Promise<Membro[]> {
   const res = await fetch(`/api/crm/equipes/${equipeId}/membros`)
   if (!res.ok) throw new Error("Falha ao carregar membros")
   return res.json()
 }
 
-async function fetchRepresentantes(query: string) {
+async function fetchRepresentantes(query: string): Promise<Representante[]> {
   const res = await fetch(`/api/representantes?q=${encodeURIComponent(query)}`)
   if (!res.ok) throw new Error("Falha ao buscar")
   return res.json()
+}
+
+interface Equipe {
+  id: number
+  nome: string
+  regiaoId: number | null
+  regiaoNome: string | null
+  responsavelId: number | null
+  responsavelNome: string | null
+  ativo: boolean
+  membrosCount: number
+}
+
+interface Membro {
+  id: number
+  equipeId: number
+  representanteId: number
+  nome: string
+  cnpj: string | null
+  cidade: string | null
+  uf: string | null
+  email: string | null
+  telefone: string | null
+}
+
+interface Regiao {
+  id: number
+  nome: string
+  uf: string | null
+  ativo: boolean
+}
+
+interface Usuario {
+  id: number
+  name: string
+}
+
+interface Representante {
+  id: number
+  nome: string
+  cnpj: string
+  cidade: string | null
+  uf: string | null
 }
 
 export default function EquipesPage() {
@@ -51,13 +94,13 @@ export default function EquipesPage() {
   const [responsavelId, setResponsavelId] = useState("")
   const [busca, setBusca] = useState("")
 
-  const [selectedEquipe, setSelectedEquipe] = useState<any | null>(null)
-  const [membros, setMembros] = useState<any[]>([])
+  const [selectedEquipe, setSelectedEquipe] = useState<Equipe | null>(null)
+  const [membros, setMembros] = useState<Membro[]>([])
   const [loadingMembros, setLoadingMembros] = useState(false)
   const [searchRep, setSearchRep] = useState("")
-  const [repResults, setRepResults] = useState<any[]>([])
+  const [repResults, setRepResults] = useState<Representante[]>([])
   const [searchingRep, setSearchingRep] = useState(false)
-  const [membroToRemove, setMembroToRemove] = useState<any>(null)
+  const [membroToRemove, setMembroToRemove] = useState<Membro | null>(null)
   const [equipeToDelete, setEquipeToDelete] = useState<number | null>(null)
 
   const { data: equipes, isLoading } = useQuery({
@@ -123,7 +166,7 @@ export default function EquipesPage() {
     setResponsavelId("")
   }
 
-  function startEdit(e: any) {
+  function startEdit(e: Equipe) {
     setEditingId(e.id)
     setNome(e.nome)
     setRegiaoId(e.regiaoId ? String(e.regiaoId) : "")
@@ -131,7 +174,7 @@ export default function EquipesPage() {
     setShowForm(true)
   }
 
-  async function openEquipe(e: any) {
+  async function openEquipe(e: Equipe) {
     setSelectedEquipe(e)
     setLoadingMembros(true)
     setSearchRep("")
@@ -155,8 +198,8 @@ export default function EquipesPage() {
     setSearchingRep(true)
     try {
       const data = await fetchRepresentantes(query)
-      const existentes = new Set(membros.map((m: any) => m.representanteId))
-      setRepResults(data.filter((r: any) => !existentes.has(r.id)))
+      const existentes = new Set(membros.map((m) => m.representanteId))
+      setRepResults(data.filter((r: Representante) => !existentes.has(r.id)))
     } catch {
       setRepResults([])
     } finally {
@@ -165,8 +208,10 @@ export default function EquipesPage() {
   }
 
   async function addMembro(representanteId: number) {
+    if (!selectedEquipe) return
+    const equipeId = selectedEquipe.id
     try {
-      const res = await fetch(`/api/crm/equipes/${selectedEquipe.id}/membros`, {
+      const res = await fetch(`/api/crm/equipes/${equipeId}/membros`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ representanteId }),
@@ -175,21 +220,23 @@ export default function EquipesPage() {
         const err = await res.json()
         throw new Error(err.error || "Erro ao adicionar")
       }
-      const data = await fetchMembros(selectedEquipe.id)
+      const data = await fetchMembros(equipeId)
       setMembros(data)
       setSearchRep("")
       setRepResults([])
       queryClient.invalidateQueries({ queryKey: ["crm-equipes"] })
       toast.success("Representante adicionado à equipe")
-    } catch (err: any) {
-      toast.error(err.message)
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Erro ao adicionar")
     }
   }
 
-  async function removeMembro(membro: any) {
+  async function removeMembro(membro: Membro) {
+    if (!selectedEquipe) return
+    const equipeId = selectedEquipe.id
     try {
-      await fetch(`/api/crm/equipes/${selectedEquipe.id}/membros?membroId=${membro.id}`, { method: "DELETE" })
-      const data = await fetchMembros(selectedEquipe.id)
+      await fetch(`/api/crm/equipes/${equipeId}/membros?membroId=${membro.id}`, { method: "DELETE" })
+      const data = await fetchMembros(equipeId)
       setMembros(data)
       queryClient.invalidateQueries({ queryKey: ["crm-equipes"] })
       toast.success("Representante removido da equipe")
@@ -198,7 +245,7 @@ export default function EquipesPage() {
     }
   }
 
-  const filtradas = equipes?.filter((e: any) =>
+  const filtradas = equipes?.filter((e: Equipe) =>
     !busca || matchesSearch(e, busca)
   )
 
@@ -258,7 +305,7 @@ export default function EquipesPage() {
 
           {repResults.length > 0 && (
             <div className="rounded-lg border border-slate-200 dark:border-slate-700 divide-y divide-slate-100 dark:divide-slate-800 max-h-48 overflow-y-auto">
-              {repResults.map((r: any) => (
+              {repResults.map((r) => (
                 <button
                   key={r.id}
                   onClick={() => addMembro(r.id)}
@@ -298,7 +345,7 @@ export default function EquipesPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                  {membros.map((m: any) => (
+                  {membros.map((m: Membro) => (
                     <tr key={m.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
                       <td className="p-3 text-sm font-medium text-slate-900 dark:text-slate-200">{m.nome}</td>
                       <td className="p-3 text-sm text-slate-500 font-mono">{m.cnpj || "—"}</td>
@@ -314,6 +361,7 @@ export default function EquipesPage() {
                       <td className="p-3 text-right">
                         <button
                           onClick={() => setMembroToRemove(m)}
+                          aria-label={`Remover ${m.nome} da equipe`}
                           className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/50 text-slate-400 hover:text-red-600 transition-colors"
                         >
                           <X size={14} />
@@ -393,7 +441,7 @@ export default function EquipesPage() {
                 className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
               >
                 <option value="">Sem região</option>
-                {(regioes || []).filter((r: any) => r.ativo).map((r: any) => (
+                {(regioes || []).filter((r: Regiao) => r.ativo).map((r: Regiao) => (
                   <option key={r.id} value={r.id}>{r.nome}{r.uf ? ` (${r.uf})` : ""}</option>
                 ))}
               </select>
@@ -406,7 +454,7 @@ export default function EquipesPage() {
                 className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
               >
                 <option value="">Selecione...</option>
-                {(usuarios || []).map((u: any) => (
+                {(usuarios || []).map((u: Usuario) => (
                   <option key={u.id} value={u.id}>{u.name}</option>
                 ))}
               </select>
@@ -445,7 +493,7 @@ export default function EquipesPage() {
           </div>
         ) : (
           <div className="divide-y divide-slate-100 dark:divide-slate-800">
-            {filtradas.map((e: any) => (
+            {filtradas.map((e: Equipe) => (
               <div key={e.id} className="flex items-center justify-between px-4 py-3.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer" onClick={() => openEquipe(e)}>
                 <div className="flex items-center gap-3 min-w-0 flex-1">
                   <div className="w-9 h-9 rounded-lg bg-purple-50 dark:bg-purple-950/50 flex items-center justify-center shrink-0">
@@ -468,12 +516,14 @@ export default function EquipesPage() {
                   )}
                   <button
                     onClick={(ev) => { ev.stopPropagation(); startEdit(e) }}
+                    aria-label={`Editar ${e.nome}`}
                     className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
                   >
                     <Pencil size={14} />
                   </button>
                   <button
                     onClick={(ev) => { ev.stopPropagation(); setEquipeToDelete(e.id) }}
+                    aria-label={`Excluir ${e.nome}`}
                     className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/50 text-slate-400 hover:text-red-600 transition-colors"
                   >
                     <Trash2 size={14} />

@@ -9,16 +9,33 @@ import { getInfoContent } from "@/lib/info-content"
 import { PlusCircle, UserPlus, Search, Phone, Star, Building2, XCircle, Trash2, Table, Columns } from "lucide-react"
 import { toast } from "sonner"
 import { useSession } from "next-auth/react"
+import type { Session } from "next-auth"
 import { FloatableKanban } from "@/components/crm/floatable-kanban"
 import LeadsKanban from "@/components/crm/leads-kanban"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import ListFilters, { useListFilters } from "@/components/ui/list-filters"
 import { PageSkeleton } from "@/components/ui/page-skeleton"
 
-async function fetchLeads() {
+async function fetchLeads(): Promise<Lead[]> {
   const res = await fetch("/api/crm/leads")
   if (!res.ok) throw new Error("Falha ao carregar")
   return res.json()
+}
+
+interface Lead {
+  id: number
+  nome: string
+  email: string | null
+  celular: string | null
+  empresaNome: string | null
+  empresaRazaoSocial: string | null
+  empresaId: number | null
+  tipoPessoa: "PF" | "PJ" | null
+  score: number | null
+  origem: string | null
+  responsavelNome: string | null
+  status: string
+  createdAt: string
 }
 
 const STATUS_CORES: Record<string, string> = {
@@ -45,10 +62,11 @@ function CrmLeadsPageContent() {
   const searchParams = useSearchParams()
   const info = getInfoContent(pathname)
   const [modo, setModo] = useState<"tabela" | "kanban">(searchParams.get("view") === "kanban" ? "kanban" : "tabela")
-  const [leadToPerder, setLeadToPerder] = useState<any>(null)
-  const [leadToExcluir, setLeadToExcluir] = useState<any>(null)
+  const [leadToPerder, setLeadToPerder] = useState<Lead | null>(null)
+  const [leadToExcluir, setLeadToExcluir] = useState<Lead | null>(null)
   const { data: session } = useSession()
-  const isAdmin = (session?.user as any)?.role === "ADMIN" || (session?.user as any)?.role === "SUDO"
+  const role = (session?.user as Session["user"] | undefined)?.role
+  const isAdmin = role === "ADMIN" || role === "SUDO"
 
   const { data: leads, isLoading, refetch } = useQuery({
     queryKey: ["crm-leads"],
@@ -71,7 +89,7 @@ function CrmLeadsPageContent() {
   )
   const filteredData = filterState.filtered
 
-  async function converterParaEmpresa(lead: any) {
+  async function converterParaEmpresa(lead: Lead) {
     const isPF = lead.tipoPessoa === "PF"
     const label = isPF ? "Nome completo" : "Razão social"
     const valor = prompt(`${label}:`, lead.empresaNome || lead.nome)
@@ -98,12 +116,12 @@ function CrmLeadsPageContent() {
 
       toast.success(`Lead convertido para pessoa "${valor}"`)
       refetch()
-    } catch (err: any) {
-      toast.error(err.message)
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Erro ao converter")
     }
   }
 
-  async function mudarStatus(lead: any, status: string) {
+  async function mudarStatus(lead: Lead, status: string) {
     try {
       await fetch(`/api/crm/leads/${lead.id}`, {
         method: "PUT",
@@ -117,7 +135,7 @@ function CrmLeadsPageContent() {
     }
   }
 
-  async function excluirLead(lead: any) {
+  async function excluirLead(lead: Lead) {
     try {
       const res = await fetch(`/api/crm/leads/${lead.id}`, { method: "DELETE" })
       if (!res.ok) {
@@ -126,8 +144,8 @@ function CrmLeadsPageContent() {
       }
       toast.success(`Lead "${lead.nome}" excluído`)
       refetch()
-    } catch (err: any) {
-      toast.error(err.message)
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Erro ao excluir")
     } finally {
       setLeadToExcluir(null)
     }
@@ -153,6 +171,7 @@ function CrmLeadsPageContent() {
           <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-0.5 shadow-sm">
             <button
               onClick={() => setModo("tabela")}
+              aria-pressed={modo === "tabela"}
               className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
                 modo === "tabela"
                   ? "bg-blue-600 text-white shadow-sm"
@@ -164,6 +183,7 @@ function CrmLeadsPageContent() {
             </button>
             <button
               onClick={() => setModo("kanban")}
+              aria-pressed={modo === "kanban"}
               className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
                 modo === "kanban"
                   ? "bg-blue-600 text-white shadow-sm"
@@ -231,7 +251,7 @@ function CrmLeadsPageContent() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {filteredData.map((lead: any) => (
+                {filteredData.map((lead: Lead) => (
                   <tr key={lead.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
                     <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-medium whitespace-nowrap">
                       <Link href={`/comercial/crm/leads/${lead.id}`} className="text-slate-900 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400">
@@ -278,7 +298,7 @@ function CrmLeadsPageContent() {
                     </td>
                     <td className="px-2 py-2 md:px-4 md:py-3 hidden lg:table-cell">
                       <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 font-medium">
-                        {ORIGEM_LABELS[lead.origem] || lead.origem}
+                        {lead.origem ? (ORIGEM_LABELS[lead.origem] || lead.origem) : "—"}
                       </span>
                     </td>
                     <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden lg:table-cell">{lead.responsavelNome || "—"}</td>
@@ -294,6 +314,7 @@ function CrmLeadsPageContent() {
                           <button
                             onClick={() => mudarStatus(lead, "CONTATADO")}
                             title="Contatar"
+                            aria-label={`Contatar ${lead.nome}`}
                             className="p-1.5 rounded-lg text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/30"
                           >
                             <Phone size={15} />
@@ -303,6 +324,7 @@ function CrmLeadsPageContent() {
                           <button
                             onClick={() => mudarStatus(lead, "QUALIFICADO")}
                             title="Qualificar"
+                            aria-label={`Qualificar ${lead.nome}`}
                             className="p-1.5 rounded-lg text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
                           >
                             <Star size={15} />
@@ -312,6 +334,7 @@ function CrmLeadsPageContent() {
                           <button
                             onClick={() => converterParaEmpresa(lead)}
                             title="Converter para Pessoa (Negócio)"
+                            aria-label={`Converter ${lead.nome} para pessoa`}
                             className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30"
                           >
                             <Building2 size={15} />
@@ -321,6 +344,7 @@ function CrmLeadsPageContent() {
                           <button
                             onClick={() => setLeadToPerder(lead)}
                             title="Perder"
+                            aria-label={`Marcar ${lead.nome} como perdido`}
                             className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
                           >
                             <XCircle size={15} />
@@ -330,6 +354,7 @@ function CrmLeadsPageContent() {
                           <button
                             onClick={() => setLeadToExcluir(lead)}
                             title="Excluir lead"
+                            aria-label={`Excluir ${lead.nome}`}
                             className="p-1.5 rounded-lg text-slate-500 hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600"
                           >
                             <Trash2 size={15} />
