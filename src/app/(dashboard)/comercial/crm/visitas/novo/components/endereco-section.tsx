@@ -1,10 +1,11 @@
 import { toast } from "sonner"
 import { SelectUf } from "@/components/crm/select-uf"
 import { SelectCidade } from "@/components/crm/select-cidade"
+import type { VisitaForm } from "../../types"
 
 interface EnderecoSectionProps {
-  form: any
-  setField: (field: string, value: string) => void
+  form: VisitaForm
+  setField: (field: keyof VisitaForm, value: string) => void
   estadoId: number | null
   tipoEntidade: "CLIENTE" | "PESSOA" | "AVULSA" | ""
   onCopiarEndereco: () => void

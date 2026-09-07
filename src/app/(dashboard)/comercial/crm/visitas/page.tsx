@@ -11,6 +11,7 @@ import { toast } from "sonner"
 import { useStatuses } from "@/hooks/use-statuses"
 import dynamic from "next/dynamic"
 import { PageSkeleton } from "@/components/ui/page-skeleton"
+import type { VisitaResumo } from "./types"
 
 const VisitasCalendario = dynamic(() => import("@/components/crm/visitas-calendario"), { ssr: false })
 const VisitasKanban = dynamic(() => import("@/components/crm/visitas-kanban"), { ssr: false })
@@ -19,7 +20,7 @@ const VisitLocationModal = dynamic(() => import("@/components/crm/visit-location
 
 const PAGE_SIZE = 50
 
-async function fetchVisitasPaginated(params: { mine: boolean; page: number; q: string; dataInicio: string; dataFim: string; avulsas: boolean }) {
+async function fetchVisitasPaginated(params: { mine: boolean; page: number; q: string; dataInicio: string; dataFim: string; avulsas: boolean }): Promise<{ data: VisitaResumo[]; total: number; totalPages: number }> {
   const sp = new URLSearchParams()
   sp.set("page", String(params.page))
   sp.set("limit", String(PAGE_SIZE))
@@ -33,7 +34,7 @@ async function fetchVisitasPaginated(params: { mine: boolean; page: number; q: s
   return res.json()
 }
 
-async function fetchVisitasAll(mine: boolean, avulsas: boolean) {
+async function fetchVisitasAll(mine: boolean, avulsas: boolean): Promise<VisitaResumo[]> {
   const sp = new URLSearchParams({ all: "true" })
   if (mine) sp.set("mine", "true")
   if (avulsas) sp.set("avulsas", "true")
@@ -104,14 +105,14 @@ function VisitasPageContent() {
     retry: 1,
   })
 
-  const { data: tableData, isLoading: tableLoading } = useQuery({
+  const { data: tableData, isLoading: tableLoading } = useQuery<{ data: VisitaResumo[]; total: number; totalPages: number }>({
     queryKey: ["crm-visitas-table", visitasFilter, page, debouncedSearch, dataInicio, dataFim, filterAvulsas],
     queryFn: () => fetchVisitasPaginated({ mine: visitasFilter === "minhas", page, q: debouncedSearch, dataInicio, dataFim, avulsas: filterAvulsas }),
     retry: 1,
     enabled: isTableMode,
   })
 
-  const { data: allVisitas, isLoading: allLoading } = useQuery({
+  const { data: allVisitas, isLoading: allLoading } = useQuery<VisitaResumo[]>({
     queryKey: ["crm-visitas-all", visitasFilter, filterAvulsas],
     queryFn: () => fetchVisitasAll(visitasFilter === "minhas", filterAvulsas),
     retry: 1,
@@ -127,7 +128,7 @@ function VisitasPageContent() {
   const fromRow = totalRows === 0 ? 0 : (page - 1) * PAGE_SIZE + 1
   const toRow = Math.min(page * PAGE_SIZE, totalRows)
 
-  const allSelected = tableRows.length > 0 && tableRows.every((v: any) => selectedIds.includes(v.id))
+  const allSelected = tableRows.length > 0 && tableRows.every((v) => selectedIds.includes(v.id))
 
   const bulkStatusMutation = useMutation({
     mutationFn: async ({ ids, status }: { ids: number[]; status: string }) => {
@@ -362,7 +363,7 @@ function VisitasPageContent() {
                         checked={allSelected}
                         onChange={(e) => {
                           if (e.target.checked) {
-                            setSelectedIds(tableRows.map((v: any) => v.id))
+                            setSelectedIds(tableRows.map((v) => v.id))
                           } else {
                             setSelectedIds([])
                           }
@@ -381,7 +382,7 @@ function VisitasPageContent() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                  {tableRows.map((v: any) => (
+                  {tableRows.map((v) => (
                     <tr
                       key={v.id}
                       className={`hover:bg-slate-50 dark:hover:bg-slate-800/50 ${selectedIds.includes(v.id) ? "bg-blue-50 dark:bg-blue-950/30" : ""}`}
@@ -394,7 +395,7 @@ function VisitasPageContent() {
                             if (e.target.checked) {
                               setSelectedIds(prev => [...prev, v.id])
                             } else {
-                              setSelectedIds((prev: any) => prev.filter((id: any) => id !== v.id))
+                              setSelectedIds(prev => prev.filter(id => id !== v.id))
                             }
                           }}
                           aria-label={`Selecionar visita de ${v.nomeAvulso || v.empresaNome || v.clienteNome || "registro sem identificação"}`}

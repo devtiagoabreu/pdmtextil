@@ -17,12 +17,13 @@ import { TipoEntidadeSelector } from "./components/tipo-entidade-selector"
 import { FormFields } from "./components/form-fields"
 import { EnderecoSection } from "./components/endereco-section"
 import type { VisitaFoto } from "@/lib/crm/visita-fotos"
+import type { ClienteResult, Conflito, ContatoResult, EmpresaResult, EnderecoText, OportunidadeResumo, VisitaForm } from "../types"
 
 function NovaVisitaPageContent() {
   const router = useRouter()
   const queryClient = useQueryClient()
   const { data: session } = useSession()
-  const isGoogleUser = (session?.user as any)?.provider === "google"
+  const isGoogleUser = session?.user?.provider === "google"
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const info = getInfoContent(pathname)
@@ -30,7 +31,7 @@ function NovaVisitaPageContent() {
   const [tipoEntidade, setTipoEntidade] = useState<"CLIENTE" | "PESSOA" | "AVULSA" | "">("")
   const [saving, setSaving] = useState(false)
   const [fotos, setFotos] = useState<VisitaFoto[]>([])
-  const [conflictos, setConflictos] = useState<any[]>([])
+  const [conflictos, setConflictos] = useState<Conflito[]>([])
   const [recorrencia, setRecorrencia] = useState<string>("nenhuma")
   const [recorrenciaFim, setRecorrenciaFim] = useState("")
   const [syncGoogle, setSyncGoogle] = useState(false)
@@ -61,27 +62,27 @@ function NovaVisitaPageContent() {
     duracaoEstimada: "",
   })
 
-  const { data: empresas = [] } = useQuery<any[]>({
+  const { data: empresas = [] } = useQuery<EmpresaResult[]>({
     queryKey: ["crm-pessoas"],
-    queryFn: () => fetch("/api/crm/pessoas").then((r: any) => r.json()),
+    queryFn: () => fetch("/api/crm/pessoas").then((r) => r.json()),
   })
 
-  const { data: oportunidades = [] } = useQuery<any[]>({
+  const { data: oportunidades = [] } = useQuery<OportunidadeResumo[]>({
     queryKey: ["crm-oportunidades"],
-    queryFn: () => fetch("/api/crm/oportunidades").then((r: any) => r.json()),
+    queryFn: () => fetch("/api/crm/oportunidades").then((r) => r.json()),
   })
 
-  const { data: clientesList = [] } = useQuery<any[]>({
+  const { data: clientesList = [] } = useQuery<ClienteResult[]>({
     queryKey: ["clientes"],
-    queryFn: () => fetch("/api/clientes").then((r: any) => r.json()),
+    queryFn: () => fetch("/api/clientes").then((r) => r.json()),
   })
 
   const { data: estados = [] } = useQuery<{ id: number; uf: string }[]>({
     queryKey: ["crm-estados"],
-    queryFn: () => fetch("/api/crm/estados").then((r: any) => r.json()),
+    queryFn: () => fetch("/api/crm/estados").then((r) => r.json()),
   })
 
-  const contatosQuery = useQuery<any[]>({
+  const contatosQuery = useQuery<ContatoResult[]>({
     queryKey: ["visita-contatos", tipoEntidade, form.empresaId, form.clienteId],
     queryFn: async () => {
       if (tipoEntidade === "PESSOA" && form.empresaId) {
@@ -99,7 +100,7 @@ function NovaVisitaPageContent() {
     enabled: (tipoEntidade === "PESSOA" && !!form.empresaId) || (tipoEntidade === "CLIENTE" && !!form.clienteId),
   })
 
-  const enderecoQuery = useQuery<any>({
+  const enderecoQuery = useQuery<EnderecoText>({
     queryKey: ["visita-endereco", tipoEntidade, form.empresaId, form.clienteId],
     queryFn: async () => {
       if (tipoEntidade === "PESSOA" && form.empresaId) {
@@ -118,7 +119,7 @@ function NovaVisitaPageContent() {
       if (tipoEntidade === "CLIENTE" && form.clienteId) {
         const res = await fetch(`/api/clientes`)
         const data = await res.json()
-        const cliente = Array.isArray(data) ? data.find((c: any) => String(c.id) === form.clienteId) : null
+        const cliente = Array.isArray(data) ? data.find((c) => String(c.id) === form.clienteId) : null
         if (cliente) {
           return {
             endereco: cliente.endereco || "",
@@ -140,13 +141,13 @@ function NovaVisitaPageContent() {
   const contatos = contatosQuery.data ?? []
   const empresaEndereco = enderecoQuery.data ?? {}
 
-  function setField(field: string, value: string) {
+  function setField(field: keyof VisitaForm, value: string) {
     setForm(prev => ({ ...prev, [field]: value }))
   }
 
   useEffect(() => {
     if (form.uf) {
-      const found = estados.find((e: any) => e.uf === form.uf)
+      const found = estados.find((e) => e.uf === form.uf)
       setEstadoId(found ? found.id : null)
     } else {
       setEstadoId(null)
@@ -161,7 +162,7 @@ function NovaVisitaPageContent() {
         const sp = new URLSearchParams({ dataVisita: form.dataVisita, hora: form.hora })
         const res = await fetch(`/api/crm/visitas/conflictos?${sp}`)
         if (res.ok) {
-          const data = await res.json()
+          const data: { conflictos?: Conflito[] } = await res.json()
           setConflictos(data.conflictos || [])
         }
       } catch {}
@@ -288,7 +289,7 @@ function NovaVisitaPageContent() {
         const err = await res.json()
         throw new Error(err.error || "Erro ao criar visita")
       }
-      const data = await res.json()
+      const data: { visita?: { id: number }; total: number } = await res.json()
       if (syncGoogle && data.visita?.id) {
         try {
           await fetch("/api/crm/visitas/sync-google", {
@@ -300,8 +301,8 @@ function NovaVisitaPageContent() {
       }
       toast.success(data.total > 1 ? `${data.total} visitas criadas com sucesso` : "Visita criada com sucesso")
       router.push("/comercial/crm/visitas")
-    } catch (err: any) {
-      toast.error(err.message)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err))
     } finally {
       setSaving(false)
     }

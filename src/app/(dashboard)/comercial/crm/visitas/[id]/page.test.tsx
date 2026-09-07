@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest"
 import { screen, fireEvent, waitFor, within } from "@testing-library/react"
 import DetalheVisitaPage from "./page"
 import { createFetchMock, renderPage, findCall, toastMock, navMock } from "@/test/harness"
+import type { VisitaDetalhe } from "../types"
 
 vi.mock("next-auth/react", () => ({
   useSession: () => ({ data: { user: { role: "ADMIN" } } }),
@@ -46,7 +47,7 @@ const visita = {
   checkOutLng: null,
 }
 
-function buildHandler(data: any) {
+function buildHandler(data: Partial<VisitaDetalhe>) {
   return ({ method, url }: { method: string; url: string }) => {
     if (method === "GET" && url === "/api/crm/estados") {
       return { json: [{ id: 35, uf: "SP", nome: "São Paulo" }] }
@@ -232,7 +233,7 @@ describe("DetalheVisitaPage", () => {
         "https://cloud.com/legada.jpg",
       ],
     }
-    const anexosMock = createFetchMock(buildHandler(comAnexos))
+    const anexosMock = createFetchMock(buildHandler(comAnexos as Partial<VisitaDetalhe>))
     vi.stubGlobal("fetch", anexosMock.fn)
 
     renderPage(<DetalheVisitaPage />)

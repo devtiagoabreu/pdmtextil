@@ -11,6 +11,7 @@ import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { useStatuses } from "@/hooks/use-statuses"
 import { normalizeVisitaFotos } from "@/lib/crm/visita-fotos"
 import type { VisitaFoto } from "@/lib/crm/visita-fotos"
+import type { Conflito, FormVisitaDetalhe, OportunidadeResumo, VisitaDetalhe } from "../types"
 import VincularVisitaModal from "@/components/crm/vincular-visita-modal"
 import { VisitaHeader } from "./components/visita-header"
 import { EdicaoCard } from "./components/edicao-card"
@@ -22,7 +23,7 @@ export default function DetalheVisitaPage() {
   const router = useRouter()
   const queryClient = useQueryClient()
   const { data: session } = useSession()
-  const isGoogleUser = (session?.user as any)?.provider === "google"
+  const isGoogleUser = session?.user?.provider === "google"
   const pathname = usePathname()
   const info = getInfoContent(pathname)
   const params = useParams()
@@ -30,9 +31,9 @@ export default function DetalheVisitaPage() {
   const [showDelete, setShowDelete] = useState(false)
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [editing, setEditing] = useState(false)
-  const [form, setForm] = useState<any>({})
+  const [form, setForm] = useState<FormVisitaDetalhe>({})
   const [fotos, setFotos] = useState<VisitaFoto[]>([])
-  const [conflictos, setConflictos] = useState<any[]>([])
+  const [conflictos, setConflictos] = useState<Conflito[]>([])
   const conflictTimerRef = useRef<NodeJS.Timeout | null>(null)
   const [estadoId, setEstadoId] = useState<number | null>(null)
   const [empresaEndereco, setEmpresaEndereco] = useState<Record<string, string>>({})
@@ -42,15 +43,15 @@ export default function DetalheVisitaPage() {
 
   const { data: estados = [] } = useQuery<{ id: number; uf: string }[]>({
     queryKey: ["crm-estados"],
-    queryFn: () => fetch("/api/crm/estados").then((r: any) => r.json()),
+    queryFn: () => fetch("/api/crm/estados").then((r) => r.json()),
   })
 
-  const { data: oportunidades = [] } = useQuery<any[]>({
+  const { data: oportunidades = [] } = useQuery<OportunidadeResumo[]>({
     queryKey: ["crm-oportunidades"],
-    queryFn: () => fetch("/api/crm/oportunidades").then((r: any) => r.json()),
+    queryFn: () => fetch("/api/crm/oportunidades").then((r) => r.json()),
   })
 
-  const visitaQuery = useQuery<any>({
+  const visitaQuery = useQuery<VisitaDetalhe>({
     queryKey: ["visita", params.id],
     queryFn: async () => {
       const res = await fetch(`/api/crm/visitas/${params.id}`)
@@ -71,7 +72,7 @@ export default function DetalheVisitaPage() {
 
   useEffect(() => {
     if (form.uf) {
-      const found = estados.find((e: any) => e.uf === form.uf)
+      const found = estados.find((e) => e.uf === form.uf)
       setEstadoId(found ? found.id : null)
     } else {
       setEstadoId(null)
@@ -83,10 +84,10 @@ export default function DetalheVisitaPage() {
     if (!editing || !form.dataVisita || !form.hora) { setConflictos([]); return }
     conflictTimerRef.current = setTimeout(async () => {
       try {
-        const sp = new URLSearchParams({ dataVisita: form.dataVisita, hora: form.hora, excludeId: String(params.id) })
+        const sp = new URLSearchParams({ dataVisita: form.dataVisita ?? "", hora: form.hora ?? "", excludeId: String(params.id) })
         const res = await fetch(`/api/crm/visitas/conflictos?${sp}`)
         if (res.ok) {
-          const data = await res.json()
+          const data: { conflictos?: Conflito[] } = await res.json()
           setConflictos(data.conflictos || [])
         }
       } catch {}
@@ -97,8 +98,8 @@ export default function DetalheVisitaPage() {
     visitaQuery.refetch()
   }
 
-  function setField(field: string, value: any) {
-    setForm((prev: any) => ({ ...prev, [field]: value }))
+  function setField<K extends keyof VisitaDetalhe>(field: K, value: VisitaDetalhe[K]) {
+    setForm(prev => ({ ...prev, [field]: value }))
   }
 
   function handleOportunidadeCreated(id: number) {
@@ -114,6 +115,7 @@ export default function DetalheVisitaPage() {
   }
 
   function startEditing() {
+    if (!visita) return
     setForm({ ...visita })
     setFotos(normalizeVisitaFotos(visita.fotos))
     if (visita.empresaId) loadEmpresaEndereco(visita.empresaId).then(setEmpresaEndereco)
@@ -122,6 +124,7 @@ export default function DetalheVisitaPage() {
   }
 
   function cancelEditing() {
+    if (!visita) return
     setEditing(false)
     setForm(visita)
     setFotos(normalizeVisitaFotos(visita.fotos))
@@ -144,8 +147,8 @@ export default function DetalheVisitaPage() {
       await loadVisita()
       setEditing(false)
       toast.success("Visita atualizada")
-    } catch (err: any) {
-      toast.error(err.message)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err))
     }
   }
 
@@ -159,8 +162,8 @@ export default function DetalheVisitaPage() {
       }
       toast.success("Visita excluída")
       router.push("/comercial/crm/visitas")
-    } catch (err: any) {
-      toast.error(err.message)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err))
     } finally {
       setDeleteLoading(false)
       setShowDelete(false)
@@ -168,6 +171,7 @@ export default function DetalheVisitaPage() {
   }
 
   async function handleSyncGoogle() {
+    if (!visita) return
     try {
       const res = await fetch("/api/crm/visitas/sync-google", {
         method: "POST",
@@ -180,12 +184,13 @@ export default function DetalheVisitaPage() {
       }
       await loadVisita()
       toast.success("Sincronizado com Google Calendar")
-    } catch (err: any) {
-      toast.error(err.message)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err))
     }
   }
 
   async function handleUnsyncGoogle() {
+    if (!visita) return
     try {
       const res = await fetch(`/api/crm/visitas/sync-google?visitaId=${visita.id}`, { method: "DELETE" })
       if (!res.ok) {
@@ -194,8 +199,8 @@ export default function DetalheVisitaPage() {
       }
       await loadVisita()
       toast.success("Removido do Google Calendar")
-    } catch (err: any) {
-      toast.error(err.message)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err))
     }
   }
 
@@ -228,9 +233,10 @@ export default function DetalheVisitaPage() {
   }
 
   async function handleCopiarEndereco() {
+    if (!visita) return
     if (visita.empresaId) {
       const end = empresaEndereco.endereco ? empresaEndereco : await loadEmpresaEndereco(visita.empresaId)
-      setForm((prev: any) => ({
+      setForm(prev => ({
         ...prev,
         endereco: end.endereco || "",
         numero: end.numero || "",
@@ -242,7 +248,7 @@ export default function DetalheVisitaPage() {
       }))
     } else if (visita.clienteId) {
       const end = clienteEndereco.endereco ? clienteEndereco : await loadClienteEndereco(visita.clienteId)
-      setForm((prev: any) => ({
+      setForm(prev => ({
         ...prev,
         endereco: end.endereco || "",
         cidade: end.cidade || "",
@@ -282,8 +288,8 @@ export default function DetalheVisitaPage() {
       }
       await loadVisita()
       toast.success(tipo === "check_in" ? "Check-in registrado!" : "Check-out registrado!")
-    } catch (err: any) {
-      toast.error(err.message)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err))
     } finally {
       setCheckLoading(null)
     }
@@ -304,8 +310,8 @@ export default function DetalheVisitaPage() {
       }
       await loadVisita()
       toast.success(`${label.charAt(0).toUpperCase() + label.slice(1)} desfeito!`)
-    } catch (err: any) {
-      toast.error(err.message)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err))
     } finally {
       setCheckLoading(null)
     }
@@ -328,7 +334,7 @@ export default function DetalheVisitaPage() {
     )
   }
 
-  const userRole = (session?.user as any)?.role
+  const userRole = session?.user?.role
   const userId = session?.user?.id ? parseInt(session.user.id) : null
   const isOwner = userId != null && visita?.criadoPor === userId
   const isAdmin = userRole === "ADMIN" || userRole === "SUDO"

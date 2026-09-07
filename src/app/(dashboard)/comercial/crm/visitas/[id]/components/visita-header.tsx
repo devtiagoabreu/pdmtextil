@@ -2,11 +2,13 @@ import { ArrowLeft, Calendar, Check, Link as LinkIcon, Pencil, Trash2, X } from 
 import { InfoButton } from "@/components/ui/info-button"
 import VisitReportButton from "@/components/crm/visit-report-button"
 import SendSurveyButton from "@/components/crm/send-survey-button"
+import type { InfoContent } from "@/lib/info-content/types"
+import type { VisitaDetalhe } from "../../types"
 import { TIPO_LABELS } from "./constants"
 
 interface VisitaHeaderProps {
-  visita: any
-  infoContent: any
+  visita: VisitaDetalhe
+  infoContent: InfoContent | null
   statusLabel: string
   statusColor: string
   onBack: () => void

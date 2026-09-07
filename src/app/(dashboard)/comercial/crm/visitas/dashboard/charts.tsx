@@ -112,7 +112,7 @@ export function VisitasCharts({
             <ResponsiveContainer width="100%" height={200}>
               <RPieChart>
                 <Pie
-                  data={data.byTipo.map((t: any) => ({
+                  data={data.byTipo.map((t) => ({
                     name: TIPO_LABELS[t.tipo] || t.tipo,
                     value: t.total,
                     fill: TIPO_CORES[t.tipo] || "#6366f1",
@@ -129,7 +129,7 @@ export function VisitasCharts({
               </RPieChart>
             </ResponsiveContainer>
             <div className="flex flex-wrap gap-2 justify-center mt-2">
-              {data.byTipo.map((t: any) => (
+              {data.byTipo.map((t) => (
                 <button
                   key={t.tipo}
                   type="button"
@@ -160,7 +160,7 @@ export function VisitasCharts({
           <>
             <ResponsiveContainer width="100%" height={220}>
               <BarChart
-                data={data.byStatus.map((s: any) => ({
+                data={data.byStatus.map((s) => ({
                   name: STATUS_LABELS[s.status] || s.status,
                   value: s.total,
                 }))}
@@ -171,14 +171,14 @@ export function VisitasCharts({
                 <YAxis tick={{ fontSize: 11 }} stroke="#94a3b8" allowDecimals={false} />
                 <Tooltip content={<ChartTooltip formatter={(v) => `${v} visitas`} />} />
                 <Bar dataKey="value" radius={[4, 4, 0, 0]} animationDuration={1800} animationEasing="ease-in-out" animationBegin={800}>
-                  {data.byStatus.map((s: any, i: any) => (
+                  {data.byStatus.map((s, i) => (
                     <Cell key={i} fill={STATUS_CORES[s.status] || CHART_COLORS[i % CHART_COLORS.length]} />
                   ))}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
             <div className="flex flex-wrap gap-1.5 justify-center mt-1">
-              {data.byStatus.map((s: any, i: any) => (
+              {data.byStatus.map((s, i) => (
                 <button
                   key={s.status}
                   type="button"

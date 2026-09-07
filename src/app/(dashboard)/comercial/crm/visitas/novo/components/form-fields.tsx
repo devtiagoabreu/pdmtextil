@@ -7,17 +7,18 @@ import { QuickCreateOportunidade } from "@/components/crm/quick-create-oportunid
 import { QuickCreateProposta } from "@/components/crm/quick-create-proposta"
 import { ViagemSelect } from "@/components/crm/viagem-select"
 import { CreatableSelect } from "@/components/ui/creatable-select"
+import type { ClienteResult, Conflito, ContatoResult, EmpresaResult, OportunidadeResumo, VisitaForm } from "../../types"
 import { TIPO_OPTIONS } from "./constants"
 
 interface FormFieldsProps {
-  form: any
-  setField: (field: string, value: string) => void
-  conflictos: any[]
+  form: VisitaForm
+  setField: (field: keyof VisitaForm, value: string) => void
+  conflictos: Conflito[]
   tipoEntidade: "CLIENTE" | "PESSOA" | "AVULSA" | ""
-  empresas: any[]
-  clientesList: any[]
-  oportunidades: any[]
-  contatos: any[]
+  empresas: EmpresaResult[]
+  clientesList: ClienteResult[]
+  oportunidades: OportunidadeResumo[]
+  contatos: ContatoResult[]
   recorrencia: string
   setRecorrencia: (v: string) => void
   recorrenciaFim: string
@@ -118,9 +119,9 @@ export function FormFields({
             required
           >
             <option value="">Selecione...</option>
-            {clientesList.map((c: any) => (
-              <option key={c.id} value={String(c.id)}>{c.nome}</option>
-            ))}
+{clientesList.map((c) => (
+                <option key={c.id} value={String(c.id)}>{c.nome}</option>
+              ))}
           </select>
         </div>
       ) : (
@@ -142,9 +143,9 @@ export function FormFields({
             required
           >
             <option value="">Selecione...</option>
-            {empresas.map((e: any) => (
-              <option key={e.id} value={String(e.id)}>{e.razaoSocial || e.nomeFantasia}</option>
-            ))}
+{empresas.map((e) => (
+                <option key={e.id} value={String(e.id)}>{e.razaoSocial || e.nomeFantasia}</option>
+              ))}
           </select>
         </div>
       )}
@@ -172,7 +173,7 @@ export function FormFields({
             <div className="text-xs text-amber-700 dark:text-amber-300">
               <p className="font-medium">{conflictos.length} visita(s) ja agendada(s) neste horario:</p>
               <ul className="mt-1 space-y-0.5">
-                {conflictos.map((c: any) => (
+                {conflictos.map((c) => (
                   <li key={c.id}>⬢ {c.empresaNome || c.clienteNome || "Visita"} ({c.tipo})</li>
                 ))}
               </ul>
@@ -187,7 +188,7 @@ export function FormFields({
           onChange={e => setField("tipo", e.target.value)}
           className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
-          {TIPO_OPTIONS.map((opt: any) => (
+          {TIPO_OPTIONS.map((opt) => (
             <option key={opt.value} value={opt.value}>{opt.label}</option>
           ))}
         </select>
@@ -280,12 +281,12 @@ export function FormFields({
           >
             <option value="">Selecione...</option>
             {oportunidades
-              .filter((o: any) =>
+              .filter((o) =>
                 tipoEntidade === "PESSOA"
                   ? !form.empresaId || String(o.empresaId) === form.empresaId
                   : !form.clienteId || String(o.clienteId) === form.clienteId
               )
-              .map((o: any) => (
+              .map((o) => (
                 <option key={o.id} value={String(o.id)}>{o.titulo}</option>
               ))}
           </select>
@@ -298,7 +299,7 @@ export function FormFields({
             <QuickCreateContato
               empresaId={tipoEntidade === "PESSOA" ? form.empresaId : ""}
               clienteId={tipoEntidade === "CLIENTE" ? form.clienteId : ""}
-              clienteNome={tipoEntidade === "CLIENTE" ? clientesList.find((c: any) => String(c.id) === form.clienteId)?.nome || "" : ""}
+              clienteNome={tipoEntidade === "CLIENTE" ? clientesList.find((c) => String(c.id) === form.clienteId)?.nome || "" : ""}
               onClickGuard={() => {
                 if (!form.empresaId && !form.clienteId) {
                   toast.error("Selecione uma pessoa ou cliente primeiro")
@@ -315,7 +316,7 @@ export function FormFields({
             className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">Selecione...</option>
-            {contatos.map((c: any) => (
+            {contatos.map((c) => (
               <option key={c.id} value={String(c.id)}>{c.nome}{c.cargo ? ` (${c.cargo})` : ""}</option>
             ))}
           </select>

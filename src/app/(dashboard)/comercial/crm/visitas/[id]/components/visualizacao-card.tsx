@@ -1,9 +1,10 @@
 import { Calendar, ExternalLink, MapPin } from "lucide-react"
 import Link from "next/link"
+import type { VisitaDetalhe } from "../../types"
 import { TIPO_LABELS } from "./constants"
 
 interface VisualizacaoCardProps {
-  visita: any
+  visita: VisitaDetalhe
   statusLabel: string
   statusColor: string
 }

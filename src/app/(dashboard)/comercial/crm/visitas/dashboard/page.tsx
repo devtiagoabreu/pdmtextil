@@ -13,6 +13,7 @@ import ViagemCronogramaModal from "@/components/crm/viagem-cronograma"
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog"
+import type { VisitaModalRow } from "../types"
 
 const VisitasCharts = dynamic(() => import("./charts").then((m) => m.VisitasCharts), { ssr: false })
 
@@ -76,11 +77,11 @@ export default function VisitasDashboardPage() {
 
   const { data, isLoading } = useQuery<VisitasDashboardData>({
     queryKey: ["visitas-dashboard", visitasFilter],
-    queryFn: () => fetch(`/api/crm/visitas/dashboard${visitasFilter === "minhas" ? "?mine=true" : ""}`).then((r: any) => r.json()),
+    queryFn: () => fetch(`/api/crm/visitas/dashboard${visitasFilter === "minhas" ? "?mine=true" : ""}`).then((r) => r.json()),
     retry: 1,
   })
 
-  const modalQuery = useQuery({
+  const modalQuery = useQuery<VisitaModalRow[]>({
     queryKey: ["visitas-dashboard-lista", modalFiltro, visitasFilter],
     queryFn: async () => {
       const res = await fetch(`/api/crm/visitas/dashboard-lista?filtro=${modalFiltro}${visitasFilter === "minhas" ? "&mine=true" : ""}`)
@@ -235,8 +236,9 @@ export default function VisitasDashboardPage() {
             </div>
             {data?.viagens && data.viagens.length > 0 ? (
               <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                {data.viagens.map((vg: any) => {
-                  const periodo = vg.dataInicio ? `${fmtData(vg.dataInicio)} a ${fmtData(vg.dataFim)}` : null
+                {data.viagens.map((vg) => {
+                  const viagemId = vg.viagemId
+                  const periodo = vg.dataInicio ? `${fmtData(vg.dataInicio)} a ${fmtData(vg.dataFim ?? "")}` : null
                   const row = (
                     <div className="flex items-center gap-3 p-3">
                       <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -282,11 +284,11 @@ export default function VisitasDashboardPage() {
                       </div>
                     </div>
                   )
-                  return vg.viagemId ? (
+                  return viagemId ? (
                     <button
-                      key={vg.viagemId}
+                      key={viagemId}
                       type="button"
-                      onClick={() => setSelectedViagem({ viagemId: vg.viagemId, viagemTitulo: vg.viagemTitulo })}
+                      onClick={() => setSelectedViagem({ viagemId, viagemTitulo: vg.viagemTitulo })}
                       className="w-full text-left hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
                       title={`Ver cronograma da ${vg.viagemTitulo}`}
                     >
@@ -318,7 +320,7 @@ export default function VisitasDashboardPage() {
             </div>
             {data?.porGerente && data.porGerente.length > 0 ? (
               <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                {data.porGerente.map((g: any, i: any) => (
+                {data.porGerente.map((g, i) => (
                   <div key={g.gerenteId ?? i} className="p-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3 min-w-0">
@@ -368,7 +370,7 @@ export default function VisitasDashboardPage() {
             </div>
             {data?.ultimasVisitas && data.ultimasVisitas.length > 0 ? (
               <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                {data.ultimasVisitas.map((visita: any) => (
+                {data.ultimasVisitas.map((visita) => (
                   <div key={visita.id} className="flex items-center justify-between gap-2 p-3">
                     <div className="flex items-center gap-2 min-w-0 shrink-0">
                       <Link
@@ -475,7 +477,7 @@ export default function VisitasDashboardPage() {
               <p className="text-center text-slate-500 py-12">Nenhuma visita encontrada</p>
             ) : (
               <div className="space-y-1">
-                {modalLista.map((v: any) => (
+                {modalLista.map((v) => (
                   <Link
                     key={v.id}
                     href={`/comercial/crm/visitas/${v.id}`}
@@ -491,7 +493,7 @@ export default function VisitasDashboardPage() {
                           ? new Date(v.dataVisita + "T12:00:00").toLocaleDateString("pt-BR")
                           : ""}
                         {v.hora ? ` ${v.hora}` : ""}
-                        {` · ${TIPO_LABELS[v.tipo] || v.tipo}`}
+                        {` · ${TIPO_LABELS[v.tipo || ""] || v.tipo}`}
                       </p>
                     </div>
                     <div className="flex items-center gap-3 ml-3 shrink-0">
@@ -504,7 +506,7 @@ export default function VisitasDashboardPage() {
                           ? "bg-orange-100 text-orange-700 dark:bg-orange-950/50 dark:text-orange-400"
                           : "bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
                       }`}>
-                        {STATUS_LABELS[v.status] || v.status}
+                        {STATUS_LABELS[v.status || ""] || v.status}
                       </span>
                     </div>
                   </Link>

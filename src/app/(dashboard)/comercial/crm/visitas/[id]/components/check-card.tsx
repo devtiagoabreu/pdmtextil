@@ -1,7 +1,8 @@
 import { Loader2, LogIn, LogOut, Navigation, Undo2 } from "lucide-react"
+import type { VisitaDetalhe } from "../../types"
 
 interface CheckCardProps {
-  visita: any
+  visita: VisitaDetalhe
   checkLoading: "in" | "out" | null
   onCheck: (tipo: "check_in" | "check_out") => void
   onUndo: (tipo: "undo_check_in" | "undo_check_out") => void

@@ -128,7 +128,7 @@ describe("NovaVisitaPage", () => {
         representanteId: null,
         representanteNome: null,
         propostaId: null,
-        dataVisita: expect.any(String),
+        dataVisita: expect.stringMatching(/^\d{4}-\d{2}-\d{2}/),
         hora: null,
         tipo: "PRESENCIAL",
         endereco: null,
@@ -188,7 +188,7 @@ describe("NovaVisitaPage", () => {
     expect(navMock.router.push).not.toHaveBeenCalled()
   })
 
-  function novoHandler(propostas: any[]) {
+  function novoHandler(propostas: { id: number; titulo: string; oportunidadeId?: number }[]) {
     return ({ method, url }: { method: string; url: string }) => {
       if (method === "GET" && url === "/api/crm/pessoas") {
         return { json: [{ id: 1, razaoSocial: "Tecelagem Alpha" }] }

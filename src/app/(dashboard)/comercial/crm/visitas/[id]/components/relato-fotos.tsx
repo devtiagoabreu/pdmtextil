@@ -6,14 +6,15 @@ import { RichTextEditor } from "@/components/crm/rich-text-editor"
 import { sanitizeHtml } from "@/lib/sanitize"
 import type { VisitaFoto } from "@/lib/crm/visita-fotos"
 import { normalizeVisitaFotos } from "@/lib/crm/visita-fotos"
+import type { FormVisitaDetalhe, SetField, VisitaDetalhe } from "../../types"
 
 const FOTOS_LABEL = "Fotos, comprovantes, documentos e outros"
 
 interface RelatoFotosProps {
   editing: boolean
-  visita: any
-  form: any
-  setField: (field: string, value: any) => void
+  visita: VisitaDetalhe
+  form: FormVisitaDetalhe
+  setField: SetField
   fotos: VisitaFoto[]
   onFotosChange: (fotos: VisitaFoto[]) => void
 }

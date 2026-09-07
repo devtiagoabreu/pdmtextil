@@ -5,19 +5,20 @@ import { ViagemSelect } from "@/components/crm/viagem-select"
 import { CreatableSelect } from "@/components/ui/creatable-select"
 import { QuickCreateOportunidade } from "@/components/crm/quick-create-oportunidade"
 import { QuickCreateProposta } from "@/components/crm/quick-create-proposta"
+import type { Conflito, FormVisitaDetalhe, OportunidadeResumo, SetField, VisitaDetalhe } from "../../types"
 import { STATUS_OPTIONS, TIPO_OPTIONS } from "./constants"
 
 interface EdicaoCardProps {
-  form: any
-  visita: any
-  setField: (field: string, value: any) => void
-  conflictos: any[]
+  form: FormVisitaDetalhe
+  visita: VisitaDetalhe
+  setField: SetField
+  conflictos: Conflito[]
   estadoId: number | null
   getStatusLabel: (status: string) => string
   onCopiarEndereco: () => void
   onOportunidadeCreated: (id: number) => void
   onPropostaCreated: (id: number, titulo: string) => void
-  oportunidades?: any[]
+  oportunidades?: OportunidadeResumo[]
 }
 
 export function EdicaoCard({
@@ -45,7 +46,7 @@ export function EdicaoCard({
               onChange={e => setField("status", e.target.value)}
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
             >
-              {STATUS_OPTIONS.map((s: any) => (
+              {STATUS_OPTIONS.map((s) => (
                 <option key={s} value={s}>{getStatusLabel(s)}</option>
               ))}
             </select>
@@ -54,7 +55,7 @@ export function EdicaoCard({
             <label className="block text-xs font-medium text-slate-500 mb-1">Viagem</label>
             <ViagemSelect
               value={form.viagemId ? String(form.viagemId) : ""}
-              onChange={v => setField("viagemId", v)}
+              onChange={v => setField("viagemId", v ? Number(v) : null)}
             />
           </div>
           <div>
@@ -75,9 +76,9 @@ export function EdicaoCard({
             <label className="block text-xs font-medium text-slate-500 mb-1">
               Oportunidade
               {form.empresaId ? (
-                <QuickCreateOportunidade empresaId={form.empresaId} onCreated={onOportunidadeCreated} />
+                <QuickCreateOportunidade empresaId={String(form.empresaId ?? "")} onCreated={onOportunidadeCreated} />
               ) : form.clienteId ? (
-                <QuickCreateOportunidade clienteId={form.clienteId} onCreated={onOportunidadeCreated} />
+                <QuickCreateOportunidade clienteId={String(form.clienteId ?? "")} onCreated={onOportunidadeCreated} />
               ) : null}
             </label>
             <select
@@ -91,12 +92,12 @@ export function EdicaoCard({
             >
               <option value="">Sem oportunidade</option>
               {listaOportunidades
-                .filter((o: any) =>
+                .filter((o) =>
                   form.empresaId
                     ? String(o.empresaId) === String(form.empresaId)
                     : String(o.clienteId) === String(form.clienteId)
                 )
-                .map((o: any) => (
+                .map((o) => (
                   <option key={o.id} value={String(o.id)}>{o.titulo}</option>
                 ))}
             </select>
@@ -106,27 +107,27 @@ export function EdicaoCard({
               Proposta Vinculada
               {form.empresaId ? (
                 <QuickCreateProposta
-                  empresaId={form.empresaId}
+                  empresaId={String(form.empresaId ?? "")}
                   oportunidadeId={String(form.oportunidadeId || "")}
                   onCreated={onPropostaCreated}
                 />
               ) : form.clienteId ? (
                 <QuickCreateProposta
-                  clienteId={form.clienteId}
+                  clienteId={String(form.clienteId ?? "")}
                   oportunidadeId={String(form.oportunidadeId || "")}
                   onCreated={onPropostaCreated}
                 />
               ) : null}
             </label>
             <CreatableSelect
-              valueId={form.propostaId ? parseInt(form.propostaId) : null}
+              valueId={form.propostaId ?? null}
               valueNome={form.propostaTitulo || null}
               onChange={(id, nome) => {
                 setField("propostaId", id || null)
                 setField("propostaTitulo", nome || null)
               }}
               onSelect={(opt) => {
-                if (opt.oportunidadeId) setField("oportunidadeId", String(opt.oportunidadeId))
+                if (opt.oportunidadeId) setField("oportunidadeId", Number(opt.oportunidadeId))
               }}
               fetchUrl={form.oportunidadeId ? `/api/crm/propostas?oportunidadeId=${form.oportunidadeId}` : "/api/crm/propostas"}
               labelField="titulo"
@@ -152,7 +153,7 @@ export function EdicaoCard({
               onChange={e => setField("tipo", e.target.value)}
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
             >
-              {TIPO_OPTIONS.map((opt: any) => (
+              {TIPO_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>{opt.label}</option>
               ))}
             </select>
@@ -180,7 +181,7 @@ export function EdicaoCard({
                 <div className="text-xs text-amber-700 dark:text-amber-300">
                   <p className="font-medium">{conflictos.length} visita(s) ja agendada(s) neste horario:</p>
                   <ul className="mt-1 space-y-0.5">
-                    {conflictos.map((c: any) => (
+                    {conflictos.map((c) => (
                       <li key={c.id}>⬢ {c.empresaNome || c.clienteNome || "Visita"} ({c.tipo})</li>
                     ))}
                   </ul>

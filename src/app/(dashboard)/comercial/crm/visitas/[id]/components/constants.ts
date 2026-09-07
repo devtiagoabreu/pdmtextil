@@ -5,7 +5,7 @@ export const TIPO_OPTIONS = [
 ]
 
 export const TIPO_LABELS: Record<string, string> = Object.fromEntries(
-  TIPO_OPTIONS.map((o: any) => [o.value, o.label]),
+  TIPO_OPTIONS.map((o) => [o.value, o.label]),
 )
 
 export const STATUS_OPTIONS = ["AGENDADA", "EM_ANDAMENTO", "REALIZADA", "CANCELADA"]
