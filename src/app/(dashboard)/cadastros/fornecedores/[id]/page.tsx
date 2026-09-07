@@ -72,11 +72,11 @@ export default function FornecedorFormPage() {
         uf: api.uf || prev.uf,
       }))
       toast.success("Dados preenchidos pela Receita Federal")
-    } catch (err: any) { toast.error(err.message || "Erro ao consultar CNPJ") }
+    } catch (err: unknown) { toast.error(err instanceof Error ? err.message : "Erro ao consultar CNPJ") }
     finally { setIsConsultandoCnpj(false) }
   }
 
-  const { data: fornecedorData, isLoading: loading } = useQuery<any>({
+  const { data: fornecedorData, isLoading: loading } = useQuery<Fornecedor>({
     queryKey: ["cadastro-fornecedor", id],
     queryFn: async () => {
       const res = await fetch(`/api/cadastros/fornecedores/${id}`)
@@ -129,9 +129,9 @@ export default function FornecedorFormPage() {
         const err = await res.json()
         throw new Error(err.error || "Erro ao salvar")
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(error)
-      toast.error(error.message || "Erro ao salvar fornecedor")
+      toast.error(error instanceof Error ? error.message : "Erro ao salvar fornecedor")
     } finally {
       setSaving(false)
     }

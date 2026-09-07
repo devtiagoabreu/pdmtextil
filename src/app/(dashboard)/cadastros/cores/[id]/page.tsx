@@ -41,7 +41,7 @@ export default function CorFormPage() {
   })
   const [saving, setSaving] = useState(false)
 
-  const { data: corData, isLoading: loading } = useQuery<any>({
+  const { data: corData, isLoading: loading } = useQuery<Cor>({
     queryKey: ["cadastro-cor", id],
     queryFn: async () => {
       const res = await fetch(`/api/cadastros/cores/${id}`)
@@ -89,9 +89,9 @@ export default function CorFormPage() {
         const err = await res.json()
         throw new Error(err.error || "Erro ao salvar")
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(error)
-      toast.error(error.message || "Erro ao salvar cor")
+      toast.error(error instanceof Error ? error.message : "Erro ao salvar cor")
     } finally {
       setSaving(false)
     }

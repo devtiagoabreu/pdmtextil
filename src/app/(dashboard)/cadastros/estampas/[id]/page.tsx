@@ -43,7 +43,7 @@ export default function EstampaFormPage() {
   })
   const [saving, setSaving] = useState(false)
 
-  const { data: estampaData, isLoading: loading } = useQuery<any>({
+  const { data: estampaData, isLoading: loading } = useQuery<Estampa>({
     queryKey: ["cadastro-estampa", id],
     queryFn: async () => {
       const res = await fetch(`/api/cadastros/estampas/${id}`)
@@ -92,9 +92,9 @@ export default function EstampaFormPage() {
         const err = await res.json()
         throw new Error(err.error || "Erro ao salvar")
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(error)
-      toast.error(error.message || "Erro ao salvar estampa")
+      toast.error(error instanceof Error ? error.message : "Erro ao salvar estampa")
     } finally {
       setSaving(false)
     }

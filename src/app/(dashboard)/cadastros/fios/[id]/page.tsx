@@ -126,7 +126,7 @@ export default function FioFormPage() {
   const removerLink = (idx: number) => {
     setFio(prev => ({
       ...prev,
-      links: (prev.links || []).filter((_: any, i: any) => i !== idx),
+      links: (prev.links || []).filter((_, i) => i !== idx),
     }))
   }
 
@@ -138,7 +138,7 @@ export default function FioFormPage() {
     },
   })
 
-  const { data: fioData, isLoading: loading } = useQuery<any>({
+  const { data: fioData, isLoading: loading } = useQuery<Fio>({
     queryKey: ["cadastro-fio", id],
     queryFn: async () => {
       const res = await fetch(`/api/cadastros/fios/${id}`)
@@ -213,9 +213,9 @@ export default function FioFormPage() {
       
       toast.success(isEditing ? "Fio atualizado!" : "Fio criado!")
       router.push("/cadastros/fios")
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(error)
-      toast.error(error.message || "Erro ao salvar fio")
+      toast.error(error instanceof Error ? error.message : "Erro ao salvar fio")
     } finally {
       setSaving(false)
     }
@@ -252,7 +252,7 @@ export default function FioFormPage() {
       
       if (!res.ok) throw new Error()
       
-      const novos = await fetch(`/api/cadastros/fios/${id}/fornecedores`).then((r: any) => r.json())
+      const novos = await fetch(`/api/cadastros/fios/${id}/fornecedores`).then((r) => r.json())
       setFioFornecedores(novos)
       setSelectedFornecedor("")
       setCodigoFornecedor("")
@@ -268,7 +268,7 @@ export default function FioFormPage() {
     
     try {
       await fetch(`/api/cadastros/fios/${id}/fornecedores/${fid}`, { method: "DELETE" })
-      setFioFornecedores(fioFornecedores.filter((f: any) => f.id !== fid))
+      setFioFornecedores(fioFornecedores.filter((f: FioFornecedor) => f.id !== fid))
       toast.success("Fornecedor removido", { duration: 1000 })
     } catch {
       toast.error("Erro ao remover fornecedor", { duration: 1000 })
@@ -298,7 +298,7 @@ export default function FioFormPage() {
       toast.success("Fornecedor criado!")
 
       // Atualiza lista de fornecedores
-      const novaLista = await fetch("/api/cadastros/fornecedores").then((r: any) => r.json())
+      const novaLista = await fetch("/api/cadastros/fornecedores").then((r) => r.json())
       setFornecedores(novaLista)
 
       // Se tem ID do fio, adiciona o fornecedor automaticamente
@@ -312,7 +312,7 @@ export default function FioFormPage() {
           }),
         })
         
-        const atualizados = await fetch(`/api/cadastros/fios/${id}/fornecedores`).then((r: any) => r.json())
+        const atualizados = await fetch(`/api/cadastros/fios/${id}/fornecedores`).then((r) => r.json())
         setFioFornecedores(atualizados)
       }
 
@@ -330,9 +330,9 @@ export default function FioFormPage() {
         ativo: true,
       })
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(error)
-      toast.error(error.message || "Erro ao criar fornecedor")
+      toast.error(error instanceof Error ? error.message : "Erro ao criar fornecedor")
     } finally {
       setSavingFornecedor(false)
     }
@@ -418,7 +418,7 @@ export default function FioFormPage() {
           <Label>Links</Label>
           {fio.links && fio.links.length > 0 && (
             <div className="space-y-1">
-              {fio.links.map((link: any, idx: any) => (
+              {fio.links.map((link, idx) => (
                 <div key={link.url} className="flex items-center justify-between rounded-md border border-slate-200 dark:border-slate-700 px-3 py-2">
                   <div className="text-sm truncate">
                     <span className="font-medium">{link.descricao || "Link"}</span>
@@ -472,7 +472,7 @@ export default function FioFormPage() {
 
           {fioFornecedores.length > 0 && (
             <div className="space-y-2 mb-4">
-              {fioFornecedores.map((ff: any) => (
+              {fioFornecedores.map((ff) => (
                   <div key={ff.id} className="flex items-center justify-between p-3 bg-slate-100 dark:bg-slate-800 rounded-lg">
                     <div>
                       <p className="font-medium">{ff.fornecedorNome}</p>
@@ -498,7 +498,7 @@ export default function FioFormPage() {
                   className="flex-1 p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
                 >
                   <option value="">Selecione fornecedor</option>
-                  {fornecedores.map((f: any) => (
+                  {fornecedores.map((f) => (
                     <option key={f.id} value={f.id}>{f.nome}</option>
                   ))}
                 </select>

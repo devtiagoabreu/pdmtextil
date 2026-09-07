@@ -12,6 +12,22 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowLeft, Save, Trash2 } from "lucide-react"
 
+type ProdutoQuimicoForm = {
+  codigo: string
+  nome: string
+  descricao: string
+  categoria: string
+  unidadePadrao: string
+  tipo: string
+  concentracao: string
+  densidade: string
+  ph: string
+  observacoes: string
+  fichaSeguranca: string
+  idIntegracao: string
+  ativo: boolean
+}
+
 export default function ProdutoQuimicoFormPage() {
   const router = useRouter()
   const params = useParams()
@@ -20,7 +36,7 @@ export default function ProdutoQuimicoFormPage() {
   const id = params?.id as string
   const isNew = id === "novo"
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<ProdutoQuimicoForm>({
     codigo: "",
     nome: "",
     descricao: "",
@@ -36,7 +52,7 @@ export default function ProdutoQuimicoFormPage() {
     ativo: true,
   })
 
-  const { data: produtoData } = useQuery<any>({
+  const { data: produtoData } = useQuery<ProdutoQuimicoForm>({
     queryKey: ["cadastro-produto-quimico", id],
     queryFn: async () => {
       const res = await fetch(`/api/cadastros/produtos-quimicos/${id}`)

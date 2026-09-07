@@ -29,6 +29,13 @@ import type {
   ProdutoCru,
 } from "./components/types"
 
+type ProdutoData = ProdutoCru & {
+  composicao?: Composicao[]
+  estrutura?: Estrutura[]
+  amostras?: Amostra[]
+  acabamentos?: Acabamento[]
+}
+
 const TABS = [
   { id: "capa", label: "Capa" },
   { id: "ficha-tecnica", label: "Ficha Técnica" },
@@ -102,7 +109,7 @@ export default function ProdutoCruFormPage() {
   const [acabAmostraLinksAberta, setAcabAmostraLinksAberta] = useState<string | null>(null)
   const [gerandoPdf, setGerandoPdf] = useState<string | null>(null)
 
-  const [motivoModal, setMotivoModal] = useState<MotivoModalState>({ open: false, target: null as any, novoStatus: "" })
+  const [motivoModal, setMotivoModal] = useState<MotivoModalState>({ open: false, target: null as unknown as MotivoModalState["target"], novoStatus: "" })
   const [motivoText, setMotivoText] = useState("")
   const [receitaDialog, setReceitaDialog] = useState<{ amostraId: number; acabamentoId: number } | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<DeleteTarget | null>(null)
@@ -174,7 +181,7 @@ export default function ProdutoCruFormPage() {
     if (Array.isArray(statusAmostraData)) setStatusOptionsAmostra(statusAmostraData.map((s) => ({ value: s.nome, label: s.rotulo || s.nome })))
   }, [statusAmostraData])
 
-  const { data: produtoData, isLoading: loading } = useQuery<any>({
+  const { data: produtoData, isLoading: loading } = useQuery<ProdutoData>({
     queryKey: ["cadastro-produto-cru", id],
     queryFn: async () => {
       const res = await fetch(`/api/cadastros/produto-cru/${id}`)
@@ -200,7 +207,7 @@ export default function ProdutoCruFormPage() {
     setComposicao(produtoData.composicao || [])
     setEstrutura(produtoData.estrutura || [])
     setAmostras(produtoData.amostras || [])
-    setAcabamentos(produtoData.acabamentos?.map((a: any) => ({ ...a, receitas: undefined })) || [])
+    setAcabamentos(produtoData.acabamentos?.map((a: Acabamento) => ({ ...a, receitas: undefined })) || [])
   }, [produtoData])
 
   useEffect(() => {
@@ -224,7 +231,7 @@ export default function ProdutoCruFormPage() {
 
   const handleStatusChange = (newStatus: string) => {
     if (newStatus === "APROVADO") {
-      const temAmostraCruAprovada = amostras.some((a: any) => a.status.startsWith("APROVADA"))
+      const temAmostraCruAprovada = amostras.some((a) => a.status.startsWith("APROVADA"))
       if (!temAmostraCruAprovada) {
         toast.error("—0 necessário pelo menos uma amostra de tecido cru aprovada para aprovar o produto")
         return
@@ -248,7 +255,7 @@ export default function ProdutoCruFormPage() {
     }
 
     if (produto.status === "APROVADO") {
-      const temAmostraCruAprovada = amostras.some((a: any) => a.status.startsWith("APROVADA"))
+      const temAmostraCruAprovada = amostras.some((a) => a.status.startsWith("APROVADA"))
       if (!temAmostraCruAprovada) {
         toast.error("—0 necessário pelo menos uma amostra de tecido cru aprovada para aprovar o produto")
         return
@@ -278,9 +285,9 @@ export default function ProdutoCruFormPage() {
         const err = await res.json()
         throw new Error(err.error || "Erro ao salvar")
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(error)
-      toast.error(error.message || "Erro ao salvar produto")
+      toast.error(error instanceof Error ? error.message : "Erro ao salvar produto")
     } finally {
       setSaving(false)
     }
