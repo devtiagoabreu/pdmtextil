@@ -7,6 +7,7 @@ import { ArrowLeft, Loader2, Building2, User, UserCheck } from "lucide-react"
 import { toast } from "sonner"
 import { PageSkeleton } from "@/components/ui/page-skeleton"
 import { TipoEntidadeSelector } from "@/app/(dashboard)/comercial/crm/visitas/novo/components/tipo-entidade-selector"
+import type { ClienteResumo, EmpresaResumo } from "../types"
 
 type TipoEntidade = "CLIENTE" | "PESSOA" | "AVULSA"
 
@@ -17,8 +18,8 @@ function NovoContatoPageContent() {
   const clienteIdPrefill = searchParams.get("clienteId")
 
   const [saving, setSaving] = useState(false)
-  const [empresas, setEmpresas] = useState<any[]>([])
-  const [clientes, setClientes] = useState<any[]>([])
+  const [empresas, setEmpresas] = useState<EmpresaResumo[]>([])
+  const [clientes, setClientes] = useState<ClienteResumo[]>([])
   const [tipoEntidade, setTipoEntidade] = useState<TipoEntidade | "">(
     empresaIdPrefill ? "PESSOA" : clienteIdPrefill ? "CLIENTE" : ""
   )
@@ -37,12 +38,12 @@ function NovoContatoPageContent() {
 
   useEffect(() => {
     fetch("/api/crm/pessoas")
-      .then((r: any) => r.json())
-      .then((data: any) => { if (Array.isArray(data)) setEmpresas(data) })
+      .then((r) => r.json())
+      .then((data: EmpresaResumo[]) => { if (Array.isArray(data)) setEmpresas(data) })
       .catch(() => toast.error("Erro ao carregar pessoas"))
     fetch("/api/clientes")
-      .then((r: any) => r.json())
-      .then((data: any) => { if (Array.isArray(data)) setClientes(data) })
+      .then((r) => r.json())
+      .then((data: ClienteResumo[]) => { if (Array.isArray(data)) setClientes(data) })
       .catch(() => toast.error("Erro ao carregar clientes"))
   }, [])
 
@@ -89,11 +90,11 @@ function NovoContatoPageContent() {
         const err = await res.json()
         throw new Error(err.error || "Erro ao criar contato")
       }
-      const data = await res.json()
+      const data: { id: number } = await res.json()
       toast.success("Contato criado com sucesso")
       router.push(`/comercial/crm/contatos/${data.id}`)
-    } catch (err: any) {
-      toast.error(err.message)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err))
     } finally {
       setSaving(false)
     }
@@ -169,7 +170,7 @@ function NovoContatoPageContent() {
                 className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Selecione um cliente...</option>
-                {clientes.map((c: any) => (
+                {clientes.map((c) => (
                   <option key={c.id} value={String(c.id)}>
                     {c.nome}
                   </option>
@@ -185,7 +186,7 @@ function NovoContatoPageContent() {
                 className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Selecione uma pessoa...</option>
-                {empresas.map((e: any) => (
+                {empresas.map((e) => (
                   <option key={e.id} value={String(e.id)}>
                     {e.razaoSocial || e.nomeFantasia || e.nome}
                   </option>

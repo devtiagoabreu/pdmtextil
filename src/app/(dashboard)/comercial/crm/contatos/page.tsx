@@ -16,8 +16,9 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import ListFilters, { useListFilters } from "@/components/ui/list-filters"
+import type { Contato } from "./types"
 
-async function fetchContatos() {
+async function fetchContatos(): Promise<Contato[]> {
   const res = await fetch("/api/crm/contatos")
   if (!res.ok) throw new Error("Falha ao carregar")
   return res.json()
@@ -28,10 +29,10 @@ export default function CrmContatosPage() {
   const pathname = usePathname()
   const info = getInfoContent(pathname)
   const { data: session } = useSession()
-  const isAdmin = (session?.user as any)?.role === "ADMIN" || (session?.user as any)?.role === "SUDO"
-  const [deleteTarget, setDeleteTarget] = useState<any>(null)
+  const isAdmin = session?.user?.role === "ADMIN" || session?.user?.role === "SUDO"
+  const [deleteTarget, setDeleteTarget] = useState<Contato | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
-  const { data: contatos, isLoading, refetch } = useQuery({
+  const { data: contatos, isLoading, refetch } = useQuery<Contato[]>({
     queryKey: ["crm-contatos"],
     queryFn: fetchContatos,
     retry: 1,
@@ -45,11 +46,11 @@ export default function CrmContatosPage() {
   )
   const filteredData = filterState.filtered
 
-  function empresaNome(c: any) {
+  function empresaNome(c: Contato) {
     return c.empresaRazaoSocial || c.empresaNomeFantasia || c.empresaNome || "—"
   }
 
-  async function excluirContato(c: any) {
+  async function excluirContato(c: Contato) {
     setDeleteLoading(true)
     try {
       const res = await fetch(`/api/crm/contatos/${c.id}`, { method: "DELETE" })
@@ -59,8 +60,8 @@ export default function CrmContatosPage() {
       }
       toast.success(`Contato "${c.nome}" excluído`)
       refetch()
-    } catch (err: any) {
-      toast.error(err.message)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err))
     } finally {
       setDeleteLoading(false)
       setDeleteTarget(null)
@@ -124,7 +125,7 @@ export default function CrmContatosPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {filteredData.map((c: any) => (
+                {filteredData.map((c) => (
                   <tr
                     key={c.id}
                     className="hover:bg-slate-50 dark:hover:bg-slate-800/50"

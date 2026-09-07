@@ -12,6 +12,7 @@ import {
 import { toast } from "sonner"
 import { useSession } from "next-auth/react"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
+import type { ClienteResumo, Contato, ContatoFormState, EmpresaResumo, VinculoTipo } from "../types"
 
 export default function ContatoDetailPage() {
   const router = useRouter()
@@ -19,24 +20,42 @@ export default function ContatoDetailPage() {
   const info = getInfoContent(pathname)
   const params = useParams()
   const { data: session } = useSession()
-  const isAdmin = (session?.user as any)?.role === "ADMIN" || (session?.user as any)?.role === "SUDO"
-  const [contato, setContato] = useState<any>(null)
+  const isAdmin = session?.user?.role === "ADMIN" || session?.user?.role === "SUDO"
+  const [contato, setContato] = useState<Contato | null>(null)
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(false)
-  const [form, setForm] = useState<any>({})
+  const [form, setForm] = useState<ContatoFormState>({
+    nome: "", cargo: "", email: "", telefone: "", celular: "", whatsapp: "",
+    principal: false, observacoes: "", empresaId: null, clienteId: null,
+  })
   const [showDelete, setShowDelete] = useState(false)
   const [deleteLoading, setDeleteLoading] = useState(false)
-  const [empresas, setEmpresas] = useState<any[]>([])
-  const [clientes, setClientes] = useState<any[]>([])
-  const [vinculoTipo, setVinculoTipo] = useState<"none" | "pessoa" | "cliente">("none")
+  const [empresas, setEmpresas] = useState<EmpresaResumo[]>([])
+  const [clientes, setClientes] = useState<ClienteResumo[]>([])
+  const [vinculoTipo, setVinculoTipo] = useState<VinculoTipo>("none")
+
+  function contatoToForm(c: Contato): ContatoFormState {
+    return {
+      nome: c.nome,
+      cargo: c.cargo ?? "",
+      email: c.email ?? "",
+      telefone: c.telefone ?? "",
+      celular: c.celular ?? "",
+      whatsapp: c.whatsapp ?? "",
+      principal: c.principal,
+      observacoes: c.observacoes ?? "",
+      empresaId: c.empresaId,
+      clienteId: c.clienteId,
+    }
+  }
 
   useEffect(() => {
     if (!params.id) return
     fetch(`/api/crm/contatos/${params.id}`)
-      .then((r: any) => r.json())
-      .then((data: any) => {
+      .then((r) => r.json())
+      .then((data: Contato) => {
         setContato(data)
-        setForm(data)
+        setForm(contatoToForm(data))
         setVinculoTipo(data.empresaId ? "pessoa" : data.clienteId ? "cliente" : "none")
       })
       .catch(() => toast.error("Erro ao carregar contato"))
@@ -46,12 +65,12 @@ export default function ContatoDetailPage() {
   useEffect(() => {
     if (!editing) return
     fetch("/api/crm/pessoas")
-      .then((r: any) => r.json())
-      .then((data: any) => { if (Array.isArray(data)) setEmpresas(data) })
+      .then((r) => r.json())
+      .then((data: EmpresaResumo[]) => { if (Array.isArray(data)) setEmpresas(data) })
       .catch(console.error)
     fetch("/api/clientes")
-      .then((r: any) => r.json())
-      .then((data: any) => { if (Array.isArray(data)) setClientes(data) })
+      .then((r) => r.json())
+      .then((data: ClienteResumo[]) => { if (Array.isArray(data)) setClientes(data) })
       .catch(console.error)
   }, [editing])
 
@@ -79,13 +98,13 @@ export default function ContatoDetailPage() {
         const err = await res.json()
         throw new Error(err.error)
       }
-      const updated = await res.json()
+      const updated: Contato = await res.json()
       setContato(updated)
-      setForm(updated)
+      setForm(contatoToForm(updated))
       setEditing(false)
       toast.success("Contato atualizado")
-    } catch (err: any) {
-      toast.error(err.message)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err))
     }
   }
 
@@ -121,7 +140,7 @@ export default function ContatoDetailPage() {
     )
   }
 
-  function empresaNome(c: any) {
+  function empresaNome(c: Contato) {
     return c.empresaRazaoSocial || c.empresaNomeFantasia || c.empresaNome || `Empresa #${c.empresaId}`
   }
 
@@ -146,7 +165,7 @@ export default function ContatoDetailPage() {
               <button onClick={handleSave} className="flex items-center gap-1 text-xs font-medium text-emerald-600 hover:underline">
                 <Check size={14} /> Salvar
               </button>
-              <button onClick={() => { setEditing(false); setForm(contato) }} className="flex items-center gap-1 text-xs font-medium text-slate-500 hover:underline">
+              <button onClick={() => { setEditing(false); if (contato) setForm(contatoToForm(contato)) }} className="flex items-center gap-1 text-xs font-medium text-slate-500 hover:underline">
                 <X size={14} /> Cancelar
               </button>
             </>
@@ -173,7 +192,7 @@ export default function ContatoDetailPage() {
               <label className="block text-xs font-medium text-slate-500 mb-1">Vincular a</label>
               <select
                 value={vinculoTipo}
-                onChange={e => setVinculoTipo(e.target.value as any)}
+                onChange={e => setVinculoTipo(e.target.value as VinculoTipo)}
                 className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
               >
                 <option value="none">Sem vínculo (órfão)</option>
@@ -186,11 +205,11 @@ export default function ContatoDetailPage() {
                 <label className="block text-xs font-medium text-slate-500 mb-1">Pessoa (Negócio)</label>
                 <select
                   value={form.empresaId || ""}
-                  onChange={e => setForm((p: any) => ({ ...p, empresaId: e.target.value }))}
+                  onChange={e => setForm((p) => ({ ...p, empresaId: e.target.value }))}
                   className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
                 >
                   <option value="">Selecione...</option>
-                  {empresas.map((e: any) => (
+                  {empresas.map((e) => (
                     <option key={e.id} value={String(e.id)}>
                       {e.razaoSocial || e.nomeFantasia || e.nome}
                     </option>
@@ -203,11 +222,11 @@ export default function ContatoDetailPage() {
                 <label className="block text-xs font-medium text-slate-500 mb-1">Cliente</label>
                 <select
                   value={form.clienteId || ""}
-                  onChange={e => setForm((p: any) => ({ ...p, clienteId: e.target.value }))}
+                  onChange={e => setForm((p) => ({ ...p, clienteId: e.target.value }))}
                   className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
                 >
                   <option value="">Selecione...</option>
-                  {clientes.map((c: any) => (
+                  {clientes.map((c) => (
                     <option key={c.id} value={String(c.id)}>
                       {c.nome}
                     </option>
@@ -217,28 +236,28 @@ export default function ContatoDetailPage() {
             )}
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1">Nome</label>
-              <input type="text" value={form.nome || ""} onChange={e => setForm((p: any) => ({ ...p, nome: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+              <input type="text" value={form.nome || ""} onChange={e => setForm((p) => ({ ...p, nome: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-medium text-slate-500 mb-1">Cargo</label>
-                <input type="text" value={form.cargo || ""} onChange={e => setForm((p: any) => ({ ...p, cargo: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                <input type="text" value={form.cargo || ""} onChange={e => setForm((p) => ({ ...p, cargo: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
               </div>
               <div>
                 <label className="block text-xs font-medium text-slate-500 mb-1">Email</label>
-                <input type="email" value={form.email || ""} onChange={e => setForm((p: any) => ({ ...p, email: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                <input type="email" value={form.email || ""} onChange={e => setForm((p) => ({ ...p, email: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
               </div>
               <div>
                 <label className="block text-xs font-medium text-slate-500 mb-1">Telefone</label>
-                <input type="text" value={form.telefone || ""} onChange={e => setForm((p: any) => ({ ...p, telefone: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                <input type="text" value={form.telefone || ""} onChange={e => setForm((p) => ({ ...p, telefone: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
               </div>
               <div>
                 <label className="block text-xs font-medium text-slate-500 mb-1">Celular</label>
-                <input type="text" value={form.celular || ""} onChange={e => setForm((p: any) => ({ ...p, celular: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                <input type="text" value={form.celular || ""} onChange={e => setForm((p) => ({ ...p, celular: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
               </div>
               <div>
                 <label className="block text-xs font-medium text-slate-500 mb-1">WhatsApp</label>
-                <input type="text" value={form.whatsapp || ""} onChange={e => setForm((p: any) => ({ ...p, whatsapp: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                <input type="text" value={form.whatsapp || ""} onChange={e => setForm((p) => ({ ...p, whatsapp: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -246,14 +265,14 @@ export default function ContatoDetailPage() {
                 type="checkbox"
                 id="edit-principal"
                 checked={form.principal || false}
-                onChange={e => setForm((p: any) => ({ ...p, principal: e.target.checked }))}
+                onChange={e => setForm((p) => ({ ...p, principal: e.target.checked }))}
                 className="rounded border-slate-300 dark:border-slate-600 text-blue-600 focus:ring-blue-500"
               />
               <label htmlFor="edit-principal" className="text-xs text-slate-500">Contato principal</label>
             </div>
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1">Observações</label>
-              <textarea value={form.observacoes || ""} onChange={e => setForm((p: any) => ({ ...p, observacoes: e.target.value }))} rows={3} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+              <textarea value={form.observacoes || ""} onChange={e => setForm((p) => ({ ...p, observacoes: e.target.value }))} rows={3} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
             </div>
           </div>
         ) : (
