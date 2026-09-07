@@ -25,7 +25,7 @@ export default function ConversasPage() {
   const [selectedRemoteJid, setSelectedRemoteJid] = useState<string | null>(null)
   const [selectedNome, setSelectedNome] = useState("")
 
-  const { data: conversas = [], isLoading: loading } = useQuery({
+  const { data: conversas = [], isLoading: loading } = useQuery<Conversa[]>({
     queryKey: ["crm-conversas", search],
     queryFn: async () => {
       const params = search ? `?search=${encodeURIComponent(search)}` : ""
@@ -82,7 +82,7 @@ export default function ConversasPage() {
             ) : conversas.length === 0 ? (
               <p className="text-sm text-slate-400 text-center py-8">Nenhuma conversa encontrada</p>
             ) : (
-              conversas.map((conv: any) => (
+              conversas.map((conv) => (
                 <button
                   key={conv.remoteJid}
                   onClick={() => {

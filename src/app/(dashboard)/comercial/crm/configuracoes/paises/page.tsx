@@ -59,7 +59,7 @@ export default function PaisesConfigPage() {
       resetForm()
       toast.success(editId ? "País atualizado" : "País cadastrado")
     },
-    onError: (err: any) => toast.error(err.message),
+    onError: (err) => toast.error(err.message),
   })
 
   const deleteMutation = useMutation({
@@ -71,7 +71,7 @@ export default function PaisesConfigPage() {
       queryClient.invalidateQueries({ queryKey: ["crm-paises"] })
       toast.success("País excluído")
     },
-    onError: (err: any) => toast.error(err.message),
+    onError: (err) => toast.error(err.message),
   })
 
   function resetForm() {

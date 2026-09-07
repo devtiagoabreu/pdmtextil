@@ -25,6 +25,15 @@ const PROPOSTA_LABELS: Record<string, string> = {
   REVISAO: "Revisão",
 }
 
+type RelatoriosData = {
+  leadsPorOrigem: { origem: string; total: number }[]
+  oportunidadesPorStatus: { status: string; total: number; valor: number }[]
+  oportunidadesPorResponsavel: { nome: string; total: number }[]
+  propostasPorStatus: { status: string; total: number }[]
+  tarefasPorStatus: { status: string; total: number }[]
+  taxaConversao: { total: number; ganhas: number; perdidas: number; taxa: number }
+}
+
 function formatCurrency(value: number) {
   return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
 }
@@ -41,7 +50,7 @@ function GraficoCard({ titulo, icone, children }: { titulo: string; icone: React
   )
 }
 
-export function CrmRelatoriosCharts({ data }: { data: any }) {
+export function CrmRelatoriosCharts({ data }: { data: RelatoriosData }) {
   return (
     <>
       <div className="grid gap-6 md:grid-cols-2">
@@ -51,7 +60,7 @@ export function CrmRelatoriosCharts({ data }: { data: any }) {
               <ResponsiveContainer width="100%" height={220}>
                 <RPieChart>
                   <Pie
-                    data={data.leadsPorOrigem.map((s: any, i: number) => ({
+                    data={data.leadsPorOrigem.map((s, i: number) => ({
                       name: s.origem,
                       value: s.total,
                       fill: CHART_COLORS[i % CHART_COLORS.length],
@@ -79,7 +88,7 @@ export function CrmRelatoriosCharts({ data }: { data: any }) {
           {data.oportunidadesPorStatus && data.oportunidadesPorStatus.length > 0 ? (
             <>
               <ResponsiveContainer width="100%" height={220}>
-                <BarChart data={data.oportunidadesPorStatus.map((s: any) => ({
+                <BarChart data={data.oportunidadesPorStatus.map((s) => ({
                   name: PIPELINE_LABELS[s.status] || s.status,
                   total: s.total,
                   valor: s.valor,
@@ -119,7 +128,7 @@ export function CrmRelatoriosCharts({ data }: { data: any }) {
               <ResponsiveContainer width="100%" height={220}>
                 <RPieChart>
                   <Pie
-                    data={data.propostasPorStatus.map((s: any, i: number) => ({
+                    data={data.propostasPorStatus.map((s, i: number) => ({
                       name: PROPOSTA_LABELS[s.status] || s.status,
                       value: s.total,
                       fill: CHART_COLORS[i % CHART_COLORS.length],
@@ -132,7 +141,7 @@ export function CrmRelatoriosCharts({ data }: { data: any }) {
                     animationEasing="ease-in-out"
                     animationBegin={1000}
                   >
-                    {data.propostasPorStatus.map((_: any, i: number) => (
+                    {data.propostasPorStatus.map((_, i: number) => (
                       <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
                     ))}
                   </Pie>
@@ -140,7 +149,7 @@ export function CrmRelatoriosCharts({ data }: { data: any }) {
                 </RPieChart>
               </ResponsiveContainer>
               <div className="flex flex-wrap gap-2 justify-center mt-1">
-                {data.propostasPorStatus.map((s: any, i: number) => (
+                {data.propostasPorStatus.map((s, i: number) => (
                   <span key={s.status} className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
                     <span className="w-2 h-2 rounded-full" style={{ backgroundColor: CHART_COLORS[i % CHART_COLORS.length] }} />
                     {PROPOSTA_LABELS[s.status] || s.status}: {s.total}

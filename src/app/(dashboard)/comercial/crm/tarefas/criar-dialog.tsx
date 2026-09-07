@@ -3,6 +3,15 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useState, useEffect } from "react"
 import { X, Loader2 } from "lucide-react"
+import type { EmpresaResumo } from "../oportunidades/types"
+
+type TarefaCreate = {
+  titulo: string
+  descricao: string
+  tipo: string
+  dataPrevista: string | null
+  empresaId: number | null
+}
 
 async function fetchEmpresas() {
   const res = await fetch("/api/crm/pessoas")
@@ -23,14 +32,14 @@ export default function CriarTarefaDialog({ open, onClose }: Props) {
   const [dataPrevista, setDataPrevista] = useState("")
   const [empresaId, setEmpresaId] = useState("")
 
-  const { data: empresas } = useQuery({
+  const { data: empresas } = useQuery<EmpresaResumo[]>({
     queryKey: ["crm-pessoas"],
     queryFn: fetchEmpresas,
     enabled: open,
   })
 
   const mutation = useMutation({
-    mutationFn: async (body: any) => {
+    mutationFn: async (body: TarefaCreate) => {
       const res = await fetch("/api/crm/tarefas", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -123,7 +132,7 @@ export default function CriarTarefaDialog({ open, onClose }: Props) {
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Sem empresa</option>
-              {(empresas || []).map((e: any) => (
+              {(empresas || []).map((e) => (
                 <option key={e.id} value={e.id}>{e.razaoSocial}</option>
               ))}
             </select>

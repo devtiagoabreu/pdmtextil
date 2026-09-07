@@ -31,7 +31,7 @@ type CrmDashboardData = {
   forecast: number
   conversao: { oportunidadesConvertidas: number; totalOportunidades: number }
   recentes: { id: number; tipo: string; descricao: string; dataEvento: string }[]
-  previsaoVendas: { periodo: string; valorPrevisto: number; valorReal: number | null; dados: any }[]
+  previsaoVendas: { periodo: string; valorPrevisto: number; valorReal: number | null; dados: unknown }[]
   campanhas: { total: number; ativas: number; orcamentoTotal: number }
   emailMassa: { enviados: number; lidos: number; clicados: number }
 }
@@ -213,7 +213,7 @@ export default function CrmDashboardPage() {
               </div>
               {data?.topEmpresas && data.topEmpresas.length > 0 ? (
                 <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                  {data.topEmpresas.map((emp: any, i: any) => (
+                  {data.topEmpresas.map((emp, i) => (
                     <div key={emp.empresaId ?? i} className="flex items-center justify-between p-3">
                       <div className="flex items-center gap-3 min-w-0">
                         <span className="text-xs font-bold text-slate-400 w-5">{i + 1}.</span>
@@ -242,7 +242,7 @@ export default function CrmDashboardPage() {
               </div>
               {data?.recentes && data.recentes.length > 0 ? (
                 <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                  {data.recentes.map((ev: any) => (
+                  {data.recentes.map((ev) => (
                     <div key={ev.id} className="flex items-start gap-3 p-3">
                       <div className={`rounded-lg p-1.5 mt-0.5 ${getTipoBg(ev.tipo)}`}>
                         <span className={getTipoCor(ev.tipo)}>

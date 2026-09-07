@@ -25,7 +25,7 @@ type CrmDashboardData = {
   forecast: number
   conversao: { oportunidadesConvertidas: number; totalOportunidades: number }
   recentes: { id: number; tipo: string; descricao: string; dataEvento: string }[]
-  previsaoVendas: { periodo: string; valorPrevisto: number; valorReal: number | null; dados: any }[]
+  previsaoVendas: { periodo: string; valorPrevisto: number; valorReal: number | null; dados: unknown }[]
   campanhas: { total: number; ativas: number; orcamentoTotal: number }
   emailMassa: { enviados: number; lidos: number; clicados: number }
 }
@@ -64,7 +64,7 @@ export function CrmCharts({ data }: { data: CrmDashboardData | undefined }) {
             <YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} stroke="#94a3b8" width={80} interval={0} angle={0} tickFormatter={(v: string) => v.length > 12 ? v.slice(0, 11) + '⬦' : v} />
             <Tooltip content={<ChartTooltip formatter={(v) => `${v} registros`} />} />
             <Bar dataKey="value" radius={[0, 4, 4, 0]} animationDuration={1800} animationEasing="ease-in-out" animationBegin={800}>
-              {pipelineData.map((_: any, i: any) => (
+              {pipelineData.map((_, i) => (
                 <Cell key={i} fill={PIPELINE_COLORS[i % PIPELINE_COLORS.length]} />
               ))}
             </Bar>
@@ -128,7 +128,7 @@ export function CrmCharts({ data }: { data: CrmDashboardData | undefined }) {
             <ResponsiveContainer width="100%" height={160}>
               <RPieChart>
                 <Pie
-                  data={data.oportunidades.byStatus.map((s: any, i: any) => ({
+                  data={data.oportunidades.byStatus.map((s, i) => ({
                     name: s.status,
                     value: s.total,
                     fill: CHART_COLORS[i % CHART_COLORS.length],
@@ -145,7 +145,7 @@ export function CrmCharts({ data }: { data: CrmDashboardData | undefined }) {
               </RPieChart>
             </ResponsiveContainer>
             <div className="flex flex-wrap gap-1.5 justify-center mt-1">
-              {data.oportunidades.byStatus.map((s: any, i: any) => (
+              {data.oportunidades.byStatus.map((s, i) => (
                 <span
                   key={s.status}
                   className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"

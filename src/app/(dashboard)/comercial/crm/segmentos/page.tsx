@@ -8,6 +8,8 @@ import { getInfoContent } from "@/lib/info-content"
 import { useState } from "react"
 import { PlusCircle, Tag, Pencil, Trash2, Loader2, Search } from "lucide-react"
 
+type Segmento = { id: number; nome: string; ativo: boolean }
+
 async function fetchSegmentos() {
   const res = await fetch("/api/crm/segmentos")
   if (!res.ok) throw new Error("Falha ao carregar")
@@ -23,7 +25,7 @@ export default function SegmentosPage() {
   const [nome, setNome] = useState("")
   const [busca, setBusca] = useState("")
 
-  const { data: segmentos, isLoading } = useQuery({
+  const { data: segmentos, isLoading } = useQuery<Segmento[]>({
     queryKey: ["crm-segmentos"],
     queryFn: fetchSegmentos,
     retry: 1,
@@ -71,13 +73,13 @@ export default function SegmentosPage() {
     setNome("")
   }
 
-  function startEdit(s: any) {
+  function startEdit(s: Segmento) {
     setEditingId(s.id)
     setNome(s.nome)
     setShowForm(true)
   }
 
-  const filtrados = segmentos?.filter((s: any) =>
+  const filtrados = segmentos?.filter((s) =>
     !busca || matchesSearch(s, busca)
   )
 
@@ -158,7 +160,7 @@ export default function SegmentosPage() {
           </div>
         ) : (
           <div className="divide-y divide-slate-100 dark:divide-slate-800">
-            {filtrados.map((s: any) => (
+            {filtrados.map((s) => (
               <div key={s.id} className="flex items-center justify-between px-4 py-3.5 hover:bg-slate-50 dark:hover:bg-slate-800/50">
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-lg bg-blue-50 dark:bg-blue-950/50 flex items-center justify-center">

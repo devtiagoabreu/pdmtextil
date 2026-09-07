@@ -31,7 +31,7 @@ function buildHandler() {
   return ({ method, url }: { method: string; url: string }) => {
     if (method === "GET" && url === "/api/crm/notificacoes") return { json: { lista: notificacoes, naoLidas: 2 } }
     if (method === "GET" && url === "/api/crm/notificacoes?naoLidas=true") {
-      return { json: { lista: notificacoes.filter((n: any) => !n.lida), naoLidas: 2 } }
+      return { json: { lista: notificacoes.filter((n) => !n.lida), naoLidas: 2 } }
     }
     if (method === "PATCH") return { json: {} }
     return { json: null }
@@ -89,8 +89,8 @@ describe("NotificacoesPage", () => {
     fireEvent.click(screen.getByRole("button", { name: "Marcar todas como lidas" }))
 
     await waitFor(() => {
-      const patches = mock.calls.filter((c: any) => c.method === "PATCH")
-      expect(patches.map((c: any) => c.url).sort()).toEqual([
+      const patches = mock.calls.filter((c) => c.method === "PATCH")
+      expect(patches.map((c) => c.url).sort()).toEqual([
         "/api/crm/notificacoes/1/ler",
         "/api/crm/notificacoes/2/ler",
       ])

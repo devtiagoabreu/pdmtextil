@@ -8,6 +8,17 @@ import { getInfoContent } from "@/lib/info-content"
 import { useState } from "react"
 import { PlusCircle, MapPin, Pencil, Trash2, Loader2, Search } from "lucide-react"
 
+type Regiao = {
+  id: number
+  nome: string
+  uf: string | null
+  gerenteId: number | null
+  gerenteNome: string | null
+  ativo: boolean
+}
+
+type Usuario = { id: number; name: string }
+
 async function fetchRegioes() {
   const res = await fetch("/api/crm/regioes")
   if (!res.ok) throw new Error("Falha ao carregar")
@@ -40,13 +51,13 @@ export default function RegioesPage() {
     S: "Sul",
   }
 
-  const { data: regioes, isLoading } = useQuery({
+  const { data: regioes, isLoading } = useQuery<Regiao[]>({
     queryKey: ["crm-regioes"],
     queryFn: fetchRegioes,
     retry: 1,
   })
 
-  const { data: usuarios } = useQuery({
+  const { data: usuarios } = useQuery<Usuario[]>({
     queryKey: ["usuarios-ativos"],
     queryFn: fetchUsuarios,
     retry: 1,
@@ -96,7 +107,7 @@ export default function RegioesPage() {
     setGerenteId("")
   }
 
-  function startEdit(r: any) {
+  function startEdit(r: Regiao) {
     setEditingId(r.id)
     setNome(r.nome)
     setSigla(r.uf || "")
@@ -104,8 +115,8 @@ export default function RegioesPage() {
     setShowForm(true)
   }
 
-  const filtradas = regioes?.filter((r: any) =>
-    !busca || matchesSearch(r, busca) || (REGIAO_LABELS[r.uf] || "").toLowerCase().includes(busca.toLowerCase())
+  const filtradas = regioes?.filter((r) =>
+    !busca || matchesSearch(r, busca) || (REGIAO_LABELS[r.uf ?? ""] || "").toLowerCase().includes(busca.toLowerCase())
   )
 
   return (
@@ -161,7 +172,7 @@ export default function RegioesPage() {
                 className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
               >
                 <option value="">Selecione...</option>
-                {REGIAO_SIGLAS.map((s: any) => (
+                {REGIAO_SIGLAS.map((s) => (
                   <option key={s} value={s}>{s} — {REGIAO_LABELS[s]}</option>
                 ))}
               </select>
@@ -174,7 +185,7 @@ export default function RegioesPage() {
                 className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
               >
                 <option value="">Selecione...</option>
-                {(usuarios || []).map((u: any) => (
+                {(usuarios || []).map((u) => (
                   <option key={u.id} value={u.id}>{u.name}</option>
                 ))}
               </select>
@@ -213,7 +224,7 @@ export default function RegioesPage() {
           </div>
         ) : (
           <div className="divide-y divide-slate-100 dark:divide-slate-800">
-            {filtradas.map((r: any) => (
+            {filtradas.map((r) => (
               <div key={r.id} className="flex items-center justify-between px-4 py-3.5 hover:bg-slate-50 dark:hover:bg-slate-800/50">
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-lg bg-blue-50 dark:bg-blue-950/50 flex items-center justify-center">

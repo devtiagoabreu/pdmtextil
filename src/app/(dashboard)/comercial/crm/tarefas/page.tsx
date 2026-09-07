@@ -43,6 +43,16 @@ const FILTROS = [
   { key: "concluidas", label: "Concluídas" },
 ]
 
+type Tarefa = {
+  id: number
+  titulo: string
+  descricao: string | null
+  tipo: string
+  status: string
+  dataPrevista: string | null
+  empresaNome: string | null
+}
+
 function TarefasPageContent() {
   const queryClient = useQueryClient()
   const pathname = usePathname()
@@ -54,7 +64,7 @@ function TarefasPageContent() {
 
   const [visitasFilter, setVisitasFilter] = useState<"todas" | "minhas">("minhas")
 
-  const { data: tarefas, isLoading } = useQuery({
+  const { data: tarefas, isLoading } = useQuery<Tarefa[]>({
     queryKey: ["crm-tarefas", filtro, visitasFilter],
     queryFn: () => fetchTarefas(filtro, visitasFilter === "minhas"),
     retry: 1,
@@ -161,7 +171,7 @@ function TarefasPageContent() {
       {modo === "tabela" && (
       <>
       <div className="flex gap-2 flex-wrap">
-        {FILTROS.map((f: any) => (
+        {FILTROS.map((f) => (
           <button
             key={f.key}
             onClick={() => setFiltro(f.key)}
@@ -184,7 +194,7 @@ function TarefasPageContent() {
           </div>
         ) : (
           <div className="divide-y divide-slate-100 dark:divide-slate-800">
-            {tarefas.map((t: any) => {
+            {tarefas.map((t) => {
               const isConcluida = t.status === "CONCLUIDO"
               return (
                 <div

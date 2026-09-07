@@ -14,7 +14,7 @@ type Notificacao = {
   tipo: string
   lida: boolean
   link: string | null
-  metadados: Record<string, any> | null
+  metadados: Record<string, unknown> | null
   createdAt: string
 }
 
@@ -29,7 +29,7 @@ export default function NotificacoesPage() {
   const [filtro, setFiltro] = useState<"todas" | "naoLidas">("todas")
   const queryClient = useQueryClient()
 
-  const { data = { lista: [], naoLidas: 0 }, isLoading: loading } = useQuery({
+  const { data = { lista: [], naoLidas: 0 }, isLoading: loading } = useQuery<{ lista: Notificacao[]; naoLidas: number }>({
     queryKey: ["crm-notificacoes", filtro],
     queryFn: async () => {
       const params = filtro === "naoLidas" ? "?naoLidas=true" : ""
@@ -37,7 +37,7 @@ export default function NotificacoesPage() {
       return res.json()
     },
   })
-  const notificacoes: Notificacao[] = Array.isArray(data.lista) ? data.lista : []
+  const notificacoes = Array.isArray(data.lista) ? data.lista : []
   const naoLidas = data.naoLidas || 0
 
   async function marcarLida(id: number) {
@@ -50,7 +50,7 @@ export default function NotificacoesPage() {
   async function marcarTodasLidas() {
     try {
       await Promise.all(
-        notificacoes.filter((n: any) => !n.lida).map((n: any) =>
+        notificacoes.filter((n) => !n.lida).map((n) =>
           fetch(`/api/crm/notificacoes/${n.id}/ler`, { method: "PATCH" })
         )
       )
@@ -134,7 +134,7 @@ export default function NotificacoesPage() {
             </p>
           </div>
         ) : (
-          notificacoes.map((n: any) => (
+          notificacoes.map((n) => (
             <div
               key={n.id}
               onClick={() => { if (!n.lida) marcarLida(n.id) }}
