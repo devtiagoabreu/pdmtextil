@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { DndContext, DragOverlay, useDraggable, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
-import { useStatuses } from "@/hooks/use-statuses"
+import { useStatuses, type StatusConfig } from "@/hooks/use-statuses"
 import { DroppableColumn, KanbanSkeleton } from "./kanban-column"
 
 interface PropostaCard {
@@ -16,16 +16,20 @@ interface PropostaCard {
   status: string
 }
 
-const DEFAULT_STATUSES = [
+const DEFAULT_STATUSES: Array<{ nome: string; rotulo: string | null; cor: string | null; ativo: boolean }> = [
   { nome: "ENVIADA", rotulo: "Enviada", cor: "#3b82f6", ativo: true },
   { nome: "ACEITA", rotulo: "Aceita", cor: "#22c55e", ativo: true },
   { nome: "RECUSADA", rotulo: "Recusada", cor: "#ef4444", ativo: true },
   { nome: "REVISAO", rotulo: "Em Revisão", cor: "#f59e0b", ativo: true },
 ]
 
+type KanbanStatus = StatusConfig | { nome: string; rotulo: string | null; cor: string | null; ativo: boolean }
+
+const valorFormatter = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" })
+
 function formatar(valor: string | number | null | undefined) {
   if (valor == null) return null
-  return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(Number(valor))
+  return valorFormatter.format(Number(valor))
 }
 
 function DraggableCard({ proposta }: { proposta: PropostaCard }) {
@@ -89,25 +93,25 @@ export default function PropostasKanban({ propostas }: { propostas: PropostaCard
 
   const getLabel = (nome: string) => {
     if (hasStatuses) {
-      const s = statuses.find((s: any) => s.nome === nome)
+      const s = statuses.find((s: StatusConfig) => s.nome === nome)
       return s?.rotulo || nome
     }
-    return DEFAULT_STATUSES.find((s: any) => s.nome === nome)?.rotulo || nome
+    return DEFAULT_STATUSES.find((s) => s.nome === nome)?.rotulo || nome
   }
 
   const getColor = (nome: string) => {
     if (hasStatuses) {
-      const s = statuses.find((s: any) => s.nome === nome)
+      const s = statuses.find((s: StatusConfig) => s.nome === nome)
       return s?.cor || "#94a3b8"
     }
-    return DEFAULT_STATUSES.find((s: any) => s.nome === nome)?.cor || "#94a3b8"
+    return DEFAULT_STATUSES.find((s) => s.nome === nome)?.cor || "#94a3b8"
   }
 
   const colunas = effectiveStatuses
-    .filter((s: any) => s.ativo !== false)
-    .map((col: any) => ({
+    .filter((s: KanbanStatus) => s.ativo !== false)
+    .map((col: KanbanStatus) => ({
       ...col,
-      cards: cards.filter((p: any) => p.status === col.nome),
+      cards: cards.filter((p: PropostaCard) => p.status === col.nome),
     }))
 
   const handleDragStart = (event: any) => {
@@ -130,7 +134,7 @@ export default function PropostasKanban({ propostas }: { propostas: PropostaCard
     const statusAntigo = proposta.status
 
     setCards(prev =>
-      prev.map((p: any) => p.id === proposta.id ? { ...p, status: novoStatus } : p)
+      prev.map((p: PropostaCard) => p.id === proposta.id ? { ...p, status: novoStatus } : p)
     )
 
     try {
@@ -144,11 +148,11 @@ export default function PropostasKanban({ propostas }: { propostas: PropostaCard
         throw new Error(err.error || "Erro ao alterar status")
       }
       toast.success(`Proposta movida para ${getLabel(novoStatus)}`)
-    } catch (err: any) {
+    } catch (err: unknown) {
       setCards(prev =>
-        prev.map((p: any) => p.id === proposta.id ? { ...p, status: statusAntigo } : p)
+        prev.map((p: PropostaCard) => p.id === proposta.id ? { ...p, status: statusAntigo } : p)
       )
-      toast.error(err.message)
+      toast.error(err instanceof Error ? err.message : "Erro ao alterar status")
     }
   }
 
@@ -160,9 +164,9 @@ export default function PropostasKanban({ propostas }: { propostas: PropostaCard
     <div className="flex flex-col h-[calc(100vh-280px)]">
       <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div className="flex-1 min-h-0 flex gap-4 overflow-x-auto pb-2">
-          {colunas.map((col: any) => (
+          {colunas.map((col) => (
             <DroppableColumn key={col.nome} id={col.nome} rotulo={col.rotulo || col.nome} cor={col.cor} count={col.cards.length}>
-              {col.cards.map((card: any) => (
+              {col.cards.map((card) => (
                 <DraggableCard key={`prop-${card.id}`} proposta={card} />
               ))}
             </DroppableColumn>

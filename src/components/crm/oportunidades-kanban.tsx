@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { DndContext, DragOverlay, useDraggable, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
 import { X } from "lucide-react"
-import { useStatuses } from "@/hooks/use-statuses"
+import { useStatuses, type StatusConfig } from "@/hooks/use-statuses"
 import { DroppableColumn, KanbanSkeleton } from "./kanban-column"
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog"
 
@@ -19,7 +19,9 @@ interface OportunidadeCard {
   status: string
 }
 
-const DEFAULT_STATUSES = [
+type KanbanStatus = StatusConfig | { nome: string; rotulo: string | null; cor: string | null; ativo: boolean }
+
+const DEFAULT_STATUSES: Array<{ nome: string; rotulo: string | null; cor: string | null; ativo: boolean }> = [
   { nome: "NOVO", rotulo: "Novo", cor: "#3b82f6", ativo: true },
   { nome: "QUALIFICACAO", rotulo: "Qualificação", cor: "#a855f7", ativo: true },
   { nome: "PROPOSTA", rotulo: "Proposta", cor: "#eab308", ativo: true },
@@ -28,9 +30,11 @@ const DEFAULT_STATUSES = [
   { nome: "FECHADO_PERDIDO", rotulo: "Perdido", cor: "#ef4444", ativo: true },
 ]
 
+const valorFormatter = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" })
+
 function formatar(valor: string | null | undefined) {
   if (!valor) return null
-  return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(Number(valor))
+  return valorFormatter.format(Number(valor))
 }
 
 function DraggableCard({ oportunidade }: { oportunidade: OportunidadeCard }) {
@@ -100,17 +104,17 @@ export default function OportunidadesKanban({ oportunidades }: { oportunidades: 
 
   const getLabelSafe = (nome: string) => {
     if (hasStatuses) {
-      const s = statuses.find((s: any) => s.nome === nome)
+      const s = statuses.find((s: StatusConfig) => s.nome === nome)
       return s?.rotulo || nome
     }
-    return DEFAULT_STATUSES.find((s: any) => s.nome === nome)?.rotulo || nome
+    return DEFAULT_STATUSES.find((s) => s.nome === nome)?.rotulo || nome
   }
 
   const colunas = effectiveStatuses
-    .filter((s: any) => s.ativo !== false)
-    .map((col: any) => ({
+    .filter((s: KanbanStatus) => s.ativo !== false)
+    .map((col: KanbanStatus) => ({
       ...col,
-      cards: (data.length > 0 ? data : oportunidades).filter((o: any) => o.status === col.nome),
+      cards: (data.length > 0 ? data : oportunidades).filter((o: OportunidadeCard) => o.status === col.nome),
     }))
 
   const handleDragStart = (event: any) => {
@@ -137,13 +141,13 @@ export default function OportunidadesKanban({ oportunidades }: { oportunidades: 
       setMotivoPerda("")
       setShowMotivoPerda(true)
       setData(prev =>
-        prev.map((o: any) => o.id === oportunidade.id ? { ...o, status: novoStatus } : o)
+        prev.map((o: OportunidadeCard) => o.id === oportunidade.id ? { ...o, status: novoStatus } : o)
       )
       return
     }
 
     setData(prev =>
-      prev.map((o: any) => o.id === oportunidade.id ? { ...o, status: novoStatus } : o)
+      prev.map((o: OportunidadeCard) => o.id === oportunidade.id ? { ...o, status: novoStatus } : o)
     )
 
     try {
@@ -157,11 +161,11 @@ export default function OportunidadesKanban({ oportunidades }: { oportunidades: 
         throw new Error(err.error || "Erro ao alterar status")
       }
       toast.success(`Oportunidade movida para ${getLabelSafe(novoStatus)}`)
-    } catch (err: any) {
+    } catch (err: unknown) {
       setData(prev =>
-        prev.map((o: any) => o.id === oportunidade.id ? { ...o, status: statusAntigo } : o)
+        prev.map((o: OportunidadeCard) => o.id === oportunidade.id ? { ...o, status: statusAntigo } : o)
       )
-      toast.error(err.message)
+      toast.error(err instanceof Error ? err.message : "Erro ao mover oportunidade")
     }
   }
 
@@ -176,11 +180,11 @@ export default function OportunidadesKanban({ oportunidades }: { oportunidades: 
       })
       if (!res.ok) throw new Error((await res.json()).error || "Erro ao confirmar perda")
       toast.success("Oportunidade marcada como Perdida")
-    } catch (err: any) {
+    } catch (err: unknown) {
       setData(prev =>
-        prev.map((o: any) => o.id === pendingMove.id ? { ...o, status: pendingMove.statusAntigo } : o)
+        prev.map((o: OportunidadeCard) => o.id === pendingMove.id ? { ...o, status: pendingMove.statusAntigo } : o)
       )
-      toast.error(err.message)
+      toast.error(err instanceof Error ? err.message : "Erro ao confirmar perda")
     }
     setShowMotivoPerda(false)
     setMotivoPerda("")
@@ -190,7 +194,7 @@ export default function OportunidadesKanban({ oportunidades }: { oportunidades: 
   function cancelarPerda() {
     if (pendingMove) {
       setData(prev =>
-        prev.map((o: any) => o.id === pendingMove.id ? { ...o, status: pendingMove.statusAntigo } : o)
+        prev.map((o: OportunidadeCard) => o.id === pendingMove.id ? { ...o, status: pendingMove.statusAntigo } : o)
       )
     }
     setShowMotivoPerda(false)
@@ -206,9 +210,9 @@ export default function OportunidadesKanban({ oportunidades }: { oportunidades: 
     <div className="flex flex-col h-[calc(100vh-280px)]">
       <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div className="flex-1 min-h-0 flex gap-4 overflow-x-auto pb-2">
-          {colunas.map((col: any) => (
+          {colunas.map((col) => (
             <DroppableColumn key={col.nome} id={col.nome} rotulo={col.rotulo || col.nome} cor={col.cor} count={col.cards.length}>
-              {col.cards.map((card: any) => (
+              {col.cards.map((card) => (
                 <DraggableCard key={`op-${card.id}`} oportunidade={card} />
               ))}
             </DroppableColumn>

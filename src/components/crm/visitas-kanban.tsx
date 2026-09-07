@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { DndContext, DragOverlay, useDraggable, useDroppable, PointerSensor, TouchSensor, useSensor, useSensors } from "@dnd-kit/core"
 import { Loader2, MapPin, Navigation } from "lucide-react"
-import { useStatuses } from "@/hooks/use-statuses"
+import { useStatuses, type StatusConfig } from "@/hooks/use-statuses"
 import VisitLocationModal from "@/components/crm/visit-location-modal"
 
 interface VisitaCard {
@@ -121,18 +121,21 @@ function DraggableCard({ visita, onLocationClick }: { visita: VisitaCard; onLoca
         </span>
         <div className="flex items-center gap-1">
           <span className="text-[10px] text-slate-400">{TIPO_LABELS[visita.tipo] || visita.tipo}</span>
-          {buildGoogleMapsUrl(visita.endereco, visita.numero, visita.complemento, visita.bairro, visita.cidade, visita.uf) && (
-            <a
-              href={buildGoogleMapsUrl(visita.endereco, visita.numero, visita.complemento, visita.bairro, visita.cidade, visita.uf)!}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-              className="p-2 rounded hover:bg-emerald-100 dark:hover:bg-emerald-950/50 transition-colors"
-              title="Abrir no Google Maps"
-            >
-              <Navigation size={12} className="text-emerald-500" />
-            </a>
-          )}
+          {(() => {
+            const mapsUrl = buildGoogleMapsUrl(visita.endereco, visita.numero, visita.complemento, visita.bairro, visita.cidade, visita.uf)
+            return mapsUrl && (
+              <a
+                href={mapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="p-2 rounded hover:bg-emerald-100 dark:hover:bg-emerald-950/50 transition-colors"
+                title="Abrir no Google Maps"
+              >
+                <Navigation size={12} className="text-emerald-500" />
+              </a>
+            )
+          })()}
           <button
             onClick={(e) => {
               e.stopPropagation()
@@ -174,10 +177,10 @@ export default function VisitasKanban({ visitas }: { visitas: VisitaCard[] }) {
   )
 
   const colunas = statuses
-    .filter((s: any) => s.ativo !== false)
-    .map((col: any) => ({
+    .filter((s: StatusConfig) => s.ativo !== false)
+    .map((col: StatusConfig) => ({
       ...col,
-      cards: cards.filter((v: any) => v.status === col.nome),
+      cards: cards.filter((v: VisitaCard) => v.status === col.nome),
     }))
 
   const handleDragStart = (event: any) => {
@@ -200,7 +203,7 @@ export default function VisitasKanban({ visitas }: { visitas: VisitaCard[] }) {
     const statusAntigo = visita.status
 
     setCards(prev =>
-      prev.map((v: any) => v.id === visita.id ? { ...v, status: novoStatus } : v)
+      prev.map((v: VisitaCard) => v.id === visita.id ? { ...v, status: novoStatus } : v)
     )
 
     try {
@@ -216,7 +219,7 @@ export default function VisitasKanban({ visitas }: { visitas: VisitaCard[] }) {
       toast.success(`Visita movida para ${getLabel(novoStatus)}`)
     } catch (err: any) {
       setCards(prev =>
-        prev.map((v: any) => v.id === visita.id ? { ...v, status: statusAntigo } : v)
+        prev.map((v: VisitaCard) => v.id === visita.id ? { ...v, status: statusAntigo } : v)
       )
       toast.error(err.message)
     }
@@ -234,9 +237,9 @@ export default function VisitasKanban({ visitas }: { visitas: VisitaCard[] }) {
     <div className="flex flex-col h-[calc(100vh-280px)]">
       <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div className="flex-1 min-h-0 flex gap-4 overflow-x-auto pb-2">
-          {colunas.map((col: any) => (
+          {colunas.map((col) => (
             <DroppableColumn key={col.nome} id={col.nome} rotulo={col.rotulo || col.nome} cor={col.cor} count={col.cards.length}>
-              {col.cards.map((card: any) => (
+              {col.cards.map((card) => (
                 <DraggableCard
                   key={`vis-${card.id}`}
                   visita={card}
