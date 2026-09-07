@@ -9,9 +9,24 @@ import { ArrowLeft, Pencil, Check, X, Trash2, MessageSquare, Send, Loader2, Chec
 import { toast } from "sonner"
 import { useSession } from "next-auth/react"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
+import type { Lead, MensagemWhatsapp } from "../types"
 
-const STATUS_OPTIONS = ["NOVO", "CONTATADO", "QUALIFICADO", "CONVERTIDO", "PERDIDO"]
-const ORIGEM_OPTIONS = ["SITE", "INDICACAO", "EVENTO", "PROSPECCAO", "LIGACAO", "WHATSAPP", "EMAIL", "OUTRO"]
+const STATUS_OPTIONS = ["NOVO", "CONTATADO", "QUALIFICADO", "CONVERTIDO", "PERDIDO"] as const
+const ORIGEM_OPTIONS = ["SITE", "INDICACAO", "EVENTO", "PROSPECCAO", "LIGACAO", "WHATSAPP", "EMAIL", "OUTRO"] as const
+
+type LeadForm = {
+  nome: string
+  tipoPessoa: string | null
+  documento: string | null
+  email: string | null
+  celular: string | null
+  telefone: string | null
+  empresaNome: string | null
+  cargo: string | null
+  origem: string | null
+  status: string | null
+  descricao: string | null
+}
 
 const STATUS_CORES: Record<string, string> = {
   NOVO: "text-blue-600 bg-blue-50 dark:bg-blue-950/50 dark:text-blue-400",
@@ -21,13 +36,7 @@ const STATUS_CORES: Record<string, string> = {
   PERDIDO: "text-red-600 bg-red-50 dark:bg-red-950/50 dark:text-red-400",
 }
 
-type Mensagem = {
-  id: number
-  mensagem: string
-  tipo: "RECEBIDA" | "ENVIADA"
-  status: string
-  createdAt: string
-}
+type Mensagem = MensagemWhatsapp
 
 export default function LeadDetailPage() {
   const router = useRouter()
@@ -35,11 +44,11 @@ export default function LeadDetailPage() {
   const info = getInfoContent(pathname)
   const params = useParams()
   const { data: session } = useSession()
-  const isAdmin = (session?.user as any)?.role === "ADMIN" || (session?.user as any)?.role === "SUDO"
-  const [lead, setLead] = useState<any>(null)
+  const isAdmin = session?.user?.role === "ADMIN" || session?.user?.role === "SUDO"
+  const [lead, setLead] = useState<Lead | null>(null)
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(false)
-  const [form, setForm] = useState<any>({})
+  const [form, setForm] = useState<Partial<LeadForm>>({})
   const [showDelete, setShowDelete] = useState(false)
   const [deleteLoading, setDeleteLoading] = useState(false)
 
@@ -51,8 +60,8 @@ export default function LeadDetailPage() {
 
   useEffect(() => {
     fetch(`/api/crm/leads/${params.id}`)
-      .then((r: any) => r.json())
-      .then((data: any) => {
+      .then((r) => r.json() as Promise<Lead>)
+      .then((data: Lead) => {
         setLead(data)
         setForm(data)
       })
@@ -63,8 +72,8 @@ export default function LeadDetailPage() {
   useEffect(() => {
     if (!lead?.id) return
     fetch(`/api/crm/leads/${lead.id}/whatsapp`)
-      .then((r: any) => r.json())
-      .then((data: any) => {
+      .then((r) => r.json() as Promise<MensagemWhatsapp[]>)
+      .then((data) => {
         setMensagens(Array.isArray(data) ? data.reverse() : [])
       })
       .catch(console.error)
@@ -91,8 +100,8 @@ export default function LeadDetailPage() {
       setForm(updated)
       setEditing(false)
       toast.success("Lead atualizado")
-    } catch (err: any) {
-      toast.error(err.message)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao atualizar lead")
     }
   }
 
@@ -112,7 +121,7 @@ export default function LeadDetailPage() {
   }
 
   async function enviarMensagem() {
-    if (!textoMsg.trim()) return
+    if (!textoMsg.trim() || !lead) return
     setEnviandoMsg(true)
     try {
       const res = await fetch(`/api/crm/leads/${lead.id}/whatsapp`, {
@@ -121,7 +130,7 @@ export default function LeadDetailPage() {
         body: JSON.stringify({ mensagem: textoMsg }),
       })
       if (!res.ok) throw new Error()
-      const nova = await res.json()
+      const nova = (await res.json()) as MensagemWhatsapp
       setMensagens(prev => [...prev, nova])
       setTextoMsg("")
     } catch {
@@ -220,12 +229,12 @@ export default function LeadDetailPage() {
             <div className="space-y-4">
               <div>
                 <label className="block text-xs font-medium text-slate-500 mb-1">Nome</label>
-                <input type="text" value={form.nome || ""} onChange={e => setForm((p: any) => ({ ...p, nome: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                <input type="text" value={form.nome || ""} onChange={e => setForm((prev) => ({ ...prev, nome: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-medium text-slate-500 mb-1">Tipo</label>
-                  <select value={form.tipoPessoa || ""} onChange={e => { setForm((p: any) => ({ ...p, tipoPessoa: e.target.value, documento: "" })) }} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm">
+                  <select value={form.tipoPessoa || ""} onChange={e => { setForm((prev) => ({ ...prev, tipoPessoa: e.target.value, documento: "" })) }} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm">
                     <option value="">—</option>
                     <option value="PF">PF</option>
                     <option value="PJ">PJ</option>
@@ -233,44 +242,44 @@ export default function LeadDetailPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-slate-500 mb-1">{form.tipoPessoa === "PF" ? "CPF" : form.tipoPessoa === "PJ" ? "CNPJ" : "Documento"}</label>
-                  <input type="text" value={form.documento || ""} onChange={e => setForm((p: any) => ({ ...p, documento: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                  <input type="text" value={form.documento || ""} onChange={e => setForm((prev) => ({ ...prev, documento: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-slate-500 mb-1">Email</label>
-                  <input type="email" value={form.email || ""} onChange={e => setForm((p: any) => ({ ...p, email: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                  <input type="email" value={form.email || ""} onChange={e => setForm((prev) => ({ ...prev, email: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-slate-500 mb-1">Celular</label>
-                  <input type="text" value={form.celular || ""} onChange={e => setForm((p: any) => ({ ...p, celular: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                  <input type="text" value={form.celular || ""} onChange={e => setForm((prev) => ({ ...prev, celular: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-slate-500 mb-1">Telefone</label>
-                  <input type="text" value={form.telefone || ""} onChange={e => setForm((p: any) => ({ ...p, telefone: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                  <input type="text" value={form.telefone || ""} onChange={e => setForm((prev) => ({ ...prev, telefone: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-slate-500 mb-1">Pessoa (Negócio)</label>
-                  <input type="text" value={form.empresaNome || ""} onChange={e => setForm((p: any) => ({ ...p, empresaNome: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                  <input type="text" value={form.empresaNome || ""} onChange={e => setForm((prev) => ({ ...prev, empresaNome: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-slate-500 mb-1">Cargo</label>
-                  <input type="text" value={form.cargo || ""} onChange={e => setForm((p: any) => ({ ...p, cargo: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                  <input type="text" value={form.cargo || ""} onChange={e => setForm((prev) => ({ ...prev, cargo: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-slate-500 mb-1">Origem</label>
-                  <select value={form.origem || "OUTRO"} onChange={e => setForm((p: any) => ({ ...p, origem: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm">
-                    {ORIGEM_OPTIONS.map((s: any) => <option key={s} value={s}>{s}</option>)}
+                  <select value={form.origem || "OUTRO"} onChange={e => setForm((prev) => ({ ...prev, origem: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm">
+                    {ORIGEM_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
                   </select>
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-slate-500 mb-1">Status</label>
-                  <select value={form.status || "NOVO"} onChange={e => setForm((p: any) => ({ ...p, status: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm">
-                    {STATUS_OPTIONS.map((s: any) => <option key={s} value={s}>{s}</option>)}
+                  <select value={form.status || "NOVO"} onChange={e => setForm((prev) => ({ ...prev, status: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm">
+                    {STATUS_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
                   </select>
                 </div>
               </div>
               <div>
                 <label className="block text-xs font-medium text-slate-500 mb-1">Descrição</label>
-                <textarea value={form.descricao || ""} onChange={e => setForm((p: any) => ({ ...p, descricao: e.target.value }))} rows={4} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                <textarea value={form.descricao || ""} onChange={e => setForm((prev) => ({ ...prev, descricao: e.target.value }))} rows={4} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
               </div>
             </div>
           ) : (
@@ -356,7 +365,7 @@ export default function LeadDetailPage() {
               {mensagens.length === 0 && !loadingMsgs ? (
                 <p className="text-sm text-slate-400 text-center py-8">Nenhuma mensagem</p>
               ) : (
-                mensagens.map((msg: any) => (
+                mensagens.map((msg) => (
                   <div key={msg.id} className={`flex ${msg.tipo === "ENVIADA" ? "justify-end" : "justify-start"}`}>
                     <div className={`max-w-[80%] rounded-lg px-3 py-2 text-sm ${
                       msg.tipo === "ENVIADA"
