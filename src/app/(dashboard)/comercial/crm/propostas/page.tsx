@@ -13,11 +13,12 @@ import ListFilters, { useListFilters } from "@/components/ui/list-filters"
 import { PageSkeleton } from "@/components/ui/page-skeleton"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { toast } from "sonner"
+import type { Proposta } from "./types"
 
 async function fetchPropostas(mine: boolean) {
   const res = await fetch(`/api/crm/propostas${mine ? "?mine=true" : ""}`)
   if (!res.ok) throw new Error("Falha ao carregar")
-  return res.json()
+  return res.json() as Promise<Proposta[]>
 }
 
 const STATUS_LABELS: Record<string, string> = {
@@ -42,11 +43,11 @@ function PropostasPageContent() {
   const [modo, setModo] = useState<"tabela" | "kanban">(searchParams.get("view") === "kanban" ? "kanban" : "tabela")
 
   const [visitasFilter, setVisitasFilter] = useState<"todas" | "minhas">("minhas")
-  const [deleteTarget, setDeleteTarget] = useState<any>(null)
+  const [deleteTarget, setDeleteTarget] = useState<Proposta | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [deleteBlocked, setDeleteBlocked] = useState(false)
 
-  const { data: propostas, isLoading, refetch } = useQuery({
+  const { data: propostas, isLoading, refetch } = useQuery<Proposta[]>({
     queryKey: ["crm-propostas", visitasFilter],
     queryFn: () => fetchPropostas(visitasFilter === "minhas"),
     retry: 1,
@@ -195,7 +196,7 @@ function PropostasPageContent() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {filteredData.map((p: any) => (
+                {filteredData.map((p) => (
                   <tr key={p.id}>
                     <td className="px-4 py-3 text-sm font-medium">
                       <Link href={`/comercial/crm/propostas/${p.id}`} className="text-slate-900 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">

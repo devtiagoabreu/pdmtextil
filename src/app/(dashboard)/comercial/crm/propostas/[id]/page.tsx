@@ -10,11 +10,12 @@ import Link from "next/link"
 import { useState } from "react"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { toast } from "sonner"
+import type { Proposta, PropostaUpdate } from "../types"
 
 async function fetchProposta(id: string) {
   const res = await fetch(`/api/crm/propostas/${id}`)
   if (!res.ok) throw new Error("Falha ao carregar")
-  return res.json()
+  return res.json() as Promise<Proposta>
 }
 
 const STATUS_OPCOES = [
@@ -36,7 +37,7 @@ export default function DetalhePropostaPage() {
   const [editing, setEditing] = useState(false)
   const [showDelete, setShowDelete] = useState(false)
 
-  const { data: proposta, isLoading } = useQuery({
+  const { data: proposta, isLoading } = useQuery<Proposta>({
     queryKey: ["crm-proposta", id],
     queryFn: () => fetchProposta(id),
     retry: 1,
@@ -59,14 +60,14 @@ export default function DetalhePropostaPage() {
   })
 
   const saveMutation = useMutation({
-    mutationFn: async (body: any) => {
+    mutationFn: async (body: PropostaUpdate) => {
       const res = await fetch(`/api/crm/propostas/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       })
       if (!res.ok) throw new Error("Falha ao atualizar proposta")
-      return res.json()
+      return res.json() as Promise<Proposta>
     },
     onSuccess: (data) => {
       queryClient.setQueryData(["crm-proposta", id], data)
@@ -74,7 +75,7 @@ export default function DetalhePropostaPage() {
       setEditing(false)
       toast.success("Proposta atualizada com sucesso!")
     },
-    onError: (err: any) => toast.error(err.message || "Erro ao atualizar proposta"),
+    onError: (err) => toast.error(err.message || "Erro ao atualizar proposta"),
   })
 
   const deleteMutation = useMutation({
@@ -87,7 +88,7 @@ export default function DetalhePropostaPage() {
       toast.success("Proposta excluída")
       router.push("/comercial/crm/propostas")
     },
-    onError: (err: any) => toast.error(err.message || "Erro ao excluir proposta"),
+    onError: (err) => toast.error(err.message || "Erro ao excluir proposta"),
   })
 
   if (isLoading) {
@@ -109,7 +110,7 @@ export default function DetalhePropostaPage() {
     )
   }
 
-  const userRole = (session?.user as any)?.role
+  const userRole = session?.user?.role
   const userId = session?.user?.id ? parseInt(session.user.id) : null
   const isAdmin = userRole === "ADMIN" || userRole === "SUDO"
   const isOwner = userId != null && proposta?.criadoPor === userId
@@ -232,21 +233,21 @@ export default function DetalhePropostaPage() {
             <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100 uppercase tracking-wider mb-3">Status</h2>
             <span
               className={`inline-flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-full font-medium ${
-                STATUS_OPCOES.find((s: any) => s.value === proposta.status)?.cor || ""
+                STATUS_OPCOES.find((s) => s.value === proposta.status)?.cor || ""
               }`}
             >
               {proposta.status === "ACEITA" ? <CheckCircle2 size={14} /> :
                proposta.status === "RECUSADA" ? <XCircle size={14} /> :
                proposta.status === "REVISAO" ? <RefreshCw size={14} /> :
                <Clock size={14} />}
-              {STATUS_OPCOES.find((s: any) => s.value === proposta.status)?.label || proposta.status}
+              {STATUS_OPCOES.find((s) => s.value === proposta.status)?.label || proposta.status}
             </span>
           </div>
 
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
             <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100 uppercase tracking-wider mb-3">Alterar Status</h2>
             <div className="space-y-2">
-              {STATUS_OPCOES.map((opcao: any) => (
+              {STATUS_OPCOES.map((opcao) => (
                 <button
                   key={opcao.value}
                   onClick={() => {
@@ -298,13 +299,13 @@ export default function DetalhePropostaPage() {
 }
 
 function EdicaoProposta({ proposta, saving, onCancel, onSave }: {
-  proposta: any
+  proposta: Proposta
   saving: boolean
   onCancel: () => void
-  onSave: (body: any) => void
+  onSave: (body: PropostaUpdate) => void
 }) {
   const [titulo, setTitulo] = useState(proposta.titulo)
-  const [valor, setValor] = useState(proposta.valor ?? "")
+  const [valor, setValor] = useState(String(proposta.valor ?? ""))
   const [prazoEntrega, setPrazoEntrega] = useState(proposta.prazoEntrega ?? "")
   const [condicoesPagamento, setCondicoesPagamento] = useState(proposta.condicoesPagamento ?? "")
   const [descricao, setDescricao] = useState(proposta.descricao ?? "")

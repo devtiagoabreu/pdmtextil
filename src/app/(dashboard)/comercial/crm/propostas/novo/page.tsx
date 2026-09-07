@@ -13,17 +13,19 @@ import { QuickCreateCliente } from "@/components/crm/quick-create-cliente"
 import { QuickCreateOportunidade } from "@/components/crm/quick-create-oportunidade"
 import { SelectCliente } from "@/components/crm/select-cliente"
 import { TipoEntidadeSelector } from "@/app/(dashboard)/comercial/crm/visitas/novo/components/tipo-entidade-selector"
+import type { Proposta, PropostaCreate } from "../types"
+import type { EmpresaResumo, Oportunidade } from "../../oportunidades/types"
 
 async function fetchEmpresas() {
   const res = await fetch("/api/crm/pessoas")
   if (!res.ok) throw new Error("Falha ao carregar")
-  return res.json()
+  return res.json() as Promise<EmpresaResumo[]>
 }
 
 async function fetchOportunidades() {
   const res = await fetch("/api/crm/oportunidades")
   if (!res.ok) throw new Error("Falha ao carregar")
-  return res.json()
+  return res.json() as Promise<Oportunidade[]>
 }
 
 type TipoEntidade = "CLIENTE" | "PESSOA" | "AVULSO"
@@ -51,13 +53,13 @@ function NovaPropostaContent() {
     setOportunidadeId(opId)
   }, [searchParams])
 
-  const { data: empresas } = useQuery({ queryKey: ["crm-pessoas"], queryFn: fetchEmpresas })
-  const { data: oportunidades } = useQuery({ queryKey: ["crm-oportunidades"], queryFn: fetchOportunidades })
+  const { data: empresas } = useQuery<EmpresaResumo[]>({ queryKey: ["crm-pessoas"], queryFn: fetchEmpresas })
+  const { data: oportunidades } = useQuery<Oportunidade[]>({ queryKey: ["crm-oportunidades"], queryFn: fetchOportunidades })
 
   useEffect(() => {
     if (!oportunidadeId || !Array.isArray(oportunidades)) return
     const opId = Number(oportunidadeId)
-    const op = oportunidades.find((o: any) => Number(o.id) === opId)
+    const op = oportunidades.find((o) => Number(o.id) === opId)
     if (!op) return
     if (op.empresaId) {
       setTipoEntidade("PESSOA")
@@ -90,14 +92,14 @@ function NovaPropostaContent() {
   }
 
   const mutation = useMutation({
-    mutationFn: async (body: any) => {
+    mutationFn: async (body: PropostaCreate) => {
       const res = await fetch("/api/crm/propostas", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       })
       if (!res.ok) throw new Error("Falha ao criar proposta")
-      return res.json()
+      return res.json() as Promise<Proposta>
     },
     onSuccess: (data) => {
       router.push(`/comercial/crm/propostas/${data.id}`)
@@ -195,7 +197,7 @@ function NovaPropostaContent() {
                   className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Selecione...</option>
-                  {(empresas || []).map((e: any) => (
+                  {(empresas || []).map((e) => (
                     <option key={e.id} value={e.id}>{e.razaoSocial}</option>
                   ))}
                 </select>
@@ -228,7 +230,7 @@ function NovaPropostaContent() {
                 className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Selecione...</option>
-                {(empresas || []).map((e: any) => (
+                {(empresas || []).map((e) => (
                   <option key={e.id} value={e.id}>{e.razaoSocial}</option>
                 ))}
               </select>
@@ -245,7 +247,7 @@ function NovaPropostaContent() {
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Nenhuma</option>
-              {(oportunidades || []).map((o: any) => (
+              {(oportunidades || []).map((o) => (
                 <option key={o.id} value={o.id}>{o.titulo}</option>
               ))}
             </select>
