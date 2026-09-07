@@ -4,16 +4,23 @@ import { useQuery, useQueryClient } from "@tanstack/react-query"
 import Link from "next/link"
 import { QuickCreateProposta } from "@/components/crm/quick-create-proposta"
 
-function formatValor(v: any) {
+function formatValor(v: string | number | null | undefined) {
   if (!v) return null
   const n = Number(v)
   if (isNaN(n)) return null
   return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
 }
 
+type PropostaResumo = {
+  id: number
+  titulo?: string
+  status?: string
+  valor?: string | null
+}
+
 export function PropostasCard({ empresaId }: { empresaId: string }) {
   const queryClient = useQueryClient()
-  const { data } = useQuery<any[]>({
+  const { data } = useQuery<PropostaResumo[]>({
     queryKey: ["crm-pessoa-propostas", empresaId],
     queryFn: async () => {
       const res = await fetch(`/api/crm/propostas?empresaId=${empresaId}`)
@@ -36,7 +43,7 @@ export function PropostasCard({ empresaId }: { empresaId: string }) {
         <p className="text-sm text-slate-400 text-center py-6">Nenhuma proposta vinculada</p>
       ) : (
         <div className="space-y-2">
-          {propostas.map((prop: any) => (
+          {propostas.map((prop: PropostaResumo) => (
             <Link
               key={prop.id}
               href={`/comercial/crm/propostas/${prop.id}`}

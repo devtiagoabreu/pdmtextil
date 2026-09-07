@@ -1,9 +1,10 @@
 import { useState } from "react"
 import { Plus, Unlink, Mail, UserPlus } from "lucide-react"
+import type { Contato } from "../../types"
 
 interface ContatosCardProps {
-  contatos: any[]
-  orfaos: any[]
+  contatos: Contato[]
+  orfaos: Contato[]
   onAdd: () => void
   onVincular: (contatoId: number) => void
   onRemover: (contatoId: number) => void
@@ -32,7 +33,7 @@ export function ContatosCard({ contatos, orfaos, onAdd, onVincular, onRemover }:
               className="flex-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Selecione um contato...</option>
-              {orfaos.map((o: any) => (
+              {orfaos.map((o: Contato) => (
                 <option key={o.id} value={String(o.id)}>
                   {o.nome}{o.email ? ` — ${o.email}` : ""}
                 </option>
@@ -53,7 +54,7 @@ export function ContatosCard({ contatos, orfaos, onAdd, onVincular, onRemover }:
         <p className="text-sm text-slate-400 text-center py-6">Nenhum contato cadastrado</p>
       ) : (
         <div className="space-y-2">
-          {contatos.map((contato: any) => (
+          {contatos.map((contato: Contato) => (
             <div key={contato.id} className="flex items-center justify-between p-2.5 rounded-lg border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
               <div className="min-w-0">
                 <div className="flex items-center gap-2">

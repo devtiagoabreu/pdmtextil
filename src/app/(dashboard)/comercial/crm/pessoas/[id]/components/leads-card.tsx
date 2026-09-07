@@ -4,9 +4,19 @@ import { useQuery, useQueryClient } from "@tanstack/react-query"
 import Link from "next/link"
 import { QuickCreateLead } from "@/components/crm/quick-create-lead"
 
+type LeadResumo = {
+  id: number
+  nome?: string
+  cargo?: string
+  celular?: string
+  empresaNome?: string
+  empresaRazaoSocial?: string
+  empresaNomeFantasia?: string
+}
+
 export function LeadsCard({ empresaId }: { empresaId: string }) {
   const queryClient = useQueryClient()
-  const { data } = useQuery<any[]>({
+  const { data } = useQuery<LeadResumo[]>({
     queryKey: ["crm-pessoa-leads", empresaId],
     queryFn: async () => {
       const res = await fetch(`/api/crm/leads?empresaId=${empresaId}`)
@@ -29,7 +39,7 @@ export function LeadsCard({ empresaId }: { empresaId: string }) {
         <p className="text-sm text-slate-400 text-center py-6">Nenhum lead vinculado</p>
       ) : (
         <div className="space-y-2">
-          {leads.map((lead: any) => (
+          {leads.map((lead: LeadResumo) => (
             <Link
               key={lead.id}
               href={`/comercial/crm/leads/${lead.id}`}

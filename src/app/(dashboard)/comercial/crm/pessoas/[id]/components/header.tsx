@@ -2,9 +2,10 @@ import { ArrowLeft, Check, X, Pencil, Trash2 } from "lucide-react"
 import { InfoButton } from "@/components/ui/info-button"
 import type { InfoContent } from "@/lib/info-content"
 import { STATUS_CORES } from "./constants"
+import type { Pessoa } from "../../types"
 
 interface PessoaHeaderProps {
-  pessoa: any
+  pessoa: Pessoa
   info: InfoContent | null
   editing: boolean
   onBack: () => void
@@ -44,7 +45,7 @@ export function PessoaHeader({
               {pessoa.tipoPessoa === "PF" ? "PF" : "PJ"}
             </span>
           )}
-          <span className={`inline-flex text-[10px] px-2 py-0.5 rounded-full font-medium ${STATUS_CORES[pessoa.status] || ""}`}>
+          <span className={`inline-flex text-[10px] px-2 py-0.5 rounded-full font-medium ${STATUS_CORES[pessoa.status ?? ""] || ""}`}>
             {pessoa.status}
           </span>
         </div>

@@ -18,6 +18,7 @@ import { RepresentantesCard } from "./components/representantes-card"
 import { LeadsCard } from "./components/leads-card"
 import { OportunidadesCard } from "./components/oportunidades-card"
 import { PropostasCard } from "./components/propostas-card"
+import type { Contato, Pessoa, PessoaForm, RepresentanteResult, VinculoRepresentante } from "../types"
 
 function PessoaDetailPageContent() {
   const router = useRouter()
@@ -25,10 +26,10 @@ function PessoaDetailPageContent() {
   const searchParams = useSearchParams()
   const info = getInfoContent(pathname)
   const params = useParams()
-  const [pessoa, setPessoa] = useState<any>(null)
+  const [pessoa, setPessoa] = useState<Pessoa | null>(null)
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(searchParams.get("edit") === "true")
-  const [form, setForm] = useState<any>({})
+  const [form, setForm] = useState<PessoaForm>({})
   const [tipoPessoa, setTipoPessoa] = useState<"PF" | "PJ">("PJ")
   const [showDelete, setShowDelete] = useState(false)
   const [deleteLoading, setDeleteLoading] = useState(false)
@@ -42,8 +43,8 @@ function PessoaDetailPageContent() {
     },
   })
 
-  const [vinculos, setVinculos] = useState<any[]>([])
-  const { data: dadosVinculos, isLoading: loadingVinculos } = useQuery({
+  const [vinculos, setVinculos] = useState<VinculoRepresentante[]>([])
+  const { data: dadosVinculos, isLoading: loadingVinculos } = useQuery<VinculoRepresentante[]>({
     queryKey: ["pessoa-representantes", params.id],
     queryFn: async () => {
       const res = await fetch(`/api/crm/pessoas/${params.id}/representantes`)
@@ -57,21 +58,21 @@ function PessoaDetailPageContent() {
   }, [dadosVinculos])
 
   const [searchRep, setSearchRep] = useState("")
-  const [repResults, setRepResults] = useState<any[]>([])
+  const [repResults, setRepResults] = useState<RepresentanteResult[]>([])
   const [searchingRep, setSearchingRep] = useState(false)
-  const [repToRemove, setRepToRemove] = useState<any>(null)
-  const [orfaos, setOrfaos] = useState<any[]>([])
+  const [repToRemove, setRepToRemove] = useState<VinculoRepresentante | null>(null)
+  const [orfaos, setOrfaos] = useState<Contato[]>([])
 
   useEffect(() => {
     fetch("/api/crm/contatos?orfao=true")
-      .then((r: any) => r.json())
-      .then((data: any) => { if (Array.isArray(data)) setOrfaos(data) })
+      .then((r) => r.json())
+      .then((data: Contato[]) => { if (Array.isArray(data)) setOrfaos(data) })
       .catch(() => toast.error("Erro ao carregar contatos órfãos"))
   }, [])
 
   useEffect(() => {
     if (form?.uf) {
-      const found = estados.find((e: any) => e.uf === form.uf)
+      const found = estados.find((e) => e.uf === form.uf)
       setEstadoId(found ? found.id : null)
     } else {
       setEstadoId(null)
@@ -85,9 +86,9 @@ function PessoaDetailPageContent() {
     try {
       const res = await fetch(`/api/representantes?q=${encodeURIComponent(query)}`)
       if (!res.ok) throw new Error()
-      const data = await res.json()
-      const existentes = new Set(vinculos.map((v: any) => v.representanteId))
-      setRepResults(data.filter((r: any) => !existentes.has(r.id)))
+      const data: RepresentanteResult[] = await res.json()
+      const existentes = new Set(vinculos.map((v) => v.representanteId))
+      setRepResults(data.filter((r) => !existentes.has(r.id)))
     } catch {} finally {
       setSearchingRep(false)
     }
@@ -101,7 +102,7 @@ function PessoaDetailPageContent() {
         body: JSON.stringify({ representanteId }),
       })
       if (!res.ok) throw new Error()
-      const novo = await res.json()
+      const novo: VinculoRepresentante = await res.json()
       setVinculos(prev => [...prev, novo])
       setRepResults([])
       setSearchRep("")
@@ -109,11 +110,11 @@ function PessoaDetailPageContent() {
     } catch { toast.error("Erro ao vincular representante") }
   }
 
-  async function removeRepresentante(vinculo: any) {
+  async function removeRepresentante(vinculo: VinculoRepresentante) {
     try {
       const res = await fetch(`/api/crm/pessoas/${params.id}/representantes?id=${vinculo.id}`, { method: "DELETE" })
       if (!res.ok) throw new Error()
-      setVinculos(prev => prev.filter((v: any) => v.id !== vinculo.id))
+      setVinculos(prev => prev.filter((v) => v.id !== vinculo.id))
       toast.success("Representante removido")
     } catch { toast.error("Erro ao remover representante") }
     setRepToRemove(null)
@@ -121,8 +122,8 @@ function PessoaDetailPageContent() {
 
   useEffect(() => {
     fetch(`/api/crm/pessoas/${params.id}`)
-      .then((r: any) => r.json())
-      .then((data: any) => {
+      .then((r) => r.json())
+      .then((data: Pessoa & { error?: string }) => {
         if (!data || data.error) {
           setPessoa(null)
           setForm({})
@@ -147,13 +148,13 @@ function PessoaDetailPageContent() {
         const err = await res.json()
         throw new Error(err.error)
       }
-      const updated = await res.json()
+      const updated: Pessoa = await res.json()
       setPessoa(updated)
       setForm(updated)
       setEditing(false)
       toast.success("Pessoa atualizada")
-    } catch (err: any) {
-      toast.error(err.message)
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Erro ao atualizar")
     }
   }
 
@@ -182,8 +183,8 @@ function PessoaDetailPageContent() {
         body: JSON.stringify({ nome, empresaId: parseInt(params.id as string) }),
       })
       if (!res.ok) throw new Error("Erro ao criar contato")
-      const novo = await res.json()
-      setPessoa((prev: any) => ({ ...prev, contatos: [...(prev.contatos || []), novo] }))
+      const novo: Contato = await res.json()
+      setPessoa((prev) => ({ ...prev!, contatos: [...(prev!.contatos || []), novo] }))
       toast.success("Contato adicionado")
     } catch {
       toast.error("Erro ao adicionar contato")
@@ -198,10 +199,10 @@ function PessoaDetailPageContent() {
         body: JSON.stringify({ empresaId: null, clienteId: null }),
       })
       if (!res.ok) throw new Error("Erro ao desvincular")
-      const atualizado = await res.json()
-      setPessoa((prev: any) => ({
-        ...prev,
-        contatos: (prev.contatos || []).filter((c: any) => c.id !== contatoId),
+      const atualizado: Contato = await res.json()
+      setPessoa((prev) => ({
+        ...prev!,
+        contatos: (prev!.contatos || []).filter((c: Contato) => c.id !== contatoId),
       }))
       setOrfaos(prev => [...prev, atualizado])
       toast.success("Contato desvinculado")
@@ -218,9 +219,9 @@ function PessoaDetailPageContent() {
         body: JSON.stringify({ empresaId: parseInt(params.id as string) }),
       })
       if (!res.ok) throw new Error("Erro ao vincular")
-      const atualizado = await res.json()
-      setPessoa((prev: any) => ({ ...prev, contatos: [...(prev.contatos || []), atualizado] }))
-      setOrfaos(prev => prev.filter((c: any) => c.id !== contatoId))
+      const atualizado: Contato = await res.json()
+      setPessoa((prev) => ({ ...prev!, contatos: [...(prev!.contatos || []), atualizado] }))
+      setOrfaos(prev => prev.filter((c: Contato) => c.id !== contatoId))
       toast.success("Contato vinculado")
     } catch {
       toast.error("Erro ao vincular contato")
@@ -252,7 +253,7 @@ function PessoaDetailPageContent() {
         editing={editing}
         onBack={() => router.back()}
         onSave={handleSave}
-        onCancel={() => { setEditing(false); setForm(pessoa) }}
+        onCancel={() => { setEditing(false); setForm(pessoa ?? {}) }}
         onEdit={() => setEditing(true)}
         onDelete={() => setShowDelete(true)}
       />

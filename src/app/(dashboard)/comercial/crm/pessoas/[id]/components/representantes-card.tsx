@@ -1,14 +1,15 @@
 import { Users, Search, Loader2, UserPlus, Mail, Phone, MapPin, X } from "lucide-react"
+import type { RepresentanteResult, VinculoRepresentante } from "../../types"
 
 interface RepresentantesCardProps {
-  vinculos: any[]
+  vinculos: VinculoRepresentante[]
   loadingVinculos: boolean
   searchRep: string
-  repResults: any[]
+  repResults: RepresentanteResult[]
   searchingRep: boolean
   onSearch: (q: string) => void
   onAdd: (id: number) => void
-  onRemoveClick: (v: any) => void
+  onRemoveClick: (v: VinculoRepresentante) => void
 }
 
 export function RepresentantesCard({
@@ -53,7 +54,7 @@ export function RepresentantesCard({
 
       {repResults.length > 0 && (
         <div className="rounded-lg border border-slate-200 dark:border-slate-700 divide-y divide-slate-100 dark:divide-slate-800 max-h-48 overflow-y-auto mb-4">
-          {repResults.map((r: any) => (
+          {repResults.map((r: RepresentanteResult) => (
             <button
               key={r.id}
               onClick={() => onAdd(r.id)}
@@ -93,7 +94,7 @@ export function RepresentantesCard({
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-              {vinculos.map((v: any) => (
+              {vinculos.map((v: VinculoRepresentante) => (
                 <tr key={v.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
                   <td className="p-3 text-sm font-medium text-slate-900 dark:text-slate-200">{v.nome}</td>
                   <td className="p-3 text-sm text-slate-500 font-mono">{v.cnpj || "—"}</td>

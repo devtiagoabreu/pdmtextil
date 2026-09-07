@@ -16,8 +16,9 @@ import ListFilters, { useListFilters } from "@/components/ui/list-filters"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { toast } from "sonner"
 import { PageSkeleton } from "@/components/ui/page-skeleton"
+import type { Pessoa } from "./types"
 
-async function fetchEmpresas() {
+async function fetchEmpresas(): Promise<Pessoa[]> {
   const res = await fetch("/api/crm/pessoas")
   if (!res.ok) throw new Error("Falha ao carregar")
   return res.json()
@@ -39,10 +40,10 @@ function CrmPessoasPageContent() {
   const [modo, setModo] = useState<"tabela" | "kanban">(searchParams.get("view") === "kanban" ? "kanban" : "tabela")
   const [showApiImport, setShowApiImport] = useState(false)
   const [showCnpjSearch, setShowCnpjSearch] = useState(false)
-  const [deleteTarget, setDeleteTarget] = useState<any>(null)
+  const [deleteTarget, setDeleteTarget] = useState<Pessoa | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
 
-  const { data: empresas, isLoading, refetch } = useQuery({
+  const { data: empresas, isLoading, refetch } = useQuery<Pessoa[]>({
     queryKey: ["crm-pessoas"],
     queryFn: fetchEmpresas,
     retry: 1,
@@ -63,17 +64,17 @@ function CrmPessoasPageContent() {
   )
   const filteredData = filterState.filtered
 
-  function nomeExibicao(p: any) {
+  function nomeExibicao(p: Pessoa) {
     if (p.tipoPessoa === "PF") return p.nome || "—"
     return p.razaoSocial || "—"
   }
 
-  function documento(p: any) {
+  function documento(p: Pessoa) {
     if (p.tipoPessoa === "PF") return p.cpf || "—"
     return p.cnpj || "—"
   }
 
-  function mapsUrl(p: any) {
+  function mapsUrl(p: Pessoa) {
     const parts = [p.endereco, p.numero, p.bairro, p.cidade, p.uf, p.cep].filter(Boolean)
     if (parts.length === 0) return null
     return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(parts.join(", "))}`
@@ -193,7 +194,7 @@ function CrmPessoasPageContent() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {filteredData.map((emp: any) => (
+                {filteredData.map((emp: Pessoa) => (
                   <tr
                     key={emp.id}
                     className="hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"
@@ -214,7 +215,7 @@ function CrmPessoasPageContent() {
                     <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden lg:table-cell">{emp.segmento || "—"}</td>
                     <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden md:table-cell">{emp.responsavelNome || "—"}</td>
                     <td className="px-2 py-2 md:px-4 md:py-3">
-                      <span className={`inline-flex text-[10px] px-1.5 md:px-2 py-0.5 rounded-full font-medium ${STATUS_CORES[emp.status] || "text-slate-600 bg-slate-100"}`}>
+                      <span className={`inline-flex text-[10px] px-1.5 md:px-2 py-0.5 rounded-full font-medium ${STATUS_CORES[emp.status ?? ""] || "text-slate-600 bg-slate-100"}`}>
                         {emp.status}
                       </span>
                     </td>

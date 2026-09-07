@@ -4,16 +4,23 @@ import { useQuery, useQueryClient } from "@tanstack/react-query"
 import Link from "next/link"
 import { QuickCreateOportunidade } from "@/components/crm/quick-create-oportunidade"
 
-function formatValor(v: any) {
+function formatValor(v: string | number | null | undefined) {
   if (!v) return null
   const n = Number(v)
   if (isNaN(n)) return null
   return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
 }
 
+type OportunidadeResumo = {
+  id: number
+  titulo?: string
+  status?: string
+  valorEstimado?: string | null
+}
+
 export function OportunidadesCard({ empresaId }: { empresaId: string }) {
   const queryClient = useQueryClient()
-  const { data } = useQuery<any[]>({
+  const { data } = useQuery<OportunidadeResumo[]>({
     queryKey: ["crm-pessoa-oportunidades", empresaId],
     queryFn: async () => {
       const res = await fetch(`/api/crm/oportunidades?empresaId=${empresaId}`)
@@ -36,7 +43,7 @@ export function OportunidadesCard({ empresaId }: { empresaId: string }) {
         <p className="text-sm text-slate-400 text-center py-6">Nenhuma oportunidade vinculada</p>
       ) : (
         <div className="space-y-2">
-          {oportunidades.map((op: any) => (
+          {oportunidades.map((op: OportunidadeResumo) => (
             <Link
               key={op.id}
               href={`/comercial/crm/oportunidades/${op.id}`}

@@ -11,6 +11,7 @@ import { toast } from "sonner"
 import { SelectUf } from "@/components/crm/select-uf"
 import { SelectCidade } from "@/components/crm/select-cidade"
 import { SelectSegmento } from "@/components/crm/select-segmento"
+import type { ConsultaCnpjData, PessoaForm, RepresentanteResult, VinculoRepresentante } from "../types"
 
 export default function NovaPessoaPage() {
   const router = useRouter()
@@ -19,8 +20,8 @@ export default function NovaPessoaPage() {
   const [tipoPessoa, setTipoPessoa] = useState<"PF" | "PJ">("PJ")
   const [consulting, setConsulting] = useState(false)
   const [consulted, setConsulted] = useState(false)
-  const [apiData, setApiData] = useState<any>(null)
-  const [form, setForm] = useState<any>({
+  const [apiData, setApiData] = useState<ConsultaCnpjData | null>(null)
+  const [form, setForm] = useState<PessoaForm>({
     tipoPessoa: "PJ",
     nome: "",
     cpf: "",
@@ -54,14 +55,14 @@ export default function NovaPessoaPage() {
     },
   })
 
-  const [vinculos, setVinculos] = useState<any[]>([])
+  const [vinculos, setVinculos] = useState<VinculoRepresentante[]>([])
   const [searchRep, setSearchRep] = useState("")
-  const [repResults, setRepResults] = useState<any[]>([])
+  const [repResults, setRepResults] = useState<RepresentanteResult[]>([])
   const [searchingRep, setSearchingRep] = useState(false)
 
   useEffect(() => {
     if (form.uf) {
-      const found = estados.find((e: any) => e.uf === form.uf)
+      const found = estados.find((e) => e.uf === form.uf)
       setEstadoId(found ? found.id : null)
     } else {
       setEstadoId(null)
@@ -75,37 +76,37 @@ export default function NovaPessoaPage() {
     try {
       const res = await fetch(`/api/representantes?q=${encodeURIComponent(query)}`)
       if (!res.ok) throw new Error()
-      const data = await res.json()
-      const existentes = new Set(vinculos.map((v: any) => v.representanteId))
-      setRepResults(data.filter((r: any) => !existentes.has(r.id)))
+      const data: RepresentanteResult[] = await res.json()
+      const existentes = new Set(vinculos.map((v) => v.representanteId))
+      setRepResults(data.filter((r) => !existentes.has(r.id)))
     } catch {} finally {
       setSearchingRep(false)
     }
   }
 
-  function addRepresentante(representante: any) {
-    if (vinculos.find((v: any) => v.representanteId === representante.id)) return
+  function addRepresentante(representante: RepresentanteResult) {
+    if (vinculos.find((v) => v.representanteId === representante.id)) return
     setVinculos(prev => [...prev, {
       id: Date.now(),
       representanteId: representante.id,
-      representanteNome: representante.nome,
-      representante: { nome: representante.nome },
+      representanteNome: representante.nome || "",
+      representante: { nome: representante.nome || "" },
     }])
     setRepResults([])
     setSearchRep("")
   }
 
   function removeRepresentante(id: number) {
-    setVinculos(prev => prev.filter((v: any) => v.representanteId !== id))
+    setVinculos(prev => prev.filter((v) => v.representanteId !== id))
   }
 
   function setField(field: string, value: string) {
-    setForm((prev: any) => ({ ...prev, [field]: value }))
+    setForm((prev) => ({ ...prev, [field]: value }))
   }
 
   function handleTipoChange(tipo: "PF" | "PJ") {
     setTipoPessoa(tipo)
-    setForm((prev: any) => ({ ...prev, tipoPessoa: tipo }))
+    setForm((prev) => ({ ...prev, tipoPessoa: tipo }))
   }
 
   function formatCnpj(v: string) {
@@ -130,7 +131,7 @@ export default function NovaPessoaPage() {
         throw new Error(err.error || "Erro na consulta")
       }
       const result = await res.json()
-      const api = result.apiData
+      const api: ConsultaCnpjData | undefined = result.apiData
       if (!api) {
         setConsulted(true)
         toast.error("CNPJ não encontrado na Receita Federal")
@@ -138,12 +139,12 @@ export default function NovaPessoaPage() {
       }
       setApiData(api)
       setConsulted(true)
-      setForm((prev: any) => ({
+      setForm((prev) => ({
         ...prev,
         cnpj: formatCnpj(digits),
         razaoSocial: api.razao_social || prev.razaoSocial,
         nomeFantasia: api.nome_fantasia || prev.nomeFantasia,
-        segmento: api.cnaes?.find((c: any) => c.is_principal)?.descricao || api.cnae_principal_descricao || prev.segmento,
+        segmento: api.cnaes?.find((c) => c.is_principal)?.descricao || api.cnae_principal_descricao || prev.segmento,
         endereco: api.logradouro || prev.endereco,
         numero: api.numero || prev.numero,
         complemento: api.complemento || prev.complemento,
@@ -154,8 +155,8 @@ export default function NovaPessoaPage() {
         telefone: prev.telefone || (api.telefones?.[0] ? `${api.telefones[0].ddd}${api.telefones[0].numero}` : ""),
       }))
       toast.success("Dados preenchidos automaticamente")
-    } catch (err: any) {
-      toast.error(err.message || "Erro ao consultar CNPJ")
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Erro ao consultar CNPJ")
     } finally {
       setConsulting(false)
     }
@@ -195,8 +196,8 @@ export default function NovaPessoaPage() {
 
       toast.success("Pessoa cadastrada com sucesso")
       router.push(`/comercial/crm/pessoas/${data.id}`)
-    } catch (err: any) {
-      toast.error(err.message)
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Erro ao salvar")
     } finally {
       setSaving(false)
     }
@@ -333,7 +334,7 @@ export default function NovaPessoaPage() {
           )}
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Segmento</label>
-            <SelectSegmento value={form.segmento} onChange={v => setField("segmento", v)} />
+            <SelectSegmento value={form.segmento ?? ""} onChange={v => setField("segmento", v)} />
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Porte</label>
@@ -456,11 +457,11 @@ export default function NovaPessoaPage() {
           </div>
           <div className="sm:col-span-2">
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">UF</label>
-            <SelectUf value={form.uf} onChange={v => setField("uf", v)} />
+            <SelectUf value={form.uf ?? ""} onChange={v => setField("uf", v)} />
           </div>
           <div className="sm:col-span-2">
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Cidade</label>
-            <SelectCidade value={form.cidade} onChange={v => setField("cidade", v)} estadoId={estadoId} />
+            <SelectCidade value={form.cidade ?? ""} onChange={v => setField("cidade", v)} estadoId={estadoId} />
           </div>
 
           <div className="sm:col-span-2">
@@ -482,10 +483,10 @@ export default function NovaPessoaPage() {
 
           {vinculos.length > 0 && (
             <div className="mb-3 space-y-2">
-              {vinculos.map((v: any) => (
+              {vinculos.map((v: VinculoRepresentante) => (
                 <div key={v.id || v.representanteId} className="flex items-center justify-between bg-slate-50 dark:bg-slate-800/50 rounded-lg px-3 py-2">
                   <span className="text-sm text-slate-700 dark:text-slate-300">{v.representanteNome}</span>
-                  <button type="button" onClick={() => removeRepresentante(v.representanteId)} className="p-1 rounded hover:bg-red-100 dark:hover:bg-red-900/30 text-slate-400 hover:text-red-600">
+                  <button type="button" onClick={() => removeRepresentante(v.representanteId ?? 0)} className="p-1 rounded hover:bg-red-100 dark:hover:bg-red-900/30 text-slate-400 hover:text-red-600">
                     <Trash2 size={14} />
                   </button>
                 </div>
@@ -509,7 +510,7 @@ export default function NovaPessoaPage() {
             </div>
             {repResults.length > 0 && (
               <div className="absolute z-10 mt-1 w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-lg max-h-48 overflow-y-auto">
-                {repResults.map((r: any) => (
+                {repResults.map((r: RepresentanteResult) => (
                   <button
                     key={r.id}
                     type="button"
