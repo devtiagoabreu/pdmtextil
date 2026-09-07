@@ -133,7 +133,7 @@ export default function VisitasCalendario({ visitas }: { visitas: Visita[] }) {
 
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
         <div className="grid grid-cols-7 border-b border-slate-200 dark:border-slate-800">
-          {DIAS_SEMANA.map((d: any) => (
+          {DIAS_SEMANA.map((d) => (
             <div
               key={d}
               className="px-2 py-2.5 text-center text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
@@ -144,7 +144,7 @@ export default function VisitasCalendario({ visitas }: { visitas: Visita[] }) {
         </div>
 
         <div className="grid grid-cols-7">
-          {days.map((day: any, idx: any) => {
+          {days.map((day, idx) => {
             if (day === null) {
               return <div key={`empty-${idx}`} className="min-h-[50px] md:min-h-[90px] bg-slate-50/50 dark:bg-slate-900/50" />
             }
@@ -180,7 +180,7 @@ export default function VisitasCalendario({ visitas }: { visitas: Visita[] }) {
                   )}
                 </span>
                 <span className="space-y-0.5">
-                  {diaVisitas.slice(0, 2).map((v: any) => (
+                  {diaVisitas.slice(0, 2).map((v) => (
                     <span
                       key={v.id}
                       className="flex items-center gap-1"
@@ -253,7 +253,7 @@ export default function VisitasCalendario({ visitas }: { visitas: Visita[] }) {
                   </div>
                 ) : (
                   <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                    {modalVisitas.map((v: any) => (
+                    {modalVisitas.map((v) => (
                       <div
                         key={v.id}
                         className="px-5 py-3 flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors"
@@ -278,19 +278,22 @@ export default function VisitasCalendario({ visitas }: { visitas: Visita[] }) {
                           </p>
                         </div>
                         <div className="flex items-center gap-1 shrink-0">
-                          {buildGoogleMapsUrl(v) && (
-                            <a
-                              href={buildGoogleMapsUrl(v)!}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              onClick={(e) => e.stopPropagation()}
-                              className="p-1.5 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-950/50 transition-colors"
-                              aria-label="Abrir no Google Maps"
-                              title="Abrir no Google Maps"
-                            >
-                              <Navigation size={14} className="text-emerald-500" />
-                            </a>
-                          )}
+                          {(() => {
+                            const mapsUrl = buildGoogleMapsUrl(v)
+                            return mapsUrl && (
+                              <a
+                                href={mapsUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                                className="p-1.5 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-950/50 transition-colors"
+                                aria-label="Abrir no Google Maps"
+                                title="Abrir no Google Maps"
+                              >
+                                <Navigation size={14} className="text-emerald-500" />
+                              </a>
+                            )
+                          })()}
                           <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium bg-slate-100 dark:bg-slate-800 text-slate-500">
                             {v.status}
                           </span>

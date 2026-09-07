@@ -23,6 +23,22 @@ function formatCnpj(v: string) {
   return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}/${d.slice(8, 12)}-${d.slice(12)}`
 }
 
+type ConsultaCnpjData = {
+  razao_social?: string
+  nome_fantasia?: string
+  cnaes?: Array<{ is_principal?: boolean; descricao?: string }>
+  cnae_principal_descricao?: string
+  porte_empresa?: string
+  logradouro?: string
+  numero?: string
+  complemento?: string
+  bairro?: string
+  municipio?: string
+  uf?: string
+  cep?: string
+  situacao_cadastral?: string
+}
+
 export function QuickCreatePessoa({ onCreated, open: openProp, onOpenChange }: Props) {
   const [internalOpen, setInternalOpen] = useState(false)
   const open = openProp ?? internalOpen
@@ -52,7 +68,7 @@ export function QuickCreatePessoa({ onCreated, open: openProp, onOpenChange }: P
 
   const [consulting, setConsulting] = useState(false)
   const [consulted, setConsulted] = useState(false)
-  const [apiData, setApiData] = useState<Record<string, any> | null>(null)
+  const [apiData, setApiData] = useState<ConsultaCnpjData | null>(null)
 
   const { data: estados } = useQuery<{ id: number; uf: string }[]>({
     queryKey: ["crm-estados"],
@@ -64,7 +80,7 @@ export function QuickCreatePessoa({ onCreated, open: openProp, onOpenChange }: P
 
   useEffect(() => {
     if (uf) {
-      const found = estados?.find((e: any) => e.uf === uf)
+      const found = estados?.find((e) => e.uf === uf)
       setEstadoId(found ? found.id : null)
     } else {
       setEstadoId(null)
@@ -117,7 +133,7 @@ export function QuickCreatePessoa({ onCreated, open: openProp, onOpenChange }: P
       setConsulted(true)
       setRazaoSocial(api.razao_social || "")
       setNomeFantasia(api.nome_fantasia || "")
-      setSegmento(api.cnaes?.find((c: any) => c.is_principal)?.descricao || api.cnae_principal_descricao || "")
+      setSegmento(api.cnaes?.find((c: { is_principal?: boolean }) => c.is_principal)?.descricao || api.cnae_principal_descricao || "")
       setPorte(api.porte_empresa || "")
       setEndereco(api.logradouro || "")
       setNumero(api.numero || "")
@@ -127,8 +143,8 @@ export function QuickCreatePessoa({ onCreated, open: openProp, onOpenChange }: P
       setUf(api.uf || "")
       setCep(api.cep || "")
       toast.success("Dados preenchidos automaticamente")
-    } catch (err: any) {
-      toast.error(err.message)
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Erro na consulta")
     } finally {
       setConsulting(false)
     }
@@ -178,8 +194,8 @@ export function QuickCreatePessoa({ onCreated, open: openProp, onOpenChange }: P
       setOpen(false)
       resetForm()
       toast.success("Pessoa criada com sucesso")
-    } catch (err: any) {
-      toast.error(err.message)
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Erro ao criar pessoa")
     } finally {
       setSaving(false)
     }

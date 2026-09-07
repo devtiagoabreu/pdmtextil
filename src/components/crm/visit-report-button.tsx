@@ -46,6 +46,15 @@ interface Visita {
   checkOutLng: number | null
 }
 
+interface EmpresaConfig {
+  nome?: string
+  documento?: string
+  endereco?: string
+  cidade?: string | null
+  uf?: string | null
+  isDefault?: boolean
+}
+
 const TIPO_LABELS: Record<string, string> = {
   PRESENCIAL: "Presencial",
   VIDEO: "Video",
@@ -61,11 +70,11 @@ export default function VisitReportButton({ visita }: { visita: Visita }) {
       const { default: jsPDF } = await import("jspdf")
       await import("jspdf-autotable")
 
-      let empresa: any = null
+      let empresa: EmpresaConfig | null = null
       try {
         const res = await fetch("/api/admin/config/empresa")
-        const list: any[] = await res.json()
-        empresa = list.find((e: any) => e.isDefault) || list[0] || null
+        const list: EmpresaConfig[] = await res.json()
+        empresa = list.find((e) => e.isDefault) || list[0] || null
       } catch {}
 
       let locations: Location[] = []
@@ -272,7 +281,7 @@ export default function VisitReportButton({ visita }: { visita: Visita }) {
         doc.text(`Localizacoes (${locations.length})`, marginX, y)
         y += 6
 
-        const locRows = locations.map((loc: any) => [
+        const locRows = locations.map((loc) => [
           loc.createdAt ? new Date(loc.createdAt).toLocaleString("pt-BR") : "—",
           `${loc.latitude.toFixed(6)}, ${loc.longitude.toFixed(6)}`,
           loc.observacao || "—",
