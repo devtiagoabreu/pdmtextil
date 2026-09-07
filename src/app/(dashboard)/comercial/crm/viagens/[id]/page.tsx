@@ -5,7 +5,7 @@ import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { useRouter, useParams, usePathname } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Plane, Loader2, MapPin, Calendar, Users, Wallet } from "lucide-react"
+import { ArrowLeft, Plane, Loader2, MapPin, Calendar, Users, Wallet, Target, TrendingUp } from "lucide-react"
 import { toast } from "sonner"
 import { ViagemForm, VIAGEM_STATUS_OPTIONS } from "@/components/crm/viagem-form"
 import { linhaParaForm, type InvestimentoLinha } from "@/lib/crm/viagem"
@@ -170,6 +170,36 @@ export default function ViagemDetailPage() {
           </div>
           <p className="text-2xl font-bold text-slate-900 dark:text-slate-50">
             {(viagem.visitas || []).length}
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
+          <div className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-50 mb-2">
+            <Target size={16} className="text-indigo-600" />
+            Possível Retorno
+          </div>
+          <p className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+            {(Number(viagem.possivelRetorno) || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+          </p>
+        </div>
+        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
+          <div className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-50 mb-2">
+            <TrendingUp size={16} className="text-cyan-600" />
+            Vendas
+          </div>
+          <p className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+            {(Number(viagem.vendas) || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+          </p>
+        </div>
+        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
+          <div className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-50 mb-2">
+            <Wallet size={16} className="text-emerald-600" />
+            Retorno Real
+          </div>
+          <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+            {(Number(viagem.retornoReal) || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
           </p>
         </div>
       </div>

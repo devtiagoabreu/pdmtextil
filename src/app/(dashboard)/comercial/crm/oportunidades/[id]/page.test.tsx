@@ -165,4 +165,40 @@ describe("DetalheOportunidadePage", () => {
 
     expect(await screen.findByText("Nenhuma proposta vinculada a esta oportunidade.")).toBeInTheDocument()
   })
+
+  it("exibe os cards de faturamentos e pedidos de venda da oportunidade", async () => {
+    const docsMock = createFetchMock(({ method, url }) => {
+      if (method === "GET" && url === "/api/admin/status?tipo=OPORTUNIDADE") return { json: statuses }
+      if (method === "GET" && url === "/api/crm/oportunidades/1") {
+        return {
+          json: {
+            ...oportunidade,
+            faturamentos: [
+              { id: 10, numero: "NF-001", status: "EMITIDO", origem: "MANUAL", total: 1250, dataEmissao: null, createdAt: "2026-09-01T10:00:00Z" },
+              { id: 11, numero: "NF-002", status: "RECEBIDO", origem: "ERP", total: 850, dataEmissao: null, createdAt: "2026-09-02T10:00:00Z" },
+            ],
+            pedidosVenda: [
+              { id: 20, numero: "PV-001", status: "ABERTO", origem: "MANUAL", total: 600, dataEmissao: null, createdAt: "2026-09-03T10:00:00Z" },
+            ],
+          },
+        }
+      }
+      return { json: null }
+    })
+    vi.stubGlobal("fetch", docsMock.fn)
+    navMock.setParams({ id: "1" })
+    navMock.setPathname("/comercial/crm/oportunidades/1")
+    renderPage(<DetalheOportunidadePage />)
+
+    expect(await screen.findByText("Faturamentos")).toBeInTheDocument()
+    expect(screen.getByText("NF-001")).toBeInTheDocument()
+    expect(screen.getByText("NF-002")).toBeInTheDocument()
+    expect(screen.getByText("PV-001")).toBeInTheDocument()
+    expect(screen.getByText("R$ 2.100,00")).toBeInTheDocument()
+    expect(screen.getAllByText("R$ 600,00").length).toBeGreaterThan(0)
+    expect(screen.getByRole("link", { name: /Novo Faturamento/ })).toHaveAttribute("href", "/comercial/crm/faturamentos/novo?oportunidadeId=1")
+    expect(screen.getByRole("link", { name: /Novo Pedido/ })).toHaveAttribute("href", "/comercial/crm/pedidos-venda/novo?oportunidadeId=1")
+    expect(screen.getByRole("link", { name: /NF-001/ })).toHaveAttribute("href", "/comercial/crm/faturamentos/10")
+    expect(screen.getByRole("link", { name: /PV-001/ })).toHaveAttribute("href", "/comercial/crm/pedidos-venda/20")
+  })
 })

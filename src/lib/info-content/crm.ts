@@ -314,6 +314,100 @@ export const crmContent: Record<string, InfoContent> = {
     ],
   },
 
+  // ==================== FATURAMENTOS ====================
+  "/comercial/crm/faturamentos": {
+    title: "Faturamentos",
+    description: "Lista de faturamentos vinculados a oportunidades. Representam o retorno real da negociação: quem comprou e o valor efetivamente faturado.",
+    rules: [
+      "Cada faturamento está vinculado a uma oportunidade e possui seus próprios itens (produto, quantidade, unidade e valor).",
+      "O total do faturamento é a soma automática dos valores dos itens.",
+      "Status: Emitido → Parcial → Recebido (ou Cancelado).",
+      "O Retorno Real (dashboard de visitas / detalhe da viagem) é a soma dos faturamentos das oportunidades vinculadas às visitas daquela viagem.",
+      "Origem ERP indica registros importados de sistemas externos, identificados pela referência externa.",
+    ],
+    fields: [
+      { name: "Número", desc: "Identificação do faturamento" },
+      { name: "Oportunidade", desc: "Negociação do CRM à qual o faturamento pertence" },
+      { name: "Total", desc: "Soma dos valores dos itens" },
+      { name: "Status", desc: "Emitido, Parcial, Recebido ou Cancelado" },
+    ],
+  },
+  "/comercial/crm/faturamentos/novo": {
+    title: "Novo Faturamento",
+    description: "Registre um faturamento para uma oportunidade, informando capa (número, data, status) e os itens vendidos.",
+    rules: [
+      "A oportunidade é obrigatória.",
+      "Adicione ao menos um item com produto preenchido.",
+      "O valor total do item é calculado automaticamente pela quantidade × valor unitário, mas pode ser ajustado.",
+      "Use 'OUTRA' na unidade quando a medida não estiver na lista.",
+    ],
+    fields: [
+      { name: "Oportunidade", desc: "Oportunidade vinculada (obrigatório)" },
+      { name: "Data de Emissão", desc: "Data em que o faturamento foi emitido" },
+      { name: "Itens", desc: "Produto, código, unidade, quantidade, valor unitário e valor total" },
+    ],
+  },
+  "/comercial/crm/faturamentos/[id]": {
+    title: "Detalhe do Faturamento",
+    description: "Visualize e edite um faturamento: dados da capa e itens registrados.",
+    rules: [
+      "O valor total exibido é a soma dos itens.",
+      "Ao editar, os itens são substituídos pelos salvos.",
+      "A origem ERP exibe a referência externa do sistema de origem.",
+    ],
+    fields: [
+      { name: "Status", desc: "Emitido, Parcial, Recebido ou Cancelado" },
+      { name: "Itens", desc: "Produto, unidade, quantidade e valor total" },
+    ],
+  },
+
+  // ==================== PEDIDOS DE VENDA ====================
+  "/comercial/crm/pedidos-venda": {
+    title: "Pedidos de Venda",
+    description: "Lista de pedidos de venda gerados a partir de oportunidades. Alimentam o KPI de Vendas.",
+    rules: [
+      "Cada pedido está vinculado a uma oportunidade e possui seus próprios itens.",
+      "O total do pedido é a soma automática dos valores dos itens.",
+      "Status: Aberto → Parcial → Faturado (ou Cancelado).",
+      "O KPI Vendas (dashboard de visitas / detalhe da viagem) é a soma dos pedidos de venda das oportunidades vinculadas às visitas daquela viagem.",
+      "Origem ERP indica pedidos importados de sistemas externos, identificados pela referência externa.",
+    ],
+    fields: [
+      { name: "Número", desc: "Identificação do pedido" },
+      { name: "Oportunidade", desc: "Negociação do CRM à qual o pedido pertence" },
+      { name: "Total", desc: "Soma dos valores dos itens" },
+      { name: "Status", desc: "Aberto, Parcial, Faturado ou Cancelado" },
+    ],
+  },
+  "/comercial/crm/pedidos-venda/novo": {
+    title: "Novo Pedido de Venda",
+    description: "Registre um pedido de venda para uma oportunidade, informando capa (número, data, status) e os itens vendidos.",
+    rules: [
+      "A oportunidade é obrigatória.",
+      "Adicione ao menos um item com produto preenchido.",
+      "O valor total do item é calculado automaticamente pela quantidade × valor unitário, mas pode ser ajustado.",
+      "Use 'OUTRA' na unidade quando a medida não estiver na lista.",
+    ],
+    fields: [
+      { name: "Oportunidade", desc: "Oportunidade vinculada (obrigatório)" },
+      { name: "Data de Emissão", desc: "Data em que o pedido foi emitido" },
+      { name: "Itens", desc: "Produto, código, unidade, quantidade, valor unitário e valor total" },
+    ],
+  },
+  "/comercial/crm/pedidos-venda/[id]": {
+    title: "Detalhe do Pedido de Venda",
+    description: "Visualize e edite um pedido de venda: dados da capa e itens registrados.",
+    rules: [
+      "O valor total exibido é a soma dos itens.",
+      "Ao editar, os itens são substituídos pelos salvos.",
+      "A origem ERP exibe a referência externa do sistema de origem.",
+    ],
+    fields: [
+      { name: "Status", desc: "Aberto, Parcial, Faturado ou Cancelado" },
+      { name: "Itens", desc: "Produto, unidade, quantidade e valor total" },
+    ],
+  },
+
   // ==================== REGIÕES ====================
   "/comercial/crm/regioes": {
     title: "Regiões",

@@ -34,7 +34,7 @@ const viagemCronograma = {
   resumo: { total: 2, realizadas: 2, canceladas: 0, agendadas: 0, comLocalizacao: 2, comEndereco: 1, geocodificadas: 0, kmTotal: 357.8, kmSemLocalizacao: 0 },
 }
 
-function dashboardPayload(withViagem = true) {
+function dashboardPayload(withViagem = true, overrides: Record<string, number> = {}) {
   return {
     total: 37,
     realizadas: 37,
@@ -47,7 +47,7 @@ function dashboardPayload(withViagem = true) {
     porDia: [],
     porGerente: [],
     viagens: withViagem
-      ? [{ viagemId: 1, viagemTitulo: "Viagem Goiania - Ernandes", total: 37, realizadas: 35, dataInicio: "2026-08-10", dataFim: "2026-08-20", totalInvestimento: 5200, possivelRetorno: 125000, retornoReal: 0 }]
+      ? [{ viagemId: 1, viagemTitulo: "Viagem Goiania - Ernandes", total: 37, realizadas: 35, dataInicio: "2026-08-10", dataFim: "2026-08-20", totalInvestimento: 5200, possivelRetorno: 125000, retornoReal: 35000, vendas: 20000, ...overrides }]
       : [],
     ultimasVisitas: [],
     pesquisas: { enviadas: 0, abertas: 0, respondidas: 0 },
@@ -118,8 +118,8 @@ expect(await screen.findByText("Ações Rápidas")).toBeInTheDocument()
           },
         ],
 viagens: [
-          { viagemId: 1, viagemTitulo: "Viagem Goiania - Ernandes", total: 37, realizadas: 35, dataInicio: "2026-08-10", dataFim: "2026-08-20", totalInvestimento: 0, possivelRetorno: 0, retornoReal: 0 },
-          { viagemId: null, viagemTitulo: "Sem viagem", total: 0, realizadas: 0, dataInicio: null, dataFim: null, totalInvestimento: 0, possivelRetorno: 0, retornoReal: 0 },
+          { viagemId: 1, viagemTitulo: "Viagem Goiania - Ernandes", total: 37, realizadas: 35, dataInicio: "2026-08-10", dataFim: "2026-08-20", totalInvestimento: 0, possivelRetorno: 0, retornoReal: 0, vendas: 0 },
+          { viagemId: null, viagemTitulo: "Sem viagem", total: 0, realizadas: 0, dataInicio: null, dataFim: null, totalInvestimento: 0, possivelRetorno: 0, retornoReal: 0, vendas: 0 },
         ],
         ultimasVisitas: [],
         pesquisas: { enviadas: 0, abertas: 0, respondidas: 0 },
@@ -149,7 +149,18 @@ expect(screen.getByText("Viagem Goiania - Ernandes")).toBeInTheDocument()
     expect(screen.getByText("Possível retorno")).toBeInTheDocument()
     expect(screen.getByText("R$ 125.000,00")).toBeInTheDocument()
     expect(screen.getByText("Retorno real")).toBeInTheDocument()
-    expect(screen.getByText("—")).toBeInTheDocument()
+    expect(screen.getByText("R$ 35.000,00")).toBeInTheDocument()
+  })
+
+  it("mostra '—' no card da viagem quando não há vendas nem retorno real", async () => {
+    const fetchMock = createFetchMock(routeJson({
+      "GET /api/crm/visitas/dashboard?mine=true": dashboardPayload(true, { retornoReal: 0, vendas: 0 }),
+    }))
+    vi.stubGlobal("fetch", fetchMock.fn)
+    renderPage(<VisitasDashboardPage />)
+
+    expect(await screen.findByText("R$ 125.000,00")).toBeInTheDocument()
+    expect(screen.getAllByText("—").length).toBeGreaterThan(0)
   })
 
   it("mostra resumo da viagem (período e realizadas) no card", async () => {

@@ -5,11 +5,12 @@ import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { useRouter, useParams, usePathname } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Trash2, Pencil, Check, X, FileText, PlusCircle } from "lucide-react"
+import { ArrowLeft, Trash2, Pencil, Check, X, FileText, PlusCircle, Receipt, ShoppingCart } from "lucide-react"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { useStatuses } from "@/hooks/use-statuses"
-import type { OportunidadeDetalhe } from "../types"
+import { STATUS_FATURAMENTO_LABELS, STATUS_FATURAMENTO_CORES, STATUS_PEDIDO_VENDA_LABELS, STATUS_PEDIDO_VENDA_CORES } from "@/lib/crm/documento-venda"
+import type { OportunidadeDetalhe, DocumentoVendaResumo } from "../types"
 
 const PROPOSTA_STATUS: Record<string, { label: string; cor: string }> = {
   ENVIADA: { label: "Enviada", cor: "text-blue-600 bg-blue-50 dark:bg-blue-950/50 dark:text-blue-400" },
@@ -21,6 +22,11 @@ const PROPOSTA_STATUS: Record<string, { label: string; cor: string }> = {
 function formatarMoedaProposta(valor: string | null | undefined) {
   if (!valor) return "—"
   return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(Number(valor))
+}
+
+function formatarValorTotal(lista: DocumentoVendaResumo[]) {
+  const soma = (lista || []).reduce((acc, item) => acc + Number(item.total ?? 0), 0)
+  return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(soma)
 }
 
 export default function DetalheOportunidadePage() {
@@ -242,6 +248,114 @@ export default function DetalheOportunidadePage() {
             </table>
           </div>
         )}
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 flex items-center gap-2">
+              <Receipt size={16} className="text-emerald-600" />
+              Faturamentos
+              <span className="text-xs text-slate-400">({(oportunidade.faturamentos || []).length})</span>
+            </h2>
+            <Link
+              href={`/comercial/crm/faturamentos/novo?oportunidadeId=${oportunidade.id}`}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 transition-colors"
+            >
+              <PlusCircle size={14} />
+              Novo Faturamento
+            </Link>
+          </div>
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-xs text-slate-500">Total:</span>
+            <span className="text-base font-bold text-emerald-600 dark:text-emerald-400">
+              {formatarValorTotal((oportunidade.faturamentos || []) as DocumentoVendaResumo[])}
+            </span>
+          </div>
+          {(oportunidade.faturamentos || []).length === 0 ? (
+            <p className="text-sm text-slate-400 text-center py-4">Nenhum faturamento registrado.</p>
+          ) : (
+            <div className="space-y-2">
+              {(oportunidade.faturamentos || []).slice(0, 5).map((f) => (
+                <Link
+                  key={f.id}
+                  href={`/comercial/crm/faturamentos/${f.id}`}
+                  className="flex items-center justify-between gap-2 rounded-lg border border-slate-200 dark:border-slate-700 px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                >
+                  <div className="flex flex-col gap-1">
+                    <span className="text-sm font-medium text-slate-900 dark:text-slate-200">
+                      {f.numero || `Faturamento #${f.id}`}
+                    </span>
+                    <span className={`inline-flex w-fit text-[10px] px-2 py-0.5 rounded-full font-medium ${STATUS_FATURAMENTO_CORES[f.status] || ""}`}>
+                      {STATUS_FATURAMENTO_LABELS[f.status] || f.status}
+                    </span>
+                  </div>
+                  <span className="text-sm font-semibold text-slate-700 dark:text-slate-300 whitespace-nowrap">
+                    {formatarMoedaProposta(String(f.total ?? 0))}
+                  </span>
+                </Link>
+              ))}
+              {(oportunidade.faturamentos || []).length > 5 && (
+                <Link href="/comercial/crm/faturamentos" className="block text-xs text-blue-600 hover:underline pt-1">
+                  Ver todos os faturamentos
+                </Link>
+              )}
+            </div>
+          )}
+        </div>
+
+        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 flex items-center gap-2">
+              <ShoppingCart size={16} className="text-emerald-600" />
+              Pedidos de Venda
+              <span className="text-xs text-slate-400">({(oportunidade.pedidosVenda || []).length})</span>
+            </h2>
+            <Link
+              href={`/comercial/crm/pedidos-venda/novo?oportunidadeId=${oportunidade.id}`}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 transition-colors"
+            >
+              <PlusCircle size={14} />
+              Novo Pedido
+            </Link>
+          </div>
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-xs text-slate-500">Total:</span>
+            <span className="text-base font-bold text-emerald-600 dark:text-emerald-400">
+              {formatarValorTotal((oportunidade.pedidosVenda || []) as DocumentoVendaResumo[])}
+            </span>
+          </div>
+          {(oportunidade.pedidosVenda || []).length === 0 ? (
+            <p className="text-sm text-slate-400 text-center py-4">Nenhum pedido de venda registrado.</p>
+          ) : (
+            <div className="space-y-2">
+              {(oportunidade.pedidosVenda || []).slice(0, 5).map((p) => (
+                <Link
+                  key={p.id}
+                  href={`/comercial/crm/pedidos-venda/${p.id}`}
+                  className="flex items-center justify-between gap-2 rounded-lg border border-slate-200 dark:border-slate-700 px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                >
+                  <div className="flex flex-col gap-1">
+                    <span className="text-sm font-medium text-slate-900 dark:text-slate-200">
+                      {p.numero || `Pedido #${p.id}`}
+                    </span>
+                    <span className={`inline-flex w-fit text-[10px] px-2 py-0.5 rounded-full font-medium ${STATUS_PEDIDO_VENDA_CORES[p.status] || ""}`}>
+                      {STATUS_PEDIDO_VENDA_LABELS[p.status] || p.status}
+                    </span>
+                  </div>
+                  <span className="text-sm font-semibold text-slate-700 dark:text-slate-300 whitespace-nowrap">
+                    {formatarMoedaProposta(String(p.total ?? 0))}
+                  </span>
+                </Link>
+              ))}
+              {(oportunidade.pedidosVenda || []).length > 5 && (
+                <Link href="/comercial/crm/pedidos-venda" className="block text-xs text-blue-600 hover:underline pt-1">
+                  Ver todos os pedidos de venda
+                </Link>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       <ConfirmModal

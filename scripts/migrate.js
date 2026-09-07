@@ -1241,6 +1241,68 @@ async function migrate() {
     `
     console.log("✓ Viagens adicionado em menus de usuários específicos")
 
+    // ==================== Faturamentos no menu CRM (role-based + user-specific) ====================
+    const faturamentoRoles = ['CRM', 'COMERCIAL', 'ADMIN', 'SUDO']
+    for (const role of faturamentoRoles) {
+      await sql`
+        INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem)
+        SELECT um.id, 'Faturamentos', '/comercial/crm/faturamentos', 9
+        FROM user_menus um
+        WHERE um.role = ${role}
+          AND um.titulo = 'CRM'
+          AND um.usuario_id IS NULL
+          AND NOT EXISTS (
+            SELECT 1 FROM user_menu_itens umi
+            WHERE umi.user_menu_id = um.id AND umi.titulo = 'Faturamentos'
+          )
+      `
+    }
+    console.log("✓ Faturamentos adicionado em menus role-based (CRM, COMERCIAL, ADMIN, SUDO)")
+
+    await sql`
+      INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem)
+      SELECT um.id, 'Faturamentos', '/comercial/crm/faturamentos', 9
+      FROM user_menus um
+      WHERE um.usuario_id IS NOT NULL
+        AND um.titulo = 'CRM'
+        AND NOT EXISTS (
+          SELECT 1 FROM user_menu_itens umi
+          WHERE umi.user_menu_id = um.id AND umi.titulo = 'Faturamentos'
+        )
+    `
+    console.log("✓ Faturamentos adicionado em menus de usuários específicos")
+
+    // ==================== Pedidos de Venda no menu CRM (role-based + user-specific) ====================
+    const pedidoRoles = ['CRM', 'COMERCIAL', 'ADMIN', 'SUDO']
+    for (const role of pedidoRoles) {
+      await sql`
+        INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem)
+        SELECT um.id, 'Pedidos de Venda', '/comercial/crm/pedidos-venda', 10
+        FROM user_menus um
+        WHERE um.role = ${role}
+          AND um.titulo = 'CRM'
+          AND um.usuario_id IS NULL
+          AND NOT EXISTS (
+            SELECT 1 FROM user_menu_itens umi
+            WHERE umi.user_menu_id = um.id AND umi.titulo = 'Pedidos de Venda'
+          )
+      `
+    }
+    console.log("✓ Pedidos de Venda adicionado em menus role-based (CRM, COMERCIAL, ADMIN, SUDO)")
+
+    await sql`
+      INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem)
+      SELECT um.id, 'Pedidos de Venda', '/comercial/crm/pedidos-venda', 10
+      FROM user_menus um
+      WHERE um.usuario_id IS NOT NULL
+        AND um.titulo = 'CRM'
+        AND NOT EXISTS (
+          SELECT 1 FROM user_menu_itens umi
+          WHERE umi.user_menu_id = um.id AND umi.titulo = 'Pedidos de Venda'
+        )
+    `
+    console.log("✓ Pedidos de Venda adicionado em menus de usuários específicos")
+
     console.log("\n✅ Migration concluída com sucesso!")
     
   } catch (error) {

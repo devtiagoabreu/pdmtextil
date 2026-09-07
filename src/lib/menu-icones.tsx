@@ -44,6 +44,7 @@ import {
   GitBranch,
   Plane,
   Bot,
+  Receipt,
 } from "lucide-react"
 
 // [título (pt-BR), nome do ícone (lucide), componente]
@@ -72,6 +73,8 @@ const ENTRADAS: [string, string, LucideIcon][] = [
   ["Contatos", "Users", Users],
   ["Oportunidades", "TrendingUp", TrendingUp],
   ["Propostas", "FileText", FileText],
+  ["Faturamentos", "Receipt", Receipt],
+  ["Pedidos de Venda", "ShoppingCart", ShoppingCart],
   ["Visitas", "Calendar", Calendar],
   ["Viagens", "Plane", Plane],
   ["Tarefas", "CheckSquare", CheckSquare],

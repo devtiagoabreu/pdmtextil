@@ -144,6 +144,14 @@ export const searchRegistry: SearchItem[] = [
   { id: "crm-propostas-nova", label: "CRM — Nova Proposta", keywords: ["crm", "proposta", "nova", "criar", "comercial", "pdf"], href: "/comercial/crm/propostas/novo", description: "Criar nova proposta comercial", module: "CRM" },
   { id: "crm-propostas-kanban", label: "Kanban — Propostas CRM", keywords: ["crm", "proposta", "propostas", "kanban", "quadro", "status", "arrastar", "venda"], href: "/comercial/crm/propostas?view=kanban", description: "Kanban de propostas comerciais com drag-and-drop", module: "CRM" },
 
+  // CRM — Faturamentos
+  { id: "crm-faturamentos", label: "CRM — Faturamentos", keywords: ["crm", "faturamento", "faturamentos", "retorno", "real", "venda", "lista", "comercial"], href: "/comercial/crm/faturamentos", description: "Lista de faturamentos vinculados a oportunidades do CRM", module: "CRM" },
+  { id: "crm-faturamentos-novo", label: "CRM — Novo Faturamento", keywords: ["crm", "faturamento", "novo", "criar", "retorno", "venda"], href: "/comercial/crm/faturamentos/novo", description: "Registrar novo faturamento de uma oportunidade", module: "CRM" },
+
+  // CRM — Pedidos de Venda
+  { id: "crm-pedidos-venda", label: "CRM — Pedidos de Venda", keywords: ["crm", "pedido", "venda", "pedidos", "vendas", "lista", "comercial"], href: "/comercial/crm/pedidos-venda", description: "Lista de pedidos de venda vinculados a oportunidades do CRM", module: "CRM" },
+  { id: "crm-pedidos-venda-novo", label: "CRM — Novo Pedido de Venda", keywords: ["crm", "pedido", "venda", "novo", "criar", "vendas"], href: "/comercial/crm/pedidos-venda/novo", description: "Registrar novo pedido de venda de uma oportunidade", module: "CRM" },
+
   // CRM — Regiões
   { id: "crm-regioes", label: "CRM — Regiões", keywords: ["crm", "regiao", "regioes", "gerente", "hierarquia", "comercial"], href: "/comercial/crm/regioes", description: "Cadastro de regiões comerciais", module: "CRM" },
 

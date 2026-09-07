@@ -5,6 +5,10 @@ import { crmVisitas } from "@/lib/db/schema/crm-visitas"
 import { crmViagens } from "@/lib/db/schema/crm-viagens"
 import { crmViagensInvestimentos } from "@/lib/db/schema/crm-viagens-investimentos"
 import { crmOportunidades } from "@/lib/db/schema/crm-oportunidades"
+import { crmFaturamentos } from "@/lib/db/schema/crm-faturamentos"
+import { crmFaturamentoItens } from "@/lib/db/schema/crm-faturamento-itens"
+import { crmPedidosVenda } from "@/lib/db/schema/crm-pedidos-venda"
+import { crmPedidoVendaItens } from "@/lib/db/schema/crm-pedido-venda-itens"
 import { crmPesquisasSatisfacao } from "@/lib/db/schema/crm-pesquisas-satisfacao"
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq, desc, sql, and, gte, count } from "drizzle-orm"
@@ -43,6 +47,8 @@ export async function GET(req: NextRequest) {
       viagens,
       investimentosPorViagem,
       possiveisRetornos,
+      faturamentosPorViagem,
+      vendasPorViagem,
       ultimasVisitas,
       pesquisasEnviadas,
       pesquisasAbertas,
@@ -108,6 +114,24 @@ export async function GET(req: NextRequest) {
           viagemId: crmVisitas.viagemId,
         })
         .from(crmOportunidades)
+        .innerJoin(crmVisitas, eq(crmVisitas.oportunidadeId, crmOportunidades.id)),
+      db
+        .select({
+          viagemId: crmVisitas.viagemId,
+          valorTotal: crmFaturamentoItens.valorTotal,
+        })
+        .from(crmFaturamentoItens)
+        .innerJoin(crmFaturamentos, eq(crmFaturamentoItens.faturamentoId, crmFaturamentos.id))
+        .innerJoin(crmOportunidades, eq(crmFaturamentos.oportunidadeId, crmOportunidades.id))
+        .innerJoin(crmVisitas, eq(crmVisitas.oportunidadeId, crmOportunidades.id)),
+      db
+        .select({
+          viagemId: crmVisitas.viagemId,
+          valorTotal: crmPedidoVendaItens.valorTotal,
+        })
+        .from(crmPedidoVendaItens)
+        .innerJoin(crmPedidosVenda, eq(crmPedidoVendaItens.pedidoVendaId, crmPedidosVenda.id))
+        .innerJoin(crmOportunidades, eq(crmPedidosVenda.oportunidadeId, crmOportunidades.id))
         .innerJoin(crmVisitas, eq(crmVisitas.oportunidadeId, crmOportunidades.id)),
       db
         .select({
@@ -196,6 +220,18 @@ export async function GET(req: NextRequest) {
       possivelRetornoPorViagem.set(r.viagemId, (possivelRetornoPorViagem.get(r.viagemId) ?? 0) + Number(r.valorEstimado ?? 0))
     }
 
+    const retornoRealPorViagem = new Map<number | null, number>()
+    for (const r of faturamentosPorViagem as any[]) {
+      if (r.viagemId == null) continue
+      retornoRealPorViagem.set(r.viagemId, (retornoRealPorViagem.get(r.viagemId) ?? 0) + Number(r.valorTotal ?? 0))
+    }
+
+    const vendasPorViagemTotal = new Map<number | null, number>()
+    for (const r of vendasPorViagem as any[]) {
+      if (r.viagemId == null) continue
+      vendasPorViagemTotal.set(r.viagemId, (vendasPorViagemTotal.get(r.viagemId) ?? 0) + Number(r.valorTotal ?? 0))
+    }
+
     return NextResponse.json({
       total: getCount(totalVisitas),
       realizadas: getCount(realizadas),
@@ -216,7 +252,8 @@ export async function GET(req: NextRequest) {
         dataFim: r.maxData || null,
         totalInvestimento: investimentoPorViagem.get(r.viagemId) ?? 0,
         possivelRetorno: possivelRetornoPorViagem.get(r.viagemId) ?? 0,
-        retornoReal: 0,
+        retornoReal: retornoRealPorViagem.get(r.viagemId) ?? 0,
+        vendas: vendasPorViagemTotal.get(r.viagemId) ?? 0,
       })),
       ultimasVisitas: ultimasVisitas.map((r: any) => ({
         id: r.id,

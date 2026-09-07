@@ -7,7 +7,11 @@ import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
 import { crmContatos } from "@/lib/db/schema/crm-contatos"
 import { clientes } from "@/lib/db/schema/clientes"
 import { usuarios } from "@/lib/db/schema/usuarios"
-import { eq, desc } from "drizzle-orm"
+import { crmFaturamentos } from "@/lib/db/schema/crm-faturamentos"
+import { crmFaturamentoItens } from "@/lib/db/schema/crm-faturamento-itens"
+import { crmPedidosVenda } from "@/lib/db/schema/crm-pedidos-venda"
+import { crmPedidoVendaItens } from "@/lib/db/schema/crm-pedido-venda-itens"
+import { eq, desc, sql } from "drizzle-orm"
 import { registrarLog, notificar, notificarDelecao } from "@/lib/notificar"
 import { handleApiError } from "@/lib/api-error"
 import { excluirOportunidadeCascade } from "@/lib/crm-cascade"
@@ -72,7 +76,43 @@ export async function GET(
       .where(eq(crmPropostas.oportunidadeId, parseInt(id)))
       .orderBy(desc(crmPropostas.createdAt))
 
-    return NextResponse.json({ ...oportunidade, contato: contatos[0] || null, propostas })
+    const opId = parseInt(id)
+
+    const faturamentos = await db
+      .select({
+        id: crmFaturamentos.id,
+        numero: crmFaturamentos.numero,
+        status: crmFaturamentos.status,
+        origem: crmFaturamentos.origem,
+        referenciaExterna: crmFaturamentos.referenciaExterna,
+        dataEmissao: crmFaturamentos.dataEmissao,
+        createdAt: crmFaturamentos.createdAt,
+        total: sql<number>`coalesce(sum(${crmFaturamentoItens.valorTotal}), 0)`,
+      })
+      .from(crmFaturamentos)
+      .leftJoin(crmFaturamentoItens, eq(crmFaturamentoItens.faturamentoId, crmFaturamentos.id))
+      .where(eq(crmFaturamentos.oportunidadeId, opId))
+      .groupBy(crmFaturamentos.id)
+      .orderBy(desc(crmFaturamentos.createdAt))
+
+    const pedidosVenda = await db
+      .select({
+        id: crmPedidosVenda.id,
+        numero: crmPedidosVenda.numero,
+        status: crmPedidosVenda.status,
+        origem: crmPedidosVenda.origem,
+        referenciaExterna: crmPedidosVenda.referenciaExterna,
+        dataEmissao: crmPedidosVenda.dataEmissao,
+        createdAt: crmPedidosVenda.createdAt,
+        total: sql<number>`coalesce(sum(${crmPedidoVendaItens.valorTotal}), 0)`,
+      })
+      .from(crmPedidosVenda)
+      .leftJoin(crmPedidoVendaItens, eq(crmPedidoVendaItens.pedidoVendaId, crmPedidosVenda.id))
+      .where(eq(crmPedidosVenda.oportunidadeId, opId))
+      .groupBy(crmPedidosVenda.id)
+      .orderBy(desc(crmPedidosVenda.createdAt))
+
+    return NextResponse.json({ ...oportunidade, contato: contatos[0] || null, propostas, faturamentos, pedidosVenda })
   } catch (error) {
     return handleApiError(error, "GET /api/crm/oportunidades/[id]")
   }

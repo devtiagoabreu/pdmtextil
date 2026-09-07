@@ -35,9 +35,22 @@ export type ContatoResumo = {
   telefone: string | null
 }
 
+export type DocumentoVendaResumo = {
+  id: number
+  numero: string | null
+  status: string
+  origem: string
+  referenciaExterna: string | null
+  dataEmissao: string | null
+  createdAt: string | Date
+  total: number
+}
+
 export type OportunidadeDetalhe = Oportunidade & {
   contato: ContatoResumo | null
   propostas: PropostaResumo[]
+  faturamentos: DocumentoVendaResumo[]
+  pedidosVenda: DocumentoVendaResumo[]
 }
 
 export type EmpresaResumo = {

@@ -63,9 +63,9 @@ describe("GET /api/crm/viagens/[id]", () => {
     expect(await res.json()).toEqual({ error: "Viagem não encontrada" })
   })
 
-  it("retorna viagem com investimentos e visitas vinculadas", async () => {
+  it("retorna viagem com investimentos, visitas e KPIs de retorno", async () => {
     db.select
-      .mockReturnValueOnce(createQueryBuilder([{ id: 1, titulo: "Feira Agritech", status: "PLANEJADA" }]))
+      .mockReturnValueOnce(createQueryBuilder([{ id: 1, titulo: "Feira Agritech", status: "PLANEJADA", possivelRetorno: 5000, retornoReal: 1800, vendas: 3000 }]))
       .mockReturnValueOnce(createQueryBuilder([{ id: 10, tipo: "PASSAGEM", valor: 500 }]))
       .mockReturnValueOnce(createQueryBuilder([{ id: 3, dataVisita: "2026-07-01", nomeAvulso: "Cliente X" }]))
     const res = await get("1")
@@ -74,6 +74,9 @@ describe("GET /api/crm/viagens/[id]", () => {
     expect(body.titulo).toBe("Feira Agritech")
     expect(body.investimentos).toHaveLength(1)
     expect(body.visitas).toHaveLength(1)
+    expect(body.possivelRetorno).toBe(5000)
+    expect(body.retornoReal).toBe(1800)
+    expect(body.vendas).toBe(3000)
   })
 })
 

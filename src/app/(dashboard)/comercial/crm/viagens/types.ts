@@ -39,6 +39,9 @@ export type VisitaResumo = {
 }
 
 export type Viagem = Omit<ViagemResumo, "totalVisitas"> & {
+  possivelRetorno: number
+  retornoReal: number
+  vendas: number
   investimentos: Investimento[]
   visitas: VisitaResumo[]
 }

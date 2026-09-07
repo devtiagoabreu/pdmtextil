@@ -13,6 +13,9 @@ const viagem = {
   dataInicio: "2026-07-01",
   dataFim: "2026-07-05",
   status: "PLANEJADA",
+  possivelRetorno: 5000,
+  vendas: 3000,
+  retornoReal: 1800,
   investimentos: [
     { id: 10, viagemId: 1, tipo: "PASSAGEM", valor: "500", observacao: "Voo ida e volta" },
   ],
@@ -41,6 +44,13 @@ describe("ViagemDetailPage", () => {
     expect(screen.getByText("PASSAGEM")).toBeInTheDocument()
     expect(screen.getByText("Tecelagem Alpha")).toBeInTheDocument()
     expect(screen.getByText("Visita à feira com clientes")).toBeInTheDocument()
+
+    expect(screen.getByText("Possível Retorno")).toBeInTheDocument()
+    expect(screen.getByText("Vendas")).toBeInTheDocument()
+    expect(screen.getByText("Retorno Real")).toBeInTheDocument()
+    expect(screen.getByText("R$ 5.000,00")).toBeInTheDocument()
+    expect(screen.getByText("R$ 3.000,00")).toBeInTheDocument()
+    expect(screen.getByText("R$ 1.800,00")).toBeInTheDocument()
   })
 
   it("edita e salva via PUT", async () => {

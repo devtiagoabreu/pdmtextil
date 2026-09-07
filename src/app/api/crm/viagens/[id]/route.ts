@@ -4,6 +4,11 @@ import { db } from "@/lib/db"
 import { crmViagens } from "@/lib/db/schema/crm-viagens"
 import { crmViagensInvestimentos } from "@/lib/db/schema/crm-viagens-investimentos"
 import { crmVisitas } from "@/lib/db/schema/crm-visitas"
+import { crmOportunidades } from "@/lib/db/schema/crm-oportunidades"
+import { crmFaturamentos } from "@/lib/db/schema/crm-faturamentos"
+import { crmFaturamentoItens } from "@/lib/db/schema/crm-faturamento-itens"
+import { crmPedidosVenda } from "@/lib/db/schema/crm-pedidos-venda"
+import { crmPedidoVendaItens } from "@/lib/db/schema/crm-pedido-venda-itens"
 import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
 import { clientes } from "@/lib/db/schema/clientes"
 import { usuarios } from "@/lib/db/schema/usuarios"
@@ -35,6 +40,9 @@ export async function GET(
         criadoPor: crmViagens.criadoPor,
         criadoPorNome: usuarios.name,
         totalInvestimento: sql`COALESCE((SELECT COALESCE(SUM(i.valor), 0) FROM crm_viagens_investimentos i WHERE i.viagem_id = ${crmViagens.id}), 0)`,
+        possivelRetorno: sql`COALESCE((SELECT COALESCE(SUM(o.valor_estimado), 0) FROM crm_visitas v JOIN crm_oportunidades o ON o.id = v.oportunidade_id WHERE v.viagem_id = ${crmViagens.id}), 0)`,
+        retornoReal: sql`COALESCE((SELECT COALESCE(SUM(fi.valor_total), 0) FROM crm_faturamento_itens fi JOIN crm_faturamentos f ON f.id = fi.faturamento_id JOIN crm_oportunidades o ON o.id = f.oportunidade_id JOIN crm_visitas v ON v.oportunidade_id = o.id WHERE v.viagem_id = ${crmViagens.id}), 0)`,
+        vendas: sql`COALESCE((SELECT COALESCE(SUM(pi.valor_total), 0) FROM crm_pedido_venda_itens pi JOIN crm_pedidos_venda p ON p.id = pi.pedido_venda_id JOIN crm_oportunidades o ON o.id = p.oportunidade_id JOIN crm_visitas v ON v.oportunidade_id = o.id WHERE v.viagem_id = ${crmViagens.id}), 0)`,
         createdAt: crmViagens.createdAt,
         updatedAt: crmViagens.updatedAt,
       })

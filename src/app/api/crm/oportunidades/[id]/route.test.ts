@@ -5,7 +5,7 @@ import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { notificarDelecao } from "@/lib/notificar"
 import { createQueryBuilder, resetDb } from "@/test/route-db-mock"
-import { DELETE } from "./route"
+import { GET, DELETE } from "./route"
 
 vi.mock("@/lib/auth", () => ({ requireAuth: vi.fn() }))
 vi.mock("@/lib/notificar", () => ({
@@ -15,10 +15,16 @@ vi.mock("@/lib/notificar", () => ({
   notificarDelecao: vi.fn(),
 }))
 vi.mock("@/lib/db", () => ({
-  db: { transaction: vi.fn() },
+  db: { select: vi.fn(), transaction: vi.fn() },
 }))
 
 const sessionAdmin = { session: { user: { id: "1", role: "ADMIN", name: "Tiago" } }, userId: 1 }
+
+function get(id: string) {
+  return GET(new NextRequest(`http://localhost/api/crm/oportunidades/${id}`), {
+    params: Promise.resolve({ id }),
+  })
+}
 
 function del(id: string) {
   return DELETE(new NextRequest(`http://localhost/api/crm/oportunidades/${id}`), {
@@ -32,6 +38,56 @@ function txMock() {
     delete: vi.fn(() => createQueryBuilder(undefined)),
   }
 }
+
+describe("GET /api/crm/oportunidades/[id]", () => {
+  beforeEach(() => {
+    vi.mocked(requireAuth).mockReset()
+    resetDb(db)
+    vi.mocked(requireAuth).mockResolvedValue(sessionAdmin as any)
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it("retorna 401 sem autenticação", async () => {
+    vi.mocked(requireAuth).mockResolvedValue(new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any)
+    const res = await get("1")
+    expect(res.status).toBe(401)
+  })
+
+  it("retorna 404 quando a oportunidade não existe", async () => {
+    db.select.mockReturnValueOnce(createQueryBuilder([]))
+    const res = await get("99")
+    expect(res.status).toBe(404)
+    expect(await res.json()).toEqual({ error: "Oportunidade não encontrada" })
+  })
+
+  it("retorna a oportunidade com faturamentos e pedidos de venda", async () => {
+    const oportunidade = {
+      id: 1,
+      titulo: "Venda de malha 100% algodão",
+      contatoId: null,
+      propostas: [],
+    }
+    db.select
+      .mockReturnValueOnce(createQueryBuilder([oportunidade]))
+      .mockReturnValueOnce(createQueryBuilder([]))
+      .mockReturnValueOnce(createQueryBuilder([{ id: 10, numero: "NF-001", status: "EMITIDO", origem: "MANUAL", total: 1250 }]))
+      .mockReturnValueOnce(createQueryBuilder([{ id: 11, numero: "PV-001", status: "ABERTO", origem: "MANUAL", total: 850 }]))
+
+    const res = await get("1")
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body.id).toBe(1)
+    expect(body.propostas).toEqual([])
+    expect(body.faturamentos).toHaveLength(1)
+    expect(body.faturamentos[0]).toMatchObject({ numero: "NF-001", total: 1250 })
+    expect(body.pedidosVenda).toHaveLength(1)
+    expect(body.pedidosVenda[0]).toMatchObject({ numero: "PV-001", total: 850 })
+    expect(db.select).toHaveBeenCalledTimes(4)
+  })
+})
 
 describe("DELETE /api/crm/oportunidades/[id]", () => {
   beforeEach(() => {
