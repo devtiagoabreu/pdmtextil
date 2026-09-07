@@ -40,7 +40,7 @@ function NovaLicaoPageContent() {
 
   const { data: modulos } = useQuery<Modulo[]>({
     queryKey: ["crm-treinamento-modulos"],
-    queryFn: () => fetch("/api/crm/treinamento/modulos").then((r: any) => r.json()),
+    queryFn: () => fetch("/api/crm/treinamento/modulos").then((r) => r.json()),
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -103,7 +103,7 @@ function NovaLicaoPageContent() {
               required
             >
               <option value="">Selecione...</option>
-              {modulos?.map((m: any) => (
+              {modulos?.map((m) => (
                 <option key={m.id} value={m.id}>{m.titulo}</option>
               ))}
             </select>
@@ -173,12 +173,12 @@ function NovaLicaoPageContent() {
               Links POP
             </label>
             <div className="space-y-2 mb-2">
-              {linksPop.map((link: any, i: any) => (
+              {linksPop.map((link, i) => (
                 <div key={link.url} className="flex items-center gap-2 text-sm bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg">
                   <span className="flex-1 truncate">{link.label}</span>
                   <button
                     type="button"
-                    onClick={() => setLinksPop(linksPop.filter((_: any, j: any) => j !== i))}
+                    onClick={() => setLinksPop(linksPop.filter((_, j) => j !== i))}
                     className="text-red-400 hover:text-red-600"
                   >
                     <X size={14} />
@@ -219,12 +219,12 @@ function NovaLicaoPageContent() {
               Links de Vídeos Tutoriais
             </label>
             <div className="space-y-2 mb-2">
-              {linksVideo.map((link: any, i: any) => (
+              {linksVideo.map((link, i) => (
                 <div key={link.url} className="flex items-center gap-2 text-sm bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg">
                   <span className="flex-1 truncate">{link.label}</span>
                   <button
                     type="button"
-                    onClick={() => setLinksVideo(linksVideo.filter((_: any, j: any) => j !== i))}
+                    onClick={() => setLinksVideo(linksVideo.filter((_, j) => j !== i))}
                     className="text-red-400 hover:text-red-600"
                   >
                     <X size={14} />

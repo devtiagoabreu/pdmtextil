@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest"
 import { screen, fireEvent, waitFor } from "@testing-library/react"
 import LicaoDetailPage from "./page"
 import { createFetchMock, renderPage, navMock } from "@/test/harness"
+import type { Licao } from "../types"
 
 vi.mock("@/lib/export-treinamento-pdf", () => ({
   exportLicaoPdf: vi.fn(),
@@ -38,7 +39,7 @@ const licao = {
   updatedAt: "2026-01-02",
 }
 
-function buildHandler(data: any) {
+function buildHandler(data: Licao) {
   return ({ method, url }: { method: string; url: string }) => {
     if (method === "GET" && url === `/api/crm/treinamento/${data.id}`) return { json: data }
     if (method === "GET" && url === "/api/crm/treinamento") return { json: modulos }

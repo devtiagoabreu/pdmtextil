@@ -13,30 +13,7 @@ import remarkGfm from "remark-gfm"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { exportLicaoPdf } from "@/lib/export-treinamento-pdf"
-
-type Licao = {
-  id: number
-  moduloId: number
-  moduloTitulo: string
-  moduloCor: string | null
-  moduloIcone: string | null
-  titulo: string
-  conteudoMd: string
-  preRequisitos: string | null
-  linksPop: { label: string; url: string }[]
-  linksVideo: { label: string; url: string }[]
-  pathnameRelacionado: string | null
-  ordem: number
-  ativo: boolean
-  createdAt: string
-  updatedAt: string
-}
-
-type Modulo = {
-  id: number
-  titulo: string
-  licoes: { id: number; titulo: string; ordem: number; ativo: boolean }[]
-}
+import type { Licao, Modulo } from "../types"
 
 export default function LicaoDetailPage() {
   const pathname = usePathname()
@@ -47,16 +24,16 @@ export default function LicaoDetailPage() {
 
   const { data: licao, isLoading } = useQuery<Licao>({
     queryKey: ["crm-treinamento", params.id],
-    queryFn: () => fetch(`/api/crm/treinamento/${params.id}`).then((r: any) => r.json()),
+    queryFn: () => fetch(`/api/crm/treinamento/${params.id}`).then((r) => r.json()),
   })
 
   const { data: modulos } = useQuery<Modulo[]>({
     queryKey: ["crm-treinamento"],
-    queryFn: () => fetch("/api/crm/treinamento").then((r: any) => r.json()),
+    queryFn: () => fetch("/api/crm/treinamento").then((r) => r.json()),
   })
 
-  const moduloAtual = modulos?.find((m: any) => m.id === licao?.moduloId)
-  const licoesModulo = moduloAtual?.licoes?.filter((l: any) => l.ativo) || []
+  const moduloAtual = modulos?.find((m) => m.id === licao?.moduloId)
+  const licoesModulo = moduloAtual?.licoes?.filter((l) => l.ativo) || []
   const indexAtual = licoesModulo.findIndex((l) => l.id === licao?.id)
   const moduloIndex = modulos?.findIndex((m) => m.id === moduloAtual?.id) ?? 0
   const licaoAnterior = indexAtual > 0 ? licoesModulo[indexAtual - 1] : null
@@ -252,7 +229,7 @@ export default function LicaoDetailPage() {
                   POPs Relacionados
                 </h3>
                 <ul className="space-y-2">
-                  {licao.linksPop.map((link: any) => (
+                  {licao.linksPop.map((link) => (
                     <li key={link.url}>
                       <a
                         href={link.url}
@@ -275,7 +252,7 @@ export default function LicaoDetailPage() {
                   Vídeos Tutoriais
                 </h3>
                 <ul className="space-y-2">
-                  {licao.linksVideo.map((link: any) => (
+                  {licao.linksVideo.map((link) => (
                     <li key={link.url}>
                       <a
                         href={link.url}

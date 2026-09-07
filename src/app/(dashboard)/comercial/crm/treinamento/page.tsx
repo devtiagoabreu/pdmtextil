@@ -10,23 +10,13 @@ import {
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { useState } from "react"
+import type { Modulo } from "./types"
 
 const ICONE_MAP: Record<string, React.ReactNode> = {
   BookOpen: <BookOpen size={20} />,
   GraduationCap: <GraduationCap size={20} />,
   BookMarked: <BookMarked size={20} />,
   FileText: <FileText size={20} />,
-}
-
-type Modulo = {
-  id: number
-  titulo: string
-  descricao: string | null
-  icone: string | null
-  cor: string | null
-  ordem: number
-  ativo: boolean
-  licoes: { id: number; titulo: string; ordem: number; ativo: boolean; pathnameRelacionado: string | null }[]
 }
 
 export default function TreinamentoPage() {
@@ -36,7 +26,7 @@ export default function TreinamentoPage() {
 
   const { data: modulos, isLoading } = useQuery<Modulo[]>({
     queryKey: ["crm-treinamento"],
-    queryFn: () => fetch("/api/crm/treinamento").then((r: any) => r.json()),
+    queryFn: () => fetch("/api/crm/treinamento").then((r) => r.json()),
   })
 
   return (
@@ -76,7 +66,7 @@ export default function TreinamentoPage() {
         <div className="text-center py-12 text-slate-400">Carregando...</div>
       ) : (
         <div className="space-y-4">
-          {modulos?.filter((m: any) => m.ativo).map((modulo: any) => (
+          {modulos?.filter((m) => m.ativo).map((modulo) => (
             <div
               key={modulo.id}
               className="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden"
@@ -108,11 +98,11 @@ export default function TreinamentoPage() {
 
               {moduloAberto === modulo.id && (
                 <div className="border-t border-slate-200 dark:border-slate-700">
-                  {modulo.licoes.filter((l: any) => l.ativo).length === 0 ? (
+                  {modulo.licoes.filter((l) => l.ativo).length === 0 ? (
                     <p className="p-4 text-sm text-slate-400 text-center">Nenhuma lição neste módulo</p>
                   ) : (
                     <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                      {modulo.licoes.filter((l: any) => l.ativo).map((licao: any) => (
+                      {modulo.licoes.filter((l) => l.ativo).map((licao) => (
                         <Link
                           key={licao.id}
                           href={`/comercial/crm/treinamento/${licao.id}`}
