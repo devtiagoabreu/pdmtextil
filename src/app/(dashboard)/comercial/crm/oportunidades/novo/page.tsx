@@ -14,6 +14,7 @@ import { QuickCreateLead } from "@/components/crm/quick-create-lead"
 import { SelectCliente } from "@/components/crm/select-cliente"
 import { useStatuses } from "@/hooks/use-statuses"
 import { TipoEntidadeSelector } from "@/app/(dashboard)/comercial/crm/visitas/novo/components/tipo-entidade-selector"
+import type { EmpresaResumo, LeadResumo, UsuarioResumo, OportunidadeForm } from "../types"
 
 type TipoEntidade = "CLIENTE" | "PESSOA" | "AVULSO"
 
@@ -23,12 +24,12 @@ export default function NovaOportunidadePage() {
   const info = getInfoContent(pathname)
   const queryClient = useQueryClient()
   const { statuses } = useStatuses("OPORTUNIDADE")
-  const [empresas, setEmpresas] = useState<any[]>([])
-  const [leads, setLeads] = useState<any[]>([])
-  const [usuarios, setUsuarios] = useState<any[]>([])
+  const [empresas, setEmpresas] = useState<EmpresaResumo[]>([])
+  const [leads, setLeads] = useState<LeadResumo[]>([])
+  const [usuarios, setUsuarios] = useState<UsuarioResumo[]>([])
   const [saving, setSaving] = useState(false)
   const [tipoEntidade, setTipoEntidade] = useState<TipoEntidade | "">("")
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<OportunidadeForm>({
     titulo: "",
     descricao: "",
     valorEstimado: "",
@@ -41,7 +42,7 @@ export default function NovaOportunidadePage() {
     status: "",
   })
 
-  function setField(field: string, value: string) {
+  function setField(field: keyof OportunidadeForm, value: string) {
     setForm(prev => ({ ...prev, [field]: value }))
   }
 
@@ -85,9 +86,9 @@ export default function NovaOportunidadePage() {
   useEffect(() => {
     async function load() {
       const [empresasRes, leadsRes, usuariosRes] = await Promise.allSettled([
-        fetch("/api/crm/pessoas").then((r: any) => r.json()),
-        fetch("/api/crm/leads").then((r: any) => r.json()),
-        fetch("/api/usuarios/ativos?role=COMERCIAL,ADMIN,SUDO").then((r: any) => r.json()),
+        fetch("/api/crm/pessoas").then((r) => r.json()),
+        fetch("/api/crm/leads").then((r) => r.json()),
+        fetch("/api/usuarios/ativos?role=COMERCIAL,ADMIN,SUDO").then((r) => r.json()),
       ])
       if (empresasRes.status === "fulfilled" && Array.isArray(empresasRes.value)) setEmpresas(empresasRes.value)
       if (leadsRes.status === "fulfilled" && Array.isArray(leadsRes.value)) setLeads(leadsRes.value)
@@ -140,8 +141,8 @@ export default function NovaOportunidadePage() {
       }
       toast.success("Oportunidade criada com sucesso")
       router.push("/comercial/crm/oportunidades")
-    } catch (err: any) {
-      toast.error(err.message)
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Erro ao criar oportunidade")
     } finally {
       setSaving(false)
     }
@@ -236,7 +237,7 @@ export default function NovaOportunidadePage() {
                   className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Selecione...</option>
-                  {empresas.map((e: any) => (
+                  {empresas.map((e) => (
                     <option key={e.id} value={String(e.id)}>{e.razaoSocial || e.nomeFantasia}</option>
                   ))}
                 </select>
@@ -269,7 +270,7 @@ export default function NovaOportunidadePage() {
                 className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Selecione...</option>
-                {empresas.map((e: any) => (
+                {empresas.map((e) => (
                   <option key={e.id} value={String(e.id)}>{e.razaoSocial || e.nomeFantasia}</option>
                 ))}
               </select>
@@ -286,7 +287,7 @@ export default function NovaOportunidadePage() {
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Selecione...</option>
-              {leads.map((l: any) => (
+              {leads.map((l) => (
                 <option key={l.id} value={String(l.id)}>{l.nome}</option>
               ))}
             </select>
@@ -299,7 +300,7 @@ export default function NovaOportunidadePage() {
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Selecione...</option>
-              {usuarios.map((u: any) => (
+              {usuarios.map((u) => (
                 <option key={u.id} value={String(u.id)}>{u.name}</option>
               ))}
             </select>
@@ -342,7 +343,7 @@ export default function NovaOportunidadePage() {
               onChange={e => setField("status", e.target.value)}
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              {statuses.map((s: any) => (
+              {statuses.map((s) => (
                 <option key={s.id} value={s.nome}>{s.nome}</option>
               ))}
             </select>

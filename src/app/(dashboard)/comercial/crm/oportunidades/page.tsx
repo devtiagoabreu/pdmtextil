@@ -12,8 +12,9 @@ import { FloatableKanban } from "@/components/crm/floatable-kanban"
 import OportunidadesKanban from "@/components/crm/oportunidades-kanban"
 import ListFilters, { useListFilters } from "@/components/ui/list-filters"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
+import type { Oportunidade } from "./types"
 
-async function fetchOportunidades(mine: boolean) {
+async function fetchOportunidades(mine: boolean): Promise<Oportunidade[]> {
   const res = await fetch(`/api/crm/oportunidades${mine ? "?mine=true" : ""}`)
   if (!res.ok) throw new Error("Falha ao carregar")
   return res.json()
@@ -44,11 +45,11 @@ export default function OportunidadesPage() {
   const [modo, setModo] = useState<"tabela" | "kanban">("tabela")
 
   const [visitasFilter, setVisitasFilter] = useState<"todas" | "minhas">("minhas")
-  const [deleteTarget, setDeleteTarget] = useState<any>(null)
+  const [deleteTarget, setDeleteTarget] = useState<Oportunidade | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [deleteBlocked, setDeleteBlocked] = useState(false)
 
-  const { data: oportunidades, isLoading, refetch } = useQuery({
+  const { data: oportunidades, isLoading, refetch } = useQuery<Oportunidade[]>({
     queryKey: ["crm-oportunidades", visitasFilter],
     queryFn: () => fetchOportunidades(visitasFilter === "minhas"),
     retry: 1,
@@ -208,7 +209,7 @@ export default function OportunidadesPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {filteredData.map((op: any) => (
+                {filteredData.map((op) => (
                   <tr
                     key={op.id}
                     className="hover:bg-slate-50 dark:hover:bg-slate-800/50"

@@ -9,6 +9,7 @@ import { ArrowLeft, Trash2, Pencil, Check, X, FileText, PlusCircle } from "lucid
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { useStatuses } from "@/hooks/use-statuses"
+import type { OportunidadeDetalhe } from "../types"
 
 const PROPOSTA_STATUS: Record<string, { label: string; cor: string }> = {
   ENVIADA: { label: "Enviada", cor: "text-blue-600 bg-blue-50 dark:bg-blue-950/50 dark:text-blue-400" },
@@ -28,7 +29,7 @@ export default function DetalheOportunidadePage() {
   const info = getInfoContent(pathname)
   const params = useParams()
   const { statuses } = useStatuses("OPORTUNIDADE")
-  const [oportunidade, setOportunidade] = useState<any>(null)
+  const [oportunidade, setOportunidade] = useState<OportunidadeDetalhe | null>(null)
   const [loading, setLoading] = useState(true)
   const [showDelete, setShowDelete] = useState(false)
   const [deleteLoading, setDeleteLoading] = useState(false)
@@ -37,8 +38,8 @@ export default function DetalheOportunidadePage() {
 
   useEffect(() => {
     fetch(`/api/crm/oportunidades/${params.id}`)
-      .then((r: any) => r.json())
-      .then((data: any) => {
+      .then((r) => r.json())
+      .then((data: OportunidadeDetalhe) => {
         setOportunidade(data)
         setStatusValue(data.status)
       })
@@ -69,7 +70,7 @@ export default function DetalheOportunidadePage() {
         body: JSON.stringify({ status: statusValue }),
       })
       if (!res.ok) throw new Error("Erro ao atualizar")
-      setOportunidade((prev: any) => ({ ...prev, status: statusValue }))
+      setOportunidade(prev => (prev ? { ...prev, status: statusValue } : prev))
       setEditingStatus(false)
       toast.success("Status atualizado")
     } catch {
@@ -82,7 +83,7 @@ export default function DetalheOportunidadePage() {
     return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(Number(valor))
   }
 
-  const currentStatus = statuses.find((s: any) => s.nome === oportunidade?.status)
+  const currentStatus = statuses.find((s) => s.nome === oportunidade?.status)
 
   if (loading) {
     return (
@@ -118,7 +119,7 @@ export default function DetalheOportunidadePage() {
                   className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
                   autoFocus
                 >
-                  {statuses.map((s: any) => (
+                  {statuses.map((s) => (
                     <option key={s.id} value={s.nome}>{s.nome}</option>
                   ))}
                 </select>
@@ -219,7 +220,7 @@ export default function DetalheOportunidadePage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {oportunidade.propostas.map((p: any) => (
+                {oportunidade.propostas.map((p) => (
                   <tr key={p.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
                     <td className="px-4 py-2.5">
                       <Link href={`/comercial/crm/propostas/${p.id}`} className="text-sm font-medium text-slate-900 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">

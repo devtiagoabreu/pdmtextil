@@ -32,6 +32,15 @@ declare module "@dnd-kit/core" {
   }
   export const DndContext: React.NamedExoticComponent<DndContextProps>
 
+  export interface DragStartEvent {
+    active: any
+    delta: any
+  }
+  export interface DragEndEvent extends DragStartEvent {
+    over: any
+    collisions: any
+  }
+
   export interface DragOverlayProps {
     adjustScale?: boolean
     children?: React.ReactNode

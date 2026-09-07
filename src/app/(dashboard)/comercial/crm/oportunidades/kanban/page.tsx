@@ -7,9 +7,10 @@ import { getInfoContent } from "@/lib/info-content"
 import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import { toast } from "sonner"
-import { DndContext, DragOverlay, useDraggable, useDroppable, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
+import { DndContext, DragOverlay, useDraggable, useDroppable, PointerSensor, useSensor, useSensors, type DragStartEvent, type DragEndEvent } from "@dnd-kit/core"
 import { Loader2, Plus, X } from "lucide-react"
 import { useStatuses } from "@/hooks/use-statuses"
+import type { Oportunidade } from "../types"
 
 interface OportunidadeCard {
   id: number
@@ -121,7 +122,7 @@ export default function KanbanOportunidadesPage() {
       const res = await fetch("/api/crm/oportunidades")
       const data = await res.json()
       if (!Array.isArray(data)) throw new Error("Dados inválidos")
-      return data.map((o: any) => ({
+      return data.map((o: Oportunidade) => ({
         id: o.id,
         titulo: o.titulo,
         valorEstimado: o.valorEstimado,
@@ -137,18 +138,18 @@ export default function KanbanOportunidadesPage() {
   }, [dadosCarregados])
 
   const colunas = statuses
-    .filter((s: any) => s.ativo !== false)
-    .map((col: any) => ({
+    .filter((s) => s.ativo !== false)
+    .map((col) => ({
       ...col,
-      cards: oportunidades.filter((o: any) => o.status === col.nome),
+      cards: oportunidades.filter((o) => o.status === col.nome),
     }))
 
-  const handleDragStart = (event: any) => {
+  const handleDragStart = (event: DragStartEvent) => {
     const card = event.active.data.current?.oportunidade
     if (card) setActiveCard(card)
   }
 
-  const handleDragEnd = async (event: any) => {
+  const handleDragEnd = async (event: DragEndEvent) => {
     setActiveCard(null)
 
     const { active, over } = event
@@ -167,13 +168,13 @@ export default function KanbanOportunidadesPage() {
       setMotivoPerda("")
       setShowMotivoPerda(true)
       setOportunidades(prev =>
-        prev.map((o: any) => o.id === oportunidade.id ? { ...o, status: novoStatus } : o)
+        prev.map((o) => o.id === oportunidade.id ? { ...o, status: novoStatus } : o)
       )
       return
     }
 
     setOportunidades(prev =>
-      prev.map((o: any) => o.id === oportunidade.id ? { ...o, status: novoStatus } : o)
+      prev.map((o) => o.id === oportunidade.id ? { ...o, status: novoStatus } : o)
     )
 
     try {
@@ -187,11 +188,11 @@ export default function KanbanOportunidadesPage() {
         throw new Error(err.error || "Erro ao alterar status")
       }
       toast.success(`Oportunidade movida para ${getLabel(novoStatus)}`)
-    } catch (err: any) {
+    } catch (err: unknown) {
       setOportunidades(prev =>
-        prev.map((o: any) => o.id === oportunidade.id ? { ...o, status: statusAntigo } : o)
+        prev.map((o) => o.id === oportunidade.id ? { ...o, status: statusAntigo } : o)
       )
-      toast.error(err.message)
+      toast.error(err instanceof Error ? err.message : "Erro ao alterar status")
     }
   }
 
@@ -206,11 +207,11 @@ export default function KanbanOportunidadesPage() {
       })
       if (!res.ok) throw new Error((await res.json()).error || "Erro ao confirmar perda")
       toast.success("Oportunidade marcada como Perdida")
-    } catch (err: any) {
+    } catch (err: unknown) {
       setOportunidades(prev =>
-        prev.map((o: any) => o.id === pendingMove.id ? { ...o, status: pendingMove.statusAntigo } : o)
+        prev.map((o) => o.id === pendingMove.id ? { ...o, status: pendingMove.statusAntigo } : o)
       )
-      toast.error(err.message)
+      toast.error(err instanceof Error ? err.message : "Erro ao confirmar perda")
     }
     setShowMotivoPerda(false)
     setMotivoPerda("")
@@ -220,7 +221,7 @@ export default function KanbanOportunidadesPage() {
   function cancelarPerda() {
     if (pendingMove) {
       setOportunidades(prev =>
-        prev.map((o: any) => o.id === pendingMove.id ? { ...o, status: pendingMove.statusAntigo } : o)
+        prev.map((o) => o.id === pendingMove.id ? { ...o, status: pendingMove.statusAntigo } : o)
       )
     }
     setShowMotivoPerda(false)
@@ -259,9 +260,9 @@ export default function KanbanOportunidadesPage() {
       <div className="flex-1 min-h-0 flex flex-col px-4 md:px-6 pb-4 md:pb-6">
         <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
           <div className="flex-1 min-h-0 flex gap-4 overflow-x-auto">
-            {colunas.map((col: any) => (
+            {colunas.map((col) => (
               <DroppableColumn key={col.nome} id={col.nome} rotulo={col.rotulo || col.nome} cor={col.cor} count={col.cards.length}>
-                {col.cards.map((card: any) => (
+                {col.cards.map((card) => (
                   <DraggableCard key={`op-${card.id}`} oportunidade={card} />
                 ))}
               </DroppableColumn>
