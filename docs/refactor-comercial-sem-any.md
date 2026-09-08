@@ -114,7 +114,7 @@ Notas:
 - `kanban/kanban-board.tsx`: `data.map((r: RequisicaoCard) => ...)` (sem `as`), `colunas` inferido de `statusList.map((col) => ...)`, `handleDragStart/End(event: DragStartEvent/DragEndEvent)` (tipos do dnd-kit), `prev.map((r) => ...)`, `statusList.find((s) => ...)`, `catch (err)` + `err instanceof Error` (antes `err: any`/`err.message` direto), `colunas/cards.map` sem `any`.
 - Teste: `kanban/page.test.tsx` `onmessage/onmessageerror: ((ev: MessageEvent) => void) | null = null`.
 - Verificações: `tsc --noEmit` limpo; vitest do bloco 10/10; suíte completa JSON **1203/1203**.
-- Commit: `f9b7a4c7`.
+- Commit: `07aa79f2`.
 
 #### 5. `comercial/requisicoes-corte` — 71 ocorrências (o maior)
 - `[id]/page.tsx`: fetches `(r: any)/(res: any)/(d: any)`, `setStatusOptions(data.map((s: any)))`, `handleItemChange(field: keyof ItemLinha, value: any)` (→ tipar value por field), `setItens(prev => prev.filter((_: any, i: any)))`, `handleOcrItens(novosItens: any[])`, `itens.reduce((acc: any, item: any))`, `itens.map((item: any, index: any))`, `statusOptions.map((s: any))`.
