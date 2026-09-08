@@ -8,8 +8,8 @@ import { getInfoContent } from "@/lib/info-content"
 import Link from "next/link"
 import { ArrowLeft, Search, Loader2, CheckCircle2, AlertCircle, Trash2, Users, UserPlus } from "lucide-react"
 import { toast } from "sonner"
-
-type ClienteVinculado = { id: number; nome: string }
+import type { ClienteVinculado, ConsultaCnpjData } from "../types"
+import type { Cliente } from "../../clientes/types"
 
 export default function NovoRepresentantePage() {
   const router = useRouter()
@@ -18,7 +18,7 @@ export default function NovoRepresentantePage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [consulting, setConsulting] = useState(false)
   const [consulted, setConsulted] = useState(false)
-  const [apiData, setApiData] = useState<any>(null)
+  const [apiData, setApiData] = useState<ConsultaCnpjData | null>(null)
   const [form, setForm] = useState({
     nome: "",
     cnpj: "",
@@ -34,7 +34,7 @@ export default function NovoRepresentantePage() {
   })
   const [clientesVinculados, setClientesVinculados] = useState<ClienteVinculado[]>([])
   const [searchCliente, setSearchCliente] = useState("")
-  const [clienteResults, setClienteResults] = useState<any[]>([])
+  const [clienteResults, setClienteResults] = useState<Cliente[]>([])
   const [searchingCliente, setSearchingCliente] = useState(false)
 
   const { data: gerentes = [] } = useQuery<{ id: number; name: string }[]>({
@@ -73,7 +73,7 @@ export default function NovoRepresentantePage() {
         throw new Error(err.error || "Erro na consulta")
       }
       const result = await res.json()
-      const api = result.apiData
+      const api = result.apiData as ConsultaCnpjData | null | undefined
       if (!api) {
         setConsulted(true)
         toast.error("CNPJ não encontrado na Receita Federal")
@@ -90,8 +90,8 @@ export default function NovoRepresentantePage() {
         uf: api.uf || prev.uf,
       }))
       toast.success("Dados preenchidos automaticamente")
-    } catch (err: any) {
-      toast.error(err.message || "Erro ao consultar CNPJ")
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao consultar CNPJ")
     } finally {
       setConsulting(false)
     }
@@ -106,13 +106,13 @@ export default function NovoRepresentantePage() {
       if (!res.ok) throw new Error()
       const data = await res.json()
       const existentes = new Set(clientesVinculados.map((c) => c.id))
-      setClienteResults(Array.isArray(data) ? data.filter((c: any) => !existentes.has(c.id)) : [])
+      setClienteResults(Array.isArray(data) ? data.filter((c) => !existentes.has(c.id)) : [])
     } catch {} finally {
       setSearchingCliente(false)
     }
   }
 
-  function addCliente(c: any) {
+  function addCliente(c: Cliente) {
     if (clientesVinculados.find((x) => x.id === c.id)) return
     setClientesVinculados((prev) => [...prev, { id: c.id, nome: c.nome }])
     setClienteResults([])
@@ -154,8 +154,8 @@ export default function NovoRepresentantePage() {
 
       toast.success("Representante cadastrado com sucesso!")
       router.push("/comercial/representantes")
-    } catch (error: any) {
-      toast.error(error.message || "Erro ao cadastrar representante")
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Erro ao cadastrar representante")
     } finally {
       setIsSubmitting(false)
     }
@@ -280,7 +280,7 @@ export default function NovoRepresentantePage() {
                 <select name="uf" value={form.uf} onChange={handleChange}
                   className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                   <option value="">Selecione</option>
-                  {estados.map((e: any) => (<option key={e} value={e}>{e}</option>))}
+                  {estados.map((e) => (<option key={e} value={e}>{e}</option>))}
                 </select>
               </div>
             </div>
@@ -336,7 +336,7 @@ export default function NovoRepresentantePage() {
               </div>
               {clienteResults.length > 0 && (
                 <div className="absolute z-10 mt-1 w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-lg max-h-48 overflow-y-auto">
-                  {clienteResults.map((c: any) => (
+                  {clienteResults.map((c) => (
                     <button
                       key={c.id}
                       type="button"

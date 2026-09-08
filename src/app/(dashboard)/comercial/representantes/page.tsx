@@ -12,21 +12,7 @@ import ImportarApiModal from "@/components/integracao/ImportarApiModal"
 import BuscarCnpjModal from "@/components/crm/buscar-cnpj-modal"
 import { ExportarDados } from "@/components/exportar/ExportarDados"
 import { matchesSearch } from "@/components/ui/list-filters"
-
-type Representante = {
-  id: number
-  nome: string
-  cnpj: string
-  razaoSocial?: string | null
-  email?: string | null
-  telefone?: string | null
-  contato?: string | null
-  endereco?: string | null
-  cidade?: string | null
-  uf?: string | null
-  gerenteId?: number | null
-  ativo: boolean
-}
+import type { Representante } from "./types"
 
 export default function RepresentantesPage() {
   const pathname = usePathname()
@@ -54,7 +40,7 @@ export default function RepresentantesPage() {
     fetchRepresentantes()
   }, [])
 
-  const filtered = representantes.filter((r: any) => matchesSearch(r, search))
+  const filtered = representantes.filter((r) => matchesSearch(r, search))
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -112,7 +98,7 @@ export default function RepresentantesPage() {
           </div>
         ) : (
           <div className="grid gap-4 p-4 md:grid-cols-2 lg:grid-cols-3">
-            {filtered.map((r: any) => (
+            {filtered.map((r) => (
               <div
                 key={r.id}
                 className="rounded-lg border border-slate-200 dark:border-slate-700 p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"

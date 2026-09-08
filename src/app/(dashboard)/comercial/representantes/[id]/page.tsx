@@ -8,36 +8,22 @@ import { getInfoContent } from "@/lib/info-content"
 import Link from "next/link"
 import { ArrowLeft, Save, Building2, Search, Loader2, CheckCircle2, AlertCircle, Trash2, Users, UserPlus } from "lucide-react"
 import { toast } from "sonner"
-
-type Representante = {
-  id: number
-  nome: string
-  cnpj: string
-  razaoSocial?: string | null
-  email?: string | null
-  telefone?: string | null
-  contato?: string | null
-  endereco?: string | null
-  cidade?: string | null
-  uf?: string | null
-  gerenteId?: number | null
-  idIntegracao?: string | null
-  clientes?: { id: number; nome: string }[]
-}
+import type { Representante, RepresentanteComClientes, ConsultaCnpjData } from "../types"
+import type { Cliente } from "../../clientes/types"
 
 export default function EditarRepresentantePage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()
   const pathname = usePathname()
   const info = getInfoContent(pathname)
-  const [representante, setRepresentante] = useState<Representante | null>(null)
+  const [representante, setRepresentante] = useState<RepresentanteComClientes | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [consulting, setConsulting] = useState(false)
   const [consulted, setConsulted] = useState(false)
-  const [apiData, setApiData] = useState<any>(null)
+  const [apiData, setApiData] = useState<ConsultaCnpjData | null>(null)
   const [id, setId] = useState<string>("")
   const [searchCliente, setSearchCliente] = useState("")
-  const [clienteResults, setClienteResults] = useState<any[]>([])
+  const [clienteResults, setClienteResults] = useState<Cliente[]>([])
   const [searchingCliente, setSearchingCliente] = useState(false)
 
   const { data: gerentes = [] } = useQuery<{ id: number; name: string }[]>({
@@ -95,8 +81,8 @@ export default function EditarRepresentantePage({ params }: { params: Promise<{ 
         const err = await res.json()
         throw new Error(err.error || "Erro ao atualizar")
       }
-    } catch (error: any) {
-      toast.error(error.message || "Erro ao atualizar representante")
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Erro ao atualizar representante")
     } finally {
       setSaving(false)
     }
@@ -133,7 +119,7 @@ export default function EditarRepresentantePage({ params }: { params: Promise<{ 
         throw new Error(err.error || "Erro na consulta")
       }
       const result = await res.json()
-      const api = result.apiData
+      const api = result.apiData as ConsultaCnpjData | null | undefined
       if (!api) {
         setConsulted(true)
         toast.error("CNPJ não encontrado na Receita Federal")
@@ -150,8 +136,8 @@ export default function EditarRepresentantePage({ params }: { params: Promise<{ 
         uf: api.uf || prev.uf,
       } : prev)
       toast.success("Dados preenchidos automaticamente")
-    } catch (err: any) {
-      toast.error(err.message || "Erro ao consultar CNPJ")
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao consultar CNPJ")
     } finally {
       setConsulting(false)
     }
@@ -166,13 +152,13 @@ export default function EditarRepresentantePage({ params }: { params: Promise<{ 
       if (!res.ok) throw new Error()
       const data = await res.json()
       const existentes = new Set((representante?.clientes || []).map((c) => c.id))
-      setClienteResults(Array.isArray(data) ? data.filter((c: any) => !existentes.has(c.id)) : [])
+      setClienteResults(Array.isArray(data) ? data.filter((c) => !existentes.has(c.id)) : [])
     } catch {} finally {
       setSearchingCliente(false)
     }
   }
 
-  function addCliente(c: any) {
+  function addCliente(c: Cliente) {
     if ((representante?.clientes || []).find((x) => x.id === c.id)) return
     setRepresentante((prev) => prev ? { ...prev, clientes: [...(prev.clientes || []), { id: c.id, nome: c.nome }] } : prev)
     setClienteResults([])
@@ -425,7 +411,7 @@ export default function EditarRepresentantePage({ params }: { params: Promise<{ 
               </div>
               {clienteResults.length > 0 && (
                 <div className="absolute z-10 mt-1 w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-lg max-h-48 overflow-y-auto">
-                  {clienteResults.map((c: any) => (
+                  {clienteResults.map((c) => (
                     <button
                       key={c.id}
                       type="button"
