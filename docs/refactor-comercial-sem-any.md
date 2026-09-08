@@ -65,9 +65,9 @@ Notas:
 
 ---
 
-### ⏸️ Módulo `comercial` restante — RETOMADA PENDENTE (100 matches)
+### ⏸️ Módulo `comercial` restante — RETOMADA PENDENTE (71 matches)
 
-**PRÓXIMO BLOCO: `requisicoes-amostra-comercial` (29)** → depois `requisicoes-corte` (71).
+**PRÓXIMO BLOCO: `requisicoes-corte` (71)** — o maior; pode dividir em sub-blocos se necessário.
 
 #### 1. ✅ `comercial/clientes` — COMPLETO (22 → 0)
 
@@ -103,12 +103,18 @@ Notas:
 - Verificações: `tsc --noEmit` limpo; vitest do bloco 11/11; suíte completa JSON **1203/1203**.
 - Commit: `4e1740c5`.
 
-#### 4. `comercial/requisicoes-amostra-comercial` — 29 ocorrências
-- `[id]/page.tsx`: `useState<any>` (`data`), fetches `(res: any)/(d: any)`, `historico.map((h: any))`.
-- `page.tsx`: `useState<any[]>` (`data`, `filtered`), `useState<any>` (`deleteTarget`), fetches `(res: any)/(d: any)`, `data.filter((item: any))`, `setData((prev: any) => ...)`, `filtered.map((item: any))`.
-- `novo/page.tsx`: fetches `(r: any)/(data: any)` → `setProdutos`, `payload: Record<string, any>`, `produtos.map((p: any))`.
-- `kanban/kanban-board.tsx`: `data.map((r: any))`, `colunas.map((col: any))`, `requisicoes.filter((r: any))`, `handleDragStart/End(event: any)` (dnd-kit → tipar com `DragStartEvent/DragEndEvent`), `prev.map((r: any))`, `statusList.find((s: any))`, `(err: any)`, `(card: any)`.
-- `kanban/page.test.tsx`: `onmessage/onmessageerror: any = null` (idem solicitacoes).
+#### 4. ✅ `comercial/requisicoes-amostra-comercial` — COMPLETO (29 → 0)
+
+`grep` em `src/app/(dashboard)/comercial/requisicoes-amostra-comercial` → **0 matches** (inclui `*.test.tsx`).
+
+- `requisicoes-amostra-comercial/types.ts` criado: `ItemHistoricoAmostra` (todos opcionais/nullable → `h.acao || h.status` etc.), `ProdutoAmostra`, `RequisicaoAmostraLista` (shape do GET `/api/requisicoes-amostra-comercial` — id, status, titulo, cliente, quantidade, produtoCodigo, produtoDescricao, solicitanteNome, createdAt, prazoDesejado), `RequisicaoAmostraDetalhe` (shape do GET `[id]`, inclui `produto?: ProdutoAmostra | null` — o JSX de detalhe referencia `data.produto`), `NovaRequisicaoAmostra` (payload do POST).
+- `page.tsx`: `data`/`filtered`→`RequisicaoAmostraLista[]`, `deleteTarget`→`RequisicaoAmostraLista | null`, fetches `(res: Response)/(d: RequisicaoAmostraLista[])`, `filter/map` sem `any`.
+- `[id]/page.tsx`: `data`→`RequisicaoAmostraDetalhe | null`, fetches tipados, `historico.map((h) => ...)`.
+- `novo/page.tsx`: fetches `(r: Response)/(data: ProdutoCru[])`, `payload: NovaRequisicaoAmostra` (remove `Record<string, any>`), `produtos.map((p) => ...)`.
+- `kanban/kanban-board.tsx`: `data.map((r: RequisicaoCard) => ...)` (sem `as`), `colunas` inferido de `statusList.map((col) => ...)`, `handleDragStart/End(event: DragStartEvent/DragEndEvent)` (tipos do dnd-kit), `prev.map((r) => ...)`, `statusList.find((s) => ...)`, `catch (err)` + `err instanceof Error` (antes `err: any`/`err.message` direto), `colunas/cards.map` sem `any`.
+- Teste: `kanban/page.test.tsx` `onmessage/onmessageerror: ((ev: MessageEvent) => void) | null = null`.
+- Verificações: `tsc --noEmit` limpo; vitest do bloco 10/10; suíte completa JSON **1203/1203**.
+- Commit: `f9b7a4c7`.
 
 #### 5. `comercial/requisicoes-corte` — 71 ocorrências (o maior)
 - `[id]/page.tsx`: fetches `(r: any)/(res: any)/(d: any)`, `setStatusOptions(data.map((s: any)))`, `handleItemChange(field: keyof ItemLinha, value: any)` (→ tipar value por field), `setItens(prev => prev.filter((_: any, i: any)))`, `handleOcrItens(novosItens: any[])`, `itens.reduce((acc: any, item: any))`, `itens.map((item: any, index: any))`, `statusOptions.map((s: any))`.

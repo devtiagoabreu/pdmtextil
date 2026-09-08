@@ -13,8 +13,8 @@ describe("KanbanAmostraComercialPage", () => {
     vi.stubGlobal(
       "BroadcastChannel",
       class {
-        onmessage: any = null
-        onmessageerror: any = null
+        onmessage: ((ev: MessageEvent) => void) | null = null
+        onmessageerror: ((ev: MessageEvent) => void) | null = null
         postMessage() {}
         close() {}
       },

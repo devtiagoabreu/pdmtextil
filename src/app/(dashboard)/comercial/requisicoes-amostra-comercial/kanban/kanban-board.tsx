@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { DndContext, DragOverlay, useDraggable, useDroppable, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
+import type { DragStartEvent, DragEndEvent } from "@dnd-kit/core"
 import { Loader2, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -133,7 +134,7 @@ export function KanbanAmostraComercial() {
       const res = await fetch("/api/requisicoes-amostra-comercial")
       const data = await res.json()
       if (!Array.isArray(data)) return []
-      return data.map((r: any) => ({
+      return data.map((r: RequisicaoCard) => ({
         id: r.id,
         titulo: r.titulo,
         cliente: r.cliente,
@@ -141,7 +142,7 @@ export function KanbanAmostraComercial() {
         produtoDescricao: r.produtoDescricao,
         status: r.status,
         quantidade: r.quantidade,
-      })) as RequisicaoCard[]
+      }))
     },
   })
 
@@ -150,17 +151,17 @@ export function KanbanAmostraComercial() {
   }, [dadosRequisicoes])
 
   const colunas = statusList
-    .map((col: any) => ({
+    .map((col) => ({
       ...col,
-      cards: requisicoes.filter((r: any) => r.status === col.nome),
+      cards: requisicoes.filter((r) => r.status === col.nome),
     }))
 
-  const handleDragStart = (event: any) => {
+  const handleDragStart = (event: DragStartEvent) => {
     const card = event.active.data.current?.requisicao
     if (card) setActiveCard(card)
   }
 
-  const handleDragEnd = async (event: any) => {
+  const handleDragEnd = async (event: DragEndEvent) => {
     setActiveCard(null)
     if (!podeArrastar) return
 
@@ -188,7 +189,7 @@ export function KanbanAmostraComercial() {
     const statusAntigo = requisicao.status
 
     setRequisicoes(prev =>
-      prev.map((r: any) => r.id === requisicao.id ? { ...r, status: novoStatus } : r)
+      prev.map((r) => r.id === requisicao.id ? { ...r, status: novoStatus } : r)
     )
 
     try {
@@ -205,12 +206,12 @@ export function KanbanAmostraComercial() {
         const err = await res.json()
         throw new Error(err.error || "Erro ao alterar status")
       }
-      toast.success(`Requisição #${requisicao.id} movida para ${statusList.find((s: any) => s.nome === novoStatus)?.rotulo || novoStatus}`)
-    } catch (err: any) {
+      toast.success(`Requisição #${requisicao.id} movida para ${statusList.find((s) => s.nome === novoStatus)?.rotulo || novoStatus}`)
+    } catch (err) {
       setRequisicoes(prev =>
-        prev.map((r: any) => r.id === requisicao.id ? { ...r, status: statusAntigo } : r)
+        prev.map((r) => r.id === requisicao.id ? { ...r, status: statusAntigo } : r)
       )
-      toast.error(err.message)
+      toast.error(err instanceof Error ? err.message : "Erro ao alterar status")
     }
   }
 
@@ -234,9 +235,9 @@ export function KanbanAmostraComercial() {
 
       <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div className="flex-1 min-h-0 flex gap-4 overflow-x-auto">
-          {colunas.map((col: any) => (
+          {colunas.map((col) => (
             <DroppableColumn key={col.nome} id={col.nome} rotulo={col.rotulo} cor={col.cor} count={col.cards.length}>
-              {col.cards.map((card: any) => (
+              {col.cards.map((card) => (
                 <DraggableCard key={`req-${card.id}`} requisicao={card} />
               ))}
             </DroppableColumn>

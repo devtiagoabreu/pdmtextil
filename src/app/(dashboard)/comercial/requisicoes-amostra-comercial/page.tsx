@@ -11,17 +11,18 @@ import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { useStatuses, hexToRgba } from "@/hooks/use-statuses"
 import { gerarRequisicaoAmostraComercialPdf } from "@/lib/gerar-requisicao-amostra-comercial-pdf"
 import { matchesSearch } from "@/components/ui/list-filters"
+import type { RequisicaoAmostraLista } from "./types"
 
 export default function ListaRequisicoesAmostraComercialPage() {
   const router = useRouter()
   const pathname = usePathname()
   const info = getInfoContent(pathname)
-  const [data, setData] = useState<any[]>([])
-  const [filtered, setFiltered] = useState<any[]>([])
+  const [data, setData] = useState<RequisicaoAmostraLista[]>([])
+  const [filtered, setFiltered] = useState<RequisicaoAmostraLista[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
   const [mounted, setMounted] = useState(false)
-  const [deleteTarget, setDeleteTarget] = useState<any>(null)
+  const [deleteTarget, setDeleteTarget] = useState<RequisicaoAmostraLista | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [gerandoPdf, setGerandoPdf] = useState<number | null>(null)
   const { getLabel, getColor } = useStatuses("AMOSTRA_COMERCIAL")
@@ -33,8 +34,8 @@ export default function ListaRequisicoesAmostraComercialPage() {
   useEffect(() => {
     if (!mounted) return
     fetch("/api/requisicoes-amostra-comercial")
-      .then((res: any) => { if (!res.ok) throw new Error(); return res.json() })
-      .then((d: any) => {
+      .then((res: Response) => { if (!res.ok) throw new Error(); return res.json() })
+      .then((d: RequisicaoAmostraLista[]) => {
         const arr = Array.isArray(d) ? d : []
         setData(arr)
         setFiltered(arr)
@@ -44,7 +45,7 @@ export default function ListaRequisicoesAmostraComercialPage() {
   }, [mounted])
 
   useEffect(() => {
-    setFiltered(data.filter((item: any) => matchesSearch(item, search)))
+    setFiltered(data.filter((item) => matchesSearch(item, search)))
   }, [search, data])
 
   const handleGerarPdf = useCallback(async (id: number) => {
@@ -64,7 +65,7 @@ export default function ListaRequisicoesAmostraComercialPage() {
       }
       toast.success("Requisição excluída com sucesso")
       setDeleteTarget(null)
-      setData((prev: any) => prev.filter((item: any) => item.id !== deleteTarget.id))
+      setData((prev) => prev.filter((item) => item.id !== deleteTarget.id))
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erro ao excluir")
       setDeleteTarget(null)
@@ -138,7 +139,7 @@ export default function ListaRequisicoesAmostraComercialPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {filtered.map((item: any) => (
+                {filtered.map((item) => (
                   <tr
                     key={item.id}
                     className="hover:bg-slate-50 dark:hover:bg-slate-800/50"

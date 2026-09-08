@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Search, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { toast } from "sonner"
+import type { NovaRequisicaoAmostra } from "../types"
 
 interface ProdutoCru {
   id: number
@@ -59,8 +60,8 @@ export default function NovaRequisicaoAmostraComercialPage() {
     setProdutosLoading(true)
     const timer = setTimeout(() => {
       fetch(`/api/cadastros/produtos-cru?search=${encodeURIComponent(produtoSearch)}&limit=10`)
-        .then((r: any) => r.json())
-        .then((data: any) => setProdutos(Array.isArray(data) ? data : []))
+        .then((r: Response) => r.json())
+        .then((data: ProdutoCru[]) => setProdutos(Array.isArray(data) ? data : []))
         .catch(() => setProdutos([]))
         .finally(() => setProdutosLoading(false))
     }, 300)
@@ -88,7 +89,7 @@ export default function NovaRequisicaoAmostraComercialPage() {
 
     setSubmitting(true)
     try {
-      const payload: Record<string, any> = {
+      const payload: NovaRequisicaoAmostra = {
         produtoCruId: selectedProduto!.id,
         titulo: titulo.trim(),
         cliente: cliente.trim() || null,
@@ -167,7 +168,7 @@ export default function NovaRequisicaoAmostraComercialPage() {
             )}
             {showDropdown && produtos.length > 0 && (
               <div className="absolute z-50 mt-1 w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-lg max-h-48 overflow-y-auto">
-                {produtos.map((p: any) => (
+                {produtos.map((p) => (
                   <button
                     key={p.id}
                     type="button"

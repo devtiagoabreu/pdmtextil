@@ -9,6 +9,7 @@ import { ArrowLeft, Clock, User, FileText, Package, Loader2 } from "lucide-react
 import { toast } from "sonner"
 import { useStatuses, hexToRgba } from "@/hooks/use-statuses"
 import { gerarRequisicaoAmostraComercialPdf } from "@/lib/gerar-requisicao-amostra-comercial-pdf"
+import type { RequisicaoAmostraDetalhe } from "../types"
 
 export default function DetalheRequisicaoAmostraComercialPage() {
   const params = useParams()
@@ -18,7 +19,7 @@ export default function DetalheRequisicaoAmostraComercialPage() {
   const id = params.id as string
   const [mounted, setMounted] = useState(false)
   const [loading, setLoading] = useState(true)
-  const [data, setData] = useState<any>(null)
+  const [data, setData] = useState<RequisicaoAmostraDetalhe | null>(null)
   const [gerandoPdf, setGerandoPdf] = useState(false)
   const { getLabel, getColor } = useStatuses("AMOSTRA_COMERCIAL")
 
@@ -35,8 +36,8 @@ export default function DetalheRequisicaoAmostraComercialPage() {
   useEffect(() => {
     if (!mounted || !id) return
     fetch(`/api/requisicoes-amostra-comercial/${id}?t=${Date.now()}`)
-      .then((res: any) => { if (!res.ok) throw new Error(); return res.json() })
-      .then((d: any) => setData(d))
+      .then((res: Response) => { if (!res.ok) throw new Error(); return res.json() })
+      .then((d: RequisicaoAmostraDetalhe) => setData(d))
       .catch(() => toast.error("Erro ao carregar requisição"))
       .finally(() => setLoading(false))
   }, [mounted, id])
@@ -170,7 +171,7 @@ export default function DetalheRequisicaoAmostraComercialPage() {
           </h2>
           {historico.length > 0 ? (
             <div className="space-y-4 max-h-96 overflow-y-auto">
-              {historico.map((h: any) => (
+              {historico.map((h) => (
                 <div key={h.id ?? `${h.data}-${h.acao || h.status}`} className="border-l-2 border-slate-200 dark:border-slate-700 pl-3">
                   <p className="text-sm font-medium">{h.acao || h.status || "Atualização"}</p>
                   {h.descricao && <p className="text-xs text-slate-600 mt-0.5">{h.descricao}</p>}
