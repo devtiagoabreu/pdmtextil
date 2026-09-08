@@ -128,7 +128,7 @@ Notas:
 - `page.test.tsx`: `fetchMock.calls.find((c) => ...)` inferido (`FetchCall`).
 - **Extras fora do bloco (achados na verificação final do módulo)**: 4 `any` remanescentes nos blocos `pedidos-venda` (2) e `faturamentos` (2) — `data.map((o: any) => ...)` ao carregar oportunidades → `.then((data: { id: unknown; titulo: string }[]) => data.map((o) => ...))`. Corrigidos na mesma entrega.
 - Verificações: `tsc --noEmit` limpo; vitest do bloco 4/4 (14 testes) + pedidos-venda/faturamentos 6/6 (20 testes); suíte completa JSON **1203/1203**; `grep` no módulo `comercial` inteiro → **0 matches**.
-- Commit: (preencher após push).
+- Commit: `b11464f4`.
 
 ---
 
