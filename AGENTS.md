@@ -1,10 +1,10 @@
 # Graphify Knowledge Graph
 
-O projeto tem um grafo de conhecimento em `graphify-out/` com 2599 nós, 6179 arestas e 82 comunidades.
+O projeto tem um grafo de conhecimento em `graphify-out/` com 5225 nós, 12865 arestas e 270 comunidades.
 
 ## Como usar
 
-- **Consulta rápida**: carregue `graphify-out/GRAPH_REPORT.md` (326 linhas) para visão geral das comunidades
+- **Consulta rápida**: carregue `graphify-out/GRAPH_REPORT.md` (1173 linhas) para visão geral das comunidades
 - **Consulta detalhada**: carregue `graphify-out/graph.json` e pesquise nós/arestas para entender dependências entre arquivos
 - **Perguntas específicas**: aponte o nome do nó (ex: `requireAuth`, `getInfoContent`, `prisma`) que eu encontro no grafo
 
