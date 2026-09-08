@@ -10,47 +10,19 @@ import { ArrowLeft, Save, Trash2, Building2, Search, UserPlus, Users, Loader2, X
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { SelectSegmento } from "@/components/crm/select-segmento"
+import type { Cliente, VinculoRepresentante, RepresentanteResumo } from "../types"
+import type { Contato } from "../../crm/contatos/types"
 
-type Cliente = {
-  id: number
-  nome: string
-  cnpj: string
-  razaoSocial?: string | null
-  email?: string | null
-  emailNf?: string | null
-  telefone?: string | null
-  celular?: string | null
-  contato?: string | null
-  segmento?: string | null
-  endereco?: string | null
-  cidade?: string | null
-  uf?: string | null
-  idIntegracao?: string | null
-}
-
-type Vinculo = {
-  id: number
-  clienteId: number
-  representanteId: number
-  nome: string
-  cnpj: string
-  cidade: string
-  uf: string
-  email: string
-  telefone: string
-  contato: string
-}
-
-async function fetchRepresentantes(query: string) {
+async function fetchRepresentantes(query: string): Promise<RepresentanteResumo[]> {
   const res = await fetch(`/api/representantes?q=${encodeURIComponent(query)}`)
   if (!res.ok) throw new Error("Falha ao buscar")
-  return res.json()
+  return res.json() as Promise<RepresentanteResumo[]>
 }
 
-async function fetchVinculos(clienteId: string) {
+async function fetchVinculos(clienteId: string): Promise<VinculoRepresentante[]> {
   const res = await fetch(`/api/clientes/${clienteId}/representantes`)
   if (!res.ok) throw new Error("Falha ao carregar")
-  return res.json()
+  return res.json() as Promise<VinculoRepresentante[]>
 }
 
 export default function EditarClientePage({ params }: { params: Promise<{ id: string }> }) {
@@ -64,21 +36,21 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
 
   const queryClient = useQueryClient()
 
-  const { data: vinculos = [], isLoading: loadingVinculos } = useQuery({
+  const { data: vinculos = [], isLoading: loadingVinculos } = useQuery<VinculoRepresentante[]>({
     queryKey: ["cliente-representantes", id],
     queryFn: () => fetchVinculos(id),
     enabled: !!id,
   })
 
   const [searchRep, setSearchRep] = useState("")
-  const [repResults, setRepResults] = useState<any[]>([])
+  const [repResults, setRepResults] = useState<RepresentanteResumo[]>([])
   const [searchingRep, setSearchingRep] = useState(false)
-  const [repToRemove, setRepToRemove] = useState<Vinculo | null>(null)
+  const [repToRemove, setRepToRemove] = useState<VinculoRepresentante | null>(null)
   const [showDelete, setShowDelete] = useState(false)
   const [deleteLoading, setDeleteLoading] = useState(false)
-  const [contatos, setContatos] = useState<any[]>([])
+  const [contatos, setContatos] = useState<Contato[]>([])
   const [loadingContatos, setLoadingContatos] = useState(false)
-  const [orfaos, setOrfaos] = useState<any[]>([])
+  const [orfaos, setOrfaos] = useState<Contato[]>([])
   const [contatoSelecionado, setContatoSelecionado] = useState("")
 
   useEffect(() => {
@@ -136,11 +108,11 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
         const err = await res.json().catch(() => null)
         throw new Error(err?.error || "Erro ao criar contato")
       }
-      const novo = await res.json()
+      const novo = await res.json() as Contato
       setContatos((prev) => [...prev, novo])
       toast.success("Contato adicionado e vinculado ao cliente")
-    } catch (err: any) {
-      toast.error(err.message || "Erro ao adicionar contato")
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao adicionar contato")
     }
   }
 
@@ -157,13 +129,13 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
         const err = await res.json().catch(() => null)
         throw new Error(err?.error || "Erro ao vincular")
       }
-      const atualizado = await res.json()
+      const atualizado = await res.json() as Contato
       setContatos((prev) => [...prev, atualizado])
-      setOrfaos((prev) => prev.filter((c: any) => c.id !== contatoId))
+      setOrfaos((prev) => prev.filter((c) => c.id !== contatoId))
       setContatoSelecionado("")
       toast.success("Contato vinculado ao cliente")
-    } catch (err: any) {
-      toast.error(err.message || "Erro ao vincular contato")
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao vincular contato")
     }
   }
 
@@ -178,12 +150,12 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
         const err = await res.json().catch(() => null)
         throw new Error(err?.error || "Erro ao desvincular")
       }
-      const atualizado = await res.json()
-      setContatos((prev) => prev.filter((c: any) => c.id !== contatoId))
+      const atualizado = await res.json() as Contato
+      setContatos((prev) => prev.filter((c) => c.id !== contatoId))
       setOrfaos((prev) => [...prev, atualizado])
       toast.success("Contato desvinculado do cliente")
-    } catch (err: any) {
-      toast.error(err.message || "Erro ao desvincular contato")
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao desvincular contato")
     }
   }
 
@@ -196,8 +168,8 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
     setSearchingRep(true)
     try {
       const data = await fetchRepresentantes(query)
-      const existentes = new Set(vinculos.map((v: any) => v.representanteId))
-      setRepResults(data.filter((r: any) => !existentes.has(r.id)))
+      const existentes = new Set(vinculos.map((v) => v.representanteId))
+      setRepResults(data.filter((r) => !existentes.has(r.id)))
     } catch {
       setRepResults([])
     } finally {
@@ -220,12 +192,12 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
       setSearchRep("")
       setRepResults([])
       toast.success("Representante vinculado ao cliente")
-    } catch (err: any) {
-      toast.error(err.message)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao adicionar")
     }
   }
 
-  async function removeRepresentante(vinculo: Vinculo) {
+  async function removeRepresentante(vinculo: VinculoRepresentante) {
     try {
       await fetch(`/api/clientes/${id}/representantes?vinculoId=${vinculo.id}`, { method: "DELETE" })
       queryClient.invalidateQueries({ queryKey: ["cliente-representantes", id] })
@@ -255,8 +227,8 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
         const err = await res.json()
         throw new Error(err.error || "Erro ao atualizar")
       }
-    } catch (error: any) {
-      toast.error(error.message || "Erro ao atualizar cliente")
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Erro ao atualizar cliente")
     } finally {
       setSaving(false)
     }
@@ -280,8 +252,8 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
       }
       toast.success("Cliente excluído com sucesso!")
       router.push("/comercial/clientes")
-    } catch (err: any) {
-      toast.error(err.message || "Erro ao excluir cliente")
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao excluir cliente")
     } finally {
       setDeleteLoading(false)
       setShowDelete(false)
@@ -507,7 +479,7 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
 
             {repResults.length > 0 && (
               <div className="rounded-lg border border-slate-200 dark:border-slate-700 divide-y divide-slate-100 dark:divide-slate-800 max-h-48 overflow-y-auto">
-                {repResults.map((r: any) => (
+                {repResults.map((r) => (
                   <button
                     key={r.id}
                     onClick={() => addRepresentante(r.id)}
@@ -547,7 +519,7 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                    {vinculos.map((v: any) => (
+                    {vinculos.map((v) => (
                       <tr key={v.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
                         <td className="p-3 text-sm font-medium text-slate-900 dark:text-slate-200">{v.nome}</td>
                         <td className="p-3 text-sm text-slate-500 font-mono">{v.cnpj || "—"}</td>
@@ -591,7 +563,7 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
                   className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
                 >
                   <option value="">Vincular contato existente...</option>
-                  {orfaos.map((c: any) => (
+                  {orfaos.map((c) => (
                     <option key={c.id} value={String(c.id)}>
                       {c.nome}
                       {c.email ? ` — ${c.email}` : ""}
@@ -640,7 +612,7 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                    {contatos.map((c: any) => (
+                    {contatos.map((c) => (
                       <tr key={c.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
                         <td className="p-3 text-sm font-medium text-slate-900 dark:text-slate-200">
                           <Link href={`/comercial/crm/contatos/${c.id}`} className="hover:underline">

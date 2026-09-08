@@ -44,7 +44,7 @@ export default function NovoClientePage() {
 
   useEffect(() => {
     if (form.uf) {
-      const found = estados.find((e: any) => e.uf === form.uf)
+      const found = estados.find((e) => e.uf === form.uf)
       setEstadoId(found ? found.id : null)
     } else {
       setEstadoId(null)
@@ -82,8 +82,8 @@ export default function NovoClientePage() {
       toast.success("Cliente cadastrado com sucesso!")
       const data = await res.json()
       router.push(`/comercial/clientes/${data.id}`)
-    } catch (error: any) {
-      toast.error(error.message || "Erro ao cadastrar cliente")
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Erro ao cadastrar cliente")
     } finally {
       setSaving(false)
     }

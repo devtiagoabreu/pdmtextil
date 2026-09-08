@@ -14,43 +14,7 @@ import { ConfirmModal } from "@/components/ui/confirm-modal"
 import ImportarApiModal from "@/components/integracao/ImportarApiModal"
 import { ExportarDados } from "@/components/exportar/ExportarDados"
 import { useStatuses, hexToRgba } from "@/hooks/use-statuses"
-
-type Cliente = {
-  id: number
-  nome: string
-  cnpj: string
-  razaoSocial?: string | null
-  email?: string | null
-  telefone?: string | null
-  contato?: string | null
-  endereco?: string | null
-  cidade?: string | null
-  uf?: string | null
-  ativo: boolean
-}
-
-type SolicitacaoResumo = {
-  id: number
-  tipo: string
-  status: string
-  cliente: string
-  projeto: string | null
-  prazoDesejado: string | null
-  createdAt: string
-  solicitanteNome: string | null
-}
-
-type AmostraResumo = {
-  id: number
-  tipoAmostra: string
-  descricao: string | null
-  status: string
-  produtoCodigo: string
-  produtoDescricao: string
-  acabamentoDescricao?: string | null
-}
-
-
+import type { Cliente, SolicitacaoResumo, AmostraResumo } from "./types"
 
 const AMOSTRA_STATUS_BADGE: Record<string, string> = {
   PENDENTE: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300",
@@ -209,7 +173,7 @@ export default function ClientesPage() {
           </div>
         ) : (
           <div className="grid gap-4 p-4 md:grid-cols-2 lg:grid-cols-3">
-            {filteredData.map((cliente: any) => (
+            {filteredData.map((cliente) => (
               <div
                 key={cliente.id}
                 className="rounded-lg border border-slate-200 dark:border-slate-700 p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors flex flex-col"
@@ -313,7 +277,7 @@ export default function ClientesPage() {
                 <p className="text-center text-sm text-slate-500 py-12">Nenhuma solicitação encontrada</p>
               ) : (
                 <div className="space-y-2">
-                  {solicModal.data.map((s: any) => (
+                  {solicModal.data.map((s) => (
                     <Link
                       key={s.id}
                       href={`/comercial/solicitacoes/${s.id}`}
@@ -371,7 +335,7 @@ export default function ClientesPage() {
                 <p className="text-center text-sm text-slate-500 py-12">Nenhuma amostra encontrada</p>
               ) : (
                 <div className="space-y-2">
-                  {amostraModal.data.map((a: any) => (
+                  {amostraModal.data.map((a) => (
                     <Link
                       key={`${a.tipoAmostra}-${a.id}`}
                       href={`/amostras?focoAmostra=${a.id}&tipo=${a.tipoAmostra}`}
