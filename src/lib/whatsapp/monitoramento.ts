@@ -73,7 +73,7 @@ export function verificarSaudeEvolution(): Promise<SaudeEvolution> {
       if (res.ok) {
         try {
           const data = JSON.parse(texto)
-          status = data?.instance?.status || data?.status || ""
+          status = data?.instance?.state || data?.instance?.status || data?.state || data?.status || ""
         } catch {
           status = ""
         }

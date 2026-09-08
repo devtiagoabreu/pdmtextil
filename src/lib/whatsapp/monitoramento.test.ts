@@ -46,7 +46,7 @@ const CONFIG_JSON = (sobre: Record<string, unknown> = {}) =>
 const RESPOSTA_OPEN = {
   ok: true,
   status: 200,
-  text: () => Promise.resolve(JSON.stringify({ instance: { status: "open" } })),
+  text: () => Promise.resolve(JSON.stringify({ instance: { state: "open" } })),
 }
 
 function mockSelectSequencia(itens: any[]) {
@@ -140,7 +140,7 @@ describe("verificarSaudeEvolution", () => {
     ;(globalThis.fetch as any).mockResolvedValue({
       ok: true,
       status: 200,
-      text: () => Promise.resolve(JSON.stringify({ instance: { status: "close" } })),
+      text: () => Promise.resolve(JSON.stringify({ instance: { state: "close" } })),
     })
     const saude = await verificarSaudeEvolution()
     expect(saude.online).toBe(false)
@@ -276,7 +276,7 @@ describe("executarMonitoramento", () => {
     ;(globalThis.fetch as any).mockResolvedValue({
       ok: true,
       status: 200,
-      text: () => Promise.resolve(JSON.stringify({ instance: { status: "close" } })),
+      text: () => Promise.resolve(JSON.stringify({ instance: { state: "close" } })),
     })
     vi.mocked(sendEmail).mockResolvedValue({ sent: 2, error: null } as any)
 
@@ -308,7 +308,7 @@ describe("executarMonitoramento", () => {
     ;(globalThis.fetch as any).mockResolvedValue({
       ok: true,
       status: 200,
-      text: () => Promise.resolve(JSON.stringify({ instance: { status: "close" } })),
+      text: () => Promise.resolve(JSON.stringify({ instance: { state: "close" } })),
     })
 
     const r = await executarMonitoramento()
