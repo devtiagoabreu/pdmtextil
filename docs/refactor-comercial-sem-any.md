@@ -65,9 +65,9 @@ Notas:
 
 ---
 
-### ⏸️ Módulo `comercial` restante — RETOMADA PENDENTE (160 matches)
+### ⏸️ Módulo `comercial` restante — RETOMADA PENDENTE (143 matches)
 
-**PRÓXIMO BLOCO: `representantes` (17)** → depois `solicitacoes` (43) → `requisicoes-amostra-comercial` (29) → `requisicoes-corte` (71).
+**PRÓXIMO BLOCO: `solicitacoes` (43)** → depois `requisicoes-amostra-comercial` (29) → `requisicoes-corte` (71).
 
 #### 1. ✅ `comercial/clientes` — COMPLETO (22 → 0)
 
@@ -79,11 +79,15 @@ Notas:
 - `novo/page.tsx`: `estados.find((e) => ...)` (inferido do generic), catch sem `any`.
 - Commit: `857e89a3`.
 
-#### 2. `comercial/representantes` — 17 ocorrências
-- `[id]/page.tsx`: `useState<any>` (`apiData`), `useState<any[]>` (`clienteResults`), `catch` x2, `data.filter((c: any))`, `addCliente(c: any)`, `clienteResults.map((c: any))`.
-- `page.tsx`: `representantes.filter((r: any))`, `filtered.map((r: any))`.
-- `novo/page.tsx`: `useState<any>`/`useState<any[]>` (mesmo padrão de `[id]`), `catch` x2, `estados.map((e: any))` (array de strings → inferir), `clienteResults.map((c: any))`.
-- Reuso: `clientes` e `representantes` têm vínculos mútuos (via tabela `clientes_representantes`) → considerar tipos compartilhados.
+#### 2. ✅ `comercial/representantes` — COMPLETO (17 → 0)
+
+`grep` em `src/app/(dashboard)/comercial/representantes` → **0 matches** (inclui `*.test.tsx`).
+
+- `representantes/types.ts` criado: `Representante`, `ClienteVinculado`, `RepresentanteComClientes`, `ConsultaCnpjData` (shape do opencnpj: `razao_social`, `nome_fantasia`, `situacao_cadastral`, `logradouro`, `municipio`, `uf`).
+- `[id]/page.tsx`: estado `RepresentanteComClientes`, `apiData`→`ConsultaCnpjData | null`, `clienteResults`→`Cliente[]` (reuso de `clientes/types`), `addCliente(c: Cliente)`, catches `err instanceof Error`.
+- `novo/page.tsx`: idem + `estados.map((e) => ...)` (array de strings inferido).
+- `page.tsx`: tipos importados de `./types`, `filter`/`map` sem `any`.
+- Commit: `c03b1a49`.
 
 #### 3. `comercial/solicitacoes` — 43 ocorrências
 - `nova/page.tsx` e `[id]/editar/page.tsx`: **formulário multi-step** — `} as any` (defaultValues/premise), `defaultValues: comercialData as any`, `useQuery<any>`, `STEPS.map((s: any))`, `setComercialData(... val as any)`, `initialData={briefingData as any}`, `catch (error: any)/(err: any)`.
