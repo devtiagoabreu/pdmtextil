@@ -18,6 +18,12 @@ import {
   requisicaoCorteSchema,
   fornecedorSchema,
   usuarioSchema,
+  procEmpresaSchema,
+  procSiteSchema,
+  procAreaSchema,
+  procProcessoSchema,
+  procSubprocessoSchema,
+  procAtividadeSchema,
 } from "./validation"
 
 describe("clienteSchema", () => {
@@ -293,6 +299,126 @@ describe("usuarioSchema", () => {
       password: "123456",
       role: "user",
     })
+    expect(result.success).toBe(false)
+  })
+})
+
+describe("procEmpresaSchema", () => {
+  it("accepts valid empresa", () => {
+    const result = procEmpresaSchema.safeParse({ nome: "PDM Têxtil" })
+    expect(result.success).toBe(true)
+  })
+
+  it("rejects empty nome", () => {
+    const result = procEmpresaSchema.safeParse({ nome: "" })
+    expect(result.success).toBe(false)
+    if (!result.success) expect(result.error.errors[0].path).toContain("nome")
+  })
+
+  it("accepts opcionais null", () => {
+    const result = procEmpresaSchema.safeParse({ nome: "Indústria", cnpj: null, segmento: null })
+    expect(result.success).toBe(true)
+  })
+})
+
+describe("procSiteSchema", () => {
+  it("requires empresaId", () => {
+    const result = procSiteSchema.safeParse({ nome: "Filial SP" })
+    expect(result.success).toBe(false)
+    if (!result.success) expect(result.error.errors[0].path).toContain("empresaId")
+  })
+
+  it("accepts valid site", () => {
+    const result = procSiteSchema.safeParse({ empresaId: 1, nome: "Filial SP" })
+    expect(result.success).toBe(true)
+  })
+
+  it("rejects UF inválida", () => {
+    const result = procSiteSchema.safeParse({ empresaId: 1, nome: "Filial", uf: "SPX" })
+    expect(result.success).toBe(false)
+  })
+})
+
+describe("procAreaSchema", () => {
+  it("requires siteId", () => {
+    const result = procAreaSchema.safeParse({ nome: "Tecelagem" })
+    expect(result.success).toBe(false)
+  })
+
+  it("accepts valid area", () => {
+    const result = procAreaSchema.safeParse({ siteId: 1, nome: "Tecelagem" })
+    expect(result.success).toBe(true)
+  })
+})
+
+describe("procProcessoSchema", () => {
+  it("accepts valid processo central", () => {
+    const result = procProcessoSchema.safeParse({
+      areaId: 1,
+      codigo: "PROC-001",
+      nome: "Tingimento",
+      objetivo: "Tingir tecido",
+      responsavel: "João",
+      status: "APROVADO",
+      versao: 2,
+      entradas: ["Tecido cru", "Corante"],
+      saidas: ["Tecido tingido"],
+      indicadores: [{ nome: "Tempo de ciclo", unidade: "h", meta: "< 4h", frequencia: "diária" }],
+      riscos: [{ descricao: "Variação de cor", probabilidade: "média", impacto: "alto", controle: "Checklist" }],
+      controles: [{ descricao: "Calibração", responsavel: "Manutenção", frequencia: "mensal" }],
+    })
+    expect(result.success).toBe(true)
+  })
+
+  it("rejects empty nome", () => {
+    const result = procProcessoSchema.safeParse({ areaId: 1, nome: "" })
+    expect(result.success).toBe(false)
+  })
+
+  it("rejects status inválido", () => {
+    const result = procProcessoSchema.safeParse({ areaId: 1, nome: "Processo", status: "INVALIDO" })
+    expect(result.success).toBe(false)
+  })
+
+  it("defaults arrays para ausentes", () => {
+    const result = procProcessoSchema.safeParse({ areaId: 1, nome: "Processo" })
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.entradas).toBeUndefined()
+    }
+  })
+})
+
+describe("procSubprocessoSchema", () => {
+  it("requires processoId", () => {
+    const result = procSubprocessoSchema.safeParse({ nome: "Preparação" })
+    expect(result.success).toBe(false)
+  })
+
+  it("accepts valid subprocesso", () => {
+    const result = procSubprocessoSchema.safeParse({ processoId: 1, nome: "Preparação", ordem: 1 })
+    expect(result.success).toBe(true)
+  })
+})
+
+describe("procAtividadeSchema", () => {
+  it("requires subprocessoId", () => {
+    const result = procAtividadeSchema.safeParse({ nome: "Carregar máquina" })
+    expect(result.success).toBe(false)
+  })
+
+  it("accepts valid atividade com tipo", () => {
+    const result = procAtividadeSchema.safeParse({
+      subprocessoId: 1,
+      nome: "Carregar máquina",
+      tipo: "AUTOMATICA",
+      ordem: 1,
+    })
+    expect(result.success).toBe(true)
+  })
+
+  it("rejects tipo inválido", () => {
+    const result = procAtividadeSchema.safeParse({ subprocessoId: 1, nome: "Ação", tipo: "X" })
     expect(result.success).toBe(false)
   })
 })

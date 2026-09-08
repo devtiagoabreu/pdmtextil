@@ -107,6 +107,12 @@ const ENTRADAS: [string, string, LucideIcon][] = [
   ["Vendas", "ShoppingCart", ShoppingCart],
   ["Financeiro", "DollarSign", DollarSign],
   ["Status", "Tag", Tag],
+  ["Processos", "GitBranch", GitBranch],
+  ["Empresas", "Building2", Building2],
+  ["Sites", "Globe", Globe],
+  ["Áreas", "MapPin", MapPin],
+  ["Subprocessos", "Layers", Layers],
+  ["Atividades", "CheckSquare", CheckSquare],
 ]
 
 export interface OpcaoIcone {
@@ -185,6 +191,12 @@ const URL_ICONES: [string, LucideIcon][] = [
   ["/admin/configuracoes", Settings],
   ["/admin", Settings],
   ["/perfil", User],
+  ["/processos/subprocessos", Layers],
+  ["/processos/atividades", CheckSquare],
+  ["/processos/sites", Globe],
+  ["/processos/areas", MapPin],
+  ["/processos/empresas", Building2],
+  ["/processos", GitBranch],
 ]
 
 export function iconForUrl(url: string): LucideIcon {

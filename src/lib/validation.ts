@@ -147,4 +147,89 @@ export const usuarioSchema = z.object({
   celWhatsapp: z.string().trim().max(20).optional().nullable(),
 })
 
+// ==================== Engenharia de Processos ====================
+
+export const procEmpresaSchema = z.object({
+  nome: z.string().trim().min(1, "Nome é obrigatório").max(200),
+  cnpj: z.string().trim().max(18).optional().nullable(),
+  segmento: z.string().trim().max(100).optional().nullable(),
+  observacoes: z.string().optional().nullable(),
+  ativo: z.boolean().optional(),
+})
+
+export const procSiteSchema = z.object({
+  empresaId: z.number().int().positive("Empresa é obrigatória"),
+  nome: z.string().trim().min(1, "Nome é obrigatório").max(200),
+  cidade: z.string().trim().max(100).optional().nullable(),
+  uf: z.string().trim().length(2, "UF deve ter 2 caracteres").optional().nullable(),
+  ativo: z.boolean().optional(),
+})
+
+export const procAreaSchema = z.object({
+  siteId: z.number().int().positive("Site é obrigatório"),
+  nome: z.string().trim().min(1, "Nome é obrigatório").max(200),
+  descricao: z.string().optional().nullable(),
+  ativo: z.boolean().optional(),
+})
+
+const procIndicadorSchema = z.object({
+  nome: z.string().trim().min(1, "Nome do indicador é obrigatório"),
+  unidade: z.string().trim().optional().default(""),
+  meta: z.string().trim().optional().default(""),
+  frequencia: z.string().trim().optional().default(""),
+})
+
+const procRiscoSchema = z.object({
+  descricao: z.string().trim().min(1, "Descrição do risco é obrigatória"),
+  probabilidade: z.string().trim().optional().default(""),
+  impacto: z.string().trim().optional().default(""),
+  controle: z.string().trim().optional().default(""),
+})
+
+const procControleSchema = z.object({
+  descricao: z.string().trim().min(1, "Descrição do controle é obrigatória"),
+  responsavel: z.string().trim().optional().default(""),
+  frequencia: z.string().trim().optional().default(""),
+})
+
+export const procProcessoSchema = z.object({
+  areaId: z.number().int().positive("Área é obrigatória"),
+  codigo: z.string().trim().max(30).optional().nullable(),
+  nome: z.string().trim().min(1, "Nome é obrigatório").max(200),
+  objetivo: z.string().optional().nullable(),
+  responsavel: z.string().trim().max(150).optional().nullable(),
+  status: z.enum(["RASCUNHO", "APROVADO", "PADRONIZADO", "OBSOLETO"]).optional(),
+  versao: z.number().int().min(0).optional(),
+  entradas: z.array(z.string()).optional(),
+  saidas: z.array(z.string()).optional(),
+  fornecedores: z.array(z.string()).optional(),
+  clientes: z.array(z.string()).optional(),
+  recursos: z.array(z.string()).optional(),
+  sistemas: z.array(z.string()).optional(),
+  equipamentos: z.array(z.string()).optional(),
+  indicadores: z.array(procIndicadorSchema).optional(),
+  riscos: z.array(procRiscoSchema).optional(),
+  controles: z.array(procControleSchema).optional(),
+  observacoes: z.string().optional().nullable(),
+  ativo: z.boolean().optional(),
+})
+
+export const procSubprocessoSchema = z.object({
+  processoId: z.number().int().positive("Processo é obrigatório"),
+  nome: z.string().trim().min(1, "Nome é obrigatório").max(200),
+  descricao: z.string().optional().nullable(),
+  ordem: z.number().int().min(0).optional(),
+  ativo: z.boolean().optional(),
+})
+
+export const procAtividadeSchema = z.object({
+  subprocessoId: z.number().int().positive("Subprocesso é obrigatório"),
+  nome: z.string().trim().min(1, "Nome é obrigatório").max(200),
+  tipo: z.enum(["MANUAL", "AUTOMATICA", "DECISAO", "ESPERA"]).optional(),
+  responsavel: z.string().trim().max(150).optional().nullable(),
+  ordem: z.number().int().min(0).optional(),
+  observacoes: z.string().optional().nullable(),
+  ativo: z.boolean().optional(),
+})
+
 

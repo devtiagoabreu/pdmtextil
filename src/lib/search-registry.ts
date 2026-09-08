@@ -191,6 +191,21 @@ export const searchRegistry: SearchItem[] = [
   // CRM — Treinamento
   { id: "crm-treinamento", label: "CRM — Treinamento", keywords: ["crm", "treinamento", "treino", "documentacao", "manual", "ajuda", "guia", "tutorial", "aprender"], href: "/comercial/crm/treinamento", description: "Documentação e treinamento do CRM com explicações campo a campo", module: "CRM" },
   { id: "crm-treinamento-admin", label: "CRM — Gerenciar Treinamento", keywords: ["crm", "treinamento", "admin", "gerenciar", "conteudo", "licoes", "modulos"], href: "/comercial/crm/treinamento/admin", description: "Gerenciar conteúdo do treinamento CRM", module: "CRM" },
+
+  // Processos (Engenharia de Processos)
+  { id: "processos", label: "Engenharia de Processos", keywords: ["processo", "engenharia", "mapeamento", "mapa", "fluxo", "procedimento", "qualidade"], href: "/processos", description: "Mapa de processos da organização, de Empresa até Atividade", module: "Processos" },
+  { id: "processos-empresas", label: "Processos — Empresas", keywords: ["processo", "empresa", "organizacao", "lista", "mapeamento"], href: "/processos/empresas", description: "Empresas do workspace de engenharia de processos", module: "Processos" },
+  { id: "processos-empresas-nova", label: "Processos — Nova Empresa", keywords: ["processo", "empresa", "nova", "criar", "cadastro"], href: "/processos/empresas/novo", description: "Cadastrar nova empresa no mapeamento de processos", module: "Processos" },
+  { id: "processos-sites", label: "Processos — Sites", keywords: ["processo", "site", "unidade", "planta", "lista", "mapeamento"], href: "/processos/sites", description: "Sites e unidades físicas do mapeamento", module: "Processos" },
+  { id: "processos-sites-novo", label: "Processos — Novo Site", keywords: ["processo", "site", "novo", "criar", "unidade"], href: "/processos/sites/novo", description: "Cadastrar novo site/unidade", module: "Processos" },
+  { id: "processos-areas", label: "Processos — Áreas", keywords: ["processo", "area", "area", "setor", "departamento", "lista"], href: "/processos/areas", description: "Áreas e departamentos do mapeamento", module: "Processos" },
+  { id: "processos-areas-nova", label: "Processos — Nova Área", keywords: ["processo", "area", "nova", "criar", "setor"], href: "/processos/areas/novo", description: "Cadastrar nova área", module: "Processos" },
+  { id: "processos-processos", label: "Processos — Processos", keywords: ["processo", "lista", "objetivo", "risco", "controle", "indicador", "fluxo"], href: "/processos/processos", description: "Lista de processos documentados (objeto central)", module: "Processos" },
+  { id: "processos-processos-novo", label: "Processos — Novo Processo", keywords: ["processo", "novo", "criar", "documentar", "risco", "indicador"], href: "/processos/processos/novo", description: "Documentar novo processo com indicadores, riscos e controles", module: "Processos" },
+  { id: "processos-subprocessos", label: "Processos — Subprocessos", keywords: ["processo", "subprocesso", "etapa", "decomposicao", "lista"], href: "/processos/subprocessos", description: "Subprocessos (etapas) do mapeamento", module: "Processos" },
+  { id: "processos-subprocessos-novo", label: "Processos — Novo Subprocesso", keywords: ["processo", "subprocesso", "novo", "criar", "etapa"], href: "/processos/subprocessos/novo", description: "Criar novo subprocesso", module: "Processos" },
+  { id: "processos-atividades", label: "Processos — Atividades", keywords: ["processo", "atividade", "tarefa", "lista", "execucao"], href: "/processos/atividades", description: "Atividades (unidades de execução) do mapeamento", module: "Processos" },
+  { id: "processos-atividades-nova", label: "Processos — Nova Atividade", keywords: ["processo", "atividade", "nova", "criar", "tarefa"], href: "/processos/atividades/novo", description: "Criar nova atividade", module: "Processos" },
 ]
 
 export function searchItems(query: string): SearchItem[] {

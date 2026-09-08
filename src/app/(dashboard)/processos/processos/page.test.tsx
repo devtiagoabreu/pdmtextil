@@ -1,0 +1,51 @@
+// @vitest-environment jsdom
+import ProcessoProcessosPage from "./page"
+import { listPageSpec } from "@/test/list-page-spec"
+
+listPageSpec({
+  title: "ProcessoProcessosPage",
+  component: <ProcessoProcessosPage />,
+  apiBase: "processos",
+  apiPrefix: "/api/processos",
+  heading: "Processos",
+  searchPlaceholder: "Buscar por nome, área, código ou responsável...",
+  emptyText: "Nenhum processo encontrado",
+  newLinkText: "Novo Processo",
+  newHref: "/processos/processos/novo",
+  editHref: (item) => `/processos/processos/${item.id}`,
+  primaryField: "nome",
+  data: [
+    {
+      id: 1,
+      areaId: 1,
+      areaNome: "Produção",
+      siteNome: "Unidade Blumenau",
+      codigo: "PR-001",
+      nome: "Processo de Tecelagem",
+      objetivo: "Produzir tecidos",
+      responsavel: "João Silva",
+      status: "APROVADO",
+      versao: 2,
+      ativo: true,
+    },
+    {
+      id: 2,
+      areaId: 2,
+      areaNome: "Administrativo",
+      siteNome: "Unidade São Paulo",
+      codigo: "PR-002",
+      nome: "Processo de Compras",
+      objetivo: null,
+      responsavel: null,
+      status: "RASCUNHO",
+      versao: 0,
+      ativo: false,
+    },
+  ],
+  blockedId: 2,
+  successToast: "Processo excluído com sucesso",
+  deleteSingular: "processo",
+  matchQuery: "tecelagem",
+  firstItemText: "Processo de Tecelagem",
+  secondItemText: "Processo de Compras",
+})

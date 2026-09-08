@@ -97,6 +97,23 @@ async function seed() {
     { userMenuId: menuCrmAdmin.id, titulo: "Relatórios", url: "/comercial/crm/relatorios", ordem: 16 },
   ])
 
+  // Menu Processos para role ADMIN
+  const [menuProcessosAdmin] = await db.insert(userMenus).values({
+    role: "ADMIN",
+    titulo: "Processos",
+    ordem: 3,
+  }).returning()
+
+  await db.insert(userMenuItens).values([
+    { userMenuId: menuProcessosAdmin.id, titulo: "Mapa de Processos", url: "/processos", ordem: 0 },
+    { userMenuId: menuProcessosAdmin.id, titulo: "Empresas", url: "/processos/empresas", ordem: 1 },
+    { userMenuId: menuProcessosAdmin.id, titulo: "Sites", url: "/processos/sites", ordem: 2 },
+    { userMenuId: menuProcessosAdmin.id, titulo: "Áreas", url: "/processos/areas", ordem: 3 },
+    { userMenuId: menuProcessosAdmin.id, titulo: "Processos", url: "/processos/processos", ordem: 4 },
+    { userMenuId: menuProcessosAdmin.id, titulo: "Subprocessos", url: "/processos/subprocessos", ordem: 5 },
+    { userMenuId: menuProcessosAdmin.id, titulo: "Atividades", url: "/processos/atividades", ordem: 6 },
+  ])
+
   console.log("✅ Seed concluído!")
 }
 seed().catch(console.error)
