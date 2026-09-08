@@ -1,5 +1,27 @@
+import type { jsPDF } from "jspdf"
 import type { GrupoRomaneio, OrientacaoPdf, Rolo } from "./types"
 import { formatarData, formatarMetragem, formatarPeso } from "./utils"
+
+interface EmpresaConfig {
+  nome?: string
+  documento?: string
+  endereco?: string
+  cidade?: string
+  uf?: string
+  logoUrl?: string
+  isDefault?: boolean
+}
+
+type CelulaTabela = {
+  content: string
+  colSpan?: number
+  rowSpan?: number
+  styles?: Record<string, unknown>
+}
+
+type LinhaTabela = (string | CelulaTabela)[]
+
+type DocPdfComAutoTable = jsPDF & { autoTable: (options: Record<string, unknown>) => unknown }
 
 export function loadImage(url: string): Promise<HTMLImageElement | null> {
   return new Promise((resolve) => {
@@ -19,13 +41,13 @@ export function loadImage(url: string): Promise<HTMLImageElement | null> {
 }
 
 export async function carregarEmpresa(): Promise<{
-  empresa: Record<string, any> | null
+  empresa: EmpresaConfig | null
   logoImg: HTMLImageElement | null
 }> {
   try {
     const res = await fetch("/api/admin/config/empresa")
-    const list = await res.json()
-    const empresa = list.find((e: any) => e.isDefault) || list[0]
+    const list = (await res.json()) as EmpresaConfig[]
+    const empresa = list.find((e) => e.isDefault) || list[0] || null
     let logoImg: HTMLImageElement | null = null
     if (empresa?.logoUrl) {
       logoImg = await loadImage(empresa.logoUrl)
@@ -46,12 +68,12 @@ export async function criarDocPdf(orient: OrientacaoPdf) {
 }
 
 export async function renderRomaneioPage(
-  doc: any,
+  doc: jsPDF,
   grupo: GrupoRomaneio,
   numero: number,
   isLandscape: boolean,
   pageWidth: number,
-  empresa: Record<string, any> | null,
+  empresa: EmpresaConfig | null,
   logoImg: HTMLImageElement | null
 ) {
   const margin = 8
@@ -141,10 +163,10 @@ export async function renderRomaneioPage(
 
   y += capaH + (isLandscape ? 14 : 22)
 
-  const head = [
+  const head: LinhaTabela[] = [
     ["#", "Cód. Rolo", "Produto", "Narrativa", "Lote", "Metragem", "P. Bruto", "P. Líquido"],
   ]
-  const body: any[] = []
+  const body: LinhaTabela[] = []
 
   for (const prod of grupo.produtos) {
     let prodRolos = 0
@@ -166,7 +188,7 @@ export async function renderRomaneioPage(
       if (!lotesMap.has(loteNome)) lotesMap.set(loteNome, [])
       lotesMap.get(loteNome)!.push(r)
     }
-    const lotesOrdenados = Array.from(lotesMap.entries()).sort((a: any, b: any) => a[0].localeCompare(b[0]))
+    const lotesOrdenados = Array.from(lotesMap.entries()).sort((a, b) => a[0].localeCompare(b[0]))
 
     for (const [loteNome, rolos] of lotesOrdenados) {
       const subRolos = rolos.length
@@ -191,7 +213,7 @@ export async function renderRomaneioPage(
         },
       ])
 
-      rolos.forEach((r: any, idx: any) => {
+      rolos.forEach((r, idx) => {
         body.push([
           String(idx + 1),
           String(r.codigo_rolo),
@@ -233,7 +255,7 @@ export async function renderRomaneioPage(
 
   const fontSize = isLandscape ? 7.5 : 7
   const pageH = doc.internal.pageSize.getHeight()
-  ;(doc as any).autoTable({
+  ;(doc as DocPdfComAutoTable).autoTable({
     head,
     body,
     startY: y,
@@ -246,7 +268,7 @@ export async function renderRomaneioPage(
     columnStyles: {
       0: { cellWidth: isLandscape ? 10 : 8, halign: "center" },
     },
-    didDrawPage: (data: any) => {
+    didDrawPage: (data: { pageNumber: number }) => {
       doc.setFontSize(isLandscape ? 6.5 : 6).setFont("helvetica", "normal")
       doc.setTextColor(0, 0, 0)
       doc.text(`Romaneio Nº ${numero}`, margin, pageH - (isLandscape ? 6 : 5))
@@ -271,7 +293,7 @@ export async function gerarPdfRomaneioConsolidado(
   const { doc, isLandscape, pageWidth } = await criarDocPdf(orient)
   const { empresa, logoImg } = await carregarEmpresa()
   for (let i = 0; i < nums.length; i++) {
-    const grupo = grupos.find((g: any) => g.romaneio === nums[i])
+    const grupo = grupos.find((g) => g.romaneio === nums[i])
     if (!grupo) continue
     if (i > 0) doc.addPage()
     await renderRomaneioPage(doc, grupo, nums[i], isLandscape, pageWidth, empresa, logoImg)

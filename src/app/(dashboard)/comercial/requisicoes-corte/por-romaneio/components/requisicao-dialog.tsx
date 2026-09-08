@@ -43,7 +43,7 @@ export function RequisicaoDialog({
         </DialogHeader>
 
         <div className="space-y-3 max-h-[50vh] overflow-y-auto">
-          {itens.map((item: any, index: any) => (
+          {itens.map((item, index) => (
             <div
               key={item.produto}
               className="rounded-lg border border-slate-200 dark:border-slate-700 p-3 space-y-2"

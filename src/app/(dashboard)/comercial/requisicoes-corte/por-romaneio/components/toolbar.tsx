@@ -55,7 +55,7 @@ export function Toolbar({
         <div>
           <label className="text-xs font-medium text-slate-500 mb-1 block">Integração</label>
           <div className="flex gap-2 flex-wrap">
-            {integracoes.map((int: any) => (
+            {integracoes.map((int) => (
               <button
                 key={int.id}
                 type="button"

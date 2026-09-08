@@ -40,8 +40,8 @@ export default function RequisicaoPorRomaneioPage() {
     setLoadingInt(true)
     const tela = pathname.replace(/^\//, "").split("/").pop() || ""
     fetch(`/api/integracao/listar?tela=${encodeURIComponent(tela)}`)
-      .then((res: any) => res.json())
-      .then((data: any) => {
+      .then((res: Response) => res.json())
+      .then((data: Integracao[]) => {
         setIntegracoes(data)
         if (data.length > 0) setSelectedId(data[0].id)
       })
@@ -82,7 +82,7 @@ export default function RequisicaoPorRomaneioPage() {
       grupo.totalPesoBruto += item.peso_bruto || 0
       grupo.totalPesoLiquido += item.peso_liquido || 0
     }
-    const result = Array.from(map.values()).sort((a: any, b: any) => b.romaneio - a.romaneio)
+    const result = Array.from(map.values()).sort((a, b) => b.romaneio - a.romaneio)
     for (const g of result) {
       g.produtos = agruparProdutos(g.rolos)
     }
@@ -159,7 +159,7 @@ export default function RequisicaoPorRomaneioPage() {
   function abrirDialog(grupo: GrupoRomaneio) {
     setDialogRomaneio(grupo)
     setDialogItens(
-      grupo.produtos.map((p: any) => ({
+      grupo.produtos.map((p) => ({
         produto: p.nome,
         narrativa: p.narrativa,
         cor: p.cor,
@@ -181,7 +181,7 @@ export default function RequisicaoPorRomaneioPage() {
   async function confirmarCriacao() {
     if (!dialogRomaneio) return
 
-    const itensValidos = dialogItens.filter((item: any) => {
+    const itensValidos = dialogItens.filter((item) => {
       const num = parseFloat(item.metragem.replace(",", "."))
       return !isNaN(num) && num > 0
     })
@@ -193,7 +193,7 @@ export default function RequisicaoPorRomaneioPage() {
 
     setCriando(true)
     try {
-      const itensPayload = itensValidos.map((item: any) => {
+      const itensPayload = itensValidos.map((item) => {
         const partes = item.produto.split(".")
         const bbbbb = partes[1] || ""
         const dddddd = partes[3] || ""
@@ -234,7 +234,7 @@ export default function RequisicaoPorRomaneioPage() {
   }
 
   async function gerarPdf(numero: number, orientacao?: OrientacaoPdf) {
-    const grupo = grupos.find((g: any) => g.romaneio === numero)
+    const grupo = grupos.find((g) => g.romaneio === numero)
     if (!grupo) return
 
     setGerandoPdf(true)
@@ -256,7 +256,7 @@ export default function RequisicaoPorRomaneioPage() {
 
     setGerandoPdf(true)
     try {
-      const nums = Array.from(selectedRomaneios).sort((a: any, b: any) => a - b)
+      const nums = Array.from(selectedRomaneios).sort((a, b) => a - b)
       await gerarPdfRomaneioConsolidado(grupos, nums, orientacaoPdf)
       toast.success(`PDF consolidado com ${nums.length} romaneio(s) gerado!`)
     } catch (err) {
@@ -355,7 +355,7 @@ export default function RequisicaoPorRomaneioPage() {
                 </p>
               )}
               <div className="space-y-4">
-                {grupos.map((grupo: any) => (
+                {grupos.map((grupo) => (
                   <RomaneioCard
                     key={grupo.romaneio}
                     grupo={grupo}

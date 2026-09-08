@@ -103,7 +103,7 @@ describe("ListaRequisicoesCortePage", () => {
     fireEvent.click(within(row).getByText("Copiar"))
 
     await waitFor(() => {
-      const call = fetchMock.calls.find((c: any) =>
+      const call = fetchMock.calls.find((c) =>
         c.url.startsWith("/api/comercial/requisicoes-corte/30") && c.method === "GET"
       )
       expect(call).toBeDefined()

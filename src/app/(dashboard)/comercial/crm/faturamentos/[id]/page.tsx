@@ -60,7 +60,7 @@ export default function FaturamentoDetailPage() {
   useEffect(() => {
     fetch("/api/crm/oportunidades")
       .then((r) => r.json())
-      .then((data) => setOportunidades(Array.isArray(data) ? data.map((o: any) => ({ id: Number(o.id), titulo: o.titulo })) : []))
+      .then((data: { id: unknown; titulo: string }[]) => setOportunidades(Array.isArray(data) ? data.map((o) => ({ id: Number(o.id), titulo: o.titulo })) : []))
       .catch(() => setOportunidades([]))
   }, [])
 

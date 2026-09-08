@@ -158,17 +158,8 @@ O teste deve ser criado **na mesma entrega/commit** da funcionalidade. Regressã
 - Formulários atípicos (sem `<form>`, `alert`/`confirm`): teste customizado na pasta da página — ex. `produtos-quimicos/[id]/form.test.tsx`.
 - Caso especial: `receitas` (abas), `produto-cru/[id]` (multi-tab, smoke de Capa).
 
-# ⏸️ RETOMADA PENDENTE: refatoração `any` no módulo Comercial
+# ✅ CONCLUÍDA: refatoração `any` no módulo Comercial
 
-**LEIA `docs/refactor-comercial-sem-any.md` — registro oficial de progresso, ordem de blocos, contagens e padrões.**
+**LEIA `docs/refactor-comercial-sem-any.md` — registro oficial.**
 
-## COBRANÇA OBRIGATÓRIA NO INÍCIO DE CADA SESSÃO (até concluir)
-
-No início de **toda** nova sessão, o agente DEVE, antes de qualquer outra tarefa:
-
-1. Ler `docs/refactor-comercial-sem-any.md`.
-2. Reportar ao usuário o estado da refatoração: **blocos concluídos** (PMC-commit count) e **bloco pendente atual** com nº de ocorrências restantes.
-3. **COBRAR a retomada**: perguntar explicitamente se o usuário quer continuar a refatoração agora. Se o usuário pedir outra tarefa, anotar a pendência e COBRAR DE NOVO no início da sessão seguinte.
-4. Continuar cobrando a cada sessão até que a contagem chegue a **0 occurrences de `/: any|\bany\b/` em `src/app/(dashboard)/comercial`** e os 5 blocos restantes (`clientes`, `representantes`, `solicitacoes`, `requisicoes-amostra-comercial`, `requisicoes-corte`) estejam concluídos — total pendente ~182 ocorrências.
-
-Estado relativo à última sessão: `comercial/crm` **100% completo** (0 matches, commits `50fb0a14`→`5bb4bab9` pushed). Próximo bloco: **`clientes` (22)**.
+O módulo `src/app/(dashboard)/comercial` está **100% sem `any`** (0 matches em `grep ': any|\bany\b|\bas any\b'`, incluindo `*.test.tsx`). Não há mais cobrança de retomada.

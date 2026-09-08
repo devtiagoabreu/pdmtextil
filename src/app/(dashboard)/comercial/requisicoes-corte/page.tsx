@@ -11,6 +11,7 @@ import ListFilters, { useListFilters } from "@/components/ui/list-filters"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { Button } from "@/components/ui/button"
 import { gerarRequisicaoCortePdf, gerarRequisicaoCortePdfConsolidado, RequisicaoCorteData } from "@/lib/gerar-requisicao-corte-pdf"
+import type { RequisicaoCorteLista, RequisicaoCorteDetalhe, RequisicaoCopia } from "./types"
 import RequisicoesCorteKanban from "@/components/crm/requisicoes-corte-kanban"
 import { FloatableKanban } from "@/components/crm/floatable-kanban"
 import { PageSkeleton } from "@/components/ui/page-skeleton"
@@ -26,10 +27,10 @@ function ListaRequisicoesCortePageContent() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const info = getInfoContent(pathname)
-  const [data, setData] = useState<any[]>([])
+  const [data, setData] = useState<RequisicaoCorteLista[]>([])
   const [loading, setLoading] = useState(true)
   const [mounted, setMounted] = useState(false)
-  const [deleteTarget, setDeleteTarget] = useState<any>(null)
+  const [deleteTarget, setDeleteTarget] = useState<RequisicaoCorteLista | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
 
   const [selected, setSelected] = useState<Set<number>>(new Set())
@@ -57,8 +58,8 @@ function ListaRequisicoesCortePageContent() {
   useEffect(() => {
     if (!mounted) return
     fetch("/api/comercial/requisicoes-corte")
-      .then((res: any) => { if (!res.ok) throw new Error(); return res.json() })
-      .then((d: any) => setData(Array.isArray(d) ? d : []))
+      .then((res: Response) => { if (!res.ok) throw new Error(); return res.json() })
+      .then((d: RequisicaoCorteLista[]) => setData(Array.isArray(d) ? d : []))
       .catch(() => toast.error("Erro ao carregar requisições"))
       .finally(() => setLoading(false))
   }, [mounted])
@@ -76,7 +77,7 @@ function ListaRequisicoesCortePageContent() {
     try {
       const res = await fetch(`/api/comercial/requisicoes-corte/${id}?t=${Date.now()}`)
       if (!res.ok) return null
-      const d = await res.json()
+      const d: RequisicaoCorteDetalhe = await res.json()
       return {
         id: d.id,
         status: d.status,
@@ -84,7 +85,7 @@ function ListaRequisicoesCortePageContent() {
         entreguePor: d.entreguePor,
         createdAt: d.createdAt,
         requisitanteNome: d.requisitanteNome,
-        itens: Array.isArray(d.itens) ? d.itens.map((i: any) => ({
+        itens: Array.isArray(d.itens) ? d.itens.map((i) => ({
           codigoProduto: i.codigoProduto || "",
           ordem: i.ordem || "",
           artigo: i.artigo || "",
@@ -138,13 +139,13 @@ function ListaRequisicoesCortePageContent() {
     setGerandoPdf(false)
   }
 
-  async function copiarRequisicao(item: any) {
+  async function copiarRequisicao(item: RequisicaoCorteLista) {
     try {
       const res = await fetch(`/api/comercial/requisicoes-corte/${item.id}?t=${Date.now()}`)
       if (!res.ok) throw new Error()
-      const dados = await res.json()
+      const dados: RequisicaoCopia = await res.json()
       const payload = {
-        itens: Array.isArray(dados.itens) ? dados.itens : [],
+        itens: dados.itens ?? [],
         observacoes: dados.observacoes || "",
         entreguePor: dados.entreguePor || "",
       }
@@ -166,7 +167,7 @@ function ListaRequisicoesCortePageContent() {
       }
       toast.success("Requisição excluída com sucesso")
       setDeleteTarget(null)
-      setData((prev: any) => prev.filter((item: any) => item.id !== deleteTarget.id))
+      setData((prev) => prev.filter((item) => item.id !== deleteTarget.id))
       setSelected(prev => { const next = new Set(prev); next.delete(deleteTarget.id); return next })
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erro ao excluir")
@@ -328,7 +329,7 @@ function ListaRequisicoesCortePageContent() {
                       checked=                    {filteredData.length > 0 && selected.size === filteredData.length}
                       onChange={() => {
                         if (selected.size === filteredData.length) setSelected(new Set())
-                        else setSelected(new Set(filteredData.map((d: any) => d.id)))
+                        else setSelected(new Set(filteredData.map((d) => d.id)))
                       }}
                       className="rounded"
                     />
@@ -343,7 +344,7 @@ function ListaRequisicoesCortePageContent() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {filteredData.map((item: any) => {
+                {filteredData.map((item) => {
                   const statusCfg = STATUS_CONFIG[item.status] ?? { label: item.status, classes: "bg-slate-100 text-slate-600" }
                   const isSel = selected.has(item.id)
                   return (

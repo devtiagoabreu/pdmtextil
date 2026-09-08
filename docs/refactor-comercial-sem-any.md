@@ -65,9 +65,7 @@ Notas:
 
 ---
 
-### ⏸️ Módulo `comercial` restante — RETOMADA PENDENTE (71 matches)
-
-**PRÓXIMO BLOCO: `requisicoes-corte` (71)** — o maior; pode dividir em sub-blocos se necessário.
+### ✅ Módulo `comercial` restante — COMPLETO (0 matches)
 
 #### 1. ✅ `comercial/clientes` — COMPLETO (22 → 0)
 
@@ -116,19 +114,26 @@ Notas:
 - Verificações: `tsc --noEmit` limpo; vitest do bloco 10/10; suíte completa JSON **1203/1203**.
 - Commit: `07aa79f2`.
 
-#### 5. `comercial/requisicoes-corte` — 71 ocorrências (o maior)
-- `[id]/page.tsx`: fetches `(r: any)/(res: any)/(d: any)`, `setStatusOptions(data.map((s: any)))`, `handleItemChange(field: keyof ItemLinha, value: any)` (→ tipar value por field), `setItens(prev => prev.filter((_: any, i: any)))`, `handleOcrItens(novosItens: any[])`, `itens.reduce((acc: any, item: any))`, `itens.map((item: any, index: any))`, `statusOptions.map((s: any))`.
-- `page.tsx`: `useState<any[]>` (`data`), `useState<any>` (`deleteTarget`), fetches `(res: any)/(d: any)`, `d.itens.map((i: any))`, `copiarRequisicao(item: any)`, `prev.filter((item: any))`, `filteredData.map((d: any))`, `filteredData.map((item: any))`.
-- `nova/page.tsx`: catch x8, `useState<(data: any)>`/`setData((prev: any) => ...)`, **inputs com `(data as any).emailNf/celular/segmento`** (→ tipar o estado do form), `dados.itens.map((item: any))`, `handleItemChange`/`handleOcrItens` (idem `[id]`), `itens.filter/map((item: any))`, `itens.map((item: any, index: any))`.
-- `por-romaneio/page.tsx`: fetches `(res: any)/(data: any)`, sorts/group/`produtos.map((p: any))`, `dialogItens.filter/map`, `grupos.find((g: any))`, `Array.from(selectedRomaneios).sort((a: any, b: any))`, `grupos.map((grupo: any))`.
-- `por-romaneio/components/romaneio-pdf.ts`: **`doc: any` (jsPDF)** → tipar com `jsPDF`/`jspdf.autotable` (`(doc as any).autoTable` melhorável), `empresa: Record<string, any>`, `body: any[]`, sorts `(a: any, b: any)`, `rolos.forEach((r: any, idx: any))`, `didDrawPage: (data: any)`.
-- `por-romaneio/components/{romaneio-card,toolbar,requisicao-dialog,utils}.tsx/ts`: maps/sorts `(prod: any)`, `(a: any, b: any)`, `(rolo: any, idx: any)`, `(int: any)`, `(item: any, index: any)`, `rolos.reduce((acc: any, r: any))`, `produtos.sort((a: any, b: any))`.
-- `page.test.tsx`: `fetchMock.calls.find((c: any)` → inferir `FetchCall`.
+#### 5. ✅ `comercial/requisicoes-corte` — COMPLETO (71 → 0)
+
+`grep` em `src/app/(dashboard)/comercial/requisicoes-corte` → **0 matches** (inclui `*.test.tsx`).
+
+- `requisicoes-corte/types.ts` criado: `ItemOcr`, `RequisicaoCorteItem` (espelha `ItemLinha` com `destinoTipo`), `RequisicaoCorteLista`, `RequisicaoCorteDetalhe`, `RequisicaoCopia`.
+- `page.tsx`: `data`→`RequisicaoCorteLista[]`, `deleteTarget`→`RequisicaoCorteLista | null`, fetches `(res: Response)/(d: RequisicaoCorteLista[])`, `fetchDetalhe` `(d: RequisicaoCorteDetalhe)` + `d.itens.map((i) => ...)`, `copiarRequisicao(item: RequisicaoCorteLista)` + `(dados: RequisicaoCopia)` + payload `dados.itens ?? []`, maps/filters sem `any`.
+- `[id]/page.tsx`: tipo local `StatusOpcaoApi` (`nome`, `rotulo: string | null`, `cor: string | null`) + `map((s) => ({ cor: s.cor ?? undefined }))`, fetches tipados, `handleItemChange(field: keyof ItemLinha, value: string)`, `handleOcrItens(novosItens: ItemOcr[])`, `itens.reduce`/`itens.map`/`statusOptions.map` sem `any`.
+- `nova/page.tsx`: `DadosClienteNovo`/`DadosPessoaNovo`/`DadosNovo` (união) → **elimina os `(data as any).emailNf/celular/segmento`** (agora `(data as DadosClienteNovo)` porque o estado é união e só `cliente` tem esses campos), `setData((prev) => { const base = {...}; if (isCliente) { ... } })` (sem spread `as any`), catch x8 `err instanceof Error` (`toast.error(err instanceof Error ? err.message : "Erro ao criar")`), `handleItemChange(String)` idem, `copiar=`→`(dados: RequisicaoCopia)` + `destinoTipo: null` no item, `itensValidos.filter`/`itens.map` sem `any`.
+- `por-romaneio/page.tsx`: fetch `(res: Response)/(data: Integracao[])`, sorts `(a, b)`/`(g)`/`(p)`/`(item)`/`(grupo)` inferidos.
+- `por-romaneio/components/romaneio-pdf.ts`: **`doc: jsPDF`** (`import type { jsPDF } from "jspdf"`) + término local `EmpresaConfig` (`nome?`, `documento?`, `endereco?`, `cidade?`, `uf?`, `logoUrl?`, `isDefault?`); `(await res.json()) as EmpresaConfig[]`; `list.find((e) => e.isDefault) || list[0] || null`; `body: LinhaTabela[]` (`CelulaTabela = { content; colSpan?; rowSpan?; styles?: Record<string, unknown> }`); autoTable via cast `(doc as DocPdfComAutoTable)` (`jsPDF & { autoTable: (options: Record<string, unknown>) => unknown }` — `jspdf-autotable` não augmenta o tipo `jsPDF`); `didDrawPage: (data: { pageNumber: number })`.
+- `por-romaneio/components/{romaneio-card,toolbar,requisicao-dialog,utils}.tsx/ts`: `rolos.forEach((rolo, idx) => ...)`, `Array.from(...).sort((a, b) => ...)` (par inferido de `[string, Map<string, Rolo[]>]`), `rolos.reduce((acc, r) => acc + (r.quantidade || 0), 0)`, maps sem `any`.
+- `page.test.tsx`: `fetchMock.calls.find((c) => ...)` inferido (`FetchCall`).
+- **Extras fora do bloco (achados na verificação final do módulo)**: 4 `any` remanescentes nos blocos `pedidos-venda` (2) e `faturamentos` (2) — `data.map((o: any) => ...)` ao carregar oportunidades → `.then((data: { id: unknown; titulo: string }[]) => data.map((o) => ...))`. Corrigidos na mesma entrega.
+- Verificações: `tsc --noEmit` limpo; vitest do bloco 4/4 (14 testes) + pedidos-venda/faturamentos 6/6 (20 testes); suíte completa JSON **1203/1203**; `grep` no módulo `comercial` inteiro → **0 matches**.
+- Commit: (preencher após push).
 
 ---
 
-## Como retomar
+## Status final
 
-1. Pegar o **próximo bloco** (atualmente `clientes`) e aplicar a regra de bloco acima.
-2. Atualizar este arquivo ao fechar cada bloco.
-3. COBRANÇA: este arquivo é lido pelo agente no início de cada sessão (via AGENTS.md) — o usuário é cobrado a retomar até zerar.
+🎉 **Módulo Comercial 100% sem `any`** — `grep ': any|\bany\b|\bas any\b'` em `src/app/(dashboard)/comercial` → **0 matches** (inclui `*.test.tsx`).
+
+Fora de escopo (mantidos, pois não estão em `src/app/(dashboard)/comercial`): `src/lib/gerar-requisicao-corte-pdf.ts` e rotas `src/app/api/...`.

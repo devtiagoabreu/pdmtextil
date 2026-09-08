@@ -104,7 +104,7 @@ export function RomaneioCard({
         </div>
 
         <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
-          {grupo.produtos.map((prod: any) => (
+          {grupo.produtos.map((prod) => (
             <div
               key={prod.nome}
               className="rounded-lg border border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-3"
@@ -152,10 +152,10 @@ export function RomaneioCard({
                     if (!lm.has(l)) lm.set(l, [])
                     lm.get(l)!.push(r)
                   }
-                  const prodsSorted = Array.from(prodsMap.entries()).sort((a: any, b: any) => a[0].localeCompare(b[0]))
+                  const prodsSorted = Array.from(prodsMap.entries()).sort((a, b) => a[0].localeCompare(b[0]))
                   const trs: ReactNode[] = []
                   for (const [prodNome, lotesMap] of prodsSorted) {
-                    const lotsSorted = Array.from(lotesMap.entries()).sort((a: any, b: any) => a[0].localeCompare(b[0]))
+                    const lotsSorted = Array.from(lotesMap.entries()).sort((a, b) => a[0].localeCompare(b[0]))
                     trs.push(
                       <tr key={`prod-${prodNome}`} className="bg-purple-50 dark:bg-purple-950/20">
                         <td colSpan={7} className="px-4 py-2 text-sm font-bold text-purple-700 dark:text-purple-400">
@@ -171,7 +171,7 @@ export function RomaneioCard({
                           </td>
                         </tr>
                       )
-                      rolos.forEach((rolo: any, idx: any) => {
+                      rolos.forEach((rolo, idx) => {
                         trs.push(
                           <tr key={rolo.codigo_rolo} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                             <td className="px-3 py-2 text-sm text-slate-500 text-center font-mono text-[12px]">{idx + 1}</td>

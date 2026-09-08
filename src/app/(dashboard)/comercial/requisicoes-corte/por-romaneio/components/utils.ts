@@ -33,7 +33,7 @@ export function agruparProdutos(rolos: Rolo[]): ProdutoAgrupado[] {
   }
   const produtos: ProdutoAgrupado[] = []
   for (const [nome, rolos] of map) {
-    const total = rolos.reduce((acc: any, r: any) => acc + (r.quantidade || 0), 0)
+    const total = rolos.reduce((acc, r) => acc + (r.quantidade || 0), 0)
     produtos.push({
       nome,
       narrativa: rolos[0]?.narrativa || "",
@@ -42,5 +42,5 @@ export function agruparProdutos(rolos: Rolo[]): ProdutoAgrupado[] {
       rolos,
     })
   }
-  return produtos.sort((a: any, b: any) => a.nome.localeCompare(b.nome))
+  return produtos.sort((a, b) => a.nome.localeCompare(b.nome))
 }

@@ -14,8 +14,13 @@ import OcrInput from "@/components/ui/ocr-input"
 import Link from "next/link"
 import { toast } from "sonner"
 import { PageSkeleton } from "@/components/ui/page-skeleton"
+import type { ItemOcr, RequisicaoCopia } from "../types"
 
 type DestinoTipo = "cliente" | "fornecedor" | "representante"
+
+type DadosClienteNovo = { nome: string; cnpj: string; razaoSocial: string; email: string; emailNf: string; telefone: string; celular: string; contato: string; segmento: string; endereco: string; cidade: string; uf: string }
+type DadosPessoaNovo = { nome: string; cnpj: string; razaoSocial: string; email: string; telefone: string; contato: string; endereco: string; cidade: string; uf: string }
+type DadosNovo = DadosClienteNovo | DadosPessoaNovo
 
 interface ItemLinha {
   id: string
@@ -77,7 +82,7 @@ function ItemNovoModal({
 }) {
   const isCliente = tipo === "cliente"
   const isRepresentante = tipo === "representante"
-  const [data, setData] = useState(() => isCliente
+  const [data, setData] = useState<DadosNovo>(() => isCliente
     ? { nome: "", cnpj: "", razaoSocial: "", email: "", emailNf: "", telefone: "", celular: "", contato: "", segmento: "", endereco: "", cidade: "", uf: "" }
     : { nome: "", cnpj: "", razaoSocial: "", email: "", telefone: "", contato: "", endereco: "", cidade: "", uf: "" }
   )
@@ -94,7 +99,7 @@ function ItemNovoModal({
       const created = await res.json()
       toast.success(`${TIPO_LABELS[tipo]} criado(a) com sucesso!`)
       onSuccess(created.id, created.nome)
-    } catch (err: any) { toast.error(err.message) }
+    } catch (err) { toast.error(err instanceof Error ? err.message : "Erro ao criar") }
     finally { setSaving(false) }
   }
 
@@ -107,18 +112,23 @@ function ItemNovoModal({
       const result = await res.json()
       const api = result.apiData
       if (!api) { toast.error("CNPJ não encontrado"); return }
-      setData((prev: any) => ({
-        ...prev,
-        nome: api.nome_fantasia || prev.nome,
-        cnpj: api.cnpj || prev.cnpj,
-        razaoSocial: api.razao_social || prev.razaoSocial,
-        endereco: [api.logradouro, api.numero, api.bairro].filter(Boolean).join(", ") || prev.endereco,
-        cidade: api.municipio || prev.cidade,
-        uf: api.uf || prev.uf,
-        ...(isCliente ? { segmento: api.cnae_principal_descricao || prev.segmento } : {}),
-      }))
+      setData((prev) => {
+        const base = {
+          nome: api.nome_fantasia || prev.nome,
+          cnpj: api.cnpj || prev.cnpj,
+          razaoSocial: api.razao_social || prev.razaoSocial,
+          endereco: [api.logradouro, api.numero, api.bairro].filter(Boolean).join(", ") || prev.endereco,
+          cidade: api.municipio || prev.cidade,
+          uf: api.uf || prev.uf,
+        }
+        if (isCliente) {
+          const cliente = prev as DadosClienteNovo
+          return { ...cliente, ...base, segmento: api.cnae_principal_descricao || cliente.segmento }
+        }
+        return { ...prev, ...base }
+      })
       toast.success("Dados preenchidos pela Receita Federal")
-    } catch (err: any) { toast.error(err.message) }
+    } catch (err) { toast.error(err instanceof Error ? err.message : "Erro ao consultar CNPJ") }
   }
 
   return (
@@ -140,15 +150,15 @@ function ItemNovoModal({
           <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Razão Social</Label><Input value={data.razaoSocial} onChange={(e) => setData((p) => ({ ...p, razaoSocial: e.target.value }))} placeholder="Razão Social" /></div>
           <div className="grid grid-cols-2 gap-3">
             <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Email</Label><Input type="email" value={data.email} onChange={(e) => setData((p) => ({ ...p, email: e.target.value }))} placeholder="contato@email.com" /></div>
-            {isCliente && <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Email NF</Label><Input type="email" value={(data as any).emailNf || ""} onChange={(e) => setData((p) => ({ ...p, emailNf: e.target.value } as any))} placeholder="nf@email.com" /></div>}
+            {isCliente && <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Email NF</Label><Input type="email" value={(data as DadosClienteNovo).emailNf || ""} onChange={(e) => setData((p) => ({ ...(p as DadosClienteNovo), emailNf: e.target.value }))} placeholder="nf@email.com" /></div>}
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Telefone</Label><Input value={data.telefone} onChange={(e) => setData((p) => ({ ...p, telefone: e.target.value }))} placeholder="(11) 3333-4444" /></div>
-            {isCliente && <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Celular</Label><Input value={(data as any).celular || ""} onChange={(e) => setData((p) => ({ ...p, celular: e.target.value } as any))} placeholder="(11) 99999-9999" /></div>}
+            {isCliente && <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Celular</Label><Input value={(data as DadosClienteNovo).celular || ""} onChange={(e) => setData((p) => ({ ...(p as DadosClienteNovo), celular: e.target.value }))} placeholder="(11) 99999-9999" /></div>}
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Contato</Label><Input value={data.contato} onChange={(e) => setData((p) => ({ ...p, contato: e.target.value }))} placeholder="Nome do contato" /></div>
-            {isCliente && <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Segmento</Label><Input value={(data as any).segmento || ""} onChange={(e) => setData((p) => ({ ...p, segmento: e.target.value } as any))} placeholder="Ex: Têxtil" /></div>}
+            {isCliente && <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Segmento</Label><Input value={(data as DadosClienteNovo).segmento || ""} onChange={(e) => setData((p) => ({ ...(p as DadosClienteNovo), segmento: e.target.value }))} placeholder="Ex: Têxtil" /></div>}
           </div>
           <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Endereço</Label><Input value={data.endereco} onChange={(e) => setData((p) => ({ ...p, endereco: e.target.value }))} placeholder="Rua, número, bairro" /></div>
           <div className="grid grid-cols-3 gap-3">
@@ -212,9 +222,9 @@ function NovaRequisicaoCortePageContent() {
     try {
       const raw = searchParams.get("copiar")
       if (!raw) return
-      const dados = JSON.parse(raw)
+      const dados: RequisicaoCopia = JSON.parse(raw)
       if (Array.isArray(dados.itens) && dados.itens.length > 0) {
-        setItens(dados.itens.map((item: any) => ({
+        setItens(dados.itens.map((item) => ({
           id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
           codigoProduto: item.codigoProduto || "",
           ordem: item.ordem || "",
@@ -222,6 +232,7 @@ function NovaRequisicaoCortePageContent() {
           cor: item.cor || "",
           desenho: item.desenho || "",
           quantidade: item.quantidade || "",
+          destinoTipo: null,
           clienteId: item.clienteId || null,
           clienteNome: item.clienteNome || null,
           fornecedorId: item.fornecedorId || null,
@@ -245,7 +256,7 @@ function NovaRequisicaoCortePageContent() {
     } catch {}
   }, [searchParams, pathname, router])
 
-  const handleItemChange = (index: number, field: keyof ItemLinha, value: any) => {
+  const handleItemChange = (index: number, field: keyof ItemLinha, value: string) => {
     setItens(prev => {
       const next = [...prev]
       next[index] = { ...next[index], [field]: value }
@@ -291,7 +302,7 @@ function NovaRequisicaoCortePageContent() {
 
   const removeItem = (index: number) => {
     if (itens.length <= 1) return
-    setItens(prev => prev.filter((_: any, i: any) => i !== index))
+    setItens(prev => prev.filter((_, i) => i !== index))
   }
 
   const handleDestinoTipoChange = (index: number, novoTipo: DestinoTipo) => {
@@ -314,10 +325,10 @@ function NovaRequisicaoCortePageContent() {
     setItemNovoTipo(null)
   }
 
-  const handleOcrItens = (novosItens: any[]) => {
+  const handleOcrItens = (novosItens: ItemOcr[]) => {
     setItens(prev => [
-      ...prev.filter((item: any) => item.quantidade.trim()),
-      ...novosItens.map((item: any) => ({
+      ...prev.filter((item) => item.quantidade.trim()),
+      ...novosItens.map((item) => ({
         id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
         codigoProduto: item.codigoProduto || "",
         ordem: item.ordem || "",
@@ -358,8 +369,8 @@ function NovaRequisicaoCortePageContent() {
       setShowNovoCliente(false)
       setNovoClienteData(emptyCliente)
       toast.success("Cliente criado com sucesso!")
-    } catch (error: any) {
-      toast.error(error.message || "Erro ao criar cliente.")
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Erro ao criar cliente.")
     } finally {
       setIsCriandoCliente(false)
     }
@@ -395,8 +406,8 @@ function NovaRequisicaoCortePageContent() {
         segmento: api.cnae_principal_descricao || prev.segmento,
       }))
       toast.success("Dados preenchidos pela Receita Federal")
-    } catch (err: any) {
-      toast.error(err.message || "Erro ao consultar CNPJ")
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao consultar CNPJ")
     } finally {
       setIsConsultandoCnpj(false)
     }
@@ -424,8 +435,8 @@ function NovaRequisicaoCortePageContent() {
       setShowNovoFornecedor(false)
       setNovoFornecedorData(emptyFornecedor)
       toast.success("Fornecedor criado com sucesso!")
-    } catch (error: any) {
-      toast.error(error.message || "Erro ao criar fornecedor.")
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Erro ao criar fornecedor.")
     } finally {
       setIsCriandoFornecedor(false)
     }
@@ -451,7 +462,7 @@ function NovaRequisicaoCortePageContent() {
         uf: api.uf || prev.uf,
       }))
       toast.success("Dados preenchidos pela Receita Federal")
-    } catch (err: any) { toast.error(err.message || "Erro ao consultar CNPJ") }
+    } catch (err) { toast.error(err instanceof Error ? err.message : "Erro ao consultar CNPJ") }
     finally { setIsConsultandoCnpj(false) }
   }
 
@@ -475,8 +486,8 @@ function NovaRequisicaoCortePageContent() {
       setShowNovoRepresentante(false)
       setNovoRepresentanteData(emptyRepresentante)
       toast.success("Representante criado com sucesso!")
-    } catch (error: any) {
-      toast.error(error.message || "Erro ao criar representante.")
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Erro ao criar representante.")
     } finally {
       setIsCriandoRepresentante(false)
     }
@@ -502,14 +513,14 @@ function NovaRequisicaoCortePageContent() {
         uf: api.uf || prev.uf,
       }))
       toast.success("Dados preenchidos pela Receita Federal")
-    } catch (err: any) { toast.error(err.message || "Erro ao consultar CNPJ") }
+    } catch (err) { toast.error(err instanceof Error ? err.message : "Erro ao consultar CNPJ") }
     finally { setIsConsultandoCnpj(false) }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    const itensValidos = itens.filter((item: any) => item.quantidade.trim())
+    const itensValidos = itens.filter((item) => item.quantidade.trim())
     if (itensValidos.length === 0) {
       toast.error("Adicione pelo menos um item com quantidade")
       return
@@ -584,7 +595,7 @@ function NovaRequisicaoCortePageContent() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {itens.map((item: any, index: any) => (
+                {itens.map((item, index) => (
                   <tr key={item.id}>
                     <td className="px-3 py-2">
                       <div className="flex flex-col gap-0.5">
