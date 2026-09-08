@@ -65,15 +65,19 @@ Notas:
 
 ---
 
-### ⏸️ Módulo `comercial` restante — RETOMADA PENDENTE (182 matches)
+### ⏸️ Módulo `comercial` restante — RETOMADA PENDENTE (160 matches)
 
-**PRÓXIMO BLOCO: `clientes` (22)** → depois `representantes` (17) → `solicitacoes` (43) → `requisicoes-amostra-comercial` (29) → `requisicoes-corte` (71).
+**PRÓXIMO BLOCO: `representantes` (17)** → depois `solicitacoes` (43) → `requisicoes-amostra-comercial` (29) → `requisicoes-corte` (71).
 
-#### 1. `comercial/clientes` — 22 ocorrências
-- `[id]/page.tsx`: `useState<any[]>` x3 (`repResults`, `contatos`, `orfaos`), `catch (err: any)`/`(error: any)` x6, filters/maps `(c: any)/(r: any)/(v: any)` — linha 162/182/199/200/510/550/594/643.
-- `page.tsx`: `filteredData.map((cliente: any))`, `solicModal.data.map((s: any))`, `amostraModal.data.map((a: any))` — modais de vínculos (linhas 212/316/374).
-- `novo/page.tsx`: `estados.find((e: any))`, `catch (error: any)`.
-- **Cuidado**: `clientes` tem FKs/relacionamentos (representantes, contatos) — consultar shape real em `src/app/api` antes de tipar.
+#### 1. ✅ `comercial/clientes` — COMPLETO (22 → 0)
+
+`grep` em `src/app/(dashboard)/comercial/clientes` → **0 matches** (inclui `*.test.tsx`).
+
+- `clientes/types.ts` criado: `Cliente`, `VinculoRepresentante`, `RepresentanteResumo`, `SolicitacaoResumo`, `AmostraResumo` (reusa `Contato` de `comercial/crm/contatos/types`).
+- `[id]/page.tsx`: `repResults`→`RepresentanteResumo[]`, `contatos`/`orfaos`→`Contato[]`, fetchs anotados (`as Promise<T[]>`), `useQuery<VinculoRepresentante[]>`, catches `err instanceof Error`, maps/filters sem `any`.
+- `page.tsx`: tipos locais removidos (import de `./types`), maps sem `any`.
+- `novo/page.tsx`: `estados.find((e) => ...)` (inferido do generic), catch sem `any`.
+- Commit: `857e89a3`.
 
 #### 2. `comercial/representantes` — 17 ocorrências
 - `[id]/page.tsx`: `useState<any>` (`apiData`), `useState<any[]>` (`clienteResults`), `catch` x2, `data.filter((c: any))`, `addCliente(c: any)`, `clienteResults.map((c: any))`.
