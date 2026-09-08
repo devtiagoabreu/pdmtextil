@@ -7,6 +7,7 @@ import { getInfoContent } from "@/lib/info-content"
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { FileText, ClipboardList, Paperclip, CheckCircle, Search, Loader2 } from "lucide-react"
+import type { LucideIcon } from "lucide-react"
 import Link from "next/link"
 
 import { dadosComerciaisSchema, DadosComerciais, BriefingTecelagem } from "@/types/briefing"
@@ -29,7 +30,7 @@ import {
 } from "@/components/ui/dialog"
 import { toast } from "sonner"
 
-const STEPS = [
+const STEPS: { id: number; title: string; icon: LucideIcon }[] = [
   { id: 1, title: "Dados Comerciais", icon: FileText },
   { id: 2, title: "Briefing Técnico", icon: ClipboardList },
   { id: 3, title: "Anexos & Envio", icon: Paperclip },
@@ -42,13 +43,13 @@ export default function NovaSolicitacaoPage() {
   const [step, setStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
   
-  const [comercialData, setComercialData] = useState<DadosComerciais>({
+  const [comercialData, setComercialData] = useState<Partial<DadosComerciais>>({
     tipo: undefined,
     cliente: "",
     cnpj: "",
     projeto: "",
     prazoDesejado: "",
-  } as any)
+  })
   const [briefingData, setBriefingData] = useState<Partial<BriefingTecelagem>>({})
   const [anexosData, setAnexosData] = useState<AnexoDraft[]>([])
   const [showNovoCliente, setShowNovoCliente] = useState(false)
@@ -72,7 +73,7 @@ export default function NovaSolicitacaoPage() {
   // STEP 1 FORM
   const { register, handleSubmit, control, formState: { errors }, setValue, watch, getValues } = useForm<DadosComerciais>({
     resolver: zodResolver(dadosComerciaisSchema),
-    defaultValues: comercialData as any,
+    defaultValues: comercialData,
   })
 
   // Sincroniza RHF -> comercialData em tempo real
@@ -110,8 +111,8 @@ export default function NovaSolicitacaoPage() {
       setShowNovoCliente(false)
       setNovoClienteData({ nome: "", cnpj: "", razaoSocial: "", email: "", emailNf: "", telefone: "", celular: "", contato: "", segmento: "", endereco: "", cidade: "", uf: "" })
       toast.success("Cliente criado com sucesso!")
-    } catch (error: any) {
-      toast.error(error.message || "Erro ao criar cliente.")
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Erro ao criar cliente.")
     } finally {
       setIsCriandoCliente(false)
     }
@@ -147,8 +148,8 @@ export default function NovaSolicitacaoPage() {
         segmento: api.cnae_principal_descricao || prev.segmento,
       }))
       toast.success("Dados preenchidos pela Receita Federal")
-    } catch (err: any) {
-      toast.error(err.message || "Erro ao consultar CNPJ")
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao consultar CNPJ")
     } finally {
       setIsConsultandoCnpj(false)
     }
@@ -194,8 +195,8 @@ export default function NovaSolicitacaoPage() {
 
       toast.success("Solicitação criada com sucesso! 🎉")
       router.push("/comercial/solicitacoes")
-    } catch (error: any) {
-      toast.error(error.message || "Erro ao criar solicitação.")
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Erro ao criar solicitação.")
       console.error(error)
     } finally {
       setIsSubmitting(false)
@@ -225,7 +226,7 @@ export default function NovaSolicitacaoPage() {
           style={{ width: `${((step - 1) / 2) * 100}%` }}
         />
         
-        {STEPS.map((s: any) => {
+        {STEPS.map((s) => {
           const Icon = s.icon
           const isActive = step === s.id
           const isCompleted = step > s.id
@@ -265,7 +266,7 @@ export default function NovaSolicitacaoPage() {
                     <Select 
                       onValueChange={(val: string | null) => {
                         if (val) field.onChange(val)
-                        setComercialData(prev => ({ ...prev, tipo: val as any }))
+                        setComercialData(prev => ({ ...prev, tipo: val as DadosComerciais["tipo"] }))
                       }} 
                       defaultValue={field.value}
                     >
@@ -363,7 +364,7 @@ export default function NovaSolicitacaoPage() {
 
         <div className={step === 2 ? "block" : "hidden"}>
           <BriefingTecelagemForm 
-            initialData={briefingData as any}
+            initialData={briefingData}
             onNext={onStep2Submit} 
             onBack={() => setStep(1)} 
           />

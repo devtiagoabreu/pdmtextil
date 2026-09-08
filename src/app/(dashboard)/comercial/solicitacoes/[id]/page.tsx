@@ -8,6 +8,7 @@ import Link from "next/link"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { useStatuses, hexToRgba } from "@/hooks/use-statuses"
+import type { StatusConfig } from "@/hooks/use-statuses"
 import { fetchSolicitacao } from "./components/api"
 import { Header } from "./components/header"
 import { DadosComerciais } from "./components/dados-comerciais"
@@ -15,6 +16,7 @@ import { BriefingTecnico } from "./components/briefing"
 import { Anexos } from "./components/anexos"
 import { Produtos } from "./components/produtos"
 import { Historico } from "./components/historico"
+import type { ProdutoCru, Anexo } from "../types"
 
 export default function DetalheSolicitacaoPage() {
   const params = useParams()
@@ -23,8 +25,8 @@ export default function DetalheSolicitacaoPage() {
   const info = getInfoContent(pathname)
   const id = params.id as string
   const [mounted, setMounted] = useState(false)
-  const [produtos, setProdutos] = useState<any[]>([])
-  const [deleteTarget, setDeleteTarget] = useState<any>(null)
+  const [produtos, setProdutos] = useState<ProdutoCru[]>([])
+  const [deleteTarget, setDeleteTarget] = useState<{ id: number; anexos: Anexo[] } | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [deleteBlocked, setDeleteBlocked] = useState(false)
   const [novoStatus, setNovoStatus] = useState("")
@@ -34,10 +36,10 @@ export default function DetalheSolicitacaoPage() {
 
   useEffect(() => {
     fetch("/api/admin/status?tipo=SOLICITACAO_DESENVOLVIMENTO")
-      .then((r: any) => r.json())
-      .then((data: any) => {
+      .then((r) => r.json())
+      .then((data: StatusConfig[]) => {
         if (Array.isArray(data)) {
-          setStatusOptions(data.map((s: any) => ({ value: s.nome, label: s.rotulo || s.nome })))
+          setStatusOptions(data.map((s) => ({ value: s.nome, label: s.rotulo || s.nome })))
         }
       })
       .catch(console.error)
@@ -50,8 +52,8 @@ export default function DetalheSolicitacaoPage() {
   const carregarProdutos = () => {
     if (!id) return
     fetch(`/api/solicitacoes/${id}/produtos-cru`)
-      .then((r: any) => r.json())
-      .then((data: any) => setProdutos(Array.isArray(data) ? data : []))
+      .then((r) => r.json())
+      .then((data: ProdutoCru[]) => setProdutos(Array.isArray(data) ? data : []))
       .catch(console.error)
   }
 
@@ -138,7 +140,7 @@ export default function DetalheSolicitacaoPage() {
   }
 
   const handleExportPdf = () => {
-    const filename = `${sol.id}-${(sol.projeto || "sem-projeto").replace(/[^a-zA-Z0-9]/g, "-")}-${new Date(sol.createdAt).toISOString().split("T")[0]}.pdf`
+    const filename = `${sol.id}-${(sol.projeto || "sem-projeto").replace(/[^a-zA-Z0-9]/g, "-")}-${new Date(sol.createdAt ?? Date.now()).toISOString().split("T")[0]}.pdf`
     const printContent = document.getElementById("ficha-impressao")
     if (!printContent) return
 
@@ -203,7 +205,7 @@ export default function DetalheSolicitacaoPage() {
         onRefetch={() => refetch()}
         onExportPdf={handleExportPdf}
         onDelete={() => {
-          setDeleteTarget({ id: sol.id, anexos: sol.anexos })
+          setDeleteTarget({ id: sol.id, anexos: sol.anexos ?? [] })
           setDeleteBlocked(false)
         }}
       />
@@ -212,7 +214,7 @@ export default function DetalheSolicitacaoPage() {
         <div className="space-y-6">
           <DadosComerciais sol={sol} />
           <BriefingTecnico briefing={sol.briefing || {}} />
-          {sol.anexos && sol.anexos.length > 0 && <Anexos anexos={sol.anexos} />}
+          {sol.anexos && sol.anexos.length > 0 && <Anexos anexos={sol.anexos ?? []} />}
         </div>
       </div>
 
@@ -224,7 +226,7 @@ export default function DetalheSolicitacaoPage() {
         title={deleteBlocked ? "Exclusão não permitida" : "Excluir solicitação?"}
         message={deleteBlocked
           ? "Esta solicitação possui cadastros vinculados e não pode ser excluída."
-          : deleteTarget?.anexos?.length > 0
+          : (deleteTarget?.anexos?.length ?? 0) > 0
             ? `Esta solicitação possui ${deleteTarget?.anexos?.length} link(s) anexado(s). Ao excluir, os links também serão removidos. Continuar?`
             : `Tem certeza que deseja excluir esta solicitação?`}
         subMessage={deleteBlocked

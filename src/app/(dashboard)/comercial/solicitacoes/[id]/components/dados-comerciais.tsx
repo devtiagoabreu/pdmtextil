@@ -1,7 +1,8 @@
 import { FileText } from "lucide-react"
 import { TIPO_CONFIG } from "./constants"
+import type { Solicitacao } from "../../types"
 
-export function DadosComerciais({ sol }: { sol: any }) {
+export function DadosComerciais({ sol }: { sol: Solicitacao }) {
   return (
     <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
       <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">

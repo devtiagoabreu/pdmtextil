@@ -5,20 +5,14 @@ import Link from "next/link"
 import { FileText, Pencil, Unlink, Search, Loader2, Link2 } from "lucide-react"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
-
-type Produto = {
-  id: number
-  codigoPdm: string
-  descricao: string
-  status: string
-}
+import type { ProdutoCru as Produto } from "../../types"
 
 export function Produtos({
   produtos,
   solicitacaoId,
   onAtualizar,
 }: {
-  produtos: any[]
+  produtos: Produto[]
   solicitacaoId: string
   onAtualizar: () => void
 }) {
@@ -34,8 +28,8 @@ export function Produtos({
     let ativo = true
     setLoadingCatalogo(true)
     fetch("/api/cadastros/produto-cru")
-      .then((r: any) => r.json())
-      .then((data: any) => {
+      .then((r) => r.json())
+      .then((data: Produto[]) => {
         if (!ativo) return
         if (Array.isArray(data)) setCatalogo(data)
       })
@@ -118,7 +112,7 @@ export function Produtos({
 
       {produtos.length > 0 ? (
         <div className="space-y-3">
-          {produtos.map((p: any) => (
+          {produtos.map((p) => (
             <div
               key={p.id}
               className="flex items-center justify-between gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"

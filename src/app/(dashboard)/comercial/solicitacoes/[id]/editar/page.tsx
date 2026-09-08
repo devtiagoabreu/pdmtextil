@@ -8,6 +8,7 @@ import { getInfoContent } from "@/lib/info-content"
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { FileText, ClipboardList, Paperclip, CheckCircle, ArrowLeft } from "lucide-react"
+import type { LucideIcon } from "lucide-react"
 import Link from "next/link"
 
 import { dadosComerciaisSchema, DadosComerciais, BriefingTecelagem } from "@/types/briefing"
@@ -28,8 +29,9 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { toast } from "sonner"
+import type { Solicitacao } from "../../types"
 
-const STEPS = [
+const STEPS: { id: number; title: string; icon: LucideIcon }[] = [
   { id: 1, title: "Dados Comerciais", icon: FileText },
   { id: 2, title: "Briefing Técnico", icon: ClipboardList },
   { id: 3, title: "Salvar", icon: CheckCircle },
@@ -44,13 +46,13 @@ export default function EditarSolicitacaoPage() {
   
   const [step, setStep] = useState(1)
   
-  const [comercialData, setComercialData] = useState<DadosComerciais>({
+  const [comercialData, setComercialData] = useState<Partial<DadosComerciais>>({
     tipo: undefined,
     cliente: "",
     cnpj: "",
     projeto: "",
     prazoDesejado: "",
-  } as any)
+  })
   const [briefingData, setBriefingData] = useState<Partial<BriefingTecelagem>>({})
   const [anexosData, setAnexosData] = useState<AnexoDraft[]>([])
   const [showNovoCliente, setShowNovoCliente] = useState(false)
@@ -67,10 +69,10 @@ export default function EditarSolicitacaoPage() {
 
   const { register, handleSubmit, control, formState: { errors }, setValue, watch, getValues } = useForm<DadosComerciais>({
     resolver: zodResolver(dadosComerciaisSchema),
-    defaultValues: comercialData as any,
+    defaultValues: comercialData,
   })
 
-  const { data: solicitacao, isLoading, isError } = useQuery<any>({
+  const { data: solicitacao, isLoading, isError } = useQuery<Solicitacao>({
     queryKey: ["solicitacao", id],
     queryFn: async () => {
       const res = await fetch(`/api/solicitacoes/${id}`)
@@ -95,7 +97,7 @@ export default function EditarSolicitacaoPage() {
     const tipoValue = solicitacao.tipo || "DESENVOLVIMENTO_TECELAGEM"
 
     setComercialData({
-      tipo: tipoValue,
+      tipo: tipoValue as DadosComerciais["tipo"],
       cliente: solicitacao.cliente || "",
       cnpj: solicitacao.cnpj || "",
       projeto: solicitacao.projeto || "",
@@ -113,7 +115,7 @@ export default function EditarSolicitacaoPage() {
     }
 
     if (solicitacao.anexos && solicitacao.anexos.length > 0) {
-      setAnexosData(solicitacao.anexos.map((a: any) => ({
+      setAnexosData(solicitacao.anexos.map((a) => ({
         id: String(a.id),
         link: a.url,
         tipo: "LINK",
@@ -199,8 +201,8 @@ const onStep2Submit = (data: BriefingTecelagem) => {
       setShowNovoCliente(false)
       setNovoClienteData({ nome: "", cnpj: "", razaoSocial: "", email: "", telefone: "", contato: "" })
       toast.success("Cliente criado com sucesso!")
-    } catch (error: any) {
-      toast.error(error.message || "Erro ao criar cliente.")
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Erro ao criar cliente.")
     } finally {
       setIsCriandoCliente(false)
     }
@@ -245,7 +247,7 @@ const onStep2Submit = (data: BriefingTecelagem) => {
           style={{ width: `${((step - 1) / 2) * 100}%` }}
         />
         
-        {STEPS.map((s: any) => {
+        {STEPS.map((s) => {
           const Icon = s.icon
           const isActive = step === s.id
           const isCompleted = step > s.id
@@ -284,7 +286,7 @@ const onStep2Submit = (data: BriefingTecelagem) => {
                     <Select 
                       onValueChange={(val: string | null) => {
                         if (val) field.onChange(val)
-                        setComercialData(prev => ({ ...prev, tipo: val as any }))
+                        setComercialData(prev => ({ ...prev, tipo: val as DadosComerciais["tipo"] }))
                       }} 
                       defaultValue={field.value}
                     >
@@ -382,7 +384,7 @@ const onStep2Submit = (data: BriefingTecelagem) => {
 
         <div className={step === 2 ? "block" : "hidden"}>
           <BriefingTecelagemForm 
-            initialData={briefingData as any}
+            initialData={briefingData}
             onNext={onStep2Submit} 
             onBack={() => setStep(1)} 
           />

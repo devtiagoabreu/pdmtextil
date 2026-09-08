@@ -65,9 +65,9 @@ Notas:
 
 ---
 
-### ⏸️ Módulo `comercial` restante — RETOMADA PENDENTE (143 matches)
+### ⏸️ Módulo `comercial` restante — RETOMADA PENDENTE (100 matches)
 
-**PRÓXIMO BLOCO: `solicitacoes` (43)** → depois `requisicoes-amostra-comercial` (29) → `requisicoes-corte` (71).
+**PRÓXIMO BLOCO: `requisicoes-amostra-comercial` (29)** → depois `requisicoes-corte` (71).
 
 #### 1. ✅ `comercial/clientes` — COMPLETO (22 → 0)
 
@@ -89,14 +89,19 @@ Notas:
 - `page.tsx`: tipos importados de `./types`, `filter`/`map` sem `any`.
 - Commit: `c03b1a49`.
 
-#### 3. `comercial/solicitacoes` — 43 ocorrências
-- `nova/page.tsx` e `[id]/editar/page.tsx`: **formulário multi-step** — `} as any` (defaultValues/premise), `defaultValues: comercialData as any`, `useQuery<any>`, `STEPS.map((s: any))`, `setComercialData(... val as any)`, `initialData={briefingData as any}`, `catch (error: any)/(err: any)`.
-  - Bloco mais delicado: preciso tipar o shape do passo (comercial) + briefing + anexos antes de remover os `as any`.
-- `[id]/page.tsx`: `useState<any[]>` (`produtos`), `useState<any>` (`deleteTarget`), fetches `.then((r: any)/(data: any))`, `setStatusOptions(data.map((s: any)))`.
-- `page.tsx`: `useState<any>` (`deleteTarget`), `statuses.filter/map((s: any))`, `filteredData.map((s: any))`.
-- `[id]/components/*.tsx`: `Anexos` (`anexos: any[]`, `(anexo: any)`), `BriefingTecnico` (`briefing: any`), `DadosComerciais` (`sol: any`), `Header` (`sol: any`, `(s: any)` x2), `Historico` (`historico: any[]`, `(h: any)`), `Produtos` (`produtos: any[]`, fetches `(r: any)/(data: any)`, `(p: any)`).
-  - **Estratégia**: criar `tipos.ts` compartilhado em `solicitacoes/` e tipar os componentes de `[id]/components` via props — disso sai a maioria (22 ocorrências).
-- Testes: `[id]/page.test.tsx` (`let vinculados: any[]`) e `kanban/page.test.tsx` (`onmessage/onmessageerror: any = null` — WebSocket mock: aceitar tipagem de stub).
+#### 3. ✅ `comercial/solicitacoes` — COMPLETO (43 → 0)
+
+`grep` em `src/app/(dashboard)/comercial/solicitacoes` → **0 matches** (inclui `*.test.tsx`).
+
+- `solicitacoes/types.ts` criado: `HistoricoComunicacao`, `Anexo` (`id`, `url`, `titulo`), `ProdutoCru` (`id`, `codigoPdm`, `descricao`, `status`), `Solicitacao` (campos `string | null`; `briefing: Partial<BriefingTecelagem> | null`, `anexos?: Anexo[]`, `historicoComunicacao?: HistoricoComunicacao[] | null`), `SolicitacaoLista` (inclui `anexosCount`).
+- `[id]/components/api.ts`: `fetchSolicitacao(...): Promise<Solicitacao>` (`res.json() as Promise<Solicitacao>`).
+- `[id]/page.tsx`: `produtos`→`ProdutoCru[]`, `deleteTarget`→`{ id: number; anexos: Anexo[] } | null`, fetch de status `(data: StatusConfig[])` + `map((s) => ...)`, `carregarProdutos` `(data: ProdutoCru[])`, `new Date(sol.createdAt ?? Date.now())`, `anexos: sol.anexos ?? []`.
+- `[id]/components/{header,dados-comerciais}.tsx`: `sol: Solicitacao`; `briefing.tsx`: `briefing: Partial<BriefingTecelagem>` + indexes com `|| ""` (7 lugares); `anexos.tsx`: `anexos: Anexo[]`; `historico.tsx`: `historico: HistoricoComunicacao[] | null | undefined`; `produtos.tsx`: `Produto[]` (alias de `ProdutoCru`); `utils.ts`: params `string[] | null | undefined`.
+- `nova/page.tsx` e `[id]/editar/page.tsx`: `useState<Partial<DadosComerciais>>` (sem `as any`), `defaultValues: comercialData`, `useQuery<Solicitacao>`, `STEPS: { id; title; icon: LucideIcon }[]`, `tipo: val as DadosComerciais["tipo"]`, `initialData={briefingData}`, catches (`err instanceof Error` com fallback). `editar` ainda: `solicitacao.anexos.map((a) => ({ id: String(a.id), link: a.url, tipo: "LINK", nome: a.titulo }))`.
+- `page.tsx`: `fetchSolicitacoes(): Promise<SolicitacaoLista[]>`, `deleteTarget: SolicitacaoLista | null`, `filter/map` sem `any`.
+- Testes: `[id]/page.test.tsx` `vinculados: ProdutoCru[]`; `kanban/page.test.tsx` `onmessage/onmessageerror: ((ev: MessageEvent) => void) | null = null`.
+- Verificações: `tsc --noEmit` limpo; vitest do bloco 11/11; suíte completa JSON **1203/1203**.
+- Commit: `4e1740c5`.
 
 #### 4. `comercial/requisicoes-amostra-comercial` — 29 ocorrências
 - `[id]/page.tsx`: `useState<any>` (`data`), fetches `(res: any)/(d: any)`, `historico.map((h: any))`.

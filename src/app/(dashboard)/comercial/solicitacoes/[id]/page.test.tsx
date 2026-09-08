@@ -18,7 +18,14 @@ const sol = {
   historicoComunicacao: [],
 }
 
-const catalogos = [
+type ProdutoCru = {
+  id: number
+  codigoPdm: string
+  descricao: string
+  status: string
+}
+
+const catalogos: ProdutoCru[] = [
   { id: 10, codigoPdm: "TEC-001", descricao: "Tecido Premium", status: "DESENVOLVIMENTO" },
   { id: 11, codigoPdm: "TEC-002", descricao: "Tecido Oxford", status: "DESENVOLVIMENTO" },
 ]
@@ -51,7 +58,7 @@ describe("DetalheSolicitacaoPage", () => {
   })
 
   it("vincula produtos à solicitação", async () => {
-    let vinculados: any[] = []
+    let vinculados: ProdutoCru[] = []
     const fetchMock = createFetchMock(({ method, url, body }) => {
       if (method === "GET" && url === "/api/admin/status?tipo=SOLICITACAO_DESENVOLVIMENTO") return { json: [] }
       if (method === "GET" && url === "/api/cadastros/produto-cru") return { json: catalogos }
@@ -83,7 +90,7 @@ describe("DetalheSolicitacaoPage", () => {
   })
 
   it("desvincula um produto da solicitação", async () => {
-    let vinculados: any[] = [catalogos[0]]
+    let vinculados: ProdutoCru[] = [catalogos[0]]
     const fetchMock = createFetchMock(({ method, url }) => {
       if (method === "GET" && url === "/api/admin/status?tipo=SOLICITACAO_DESENVOLVIMENTO") return { json: [] }
       if (method === "GET" && url === "/api/cadastros/produto-cru") return { json: catalogos }

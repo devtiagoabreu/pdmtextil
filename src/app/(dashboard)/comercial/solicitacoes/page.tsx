@@ -11,31 +11,32 @@ import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { useStatuses, hexToRgba } from "@/hooks/use-statuses"
 import ListFilters, { useListFilters } from "@/components/ui/list-filters"
+import type { SolicitacaoLista } from "./types"
 
 const TIPO_CONFIG: Record<string, string> = {
   DESENVOLVIMENTO_TECELAGEM:      "Tecelagem",
   DESENVOLVIMENTO_BENEFICIAMENTO: "Beneficiamento",
 }
 
-async function fetchSolicitacoes() {
+async function fetchSolicitacoes(): Promise<SolicitacaoLista[]> {
   const res = await fetch("/api/solicitacoes")
   if (!res.ok) {
     const err = await res.json().catch(() => ({}))
     throw new Error(err.error || "Falha ao carregar")
   }
-  return res.json()
+  return res.json() as Promise<SolicitacaoLista[]>
 }
 
 export default function ListaSolicitacoesPage() {
   const pathname = usePathname()
   const info = getInfoContent(pathname)
   const [mounted, setMounted] = useState(false)
-  const [deleteTarget, setDeleteTarget] = useState<any>(null)
+  const [deleteTarget, setDeleteTarget] = useState<SolicitacaoLista | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [deleteBlocked, setDeleteBlocked] = useState(false)
   const { statuses, getLabel: getStatusLabel, getColor: getStatusColor } = useStatuses("SOLICITACAO_DESENVOLVIMENTO")
 
-  const statusOptions = statuses.filter((s: any) => s.ativo !== false).map((s: any) => ({ value: s.nome, label: s.rotulo || s.nome }))
+  const statusOptions = statuses.filter((s) => s.ativo !== false).map((s) => ({ value: s.nome, label: s.rotulo || s.nome }))
 
   useEffect(() => {
     setMounted(true)
@@ -170,7 +171,7 @@ if (isLoading) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {filteredData.map((s: any) => {
+                {filteredData.map((s) => {
                   return (
                     <tr
                       key={s.id}
@@ -243,7 +244,7 @@ if (isLoading) {
         title={deleteBlocked ? "Exclusão não permitida" : "Excluir solicitação?"}
         message={deleteBlocked
           ? "Esta solicitação possui cadastros vinculados e não pode ser excluída."
-          : deleteTarget?.anexosCount > 0
+          : (deleteTarget?.anexosCount ?? 0) > 0
             ? `Esta solicitação possui ${deleteTarget?.anexosCount} link(s) anexado(s). Ao excluir, os links também serão removidos. Continuar?`
             : `Tem certeza que deseja excluir a solicitação #${deleteTarget?.id}?`}
         subMessage={deleteBlocked

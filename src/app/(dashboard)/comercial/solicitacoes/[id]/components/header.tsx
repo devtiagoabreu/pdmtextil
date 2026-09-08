@@ -11,10 +11,11 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import type { InfoContent } from "@/lib/info-content"
+import type { Solicitacao } from "../../types"
 
 interface HeaderProps {
   id: string
-  sol: any
+  sol: Solicitacao
   info: InfoContent | null
   statusLabel: string
   statusRgba: string
@@ -85,8 +86,8 @@ export function Header({
               </SelectTrigger>
               <SelectContent>
                 {statusOptions
-                  .filter((s: any) => s.value !== sol.status)
-                  .map((s: any) => (
+                  .filter((s) => s.value !== sol.status)
+                  .map((s) => (
                     <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
                   ))}
               </SelectContent>
