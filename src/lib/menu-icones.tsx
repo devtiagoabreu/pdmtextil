@@ -196,6 +196,7 @@ const URL_ICONES: [string, LucideIcon][] = [
   ["/processos/subprocessos", Layers],
   ["/processos/atividades", CheckSquare],
   ["/processos/visual", Workflow],
+  ["/processos/treinamento", GraduationCap],
   ["/processos/sites", Globe],
   ["/processos/areas", MapPin],
   ["/processos/empresas", Building2],

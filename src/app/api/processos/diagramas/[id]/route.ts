@@ -9,7 +9,10 @@ import { validateRequest, procDiagramaSchema } from "@/lib/validation"
 import { modeloParaMermaid, mermaidParaModelo } from "@/lib/processos/diagrama/mermaid"
 import { modeloParaMarkdown } from "@/lib/processos/diagrama/markdown"
 
-function derivarRepresentacoes(body: Record<string, unknown>): {
+function derivarRepresentacoes(
+  body: Record<string, unknown>,
+  existente: typeof procDiagramas.$inferSelect
+): {
   ok: boolean
   erro?: string
   modelo?: unknown
@@ -30,7 +33,12 @@ function derivarRepresentacoes(body: Record<string, unknown>): {
     if (!parse.modelo) return { ok: false, erro: parse.erro ?? "Texto Mermaid inválido." }
     return { ok: true, modelo: parse.modelo, mermaid: body.mermaid, markdown: modeloParaMarkdown(parse.modelo) }
   }
-  return { ok: true, modelo: null, mermaid: null, markdown: null }
+  return {
+    ok: true,
+    modelo: existente.modelo,
+    mermaid: existente.mermaid,
+    markdown: existente.markdown,
+  }
 }
 
 export async function GET(
@@ -83,7 +91,7 @@ export async function PUT(
       return NextResponse.json({ error: "Diagrama não encontrado" }, { status: 404 })
     }
 
-    const derivadas = derivarRepresentacoes(parsed.data)
+    const derivadas = derivarRepresentacoes(parsed.data, existente)
     if (!derivadas.ok) return NextResponse.json({ error: derivadas.erro }, { status: 400 })
 
     const [atualizada] = await db

@@ -86,17 +86,17 @@ export const processosContent: Record<string, InfoContent> = {
   },
   "/processos/atividades": {
     title: "Atividades",
-    description: "Unidades de execução do mapeamento. Cada atividade representa uma ação concreta dentro de um subprocesso ou, diretamente, de um processo.",
+    description: "Unidades de execução do mapeamento. Cada atividade representa uma ação concreta executada dentro de um subprocesso.",
     rules: [
-      "Toda atividade pertence a um subprocesso ou diretamente a um processo.",
-      "O tipo define a natureza da atividade (ex: Manual, Sistema, Equipamento).",
-      "A ordem define a sequência de execução.",
+      "Toda atividade pertence a um subprocesso.",
+      "O tipo define a natureza da atividade: Manual, Automática, Decisão ou Espera.",
+      "A ordem define a sequência de execução dentro do subprocesso.",
     ],
     fields: [
       { name: "Nome", desc: "Nome da atividade" },
-      { name: "Tipo", desc: "Manual, Sistema, Equipamento, etc." },
+      { name: "Tipo", desc: "Manual, Automática, Decisão ou Espera" },
       { name: "Ordem", desc: "Sequência de execução" },
-      { name: "Duração/Responsável", desc: "Informações complementares (opcional)" },
+      { name: "Responsável/Duração", desc: "Informações complementares (opcional)" },
     ],
   },
   "/processos/visual": {
@@ -112,6 +112,53 @@ export const processosContent: Record<string, InfoContent> = {
       { name: "Nome", desc: "Nome do diagrama/processo" },
       { name: "Tipo", desc: "Fluxograma, BPMN, Mapa mental ou Canvas livre" },
       { name: "Descrição", desc: "Resumo do diagrama (opcional)" },
+    ],
+  },
+  "/processos/treinamento": {
+    title: "Treinamento Engenharia de Processos",
+    description: "Central de documentação e treinamento da Engenharia de Processos. Aqui você encontra explicações detalhadas de cada tela, campo por campo, com pré-requisitos, links para POPs e vídeos tutoriais.",
+    rules: [
+      "Os módulos ativos aparecem como acordeões; clique em um módulo para ver suas lições.",
+      "Cada lição aponta para a tela relacionada do módulo de processos.",
+      "O botão Exportar Treinamento Completo gera um documento PDF com todos os módulos e lições ativas.",
+    ],
+  },
+  "/processos/treinamento/admin": {
+    title: "Gerenciar Treinamento",
+    description: "Gerencie os módulos e lições do treinamento da Engenharia de Processos. Crie, edite ou remova conteúdo de documentação.",
+    rules: [
+      "Cada módulo pode conter várias lições.",
+      "Remover um módulo remove também as lições vinculadas (cascade).",
+      "Use o botão Novo Módulo para criar um módulo com título e descrição.",
+    ],
+  },
+  "/processos/treinamento/admin/novo": {
+    title: "Nova Lição",
+    description: "Crie uma nova lição de treinamento com conteúdo markdown, pré-requisitos e links multimídia.",
+    fields: [
+      { name: "Módulo", desc: "Obrigatório. Módulo de treinamento ao qual esta lição pertence" },
+      { name: "Título", desc: "Obrigatório. Título da lição" },
+      { name: "Ordem", desc: "Sequência da lição dentro do módulo" },
+      { name: "Pathname relacionado", desc: "Tela do módulo de processos à qual a lição se refere" },
+      { name: "Pré-requisitos", desc: "Cadastros indispensáveis antes de usar a tela" },
+      { name: "Conteúdo (Markdown)", desc: "Corpo da lição em markdown" },
+    ],
+  },
+  "/processos/treinamento/": {
+    title: "Lição de Treinamento",
+    description: "Leia o conteúdo completo da lição de treinamento. Aqui você encontra a documentação detalhada da tela, pré-requisitos, links para POPs e vídeos tutoriais.",
+    rules: [
+      "Use Exportar PDF para gerar a lição em PDF.",
+      "Navegue entre lições anterior e próxima pelas setas no rodapé.",
+    ],
+  },
+  "/processos/treinamento/admin/": {
+    title: "Editar Lição",
+    description: "Edite os dados da lição de treinamento: módulo, título, conteúdo markdown, pré-requisitos e links multimídia.",
+    fields: [
+      { name: "Módulo", desc: "Módulo de treinamento ao qual a lição pertence" },
+      { name: "Título", desc: "Título da lição" },
+      { name: "Ativo", desc: "Se desmarcado, a lição fica oculta das listas públicas" },
     ],
   },
 }

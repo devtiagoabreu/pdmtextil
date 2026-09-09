@@ -208,6 +208,10 @@ export const searchRegistry: SearchItem[] = [
   { id: "processos-atividades-nova", label: "Processos — Nova Atividade", keywords: ["processo", "atividade", "nova", "criar", "tarefa"], href: "/processos/atividades/novo", description: "Criar nova atividade", module: "Processos" },
   { id: "processos-visual", label: "Processos — Diagramas", keywords: ["processo", "diagrama", "fluxograma", "bpmn", "mapa mental", "mermaid", "canvas", "visual", "excalidraw"], href: "/processos/visual", description: "Diagramas visuais dos processos (modelo semântico, Mermaid, BPMN e canvas)", module: "Processos" },
   { id: "processos-visual-novo", label: "Processos — Novo Diagrama", keywords: ["processo", "diagrama", "novo", "criar", "fluxograma", "bpmn"], href: "/processos/visual/novo", description: "Criar novo diagrama de processo", module: "Processos" },
+
+  // Processos — Treinamento
+  { id: "processos-treinamento", label: "Processos — Treinamento", keywords: ["processo", "treinamento", "treino", "documentacao", "manual", "ajuda", "guia", "tutorial", "aprender", "mapeamento"], href: "/processos/treinamento", description: "Documentação e treinamento da Engenharia de Processos com explicações campo a campo", module: "Processos" },
+  { id: "processos-treinamento-admin", label: "Processos — Gerenciar Treinamento", keywords: ["processo", "treinamento", "admin", "gerenciar", "conteudo", "licoes", "modulos"], href: "/processos/treinamento/admin", description: "Gerenciar conteúdo do treinamento de Engenharia de Processos", module: "Processos" },
 ]
 
 export function searchItems(query: string): SearchItem[] {

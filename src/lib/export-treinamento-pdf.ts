@@ -29,6 +29,17 @@ type TocItem = {
   subItems?: TocItem[]
 }
 
+export type TreinamentoContexto = {
+  titulo: string
+  brand?: string
+  descricao?: string
+  citacao?: string
+  citacao2?: string
+  areaTag?: string
+  filenameBase?: string
+  moduloTituloHeader?: string
+}
+
 const MARGIN_TOP = 35
 const MARGIN_BOTTOM = 30
 const MARGIN_LEFT = 25
@@ -87,8 +98,19 @@ class TreinamentoPdfRenderer {
   private inToc = false
   private tocPageStart = 0
   private tocY: number[] = []
+  private contexto: TreinamentoContexto
 
-  constructor() {
+  constructor(contexto: TreinamentoContexto = {
+    titulo: "CRM",
+    brand: "PDM Têxtil — Treinamento CRM",
+    descricao: "Documento completo de treinamento do modulo CRM.",
+    citacao: "CRM não é sobre tecnologia, é sobre pessoas.",
+    citacao2: "Pessoas atendendo melhor outras pessoas.",
+    areaTag: "Treinamento CRM",
+    filenameBase: "Treinamento_CRM_Completo",
+    moduloTituloHeader: "Treinamento CRM",
+  }) {
+    this.contexto = contexto
     this.doc = new jsPDF("p", "mm", "a4")
     this.pw = this.doc.internal.pageSize.getWidth()
     this.ph = this.doc.internal.pageSize.getHeight()
@@ -107,7 +129,7 @@ class TreinamentoPdfRenderer {
 
     this.doc.line(MARGIN_LEFT, footerY - 4, this.pw - MARGIN_RIGHT, footerY - 4)
 
-    const leftText = this.headerLeft || "PDM Têxtil — Treinamento CRM"
+    const leftText = this.headerLeft || this.contexto.brand || "PDM Têxtil — Treinamento CRM"
     this.doc.text(leftText, MARGIN_LEFT, footerY, { align: "left" })
 
     this.doc.text(String(this.pageNum), this.pw / 2, footerY, { align: "center" })
@@ -125,7 +147,7 @@ class TreinamentoPdfRenderer {
 
     this.doc.line(MARGIN_LEFT, headerY + 4, this.pw - MARGIN_RIGHT, headerY + 4)
 
-    this.doc.text("PDM Têxtil — Treinamento CRM", MARGIN_LEFT, headerY, { align: "left" })
+    this.doc.text(this.contexto.brand || "PDM Têxtil — Treinamento CRM", MARGIN_LEFT, headerY, { align: "left" })
 
     if (this.headerRight) {
       this.doc.text(this.headerRight, this.pw - MARGIN_RIGHT, headerY, { align: "right" })
@@ -522,11 +544,11 @@ class TreinamentoPdfRenderer {
     this.doc.setTextColor(255, 255, 255)
     this.doc.setFontSize(28)
     this.doc.setFont("helvetica", "bold")
-    this.doc.text("Treinamento CRM", this.pw / 2, 50, { align: "center" })
+    this.doc.text(`Treinamento ${this.contexto.titulo}`, this.pw / 2, 50, { align: "center" })
 
     this.doc.setFontSize(16)
     this.doc.setFont("helvetica", "normal")
-    this.doc.text("PDM Têxtil", this.pw / 2, 68, { align: "center" })
+    this.doc.text(this.contexto.brand || "PDM Têxtil", this.pw / 2, 68, { align: "center" })
 
     this.doc.setFontSize(10)
     this.doc.text("Sistema de Gestao de Desenvolvimento", this.pw / 2, 80, { align: "center" })
@@ -539,11 +561,11 @@ class TreinamentoPdfRenderer {
     this.doc.setFont("helvetica", "normal")
 
     const lines = [
-      "Documento completo de treinamento do modulo CRM.",
+      this.contexto.descricao || `Documento completo de treinamento do modulo ${this.contexto.titulo}.`,
       `Total: ${modulosCount} modulos, ${licoesCount} licoes.`,
       "",
       "Conteudo didatico desenvolvido para capacitacao",
-      "da equipe comercial da Pro Moda Textil.",
+      "da equipe. Use como guia de referencia.",
     ]
 
     let ty = 120
@@ -560,8 +582,8 @@ class TreinamentoPdfRenderer {
     ty += 20
     this.doc.setFontSize(9)
     this.doc.setFont("helvetica", "italic")
-    this.doc.text("CRM não é sobre tecnologia, é sobre pessoas.", this.pw / 2, ty, { align: "center" })
-    this.doc.text("Pessoas atendendo melhor outras pessoas.", this.pw / 2, ty + 6, { align: "center" })
+    this.doc.text(this.contexto.citacao || "CRM não é sobre tecnologia, é sobre pessoas.", this.pw / 2, ty, { align: "center" })
+    this.doc.text(this.contexto.citacao2 || "Pessoas atendendo melhor outras pessoas.", this.pw / 2, ty + 6, { align: "center" })
     this.doc.text("— ", this.pw / 2, ty + 12, { align: "center" })
 
     this.doc.setTextColor(0, 0, 0)
@@ -670,7 +692,7 @@ class TreinamentoPdfRenderer {
 
     const cleanModTitulo = sanitizeText(moduloTitulo)
     const cleanLicaoTitulo = sanitizeText(licao.titulo)
-    this.headerLeft = `Treinamento CRM — ${cleanModTitulo}`
+    this.headerLeft = `${this.contexto.moduloTituloHeader || "Treinamento CRM"} — ${cleanModTitulo}`
     this.headerRight = `${moduloIndex + 1}.${licaoIndex + 1} ${cleanLicaoTitulo}`
 
     this.addHeader()
@@ -700,11 +722,11 @@ class TreinamentoPdfRenderer {
   getPageNum() { return this.pageNum }
 }
 
-export async function exportTreinamentoCompletoPdf(modulos: ModuloData[]) {
+export async function exportTreinamentoCompletoPdf(modulos: ModuloData[], contexto?: TreinamentoContexto) {
   const modulosAtivos = modulos.filter((m: any) => m.ativo)
   const totalLicoes = modulosAtivos.reduce((acc: any, m: any) => acc + m.licoes.filter((l: any) => l.ativo).length, 0)
 
-  const renderer = new TreinamentoPdfRenderer()
+  const renderer = new TreinamentoPdfRenderer(contexto)
 
   renderer.renderCover(modulosAtivos.length, totalLicoes)
 
@@ -728,14 +750,15 @@ export async function exportTreinamentoCompletoPdf(modulos: ModuloData[]) {
     renderer.renderModulo(modulosAtivos[i], i)
   }
 
-  renderer.save("Treinamento_CRM_Completo.pdf")
+  renderer.save(contexto?.filenameBase || "Treinamento_CRM_Completo.pdf")
 }
 
-export async function exportLicaoPdf(licao: LicaoData, moduloTitulo: string, moduloIndex: number, licaoIndex: number) {
-  const renderer = new TreinamentoPdfRenderer()
+export async function exportLicaoPdf(licao: LicaoData, moduloTitulo: string, moduloIndex: number, licaoIndex: number, contexto?: TreinamentoContexto) {
+  const renderer = new TreinamentoPdfRenderer(contexto)
   const cleanMod = removerAcentos(sanitizeText(moduloTitulo))
   const cleanLic = removerAcentos(sanitizeText(licao.titulo))
-  const filename = `CRM-${cleanMod}-${cleanLic}.pdf`.replace(/[^a-zA-Z0-9-_.]/g, "_")
+  const prefixo = contexto?.titulo ? removerAcentos(sanitizeText(contexto.titulo)).replace(/[^a-zA-Z0-9]/g, "") : "CRM"
+  const filename = `${prefixo}-${cleanMod}-${cleanLic}.pdf`.replace(/[^a-zA-Z0-9-_.]/g, "_")
 
   renderer.renderLicaoIndividual(licao, moduloTitulo, moduloIndex, licaoIndex)
 
