@@ -99,4 +99,19 @@ export const processosContent: Record<string, InfoContent> = {
       { name: "Duração/Responsável", desc: "Informações complementares (opcional)" },
     ],
   },
+  "/processos/visual": {
+    title: "Diagramas",
+    description: "Representação visual dos processos. Um conhecimento, múltiplas representações: o modelo semântico é a fonte única e as representações (Mermaid, BPMN, canvas) são derivadas dele.",
+    rules: [
+      "O modelo semântico guarda atividades, decisões e fluxos — é o que de fato é salvo.",
+      "As abas Mermaid, BPMN e Canvas são representações editadas a partir do modelo.",
+      "Na aba Mermaid, salvar o texto re-importa o modelo semântico (o texto vira fonte).",
+      "Toda alteração no modelo deriva automaticamente Mermaid e resumo markdown.",
+    ],
+    fields: [
+      { name: "Nome", desc: "Nome do diagrama/processo" },
+      { name: "Tipo", desc: "Fluxograma, BPMN, Mapa mental ou Canvas livre" },
+      { name: "Descrição", desc: "Resumo do diagrama (opcional)" },
+    ],
+  },
 }

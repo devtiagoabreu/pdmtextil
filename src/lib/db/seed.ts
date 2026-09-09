@@ -112,6 +112,7 @@ async function seed() {
     { userMenuId: menuProcessosAdmin.id, titulo: "Processos", url: "/processos/processos", ordem: 4 },
     { userMenuId: menuProcessosAdmin.id, titulo: "Subprocessos", url: "/processos/subprocessos", ordem: 5 },
     { userMenuId: menuProcessosAdmin.id, titulo: "Atividades", url: "/processos/atividades", ordem: 6 },
+    { userMenuId: menuProcessosAdmin.id, titulo: "Diagramas", url: "/processos/visual", ordem: 7 },
   ])
 
   console.log("✅ Seed concluído!")

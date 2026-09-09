@@ -42,6 +42,7 @@ import {
   Handshake,
   DollarSign,
   GitBranch,
+  Workflow,
   Plane,
   Bot,
   Receipt,
@@ -113,6 +114,7 @@ const ENTRADAS: [string, string, LucideIcon][] = [
   ["Áreas", "MapPin", MapPin],
   ["Subprocessos", "Layers", Layers],
   ["Atividades", "CheckSquare", CheckSquare],
+  ["Diagramas", "Workflow", Workflow],
 ]
 
 export interface OpcaoIcone {
@@ -193,6 +195,7 @@ const URL_ICONES: [string, LucideIcon][] = [
   ["/perfil", User],
   ["/processos/subprocessos", Layers],
   ["/processos/atividades", CheckSquare],
+  ["/processos/visual", Workflow],
   ["/processos/sites", Globe],
   ["/processos/areas", MapPin],
   ["/processos/empresas", Building2],

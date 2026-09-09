@@ -232,4 +232,47 @@ export const procAtividadeSchema = z.object({
   ativo: z.boolean().optional(),
 })
 
+// ===== Process Studio: Diagramas visuais (modelo semântico + representações) =====
+
+const diagramaAtividadeSchema = z.object({
+  id: z.string().trim().min(1).max(20),
+  nome: z.string().trim().min(1, "Nome da atividade é obrigatório").max(200),
+  responsavel: z.string().trim().max(150).optional().default(""),
+  sistema: z.string().trim().max(100).optional().default(""),
+  descricao: z.string().optional().default(""),
+})
+
+const diagramaDecisaoSchema = z.object({
+  id: z.string().trim().min(1).max(20),
+  pergunta: z.string().trim().min(1, "Pergunta da decisão é obrigatória").max(300),
+})
+
+const diagramaFluxoSchema = z.object({
+  id: z.string().trim().min(1).max(20),
+  de: z.string().trim().min(1).max(20),
+  para: z.string().trim().min(1).max(20),
+  rotulo: z.string().trim().max(100).optional().default(""),
+})
+
+export const procDiagramaModeloSchema = z.object({
+  schemaVersion: z.string().optional(),
+  nome: z.string().trim().max(200).optional().default(""),
+  objetivo: z.string().optional().default(""),
+  atividades: z.array(diagramaAtividadeSchema).default([]),
+  decisoes: z.array(diagramaDecisaoSchema).default([]),
+  fluxos: z.array(diagramaFluxoSchema).default([]),
+})
+
+export const procDiagramaSchema = z.object({
+  nome: z.string().trim().min(1, "Nome é obrigatório").max(200),
+  tipo: z.enum(["FLUXOGRAMA", "BPMN", "MAPAMENTAL", "LIVRE"]).optional(),
+  descricao: z.string().optional().nullable(),
+  modelo: procDiagramaModeloSchema.optional().nullable(),
+  bpmnXml: z.string().optional().nullable(),
+  canvas: z.unknown().optional().nullable(),
+  mermaid: z.string().optional().nullable(),
+  markdown: z.string().optional().nullable(),
+  ativo: z.boolean().optional(),
+})
+
 

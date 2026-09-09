@@ -12,6 +12,17 @@ export const ATIVIDADE_TIPO_LABELS: Record<string, string> = {
   ESPERA: "Espera",
 }
 
+export const DIAGRAMA_TIPO_LABELS: Record<string, string> = {
+  FLUXOGRAMA: "Fluxograma",
+  BPMN: "BPMN",
+  MAPAMENTAL: "Mapa mental",
+  LIVRE: "Canvas livre",
+}
+
+export function diagramaTipoLabel(tipo: string | null | undefined): string {
+  return (tipo && DIAGRAMA_TIPO_LABELS[tipo]) || "—"
+}
+
 export function statusLabel(status: string | null | undefined): string {
   return (status && PROCESSO_STATUS_LABELS[status]) || "—"
 }

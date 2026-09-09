@@ -206,6 +206,8 @@ export const searchRegistry: SearchItem[] = [
   { id: "processos-subprocessos-novo", label: "Processos — Novo Subprocesso", keywords: ["processo", "subprocesso", "novo", "criar", "etapa"], href: "/processos/subprocessos/novo", description: "Criar novo subprocesso", module: "Processos" },
   { id: "processos-atividades", label: "Processos — Atividades", keywords: ["processo", "atividade", "tarefa", "lista", "execucao"], href: "/processos/atividades", description: "Atividades (unidades de execução) do mapeamento", module: "Processos" },
   { id: "processos-atividades-nova", label: "Processos — Nova Atividade", keywords: ["processo", "atividade", "nova", "criar", "tarefa"], href: "/processos/atividades/novo", description: "Criar nova atividade", module: "Processos" },
+  { id: "processos-visual", label: "Processos — Diagramas", keywords: ["processo", "diagrama", "fluxograma", "bpmn", "mapa mental", "mermaid", "canvas", "visual", "excalidraw"], href: "/processos/visual", description: "Diagramas visuais dos processos (modelo semântico, Mermaid, BPMN e canvas)", module: "Processos" },
+  { id: "processos-visual-novo", label: "Processos — Novo Diagrama", keywords: ["processo", "diagrama", "novo", "criar", "fluxograma", "bpmn"], href: "/processos/visual/novo", description: "Criar novo diagrama de processo", module: "Processos" },
 ]
 
 export function searchItems(query: string): SearchItem[] {

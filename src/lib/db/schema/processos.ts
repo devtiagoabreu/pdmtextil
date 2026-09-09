@@ -6,6 +6,9 @@ export type ProcessoStatus = (typeof PROCESSO_STATUS)[number]
 export const ATIVIDADE_TIPOS = ["MANUAL", "AUTOMATICA", "DECISAO", "ESPERA"] as const
 export type AtividadeTipo = (typeof ATIVIDADE_TIPOS)[number]
 
+export const DIAGRAMA_TIPOS = ["FLUXOGRAMA", "BPMN", "MAPAMENTAL", "LIVRE"] as const
+export type DiagramaTipo = (typeof DIAGRAMA_TIPOS)[number]
+
 export const procEmpresas = pgTable("proc_empresas", {
   id: serial("id").primaryKey(),
   nome: varchar("nome", { length: 200 }).notNull(),
@@ -108,3 +111,21 @@ export const procAtividades = pgTable("proc_atividades", {
 
 export type ProcAtividade = typeof procAtividades.$inferSelect
 export type NewProcAtividade = typeof procAtividades.$inferInsert
+
+export const procDiagramas = pgTable("proc_diagramas", {
+  id: serial("id").primaryKey(),
+  nome: varchar("nome", { length: 200 }).notNull(),
+  tipo: varchar("tipo", { length: 30 }).notNull().default("FLUXOGRAMA"),
+  descricao: text("descricao"),
+  modelo: jsonb("modelo").$type<unknown>(),
+  bpmnXml: text("bpmn_xml"),
+  canvas: jsonb("canvas").$type<unknown>(),
+  mermaid: text("mermaid"),
+  markdown: text("markdown"),
+  ativo: boolean("ativo").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+})
+
+export type ProcDiagrama = typeof procDiagramas.$inferSelect
+export type NewProcDiagrama = typeof procDiagramas.$inferInsert
