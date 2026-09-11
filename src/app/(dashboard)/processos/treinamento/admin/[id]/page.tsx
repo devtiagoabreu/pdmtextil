@@ -15,8 +15,8 @@ type Modulo = { id: number; titulo: string }
 type Licao = {
   id: number; moduloId: number; moduloTitulo: string
   titulo: string; conteudoMd: string; preRequisitos: string | null
-  linksPop: { label: string; url: string }[]
-  linksVideo: { label: string; url: string }[]
+  linksPop: { label: string; url: string; descricao?: string | null }[]
+  linksVideo: { label: string; url: string; descricao?: string | null }[]
   pathnameRelacionado: string | null
   ordem: number; ativo: boolean
 }
@@ -36,10 +36,10 @@ export default function EditarLicaoPage() {
     ordem: "0",
     ativo: true,
   })
-  const [linksPop, setLinksPop] = useState<{ label: string; url: string }[]>([])
-  const [linksVideo, setLinksVideo] = useState<{ label: string; url: string }[]>([])
-  const [novoPop, setNovoPop] = useState({ label: "", url: "" })
-  const [novoVideo, setNovoVideo] = useState({ label: "", url: "" })
+  const [linksPop, setLinksPop] = useState<{ label: string; url: string; descricao?: string | null }[]>([])
+  const [linksVideo, setLinksVideo] = useState<{ label: string; url: string; descricao?: string | null }[]>([])
+  const [novoPop, setNovoPop] = useState({ label: "", url: "", descricao: "" })
+  const [novoVideo, setNovoVideo] = useState({ label: "", url: "", descricao: "" })
   const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(true)
 
@@ -205,28 +205,36 @@ export default function EditarLicaoPage() {
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Links POP</label>
             {linksPop.map((link, i) => (
               <div key={link.url} className="flex items-center gap-2 text-sm bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg mb-2">
-                <span className="flex-1 truncate">{link.label}</span>
+                <div className="flex-1 min-w-0">
+                  <span className="block truncate">{link.label}</span>
+                  {link.descricao && <span className="block text-xs text-slate-500 truncate">{link.descricao}</span>}
+                </div>
                 <button type="button" onClick={() => setLinksPop(linksPop.filter((_, j) => j !== i))} className="text-red-400 hover:text-red-600"><X size={14} /></button>
               </div>
             ))}
             <div className="flex gap-2">
               <input placeholder="Nome" value={novoPop.label} onChange={(e) => setNovoPop({ ...novoPop, label: e.target.value })} className="flex-1 px-2 py-1.5 border rounded-lg text-xs" />
               <input placeholder="URL" value={novoPop.url} onChange={(e) => setNovoPop({ ...novoPop, url: e.target.value })} className="flex-1 px-2 py-1.5 border rounded-lg text-xs" />
-              <button type="button" onClick={() => { if (novoPop.label && novoPop.url) { setLinksPop([...linksPop, novoPop]); setNovoPop({ label: "", url: "" }) } }} className="p-1.5 text-sky-600"><Plus size={16} /></button>
+              <input placeholder="Descrição" value={novoPop.descricao} onChange={(e) => setNovoPop({ ...novoPop, descricao: e.target.value })} className="flex-1 px-2 py-1.5 border rounded-lg text-xs" />
+              <button type="button" onClick={() => { if (novoPop.label && novoPop.url) { setLinksPop([...linksPop, { ...novoPop, descricao: novoPop.descricao || null }]); setNovoPop({ label: "", url: "", descricao: "" }) } }} className="p-1.5 text-sky-600"><Plus size={16} /></button>
             </div>
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Links Vídeos</label>
             {linksVideo.map((link, i) => (
               <div key={link.url} className="flex items-center gap-2 text-sm bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg mb-2">
-                <span className="flex-1 truncate">{link.label}</span>
+                <div className="flex-1 min-w-0">
+                  <span className="block truncate">{link.label}</span>
+                  {link.descricao && <span className="block text-xs text-slate-500 truncate">{link.descricao}</span>}
+                </div>
                 <button type="button" onClick={() => setLinksVideo(linksVideo.filter((_, j) => j !== i))} className="text-red-400 hover:text-red-600"><X size={14} /></button>
               </div>
             ))}
             <div className="flex gap-2">
               <input placeholder="Nome" value={novoVideo.label} onChange={(e) => setNovoVideo({ ...novoVideo, label: e.target.value })} className="flex-1 px-2 py-1.5 border rounded-lg text-xs" />
               <input placeholder="URL" value={novoVideo.url} onChange={(e) => setNovoVideo({ ...novoVideo, url: e.target.value })} className="flex-1 px-2 py-1.5 border rounded-lg text-xs" />
-              <button type="button" onClick={() => { if (novoVideo.label && novoVideo.url) { setLinksVideo([...linksVideo, novoVideo]); setNovoVideo({ label: "", url: "" }) } }} className="p-1.5 text-sky-600"><Plus size={16} /></button>
+              <input placeholder="Descrição" value={novoVideo.descricao} onChange={(e) => setNovoVideo({ ...novoVideo, descricao: e.target.value })} className="flex-1 px-2 py-1.5 border rounded-lg text-xs" />
+              <button type="button" onClick={() => { if (novoVideo.label && novoVideo.url) { setLinksVideo([...linksVideo, { ...novoVideo, descricao: novoVideo.descricao || null }]); setNovoVideo({ label: "", url: "", descricao: "" }) } }} className="p-1.5 text-sky-600"><Plus size={16} /></button>
             </div>
           </div>
         </div>

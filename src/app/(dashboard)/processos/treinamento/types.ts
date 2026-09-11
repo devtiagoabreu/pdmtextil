@@ -1,6 +1,7 @@
 export type LicaoLink = {
   label: string
   url: string
+  descricao?: string | null
 }
 
 export type Licao = {

@@ -240,6 +240,9 @@ export default function LicaoDetailPage() {
                         <ExternalLink size={14} />
                         {link.label}
                       </a>
+                      {link.descricao && (
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{link.descricao}</p>
+                      )}
                     </li>
                   ))}
                 </ul>

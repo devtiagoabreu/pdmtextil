@@ -44,6 +44,8 @@ export default function AdminTreinamentoPage() {
   const [deletingId, setDeletingId] = useState<number | null>(null)
   const [showNovoModulo, setShowNovoModulo] = useState(false)
   const [novoModulo, setNovoModulo] = useState({ titulo: "", descricao: "", icone: "GraduationCap", cor: "#0ea5e9" })
+  const [editandoModuloId, setEditandoModuloId] = useState<number | null>(null)
+  const [editandoModulo, setEditandoModulo] = useState({ titulo: "", descricao: "", icone: "GraduationCap", cor: "#0ea5e9" })
 
   const { data: modulos, isLoading } = useQuery<ModuloComLicoes[]>({
     queryKey: ["proc-treinamento"],
@@ -83,6 +85,31 @@ export default function AdminTreinamentoPage() {
     },
     onError: () => toast.error("Erro ao criar módulo"),
   })
+
+  const atualizarModulo = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: typeof editandoModulo }) =>
+      fetch(`/api/processos/treinamento/modulos/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...data, ativo: true }),
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["proc-treinamento"] })
+      setEditandoModuloId(null)
+      toast.success("Módulo atualizado")
+    },
+    onError: () => toast.error("Erro ao atualizar módulo"),
+  })
+
+  const abrirEdicaoModulo = (m: Modulo) => {
+    setEditandoModulo({
+      titulo: m.titulo,
+      descricao: m.descricao || "",
+      icone: m.icone || "GraduationCap",
+      cor: m.cor || "#0ea5e9",
+    })
+    setEditandoModuloId(m.id)
+  }
 
   const handleDeleteLicao = (id: number, titulo: string) => {
     if (confirm(`Remover a lição "${titulo}"?`)) {
@@ -171,6 +198,56 @@ export default function AdminTreinamentoPage() {
         </div>
       )}
 
+      {editandoModuloId !== null && (
+        <div className="mb-6 p-4 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800/50">
+          <h3 className="font-medium text-slate-900 dark:text-slate-50 mb-3">Editar Módulo</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+            <input
+              placeholder="Título do módulo"
+              value={editandoModulo.titulo}
+              onChange={(e) => setEditandoModulo({ ...editandoModulo, titulo: e.target.value })}
+              className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800"
+            />
+            <input
+              placeholder="Descrição (opcional)"
+              value={editandoModulo.descricao}
+              onChange={(e) => setEditandoModulo({ ...editandoModulo, descricao: e.target.value })}
+              className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800"
+            />
+            <input
+              placeholder="Ícone (BookOpen, GraduationCap, etc)"
+              value={editandoModulo.icone}
+              onChange={(e) => setEditandoModulo({ ...editandoModulo, icone: e.target.value })}
+              className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800"
+            />
+            <div className="flex items-center gap-2">
+              <input
+                type="color"
+                value={editandoModulo.cor}
+                onChange={(e) => setEditandoModulo({ ...editandoModulo, cor: e.target.value })}
+                className="w-9 h-9 rounded cursor-pointer"
+              />
+              <span className="text-xs text-slate-500">{editandoModulo.cor}</span>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => editandoModuloId !== null && atualizarModulo.mutate({ id: editandoModuloId, data: editandoModulo })}
+              disabled={!editandoModulo.titulo || atualizarModulo.isPending}
+              className="px-3 py-1.5 bg-sky-600 text-white text-sm rounded-lg hover:bg-sky-700 disabled:opacity-50 transition-colors"
+            >
+              {atualizarModulo.isPending ? "Salvando..." : "Salvar"}
+            </button>
+            <button
+              onClick={() => setEditandoModuloId(null)}
+              className="px-3 py-1.5 text-sm text-slate-600 hover:text-slate-800 transition-colors"
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      )}
+
       {isLoading ? (
         <div className="flex justify-center py-12">
           <Loader2 size={24} className="animate-spin text-slate-400" />
@@ -193,6 +270,13 @@ export default function AdminTreinamentoPage() {
                   )}
                 </div>
                 <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => abrirEdicaoModulo(modulo)}
+                    className="p-1.5 text-slate-400 hover:text-sky-600 hover:bg-sky-50 dark:hover:bg-sky-950/50 rounded-lg transition-colors"
+                    title="Editar módulo"
+                  >
+                    <Pencil size={16} />
+                  </button>
                   <Link
                     href={`/processos/treinamento/admin/novo?moduloId=${modulo.id}`}
                     className="p-1.5 text-slate-400 hover:text-sky-600 hover:bg-sky-50 dark:hover:bg-sky-950/50 rounded-lg transition-colors"

@@ -35,6 +35,7 @@ function buildHandler() {
   return ({ method, url }: { method: string; url: string }) => {
     if (method === "GET" && url === "/api/processos/treinamento") return { json: modulos }
     if (method === "POST" && url === "/api/processos/treinamento/modulos") return { status: 201, json: { id: 3 } }
+    if (method === "PUT" && url === "/api/processos/treinamento/modulos/1") return { json: { id: 1 } }
     if (method === "DELETE" && url === "/api/processos/treinamento/10") return { json: { ok: true } }
     if (method === "DELETE" && url === "/api/processos/treinamento/modulos/1") return { json: { ok: true } }
     return { json: null }
@@ -95,6 +96,29 @@ describe("AdminTreinamentoPage", () => {
 
     await waitFor(() => expect(findCall(fetchMock.calls, "/api/processos/treinamento/modulos/1", "DELETE")).toBeDefined())
     await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Módulo removido"))
+  })
+
+  it("edita um módulo via PUT", async () => {
+    renderPage(<AdminTreinamentoPage />)
+    await screen.findByText("Visão Geral")
+
+    fireEvent.click(screen.getAllByTitle("Editar módulo")[0])
+    await screen.findByDisplayValue("Visão Geral")
+    fireEvent.change(screen.getByDisplayValue("Visão Geral"), { target: { value: "Visão Geral v2" } })
+    fireEvent.click(screen.getByRole("button", { name: "Salvar" }))
+
+    await waitFor(() => {
+      const call = findCall(fetchMock.calls, "/api/processos/treinamento/modulos/1", "PUT")
+      expect(call).toBeDefined()
+      expect(call!.body).toEqual({
+        titulo: "Visão Geral v2",
+        descricao: "Primeiros passos na Engenharia de Processos",
+        icone: "BookOpen",
+        cor: "#0ea5e9",
+        ativo: true,
+      })
+    })
+    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Módulo atualizado"))
   })
 
   it("contém links para editar lição e criar lição no módulo", async () => {

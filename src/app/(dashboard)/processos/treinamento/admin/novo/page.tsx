@@ -32,10 +32,10 @@ function NovaLicaoPageContent() {
     pathnameRelacionado: "",
     ordem: "0",
   })
-  const [linksPop, setLinksPop] = useState<{ label: string; url: string }[]>([])
-  const [linksVideo, setLinksVideo] = useState<{ label: string; url: string }[]>([])
-  const [novoPop, setNovoPop] = useState({ label: "", url: "" })
-  const [novoVideo, setNovoVideo] = useState({ label: "", url: "" })
+  const [linksPop, setLinksPop] = useState<{ label: string; url: string; descricao?: string | null }[]>([])
+  const [linksVideo, setLinksVideo] = useState<{ label: string; url: string; descricao?: string | null }[]>([])
+  const [novoPop, setNovoPop] = useState({ label: "", url: "", descricao: "" })
+  const [novoVideo, setNovoVideo] = useState({ label: "", url: "", descricao: "" })
   const [saving, setSaving] = useState(false)
 
   const { data: modulos } = useQuery<Modulo[]>({
@@ -175,7 +175,10 @@ function NovaLicaoPageContent() {
             <div className="space-y-2 mb-2">
               {linksPop.map((link, i) => (
                 <div key={link.url} className="flex items-center gap-2 text-sm bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg">
-                  <span className="flex-1 truncate">{link.label}</span>
+                  <div className="flex-1 min-w-0">
+                    <span className="block truncate">{link.label}</span>
+                    {link.descricao && <span className="block text-xs text-slate-500 truncate">{link.descricao}</span>}
+                  </div>
                   <button
                     type="button"
                     onClick={() => setLinksPop(linksPop.filter((_, j) => j !== i))}
@@ -199,12 +202,18 @@ function NovaLicaoPageContent() {
                 onChange={(e) => setNovoPop({ ...novoPop, url: e.target.value })}
                 className="flex-1 px-2 py-1.5 border border-slate-300 dark:border-slate-600 rounded-lg text-xs bg-white dark:bg-slate-800"
               />
+              <input
+                placeholder="Descrição (opcional)"
+                value={novoPop.descricao}
+                onChange={(e) => setNovoPop({ ...novoPop, descricao: e.target.value })}
+                className="flex-1 px-2 py-1.5 border border-slate-300 dark:border-slate-600 rounded-lg text-xs bg-white dark:bg-slate-800"
+              />
               <button
                 type="button"
                 onClick={() => {
                   if (novoPop.label && novoPop.url) {
-                    setLinksPop([...linksPop, novoPop])
-                    setNovoPop({ label: "", url: "" })
+                    setLinksPop([...linksPop, { ...novoPop, descricao: novoPop.descricao || null }])
+                    setNovoPop({ label: "", url: "", descricao: "" })
                   }
                 }}
                 className="p-1.5 text-sky-600 hover:bg-sky-50 dark:hover:bg-sky-950/50 rounded-lg"
@@ -221,7 +230,10 @@ function NovaLicaoPageContent() {
             <div className="space-y-2 mb-2">
               {linksVideo.map((link, i) => (
                 <div key={link.url} className="flex items-center gap-2 text-sm bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg">
-                  <span className="flex-1 truncate">{link.label}</span>
+                  <div className="flex-1 min-w-0">
+                    <span className="block truncate">{link.label}</span>
+                    {link.descricao && <span className="block text-xs text-slate-500 truncate">{link.descricao}</span>}
+                  </div>
                   <button
                     type="button"
                     onClick={() => setLinksVideo(linksVideo.filter((_, j) => j !== i))}
@@ -245,12 +257,18 @@ function NovaLicaoPageContent() {
                 onChange={(e) => setNovoVideo({ ...novoVideo, url: e.target.value })}
                 className="flex-1 px-2 py-1.5 border border-slate-300 dark:border-slate-600 rounded-lg text-xs bg-white dark:bg-slate-800"
               />
+              <input
+                placeholder="Descrição (opcional)"
+                value={novoVideo.descricao}
+                onChange={(e) => setNovoVideo({ ...novoVideo, descricao: e.target.value })}
+                className="flex-1 px-2 py-1.5 border border-slate-300 dark:border-slate-600 rounded-lg text-xs bg-white dark:bg-slate-800"
+              />
               <button
                 type="button"
                 onClick={() => {
                   if (novoVideo.label && novoVideo.url) {
-                    setLinksVideo([...linksVideo, novoVideo])
-                    setNovoVideo({ label: "", url: "" })
+                    setLinksVideo([...linksVideo, { ...novoVideo, descricao: novoVideo.descricao || null }])
+                    setNovoVideo({ label: "", url: "", descricao: "" })
                   }
                 }}
                 className="p-1.5 text-sky-600 hover:bg-sky-50 dark:hover:bg-sky-950/50 rounded-lg"

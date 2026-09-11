@@ -133,10 +133,23 @@ A **Empresa** é o nível mais alto da hierarquia. Representa uma organização 
 2. **Empresas inativas** não aparecem na seleção de novos cadastros.
 3. Só é possível **excluir** uma empresa que **não tenha sites vinculados**.
 
-### Dicas
+### Como preencher
 
-- Use o **nome completo** da organização, sem abreviações — isso garante consistência nas consultas.
-- Se a empresa pertence a um grupo maior, cadastre a razão social exata.
+Pense que quem consulta depois precisa saber **qual organização** está falando — não basta um apelido de memória.
+
+| Campo | Como preencher | Exemplo |
+|---|---|---|
+| **Nome** | Razão social ou nome completo, sem abreviações | PDM Têxtil Ltda (não "PDM") |
+| **CNPJ** | Somente números | 00.000.000/0001-00 |
+| **Status** | Mantenha **Ativo** enquanto a organização existir | Ativo |
+
+### Dúvidas comuns
+
+- **Tenho uma só empresa?** Cadastre uma única empresa. Se o grupo tiver mais (ex.: a firma de confecção separada), cadastre cada uma.
+- **Mudou o CNPJ?** Atualize no cadastro da mesma empresa. Não crie outra igual.
+- **A empresa fechou?** Marque como inativa em vez de excluir — a documentação dos processos continua consultável.
+
+> Dica: use o **nome completo** da organização, sem abreviações — isso garante consistência nas consultas e evita duas empresas "PDM" que na verdade são a mesma.
 $$, 'Acesso ao módulo Processos (tela Empresas)', '/processos/empresas', 1);
 
 -- Lição 2.2
@@ -161,10 +174,29 @@ O **Site** é a unidade física (planta, filial) de uma empresa. É dentro dos s
 2. Cada site pode conter **várias áreas**.
 3. Só é possível **excluir** um site **sem áreas vinculadas**.
 
-### Dicas
+### Como preencher
 
-- Se a empresa tem filiais em cidades diferentes, cada filial é um site.
-- Use nomes que diferenciem unidades do mesmo grupo (ex: "PDM São Paulo" e "PDM Campinas").
+O site é o **endereço físico** do trabalho. Se a fábrica tem mais de uma unidade, cada uma é um site.
+
+| Campo | Como preencher | Exemplo |
+|---|---|---|
+| **Nome** | Nome da unidade/filial | PDM São Paulo — Planta de Tecelagem |
+| **Empresa** | A organização dona da unidade | PDM Têxtil Ltda |
+| **Cidade/UF** | Onde a unidade fica | São Paulo / SP |
+
+### Exemplos de sites na fábrica
+
+- **PDM São Paulo** — matriz (tecelagem + beneficiamento + expedição)
+- **PDM Campinas** — filial (apenas beneficiamento e expedição)
+- **PDM Minas** — unidade de urdimento
+
+### Dúvidas comuns
+
+- **"Tenho uma fábrica só, preciso de site?"** Sim — crie um único site ligado à sua empresa. Sem site, não dá para cadastrar áreas.
+- **"Dois setores no mesmo galpão são dois sites?"** Não. Se é o mesmo local físico, é **um site com duas áreas**.
+- **"Abrimos uma filial em outra cidade."** Crie um **novo site** para a filial.
+
+> Dica: use nomes que diferenciem unidades do mesmo grupo (ex.: "PDM São Paulo" e "PDM Campinas") e sempre confira se a empresa selecionada é a correta — cada site nasce dentro de uma empresa.
 $$, 'Empresa cadastrada', '/processos/sites', 2);
 
 -- ============================================================
@@ -191,8 +223,12 @@ A **Área** representa um setor ou departamento dentro de um site — é onde os
 ### Exemplos realistas
 
 - Beneficiamento de Malha
+- Tecelagem
+- Urdimento
 - Expedição e Logística
+- Recebimento de Matéria-Prima
 - Qualidade e Controle
+- Manutenção
 - TI Corporativa
 
 ### Regras importantes
@@ -200,6 +236,29 @@ A **Área** representa um setor ou departamento dentro de um site — é onde os
 1. **Toda área pertence a um site.**
 2. Cada área pode conter **vários processos**.
 3. Excluir uma área exige que ela **não tenha processos vinculados**.
+
+### Como preencher
+
+A área é o **setor** — o nome precisa ser o mesmo que o pessoal usa no chão de fábrica. Se no dia a dia chamam de "expedição", cadastre "Expedição e Logística" se preferir, mas **não invente nomes que ninguém reconhece**.
+
+| Campo | Como preencher | Exemplo |
+|---|---|---|
+| **Nome** | Nome do setor, reconhecível pelo time | Expedição e Logística |
+| **Site** | A unidade física onde o setor fica | PDM São Paulo |
+
+### Exemplo: como fica o site com suas áreas
+
+```
+PDM São Paulo (site)
+├── Recebimento de Matéria-Prima
+├── Tecelagem
+├── Urdimento
+├── Beneficiamento
+├── Expedição e Logística
+└── Qualidade e Controle
+```
+
+A partir daqui, cada **processo** que você cadastrar vai ser alocado dentro de uma dessas áreas (ex.: o processo "Recepção de fio" fica na área "Recebimento de Matéria-Prima").
 
 > Dê preferência a nomes que o time já usa no dia a dia. A área documentada precisa ser reconhecível por quem executa o processo.
 $$, 'Site cadastrado', '/processos/areas', 1);
@@ -222,13 +281,83 @@ O **Processo** é o objeto central do mapeamento. Ele documenta o fluxo de traba
 | **Status** | Situação do documento (Rascunho, Em revisão, Aprovado...) |
 | **Versão** | Versão do documento |
 
-### Além dos campos
+### Como preencher (pensando em quem vai ler)
 
-O processo guarda também listas que descrevem o contexto:
+Pense que outra pessoa abrirá esse processo daqui a meses **sem te perguntar nada**. Quanto mais claro e específico, melhor. Para cada campo, o ideal é responder a uma pergunta simples. Veja abaixo como preencher cada lista.
 
-- **Entradas** e **Saídas** — listas de texto (uma linha por item)
-- **Fornecedores** e **Clientes** — quem entrega e quem recebe
-- **Indicadores**, **Riscos** e **Controles** — uma linha por item na edição
+---
+
+### Entradas — o que entra para o processo acontecer?
+
+Pergunta-guia: **"O que precisa chegar para esse processo rodar?"** Pode ser matéria-prima, insumo, documento ou informação. **Uma linha por item**, sem vírgulas longas.
+
+| Bom exemplo | Exemplo ruim | Por quê |
+|---|---|---|
+| Malha crua (rolo) | Entrada | "Entrada" não diz nada a quem consulta |
+| Fio de urdume | Fio | Não diz qual fio |
+| Ordem de Produção (OP) de tecelagem | OP | Sigla sem contexto |
+
+> Dica: cite o **estado** da matéria (crua, tingida, acabada) e, se achar útil, a **unidade** (rolo, kg, partida).
+
+### Saídas — o que o processo entrega?
+
+Pergunta-guia: **"O que sai quando o processo termina?"** Pode ser produto, documento, informação ou serviço. Uma linha por item.
+
+| Bom exemplo | Exemplo ruim | Por quê |
+|---|---|---|
+| Malha beneficiada acabada | Saída | Não diz o que é |
+| Laudo de qualidade do lote | Laudo | Não diz qual laudo |
+| Roteiro de produção preenchido | Roteiro | Sem contexto |
+
+### Fornecedores — quem entrega as entradas?
+
+Pergunta-guia: **"Quem fornece o que entra?"** Pode ser outra área da própria fábrica (fornecedor **interno**) ou uma empresa externa (**fornecedor externo**). Faça como no dia a dia: cada fornecedor em uma linha.
+
+- O **setor de tecelagem** entrega o tecido cru → considerado fornecedor do processo de beneficiamento.
+- A **tinturaria terceirizada** é fornecedor externo.
+- A **transportadora/expedição** entrega malha recebida do fornecedor.
+
+### Clientes — quem recebe as saídas?
+
+Pergunta-guia: **"Quem recebe o que sai?"** Assim como nos fornecedores, pode ser interno ou externo.
+
+- **Expedição** recebe o lote pronto para embarque.
+- A **confecção/alfaiataria** é o cliente final da malha beneficiada.
+- Outra **área interna** que usa a saída como entrada do próximo processo.
+
+### Indicadores — como saber se o processo está indo bem?
+
+Pergunta-guia: **"Como medimos se este processo funciona?"** Na edição, cada indicador é uma linha com nome, unidade, meta e frequência. Seja mensurável — não dá para gerir o que não se mede.
+
+| Bom exemplo | Exemplo ruim | Por quê |
+|---|---|---|
+| % de retrabalho | Qualidade | "Qualidade" não é mensurável |
+| Tempo de ciclo do tingimento | Rapidez | Sem unidade e meta |
+| Produtividade (kg/hora) | Produção | Sem unidade definida |
+
+> Modelo de linha: **Nome do indicador (unidade) — meta — frequência**. Ex.: "Retrabalho (%) — meta < 2% — mensal".
+
+### Riscos — o que pode dar errado?
+
+Pergunta-guia: **"O que pode acontecer de ruim nesse processo?"** Na edição, cada risco é uma linha com descrição, probabilidade, impacto e controle. Pense nos problemas que já aconteceram — eles são os melhores candidatos.
+
+| Exemplo de linha de risco |
+|---|
+| Descrição: Atraso na entrega de fio / Probabilidade: Média / Impacto: Alto / Controle: conferência de prazo no recebimento |
+| Descrição: Quebra de máquina no beneficiamento / Probabilidade: Baixa / Impacto: Alto / Controle: manutenção preventiva programada |
+
+### Controles — o que já existe para evitar problema?
+
+Pergunta-guia: **"O que a fábrica já faz para garantir que o processo sai certo?"** Um controle para cada linha.
+
+| Exemplo de controle |
+|---|
+| Conferência de peso da matéria-prima na recepção |
+| Inspeção visual de defeitos antes do embarque |
+| Alarme de temperatura na máquina de tingimento |
+| Alvará de funcionamento do roteiro de produção antes de iniciar a ordem |
+
+---
 
 ### Regras importantes
 
@@ -238,11 +367,30 @@ O processo guarda também listas que descrevem o contexto:
 
 ### Boa prática de preenchimento
 
-| Campo | Bom exemplo | Exemplo ruim |
-|---|---|---|
-| Nome | Beneficiamento de Malha | Beneficiamento |
-| Entradas | Malha em rolo (cru) | Entrada |
-| Saídas | Malha acabada, enxugada | Saída |
+Pense sempre em **escrever para um leigo da fábrica**. Se o nome precisa de sigla, escreva a sigla e o nome por extenso na primeira menção. Evite genérico: "Entrada", "Saída", "Processo", "Fio".
+
+| Campo | Bom exemplo | Exemplo ruim | Por quê |
+|---|---|---|---|
+| Nome | Recebimento de Matéria-Prima | Recebimento | Não diz de quê |
+| Entradas | Malha crua em rolo; Fio de urdume; OP de tecelagem | Entrada | Não diz o que entra |
+| Saídas | Malha pré-tratada; Laudo de qualidade | Saída | Não diz o que sai |
+| Fornecedores | Tecelagem (interno); Fornecedor de fios | Fornecedor | Não diz quem fornece |
+| Clientes | Expedição; Confecção | Cliente | Não diz quem recebe |
+| Indicadores | Retrabalho (%) — meta < 2% — mensal | Qualidade | Não é mensurável |
+| Riscos | Atraso de fio / Média / Alto / Conferência de prazo | Risco | Sem estrutura |
+| Controles | Inspeção visual de defeitos | Controle | Não diz qual controle |
+
+### Exemplo preenchido (processo real da fábrica)
+
+**Processo: Recebimento de Matéria-Prima**
+
+- **Entradas:** Malha crua em rolo; Fio de urdume; Nota fiscal; Ordem de Compra
+- **Saídas:** Matéria-prima conferida e armazenada; Laudo de recebimento
+- **Fornecedores:** Transportadora terceirizada; Fornecedor de fios (externo)
+- **Clientes:** Tecelagem (urdimento); Beneficiamento; Comprador de matérias-primas
+- **Indicadores:** Atraso de entrega (%) — meta < 3% — semanal; Conferências em dia (%) — meta 100% — mensal
+- **Riscos:** (1) Produto divergente do pedido — Média/Alta/Conferência no recebimento; (2) Atraso de transporte — Média/Média/Acompanhamento com a transportadora
+- **Controles:** Conferência de peso e rolos; Conferência de nota fiscal vs. ordem de compra; Inspeção visual rápida de avarias
 $$, 'Área cadastrada', '/processos/processos', 2);
 
 -- Lição 3.3
@@ -308,6 +456,16 @@ O **Subprocesso** é uma grande etapa em que o processo é decomposto. Ele simpl
 2. A **ordem** define a sequência de execução.
 3. **Subprocessos inativos** não aparecem no detalhe do processo.
 
+### Como preencher
+
+O subprocesso é uma **fase** do processo. Para saber onde cortar, pergunte: **"qual é o fim de cada etapa?"** Quando muda o que o trabalho está fazendo, é um novo subprocesso.
+
+| Campo | Como preencher | Exemplo |
+|---|---|---|
+| **Nome** | Nome da fase, iniciando por substantivo | Recebimento de matéria-prima |
+| **Processo** | O processo dono da fase | Recebimento de Matéria-Prima |
+| **Ordem** | Sequência: 1, 2, 3... | 1 |
+
 ### Exemplo de decomposição
 
 ```
@@ -318,9 +476,32 @@ Processo: Beneficiamento de Malha
 └── 4. Acabamento e expedição
 ```
 
+### Mais exemplos de decomposição na fábrica
+
+**Processo: Lançamento de Ordem de Produção de Tecelagem**
+```
+├── 1. Recepção da OP e conferência de dados
+├── 2. Preparação do urdume
+├── 3. Programação das máquinas
+└── 4. Distribuição da OP para o chão de fábrica
+```
+
+**Processo: Expedição**
+```
+├── 1. Separação dos pedidos
+├── 2. Conferência de quantidades e etiquetas
+├── 3. Emissão de romaneio e nota fiscal
+└── 4. Carregamento e saída do caminhão
+```
+
 ### Dica
 
 A divisão em subprocessos deve seguir a **lógica das fases**: cada subprocesso corresponde a uma fase de negócio, não a micro-passos. Micro-passos ficam nas atividades.
+
+- **Subprocesso (fase):** "Tingimento".
+- **Atividade (passo):** "Preparar banho de corante", "Rodar ciclo na máquina".
+
+> Se a lista de subprocessos ficou com mais de 10 itens, revise: provavelmente há fases que podem ser agrupadas.
 $$, 'Processo cadastrado', '/processos/subprocessos', 1);
 
 -- Lição 4.2
@@ -352,12 +533,31 @@ A **Atividade** é a unidade de execução do mapeamento: uma ação concreta ex
 2. O **tipo** define a natureza: Manual, Automática, Decisão ou Espera.
 3. A **ordem** define a sequência de execução dentro do subprocesso.
 
+### Como preencher
+
+A atividade é o **passo concreto** da rotina. Escreva como **verbo + objeto** — quem lê precisa entender o que FAZER, não apenas o que é.
+
+| Tipo | Exemplos de bom preenchimento | Exemplo ruim |
+|---|---|---|
+| Manual | Conferir peso da malha recebida | Peso |
+| Manual | Registrar entrada da OP no sistema | OP |
+| Automática | Imprimir etiqueta de lote automaticamente | Etiqueta |
+| Decisão | Cor do lote aprovada? (Sim = segue / Não = retrabalho) | Aprovado? |
+| Espera | Aguardar resfriamento da máquina | Esperar |
+
 ### Boa prática
 
 Escreva a atividade como **verbo + objeto**:
 - **Sim:** Conferir peso da malha recebida
 - **Sim:** Validar fatura contra pedido
-- **Não:** Peso / Validação
+- **Sim:** Registrar ordem de produção de urdimento
+- **Não:** Peso / Validação / OR / Etapa 3
+
+### Dúvida comum: "Decisão" vs "Espera"
+
+- **Decisão** é um **desvio** que muda o caminho: *"Cor aprovada? Sim → segue / Não → retrabalho"*.
+- **Espera** é quando o fluxo **para aguardando algo acontecer**: *"Aguardar chegada do fio"* ou *"Aguardar programação"*.
+- Regra rápida: se há **dois caminhos possíveis**, é decisão. Se há **um caminho com pausa**, é espera.
 $$, 'Subprocesso cadastrado', '/processos/atividades', 2);
 
 -- ============================================================
@@ -446,9 +646,11 @@ Se o time executa de um jeito, mas o documento diz outra coisa, **o documento es
 - Use nomes consistentes entre empresa, site, área e processo
 - Revise entradas/saídas com o time de operação
 
+> **Exemplo:** Se no chão de fábrica a área se chama "Expedição", não crie um processo com nome "Despacho de Mercadorias" — quem consulta não vai encontrar. Use o nome que o time reconhece.
+
 ### 3. Um responsável por processo
 
-Todo processo deve ter um **dono** claramente identificado. Sem dono, o processo não evolui.
+Todo processo deve ter um **dono** claramente identificado. Sem dono, o processo não evolui. O responsável não precisa executar tudo — ele responde por manter o processo atualizado e aprovado.
 
 ### 4. Cadastre de cima para baixo
 
@@ -462,9 +664,11 @@ Não deixe um processo em "Rascunho" por meses. Quando mudar o conteúdo, **incr
 
 Outra pessoa (ou o seu eu do futuro) precisa entender o processo **sem te perguntar**. Se não fizer sentido sozinho, melhore a descrição.
 
+> **Como testar:** leia o que você escreveu em voz alta. Se precisou explicar "aqui eu quis dizer...", reescreva. Um bom processo é aquele que passa na mão de um colaborador **novo na área** sem dúvidas.
+
 ### 7. Processo vivo, não burocracia
 
-Documentação existe para **ajudar**, não para preencher papel. Se um campo não agrega, questione.
+Documentação existe para **ajudar**, não para preencher papel. Se um campo não agrega, questione. O objetivo é que o processo documentado **reflita a rotina real** — e que a rotina siga o processo documentado.
 $$, 'Módulos 1 a 5', NULL, 1);
 
 -- Lição 6.2
@@ -473,7 +677,7 @@ INSERT INTO proc_treino_licoes (modulo_id, titulo, conteudo_md, pre_requisitos, 
 ((SELECT id FROM m), 'Exemplo completo: Beneficiamento de Malha',
 $$## Caso prático
 
-Veja como montar o mapeamento de ponta a ponta.
+Veja como montar o mapeamento de ponta a ponta, seguindo a hierarquia completa. Primeiro a visão geral; depois o detalhe de processos reais da fábrica.
 
 ### 1. Empresa
 
@@ -483,27 +687,42 @@ Veja como montar o mapeamento de ponta a ponta.
 
 - Nome: PDM São Paulo
 
-### 3. Área
+### 3. Áreas cadastradas
 
-- Nome: Beneficiamento de Malha
+1. Recebimento de Matéria-Prima
+2. Urdimento
+3. Tecelagem
+4. Beneficiamento
+5. Expedição e Logística
 
-### 4. Processo
+### 4. Processos da fábrica
 
-- Nome: Beneficiamento de Malha — Acabamento
-- Responsável: Coordenador de Acabamento
-- Status: Aprovado / Versão: 1.2
+| Área | Processo |
+|---|---|
+| Recebimento de Matéria-Prima | Recebimento e conferência de matéria-prima |
+| Urdimento | Lançamento de OP de urdimento |
+| Tecelagem | Lançamento de OP de tecelagem |
+| Beneficiamento | Beneficiamento de Malha — Acabamento |
+| Expedição e Logística | Expedição de pedidos |
+
+### 5. Exemplo completo — Processo "Beneficiamento de Malha — Acabamento"
+
+- **Responsável:** Coordenador de Acabamento
+- **Status:** Aprovado / **Versão:** 1.2
 - Entradas: Malha pré-tratada, corantes, fórmula técnica
 - Saídas: Malha acabada enxugada, laudo de qualidade
-- Indicadores: % de retrabalho, tempo de ciclo
+- **Indicadores:** % de retrabalho — meta < 2% — mensal; tempo de ciclo (h/partida) — semanal; produtividade (kg/hora) — diária
+- **Riscos:** Atraso de formulação — Média/Alta/Conferência de fórmula; quebra de máquina — Baixa/Alta/Manutenção preventiva
+- **Controles:** Inspeção visual de defeitos; conferência de peso; alarme de temperatura
 
-### 5. Subprocessos
+### 6. Subprocessos
 
 1. Recebimento de matéria-prima
 2. Pré-tratamento
 3. Tingimento
 4. Acabamento e expedição
 
-### 6. Atividades (exemplo no Tingimento)
+### 7. Atividades (exemplo no Tingimento)
 
 | Ordem | Atividade | Tipo |
 |---|---|---|
@@ -514,7 +733,31 @@ Veja como montar o mapeamento de ponta a ponta.
 | 5 | Aguardar resfriamento | Espera |
 | 6 | Descarregar malha | Manual |
 
-### 7. Diagrama
+### 8. Exemplo rápido — Processo "Recebimento de Matéria-Prima"
 
-Use **Fluxograma** para esse fluxo e **BPMN** se precisar de raias por papel (Operador, Qualidade, Supervisão).
+- **Subprocessos:** 1. Recepção do veículo; 2. Conferência de danos; 3. Conferência de peso e quantidade; 4. Armazenagem
+- **Atividades da conferência:** 1. Conferir peso da malha (Manual); 2. Conferir nota vs ordem de compra (Manual); 3. Conferido? (Decisão); 4. Aguardar liberação do almoxarifado (Espera)
+
+### 9. Exemplo rápido — Processo "Expedição de Pedidos"
+
+- **Subprocessos:** 1. Separação dos pedidos; 2. Conferência de quantidades; 3. Emissão de romaneio e nota; 4. Carregamento e saída
+- **Atividades do carregamento:** 1. Organizar carga no caminhão (Manual); 2. Conferir romaneio vs carga (Manual); 3. Conferido? (Decisão); 4. Aguardar liberação da portaria (Espera)
+
+### 10. Lançamento de OP (tecelagem, urdimento, beneficiamento)
+
+O lançamento de **ordens de produção** pode ser mapeado como processo em cada área:
+
+| Área | Subprocessos sugeridos |
+|---|---|
+| Urdimento | 1. Recepção da OP; 2. Programação do urdume; 3. Execução do urdimento; 4. Conferência e liberação |
+| Tecelagem | 1. Recepção da OP; 2. Programação das máquinas; 3. Tecelagem; 4. Conferência e liberação do tecido |
+| Beneficiamento | 1. Recepção da OP; 2. Programação do banho; 3. Execução do beneficiamento; 4. Conferência e liberação |
+
+### 11. Roteiro de produção
+
+O **roteiro de produção** nasce do mapeamento: é a sequência ordenada de subprocessos e atividades (recepção → conferência → execução → liberação) que o time segue. Com os processos documentados, o roteiro deixa de depender de memória e vira consulta rápida por área.
+
+### 12. Diagrama
+
+Use **Fluxograma** para esses fluxos e **BPMN** se precisar de raias por papel (Operador, Qualidade, Supervisão, Programação). Detalhe o **modelo semântico** com atividades e decisões — Mermaid, BPMN e Canvas acompanham automaticamente.
 $$, 'Módulos 1 a 5', '/processos/processos', 2);
