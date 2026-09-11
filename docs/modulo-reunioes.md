@@ -448,3 +448,88 @@ Todas as cores têm par **light/dark**.
 | `app/components/info-button.tsx` | `InfoButton`/`InfoTitle` (tooltip) |
 | `lib/auth.ts` (`apiRequire`, `currentUser`, `requireUser`, `requirePermission`) | Autorização |
 | `lib/permissions.ts` | Registro de permissões do módulo |
+
+---
+
+## 12. Evolução no repositório atual (pdmtextil) — CRUD de projetos
+
+A implantação atual (Next.js + Drizzle + Postgres, **4 bancos sincronizados**)
+substituiu o **enum `projeto`** das reuniões por uma **tabela
+`reunioes_projetos`** com FK em `reunioes.projeto_id`:
+
+```
+reunioes
+├── projeto_id INT NOT NULL DEFAULT 1  -- FK -> reunioes_projetos.id
+│                                          (antes: projeto TEXT enum)
+
+reunioes_projetos
+├── id SERIAL PK
+├── nome TEXT NOT NULL UNIQUE
+├── descricao TEXT NULL
+├── data_inicio DATE NULL
+├── data_fim DATE NULL
+├── status VARCHAR(20) NOT NULL DEFAULT 'EM_ANDAMENTO'
+│        -- EM_ANDAMENTO · ENCERRADO · PLANEJADO
+├── cor VARCHAR(7) NULL          -- #RRGGBB (badge na UI)
+├── ativo BOOLEAN NOT NULL DEFAULT true
+├── created_at / updated_at TIMESTAMP DEFAULT now()
+└── Índice: idx_reunioes_projetos_status
+```
+
+**Seed inicial (idempotente, `ON CONFLICT (nome) DO NOTHING`)**: Interna
+(`#64748b`), Systêxtil (`#6366f1`), Bling (`#0ea5e9`), Outros (`#f59e0b`).
+O projeto padrão é **id 1 (Interna)**.
+
+### 12.1 Migração de dados
+
+- Coluna legada `reunioes.projeto` é **backfillada** para `projeto_id`
+  comparando `upper(btrim(projeto)) = upper(nome)` (linhas órfãs → Interna) e
+  **removida** ao final (`DROP COLUMN IF EXISTS projeto` +
+  `DROP INDEX IF EXISTS idx_reunioes_projeto`).
+- Migration Drizzle: `src/lib/db/migrations/0050_reunioes_projetos.sql`
+  (arquivo renomeado de 0031 por ordenação por nome; o journal do Drizzle não
+  é usado pelo `migrate-all.js`, que rastreia por nome de arquivo).
+- `scripts/migrate.js` (principal) e `scripts/sync-all-dbs.js` (3 secundários)
+  têm blocos **idempotentes equivalentes**; o backfill roda só enquanto a
+  coluna legada existe (DO block checando `information_schema.columns`).
+
+### 12.2 API
+
+| Método | Rota | Permissão | Sucesso | Erros |
+|---|---|---|---|---|
+| GET | `/api/reunioes/projetos` | autenticado | `200 { projetos: [...] }` | 401 · 502 |
+| POST | `/api/reunioes/projetos` | `reunioes.write` | `201 { projeto }` | 400 (validação/duplicado) · 401/403 · 502 |
+| GET | `/api/reunioes/projetos/:id` | autenticado | `200 { projeto }` | 404 · 501 |
+| PUT | `/api/reunioes/projetos/:id` | `reunioes.write` | `200 { projeto }` | 404 · 400 · 401/403 · 502 |
+| DELETE | `/api/reunioes/projetos/:id` | `reunioes.delete` (admin/sudo) | `200 { ok: true }` | 400 (id 1 ou com reuniões) · 404 · 401/403 · 502 |
+
+- Nome **único** (comparação `lower()`, case-insensitive) → 409.
+- `data_fim` não pode ser anterior a `data_inicio`; `cor` deve ser `#RRGGBB`;
+  `status` restrito ao enum; `ativo` default `true`.
+- **Exclusão bloqueada** para o projeto padrão (`id = 1`) e para projetos com
+  reuniões vinculadas (FK RESTRICT) → `400`.
+- Listagem de reuniões passa a expor `projetoId` e `projetoNome` (join em
+  `reunioes_projetos`); o front filtra por `projetoId` numérico.
+
+### 12.3 UI
+
+- `/reunioes/projetos` — tela de gestão (cards com cor, status, datas e ativo;
+  modal novo/editar; exclusão com confirmação). Ações de escrita gated por
+  `podeEscreverReuniao`; exclusão por `podeExcluirReuniao` (admin/sudo).
+- Select de projeto na página de reuniões é **dinâmico** (busca
+  `/api/reunioes/projetos`), ordenado por nome, com default no primeiro
+  projeto retornado.
+- `user_menu_itens` recebe `Projetos → /reunioes/projetos` (ordem 1) em todo
+  menu `Reuniões` (role-based e usuários específicos), idempotente.
+
+### 12.4 Testes
+
+- `src/lib/reunioes.test.ts` — validação `validarProjeto` + `validarReuniao`
+  com `projetoId`.
+- `src/app/api/reunioes/projetos/route.test.ts` e `[id]/route.test.ts` — CRUD,
+  duplicado 409, bloqueios de exclusão, permissões.
+- `src/app/api/reunioes/route.test.ts` e `[id]/route.test.ts` — payloads com
+  `projetoId`/`projetoNome`.
+- `src/app/(dashboard)/reunioes/page.test.tsx` e
+  `src/app/(dashboard)/reunioes/projetos/page.test.tsx` — listas, filtro,
+  criação/edição/exclusão e gate de permissão.

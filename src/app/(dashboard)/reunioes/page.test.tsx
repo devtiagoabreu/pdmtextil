@@ -13,11 +13,17 @@ let sessionMock: { data: { user: { role: string } } | null; status: string } = {
   status: "authenticated",
 }
 
+const projetos = [
+  { id: 2, nome: "Systêxtil", status: "EM_ANDAMENTO", ativo: true, cor: "#6366f1" },
+  { id: 1, nome: "Interna", status: "EM_ANDAMENTO", ativo: true, cor: "#64748b" },
+]
+
 const lista = [
   {
     id: 1,
     titulo: "Rodada de release",
-    projeto: "SYSTEXTIL",
+    projetoId: 2,
+    projetoNome: "Systêxtil",
     data: "2026-09-11T15:00:00.000Z",
     local: "Meet",
     status: "REALIZADA",
@@ -29,7 +35,8 @@ const lista = [
   {
     id: 2,
     titulo: "Reunião interna de planejamento",
-    projeto: "INTERNA",
+    projetoId: 1,
+    projetoNome: "Interna",
     data: "2026-09-14T10:30:00.000Z",
     local: null,
     status: "AGENDADA",
@@ -43,7 +50,8 @@ const lista = [
 const detalhe = {
   id: 1,
   titulo: "Rodada de release",
-  projeto: "SYSTEXTIL",
+  projetoId: 2,
+  projetoNome: "Systêxtil",
   data: "2026-09-11T15:00:00.000Z",
   local: "Meet",
   status: "REALIZADA",
@@ -66,6 +74,7 @@ const detalhe = {
 function fetchSucesso() {
   const fetchMock = createFetchMock(({ method, url }) => {
     if (url === "/api/reunioes" && method === "GET") return { json: { reunioes: lista } }
+    if (url === "/api/reunioes/projetos" && method === "GET") return { json: { projetos } }
     if (url === "/api/reunioes/1" && method === "GET") return { json: { reuniao: detalhe } }
     if (url === "/api/reunioes" && method === "POST") return { status: 201, json: { reuniao: detalhe } }
     if (url === "/api/reunioes/1" && method === "PUT") return { json: { reuniao: detalhe } }
@@ -139,7 +148,7 @@ describe("ReunioesPage", () => {
       const chamada = findCall(fetchMock.calls, "/api/reunioes", "POST")
       expect(chamada).toBeDefined()
       expect(chamada?.body?.titulo).toBe("Rodada de release")
-      expect(chamada?.body?.projeto).toBe("SYSTEXTIL")
+      expect(chamada?.body?.projetoId).toBe(2)
       expect(chamada?.body?.status).toBe("AGENDADA")
     })
     await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Reunião criada com sucesso."))

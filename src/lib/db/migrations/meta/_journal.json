@@ -218,6 +218,13 @@
       "when": 1785436829265,
       "tag": "0030_add_nome_avulso_visitas",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1789152104026,
+      "tag": "0050_reunioes_projetos",
+      "breakpoints": true
     }
   ]
 }

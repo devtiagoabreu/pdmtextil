@@ -4,11 +4,13 @@ import { useMemo, useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useSession } from "next-auth/react"
 import { usePathname } from "next/navigation"
+import Link from "next/link"
 import { toast } from "sonner"
 import {
   CheckCircle2,
   Eye,
   ExternalLink,
+  FolderKanban,
   Link as LinkIcon,
   ListChecks,
   Loader2,
@@ -34,20 +36,21 @@ import {
 } from "@/components/ui/dialog"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import {
-  PROJETO_VALUES,
   STATUS_ENCAMINHAMENTO_VALUES,
   STATUS_REUNIAO_VALUES,
-  labelProjeto,
   labelStatusEncaminhamento,
   labelStatusReuniao,
   podeEscreverReuniao,
   podeExcluirReuniao,
 } from "@/lib/reunioes"
 
+type ProjetoOpcao = { id: number; nome: string; status: string; ativo: boolean; cor: string | null }
+
 type ReuniaoListaItem = {
   id: number
   titulo: string
-  projeto: string
+  projetoId: number
+  projetoNome: string | null
   data: string
   local: string | null
   status: string
@@ -60,7 +63,8 @@ type ReuniaoListaItem = {
 type ReuniaoDetalhe = {
   id: number
   titulo: string
-  projeto: string
+  projetoId: number
+  projetoNome: string | null
   data: string
   local: string | null
   status: string
@@ -82,7 +86,7 @@ type FormEncaminhamento = { descricao: string; responsavel: string; prazo: strin
 
 type Formulario = {
   titulo: string
-  projeto: string
+  projetoId: number
   data: string
   local: string
   status: string
@@ -100,7 +104,7 @@ type Formulario = {
 
 const FORMULARIO_VAZIO: Formulario = {
   titulo: "",
-  projeto: PROJETO_VALUES[0],
+  projetoId: 0,
   data: "",
   local: "",
   status: STATUS_REUNIAO_VALUES[0],
@@ -162,6 +166,20 @@ export default function ReunioesPage() {
   const [filtroProjeto, setFiltroProjeto] = useState("")
   const [filtroStatus, setFiltroStatus] = useState("")
 
+  const { data: projetos } = useQuery({
+    queryKey: ["reunioes-projetos"],
+    queryFn: async () => {
+      const res = await fetch("/api/reunioes/projetos")
+      const json = await res.json().catch(() => null)
+      if (!res.ok) throw new Error("Falha ao carregar os projetos de reuniões.")
+      return ((json as { projetos?: ProjetoOpcao[] }).projetos ?? []) as ProjetoOpcao[]
+    },
+  })
+
+  const projetosOrdenados = useMemo(() => {
+    return [...(projetos ?? [])].sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"))
+  }, [projetos])
+
   const [formAberto, setFormAberto] = useState(false)
   const [editandoId, setEditandoId] = useState<number | null>(null)
   const [formulario, setFormulario] = useState<Formulario>(FORMULARIO_VAZIO)
@@ -185,8 +203,9 @@ export default function ReunioesPage() {
   const filtradas = useMemo(() => {
     const base = lista ?? []
     const q = filtroTexto.trim().toLowerCase()
+    const filtroProjetoNum = filtroProjeto ? Number(filtroProjeto) : 0
     return base.filter((r) => {
-      if (filtroProjeto && r.projeto !== filtroProjeto) return false
+      if (filtroProjetoNum && r.projetoId !== filtroProjetoNum) return false
       if (filtroStatus && r.status !== filtroStatus) return false
       if (q && !r.titulo.toLowerCase().includes(q) && !(r.local ?? "").toLowerCase().includes(q)) return false
       return true
@@ -262,7 +281,7 @@ export default function ReunioesPage() {
       const r = (json as { reuniao: ReuniaoDetalhe }).reuniao
       setFormulario({
         titulo: r.titulo,
-        projeto: r.projeto,
+        projetoId: r.projetoId,
         data: paraInputDatetimeLocal(r.data),
         local: r.local ?? "",
         status: r.status,
@@ -291,7 +310,7 @@ export default function ReunioesPage() {
 
   function abrirNovo() {
     setEditandoId(null)
-    setFormulario(FORMULARIO_VAZIO)
+    setFormulario({ ...FORMULARIO_VAZIO, projetoId: projetos?.[0]?.id ?? 0 })
     setFormAberto(true)
   }
 
@@ -324,7 +343,7 @@ export default function ReunioesPage() {
     evento.preventDefault()
     const payload = {
       titulo: formulario.titulo,
-      projeto: formulario.projeto,
+      projetoId: formulario.projetoId,
       data: formulario.data,
       local: formulario.local || null,
       status: formulario.status,
@@ -376,9 +395,9 @@ export default function ReunioesPage() {
             onChange={(e) => setFiltroProjeto(e.target.value)}
           >
             <option value="">Todos os projetos</option>
-            {PROJETO_VALUES.map((p) => (
-              <option key={p} value={p}>
-                {labelProjeto(p)}
+            {projetosOrdenados.map((p) => (
+              <option key={p.id} value={String(p.id)}>
+                {p.nome}
               </option>
             ))}
           </select>
@@ -402,6 +421,12 @@ export default function ReunioesPage() {
             Nova reunião
           </Button>
         )}
+        <Link href="/reunioes/projetos">
+          <Button variant="outline">
+            <FolderKanban />
+            Projetos
+          </Button>
+        </Link>
       </div>
 
       {isLoading ? (
@@ -424,7 +449,7 @@ export default function ReunioesPage() {
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="font-semibold text-slate-900 dark:text-slate-50">{r.titulo}</span>
                     <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
-                      {labelProjeto(r.projeto)}
+                      {r.projetoNome ?? "—"}
                     </span>
                     <span
                       className={`rounded-full px-2 py-0.5 text-xs font-medium ${
@@ -520,12 +545,13 @@ export default function ReunioesPage() {
                 <select
                   id="reu-projeto"
                   className={SELECT_CLASS}
-                  value={formulario.projeto}
-                  onChange={(e) => setFormulario((f) => ({ ...f, projeto: e.target.value }))}
+                  value={String(formulario.projetoId)}
+                  onChange={(e) => setFormulario((f) => ({ ...f, projetoId: Number(e.target.value) }))}
                 >
-                  {PROJETO_VALUES.map((p) => (
-                    <option key={p} value={p}>
-                      {labelProjeto(p)}
+                  {projetosOrdenados.length === 0 && <option value="0">Selecione um projeto</option>}
+                  {projetosOrdenados.map((p) => (
+                    <option key={p.id} value={String(p.id)}>
+                      {p.nome}
                     </option>
                   ))}
                 </select>
@@ -876,7 +902,7 @@ export default function ReunioesPage() {
             <div className="max-h-[65vh] space-y-5 overflow-y-auto pr-1 text-sm">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
-                  {labelProjeto(detalhe.projeto)}
+                  {detalhe.projetoNome ?? "—"}
                 </span>
                 <span
                   className={`rounded-full px-2 py-0.5 text-xs font-medium ${

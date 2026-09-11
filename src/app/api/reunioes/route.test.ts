@@ -24,7 +24,7 @@ const sessionQualidade = { session: { user: { id: "2", role: "QUALIDADE", name: 
 const reuniaoRow = {
   id: 3,
   titulo: "Rodada 15 — release notes 2026",
-  projeto: "SYSTEXTIL",
+  projetoId: 2,
   data: new Date("2026-09-11T15:00:00.000Z"),
   local: "Meet",
   status: "REALIZADA",
@@ -73,6 +73,7 @@ describe("GET /api/reunioes", () => {
       .mockReturnValueOnce(createQueryBuilder([{ reuniaoId: 3 }, { reuniaoId: 3 }]))
       .mockReturnValueOnce(createQueryBuilder([{ reuniaoId: 3 }, { reuniaoId: 3 }, { reuniaoId: 3 }]))
       .mockReturnValueOnce(createQueryBuilder([{ reuniaoId: 3 }, { reuniaoId: 3 }]))
+      .mockReturnValueOnce(createQueryBuilder([{ id: 2, nome: "Systêxtil", status: "EM_ANDAMENTO" }]))
 
     const res = await get("http://localhost/api/reunioes")
     expect(res.status).toBe(200)
@@ -80,6 +81,7 @@ describe("GET /api/reunioes", () => {
     expect(body.reunioes).toHaveLength(1)
     const item = body.reunioes[0]
     expect(item.titulo).toBe("Rodada 15 — release notes 2026")
+    expect(item.projetoNome).toBe("Systêxtil")
     expect(item.links).toHaveLength(1)
     expect(item.links[0].rotulo).toBe("Release notes")
     expect(item._count).toEqual({ pautas: 2, participantes: 3, encaminhamentos: 2, links: 1 })
@@ -127,6 +129,7 @@ describe("POST /api/reunioes", () => {
   it("retorna 400 com link inválido", async () => {
     const res = await post({
       titulo: "Rodada 15",
+      projetoId: 2,
       data: "2026-09-11T15:00:00.000Z",
       videoUrl: "meet.google.com/abc",
     })
@@ -140,6 +143,7 @@ describe("POST /api/reunioes", () => {
 
     db.select
       .mockReturnValueOnce(createQueryBuilder([reuniaoRow]))
+      .mockReturnValueOnce(createQueryBuilder([{ id: 2, nome: "Systêxtil", status: "EM_ANDAMENTO" }]))
       .mockReturnValueOnce(createQueryBuilder([{ id: 1, reuniaoId: 3, conteudo: "Conteúdo da ata", criadoPor: "Tiago" }]))
       .mockReturnValueOnce(createQueryBuilder([{ id: 1, reuniaoId: 3, ordem: 1, descricao: "Item 1" }]))
       .mockReturnValueOnce(createQueryBuilder([{ id: 1, reuniaoId: 3, nome: "Fulano", empresa: "X", papel: "Dev" }]))
@@ -148,7 +152,7 @@ describe("POST /api/reunioes", () => {
 
     const res = await post({
       titulo: "Rodada 15 — release notes 2026",
-      projeto: "SYSTEXTIL",
+      projetoId: 2,
       data: "2026-09-11T15:00:00.000Z",
       local: "Meet",
       status: "REALIZADA",

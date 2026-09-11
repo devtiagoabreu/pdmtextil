@@ -1,5 +1,5 @@
-export const PROJETO_VALUES = ["SYSTEXTIL", "BLING", "INTERNA", "OUTROS"] as const
-export type ProjetoReuniao = (typeof PROJETO_VALUES)[number]
+export const PROJETO_STATUS_VALUES = ["EM_ANDAMENTO", "ENCERRADO", "PLANEJADO"] as const
+export type ProjetoStatus = (typeof PROJETO_STATUS_VALUES)[number]
 
 export const STATUS_REUNIAO_VALUES = ["AGENDADA", "REALIZADA", "CANCELADA"] as const
 export type StatusReuniao = (typeof STATUS_REUNIAO_VALUES)[number]
@@ -7,17 +7,16 @@ export type StatusReuniao = (typeof STATUS_REUNIAO_VALUES)[number]
 export const STATUS_ENCAMINHAMENTO_VALUES = ["PENDENTE", "EM_ANDAMENTO", "CONCLUIDO"] as const
 export type StatusEncaminhamento = (typeof STATUS_ENCAMINHAMENTO_VALUES)[number]
 
-const PROJETO_LABELS: Record<string, string> = {
-  SYSTEXTIL: "Systêxtil",
-  BLING: "Bling",
-  INTERNA: "Interna",
-  OUTROS: "Outros",
-}
-
 const STATUS_REUNIAO_LABELS: Record<string, string> = {
   AGENDADA: "Agendada",
   REALIZADA: "Realizada",
   CANCELADA: "Cancelada",
+}
+
+const STATUS_PROJETO_LABELS: Record<string, string> = {
+  EM_ANDAMENTO: "Em andamento",
+  ENCERRADO: "Encerrado",
+  PLANEJADO: "Planejado",
 }
 
 const STATUS_ENCAMINHAMENTO_LABELS: Record<string, string> = {
@@ -26,8 +25,8 @@ const STATUS_ENCAMINHAMENTO_LABELS: Record<string, string> = {
   CONCLUIDO: "Concluído",
 }
 
-export function labelProjeto(chave: string): string {
-  return PROJETO_LABELS[chave] ?? chave
+export function labelStatusProjeto(chave: string): string {
+  return STATUS_PROJETO_LABELS[chave] ?? chave
 }
 
 export function labelStatusReuniao(chave: string): string {
@@ -59,9 +58,19 @@ export type ReuniaoEncaminhamentoInput = {
 }
 export type ReuniaoLinkInput = { rotulo?: string | null; url: string; descricao?: string | null }
 
+export type ReuniaoProjetoFormData = {
+  nome: string
+  descricao: string | null
+  dataInicio: string | null
+  dataFim: string | null
+  status: string
+  cor: string | null
+  ativo: boolean
+}
+
 export type ReuniaoFormData = {
   titulo: string
-  projeto: string
+  projetoId: number
   data: Date
   local: string | null
   status: string
@@ -109,13 +118,62 @@ function pickArray(valor: unknown): unknown[] {
 }
 
 export type ValidarReuniaoResultado = { data: ReuniaoFormData } | { error: string }
+export type ValidarProjetoResultado = { data: ReuniaoProjetoFormData } | { error: string }
+
+function inteiroPositivo(valor: unknown): number | null {
+  if (typeof valor === "number" && Number.isInteger(valor) && valor > 0) return valor
+  if (typeof valor === "string" && /^\d+$/.test(valor.trim())) {
+    const n = Number(valor.trim())
+    return n > 0 ? n : null
+  }
+  return null
+}
+
+function corValida(valor: string): boolean {
+  return /^#[0-9a-fA-F]{6}$/.test(valor)
+}
+
+export function validarProjeto(input: Record<string, unknown>): ValidarProjetoResultado {
+  const nome = textoObrigatorioSimples(input.nome)
+  if (nome === "") return { error: "O nome do projeto é obrigatório." }
+
+  const status = textoObrigatorioSimples(input.status) || "EM_ANDAMENTO"
+  if (!isEnumerado(status, PROJETO_STATUS_VALUES)) return { error: "Status de projeto inválido." }
+
+  const dataInicio = dataDeEntrada(input.dataInicio)
+  const dataFim = dataDeEntrada(input.dataFim)
+  if (input.dataInicio != null && input.dataInicio !== "" && !dataInicio) {
+    return { error: "Data de início inválida." }
+  }
+  if (input.dataFim != null && input.dataFim !== "" && !dataFim) {
+    return { error: "Data de fim inválida." }
+  }
+  if (dataInicio && dataFim && dataFim.getTime() < dataInicio.getTime()) {
+    return { error: "A data de fim não pode ser anterior à data de início." }
+  }
+
+  const cor = textoObrigatorioSimples(input.cor)
+  if (cor !== "" && !corValida(cor)) return { error: "Cor inválida (use #RRGGBB)." }
+
+  return {
+    data: {
+      nome,
+      descricao: textoNulo(input.descricao),
+      dataInicio: dataInicio ? dataInicio.toISOString().slice(0, 10) : null,
+      dataFim: dataFim ? dataFim.toISOString().slice(0, 10) : null,
+      status,
+      cor: cor === "" ? null : cor,
+      ativo: typeof input.ativo === "boolean" ? input.ativo : true,
+    },
+  }
+}
 
 export function validarReuniao(input: Record<string, unknown>): ValidarReuniaoResultado {
   const titulo = textoObrigatorioSimples(input.titulo)
   if (titulo === "") return { error: "O título da reunião é obrigatório." }
 
-  const projeto = textoObrigatorioSimples(input.projeto) || "INTERNA"
-  if (!isEnumerado(projeto, PROJETO_VALUES)) return { error: "Projeto inválido." }
+  const projetoId = inteiroPositivo(input.projetoId)
+  if (projetoId === null) return { error: "Projeto inválido." }
 
   const data = dataDeEntrada(input.data)
   if (!data) return { error: "Data da reunião inválida." }
@@ -183,7 +241,7 @@ export function validarReuniao(input: Record<string, unknown>): ValidarReuniaoRe
   return {
     data: {
       titulo,
-      projeto,
+      projetoId,
       data,
       local: textoNulo(input.local),
       status,

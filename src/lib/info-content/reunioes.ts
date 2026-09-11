@@ -38,4 +38,32 @@ export const reunioesContent: Record<string, InfoContent> = {
       },
     ],
   },
+  "/reunioes/projetos": {
+    title: "Projetos de Reuniões",
+    description:
+      "Cadastro de projetos usados nas reuniões (Systêxtil, Bling, Interna, Outros e qualquer novo projeto da empresa), com datas de início/fim, status e cor.",
+    rules: [
+      "Qualquer usuário autenticado pode visualizar a lista de projetos.",
+      "Criar e editar projetos exige perfil de escrita (Admin, Sudo, Desenvolvimento, Comercial ou CRM).",
+      "Excluir projetos é restrito a Admin e Sudo.",
+      "Não é possível excluir o projeto padrão (Interna) nem um projeto que tenha reuniões vinculadas.",
+      "O nome do projeto é obrigatório e não pode se repetir (comparação sem diferenciar maiúsculas).",
+      "A data de fim não pode ser anterior à data de início.",
+      "O status do projeto pode ser Em andamento, Encerrado ou Planejado.",
+    ],
+    fields: [
+      { name: "Nome", desc: "Nome do projeto (obrigatório e único)" },
+      { name: "Descrição", desc: "Objetivo ou contexto do projeto (opcional)" },
+      { name: "Data de início / fim", desc: "Período planejado ou executado do projeto (opcional)" },
+      { name: "Status", desc: "Em andamento, Encerrado ou Planejado" },
+      { name: "Cor", desc: "Cor de identificação do projeto no formato #RRGGBB (opcional)" },
+      { name: "Ativo", desc: "Se desmarcado, o projeto segue no histórico mas deixa de aparecer como padrão" },
+    ],
+    examples: [
+      {
+        title: "Projeto Systêxtil",
+        desc: "O cadastro inicial traz Interna, Systêxtil, Bling e Outros. Renomeie, ajuste datas e crie novos projetos conforme a demanda.",
+      },
+    ],
+  },
 }

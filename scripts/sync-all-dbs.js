@@ -652,7 +652,15 @@ CREATE TABLE IF NOT EXISTS reunioes (
 );
 
 CREATE INDEX IF NOT EXISTS idx_reunioes_data ON reunioes (data);
-CREATE INDEX IF NOT EXISTS idx_reunioes_projeto ON reunioes (projeto);
+-- Índice da coluna projeto só existe enquanto a coluna existir (removida na migração de projetos)
+DO $$ BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'reunioes' AND column_name = 'projeto'
+  ) THEN
+    EXECUTE 'CREATE INDEX IF NOT EXISTS idx_reunioes_projeto ON reunioes (projeto)';
+  END IF;
+END $$;
 
 CREATE TABLE IF NOT EXISTS reuniao_atas (
   id SERIAL PRIMARY KEY,
@@ -704,6 +712,87 @@ CREATE TABLE IF NOT EXISTS reuniao_links (
 );
 
 CREATE INDEX IF NOT EXISTS idx_reuniao_links_reuniao_id ON reuniao_links (reuniao_id);
+
+-- Reuniões — Projetos (CRUD) e FK projeto_id nas reuniões
+CREATE TABLE IF NOT EXISTS reunioes_projetos (
+  id SERIAL PRIMARY KEY,
+  nome TEXT NOT NULL UNIQUE,
+  descricao TEXT,
+  data_inicio DATE,
+  data_fim DATE,
+  status VARCHAR(20) NOT NULL DEFAULT 'EM_ANDAMENTO',
+  cor VARCHAR(7),
+  ativo BOOLEAN DEFAULT true,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_reunioes_projetos_status ON reunioes_projetos (status);
+
+INSERT INTO reunioes_projetos (nome, descricao, status, cor)
+VALUES
+  ('Interna', 'Reuniões internas (equipe, planejamento e gestão)', 'EM_ANDAMENTO', '#64748b'),
+  ('Systêxtil', 'Projeto de integração com o ERP Systêxtil', 'EM_ANDAMENTO', '#6366f1'),
+  ('Bling', 'Projeto de integração com o ERP Bling', 'EM_ANDAMENTO', '#0ea5e9'),
+  ('Outros', 'Demais assuntos e projetos', 'EM_ANDAMENTO', '#f59e0b')
+ON CONFLICT (nome) DO NOTHING;
+
+DO $$ BEGIN
+  ALTER TABLE reunioes ADD COLUMN IF NOT EXISTS projeto_id integer;
+EXCEPTION WHEN duplicate_column THEN NULL; WHEN undefined_table THEN NULL;
+END $$;
+
+-- backfill só corre enquanto a coluna legada existe (o drizzle 0050 já remove em pro/ibirapuera)
+DO $$ BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = current_schema() AND table_name = 'reunioes' AND column_name = 'projeto'
+  ) THEN
+    EXECUTE $q$
+      UPDATE reunioes r SET projeto_id = p.id
+      FROM reunioes_projetos p
+      WHERE upper(btrim(r.projeto)) = upper(p.nome)
+        AND r.projeto_id IS NULL
+    $q$;
+  END IF;
+END $$;
+
+UPDATE reunioes
+SET projeto_id = (SELECT id FROM reunioes_projetos WHERE nome = 'Interna' LIMIT 1)
+WHERE projeto_id IS NULL;
+
+-- FK projeto_id (idempotente; a coluna já pode ter FK de execução anterior/outro script)
+DO $$ BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'reunioes_projeto_id_fkey'
+  ) THEN
+    ALTER TABLE reunioes ADD CONSTRAINT reunioes_projeto_id_fkey
+      FOREIGN KEY (projeto_id) REFERENCES reunioes_projetos(id);
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  ALTER TABLE reunioes ALTER COLUMN projeto_id SET NOT NULL;
+EXCEPTION WHEN undefined_table THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  ALTER TABLE reunioes ALTER COLUMN projeto_id SET DEFAULT 1;
+EXCEPTION WHEN undefined_table THEN NULL;
+END $$;
+
+ALTER TABLE reunioes DROP COLUMN IF EXISTS projeto;
+DROP INDEX IF EXISTS idx_reunioes_projeto;
+
+-- Projetos no menu Reuniões (role-based ou usuários específicos)
+INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem)
+SELECT um.id, 'Projetos', '/reunioes/projetos', 1
+FROM user_menus um
+WHERE um.titulo = 'Reuniões'
+  AND NOT EXISTS (
+    SELECT 1 FROM user_menu_itens umi
+    WHERE umi.user_menu_id = um.id AND umi.url = '/reunioes/projetos'
+  );
 `
 
 async function migrateDb(name, url) {

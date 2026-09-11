@@ -26,7 +26,7 @@ const sessionComercial = { session: { user: { id: "3", role: "COMERCIAL", name: 
 const reuniaoRow = {
   id: 3,
   titulo: "Rodada 15 — release notes 2026",
-  projeto: "SYSTEXTIL",
+  projetoId: 2,
   data: new Date("2026-09-11T15:00:00.000Z"),
   local: "Meet",
   status: "REALIZADA",
@@ -42,6 +42,7 @@ const reuniaoRow = {
 function mockDetalhe() {
   db.select
     .mockReturnValueOnce(createQueryBuilder([reuniaoRow]))
+    .mockReturnValueOnce(createQueryBuilder([{ id: 2, nome: "Systêxtil", status: "EM_ANDAMENTO" }]))
     .mockReturnValueOnce(createQueryBuilder([{ id: 1, reuniaoId: 3, conteudo: "Ata dt", criadoPor: "Tiago" }]))
     .mockReturnValueOnce(createQueryBuilder([{ id: 1, reuniaoId: 3, ordem: 1, descricao: "Item 1" }]))
     .mockReturnValueOnce(createQueryBuilder([{ id: 1, reuniaoId: 3, nome: "Fulano", empresa: "X", papel: "Dev" }]))
@@ -142,7 +143,7 @@ describe("PUT /api/reunioes/[id]", () => {
 
     const res = await put("3", {
       titulo: "Rodada 15 — release notes 2026",
-      projeto: "SYSTEXTIL",
+      projetoId: 2,
       data: "2026-09-11T15:00:00.000Z",
       local: "Meet",
       status: "REALIZADA",

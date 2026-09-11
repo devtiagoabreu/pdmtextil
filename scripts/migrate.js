@@ -1303,6 +1303,85 @@ async function migrate() {
     `
     console.log("✓ Pedidos de Venda adicionado em menus de usuários específicos")
 
+    // ── Reuniões — projetos (CRUD) ──────────────────────────────────────────────
+    // Idempotente. A coluna projeto pode já ter sido dropada pelo drizzle (0050).
+    await sql`
+      CREATE TABLE IF NOT EXISTS reunioes_projetos (
+        id SERIAL PRIMARY KEY,
+        nome TEXT NOT NULL UNIQUE,
+        descricao TEXT,
+        data_inicio DATE,
+        data_fim DATE,
+        status VARCHAR(20) NOT NULL DEFAULT 'EM_ANDAMENTO',
+        cor VARCHAR(7),
+        ativo BOOLEAN DEFAULT true,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `
+    await sql`CREATE INDEX IF NOT EXISTS idx_reunioes_projetos_status ON reunioes_projetos (status)`
+
+    await sql`
+      INSERT INTO reunioes_projetos (nome, descricao, status, cor)
+      VALUES
+        ('Interna', 'Reuniões internas (equipe, planejamento e gestão)', 'EM_ANDAMENTO', '#64748b'),
+        ('Systêxtil', 'Projeto de integração com o ERP Systêxtil', 'EM_ANDAMENTO', '#6366f1'),
+        ('Bling', 'Projeto de integração com o ERP Bling', 'EM_ANDAMENTO', '#0ea5e9'),
+        ('Outros', 'Demais assuntos e projetos', 'EM_ANDAMENTO', '#f59e0b')
+      ON CONFLICT (nome) DO NOTHING
+    `
+
+    await sql`ALTER TABLE reunioes ADD COLUMN IF NOT EXISTS projeto_id integer`
+
+    // Backfill projeto -> projeto_id: só roda enquanto a coluna projeto existir
+    // (no fluxo migrate-all o drizzle 0050 já a dropou antes deste script).
+    await sql`
+      DO $$ BEGIN
+        IF EXISTS (
+          SELECT 1 FROM information_schema.columns
+          WHERE table_name = 'reunioes' AND column_name = 'projeto'
+        ) THEN
+          UPDATE reunioes r SET projeto_id = p.id
+          FROM reunioes_projetos p
+          WHERE upper(btrim(r.projeto)) = upper(p.nome) AND r.projeto_id IS NULL;
+        END IF;
+      END $$
+    `
+    await sql`
+      UPDATE reunioes
+      SET projeto_id = (SELECT id FROM reunioes_projetos WHERE nome = 'Interna' LIMIT 1)
+      WHERE projeto_id IS NULL
+    `
+    await sql`
+      DO $$ BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM pg_constraint WHERE conname = 'reunioes_projeto_id_fkey'
+        ) THEN
+          ALTER TABLE reunioes
+          ADD CONSTRAINT reunioes_projeto_id_fkey
+          FOREIGN KEY (projeto_id) REFERENCES reunioes_projetos(id);
+        END IF;
+      END $$
+    `
+    await sql`ALTER TABLE reunioes ALTER COLUMN projeto_id SET NOT NULL`
+    await sql`ALTER TABLE reunioes ALTER COLUMN projeto_id SET DEFAULT 1`
+    await sql`ALTER TABLE reunioes DROP COLUMN IF EXISTS projeto`
+    await sql`DROP INDEX IF EXISTS idx_reunioes_projeto`
+    console.log("✓ Reuniões: tabela reunioes_projetos criada e FK projeto_id ok")
+
+    // ==================== Projetos no menu Reuniões ====================
+    await sql`
+      INSERT INTO user_menu_itens (user_menu_id, titulo, url, ordem)
+      SELECT um.id, 'Projetos', '/reunioes/projetos', 1
+      FROM user_menus um
+      WHERE um.titulo = 'Reuniões'
+        AND NOT EXISTS (
+          SELECT 1 FROM user_menu_itens umi
+          WHERE umi.user_menu_id = um.id AND umi.url = '/reunioes/projetos'
+        )
+    `
+    console.log("✓ Projetos adicionado ao menu Reuniões")
+
     console.log("\n✅ Migration concluída com sucesso!")
     
   } catch (error) {

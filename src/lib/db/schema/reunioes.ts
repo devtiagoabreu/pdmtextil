@@ -1,9 +1,24 @@
-import { pgTable, serial, integer, varchar, text, timestamp, index } from "drizzle-orm/pg-core"
+import { pgTable, serial, integer, varchar, text, timestamp, boolean, date, index } from "drizzle-orm/pg-core"
+
+export const reunioesProjetos = pgTable("reunioes_projetos", {
+  id: serial("id").primaryKey(),
+  nome: text("nome").notNull().unique(),
+  descricao: text("descricao"),
+  dataInicio: date("data_inicio"),
+  dataFim: date("data_fim"),
+  status: varchar("status", { length: 20 }).notNull().default("EM_ANDAMENTO"),
+  cor: varchar("cor", { length: 7 }),
+  ativo: boolean("ativo").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (t: any) => [
+  index("idx_reunioes_projetos_status").on(t.status),
+])
 
 export const reunioes = pgTable("reunioes", {
   id: serial("id").primaryKey(),
   titulo: text("titulo").notNull(),
-  projeto: varchar("projeto", { length: 20 }).notNull().default("INTERNA"),
+  projetoId: integer("projeto_id").notNull().default(1).references(() => reunioesProjetos.id),
   data: timestamp("data").notNull(),
   local: text("local"),
   status: varchar("status", { length: 20 }).notNull().default("AGENDADA"),
@@ -16,7 +31,7 @@ export const reunioes = pgTable("reunioes", {
   updatedAt: timestamp("updated_at").defaultNow(),
 }, (t: any) => [
   index("idx_reunioes_data").on(t.data),
-  index("idx_reunioes_projeto").on(t.projeto),
+  index("idx_reunioes_projeto_id").on(t.projetoId),
 ])
 
 export const reuniaoAtas = pgTable("reuniao_atas", {
@@ -72,6 +87,8 @@ export const reuniaoLinks = pgTable("reuniao_links", {
 
 export type Reuniao = typeof reunioes.$inferSelect
 export type NewReuniao = typeof reunioes.$inferInsert
+export type ReuniaoProjeto = typeof reunioesProjetos.$inferSelect
+export type NewReuniaoProjeto = typeof reunioesProjetos.$inferInsert
 export type ReuniaoAta = typeof reuniaoAtas.$inferSelect
 export type NewReuniaoAta = typeof reuniaoAtas.$inferInsert
 export type ReuniaoPauta = typeof reuniaoPautas.$inferSelect
