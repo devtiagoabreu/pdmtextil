@@ -499,7 +499,7 @@ export default function ReunioesPage() {
       )}
 
       <Dialog open={formAberto} onOpenChange={(next) => { if (!next) fecharFormulario() }}>
-        <DialogContent className="max-w-5xl">
+        <DialogContent className="max-w-7xl sm:max-w-7xl">
           <form onSubmit={aoSubmeter} className="max-h-[75vh] overflow-y-auto pr-1">
             <DialogHeader>
               <DialogTitle>{editandoId ? "Editar reunião" : "Nova reunião"}</DialogTitle>
