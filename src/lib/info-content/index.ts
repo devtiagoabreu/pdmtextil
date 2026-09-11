@@ -10,6 +10,7 @@ import { documentosContent } from "./documentos"
 import { outrosContent } from "./outros"
 import { crmContent } from "./crm"
 import { processosContent } from "./processos"
+import { reunioesContent } from "./reunioes"
 
 const infoContent: Record<string, InfoContent> = {
   ...dashboardContent,
@@ -21,6 +22,7 @@ const infoContent: Record<string, InfoContent> = {
   ...outrosContent,
   ...crmContent,
   ...processosContent,
+  ...reunioesContent,
 }
 
 export function getInfoContent(pathname: string): InfoContent | null {

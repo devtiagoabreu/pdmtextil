@@ -212,6 +212,9 @@ export const searchRegistry: SearchItem[] = [
   // Processos — Treinamento
   { id: "processos-treinamento", label: "Processos — Treinamento", keywords: ["processo", "treinamento", "treino", "documentacao", "manual", "ajuda", "guia", "tutorial", "aprender", "mapeamento"], href: "/processos/treinamento", description: "Documentação e treinamento da Engenharia de Processos com explicações campo a campo", module: "Processos" },
   { id: "processos-treinamento-admin", label: "Processos — Gerenciar Treinamento", keywords: ["processo", "treinamento", "admin", "gerenciar", "conteudo", "licoes", "modulos"], href: "/processos/treinamento/admin", description: "Gerenciar conteúdo do treinamento de Engenharia de Processos", module: "Processos" },
+
+  // Reuniões
+  { id: "reunioes", label: "Reuniões", keywords: ["reuniao", "reunioes", "pauta", "ata", "encaminhamento", "participantes", "agenda"], href: "/reunioes", description: "Registro de reuniões com pauta, participantes, encaminhamentos, links e ata", module: "Reuniões" },
 ]
 
 export function searchItems(query: string): SearchItem[] {

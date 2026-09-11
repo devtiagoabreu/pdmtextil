@@ -17,6 +17,7 @@ const MODULO_LABELS: Record<string, string> = {
   perfil: "Conta",
   admin: "Administrativo",
   processos: "Processos",
+  reunioes: "Reuniões",
 }
 
 function capitalizar(s: string): string {
