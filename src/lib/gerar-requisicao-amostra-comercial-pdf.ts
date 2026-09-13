@@ -2,6 +2,17 @@
 
 import { toast } from "sonner"
 
+function fmtDataBr(val: string | Date | null | undefined): string {
+  if (!val) return "—"
+  const s = typeof val === "string" ? val : val.toISOString()
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s) || /^\d{4}-\d{2}-\d{2}T00:00:00/.test(s)) {
+    const datePart = s.slice(0, 10)
+    return new Date(`${datePart}T12:00:00`).toLocaleDateString("pt-BR")
+  }
+  const d = typeof val === "string" ? new Date(val) : val
+  return isNaN(d.getTime()) ? "—" : d.toLocaleDateString("pt-BR")
+}
+
 function loadImage(url: string): Promise<HTMLImageElement | null> {
   return new Promise((resolve) => {
     const img = new Image()
@@ -149,7 +160,7 @@ export async function gerarRequisicaoAmostraComercialPdf(id: number | string) {
   doc.setFont("helvetica", "normal").setFontSize(8)
   doc.text(reqRes.status || "—", cx1, ry2 + 4)
   doc.text(
-    reqRes.prazoDesejado ? new Date(reqRes.prazoDesejado).toLocaleDateString("pt-BR") : "—",
+    reqRes.prazoDesejado ? fmtDataBr(reqRes.prazoDesejado) : "—",
     cx2, ry2 + 4
   )
   doc.text(
@@ -297,7 +308,7 @@ export async function gerarRequisicaoAmostraComercialPdf(id: number | string) {
     doc.text("Quantidade Produzida", cx2, ay2)
     doc.text("Observações", cx3, ay2)
     doc.setFont("helvetica", "normal").setFontSize(8)
-    doc.text(amostraDesenvolvimento.data ? new Date(amostraDesenvolvimento.data).toLocaleDateString("pt-BR") : "—", cx1, ay2 + 4)
+    doc.text(amostraDesenvolvimento.data ? fmtDataBr(amostraDesenvolvimento.data) : "—", cx1, ay2 + 4)
     doc.text(amostraDesenvolvimento.quantidadeProduzida || "—", cx2, ay2 + 4)
     const obsAmostraParts = doc.splitTextToSize(amostraDesenvolvimento.observacoes || "—", colW - 4)
     doc.text(obsAmostraParts, cx3, ay2 + 4)

@@ -89,4 +89,23 @@ export const dashboardContent: Record<string, InfoContent> = {
       "As abas separam amostras de tecido cru e acabamento.",
     ],
   },
+
+  // ==================== REQUISIÇÕES DE CORTE ====================
+  "/dashboard/requisicoes-corte": {
+    title: "Dashboard — Requisições de Corte",
+    description: "Visão geral das requisições de corte (tecido cru): totais, itens solicitados, em processamento e atendidos, com evolução mensal.",
+    rules: [
+      "Clique em um card para abrir o drill-down com a lista de requisições daquele status.",
+      "Os status são: Solicitado → Processando → Atendido.",
+      "O card 'Este mês' considera requisições criadas no mês corrente.",
+      "Os gráficos exibem distribuição por status e evolução ao longo do tempo.",
+    ],
+    fields: [
+      { name: "Total Geral", desc: "Todas as requisições de corte cadastradas" },
+      { name: "Solicitados", desc: "Requisições aguardando início de produção" },
+      { name: "Processando", desc: "Requisições em produção na tecelagem" },
+      { name: "Atendidos", desc: "Requisições concluídas" },
+      { name: "Este mês", desc: "Total criado no mês atual" },
+    ],
+  },
 }

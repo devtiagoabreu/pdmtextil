@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { produtoCruReceita as receitas, produtoCruReceitaItem as receitaItens, produtosQuimicos } from "@/lib/db/schema"
-import { eq, asc, desc } from "drizzle-orm"
+import { eq, asc, max } from "drizzle-orm"
 import { validateReceitaChain } from "@/lib/validate-ownership"
 export const dynamic = "force-dynamic"
 
@@ -58,10 +58,9 @@ export async function POST(
 
     const body = await req.json()
 
-    const maxOrdem = await db.select({ max: receitaItens.ordem })
+    const maxOrdem = await db.select({ max: max(receitaItens.ordem) })
       .from(receitaItens)
       .where(eq(receitaItens.receitaId, parseInt(rid)))
-      .limit(1)
 
     const [novo] = await db.insert(receitaItens).values({
       receitaId: parseInt(rid),

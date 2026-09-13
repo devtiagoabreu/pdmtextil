@@ -50,7 +50,10 @@ export default function EditarLicaoPage() {
 
   useEffect(() => {
     fetch(`/api/processos/treinamento/${params.id}`)
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error("Lição não encontrada")
+        return r.json()
+      })
       .then((data: Licao) => {
         setForm({
           moduloId: String(data.moduloId),

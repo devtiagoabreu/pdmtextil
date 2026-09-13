@@ -6,6 +6,9 @@ import { desc } from "drizzle-orm"
 
 export async function GET() {
   try {
+    const auth = await requireAuth()
+    if (auth instanceof NextResponse) return auth
+
     const previsoes = await db
       .select()
       .from(crmPrevisaoVendas)

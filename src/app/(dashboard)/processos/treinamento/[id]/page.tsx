@@ -24,12 +24,20 @@ export default function LicaoDetailPage() {
 
   const { data: licao, isLoading } = useQuery<Licao>({
     queryKey: ["proc-treinamento", params.id],
-    queryFn: () => fetch(`/api/processos/treinamento/${params.id}`).then((r) => r.json()),
+    queryFn: async () => {
+      const res = await fetch(`/api/processos/treinamento/${params.id}`)
+      if (!res.ok) throw new Error("Lição não encontrada")
+      return res.json()
+    },
   })
 
   const { data: modulos } = useQuery<Modulo[]>({
     queryKey: ["proc-treinamento"],
-    queryFn: () => fetch("/api/processos/treinamento").then((r) => r.json()),
+    queryFn: async () => {
+      const res = await fetch("/api/processos/treinamento")
+      if (!res.ok) throw new Error("Falha ao carregar módulos")
+      return res.json()
+    },
   })
 
   const moduloAtual = modulos?.find((m) => m.id === licao?.moduloId)

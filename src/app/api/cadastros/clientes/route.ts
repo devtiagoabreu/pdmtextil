@@ -6,7 +6,6 @@ import { clientes } from "@/lib/db/schema/clientes"
 import { ilike, or, and, desc, eq } from "drizzle-orm"
 import { validateRequest, clienteSchema } from "@/lib/validation"
 import { handleApiError } from "@/lib/api-error"
-import { getPaginationParams, cursorCondition, buildPaginatedResponse } from "@/lib/pagination"
 export const dynamic = "force-dynamic"
 
 export async function GET(req: NextRequest) {
@@ -14,11 +13,8 @@ export async function GET(req: NextRequest) {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
-    const { cursor, limit } = getPaginationParams(req)
     const { searchParams } = new URL(req.url)
     const q = searchParams.get("q")?.trim() || ""
-
-    const cursorCond = cursorCondition(clientes, cursor)
 
     let rows
 
@@ -31,16 +27,13 @@ export async function GET(req: NextRequest) {
       rows = await db
         .select()
         .from(clientes)
-        .where(cursorCond ? and(searchCond, cursorCond) : searchCond)
+        .where(searchCond)
         .orderBy(desc(clientes.createdAt))
-        .limit(limit + 1)
     } else {
       rows = await db
         .select()
         .from(clientes)
-        .where(cursorCond)
         .orderBy(desc(clientes.createdAt))
-        .limit(limit + 1)
     }
 
     return NextResponse.json(rows)

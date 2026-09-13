@@ -2,6 +2,17 @@
 
 import { toast } from "sonner"
 
+function fmtDataBr(val: string | Date | null | undefined): string {
+  if (!val) return "—"
+  const s = typeof val === "string" ? val : val.toISOString()
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s) || /^\d{4}-\d{2}-\d{2}T00:00:00/.test(s)) {
+    const datePart = s.slice(0, 10)
+    return new Date(`${datePart}T12:00:00`).toLocaleDateString("pt-BR")
+  }
+  const d = typeof val === "string" ? new Date(val) : val
+  return isNaN(d.getTime()) ? "—" : d.toLocaleDateString("pt-BR")
+}
+
 interface AmostraData {
   id: number
   tipoAmostra: string
@@ -195,7 +206,7 @@ export async function gerarSolicitacaoAmostraPdf(params: {
     doc.text(solRes.status || "—", cx1, solLabelY + 15)
     doc.text(
       solRes.prazoDesejado
-        ? new Date(solRes.prazoDesejado).toLocaleDateString("pt-BR")
+        ? fmtDataBr(solRes.prazoDesejado)
         : "—",
       cx2,
       solLabelY + 15
@@ -341,7 +352,7 @@ export async function gerarSolicitacaoAmostraPdf(params: {
   doc.text("Status", cx2, ay2)
   doc.text("Observações", cx3, ay2)
   doc.setFont("helvetica", "normal").setFontSize(8)
-  doc.text(amostra.data ? new Date(amostra.data).toLocaleDateString("pt-BR") : "—", cx1, ay2 + 4)
+  doc.text(amostra.data ? fmtDataBr(amostra.data) : "—", cx1, ay2 + 4)
   const statusLabel: Record<string, string> = {
     PENDENTE: "Pendente",
     APROVADO: "Aprovado",

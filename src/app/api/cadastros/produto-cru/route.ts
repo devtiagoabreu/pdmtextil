@@ -7,15 +7,11 @@ import { chats } from "@/lib/db/schema/chats"
 import { eq, sql } from "drizzle-orm"
 import { notificar, registrarLog } from "@/lib/notificar"
 import { validateRequest, produtoCruSchema } from "@/lib/validation"
-import { getPaginationParams, cursorCondition, buildPaginatedResponse } from "@/lib/pagination"
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
-    const { session } = auth
-
-    const { cursor, limit } = getPaginationParams(req)
 
     const rows = await db
       .select({
@@ -29,9 +25,7 @@ export async function GET(req: NextRequest) {
         chatExists: sql<boolean>`coalesce((SELECT true FROM ${chats} WHERE ${chats.entidadeTipo} = 'PRODUTO_CRU' AND ${chats.entidadeId} = ${produtosCru.id} LIMIT 1), false)`,
       })
       .from(produtosCru)
-      .where(cursorCondition(produtosCru, cursor))
       .orderBy(produtosCru.codigoPdm)
-      .limit(limit + 1)
 
     return NextResponse.json(rows)
   } catch (error) {

@@ -701,4 +701,71 @@ export const crmContent: Record<string, InfoContent> = {
       { name: "UF", desc: "Sigla do estado" },
     ],
   },
+
+  // ==================== VIAGENS ====================
+  "/comercial/crm/viagens": {
+    title: "Viagens",
+    description: "Gestão do cronograma da equipe comercial: planejamento de viagens, visitas a clientes por cidade, custos de deslocamento e acompanhamento no mapa.",
+    rules: [
+      "Viagem PLANEJADA pode ser editada ou excluída; EM_ANDAMENTO registra o início do roteiro.",
+      "Cada viagem possui um cronograma de visitas; o mapa agrupa pontos coincidentes automaticamente.",
+      "Use o filtro de status para ver Planejadas, Em andamento, Concluídas ou Canceladas.",
+      "Clique em 'Nova viagem' para montar o roteiro com cidades, datas e custos estimados.",
+    ],
+    fields: [
+      { name: "Destino", desc: "Cidade(s) e UF do roteiro" },
+      { name: "Datas", desc: "Início e fim da viagem" },
+      { name: "Status", desc: "Planejada → Em andamento → Concluída / Cancelada" },
+      { name: "Custos", desc: "Estimativa de deslocamento e hospedagem" },
+    ],
+  },
+
+  // ==================== CONTATOS ====================
+  "/comercial/crm/contatos": {
+    title: "Contatos",
+    description: "Base de contatos do CRM (pessoas ligadas a clientes/empresas). Use para centralizar e-mails, telefones e o relacionamento comercial.",
+    rules: [
+      "Contatos podem ser vinculados a uma pessoa ou empresa do cadastro.",
+      "Use a busca por nome, e-mail, cargo ou empresa para localizar rapidamente.",
+      "Excluir um contato não remove o cliente/empresa vinculado.",
+      "Edite o contato para atualizar cargo, telefone e e-mail em um só lugar.",
+    ],
+    fields: [
+      { name: "Nome", desc: "Nome do contato (obrigatório)" },
+      { name: "E-mail", desc: "E-mail principal de contato" },
+      { name: "Telefone", desc: "Telefone/WhatsApp" },
+      { name: "Empresa", desc: "Razão social ou nome fantasia" },
+      { name: "Cargo", desc: "Função do contato na empresa" },
+    ],
+  },
+
+  // ==================== SEGMENTOS ====================
+  "/comercial/crm/segmentos": {
+    title: "Segmentos",
+    description: "Cadastro de segmentos de mercado usados para classificar clientes (ex.: confecção, calçados, estofados). Ajuda a direcionar prospecção e ofertas.",
+    rules: [
+      "O segmento é um campo opcional no cadastro de clientes.",
+      "Use nomes curtos e objetivos para facilitar filtros e relatórios.",
+      "Crie, edite ou exclua segmentos diretamente na lista.",
+    ],
+    fields: [
+      { name: "Nome", desc: "Nome do segmento de mercado" },
+      { name: "Ativo", desc: "Indica se o segmento pode ser usado em novos cadastros" },
+    ],
+  },
+
+  // ==================== PAÍSES (CONFIG) ====================
+  "/comercial/crm/configuracoes/paises": {
+    title: "Países",
+    description: "Cadastro de países usados nas transações e requisições do módulo comercial (código + nome).",
+    rules: [
+      "O código é uma sigla curta (ex.: BR, PT, US) exibida em relatórios.",
+      "Países são referenciados por vendas e requisições internacionais.",
+      "Excluir um país em uso pode quebrar referências — prefira editar o nome.",
+    ],
+    fields: [
+      { name: "Nome", desc: "Nome do país" },
+      { name: "Código", desc: "Sigla usada como identificador (ex.: BR)" },
+    ],
+  },
 }

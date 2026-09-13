@@ -5,22 +5,16 @@ import { fios } from "@/lib/db/schema/fios"
 import { eq } from "drizzle-orm"
 import { validateRequest, fioSchema } from "@/lib/validation"
 import { handleApiError } from "@/lib/api-error"
-import { getPaginationParams, cursorCondition, buildPaginatedResponse } from "@/lib/pagination"
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
-    const { session } = auth
-
-    const { cursor, limit } = getPaginationParams(req)
 
     const rows = await db
       .select()
       .from(fios)
-      .where(cursorCondition(fios, cursor))
       .orderBy(fios.nome)
-      .limit(limit + 1)
 
     return NextResponse.json(rows)
   } catch (error) {

@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { produtoCruReceita as receitas, produtoCruReceitaItem as receitaItens } from "@/lib/db/schema"
-import { eq } from "drizzle-orm"
+import { eq, max } from "drizzle-orm"
 import { validateReceitaChain } from "@/lib/validate-ownership"
 export const dynamic = "force-dynamic"
 
@@ -26,10 +26,9 @@ export async function POST(
     const resultado = await db.transaction(async (tx: any) => {
       const originalId = original.receitaOriginalId || original.id
 
-      const maxVersao = await tx.select({ max: receitas.versao })
+      const maxVersao = await tx.select({ max: max(receitas.versao) })
         .from(receitas)
         .where(eq(receitas.receitaOriginalId, originalId))
-        .limit(1)
 
       const ultimaVersao = maxVersao[0]?.max || 1
 

@@ -71,9 +71,15 @@ export function BiDashboardClient() {
   useEffect(() => {
     const cached = localStorage.getItem("bi_last_sheet")
     if (cached) {
-      const parsed = JSON.parse(cached)
-      setSheetId(parsed.id)
-      setUrl(parsed.url)
+      try {
+        const parsed = JSON.parse(cached)
+        if (parsed && typeof parsed.id === "string") {
+          setSheetId(parsed.id)
+          setUrl(parsed.url)
+        }
+      } catch {
+        localStorage.removeItem("bi_last_sheet")
+      }
     }
   }, [])
 

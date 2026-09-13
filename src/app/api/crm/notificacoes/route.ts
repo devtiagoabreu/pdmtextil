@@ -39,6 +39,9 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const auth = await requireAuth()
+    if (auth instanceof NextResponse) return auth
+
     const body = await req.json()
     const { titulo, mensagem, tipo, link, metadados } = body
 

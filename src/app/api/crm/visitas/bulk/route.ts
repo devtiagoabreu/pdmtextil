@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { crmVisitas } from "@/lib/db/schema/crm-visitas"
-import { eq, inArray, and } from "drizzle-orm"
+import { inArray } from "drizzle-orm"
 import { notificar } from "@/lib/notificar"
 
 export async function PATCH(req: NextRequest) {
@@ -12,8 +12,9 @@ export async function PATCH(req: NextRequest) {
 
     const body = await req.json()
     const { ids, status } = body
+    const idList = (Array.isArray(ids) ? ids : []).filter((id: unknown): id is number => typeof id === "number")
 
-    if (!ids?.length || !status) {
+    if (idList.length === 0 || !status) {
       return NextResponse.json({ error: "ids e status sao obrigatorios" }, { status: 400 })
     }
 
@@ -27,15 +28,19 @@ export async function PATCH(req: NextRequest) {
     const isAdminOrSudo = role === "ADMIN" || role === "SUDO"
 
     if (!isAdminOrSudo) {
-      const [visita] = await db.select({ criadoPor: crmVisitas.criadoPor }).from(crmVisitas).where(eq(crmVisitas.id, ids[0])).limit(1)
-      if (!visita || visita.criadoPor !== userId) {
-        return NextResponse.json({ error: "Sem permissao" }, { status: 403 })
+      const visitas: { id: number; criadoPor: number | null }[] = await db
+        .select({ id: crmVisitas.id, criadoPor: crmVisitas.criadoPor })
+        .from(crmVisitas)
+        .where(inArray(crmVisitas.id, idList))
+      const unauthorized = visitas.filter((v) => v.criadoPor !== userId)
+      if (unauthorized.length > 0) {
+        return NextResponse.json({ error: `${unauthorized.length} visita(s) sem permissao para alterar` }, { status: 403 })
       }
     }
 
-    await db.update(crmVisitas).set({ status }).where(inArray(crmVisitas.id, ids))
+    await db.update(crmVisitas).set({ status }).where(inArray(crmVisitas.id, idList))
 
-    return NextResponse.json({ updated: ids.length })
+    return NextResponse.json({ updated: idList.length })
   } catch (error) {
     console.error("[PATCH /api/crm/visitas/bulk]", error)
     return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })

@@ -6,7 +6,6 @@ import { fornecedores } from "@/lib/db/schema/fios"
 import { eq, ilike } from "drizzle-orm"
 import { validateRequest, fornecedorSchema } from "@/lib/validation"
 import { handleApiError } from "@/lib/api-error"
-import { getPaginationParams, cursorCondition, buildPaginatedResponse } from "@/lib/pagination"
 export const dynamic = "force-dynamic"
 
 export async function GET(req: NextRequest) {
@@ -16,21 +15,13 @@ export async function GET(req: NextRequest) {
 
     const { searchParams } = new URL(req.url)
     const q = searchParams.get("q")?.trim() || ""
-    const limitParam = searchParams.get("limit")
-    const limit = limitParam ? Math.min(parseInt(limitParam) || 20, 100) : undefined
-
-    const { cursor } = getPaginationParams(req)
 
     let query = db.select().from(fornecedores)
     if (q) {
       query = query.where(ilike(fornecedores.nome, `%${q}%`)) as any
-    } else {
-      query = query.where(cursorCondition(fornecedores, cursor)) as any
     }
 
-    const rows = await query
-      .orderBy(fornecedores.nome)
-      .limit(limit ?? 999)
+    const rows = await query.orderBy(fornecedores.nome)
 
     return NextResponse.json(rows)
   } catch (error) {
