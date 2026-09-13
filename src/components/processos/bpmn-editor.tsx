@@ -4,12 +4,14 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import "bpmn-js/dist/assets/diagram-js.css"
 import "bpmn-js/dist/assets/bpmn-font/css/bpmn-embedded.css"
 import "bpmn-js/dist/assets/bpmn-js.css"
-import { Loader2, Palette, RotateCcw } from "lucide-react"
+import "./bpmn-editor.css"
+import { Loader2, Moon, Palette, RotateCcw, Sun } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import {
   FONT_FAMILIAS,
   FONT_TAMANHOS,
+  PDM_MODDLE_EXTENSION,
   estilosTextoParaCss,
   limparEstilosTexto,
   lerEstilosTexto,
@@ -104,6 +106,10 @@ export default function BpmnEditor({ xml, readOnly = false, onChange, onWarning 
   const [fontWeight, setFontWeight] = useState<string>("normal")
   const [fontStyle, setFontStyle] = useState<string>("normal")
   const [painelAberto, setPainelAberto] = useState(false)
+  const [escuro, setEscuro] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false
+    return window.document.documentElement.classList.contains("dark")
+  })
 
   const atualizarPainel = useCallback(
     (el: BpmnElement | null) => {
@@ -112,6 +118,7 @@ export default function BpmnEditor({ xml, readOnly = false, onChange, onWarning 
         return
       }
       setElementoSel(el)
+      setPainelAberto(true)
       const di = el.businessObject.di
       setFill(di?.fill ?? DEFAULT_COR)
       setStroke(di?.stroke ?? "#333333")
@@ -179,6 +186,7 @@ export default function BpmnEditor({ xml, readOnly = false, onChange, onWarning 
       modeler = new BpmnModeler({
         container: containerRef.current,
         keyboard: { bindTo: document },
+        moddleExtensions: { pdm: PDM_MODDLE_EXTENSION },
       }) as unknown as ModelerCompleto
       modelerRef.current = modeler
 
@@ -198,6 +206,9 @@ export default function BpmnEditor({ xml, readOnly = false, onChange, onWarning 
       try {
         await modeler.importXML(xml)
         modeler.get("canvas").zoom("fit-viewport")
+        if (containerRef.current) {
+          reaplicarTodosEstilos(containerRef.current, modeler.get("elementRegistry"))
+        }
       } catch (e) {
         onWarning?.(e instanceof Error ? e.message : "XML BPMN inválido.")
       }
@@ -275,11 +286,14 @@ export default function BpmnEditor({ xml, readOnly = false, onChange, onWarning 
   }
 
   return (
-    <div className="relative flex gap-3">
+    <div className="pdm-bpmn relative flex gap-3">
       <div className="relative flex-1">
         <div
           ref={containerRef}
-          className="h-[560px] w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-white"
+          data-escuro={escuro ? "true" : "false"}
+          className={`h-[560px] w-full rounded-lg border ${
+            escuro ? "border-slate-700 bg-slate-900" : "border-slate-200 bg-white dark:border-slate-800"
+          }`}
         />
         <div className="pointer-events-none absolute left-3 top-3 text-xs text-slate-400">
           BPMN 2.0 (bpmn-js)
@@ -287,17 +301,30 @@ export default function BpmnEditor({ xml, readOnly = false, onChange, onWarning 
       </div>
 
       <div className="flex flex-col gap-3">
-        <Button
-          type="button"
-          variant={painelAberto ? "default" : "outline"}
-          size="sm"
-          className="gap-1 self-end"
-          onClick={() => setPainelAberto(!painelAberto)}
-          aria-label="Painel de estilos"
-        >
-          <Palette size={14} />
-          {painelAberto ? "Fechar estilos" : "Estilos"}
-        </Button>
+        <div className="flex items-center justify-end gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="gap-1"
+            onClick={() => setEscuro(!escuro)}
+            aria-label={escuro ? "Fundo claro" : "Fundo escuro"}
+          >
+            {escuro ? <Sun size={14} /> : <Moon size={14} />}
+            {escuro ? "Claro" : "Escuro"}
+          </Button>
+          <Button
+            type="button"
+            variant={painelAberto ? "default" : "outline"}
+            size="sm"
+            className="gap-1"
+            onClick={() => setPainelAberto(!painelAberto)}
+            aria-label="Painel de estilos"
+          >
+            <Palette size={14} />
+            {painelAberto ? "Fechar estilos" : "Estilos"}
+          </Button>
+        </div>
 
         {painelAberto && (
           <div className="w-56 space-y-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3 text-sm shadow-lg">
@@ -316,6 +343,7 @@ export default function BpmnEditor({ xml, readOnly = false, onChange, onWarning 
                   <Label className="text-xs text-slate-500">Preenchimento</Label>
                   <input
                     type="color"
+                    aria-label="Cor de preenchimento"
                     value={fill}
                     onChange={(e) => {
                       setFill(e.target.value)
@@ -329,6 +357,7 @@ export default function BpmnEditor({ xml, readOnly = false, onChange, onWarning 
                   <Label className="text-xs text-slate-500">Borda</Label>
                   <input
                     type="color"
+                    aria-label="Cor da borda"
                     value={stroke}
                     onChange={(e) => {
                       setStroke(e.target.value)
@@ -342,6 +371,7 @@ export default function BpmnEditor({ xml, readOnly = false, onChange, onWarning 
                   <Label className="text-xs text-slate-500">Cor do texto</Label>
                   <input
                     type="color"
+                    aria-label="Cor do texto"
                     value={textFill}
                     onChange={(e) => {
                       setTextFill(e.target.value)

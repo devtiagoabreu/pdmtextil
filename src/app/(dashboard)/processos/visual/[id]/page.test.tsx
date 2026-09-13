@@ -104,6 +104,10 @@ describe("ProcessoDiagramaPage", () => {
     expect(await screen.findByRole("heading", { name: "Editor de Diagrama" })).toBeInTheDocument()
     await screen.findByLabelText("Nome da atividade A1")
 
+    expect(
+      screen.getByText(/representação estruturada do processo — a fonte da verdade/),
+    ).toBeInTheDocument()
+
     for (const aba of ["Modelo semântico", "Texto Mermaid", "BPMN", "Canvas", "Exportar"]) {
       expect(screen.getByRole("button", { name: aba })).toBeInTheDocument()
     }
@@ -133,6 +137,7 @@ describe("ProcessoDiagramaPage", () => {
     await screen.findByLabelText("Nome da atividade A1")
     fireEvent.click(screen.getByRole("button", { name: "Texto Mermaid" }))
 
+    expect(screen.getByText(/descreve o fluxograma em sintaxe Mermaid/))
     const textarea = screen.getByLabelText("Texto Mermaid") as HTMLTextAreaElement
     expect(textarea.value).toContain("flowchart TD")
     fireEvent.change(textarea, { target: { value: fluxoImportado } })

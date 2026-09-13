@@ -36,8 +36,13 @@ describe("lerEstilosTexto", () => {
   })
 
   it("ignora valores de tipo incorreto", () => {
-    const di = { $attrs: { "pdm:fontSize": "14", "pdm:fontFamily": 12 } }
+    const di = { $attrs: { "pdm:textFill": 12, "pdm:fontFamily": 12 } }
     expect(lerEstilosTexto(di)).toEqual({})
+  })
+
+  it("coage fontSize numérico vindo do XML", () => {
+    const di = { $attrs: { "pdm:fontSize": "16" } }
+    expect(lerEstilosTexto(di)).toEqual({ fontSize: 16 })
   })
 })
 

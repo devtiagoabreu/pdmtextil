@@ -249,3 +249,14 @@ declare module "drizzle-orm/postgres-js" {
   export function drizzle(client: any, config?: { schema?: Record<string, any> }): any
 }
 
+declare module "bpmn-moddle" {
+  export class BpmnModdle {
+    constructor(packages?: Record<string, any>)
+    fromXML(
+      xmlStr: string,
+      type: string,
+    ): Promise<{ rootElement: Record<string, any>; references: any[]; warnings: string[] }>
+    toXML(element: any, opts?: { format?: boolean }): Promise<{ xml: string }>
+  }
+}
+

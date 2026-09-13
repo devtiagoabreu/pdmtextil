@@ -1,0 +1,46 @@
+.pdm-bpmn .djs-container.djs-parent {
+  color: #0f172a;
+}
+
+/* A edição direta de rótulo do bpmn-js herda a `color` do <body>; no modo dark
+   do app isso vira texto claro sobre a caixa branca do editor (invisível). */
+.pdm-bpmn .djs-direct-editing-parent,
+.pdm-bpmn .djs-direct-editing-content {
+  color: #0f172a !important;
+  background-color: #fff !important;
+}
+
+.pdm-bpmn[data-escuro="true"] .djs-container {
+  background-color: #0f172a;
+}
+
+.pdm-bpmn[data-escuro="true"] .djs-container.djs-parent {
+  --canvas-fill-color: #0f172a;
+  --palette-background-color: #1e293b;
+  --palette-entry-color: #e2e8f0;
+  --palette-entry-hover-color: #60a5fa;
+  --palette-entry-selected-color: #60a5fa;
+  --palette-separator-color: #334155;
+  --palette-toggle-hover-background-color: #475569;
+  --context-pad-entry-background-color: #1e293b;
+  --context-pad-entry-hover-background-color: #334155;
+  --popup-background-color: #1e293b;
+  --popup-border-color: #334155;
+  --popup-entry-color: #cbd5e1;
+  --popup-entry-hover-color: #334155;
+  --popup-entry-title-color: #94a3b8;
+  --popup-description-color: #94a3b8;
+  --popup-disabled-color: #64748b;
+  --popup-tab-color: #94a3b8;
+  --popup-tab-hover-color: #e2e8f0;
+  --popup-tab-active-color: #e2e8f0;
+  --popup-tab-strip-border-color: #334155;
+  --hover-tooltip-background-color: #1e293b;
+  --hover-tooltip-color: #e2e8f0;
+}
+
+/* Rótulos padrão claros no canvas escuro; estilos salvos por elemento mantêm
+   o `fill` inline escolhido (ganham da regra abaixo). */
+.pdm-bpmn[data-escuro="true"] .djs-container text.djs-label {
+  fill: #e2e8f0;
+}

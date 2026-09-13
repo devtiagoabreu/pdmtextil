@@ -308,6 +308,15 @@ export default function EditorDiagrama({ diagrama, onAtualizada }: EditorProps) 
 
       {aba === "SEMANTICO" && (
         <div className="space-y-6 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
+          <p className="flex items-start gap-2 text-sm text-slate-500">
+            <Braces size={16} className="mt-0.5 shrink-0" />
+            <span>
+              <strong>Modelo semântico</strong> é a representação estruturada do processo — a fonte da verdade. Aqui você
+              descreve o objetivo, as <strong>atividades</strong>, as <strong>decisões</strong> e os{" "}
+              <strong>fluxos</strong> entre eles. Mermaid, BPMN e Canvas são gerados a partir deste modelo sempre que
+              possível.
+            </span>
+          </p>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="md-nome">Nome do processo</Label>
@@ -489,9 +498,13 @@ export default function EditorDiagrama({ diagrama, onAtualizada }: EditorProps) 
 
       {aba === "MERMAID" && (
         <div className="space-y-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
-          <p className="text-sm text-slate-500">
-            Edite o fluxo em Mermaid. Use <code>flowchart</code> ou <code>mindmap</code>. Ao salvar, o modelo semântico é
-            reconstruído a partir do texto.
+          <p className="flex items-start gap-2 text-sm text-slate-500">
+            <FileCode2 size={16} className="mt-0.5 shrink-0" />
+            <span>
+              <strong>Texto Mermaid</strong> descreve o fluxograma em sintaxe Mermaid — um texto que vira gráfico. Use{" "}
+              <code>flowchart</code> ou <code>mindmap</code>. Edite o texto e <strong>importe de volta</strong> para
+              reconstruir o modelo semântico, ou gere o texto automaticamente a partir do modelo.
+            </span>
           </p>
           <Textarea
             aria-label="Texto Mermaid"
