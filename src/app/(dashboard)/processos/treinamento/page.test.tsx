@@ -75,4 +75,16 @@ describe("TreinamentoPage", () => {
       "/processos/treinamento/admin"
     )
   })
+
+  it("contém link para a documentação interativa do NotebookLM", async () => {
+    renderPage(<TreinamentoPage />)
+
+    const link = screen.getByRole("link", { name: /Documentação interativa no NotebookLM/ })
+    expect(link).toHaveAttribute(
+      "href",
+      "https://notebook.google.com/notebook/e2915c68-cdf6-4260-a5b1-78f2d89a6251"
+    )
+    expect(link).toHaveAttribute("target", "_blank")
+    expect(link).toHaveAttribute("rel", "noopener noreferrer")
+  })
 })

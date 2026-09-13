@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation"
 import Link from "next/link"
 import {
   BookOpen, GraduationCap, ChevronRight, FileText,
-  BookMarked, Settings, Printer,
+  BookMarked, Settings, Printer, Sparkles, ExternalLink,
 } from "lucide-react"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
@@ -61,6 +61,17 @@ export default function TreinamentoPage() {
         links para POPs e vídeos tutoriais. Use este guia para aprender como cada tela funciona
         e por que cada campo é importante.
       </p>
+
+      <a
+        href="https://notebook.google.com/notebook/e2915c68-cdf6-4260-a5b1-78f2d89a6251"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mb-8 inline-flex max-w-full items-center gap-2 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm font-medium text-sky-700 transition-colors hover:bg-sky-100 dark:border-sky-800 dark:bg-sky-950/50 dark:text-sky-300 dark:hover:bg-sky-900/50"
+      >
+        <Sparkles size={16} className="shrink-0" />
+        <span className="min-w-0">Documentação interativa no NotebookLM</span>
+        <ExternalLink size={14} className="ml-auto shrink-0" />
+      </a>
 
       {isLoading ? (
         <div className="text-center py-12 text-slate-400">Carregando...</div>
