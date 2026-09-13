@@ -10,7 +10,9 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { CampoInfo } from "@/components/processos/campo-info"
 import { toast } from "sonner"
+import { areaCampos } from "@/lib/info-content/engenharia"
 
 type Area = {
   id: number | null
@@ -142,7 +144,7 @@ export default function ProcessoAreaFormPage() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-2">
-          <Label htmlFor="siteId">Site *</Label>
+          <CampoInfo titulo="Site" sobre={areaCampos.siteId} htmlFor="siteId" obrigatorio />
           <select
             id="siteId"
             value={area.siteId}
@@ -157,7 +159,7 @@ export default function ProcessoAreaFormPage() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="nome">Nome *</Label>
+          <CampoInfo titulo="Nome" sobre={areaCampos.nome} htmlFor="nome" obrigatorio />
           <Input
             id="nome"
             value={area.nome}
@@ -168,7 +170,7 @@ export default function ProcessoAreaFormPage() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="descricao">Descrição</Label>
+          <CampoInfo titulo="Descrição" sobre={areaCampos.descricao} htmlFor="descricao" />
           <Input
             id="descricao"
             value={area.descricao || ""}
@@ -180,6 +182,7 @@ export default function ProcessoAreaFormPage() {
         <div className="flex items-center gap-2">
           <input type="checkbox" id="ativo" checked={area.ativo} onChange={e => handleChange("ativo", e.target.checked)} className="w-4 h-4" />
           <Label htmlFor="ativo">Ativo</Label>
+          <InfoButton content={areaCampos.ativo} />
         </div>
 
         <div className="flex gap-4">

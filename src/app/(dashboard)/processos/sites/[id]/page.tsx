@@ -10,7 +10,9 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { CampoInfo } from "@/components/processos/campo-info"
 import { toast } from "sonner"
+import { siteCampos } from "@/lib/info-content/engenharia"
 
 type Site = {
   id: number | null
@@ -154,7 +156,7 @@ export default function ProcessoSiteFormPage() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-2">
-          <Label htmlFor="empresaId">Empresa *</Label>
+          <CampoInfo titulo="Empresa" sobre={siteCampos.empresaId} htmlFor="empresaId" obrigatorio />
           <select
             id="empresaId"
             value={site.empresaId}
@@ -170,7 +172,7 @@ export default function ProcessoSiteFormPage() {
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="nome">Nome *</Label>
+            <CampoInfo titulo="Nome" sobre={siteCampos.nome} htmlFor="nome" obrigatorio />
             <Input
               id="nome"
               value={site.nome}
@@ -180,7 +182,7 @@ export default function ProcessoSiteFormPage() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="sigla">Sigla</Label>
+            <CampoInfo titulo="Sigla" sobre={siteCampos.sigla} htmlFor="sigla" />
             <Input
               id="sigla"
               value={site.sigla || ""}
@@ -193,7 +195,7 @@ export default function ProcessoSiteFormPage() {
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="cep">CEP</Label>
+            <CampoInfo titulo="CEP" sobre={siteCampos.cep} htmlFor="cep" />
             <Input
               id="cep"
               value={site.cep || ""}
@@ -202,7 +204,7 @@ export default function ProcessoSiteFormPage() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="endereco">Endereço</Label>
+            <CampoInfo titulo="Endereço" sobre={siteCampos.endereco} htmlFor="endereco" />
             <Input
               id="endereco"
               value={site.endereco || ""}
@@ -214,7 +216,7 @@ export default function ProcessoSiteFormPage() {
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="cidade">Cidade</Label>
+            <CampoInfo titulo="Cidade" sobre={siteCampos.cidade} htmlFor="cidade" />
             <Input
               id="cidade"
               value={site.cidade || ""}
@@ -223,7 +225,7 @@ export default function ProcessoSiteFormPage() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="uf">UF</Label>
+            <CampoInfo titulo="UF" sobre={siteCampos.uf} htmlFor="uf" />
             <Input
               id="uf"
               value={site.uf || ""}
@@ -237,6 +239,7 @@ export default function ProcessoSiteFormPage() {
         <div className="flex items-center gap-2">
           <input type="checkbox" id="ativo" checked={site.ativo} onChange={e => handleChange("ativo", e.target.checked)} className="w-4 h-4" />
           <Label htmlFor="ativo">Ativo</Label>
+          <InfoButton content={siteCampos.ativo} />
         </div>
 
         <div className="flex gap-4">

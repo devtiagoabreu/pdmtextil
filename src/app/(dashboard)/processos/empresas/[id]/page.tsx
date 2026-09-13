@@ -10,7 +10,9 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { CampoInfo } from "@/components/processos/campo-info"
 import { toast } from "sonner"
+import { empresaCampos } from "@/lib/info-content/engenharia"
 
 type Empresa = {
   id: number | null
@@ -125,7 +127,7 @@ export default function ProcessoEmpresaFormPage() {
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="nome">Nome *</Label>
+            <CampoInfo titulo="Nome" sobre={empresaCampos.nome} htmlFor="nome" obrigatorio />
             <Input
               id="nome"
               value={empresa.nome}
@@ -135,7 +137,7 @@ export default function ProcessoEmpresaFormPage() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="cnpj">CNPJ</Label>
+            <CampoInfo titulo="CNPJ" sobre={empresaCampos.cnpj} htmlFor="cnpj" />
             <Input
               id="cnpj"
               value={empresa.cnpj || ""}
@@ -146,7 +148,7 @@ export default function ProcessoEmpresaFormPage() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="segmento">Segmento</Label>
+          <CampoInfo titulo="Segmento" sobre={empresaCampos.segmento} htmlFor="segmento" />
           <Input
             id="segmento"
             value={empresa.segmento || ""}
@@ -156,7 +158,7 @@ export default function ProcessoEmpresaFormPage() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="observacoes">Observações</Label>
+          <CampoInfo titulo="Observações" sobre={empresaCampos.observacoes} htmlFor="observacoes" />
           <Input
             id="observacoes"
             value={empresa.observacoes || ""}
@@ -168,6 +170,7 @@ export default function ProcessoEmpresaFormPage() {
         <div className="flex items-center gap-2">
           <input type="checkbox" id="ativo" checked={empresa.ativo} onChange={e => handleChange("ativo", e.target.checked)} className="w-4 h-4" />
           <Label htmlFor="ativo">Ativo</Label>
+          <InfoButton content={empresaCampos.ativo} />
         </div>
 
         <div className="flex gap-4">

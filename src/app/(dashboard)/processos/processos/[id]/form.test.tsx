@@ -31,8 +31,14 @@ describe("ProcessoProcessoFormPage", () => {
 
       fireEvent.change(screen.getByRole("combobox", { name: "Área *" }), { target: { value: "1" } })
       fireEvent.change(screen.getByLabelText("Código"), { target: { value: "PR-001" } })
-      fireEvent.change(screen.getByLabelText("Entradas (uma por linha)"), { target: { value: "Fio de algodão\nCorante" } })
-      fireEvent.change(screen.getByLabelText("Saídas (uma por linha)"), { target: { value: "Tecido acabado" } })
+
+      fireEvent.click(screen.getByRole("button", { name: "Adicionar entrada" }))
+      fireEvent.change(screen.getByRole("textbox", { name: "Entradas 1" }), { target: { value: "Fio de algodão" } })
+      fireEvent.click(screen.getByRole("button", { name: "Adicionar entrada" }))
+      fireEvent.change(screen.getByRole("textbox", { name: "Entradas 2" }), { target: { value: "Corante" } })
+
+      fireEvent.click(screen.getByRole("button", { name: "Adicionar saída" }))
+      fireEvent.change(screen.getByRole("textbox", { name: "Saídas 1" }), { target: { value: "Tecido acabado" } })
       fireEvent.submit(form)
 
       await waitFor(() => {

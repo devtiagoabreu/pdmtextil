@@ -10,7 +10,9 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { CampoInfo } from "@/components/processos/campo-info"
 import { toast } from "sonner"
+import { subprocessoCampos } from "@/lib/info-content/engenharia"
 
 type Subprocesso = {
   id: number | null
@@ -148,7 +150,7 @@ export default function ProcessoSubprocessoFormPage() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-2">
-          <Label htmlFor="processoId">Processo *</Label>
+          <CampoInfo titulo="Processo" sobre={subprocessoCampos.processoId} htmlFor="processoId" obrigatorio />
           <select
             id="processoId"
             value={subprocesso.processoId}
@@ -163,7 +165,7 @@ export default function ProcessoSubprocessoFormPage() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="nome">Nome *</Label>
+          <CampoInfo titulo="Nome" sobre={subprocessoCampos.nome} htmlFor="nome" obrigatorio />
           <Input
             id="nome"
             value={subprocesso.nome}
@@ -174,7 +176,7 @@ export default function ProcessoSubprocessoFormPage() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="descricao">Descrição</Label>
+          <CampoInfo titulo="Descrição" sobre={subprocessoCampos.descricao} htmlFor="descricao" />
           <Input
             id="descricao"
             value={subprocesso.descricao || ""}
@@ -184,7 +186,7 @@ export default function ProcessoSubprocessoFormPage() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="ordem">Ordem</Label>
+          <CampoInfo titulo="Ordem" sobre={subprocessoCampos.ordem} htmlFor="ordem" />
           <Input
             id="ordem"
             type="number"
@@ -198,6 +200,7 @@ export default function ProcessoSubprocessoFormPage() {
         <div className="flex items-center gap-2">
           <input type="checkbox" id="ativo" checked={subprocesso.ativo} onChange={e => handleChange("ativo", e.target.checked)} className="w-4 h-4" />
           <Label htmlFor="ativo">Ativo</Label>
+          <InfoButton content={subprocessoCampos.ativo} />
         </div>
 
         <div className="flex gap-4">

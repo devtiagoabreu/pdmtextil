@@ -4,6 +4,8 @@ import { Plus, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { InfoButton } from "@/components/ui/info-button"
+import type { InfoContent } from "@/lib/info-content"
 
 export interface CampoLista {
   campo: string
@@ -20,6 +22,7 @@ interface ListaEditorProps<T> {
   onChange: (itens: T[]) => void
   criarItem: () => T
   rotuloAdicionar: string
+  info?: InfoContent
   dica?: string
   vazioTexto?: string
 }
@@ -32,6 +35,7 @@ export function ListaEditor<T extends Record<string, string>>({
   onChange,
   criarItem,
   rotuloAdicionar,
+  info,
   dica,
   vazioTexto,
 }: ListaEditorProps<T>) {
@@ -45,7 +49,10 @@ export function ListaEditor<T extends Record<string, string>>({
 
   return (
     <div className="space-y-2">
-      <Label className="text-sm font-semibold text-slate-700 dark:text-slate-200">{titulo}</Label>
+      <div className="flex items-center">
+        <Label className="text-sm font-semibold text-slate-700 dark:text-slate-200">{titulo}</Label>
+        {info && <InfoButton content={info} />}
+      </div>
       {dica && <p className="text-xs text-slate-500 dark:text-slate-400">{dica}</p>}
 
       {itens.length === 0 ? (

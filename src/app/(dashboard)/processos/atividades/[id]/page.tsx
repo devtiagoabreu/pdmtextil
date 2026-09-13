@@ -13,6 +13,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 import { ATIVIDADE_TIPO_LABELS } from "@/lib/processos/constantes"
+import { CampoInfo } from "@/components/processos/campo-info"
+import { atividadeCampos } from "@/lib/info-content/engenharia"
 
 type Atividade = {
   id: number | null
@@ -157,7 +159,7 @@ export default function ProcessoAtividadeFormPage() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-2">
-          <Label htmlFor="subprocessoId">Subprocesso *</Label>
+          <CampoInfo titulo="Subprocesso" sobre={atividadeCampos.subprocessoId} htmlFor="subprocessoId" obrigatorio />
           <select
             id="subprocessoId"
             value={atividade.subprocessoId}
@@ -173,7 +175,7 @@ export default function ProcessoAtividadeFormPage() {
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="nome">Nome *</Label>
+            <CampoInfo titulo="Nome" sobre={atividadeCampos.nome} htmlFor="nome" obrigatorio />
             <Input
               id="nome"
               value={atividade.nome}
@@ -183,7 +185,7 @@ export default function ProcessoAtividadeFormPage() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="tipo">Tipo</Label>
+            <CampoInfo titulo="Tipo" sobre={atividadeCampos.tipo} htmlFor="tipo" />
             <select
               id="tipo"
               value={atividade.tipo}
@@ -199,7 +201,7 @@ export default function ProcessoAtividadeFormPage() {
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="responsavel">Responsável</Label>
+            <CampoInfo titulo="Responsável" sobre={atividadeCampos.responsavel} htmlFor="responsavel" />
             <Input
               id="responsavel"
               value={atividade.responsavel || ""}
@@ -208,7 +210,7 @@ export default function ProcessoAtividadeFormPage() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="ordem">Ordem</Label>
+            <CampoInfo titulo="Ordem" sobre={atividadeCampos.ordem} htmlFor="ordem" />
             <Input
               id="ordem"
               type="number"
@@ -221,7 +223,7 @@ export default function ProcessoAtividadeFormPage() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="observacoes">Observações</Label>
+          <CampoInfo titulo="Observações" sobre={atividadeCampos.observacoes} htmlFor="observacoes" />
           <Textarea
             id="observacoes"
             value={atividade.observacoes || ""}
@@ -234,6 +236,7 @@ export default function ProcessoAtividadeFormPage() {
         <div className="flex items-center gap-2">
           <input type="checkbox" id="ativo" checked={atividade.ativo} onChange={e => handleChange("ativo", e.target.checked)} className="w-4 h-4" />
           <Label htmlFor="ativo">Ativo</Label>
+          <InfoButton content={atividadeCampos.ativo} />
         </div>
 
         <div className="flex gap-4">

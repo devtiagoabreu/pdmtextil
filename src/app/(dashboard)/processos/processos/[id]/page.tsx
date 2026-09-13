@@ -12,8 +12,12 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { ListaEditor } from "@/components/processos/lista-editor"
+import { ListaTexto } from "@/components/processos/lista-texto"
+import { CampoInfo } from "@/components/processos/campo-info"
 import { toast } from "sonner"
 import { PROCESSO_STATUS_LABELS, statusLabel, STATUS_COLORS } from "@/lib/processos/constantes"
+import { processoCampos } from "@/lib/info-content/engenharia"
+import type { InfoContent } from "@/lib/info-content"
 
 interface Area {
   id: number
@@ -47,13 +51,13 @@ type ProcessoObjeto = {
   responsavel: string
   status: string
   versao: string
-  entradas: string
-  saidas: string
-  fornecedores: string
-  clientes: string
-  recursos: string
-  sistemas: string
-  equipamentos: string
+  entradas: string[]
+  saidas: string[]
+  fornecedores: string[]
+  clientes: string[]
+  recursos: string[]
+  sistemas: string[]
+  equipamentos: string[]
   indicadores: LinhaIndicador[]
   riscos: LinhaRisco[]
   controles: LinhaControle[]
@@ -90,13 +94,13 @@ const INICIAL: ProcessoObjeto = {
   responsavel: "",
   status: "RASCUNHO",
   versao: "0",
-  entradas: "",
-  saidas: "",
-  fornecedores: "",
-  clientes: "",
-  recursos: "",
-  sistemas: "",
-  equipamentos: "",
+  entradas: [],
+  saidas: [],
+  fornecedores: [],
+  clientes: [],
+  recursos: [],
+  sistemas: [],
+  equipamentos: [],
   indicadores: [],
   riscos: [],
   controles: [],
@@ -128,18 +132,21 @@ const CAMPOS_CONTROLE = [
   { campo: "frequencia", label: "Frequência", placeholder: "Ex: a cada recebimento" },
 ]
 
-const LISTAS: { campo: keyof ProcessoObjeto; label: string }[] = [
-  { campo: "entradas", label: "Entradas (uma por linha)" },
-  { campo: "saidas", label: "Saídas (uma por linha)" },
-  { campo: "fornecedores", label: "Fornecedores (uma por linha)" },
-  { campo: "clientes", label: "Clientes (uma por linha)" },
-  { campo: "recursos", label: "Recursos (uma por linha)" },
-  { campo: "sistemas", label: "Sistemas (uma por linha)" },
-  { campo: "equipamentos", label: "Equipamentos (uma por linha)" },
+type CampoListaTexto = "entradas" | "saidas" | "fornecedores" | "clientes" | "recursos" | "sistemas" | "equipamentos"
+
+const LISTAS: { campo: CampoListaTexto; titulo: string; info: InfoContent; placeholder: string; rotulo: string }[] = [
+  { campo: "entradas", titulo: "Entradas", info: processoCampos.entradas, placeholder: "Ex.: Fio de algodão", rotulo: "Adicionar entrada" },
+  { campo: "saidas", titulo: "Saídas", info: processoCampos.saidas, placeholder: "Ex.: Tecido acabado", rotulo: "Adicionar saída" },
+  { campo: "fornecedores", titulo: "Fornecedores", info: processoCampos.fornecedores, placeholder: "Ex.: Fornecedor de fios", rotulo: "Adicionar fornecedor" },
+  { campo: "clientes", titulo: "Clientes", info: processoCampos.clientes, placeholder: "Ex.: Corte e costura", rotulo: "Adicionar cliente" },
+  { campo: "recursos", titulo: "Recursos", info: processoCampos.recursos, placeholder: "Ex.: Operadores", rotulo: "Adicionar recurso" },
+  { campo: "sistemas", titulo: "Sistemas", info: processoCampos.sistemas, placeholder: "Ex.: ERP (PDM)", rotulo: "Adicionar sistema" },
+  { campo: "equipamentos", titulo: "Equipamentos", info: processoCampos.equipamentos, placeholder: "Ex.: Autoclave", rotulo: "Adicionar equipamento" },
 ]
 
-function paraTexto(lista?: string[] | null): string {
-  return Array.isArray(lista) ? lista.filter(Boolean).join("\n") : ""
+function arrayTexto(valor: unknown): string[] {
+  if (!Array.isArray(valor)) return []
+  return valor.map((v) => String(v ?? "")).filter(Boolean)
 }
 
 function texto(obj?: unknown, campo?: string): string {
@@ -237,13 +244,13 @@ export default function ProcessoProcessoFormPage() {
         responsavel: processoData.responsavel || "",
         status: processoData.status || "RASCUNHO",
         versao: String(processoData.versao ?? 0),
-        entradas: paraTexto(processoData.entradas),
-        saidas: paraTexto(processoData.saidas),
-        fornecedores: paraTexto(processoData.fornecedores),
-        clientes: paraTexto(processoData.clientes),
-        recursos: paraTexto(processoData.recursos),
-        sistemas: paraTexto(processoData.sistemas),
-        equipamentos: paraTexto(processoData.equipamentos),
+        entradas: arrayTexto(processoData.entradas),
+        saidas: arrayTexto(processoData.saidas),
+        fornecedores: arrayTexto(processoData.fornecedores),
+        clientes: arrayTexto(processoData.clientes),
+        recursos: arrayTexto(processoData.recursos),
+        sistemas: arrayTexto(processoData.sistemas),
+        equipamentos: arrayTexto(processoData.equipamentos),
         indicadores: normalizarIndicadores(processoData.indicadores),
         riscos: normalizarRiscos(processoData.riscos),
         controles: normalizarControles(processoData.controles),
@@ -263,7 +270,6 @@ export default function ProcessoProcessoFormPage() {
       toast.error("Selecione a área")
       return
     }
-    const listaArray = (texto: string) => texto.split("\n").map((s) => s.trim()).filter(Boolean)
 
     setSaving(true)
     try {
@@ -278,13 +284,13 @@ export default function ProcessoProcessoFormPage() {
         responsavel: processo.responsavel || null,
         status: processo.status,
         versao: parseInt(processo.versao || "0") || 0,
-        entradas: listaArray(processo.entradas),
-        saidas: listaArray(processo.saidas),
-        fornecedores: listaArray(processo.fornecedores),
-        clientes: listaArray(processo.clientes),
-        recursos: listaArray(processo.recursos),
-        sistemas: listaArray(processo.sistemas),
-        equipamentos: listaArray(processo.equipamentos),
+        entradas: processo.entradas,
+        saidas: processo.saidas,
+        fornecedores: processo.fornecedores,
+        clientes: processo.clientes,
+        recursos: processo.recursos,
+        sistemas: processo.sistemas,
+        equipamentos: processo.equipamentos,
         indicadores: processo.indicadores,
         riscos: processo.riscos,
         controles: processo.controles,
@@ -352,7 +358,7 @@ export default function ProcessoProcessoFormPage() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-2">
-          <Label htmlFor="areaId">Área *</Label>
+          <CampoInfo titulo="Área" sobre={processoCampos.areaId} htmlFor="areaId" obrigatorio />
           <select
             id="areaId"
             value={processo.areaId}
@@ -368,7 +374,7 @@ export default function ProcessoProcessoFormPage() {
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="nome">Nome *</Label>
+            <CampoInfo titulo="Nome" sobre={processoCampos.nome} htmlFor="nome" obrigatorio />
             <Input
               id="nome"
               value={processo.nome}
@@ -378,7 +384,7 @@ export default function ProcessoProcessoFormPage() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="codigo">Código</Label>
+            <CampoInfo titulo="Código" sobre={processoCampos.codigo} htmlFor="codigo" />
             <Input
               id="codigo"
               value={processo.codigo || ""}
@@ -390,7 +396,7 @@ export default function ProcessoProcessoFormPage() {
 
         <div className="grid grid-cols-3 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="status">Status</Label>
+            <CampoInfo titulo="Status" sobre={processoCampos.status} htmlFor="status" />
             <select
               id="status"
               value={processo.status}
@@ -403,7 +409,7 @@ export default function ProcessoProcessoFormPage() {
             </select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="versao">Versão</Label>
+            <CampoInfo titulo="Versão" sobre={processoCampos.versao} htmlFor="versao" />
             <Input
               id="versao"
               type="number"
@@ -414,7 +420,7 @@ export default function ProcessoProcessoFormPage() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="responsavel">Responsável</Label>
+            <CampoInfo titulo="Responsável" sobre={processoCampos.responsavel} htmlFor="responsavel" />
             <Input
               id="responsavel"
               value={processo.responsavel || ""}
@@ -425,7 +431,7 @@ export default function ProcessoProcessoFormPage() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="objetivo">Objetivo</Label>
+          <CampoInfo titulo="Objetivo" sobre={processoCampos.objetivo} htmlFor="objetivo" />
           <Textarea
             id="objetivo"
             value={processo.objetivo || ""}
@@ -436,17 +442,18 @@ export default function ProcessoProcessoFormPage() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {LISTAS.map(({ campo, label }) => (
-            <div className="space-y-2" key={campo}>
-              <Label htmlFor={campo}>{label}</Label>
-              <Textarea
-                id={campo}
-                value={String(processo[campo] || "")}
-                onChange={e => handleChange(campo, e.target.value)}
-                placeholder="Item por linha"
-                rows={2}
-              />
-            </div>
+          {LISTAS.map(({ campo, titulo, info, placeholder, rotulo }) => (
+            <ListaTexto
+              key={campo}
+              titulo={titulo}
+              baseId={campo}
+              itens={processo[campo]}
+              onChange={(itens) => setProcesso((p) => ({ ...p, [campo]: itens }))}
+              rotuloAdicionar={rotulo}
+              info={info}
+              placeholderItem={placeholder}
+              vazioTexto="Nenhum item adicionado."
+            />
           ))}
         </div>
 
@@ -458,6 +465,7 @@ export default function ProcessoProcessoFormPage() {
           onChange={(indicadores) => setProcesso((p) => ({ ...p, indicadores }))}
           criarItem={() => ({ ...NOVO_INDICADOR })}
           rotuloAdicionar="Adicionar indicador"
+          info={processoCampos.indicadores}
           dica="Ex.: Atraso de entrega — meta < 3% — semanal."
           vazioTexto="Nenhum indicador cadastrado."
         />
@@ -470,6 +478,7 @@ export default function ProcessoProcessoFormPage() {
           onChange={(riscos) => setProcesso((p) => ({ ...p, riscos }))}
           criarItem={() => ({ ...NOVO_RISCO })}
           rotuloAdicionar="Adicionar risco"
+          info={processoCampos.riscos}
           dica="Ex.: Produto divergente do pedido — probabilidade Média, impacto Alta, controle Conferência no recebimento."
           vazioTexto="Nenhum risco cadastrado."
         />
@@ -482,12 +491,13 @@ export default function ProcessoProcessoFormPage() {
           onChange={(controles) => setProcesso((p) => ({ ...p, controles }))}
           criarItem={() => ({ ...NOVO_CONTROLE })}
           rotuloAdicionar="Adicionar controle"
+          info={processoCampos.controles}
           dica="Ex.: Conferência de peso e rolos, conferência da nota fiscal vs. ordem de compra."
           vazioTexto="Nenhum controle cadastrado."
         />
 
         <div className="space-y-2">
-          <Label htmlFor="observacoes">Observações</Label>
+          <CampoInfo titulo="Observações" sobre={processoCampos.observacoes} htmlFor="observacoes" />
           <Textarea
             id="observacoes"
             value={processo.observacoes || ""}
@@ -500,6 +510,7 @@ export default function ProcessoProcessoFormPage() {
         <div className="flex items-center gap-2">
           <input type="checkbox" id="ativo" checked={processo.ativo} onChange={e => handleChange("ativo", e.target.checked)} className="w-4 h-4" />
           <Label htmlFor="ativo">Ativo</Label>
+          <InfoButton content={processoCampos.ativo} />
         </div>
 
         <div className="flex gap-4">

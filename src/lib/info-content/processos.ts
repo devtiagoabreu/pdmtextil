@@ -57,7 +57,7 @@ export const processosContent: Record<string, InfoContent> = {
     description: "Objeto central do mapeamento. Cada processo documenta o fluxo de trabalho de uma área com objetivo, entradas, saídas e responsabilidades.",
     rules: [
       "Todo processo pertence a uma área.",
-      "Entradas, saídas, fornecedores e clientes são listas de texto (uma linha por item).",
+      "Entradas, saídas, fornecedores, clientes, recursos, sistemas e equipamentos são listas: clique em Adicionar e informe cada item, com botão para remover.",
       "Indicadores, riscos e controles são preenchidos em listas com formulário próprio (adicione itens e preencha os campos).",
       "O status reflete a situação do documento (ex: Rascunho, Em revisão, Aprovado).",
       "Alterar a versão é manual — incremente quando houver mudança relevante.",
