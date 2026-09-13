@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
+import { ListaEditor } from "@/components/processos/lista-editor"
 import { toast } from "sonner"
 import { PROCESSO_STATUS_LABELS, statusLabel, STATUS_COLORS } from "@/lib/processos/constantes"
 
@@ -53,11 +54,31 @@ type ProcessoObjeto = {
   recursos: string
   sistemas: string
   equipamentos: string
-  indicadores: string
-  riscos: string
-  controles: string
+  indicadores: LinhaIndicador[]
+  riscos: LinhaRisco[]
+  controles: LinhaControle[]
   observacoes: string
   ativo: boolean
+}
+
+interface LinhaIndicador {
+  nome: string
+  unidade: string
+  meta: string
+  frequencia: string
+}
+
+interface LinhaRisco {
+  descricao: string
+  probabilidade: string
+  impacto: string
+  controle: string
+}
+
+interface LinhaControle {
+  descricao: string
+  responsavel: string
+  frequencia: string
 }
 
 const INICIAL: ProcessoObjeto = {
@@ -76,12 +97,36 @@ const INICIAL: ProcessoObjeto = {
   recursos: "",
   sistemas: "",
   equipamentos: "",
-  indicadores: "[]",
-  riscos: "[]",
-  controles: "[]",
+  indicadores: [],
+  riscos: [],
+  controles: [],
   observacoes: "",
   ativo: true,
 }
+
+const NOVO_INDICADOR: LinhaIndicador = { nome: "", unidade: "", meta: "", frequencia: "" }
+const NOVO_RISCO: LinhaRisco = { descricao: "", probabilidade: "", impacto: "", controle: "" }
+const NOVO_CONTROLE: LinhaControle = { descricao: "", responsavel: "", frequencia: "" }
+
+const CAMPOS_INDICADOR = [
+  { campo: "nome", label: "Nome", placeholder: "Ex: Atraso de entrega", className: "sm:col-span-2" },
+  { campo: "unidade", label: "Unidade", placeholder: "Ex: %" },
+  { campo: "meta", label: "Meta", placeholder: "Ex: < 3%" },
+  { campo: "frequencia", label: "Frequência", placeholder: "Ex: semanal", className: "sm:col-span-2" },
+]
+
+const CAMPOS_RISCO = [
+  { campo: "descricao", label: "Descrição", placeholder: "Ex: Produto divergente do pedido", className: "sm:col-span-2" },
+  { campo: "probabilidade", label: "Probabilidade", placeholder: "Ex: Média" },
+  { campo: "impacto", label: "Impacto", placeholder: "Ex: Alta" },
+  { campo: "controle", label: "Ação de controle", placeholder: "Ex: Conferência no recebimento", className: "sm:col-span-2" },
+]
+
+const CAMPOS_CONTROLE = [
+  { campo: "descricao", label: "Descrição", placeholder: "Ex: Conferência de peso e rolos", className: "sm:col-span-2" },
+  { campo: "responsavel", label: "Responsável", placeholder: "Ex: Conferente" },
+  { campo: "frequencia", label: "Frequência", placeholder: "Ex: a cada recebimento" },
+]
 
 const LISTAS: { campo: keyof ProcessoObjeto; label: string }[] = [
   { campo: "entradas", label: "Entradas (uma por linha)" },
@@ -97,16 +142,39 @@ function paraTexto(lista?: string[] | null): string {
   return Array.isArray(lista) ? lista.filter(Boolean).join("\n") : ""
 }
 
-function parseJsonArray(texto: string, nome: string): unknown[] | null {
-  if (!texto.trim()) return []
-  try {
-    const parsed = JSON.parse(texto)
-    if (!Array.isArray(parsed)) throw new Error()
-    return parsed
-  } catch {
-    toast.error(`O campo ${nome} não é um JSON de lista válido`)
-    return null
-  }
+function texto(obj?: unknown, campo?: string): string {
+  if (!obj || typeof obj !== "object") return ""
+  const v = (obj as Record<string, unknown>)[campo ?? ""]
+  return v == null ? "" : String(v)
+}
+
+function normalizarIndicadores(valor: unknown): LinhaIndicador[] {
+  if (!Array.isArray(valor)) return []
+  return valor.map((i) => ({
+    nome: texto(i, "nome"),
+    unidade: texto(i, "unidade"),
+    meta: texto(i, "meta"),
+    frequencia: texto(i, "frequencia"),
+  }))
+}
+
+function normalizarRiscos(valor: unknown): LinhaRisco[] {
+  if (!Array.isArray(valor)) return []
+  return valor.map((i) => ({
+    descricao: texto(i, "descricao"),
+    probabilidade: texto(i, "probabilidade"),
+    impacto: texto(i, "impacto"),
+    controle: texto(i, "controle"),
+  }))
+}
+
+function normalizarControles(valor: unknown): LinhaControle[] {
+  if (!Array.isArray(valor)) return []
+  return valor.map((i) => ({
+    descricao: texto(i, "descricao"),
+    responsavel: texto(i, "responsavel"),
+    frequencia: texto(i, "frequencia"),
+  }))
 }
 
 export default function ProcessoProcessoFormPage() {
@@ -176,9 +244,9 @@ export default function ProcessoProcessoFormPage() {
         recursos: paraTexto(processoData.recursos),
         sistemas: paraTexto(processoData.sistemas),
         equipamentos: paraTexto(processoData.equipamentos),
-        indicadores: JSON.stringify(processoData.indicadores ?? [], null, 2),
-        riscos: JSON.stringify(processoData.riscos ?? [], null, 2),
-        controles: JSON.stringify(processoData.controles ?? [], null, 2),
+        indicadores: normalizarIndicadores(processoData.indicadores),
+        riscos: normalizarRiscos(processoData.riscos),
+        controles: normalizarControles(processoData.controles),
         observacoes: processoData.observacoes || "",
         ativo: processoData.ativo ?? true,
       })
@@ -196,12 +264,6 @@ export default function ProcessoProcessoFormPage() {
       return
     }
     const listaArray = (texto: string) => texto.split("\n").map((s) => s.trim()).filter(Boolean)
-    const indicadores = parseJsonArray(processo.indicadores, "Indicadores")
-    if (indicadores === null) return
-    const riscos = parseJsonArray(processo.riscos, "Riscos")
-    if (riscos === null) return
-    const controles = parseJsonArray(processo.controles, "Controles")
-    if (controles === null) return
 
     setSaving(true)
     try {
@@ -223,9 +285,9 @@ export default function ProcessoProcessoFormPage() {
         recursos: listaArray(processo.recursos),
         sistemas: listaArray(processo.sistemas),
         equipamentos: listaArray(processo.equipamentos),
-        indicadores: indicadores as never[],
-        riscos: riscos as never[],
-        controles: controles as never[],
+        indicadores: processo.indicadores,
+        riscos: processo.riscos,
+        controles: processo.controles,
         observacoes: processo.observacoes || null,
         ativo: processo.ativo,
       }
@@ -388,41 +450,41 @@ export default function ProcessoProcessoFormPage() {
           ))}
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="indicadores">Indicadores (JSON — lista de objetos)</Label>
-          <Textarea
-            id="indicadores"
-            value={processo.indicadores}
-            onChange={e => handleChange("indicadores", e.target.value)}
-            placeholder={`[{"nome":"OEE","meta":"95%"}]`}
-            rows={3}
-            className="font-mono text-xs"
-          />
-        </div>
+        <ListaEditor
+          titulo="Indicadores"
+          baseId="indicadores"
+          campos={CAMPOS_INDICADOR}
+          itens={processo.indicadores}
+          onChange={(indicadores) => setProcesso((p) => ({ ...p, indicadores }))}
+          criarItem={() => ({ ...NOVO_INDICADOR })}
+          rotuloAdicionar="Adicionar indicador"
+          dica="Ex.: Atraso de entrega — meta < 3% — semanal."
+          vazioTexto="Nenhum indicador cadastrado."
+        />
 
-        <div className="space-y-2">
-          <Label htmlFor="riscos">Riscos (JSON — lista de objetos)</Label>
-          <Textarea
-            id="riscos"
-            value={processo.riscos}
-            onChange={e => handleChange("riscos", e.target.value)}
-            placeholder={`[{"nome":"Falha de máquina","nivel":"Médio"}]`}
-            rows={3}
-            className="font-mono text-xs"
-          />
-        </div>
+        <ListaEditor
+          titulo="Riscos"
+          baseId="riscos"
+          campos={CAMPOS_RISCO}
+          itens={processo.riscos}
+          onChange={(riscos) => setProcesso((p) => ({ ...p, riscos }))}
+          criarItem={() => ({ ...NOVO_RISCO })}
+          rotuloAdicionar="Adicionar risco"
+          dica="Ex.: Produto divergente do pedido — probabilidade Média, impacto Alta, controle Conferência no recebimento."
+          vazioTexto="Nenhum risco cadastrado."
+        />
 
-        <div className="space-y-2">
-          <Label htmlFor="controles">Controles (JSON — lista de objetos)</Label>
-          <Textarea
-            id="controles"
-            value={processo.controles}
-            onChange={e => handleChange("controles", e.target.value)}
-            placeholder={`[{"nome":"Manutenção preventiva"}]`}
-            rows={3}
-            className="font-mono text-xs"
-          />
-        </div>
+        <ListaEditor
+          titulo="Controles"
+          baseId="controles"
+          campos={CAMPOS_CONTROLE}
+          itens={processo.controles}
+          onChange={(controles) => setProcesso((p) => ({ ...p, controles }))}
+          criarItem={() => ({ ...NOVO_CONTROLE })}
+          rotuloAdicionar="Adicionar controle"
+          dica="Ex.: Conferência de peso e rolos, conferência da nota fiscal vs. ordem de compra."
+          vazioTexto="Nenhum controle cadastrado."
+        />
 
         <div className="space-y-2">
           <Label htmlFor="observacoes">Observações</Label>

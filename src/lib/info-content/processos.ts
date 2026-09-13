@@ -7,7 +7,7 @@ export const processosContent: Record<string, InfoContent> = {
     rules: [
       "A hierarquia é: Empresa → Site → Área → Processo → Subprocesso → Atividade.",
       "O Processo é o objeto central: documenta objetivo, responsável, entradas/saídas, fornecedores e clientes.",
-      "Indicadores, riscos e controles são registrados em listas simples (uma linha por item).",
+      "Indicadores, riscos e controles são preenchidos em listas com formulário próprio (adicione itens e preencha os campos).",
       "O status indica a maturidade do processo; a versão é editada manualmente quando o documento muda.",
     ],
   },
@@ -58,7 +58,7 @@ export const processosContent: Record<string, InfoContent> = {
     rules: [
       "Todo processo pertence a uma área.",
       "Entradas, saídas, fornecedores e clientes são listas de texto (uma linha por item).",
-      "Indicadores, riscos e controles são registrados em JSON (uma linha por item na edição).",
+      "Indicadores, riscos e controles são preenchidos em listas com formulário próprio (adicione itens e preencha os campos).",
       "O status reflete a situação do documento (ex: Rascunho, Em revisão, Aprovado).",
       "Alterar a versão é manual — incremente quando houver mudança relevante.",
     ],

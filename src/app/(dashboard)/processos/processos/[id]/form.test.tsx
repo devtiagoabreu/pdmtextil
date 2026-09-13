@@ -49,12 +49,15 @@ describe("ProcessoProcessoFormPage", () => {
       expect(navMock.router.push).toHaveBeenCalledWith("/processos/processos")
     })
 
-    it("rejeita JSON inválido em indicadores", async () => {
+    it("preenche indicadores, riscos e controles pelo editor de listas e salva via POST", async () => {
       navMock.setPathname("/processos/processos/novo")
       navMock.setParams({ id: "novo" })
       const fetchMock = createFetchMock(({ method, url }) => {
         if (method === "GET" && url === "/api/processos/areas") {
           return { json: [{ id: 1, nome: "Produção" }] }
+        }
+        if (method === "POST" && url === "/api/processos/processos") {
+          return { status: 201, json: { id: 9 } }
         }
         return { status: 404, json: { error: "Rota não mockada" } }
       })
@@ -63,14 +66,34 @@ describe("ProcessoProcessoFormPage", () => {
       const ui = renderPage(<ProcessoProcessoFormPage />)
       const form = ui.container.querySelector("form")!
 
-      fireEvent.change(screen.getByPlaceholderText("Processo de Tecelagem"), { target: { value: "Processo X" } })
+      fireEvent.change(screen.getByPlaceholderText("Processo de Tecelagem"), { target: { value: "Recebimento de Matéria-Prima" } })
       await screen.findByRole("option", { name: "Produção" })
       fireEvent.change(screen.getByRole("combobox", { name: "Área *" }), { target: { value: "1" } })
-      fireEvent.change(screen.getByLabelText("Indicadores (JSON — lista de objetos)"), { target: { value: "{ inválido" } })
+
+      fireEvent.click(screen.getByRole("button", { name: /Adicionar indicador/ }))
+      fireEvent.change(screen.getByLabelText("Nome", { selector: "#indicadores-0-nome" }), { target: { value: "Atraso de entrega" } })
+      fireEvent.change(screen.getByLabelText("Unidade", { selector: "#indicadores-0-unidade" }), { target: { value: "%" } })
+      fireEvent.change(screen.getByLabelText("Meta", { selector: "#indicadores-0-meta" }), { target: { value: "< 3%" } })
+      fireEvent.change(screen.getByLabelText("Frequência", { selector: "#indicadores-0-frequencia" }), { target: { value: "semanal" } })
+
+      fireEvent.click(screen.getByRole("button", { name: /Adicionar risco/ }))
+      fireEvent.change(screen.getByLabelText("Descrição", { selector: "#riscos-0-descricao" }), { target: { value: "Produto divergente do pedido" } })
+      fireEvent.change(screen.getByLabelText("Probabilidade", { selector: "#riscos-0-probabilidade" }), { target: { value: "Média" } })
+      fireEvent.change(screen.getByLabelText("Impacto", { selector: "#riscos-0-impacto" }), { target: { value: "Alta" } })
+      fireEvent.change(screen.getByLabelText("Ação de controle", { selector: "#riscos-0-controle" }), { target: { value: "Conferência no recebimento" } })
+
+      fireEvent.click(screen.getByRole("button", { name: /Adicionar controle/ }))
+      fireEvent.change(screen.getByLabelText("Descrição", { selector: "#controles-0-descricao" }), { target: { value: "Conferência de peso e rolos" } })
+      fireEvent.change(screen.getByLabelText("Responsável", { selector: "#controles-0-responsavel" }), { target: { value: "Conferente" } })
       fireEvent.submit(form)
 
-      await waitFor(() => expect(toastMock.error).toHaveBeenCalledWith("O campo Indicadores não é um JSON de lista válido"))
-      expect(findCall(fetchMock.calls, "/api/processos/processos", "POST")).toBeUndefined()
+      await waitFor(() => {
+        const call = findCall(fetchMock.calls, "/api/processos/processos", "POST")
+        expect(call).toBeDefined()
+        expect(call?.body?.indicadores).toEqual([{ nome: "Atraso de entrega", unidade: "%", meta: "< 3%", frequencia: "semanal" }])
+        expect(call?.body?.riscos).toEqual([{ descricao: "Produto divergente do pedido", probabilidade: "Média", impacto: "Alta", controle: "Conferência no recebimento" }])
+        expect(call?.body?.controles).toEqual([{ descricao: "Conferência de peso e rolos", responsavel: "Conferente", frequencia: "" }])
+      })
     })
   })
 
@@ -138,7 +161,7 @@ describe("ProcessoProcessoFormPage", () => {
       expect(call?.body?.objetivo).toBe("Produzir tecidos premium")
       expect(call?.body?.entradas).toEqual(["Fio de algodão"])
       expect(call?.body?.cliente).toBeUndefined()
-      expect(call?.body?.indicadores).toEqual([{ nome: "OEE", meta: "95%" }])
+      expect(call?.body?.indicadores).toEqual([{ nome: "OEE", unidade: "", meta: "95%", frequencia: "" }])
     })
   })
 })
