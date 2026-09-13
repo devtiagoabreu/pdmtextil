@@ -46,7 +46,7 @@ export async function listarReunioes(): Promise<ReuniaoItemLista[]> {
 
   const projetoIds = [...new Set(rows.map((r: any) => r.projetoId))]
   const projetos = await db.select().from(reunioesProjetos).where(inArray(reunioesProjetos.id, projetoIds))
-  const projetoMap = new Map(projetos.map((p) => [p.id, p.nome]))
+  const projetoMap = new Map(projetos.map((p: any) => [p.id, p.nome]))
 
   return rows.map((r: any) => ({
     ...r,
