@@ -210,6 +210,7 @@ export const procProcessoSchema = z.object({
   indicadores: z.array(procIndicadorSchema).optional(),
   riscos: z.array(procRiscoSchema).optional(),
   controles: z.array(procControleSchema).optional(),
+  links: z.array(linkSchema).optional(),
   observacoes: z.string().optional().nullable(),
   ativo: z.boolean().optional(),
 })
@@ -219,6 +220,7 @@ export const procSubprocessoSchema = z.object({
   nome: z.string().trim().min(1, "Nome é obrigatório").max(200),
   descricao: z.string().optional().nullable(),
   ordem: z.number().int().min(0).optional(),
+  links: z.array(linkSchema).optional(),
   ativo: z.boolean().optional(),
 })
 
@@ -228,6 +230,7 @@ export const procAtividadeSchema = z.object({
   tipo: z.enum(["MANUAL", "AUTOMATICA", "DECISAO", "ESPERA"]).optional(),
   responsavel: z.string().trim().max(150).optional().nullable(),
   ordem: z.number().int().min(0).optional(),
+  links: z.array(linkSchema).optional(),
   observacoes: z.string().optional().nullable(),
   ativo: z.boolean().optional(),
 })

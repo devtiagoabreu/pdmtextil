@@ -91,6 +91,10 @@ describe("ProcessoProcessoFormPage", () => {
       fireEvent.click(screen.getByRole("button", { name: /Adicionar controle/ }))
       fireEvent.change(screen.getByLabelText("Descrição", { selector: "#controles-0-descricao" }), { target: { value: "Conferência de peso e rolos" } })
       fireEvent.change(screen.getByLabelText("Responsável", { selector: "#controles-0-responsavel" }), { target: { value: "Conferente" } })
+
+      fireEvent.change(screen.getByPlaceholderText("https://..."), { target: { value: "https://sistema.com.br/instrucao" } })
+      fireEvent.change(screen.getByPlaceholderText("Foto, laudo..."), { target: { value: "Instrução de trabalho" } })
+      fireEvent.click(screen.getByRole("button", { name: "Adicionar link" }))
       fireEvent.submit(form)
 
       await waitFor(() => {
@@ -99,6 +103,7 @@ describe("ProcessoProcessoFormPage", () => {
         expect(call?.body?.indicadores).toEqual([{ nome: "Atraso de entrega", unidade: "%", meta: "< 3%", frequencia: "semanal" }])
         expect(call?.body?.riscos).toEqual([{ descricao: "Produto divergente do pedido", probabilidade: "Média", impacto: "Alta", controle: "Conferência no recebimento" }])
         expect(call?.body?.controles).toEqual([{ descricao: "Conferência de peso e rolos", responsavel: "Conferente", frequencia: "" }])
+        expect(call?.body?.links).toEqual([{ url: "https://sistema.com.br/instrucao", descricao: "Instrução de trabalho" }])
       })
     })
   })
@@ -132,6 +137,7 @@ describe("ProcessoProcessoFormPage", () => {
               indicadores: [{ nome: "OEE", meta: "95%" }],
               riscos: [],
               controles: [],
+              links: [{ url: "https://example.com/pop", descricao: "POP de tecelagem" }],
               observacoes: "",
               ativo: true,
             },
@@ -168,6 +174,7 @@ describe("ProcessoProcessoFormPage", () => {
       expect(call?.body?.entradas).toEqual(["Fio de algodão"])
       expect(call?.body?.cliente).toBeUndefined()
       expect(call?.body?.indicadores).toEqual([{ nome: "OEE", unidade: "", meta: "95%", frequencia: "" }])
+      expect(call?.body?.links).toEqual([{ url: "https://example.com/pop", descricao: "POP de tecelagem" }])
     })
   })
 })

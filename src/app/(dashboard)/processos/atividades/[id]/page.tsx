@@ -14,7 +14,13 @@ import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 import { ATIVIDADE_TIPO_LABELS } from "@/lib/processos/constantes"
 import { CampoInfo } from "@/components/processos/campo-info"
+import { LinksEditor } from "@/components/links/LinksEditor"
 import { atividadeCampos } from "@/lib/info-content/engenharia"
+
+interface LinhaLink {
+  url: string
+  descricao: string
+}
 
 type Atividade = {
   id: number | null
@@ -23,6 +29,7 @@ type Atividade = {
   tipo: string
   responsavel: string
   ordem: string
+  links: LinhaLink[]
   observacoes: string
   ativo: boolean
 }
@@ -50,6 +57,7 @@ export default function ProcessoAtividadeFormPage() {
     tipo: "MANUAL",
     responsavel: "",
     ordem: "0",
+    links: [],
     observacoes: "",
     ativo: true,
   })
@@ -75,6 +83,12 @@ export default function ProcessoAtividadeFormPage() {
 
   useEffect(() => {
     if (atividadeData) {
+      const links = Array.isArray(atividadeData.links)
+        ? atividadeData.links.map((l) => ({
+            url: l.url || "",
+            descricao: l.descricao || "",
+          }))
+        : []
       setAtividade({
         id: atividadeData.id,
         subprocessoId: atividadeData.subprocessoId ? String(atividadeData.subprocessoId) : "",
@@ -82,6 +96,7 @@ export default function ProcessoAtividadeFormPage() {
         tipo: atividadeData.tipo || "MANUAL",
         responsavel: atividadeData.responsavel || "",
         ordem: String(atividadeData.ordem ?? 0),
+        links,
         observacoes: atividadeData.observacoes || "",
         ativo: atividadeData.ativo ?? true,
       })
@@ -232,6 +247,11 @@ export default function ProcessoAtividadeFormPage() {
             rows={2}
           />
         </div>
+
+        <LinksEditor
+          links={atividade.links}
+          onChange={(links) => setAtividade((prev) => ({ ...prev, links }))}
+        />
 
         <div className="flex items-center gap-2">
           <input type="checkbox" id="ativo" checked={atividade.ativo} onChange={e => handleChange("ativo", e.target.checked)} className="w-4 h-4" />

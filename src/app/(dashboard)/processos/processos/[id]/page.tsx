@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label"
 import { ListaEditor } from "@/components/processos/lista-editor"
 import { ListaTexto } from "@/components/processos/lista-texto"
 import { CampoInfo } from "@/components/processos/campo-info"
+import { LinksEditor } from "@/components/links/LinksEditor"
 import { toast } from "sonner"
 import { PROCESSO_STATUS_LABELS, statusLabel, STATUS_COLORS } from "@/lib/processos/constantes"
 import { processoCampos } from "@/lib/info-content/engenharia"
@@ -61,6 +62,7 @@ type ProcessoObjeto = {
   indicadores: LinhaIndicador[]
   riscos: LinhaRisco[]
   controles: LinhaControle[]
+  links: LinhaLink[]
   observacoes: string
   ativo: boolean
 }
@@ -85,6 +87,11 @@ interface LinhaControle {
   frequencia: string
 }
 
+interface LinhaLink {
+  url: string
+  descricao: string
+}
+
 const INICIAL: ProcessoObjeto = {
   id: null,
   areaId: "",
@@ -104,6 +111,7 @@ const INICIAL: ProcessoObjeto = {
   indicadores: [],
   riscos: [],
   controles: [],
+  links: [],
   observacoes: "",
   ativo: true,
 }
@@ -184,6 +192,14 @@ function normalizarControles(valor: unknown): LinhaControle[] {
   }))
 }
 
+function normalizarLinks(valor: unknown): LinhaLink[] {
+  if (!Array.isArray(valor)) return []
+  return valor.map((i) => ({
+    url: texto(i, "url"),
+    descricao: texto(i, "descricao"),
+  }))
+}
+
 export default function ProcessoProcessoFormPage() {
   const params = useParams()
   const router = useRouter()
@@ -254,6 +270,7 @@ export default function ProcessoProcessoFormPage() {
         indicadores: normalizarIndicadores(processoData.indicadores),
         riscos: normalizarRiscos(processoData.riscos),
         controles: normalizarControles(processoData.controles),
+        links: normalizarLinks(processoData.links),
         observacoes: processoData.observacoes || "",
         ativo: processoData.ativo ?? true,
       })
@@ -294,6 +311,7 @@ export default function ProcessoProcessoFormPage() {
         indicadores: processo.indicadores,
         riscos: processo.riscos,
         controles: processo.controles,
+        links: processo.links,
         observacoes: processo.observacoes || null,
         ativo: processo.ativo,
       }
@@ -495,6 +513,11 @@ export default function ProcessoProcessoFormPage() {
           dica="Ex.: Conferência de peso e rolos, conferência da nota fiscal vs. ordem de compra."
           vazioTexto="Nenhum controle cadastrado."
         />
+
+        <LinksEditor
+            links={processo.links}
+            onChange={(links) => setProcesso((p) => ({ ...p, links }))}
+          />
 
         <div className="space-y-2">
           <CampoInfo titulo="Observações" sobre={processoCampos.observacoes} htmlFor="observacoes" />

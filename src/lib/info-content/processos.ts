@@ -61,6 +61,7 @@ export const processosContent: Record<string, InfoContent> = {
       "Indicadores, riscos e controles são preenchidos em listas com formulário próprio (adicione itens e preencha os campos).",
       "O status reflete a situação do documento (ex: Rascunho, Em revisão, Aprovado).",
       "Alterar a versão é manual — incremente quando houver mudança relevante.",
+      "Links guardam URLs de referência (documentos, instruções, vídeos) com uma descrição curta por link.",
     ],
     fields: [
       { name: "Nome", desc: "Nome do processo (ex: Beneficiamento de Malha)" },
@@ -68,6 +69,7 @@ export const processosContent: Record<string, InfoContent> = {
       { name: "Responsável", desc: "Dono do processo" },
       { name: "Status", desc: "Situação do documento do processo" },
       { name: "Versão", desc: "Versão do documento" },
+      { name: "Links", desc: "URLs de referência (documentos, instruções, vídeos) com descrição" },
     ],
   },
   "/processos/subprocessos": {
@@ -77,11 +79,13 @@ export const processosContent: Record<string, InfoContent> = {
       "Todo subprocesso pertence a um processo.",
       "A ordem define a sequência de execução dentro do processo.",
       "Subprocessos inativos não aparecem no detalhe do processo.",
+      "Links guardam URLs de referência com uma descrição curta por link.",
     ],
     fields: [
       { name: "Nome", desc: "Nome da etapa" },
       { name: "Processo", desc: "Processo ao qual pertence" },
       { name: "Ordem", desc: "Sequência de execução" },
+      { name: "Links", desc: "URLs de referência com descrição" },
     ],
   },
   "/processos/atividades": {
@@ -91,12 +95,14 @@ export const processosContent: Record<string, InfoContent> = {
       "Toda atividade pertence a um subprocesso.",
       "O tipo define a natureza da atividade: Manual, Automática, Decisão ou Espera.",
       "A ordem define a sequência de execução dentro do subprocesso.",
+      "Links guardam URLs de referência com uma descrição curta por link.",
     ],
     fields: [
       { name: "Nome", desc: "Nome da atividade" },
       { name: "Tipo", desc: "Manual, Automática, Decisão ou Espera" },
       { name: "Ordem", desc: "Sequência de execução" },
       { name: "Responsável/Duração", desc: "Informações complementares (opcional)" },
+      { name: "Links", desc: "URLs de referência com descrição" },
     ],
   },
   "/processos/visual": {

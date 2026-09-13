@@ -71,6 +71,7 @@ export async function POST(req: NextRequest) {
         tipo: parsed.data.tipo ?? "MANUAL",
         responsavel: parsed.data.responsavel || null,
         ordem: parsed.data.ordem ?? 0,
+        links: parsed.data.links ?? [],
         observacoes: parsed.data.observacoes || null,
         ativo: parsed.data.ativo !== undefined ? parsed.data.ativo : true,
       })

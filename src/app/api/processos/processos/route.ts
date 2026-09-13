@@ -71,6 +71,7 @@ export async function POST(req: NextRequest) {
         indicadores: parsed.data.indicadores ?? [],
         riscos: parsed.data.riscos ?? [],
         controles: parsed.data.controles ?? [],
+        links: parsed.data.links ?? [],
         observacoes: parsed.data.observacoes || null,
         ativo: parsed.data.ativo !== undefined ? parsed.data.ativo : true,
       })

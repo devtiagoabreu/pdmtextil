@@ -592,6 +592,11 @@ CREATE TABLE IF NOT EXISTS proc_atividades (
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
+-- Links (URL + descrição) em Processos, Subprocessos e Atividades
+ALTER TABLE proc_processos ADD COLUMN IF NOT EXISTS links JSONB DEFAULT '[]'::jsonb;
+ALTER TABLE proc_subprocessos ADD COLUMN IF NOT EXISTS links JSONB DEFAULT '[]'::jsonb;
+ALTER TABLE proc_atividades ADD COLUMN IF NOT EXISTS links JSONB DEFAULT '[]'::jsonb;
+
 CREATE TABLE IF NOT EXISTS proc_diagramas (
   id SERIAL PRIMARY KEY,
   nome VARCHAR(200) NOT NULL,

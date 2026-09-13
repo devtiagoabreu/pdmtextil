@@ -1382,6 +1382,12 @@ async function migrate() {
     `
     console.log("✓ Projetos adicionado ao menu Reuniões")
 
+    // ==================== Engenharia de Processos — Links ====================
+    await sql`ALTER TABLE proc_processos ADD COLUMN IF NOT EXISTS links JSONB DEFAULT '[]'::jsonb`
+    await sql`ALTER TABLE proc_subprocessos ADD COLUMN IF NOT EXISTS links JSONB DEFAULT '[]'::jsonb`
+    await sql`ALTER TABLE proc_atividades ADD COLUMN IF NOT EXISTS links JSONB DEFAULT '[]'::jsonb`
+    console.log("✓ Links (URL + descrição) adicionados em proc_processos, proc_subprocessos e proc_atividades")
+
     console.log("\n✅ Migration concluída com sucesso!")
     
   } catch (error) {

@@ -11,8 +11,14 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { CampoInfo } from "@/components/processos/campo-info"
+import { LinksEditor } from "@/components/links/LinksEditor"
 import { toast } from "sonner"
 import { subprocessoCampos } from "@/lib/info-content/engenharia"
+
+interface LinhaLink {
+  url: string
+  descricao: string
+}
 
 type Subprocesso = {
   id: number | null
@@ -20,6 +26,7 @@ type Subprocesso = {
   nome: string
   descricao: string
   ordem: string
+  links: LinhaLink[]
   ativo: boolean
 }
 
@@ -44,6 +51,7 @@ export default function ProcessoSubprocessoFormPage() {
     nome: "",
     descricao: "",
     ordem: "0",
+    links: [],
     ativo: true,
   })
   const [saving, setSaving] = useState(false)
@@ -68,12 +76,19 @@ export default function ProcessoSubprocessoFormPage() {
 
   useEffect(() => {
     if (subprocessoData) {
+      const links = Array.isArray(subprocessoData.links)
+        ? subprocessoData.links.map((l) => ({
+            url: l.url || "",
+            descricao: l.descricao || "",
+          }))
+        : []
       setSubprocesso({
         id: subprocessoData.id,
         processoId: subprocessoData.processoId ? String(subprocessoData.processoId) : "",
         nome: subprocessoData.nome || "",
         descricao: subprocessoData.descricao || "",
         ordem: String(subprocessoData.ordem ?? 0),
+        links,
         ativo: subprocessoData.ativo ?? true,
       })
     }
@@ -196,6 +211,11 @@ export default function ProcessoSubprocessoFormPage() {
             placeholder="1"
           />
         </div>
+
+        <LinksEditor
+          links={subprocesso.links}
+          onChange={(links) => setSubprocesso((prev) => ({ ...prev, links }))}
+        />
 
         <div className="flex items-center gap-2">
           <input type="checkbox" id="ativo" checked={subprocesso.ativo} onChange={e => handleChange("ativo", e.target.checked)} className="w-4 h-4" />

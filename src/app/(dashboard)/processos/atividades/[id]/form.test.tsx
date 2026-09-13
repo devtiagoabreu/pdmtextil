@@ -33,6 +33,9 @@ describe("ProcessoAtividadeFormPage", () => {
       await screen.findByRole("option", { name: "Preparação" })
       fireEvent.change(screen.getByRole("combobox", { name: "Subprocesso *" }), { target: { value: "1" } })
       fireEvent.change(screen.getByRole("combobox", { name: "Tipo" }), { target: { value: "AUTOMATICA" } })
+      fireEvent.change(screen.getByPlaceholderText("https://..."), { target: { value: "https://sistema.com.br/atividade" } })
+      fireEvent.change(screen.getByPlaceholderText("Foto, laudo..."), { target: { value: "Vídeo da atividade" } })
+      fireEvent.click(screen.getByRole("button", { name: "Adicionar link" }))
       fireEvent.submit(form)
 
       await waitFor(() => {
@@ -41,6 +44,7 @@ describe("ProcessoAtividadeFormPage", () => {
         expect(call?.body?.subprocessoId).toBe(1)
         expect(call?.body?.nome).toBe("Encaramento")
         expect(call?.body?.tipo).toBe("AUTOMATICA")
+        expect(call?.body?.links).toEqual([{ url: "https://sistema.com.br/atividade", descricao: "Vídeo da atividade" }])
       })
       expect(navMock.router.push).toHaveBeenCalledWith("/processos/atividades")
     })
@@ -63,6 +67,7 @@ describe("ProcessoAtividadeFormPage", () => {
               tipo: "MANUAL",
               responsavel: "João",
               ordem: 1,
+              links: [{ url: "https://example.com/video", descricao: "Vídeo de como encarar" }],
               observacoes: "",
               ativo: true,
             },
@@ -88,6 +93,7 @@ describe("ProcessoAtividadeFormPage", () => {
         expect(call).toBeDefined()
         expect(call?.body?.responsavel).toBe("Maria")
         expect(call?.body?.tipo).toBe("MANUAL")
+        expect(call?.body?.links).toEqual([{ url: "https://example.com/video", descricao: "Vídeo de como encarar" }])
       })
       expect(navMock.router.push).toHaveBeenCalledWith("/processos/atividades")
     })

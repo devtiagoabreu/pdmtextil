@@ -58,6 +58,7 @@ export async function POST(req: NextRequest) {
         nome: parsed.data.nome,
         descricao: parsed.data.descricao || null,
         ordem: parsed.data.ordem ?? 0,
+        links: parsed.data.links ?? [],
         ativo: parsed.data.ativo !== undefined ? parsed.data.ativo : true,
       })
       .returning()

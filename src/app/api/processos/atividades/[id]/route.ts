@@ -66,6 +66,7 @@ export async function PUT(
         tipo: parsed.data.tipo ?? existente.tipo,
         responsavel: parsed.data.responsavel || null,
         ordem: parsed.data.ordem !== undefined ? parsed.data.ordem : existente.ordem,
+        links: parsed.data.links !== undefined ? parsed.data.links : existente.links,
         observacoes: parsed.data.observacoes || null,
         ativo: parsed.data.ativo !== undefined ? parsed.data.ativo : existente.ativo,
         updatedAt: new Date(),

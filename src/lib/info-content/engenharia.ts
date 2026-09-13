@@ -22,6 +22,16 @@ export const campoObservacoes: InfoContent = campo(
   [{ title: "Exemplo", desc: "Processo depende da liberação do setor de qualidade antes do envio ao cliente." }]
 )
 
+export const campoLinks: InfoContent = campo(
+  "Links",
+  "Endereços de referência do cadastro (URLs): instruções de trabalho, documentos, vídeos ou sistemas relacionados. Cada link deve ter uma descrição curta do que ele contém.",
+  [
+    { title: "Instrução de trabalho", desc: "URL da instrução oficial do processo em PDF ou no sistema." },
+    { title: "Vídeo de treinamento", desc: "URL do vídeo que mostra a execução da atividade." },
+    { title: "Planilha de controle", desc: "URL do arquivo usado para registrar o acompanhamento." },
+  ]
+)
+
 export const empresaCampos: Record<string, InfoContent> = {
   nome: campo(
     "Nome",
@@ -136,6 +146,7 @@ export const subprocessoCampos: Record<string, InfoContent> = {
     [{ title: "Etapa de preparação", desc: "Ex.: urdimento, engomagem e passação de fios antes do tingimento." }]
   ),
   ordem: campoOrdem,
+  links: campoLinks,
   ativo: campoAtivo,
 }
 
@@ -174,6 +185,7 @@ export const atividadeCampos: Record<string, InfoContent> = {
     ]
   ),
   ordem: campoOrdem,
+  links: campoLinks,
   observacoes: campoObservacoes,
   ativo: campoAtivo,
 }
@@ -320,6 +332,7 @@ export const processoCampos: Record<string, InfoContent> = {
       { title: "Manutenção preventiva das máquinas", desc: "Responsável: manutenção. Frequência: mensal." },
     ]
   ),
+  links: campoLinks,
   observacoes: campoObservacoes,
   ativo: campoAtivo,
 }

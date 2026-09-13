@@ -33,6 +33,9 @@ describe("ProcessoSubprocessoFormPage", () => {
       await screen.findByRole("option", { name: "Processo de Tecelagem" })
       fireEvent.change(screen.getByRole("combobox", { name: "Processo *" }), { target: { value: "1" } })
       fireEvent.change(screen.getByPlaceholderText("1"), { target: { value: "2" } })
+      fireEvent.change(screen.getByPlaceholderText("https://..."), { target: { value: "https://sistema.com.br/etapa" } })
+      fireEvent.change(screen.getByPlaceholderText("Foto, laudo..."), { target: { value: "Documento da etapa" } })
+      fireEvent.click(screen.getByRole("button", { name: "Adicionar link" }))
       fireEvent.submit(form)
 
       await waitFor(() => {
@@ -41,6 +44,7 @@ describe("ProcessoSubprocessoFormPage", () => {
         expect(call?.body?.processoId).toBe(1)
         expect(call?.body?.nome).toBe("Preparação")
         expect(call?.body?.ordem).toBe(2)
+        expect(call?.body?.links).toEqual([{ url: "https://sistema.com.br/etapa", descricao: "Documento da etapa" }])
       })
       expect(navMock.router.push).toHaveBeenCalledWith("/processos/processos/1")
     })
@@ -80,6 +84,7 @@ describe("ProcessoSubprocessoFormPage", () => {
               nome: "Preparação",
               descricao: "Preparação dos fios",
               ordem: 1,
+              links: [{ url: "https://example.com/pop", descricao: "POP da etapa" }],
               ativo: true,
             },
           }
@@ -103,6 +108,7 @@ describe("ProcessoSubprocessoFormPage", () => {
         const call = findCall(fetchMock.calls, "/api/processos/subprocessos/3", "PUT")
         expect(call).toBeDefined()
         expect(call?.body?.descricao).toBe("Preparação avançada")
+        expect(call?.body?.links).toEqual([{ url: "https://example.com/pop", descricao: "POP da etapa" }])
       })
       expect(navMock.router.push).toHaveBeenCalledWith("/processos/processos/1")
     })

@@ -78,6 +78,7 @@ export async function PUT(
         indicadores: parsed.data.indicadores !== undefined ? parsed.data.indicadores : existente.indicadores,
         riscos: parsed.data.riscos !== undefined ? parsed.data.riscos : existente.riscos,
         controles: parsed.data.controles !== undefined ? parsed.data.controles : existente.controles,
+        links: parsed.data.links !== undefined ? parsed.data.links : existente.links,
         observacoes: parsed.data.observacoes || null,
         ativo: parsed.data.ativo !== undefined ? parsed.data.ativo : existente.ativo,
         updatedAt: new Date(),

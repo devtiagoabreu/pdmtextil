@@ -53,6 +53,7 @@ export type NewProcArea = typeof procAreas.$inferInsert
 export type ProcIndicador = { nome: string; unidade: string; meta: string; frequencia: string }
 export type ProcRisco = { descricao: string; probabilidade: string; impacto: string; controle: string }
 export type ProcControle = { descricao: string; responsavel: string; frequencia: string }
+export type ProcLink = { url: string; descricao: string }
 
 export const procProcessos = pgTable("proc_processos", {
   id: serial("id").primaryKey(),
@@ -73,6 +74,7 @@ export const procProcessos = pgTable("proc_processos", {
   indicadores: jsonb("indicadores").$type<ProcIndicador[]>().default([]),
   riscos: jsonb("riscos").$type<ProcRisco[]>().default([]),
   controles: jsonb("controles").$type<ProcControle[]>().default([]),
+  links: jsonb("links").$type<ProcLink[]>().default([]),
   observacoes: text("observacoes"),
   ativo: boolean("ativo").default(true),
   createdAt: timestamp("created_at").defaultNow(),
@@ -88,6 +90,7 @@ export const procSubprocessos = pgTable("proc_subprocessos", {
   nome: varchar("nome", { length: 200 }).notNull(),
   descricao: text("descricao"),
   ordem: integer("ordem").default(0),
+  links: jsonb("links").$type<ProcLink[]>().default([]),
   ativo: boolean("ativo").default(true),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -103,6 +106,7 @@ export const procAtividades = pgTable("proc_atividades", {
   tipo: varchar("tipo", { length: 30 }).default("MANUAL"),
   responsavel: varchar("responsavel", { length: 150 }),
   ordem: integer("ordem").default(0),
+  links: jsonb("links").$type<ProcLink[]>().default([]),
   observacoes: text("observacoes"),
   ativo: boolean("ativo").default(true),
   createdAt: timestamp("created_at").defaultNow(),
