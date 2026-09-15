@@ -17,6 +17,7 @@ const MODULO_LABELS: Record<string, string> = {
   perfil: "Conta",
   admin: "Administrativo",
   processos: "Processos",
+  ativos: "Ativos e Vistorias",
   reunioes: "Reuniões",
 }
 

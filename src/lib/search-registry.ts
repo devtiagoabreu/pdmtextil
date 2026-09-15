@@ -213,6 +213,19 @@ export const searchRegistry: SearchItem[] = [
   { id: "processos-treinamento", label: "Processos — Treinamento", keywords: ["processo", "treinamento", "treino", "documentacao", "manual", "ajuda", "guia", "tutorial", "aprender", "mapeamento"], href: "/processos/treinamento", description: "Documentação e treinamento da Engenharia de Processos com explicações campo a campo", module: "Processos" },
   { id: "processos-treinamento-admin", label: "Processos — Gerenciar Treinamento", keywords: ["processo", "treinamento", "admin", "gerenciar", "conteudo", "licoes", "modulos"], href: "/processos/treinamento/admin", description: "Gerenciar conteúdo do treinamento de Engenharia de Processos", module: "Processos" },
 
+  // Ativos e Vistorias
+  { id: "ativos", label: "Ativos e Vistorias", keywords: ["ativo", "vistoria", "ativos", "gestao", "manutencao", "conformidade"], href: "/ativos", description: "Gestão de ativos, vistorias periódicas e conformidade", module: "Ativos" },
+  { id: "ativos-ativos", label: "Ativos", keywords: ["ativo", "ativos", "lista", "equipamento", "maquina", "codig"], href: "/ativos/ativos", description: "Lista de ativos cadastrados", module: "Ativos" },
+  { id: "ativos-ativos-novo", label: "Novo Ativo", keywords: ["ativo", "novo", "criar", "cadastro", "equipamento"], href: "/ativos/ativos/novo", description: "Cadastrar novo ativo", module: "Ativos" },
+  { id: "ativos-categorias", label: "Categorias de Ativos", keywords: ["categoria", "categorias", "setor", "ativo"], href: "/ativos/categorias", description: "Categorias de ativos por setor", module: "Ativos" },
+  { id: "ativos-categorias-novo", label: "Nova Categoria", keywords: ["categoria", "nova", "criar", "setor"], href: "/ativos/categorias/novo", description: "Cadastrar nova categoria de ativo", module: "Ativos" },
+  { id: "ativos-tipos-vistoria", label: "Tipos de Vistoria", keywords: ["tipo", "vistoria", "checklist", "periodicidade"], href: "/ativos/tipos-vistoria", description: "Tipos de vistoria com checklist", module: "Ativos" },
+  { id: "ativos-tipos-vistoria-novo", label: "Novo Tipo de Vistoria", keywords: ["tipo", "vistoria", "novo", "criar", "checklist"], href: "/ativos/tipos-vistoria/novo", description: "Criar novo tipo de vistoria", module: "Ativos" },
+  { id: "ativos-planos", label: "Planos de Vistoria", keywords: ["plano", "planos", "vistoria", "agendamento"], href: "/ativos/planos", description: "Planos de vistoria periódica", module: "Ativos" },
+  { id: "ativos-planos-novo", label: "Novo Plano", keywords: ["plano", "novo", "criar", "vistoria", "agendamento"], href: "/ativos/planos/novo", description: "Criar novo plano de vistoria", module: "Ativos" },
+  { id: "ativos-vistorias", label: "Agenda de Vistorias", keywords: ["vistoria", "agenda", "atrasada", "pendente", "executar", "conformidade"], href: "/ativos/vistorias", description: "Agenda central de vistorias periódicas", module: "Ativos" },
+  { id: "ativos-dashboard", label: "Dashboard Ativos", keywords: ["dashboard", "ativos", "metricas", "conformidade", "painel"], href: "/ativos/dashboard", description: "Dashboard de métricas de ativos e vistorias", module: "Ativos" },
+
   // Reuniões
   { id: "reunioes", label: "Reuniões", keywords: ["reuniao", "reunioes", "pauta", "ata", "encaminhamento", "participantes", "agenda"], href: "/reunioes", description: "Registro de reuniões com pauta, participantes, encaminhamentos, links e ata", module: "Reuniões" },
 ]

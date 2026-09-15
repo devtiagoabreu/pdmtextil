@@ -163,3 +163,15 @@ O teste deve ser criado **na mesma entrega/commit** da funcionalidade. Regressã
 **LEIA `docs/refactor-comercial-sem-any.md` — registro oficial.**
 
 O módulo `src/app/(dashboard)/comercial` está **100% sem `any`** (0 matches em `grep ': any|\bany\b|\bas any\b'`, incluindo `*.test.tsx`). Não há mais cobrança de retomada.
+
+# Módulo Ativos e Vistorias
+
+**LEIA `docs/ativos-vistorias.md` (spec) e `docs/taxonomia-vistorias.md` (catálogo).**
+
+- Escopo fase 1: **Ativos + vistorias periódicas com checklist** (calendar-based). Fase 2: horas-máquina, ações corretivas/OS, estoque — ver spec.
+- 5 entidades: `ativos_categorias` (com setor responsável) → `ativos` (código único, categoria, status, maquina_id opcional p/ `maquinas`) → `ativos_tipos_vistoria` (checklist jsonb + periodicidade + baseLegal) → `ativos_planos_vistoria` (ativo×tipo, unique) → `ativos_vistorias` (ocorrência executada).
+- **Agendador**: `src/lib/ativos/agendamento.ts` — ao criar/editar plano ou concluir vistoria, gera ocorrências futuras `PENDENTE` (janela 12 meses). **Atrasada** = `dataProgramada <= hoje` e status ≠ concluída/cancelada.
+- API em `src/app/api/ativos/*` (categorias, ativos, tipos-vistoria, planos, vistorias, dashboard). Todas com `requireAuth` + `validateRequest` + `handleApiError`.
+- **Multi-banco obrigatório**: o schema `ativos*.ts` deve ser replicado aos 4 bancos (generate → migrate → migrate:all → sync-all-dbs → compare-schemas).
+- Seed: `node scripts/seed-vistorias.js` (categorias + tipos da taxonomia, idempotente).
+- Testes: `agendamento.test.ts` (unitário) + list/form pages + telas atípicas (tipos-vistoria form, agenda de vistorias, dashboard).

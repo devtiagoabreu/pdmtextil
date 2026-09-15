@@ -4,6 +4,7 @@ export type { InfoContent } from "./types"
 import { dashboardContent } from "./dashboard"
 import { comercialContent } from "./comercial"
 import { cadastrosContent } from "./cadastros"
+import { ativosContent } from "./ativos"
 import { adminContent } from "./admin"
 import { ferramentasContent } from "./ferramentas"
 import { documentosContent } from "./documentos"
@@ -16,6 +17,7 @@ const infoContent: Record<string, InfoContent> = {
   ...dashboardContent,
   ...comercialContent,
   ...cadastrosContent,
+  ...ativosContent,
   ...adminContent,
   ...ferramentasContent,
   ...documentosContent,

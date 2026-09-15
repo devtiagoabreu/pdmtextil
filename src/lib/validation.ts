@@ -278,4 +278,81 @@ export const procDiagramaSchema = z.object({
   ativo: z.boolean().optional(),
 })
 
+const vistoriaItemTemplateSchema = z.object({
+  ordem: z.number().int().min(0),
+  pergunta: z.string().trim().min(1, "Pergunta é obrigatória"),
+  tipo: z.enum(["SIM_NAO", "OK_OBS", "VALOR", "TEXTO"]),
+  obrigatorio: z.boolean().optional(),
+  unidade: z.string().optional(),
+})
+
+const vistoriaRespostaSchema = z.object({
+  ordem: z.number().int().min(0),
+  valor: z.union([z.string(), z.number(), z.null()]).optional(),
+  observacao: z.string().optional(),
+  conforme: z.boolean(),
+})
+
+export const ativoCategoriaSchema = z.object({
+  nome: z.string().trim().min(1, "Nome é obrigatório").max(100),
+  setor: z.enum(["MECANICA", "ELETRICA", "SEGURANCA", "AMBIENTAL", "PREDIAL", "LOGISTICA", "ADMINISTRATIVO"]),
+  descricao: z.string().optional().nullable(),
+  cor: z.string().trim().max(20).optional().nullable(),
+  icone: z.string().trim().max(50).optional().nullable(),
+  ativo: z.boolean().optional(),
+})
+
+export const ativoSchema = z.object({
+  codigo: z.string().trim().min(1, "Código é obrigatório").max(40),
+  nome: z.string().trim().min(1, "Nome é obrigatório").max(200),
+  categoriaId: z.number().int().positive("Categoria é obrigatória"),
+  localizacao: z.string().trim().max(200).optional().nullable(),
+  fabricante: z.string().trim().max(150).optional().nullable(),
+  modelo: z.string().trim().max(150).optional().nullable(),
+  numSerie: z.string().trim().max(100).optional().nullable(),
+  anoFabricacao: z.number().int().min(1900).max(2100).optional().nullable(),
+  dataAquisicao: z.string().optional().nullable(),
+  valorAquisicao: z.number().positive().optional().nullable(),
+  valorResidual: z.number().positive().optional().nullable(),
+  vidaUtilAnos: z.number().int().min(1).max(100).optional().nullable(),
+  status: z.enum(["ATIVO", "MANUTENCAO", "INATIVO", "BAIXADO"]).optional(),
+  maquinaId: z.number().int().positive().optional().nullable(),
+  responsavelId: z.number().int().positive().optional().nullable(),
+  observacoes: z.string().optional().nullable(),
+  anexos: z.array(z.object({ url: z.string(), nome: z.string() })).optional(),
+  ativo: z.boolean().optional(),
+})
+
+export const ativoTipoVistoriaSchema = z.object({
+  nome: z.string().trim().min(1, "Nome é obrigatório").max(200),
+  categoriaId: z.number().int().positive().optional().nullable(),
+  setor: z.enum(["MECANICA", "ELETRICA", "SEGURANCA", "AMBIENTAL", "PREDIAL", "LOGISTICA", "ADMINISTRATIVO"]),
+  procedimento: z.string().optional().nullable(),
+  checklist: z.array(vistoriaItemTemplateSchema).optional(),
+  periodicidade: z.enum(["DIARIA", "SEMANAL", "MENSAL", "TRIMESTRAL", "SEMESTRAL", "ANUAL", "BIENAL", "TRIENAL", "QUINQUENAL", "OUTRA"]),
+  diasIntervalo: z.number().int().min(1).optional().nullable(),
+  baseLegal: z.string().trim().max(200).optional().nullable(),
+  ativo: z.boolean().optional(),
+})
+
+export const ativoPlanoVistoriaSchema = z.object({
+  ativoId: z.number().int().positive("Ativo é obrigatório"),
+  tipoVistoriaId: z.number().int().positive("Tipo de vistoria é obrigatório"),
+  responsavelId: z.number().int().positive().optional().nullable(),
+  diasIntervalo: z.number().int().min(1).optional().nullable(),
+  proximaData: z.string().optional().nullable(),
+  ativo: z.boolean().optional(),
+})
+
+export const vistoriaConclusaoSchema = z.object({
+  status: z.enum(["CONCLUIDA", "NAO_CONFORME", "CANCELADA"]),
+  dataRealizada: z.string().optional(),
+  executadoPorId: z.number().int().positive().optional(),
+  resultado: z.enum(["CONFORME", "PARCIAL", "NAO_CONFORME"]).optional().nullable(),
+  checklistResposta: z.array(vistoriaRespostaSchema).optional(),
+  observacoes: z.string().optional().nullable(),
+  custo: z.number().positive().optional().nullable(),
+  anexos: z.array(z.object({ url: z.string(), nome: z.string() })).optional(),
+})
+
 
