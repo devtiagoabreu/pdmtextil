@@ -117,15 +117,21 @@ export default function ListFilters<T>({ config, data, filterState, placeholder 
     <div className="flex flex-col gap-3">
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true" />
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={placeholder || "Buscar..."}
+            aria-label={placeholder || "Buscar"}
             className="pl-9 h-9 text-sm"
           />
           {search && (
-            <button onClick={() => setSearch("")} aria-label="Limpar busca" className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+            <button
+              type="button"
+              onClick={() => setSearch("")}
+              aria-label="Limpar busca"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+            >
               <X size={14} />
             </button>
           )}
@@ -133,7 +139,7 @@ export default function ListFilters<T>({ config, data, filterState, placeholder 
 
         {config.statusOptions && config.statusOptions.length > 0 && (
           <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v || "all")}>
-            <SelectTrigger className="h-9 text-sm w-full sm:w-[180px]">
+            <SelectTrigger aria-label="Filtrar por status" className="h-9 text-sm w-full sm:w-[180px]">
               <Filter size={14} className="mr-1.5 text-slate-400" />
               <SelectValue placeholder="Status" />
             </SelectTrigger>
@@ -152,6 +158,7 @@ export default function ListFilters<T>({ config, data, filterState, placeholder 
               type="date"
               value={dateFrom}
               onChange={(e) => setDateFrom(e.target.value)}
+              aria-label="Data inicial"
               className="h-9 text-sm w-[150px]"
               placeholder="De"
             />
@@ -160,6 +167,7 @@ export default function ListFilters<T>({ config, data, filterState, placeholder 
               type="date"
               value={dateTo}
               onChange={(e) => setDateTo(e.target.value)}
+              aria-label="Data final"
               className="h-9 text-sm w-[150px]"
               placeholder="Até"
             />
@@ -168,6 +176,7 @@ export default function ListFilters<T>({ config, data, filterState, placeholder 
 
         {hasActiveFilters && (
           <button
+            type="button"
             onClick={clearFilters}
             className="flex items-center gap-1 px-3 h-9 rounded-lg border border-slate-200 dark:border-slate-700 text-xs text-slate-500 hover:text-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shrink-0"
           >
@@ -177,7 +186,7 @@ export default function ListFilters<T>({ config, data, filterState, placeholder 
         )}
       </div>
       {hasActiveFilters && (
-        <p className="text-xs text-slate-400">
+        <p className="text-xs text-slate-400" aria-live="polite">
           {filtered.length} resultado(s) encontrado(s) de {data.length} total
         </p>
       )}

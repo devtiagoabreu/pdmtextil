@@ -69,7 +69,8 @@ export function AnimatedNumber({
 
   return (
     <span ref={ref} className={className}>
-      {prefix}{displayValue.toLocaleString("pt-BR")}{suffix}
+      <span aria-hidden="true">{prefix}{displayValue.toLocaleString("pt-BR")}{suffix}</span>
+      <span className="sr-only">{prefix}{value.toLocaleString("pt-BR")}{suffix}</span>
     </span>
   )
 }

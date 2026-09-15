@@ -12,6 +12,7 @@ interface StaggeredBarChartProps {
   animationBegin?: number
   height?: number
   margin?: { top?: number; right?: number; bottom?: number; left?: number }
+  ariaLabel?: string
   children?: React.ReactNode
 }
 
@@ -24,28 +25,31 @@ export function StaggeredBarChart({
   animationBegin = 800,
   height = 220,
   margin,
+  ariaLabel = "Gráfico de barras",
   children,
 }: StaggeredBarChartProps) {
   return (
-    <ResponsiveContainer width="100%" height={height}>
-      <BarChart data={data} margin={margin}>
-        {children}
-        <Bar
-          dataKey={dataKey}
-          radius={radius}
-          isAnimationActive={true}
-          animationDuration={animationDuration}
-          animationEasing="ease-in-out"
-          animationBegin={animationBegin}
-        >
-          {data.map((entry: any, index: any) => (
-            <Cell
-              key={`cell-${index}`}
-              fill={colors[index % colors.length]}
-            />
-          ))}
-        </Bar>
-      </BarChart>
-    </ResponsiveContainer>
+    <div role="img" aria-label={ariaLabel}>
+      <ResponsiveContainer width="100%" height={height}>
+        <BarChart data={data} margin={margin}>
+          {children}
+          <Bar
+            dataKey={dataKey}
+            radius={radius}
+            isAnimationActive={true}
+            animationDuration={animationDuration}
+            animationEasing="ease-in-out"
+            animationBegin={animationBegin}
+          >
+            {data.map((entry: any, index: any) => (
+              <Cell
+                key={`cell-${index}`}
+                fill={colors[index % colors.length]}
+              />
+            ))}
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
   )
 }

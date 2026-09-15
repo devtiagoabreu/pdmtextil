@@ -6,7 +6,8 @@ function Pulse({ className }: { className?: string }) {
 
 export function PageSkeleton() {
   return (
-    <div className="space-y-6 animate-pulse">
+    <div className="space-y-6 animate-pulse" role="status" aria-live="polite" aria-busy="true">
+      <span className="sr-only">Carregando conteúdo...</span>
       <div className="space-y-2">
         <Pulse className="h-8 w-48" />
         <Pulse className="h-4 w-72" />

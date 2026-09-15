@@ -3,7 +3,8 @@
 import { useState, useRef, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { Camera, Upload, Loader2, X, Check, Image as ImageIcon } from "lucide-react"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Camera, Upload, Loader2, Check, Image as ImageIcon } from "lucide-react"
 import { toast } from "sonner"
 
 interface OcrItem {
@@ -190,19 +191,15 @@ export default function OcrInput({ onItensImportados }: OcrInputProps) {
         Inserir por OCR
       </Button>
 
-      {aberto && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-50">
-                Inserir itens por OCR
-              </h3>
-              <button onClick={fechar} className="text-slate-400 hover:text-slate-600 p-1">
-                <X size={18} />
-              </button>
-            </div>
+      <Dialog open={aberto} onOpenChange={(next) => { if (!next) fechar() }}>
+        <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+              Inserir itens por OCR
+            </DialogTitle>
+          </DialogHeader>
 
-            <div className="p-4 space-y-4">
+          <div className="space-y-4">
               {etapa === "selecao" && (
                 <div className="space-y-3">
                   <p className="text-sm text-slate-500">
@@ -272,6 +269,11 @@ export default function OcrInput({ onItensImportados }: OcrInputProps) {
                       </div>
                       <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
                         <div
+                          role="progressbar"
+                          aria-valuemin={0}
+                          aria-valuemax={100}
+                          aria-valuenow={progresso}
+                          aria-label="Progresso do reconhecimento de texto"
                           className="bg-blue-600 h-2 rounded-full transition-all duration-300"
                           style={{ width: `${progresso}%` }}
                         />
@@ -291,6 +293,7 @@ export default function OcrInput({ onItensImportados }: OcrInputProps) {
                         value={textoExtraido}
                         onChange={(e) => setTextoExtraido(e.target.value)}
                         rows={10}
+                        aria-label="Texto extraído (edite se necessário)"
                         className="text-xs font-mono"
                         placeholder="Texto extraído pelo OCR aparecerá aqui..."
                       />
@@ -321,9 +324,8 @@ export default function OcrInput({ onItensImportados }: OcrInputProps) {
                 </div>
               )}
             </div>
-          </div>
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
     </>
   )
 }

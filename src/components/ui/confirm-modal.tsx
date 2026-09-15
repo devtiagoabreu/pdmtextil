@@ -38,7 +38,10 @@ export function ConfirmModal({
           onClick={onCancel}
           data-testid="backdrop"
         />
-        <DialogPrimitive.Popup className="fixed inset-0 z-50 flex items-center justify-center p-4 outline-none">
+        <DialogPrimitive.Popup
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 outline-none"
+          aria-describedby={subMessage ? "confirm-modal-message confirm-modal-submessage" : "confirm-modal-message"}
+        >
           <div className="relative bg-white dark:bg-slate-900 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 w-full max-w-md mx-auto animate-fade-in">
             <DialogPrimitive.Close
               aria-label="Fechar"
@@ -49,15 +52,16 @@ export function ConfirmModal({
 
             <div className="p-6">
               <div className={`mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full ${isDanger ? "bg-red-100 dark:bg-red-900/30" : "bg-amber-100 dark:bg-amber-900/30"}`}>
-                <AlertTriangle className={isDanger ? "text-red-600 dark:text-red-400" : "text-amber-600 dark:text-amber-400"} size={24} />
+                <AlertTriangle className={isDanger ? "text-red-600 dark:text-red-400" : "text-amber-600 dark:text-amber-400"} size={24} aria-hidden="true" />
               </div>
+              <span className="sr-only">{isDanger ? "Atenção" : "Confirmação"}</span>
 
               <DialogPrimitive.Title className="text-center text-lg font-semibold text-slate-900 dark:text-slate-50 mb-2">
                 {title}
               </DialogPrimitive.Title>
-              <p className="text-center text-sm text-slate-600 dark:text-slate-400">{message}</p>
+              <p id="confirm-modal-message" className="text-center text-sm text-slate-600 dark:text-slate-400">{message}</p>
               {subMessage && (
-                <p className="text-center text-xs text-slate-500 dark:text-slate-500 mt-2 bg-slate-50 dark:bg-slate-800 rounded-lg p-3">
+                <p id="confirm-modal-submessage" className="text-center text-xs text-slate-500 dark:text-slate-500 mt-2 bg-slate-50 dark:bg-slate-800 rounded-lg p-3">
                   {subMessage}
                 </p>
               )}
