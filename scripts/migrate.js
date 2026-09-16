@@ -1393,7 +1393,7 @@ async function migrate() {
       CREATE TABLE IF NOT EXISTS ativos_categorias (
         id SERIAL PRIMARY KEY,
         nome VARCHAR(100) NOT NULL,
-        setor VARCHAR(30) NOT NULL,
+        area_id INTEGER NOT NULL REFERENCES proc_areas(id) ON DELETE NO ACTION,
         descricao TEXT,
         cor VARCHAR(20),
         icone VARCHAR(50),
@@ -1445,7 +1445,7 @@ async function migrate() {
         id SERIAL PRIMARY KEY,
         nome VARCHAR(200) NOT NULL,
         categoria_id INTEGER REFERENCES ativos_categorias(id) ON DELETE SET NULL,
-        setor VARCHAR(30) NOT NULL,
+        area_id INTEGER NOT NULL REFERENCES proc_areas(id) ON DELETE NO ACTION,
         procedimento TEXT,
         checklist JSONB DEFAULT '[]'::jsonb,
         periodicidade VARCHAR(20) NOT NULL,
@@ -1501,6 +1501,13 @@ async function migrate() {
     await sql`CREATE INDEX IF NOT EXISTS idx_ativos_vistorias_data_programada ON ativos_vistorias (data_programada)`
     await sql`CREATE INDEX IF NOT EXISTS idx_ativos_vistorias_ativo_id ON ativos_vistorias (ativo_id)`
     console.log("✓ Tabela ativos_vistorias criada")
+
+    // ===== setor → area_id (FK proc_areas) em ativos_categorias/ativos_tipos_vistoria =====
+    await sql`ALTER TABLE ativos_categorias ADD COLUMN IF NOT EXISTS area_id INTEGER REFERENCES proc_areas(id) ON DELETE NO ACTION`
+    await sql`ALTER TABLE ativos_tipos_vistoria ADD COLUMN IF NOT EXISTS area_id INTEGER REFERENCES proc_areas(id) ON DELETE NO ACTION`
+    await sql`CREATE INDEX IF NOT EXISTS idx_ativos_categorias_area_id ON ativos_categorias (area_id)`
+    await sql`CREATE INDEX IF NOT EXISTS idx_ativos_tipos_vistoria_area_id ON ativos_tipos_vistoria (area_id)`
+    console.log("✓ Colunas area_id adicionadas em ativos_categorias e ativos_tipos_vistoria")
 
     console.log("\n✅ Migration concluída com sucesso!")
     

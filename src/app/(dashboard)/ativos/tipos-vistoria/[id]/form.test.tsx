@@ -2,14 +2,26 @@
 import { describe, expect, it, vi, beforeEach } from "vitest"
 import { screen, fireEvent, waitFor } from "@testing-library/react"
 import TipoVistoriaFormPage from "./page"
-import { createFetchMock, renderPage, findCall, toastMock, navMock } from "@/test/harness"
+import { createFetchMock, renderPage, findCall, toastMock, navMock, type MockFetchHandler } from "@/test/harness"
+
+const AREAS_MOCK = [
+  { id: 26, siteId: 6, siteNome: "Ativos e Vistorias", nome: "Segurança", descricao: null, ativo: true, createdAt: "", updatedAt: "" },
+]
+
+function mockFetch(handler?: MockFetchHandler) {
+  return createFetchMock(({ method, url }) => {
+    if (method === "GET" && url === "/api/processos/areas") return { json: AREAS_MOCK }
+    if (handler) return handler({ method, url })
+    return { status: 404, json: { error: "Rota não mockada" } }
+  })
+}
 
 describe("TipoVistoriaFormPage", () => {
   describe("novo", () => {
     it("renderiza heading Novo Tipo de Vistoria", () => {
       navMock.setPathname("/ativos/tipos-vistoria/novo")
       navMock.setParams({ id: "novo" })
-      const fetchMock = createFetchMock(() => ({ json: null }))
+      const fetchMock = mockFetch()
       vi.stubGlobal("fetch", fetchMock.fn)
 
       renderPage(<TipoVistoriaFormPage />)
@@ -20,7 +32,7 @@ describe("TipoVistoriaFormPage", () => {
     it("adiciona item de checklist ao clicar Adicionar item", () => {
       navMock.setPathname("/ativos/tipos-vistoria/novo")
       navMock.setParams({ id: "novo" })
-      const fetchMock = createFetchMock(() => ({ json: null }))
+      const fetchMock = mockFetch()
       vi.stubGlobal("fetch", fetchMock.fn)
 
       renderPage(<TipoVistoriaFormPage />)
@@ -40,7 +52,7 @@ describe("TipoVistoriaFormPage", () => {
     it("valida nome obrigatório ao submeter", async () => {
       navMock.setPathname("/ativos/tipos-vistoria/novo")
       navMock.setParams({ id: "novo" })
-      const fetchMock = createFetchMock(() => ({ json: null }))
+      const fetchMock = mockFetch()
       vi.stubGlobal("fetch", fetchMock.fn)
 
       renderPage(<TipoVistoriaFormPage />)
@@ -56,7 +68,10 @@ describe("TipoVistoriaFormPage", () => {
     it("cria via POST e redireciona", async () => {
       navMock.setPathname("/ativos/tipos-vistoria/novo")
       navMock.setParams({ id: "novo" })
-      const fetchMock = createFetchMock(() => ({ status: 201, json: { id: 10 } }))
+      const fetchMock = mockFetch(({ method, url }) => {
+        if (method === "POST" && url === "/api/ativos/tipos-vistoria") return { status: 201, json: { id: 10 } }
+        return { status: 404, json: { error: "Rota não mockada" } }
+      })
       vi.stubGlobal("fetch", fetchMock.fn)
 
       renderPage(<TipoVistoriaFormPage />)
@@ -78,13 +93,13 @@ describe("TipoVistoriaFormPage", () => {
     it("carrega dados, checklist e periodicidade OUTRA com diasIntervalo", async () => {
       navMock.setPathname("/ativos/tipos-vistoria/1")
       navMock.setParams({ id: "1" })
-      const fetchMock = createFetchMock(({ method, url }) => {
+      const fetchMock = mockFetch(({ method, url }) => {
         if (method === "GET" && url === "/api/ativos/tipos-vistoria/1") {
           return {
             json: {
               id: 1,
               nome: "Extintor",
-              setor: "SEGURANCA",
+              areaId: 26,
               periodicidade: "OUTRA",
               diasIntervalo: 90,
               baseLegal: "NR-23",
@@ -117,13 +132,13 @@ describe("TipoVistoriaFormPage", () => {
     it("envia PUT com checklist e redireciona", async () => {
       navMock.setPathname("/ativos/tipos-vistoria/1")
       navMock.setParams({ id: "1" })
-      const fetchMock = createFetchMock(({ method, url }) => {
+      const fetchMock = mockFetch(({ method, url }) => {
         if (method === "GET" && url === "/api/ativos/tipos-vistoria/1") {
           return {
             json: {
               id: 1,
               nome: "Extintor",
-              setor: "SEGURANCA",
+              areaId: 26,
               periodicidade: "MENSAL",
               diasIntervalo: null,
               baseLegal: "",

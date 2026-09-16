@@ -20,6 +20,12 @@ interface Categoria {
   nome: string
 }
 
+interface Usuario {
+  id: number
+  name: string
+  role: string
+}
+
 type Ativo = {
   id: number | null
   codigo: string
@@ -72,6 +78,15 @@ export default function AtivoFormPage() {
     queryFn: async () => {
       const res = await fetch("/api/ativos/categorias")
       if (!res.ok) throw new Error("Falha ao carregar categorias")
+      return res.json()
+    },
+  })
+
+  const { data: usuarios = [] } = useQuery<Usuario[]>({
+    queryKey: ["usuarios-ativos"],
+    queryFn: async () => {
+      const res = await fetch("/api/usuarios/ativos")
+      if (!res.ok) throw new Error("Falha ao carregar usuários")
       return res.json()
     },
   })
@@ -315,14 +330,18 @@ export default function AtivoFormPage() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="responsavelId" className="font-medium">Responsável (ID)</Label>
-          <Input
+          <Label htmlFor="responsavelId" className="font-medium">Responsável</Label>
+          <select
             id="responsavelId"
-            type="number"
             value={ativo.responsavelId}
             onChange={e => handleChange("responsavelId", e.target.value)}
-            placeholder="3"
-          />
+            className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
+          >
+            <option value="">Sem responsável</option>
+            {usuarios.map((usuario) => (
+              <option key={usuario.id} value={usuario.id}>{usuario.name} ({usuario.role})</option>
+            ))}
+          </select>
         </div>
 
         <div className="space-y-2">

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { ativosVistorias, ativos, ativosTiposVistoria } from "@/lib/db/schema/ativos"
+import { procAreas } from "@/lib/db/schema/processos"
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq, asc, and, lte, notInArray, type SQLWrapper } from "drizzle-orm"
 import { registrarLog } from "@/lib/notificar"
@@ -16,7 +17,7 @@ export async function GET(req: NextRequest) {
     const status = searchParams.get("status")
     const planoId = searchParams.get("planoId")
     const ativoId = searchParams.get("ativoId")
-    const setor = searchParams.get("setor")
+    const areaId = searchParams.get("areaId")
     const atrasadas = searchParams.get("atrasadas") === "true"
 
     const hoje = new Date().toISOString().slice(0, 10)
@@ -25,7 +26,7 @@ export async function GET(req: NextRequest) {
     if (status) condicoes.push(eq(ativosVistorias.status, status))
     if (planoId) condicoes.push(eq(ativosVistorias.planoId, parseInt(planoId)))
     if (ativoId) condicoes.push(eq(ativosVistorias.ativoId, parseInt(ativoId)))
-    if (setor) condicoes.push(eq(ativosTiposVistoria.setor, setor))
+    if (areaId) condicoes.push(eq(ativosTiposVistoria.areaId, parseInt(areaId)))
     if (atrasadas) {
       condicoes.push(lte(ativosVistorias.dataProgramada, hoje))
       condicoes.push(notInArray(ativosVistorias.status, ["CONCLUIDA", "CANCELADA"]))
@@ -41,7 +42,8 @@ export async function GET(req: NextRequest) {
         tipoVistoriaId: ativosVistorias.tipoVistoriaId,
         tipoVistoriaNome: ativosTiposVistoria.nome,
         periodicidade: ativosTiposVistoria.periodicidade,
-        setor: ativosTiposVistoria.setor,
+        areaId: ativosTiposVistoria.areaId,
+        areaNome: procAreas.nome,
         status: ativosVistorias.status,
         dataProgramada: ativosVistorias.dataProgramada,
         dataRealizada: ativosVistorias.dataRealizada,
@@ -59,6 +61,7 @@ export async function GET(req: NextRequest) {
       .from(ativosVistorias)
       .leftJoin(ativos, eq(ativosVistorias.ativoId, ativos.id))
       .leftJoin(ativosTiposVistoria, eq(ativosVistorias.tipoVistoriaId, ativosTiposVistoria.id))
+      .leftJoin(procAreas, eq(ativosTiposVistoria.areaId, procAreas.id))
       .leftJoin(usuarios, eq(ativosVistorias.executadoPorId, usuarios.id))
       .where(condicoes.length > 0 ? and(...condicoes) : undefined)
       .orderBy(asc(ativosVistorias.dataProgramada))

@@ -35,7 +35,7 @@ const CARDS: Card[] = [
     href: "/ativos/categorias",
     icon: Layers,
     titulo: "Categorias",
-    descricao: "Classificação e setor responsável",
+    descricao: "Classificação e área responsável",
     campo: "categorias",
   },
   {
@@ -63,7 +63,7 @@ const CARDS: Card[] = [
     href: "/ativos/dashboard",
     icon: BarChart3,
     titulo: "Dashboard",
-    descricao: "Indicadores e conformidade por setor",
+    descricao: "Indicadores e conformidade por área",
   },
 ]
 

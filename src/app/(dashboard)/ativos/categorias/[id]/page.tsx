@@ -13,12 +13,18 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
 
-const SETORES = ["SEGURANCA", "MECANICA", "ELETRICA", "AMBIENTAL", "PREDIAL", "LOGISTICA", "ADMINISTRATIVO"] as const
+const SITE_ATIVOS = "Ativos e Vistorias"
+
+interface AreaAtiva {
+  id: number
+  siteNome?: string | null
+  nome: string
+}
 
 type CategoriaAtivo = {
   id: number | null
   nome: string
-  setor: string
+  areaId: number | null
   descricao: string
   cor: string
   icone: string
@@ -36,13 +42,27 @@ export default function AtivoCategoriaFormPage() {
   const [categoria, setCategoria] = useState<CategoriaAtivo>({
     id: null,
     nome: "",
-    setor: "SEGURANCA",
+    areaId: null,
     descricao: "",
     cor: "#ef4444",
     icone: "",
     ativo: true,
   })
   const [saving, setSaving] = useState(false)
+
+  const { data: areasData = [] } = useQuery<AreaAtiva[]>({
+    queryKey: ["processos-areas"],
+    queryFn: async () => {
+      const res = await fetch("/api/processos/areas")
+      return res.json()
+    },
+  })
+  const areas = areasData.filter((a) => a.siteNome === SITE_ATIVOS)
+  useEffect(() => {
+    if (categoria.areaId === null && areas.length > 0) {
+      setCategoria((prev) => ({ ...prev, areaId: areas[0].id }))
+    }
+  }, [areas, categoria.areaId])
 
   const { data: categoriaData, isLoading: loading } = useQuery<CategoriaAtivo>({
     queryKey: ["ativos-categoria", id],
@@ -58,7 +78,7 @@ export default function AtivoCategoriaFormPage() {
       setCategoria({
         id: categoriaData.id,
         nome: categoriaData.nome || "",
-        setor: categoriaData.setor || "SEGURANCA",
+        areaId: categoriaData.areaId ?? null,
         descricao: categoriaData.descricao || "",
         cor: categoriaData.cor || "#ef4444",
         icone: categoriaData.icone || "",
@@ -84,7 +104,7 @@ export default function AtivoCategoriaFormPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           nome: categoria.nome,
-          setor: categoria.setor,
+          areaId: categoria.areaId,
           descricao: categoria.descricao || null,
           cor: categoria.cor || null,
           icone: categoria.icone || null,
@@ -107,7 +127,7 @@ export default function AtivoCategoriaFormPage() {
     }
   }
 
-  const handleChange = (field: keyof CategoriaAtivo, value: string | boolean) => {
+  const handleChange = (field: keyof CategoriaAtivo, value: string | boolean | number | null) => {
     setCategoria(prev => ({ ...prev, [field]: value }))
   }
 
@@ -148,15 +168,15 @@ export default function AtivoCategoriaFormPage() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="setor" className="font-medium">Setor</Label>
+          <Label htmlFor="areaId" className="font-medium">Área</Label>
           <select
-            id="setor"
-            value={categoria.setor}
-            onChange={e => handleChange("setor", e.target.value)}
+            id="areaId"
+            value={categoria.areaId ?? ""}
+            onChange={e => handleChange("areaId", e.target.value ? parseInt(e.target.value) : null)}
             className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
           >
-            {SETORES.map((setor) => (
-              <option key={setor} value={setor}>{setor}</option>
+            {areas.map((area) => (
+              <option key={area.id} value={area.id}>{area.nome}</option>
             ))}
           </select>
         </div>

@@ -1,9 +1,7 @@
 import { pgTable, serial, varchar, text, boolean, integer, numeric, timestamp, date, jsonb, uniqueIndex } from "drizzle-orm/pg-core"
 import { maquinas } from "./maqoper"
 import { usuarios } from "./usuarios"
-
-export const ATIVO_CATEGORIA_SETOR = ["MECANICA", "ELETRICA", "SEGURANCA", "AMBIENTAL", "PREDIAL", "LOGISTICA", "ADMINISTRATIVO"] as const
-export type AtivoCategoriaSetor = (typeof ATIVO_CATEGORIA_SETOR)[number]
+import { procAreas } from "./processos"
 
 export const ATIVO_STATUS = ["ATIVO", "MANUTENCAO", "INATIVO", "BAIXADO"] as const
 export type AtivoStatus = (typeof ATIVO_STATUS)[number]
@@ -38,7 +36,7 @@ export type VistoriaResposta = {
 export const ativoCategorias = pgTable("ativos_categorias", {
   id: serial("id").primaryKey(),
   nome: varchar("nome", { length: 100 }).notNull(),
-  setor: varchar("setor", { length: 30 }).notNull(),
+  areaId: integer("area_id").notNull().references(() => procAreas.id, { onDelete: "no action" }),
   descricao: text("descricao"),
   cor: varchar("cor", { length: 20 }),
   icone: varchar("icone", { length: 50 }),
@@ -81,7 +79,7 @@ export const ativosTiposVistoria = pgTable("ativos_tipos_vistoria", {
   id: serial("id").primaryKey(),
   nome: varchar("nome", { length: 200 }).notNull(),
   categoriaId: integer("categoria_id").references(() => ativoCategorias.id, { onDelete: "set null" }),
-  setor: varchar("setor", { length: 30 }).notNull(),
+  areaId: integer("area_id").notNull().references(() => procAreas.id, { onDelete: "no action" }),
   procedimento: text("procedimento"),
   checklist: jsonb("checklist").$type<VistoriaItemTemplate[]>().default([]),
   periodicidade: varchar("periodicidade", { length: 20 }).notNull(),

@@ -26,6 +26,27 @@ function argValue(flag) {
 }
 const onlyDb = argValue("--db")
 
+const SITE_ATIVOS = "Ativos e Vistorias"
+
+const AREAS_POR_SETOR = {
+  SEGURANCA: "Segurança",
+  MECANICA: "Mecânica",
+  ELETRICA: "Elétrica",
+  AMBIENTAL: "Ambiental",
+  PREDIAL: "Predial",
+  LOGISTICA: "Logística",
+  ADMINISTRATIVO: "Administrativo",
+}
+
+function normalize(s) {
+  return (s || "")
+    .toString()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+}
+
 const CATEGORIAS = [
   { nome: "Segurança Contra Incêndio", setor: "SEGURANCA", descricao: "Extintores, hidrantes, alarmes, iluminação e rotas de emergência", cor: "#dc2626", icone: "Flame" },
   { nome: "Mecânica", setor: "MECANICA", descricao: "Redutores, bombas, motores, esteiras, teares e máquinas têxteis", cor: "#2563eb", icone: "Cog" },
@@ -605,12 +626,26 @@ async function seedDb(name, url) {
     let categoriasCriadas = 0
     let tiposCriados = 0
 
+    const areas = await sql`
+      SELECT pa.id, pa.nome
+      FROM proc_areas pa
+      JOIN proc_sites ps ON pa.site_id = ps.id
+      WHERE ps.nome = ${SITE_ATIVOS}
+    `
+    const areaIdsPorNome = new Map(areas.map((a) => [normalize(a.nome), a.id]))
+    const areaIdPorSetor = (setor) => areaIdsPorNome.get(normalize(AREAS_POR_SETOR[setor] ?? setor))
+
     for (const c of CATEGORIAS) {
       const [exist] = await sql`SELECT id FROM ativos_categorias WHERE nome = ${c.nome} LIMIT 1`
       if (exist) continue
+      const areaId = areaIdPorSetor(c.setor)
+      if (areaId == null) {
+        console.log(`  [${name}] ⚠️ categoria "${c.nome}" sem área mapeada — pulando`)
+        continue
+      }
       await sql`
-        INSERT INTO ativos_categorias (nome, setor, descricao, cor, icone)
-        VALUES (${c.nome}, ${c.setor}, ${c.descricao}, ${c.cor}, ${c.icone})
+        INSERT INTO ativos_categorias (nome, area_id, descricao, cor, icone)
+        VALUES (${c.nome}, ${areaId}, ${c.descricao}, ${c.cor}, ${c.icone})
       `
       categoriasCriadas++
     }
@@ -624,12 +659,18 @@ async function seedDb(name, url) {
         ? (await sql`SELECT id FROM ativos_categorias WHERE nome = ${categoria.nome} LIMIT 1`)[0]?.id ?? null
         : null
 
+      const areaId = areaIdPorSetor(t.setor)
+      if (areaId == null) {
+        console.log(`  [${name}] ⚠️ tipo "${t.nome}" sem área mapeada — pulando`)
+        continue
+      }
+
       const checklist = (t.checklist || []).map((i, ordem) => ({ ...i, ordem }))
       const diasIntervalo = t.periodicidade === "OUTRA" && t.diasIntervalo ? t.diasIntervalo : null
 
       await sql`
-        INSERT INTO ativos_tipos_vistoria (nome, categoria_id, setor, procedimento, checklist, periodicidade, dias_intervalo, base_legal)
-        VALUES (${t.nome}, ${categoriaId}, ${t.setor}, ${t.procedimento}, ${JSON.stringify(checklist)}, ${t.periodicidade}, ${diasIntervalo}, ${t.baseLegal})
+        INSERT INTO ativos_tipos_vistoria (nome, categoria_id, area_id, procedimento, checklist, periodicidade, dias_intervalo, base_legal)
+        VALUES (${t.nome}, ${categoriaId}, ${areaId}, ${t.procedimento}, ${JSON.stringify(checklist)}, ${t.periodicidade}, ${diasIntervalo}, ${t.baseLegal})
       `
       tiposCriados++
       if (idx % 5 === 0) process.stdout.write(".")

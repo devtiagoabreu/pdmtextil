@@ -4,11 +4,17 @@ import { screen, fireEvent, waitFor, within } from "@testing-library/react"
 import AtivosCategoriasPage from "./page"
 import { createFetchMock, renderPage, findCall, toastMock, navMock } from "@/test/harness"
 
+const AREAS_MOCK = [
+  { id: 26, siteId: 6, siteNome: "Ativos e Vistorias", nome: "Segurança", descricao: null, ativo: true, createdAt: "", updatedAt: "" },
+  { id: 29, siteId: 6, siteNome: "Ativos e Vistorias", nome: "Mecânica", descricao: null, ativo: true, createdAt: "", updatedAt: "" },
+]
+
 const CATEGORIAS_MOCK = [
   {
     id: 1,
     nome: "Segurança Contra Incêndio",
-    setor: "SEGURANCA",
+    areaId: 26,
+    areaNome: "Segurança",
     descricao: "Extintores, mangueiras e sistemas de combate a incêndio",
     cor: "#dc2626",
     icone: null,
@@ -17,7 +23,8 @@ const CATEGORIAS_MOCK = [
   {
     id: 2,
     nome: "Compressores",
-    setor: "MECANICA",
+    areaId: 29,
+    areaNome: "Mecânica",
     descricao: null,
     cor: "#2563eb",
     icone: null,
@@ -29,6 +36,7 @@ function mountPage(data: unknown[] = CATEGORIAS_MOCK) {
   navMock.setPathname("/ativos/categorias")
   const fetchMock = createFetchMock(({ method, url }) => {
     if (method === "GET" && url === "/api/ativos/categorias") return { json: data }
+    if (method === "GET" && url === "/api/processos/areas") return { json: AREAS_MOCK }
     if (method === "DELETE" && url === "/api/ativos/categorias/2") {
       return { status: 400, json: { error: "fk", fkError: true } }
     }
@@ -45,15 +53,15 @@ describe("AtivosCategoriasPage", () => {
     toastMock.success.mockClear()
   })
 
-  it("renderiza a lista com categorias e setores", async () => {
+  it("renderiza a lista com categorias e áreas", async () => {
     mountPage()
     renderPage(<AtivosCategoriasPage />)
 
     expect(screen.getByRole("heading", { name: "Categorias de Ativos" })).toBeInTheDocument()
     expect(await screen.findByText("Segurança Contra Incêndio")).toBeInTheDocument()
     expect(screen.getByText("Compressores")).toBeInTheDocument()
-    expect(screen.getByText("SEGURANCA")).toBeInTheDocument()
-    expect(screen.getByText("MECANICA")).toBeInTheDocument()
+    expect(screen.getByText("Segurança")).toBeInTheDocument()
+    expect(screen.getByText("Mecânica")).toBeInTheDocument()
   })
 
   it("filtra pela busca", async () => {
@@ -61,7 +69,7 @@ describe("AtivosCategoriasPage", () => {
     renderPage(<AtivosCategoriasPage />)
     await screen.findByText("Segurança Contra Incêndio")
 
-    const search = screen.getByPlaceholderText("Buscar por nome ou setor...")
+    const search = screen.getByPlaceholderText("Buscar por nome ou área...")
     fireEvent.change(search, { target: { value: "incêndio" } })
     expect(screen.getByText("Segurança Contra Incêndio")).toBeInTheDocument()
     expect(screen.queryByText("Compressores")).not.toBeInTheDocument()

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { ativosPlanosVistoria, ativos, ativosTiposVistoria } from "@/lib/db/schema/ativos"
+import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq, desc } from "drizzle-orm"
 import { registrarLog, notificar } from "@/lib/notificar"
 import { handleApiError } from "@/lib/api-error"
@@ -24,6 +25,7 @@ export async function GET(req: NextRequest) {
         tipoVistoriaNome: ativosTiposVistoria.nome,
         periodicidade: ativosTiposVistoria.periodicidade,
         responsavelId: ativosPlanosVistoria.responsavelId,
+        responsavelNome: usuarios.name,
         diasIntervalo: ativosPlanosVistoria.diasIntervalo,
         proximaData: ativosPlanosVistoria.proximaData,
         ativo: ativosPlanosVistoria.ativo,
@@ -33,6 +35,7 @@ export async function GET(req: NextRequest) {
       .from(ativosPlanosVistoria)
       .leftJoin(ativos, eq(ativosPlanosVistoria.ativoId, ativos.id))
       .leftJoin(ativosTiposVistoria, eq(ativosPlanosVistoria.tipoVistoriaId, ativosTiposVistoria.id))
+      .leftJoin(usuarios, eq(ativosPlanosVistoria.responsavelId, usuarios.id))
       .orderBy(desc(ativosPlanosVistoria.id))
 
     return NextResponse.json(lista)

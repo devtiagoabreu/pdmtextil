@@ -13,7 +13,13 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
 
-const SETORES = ["SEGURANCA", "MECANICA", "ELETRICA", "AMBIENTAL", "PREDIAL", "LOGISTICA", "ADMINISTRATIVO"] as const
+const SITE_ATIVOS = "Ativos e Vistorias"
+
+interface AreaAtiva {
+  id: number
+  siteNome?: string | null
+  nome: string
+}
 
 const PERIODICIDADES = ["DIARIA", "SEMANAL", "MENSAL", "TRIMESTRAL", "SEMESTRAL", "ANUAL", "BIENAL", "TRIENAL", "QUINQUENAL", "OUTRA"] as const
 
@@ -28,7 +34,7 @@ interface ChecklistItem {
 type TipoVistoria = {
   id: number | null
   nome: string
-  setor: string
+  areaId: number | null
   periodicidade: string
   diasIntervalo: string
   baseLegal: string
@@ -47,7 +53,7 @@ export default function TipoVistoriaFormPage() {
   const [tipo, setTipo] = useState<TipoVistoria>({
     id: null,
     nome: "",
-    setor: "SEGURANCA",
+    areaId: null,
     periodicidade: "MENSAL",
     diasIntervalo: "",
     baseLegal: "",
@@ -65,12 +71,26 @@ export default function TipoVistoriaFormPage() {
     enabled: !!isEditing && !!id,
   })
 
+  const { data: areasData = [] } = useQuery<AreaAtiva[]>({
+    queryKey: ["processos-areas"],
+    queryFn: async () => {
+      const res = await fetch("/api/processos/areas")
+      return res.json()
+    },
+  })
+  const areas = areasData.filter((a) => a.siteNome === SITE_ATIVOS)
+  useEffect(() => {
+    if (tipo.areaId === null && areas.length > 0) {
+      setTipo((prev) => ({ ...prev, areaId: areas[0].id }))
+    }
+  }, [areas, tipo.areaId])
+
   useEffect(() => {
     if (tipoData) {
       setTipo({
         id: (tipoData.id as number) ?? null,
         nome: tipoData.nome || "",
-        setor: tipoData.setor || "SEGURANCA",
+        areaId: tipoData.areaId ?? null,
         periodicidade: tipoData.periodicidade || "MENSAL",
         diasIntervalo: tipoData.diasIntervalo ? String(tipoData.diasIntervalo) : "",
         baseLegal: tipoData.baseLegal || "",
@@ -129,7 +149,7 @@ export default function TipoVistoriaFormPage() {
 
       const body: Record<string, unknown> = {
         nome: tipo.nome,
-        setor: tipo.setor,
+        areaId: tipo.areaId,
         periodicidade: tipo.periodicidade,
         diasIntervalo: tipo.periodicidade === "OUTRA" && tipo.diasIntervalo
           ? parseInt(tipo.diasIntervalo)
@@ -160,7 +180,7 @@ export default function TipoVistoriaFormPage() {
     }
   }
 
-  const handleChange = (field: keyof TipoVistoria, value: string | boolean | ChecklistItem[]) => {
+  const handleChange = (field: keyof TipoVistoria, value: string | boolean | ChecklistItem[] | number | null) => {
     setTipo(prev => ({ ...prev, [field]: value }))
   }
 
@@ -202,15 +222,15 @@ export default function TipoVistoriaFormPage() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="setor" className="font-medium">Setor</Label>
+            <Label htmlFor="areaId" className="font-medium">Área</Label>
             <select
-              id="setor"
-              value={tipo.setor}
-              onChange={e => handleChange("setor", e.target.value)}
+              id="areaId"
+              value={tipo.areaId ?? ""}
+              onChange={e => handleChange("areaId", e.target.value ? parseInt(e.target.value) : null)}
               className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
             >
-              {SETORES.map((setor) => (
-                <option key={setor} value={setor}>{setor}</option>
+              {areas.map((area) => (
+                <option key={area.id} value={area.id}>{area.nome}</option>
               ))}
             </select>
           </div>

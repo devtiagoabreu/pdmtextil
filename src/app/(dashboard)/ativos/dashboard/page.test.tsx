@@ -31,9 +31,9 @@ const DASHBOARD_DATA = {
       tipoVistoriaNome: "Compressor Ar",
     },
   ],
-  compliancePorSetor: [
-    { setor: "SEGURANCA", total: 10, conformes: 9, percentual: 90 },
-    { setor: "MECANICA", total: 8, conformes: 4, percentual: 50 },
+  compliancePorArea: [
+    { areaId: 26, areaNome: "Segurança", total: 10, conformes: 9, percentual: 90 },
+    { areaId: 29, areaNome: "Mecânica", total: 8, conformes: 4, percentual: 50 },
   ],
 }
 
@@ -58,9 +58,9 @@ describe("AtivosDashboardPage", () => {
     expect(screen.getByText("Compressor")).toBeDefined()
     expect(screen.getByText("A-002")).toBeDefined()
 
-    expect(screen.getByText("SEGURANCA")).toBeDefined()
+    expect(screen.getByText("Segurança")).toBeDefined()
     expect(screen.getByText("90%")).toBeDefined()
-    expect(screen.getByText("MECANICA")).toBeDefined()
+    expect(screen.getByText("Mecânica")).toBeDefined()
     expect(screen.getByText("50%")).toBeDefined()
   })
 
@@ -70,7 +70,7 @@ describe("AtivosDashboardPage", () => {
       json: {
         totais: { ativos: 0, categorias: 0, planos: 0, vistoriasMes: 0, pendentes: 0, atrasadas: 0 },
         proximas: [],
-        compliancePorSetor: [],
+        compliancePorArea: [],
       },
     }))
     vi.stubGlobal("fetch", fetchMock.fn)

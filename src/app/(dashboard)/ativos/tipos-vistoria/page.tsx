@@ -16,7 +16,8 @@ import { ConfirmModal } from "@/components/ui/confirm-modal"
 interface TipoVistoria {
   id: number
   nome: string
-  setor: string
+  areaId: number
+  areaNome?: string | null
   periodicidade: string
   baseLegal?: string | null
   ativo: boolean
@@ -90,7 +91,7 @@ export default function AtivosTiposVistoriaPage() {
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
           <Input
-            placeholder="Buscar por nome, setor ou base legal..."
+            placeholder="Buscar por nome, área ou base legal..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-10"
@@ -112,7 +113,7 @@ export default function AtivosTiposVistoriaPage() {
             <thead className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
               <tr>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Nome</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Setor</th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Área</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Periodicidade</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Base Legal</th>
                 <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Ações</th>
@@ -131,7 +132,7 @@ export default function AtivosTiposVistoriaPage() {
                   </td>
                   <td className="p-4">
                     <span className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400">
-                      {tipo.setor}
+                      {tipo.areaNome || "—"}
                     </span>
                   </td>
                   <td className="p-4 text-sm text-slate-500">{tipo.periodicidade}</td>

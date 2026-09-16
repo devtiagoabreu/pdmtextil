@@ -23,6 +23,12 @@ interface TipoVistoria {
   nome: string
 }
 
+interface Usuario {
+  id: number
+  name: string
+  role: string
+}
+
 type PlanoVistoria = {
   id: number | null
   ativoId: string
@@ -70,6 +76,15 @@ export default function PlanoVistoriaFormPage() {
     },
   })
 
+  const { data: usuarios = [] } = useQuery<Usuario[]>({
+    queryKey: ["usuarios-ativos"],
+    queryFn: async () => {
+      const res = await fetch("/api/usuarios/ativos")
+      if (!res.ok) throw new Error("Falha ao carregar usuários")
+      return res.json()
+    },
+  })
+
   const { data: planoData, isLoading: loading } = useQuery<Partial<PlanoVistoria>>({
     queryKey: ["ativos-plano", id],
     queryFn: async () => {
@@ -105,6 +120,10 @@ export default function PlanoVistoriaFormPage() {
     }
     if (!plano.proximaData) {
       toast.error("Informe a próxima data")
+      return
+    }
+    if (!plano.responsavelId) {
+      toast.error("Selecione o responsável")
       return
     }
 
@@ -206,14 +225,19 @@ export default function PlanoVistoriaFormPage() {
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor="responsavelId" className="font-medium">Responsável (ID)</Label>
-            <Input
+            <Label htmlFor="responsavelId" className="font-medium">Responsável</Label>
+            <select
               id="responsavelId"
-              type="number"
               value={plano.responsavelId}
               onChange={e => handleChange("responsavelId", e.target.value)}
-              placeholder="3"
-            />
+              className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
+              required
+            >
+              <option value="">Selecione o responsável</option>
+              {usuarios.map((usuario) => (
+                <option key={usuario.id} value={usuario.id}>{usuario.name} ({usuario.role})</option>
+              ))}
+            </select>
           </div>
 
           <div className="space-y-2">
@@ -241,8 +265,8 @@ export default function PlanoVistoriaFormPage() {
         </div>
 
         <div className="flex items-center gap-2">
-          <input type="checkbox" id="ativo" checked={plano.ativo} onChange={e => handleChange("ativo", e.target.checked)} className="w-4 h-4" />
-          <Label htmlFor="ativo">Ativo</Label>
+          <input type="checkbox" id="planoAtivo" checked={plano.ativo} onChange={e => handleChange("ativo", e.target.checked)} className="w-4 h-4" />
+          <Label htmlFor="planoAtivo">Plano ativo</Label>
         </div>
 
         <div className="flex gap-4">

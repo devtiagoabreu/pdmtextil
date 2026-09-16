@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { ativoCategorias } from "@/lib/db/schema/ativos"
-import { asc } from "drizzle-orm"
+import { procAreas } from "@/lib/db/schema/processos"
+import { asc, eq } from "drizzle-orm"
 import { registrarLog, notificar } from "@/lib/notificar"
 import { handleApiError } from "@/lib/api-error"
 import { validateRequest } from "@/lib/validation"
@@ -17,7 +18,8 @@ export async function GET(req: NextRequest) {
       .select({
         id: ativoCategorias.id,
         nome: ativoCategorias.nome,
-        setor: ativoCategorias.setor,
+        areaId: ativoCategorias.areaId,
+        areaNome: procAreas.nome,
         descricao: ativoCategorias.descricao,
         cor: ativoCategorias.cor,
         icone: ativoCategorias.icone,
@@ -26,6 +28,7 @@ export async function GET(req: NextRequest) {
         updatedAt: ativoCategorias.updatedAt,
       })
       .from(ativoCategorias)
+      .leftJoin(procAreas, eq(ativoCategorias.areaId, procAreas.id))
       .orderBy(asc(ativoCategorias.nome))
 
     return NextResponse.json(lista)
@@ -49,7 +52,7 @@ export async function POST(req: NextRequest) {
       .insert(ativoCategorias)
       .values({
         nome: parsed.data.nome,
-        setor: parsed.data.setor,
+        areaId: parsed.data.areaId,
         descricao: parsed.data.descricao || null,
         cor: parsed.data.cor || null,
         icone: parsed.data.icone || null,

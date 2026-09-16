@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { ativoCategorias } from "@/lib/db/schema/ativos"
+import { procAreas } from "@/lib/db/schema/processos"
 import { eq } from "drizzle-orm"
 import { registrarLog, notificarDelecao } from "@/lib/notificar"
 import { handleApiError } from "@/lib/api-error"
@@ -18,8 +19,20 @@ export async function GET(
 
     const { id } = await params
     const [registro] = await db
-      .select()
+      .select({
+        id: ativoCategorias.id,
+        nome: ativoCategorias.nome,
+        areaId: ativoCategorias.areaId,
+        areaNome: procAreas.nome,
+        descricao: ativoCategorias.descricao,
+        cor: ativoCategorias.cor,
+        icone: ativoCategorias.icone,
+        ativo: ativoCategorias.ativo,
+        createdAt: ativoCategorias.createdAt,
+        updatedAt: ativoCategorias.updatedAt,
+      })
       .from(ativoCategorias)
+      .leftJoin(procAreas, eq(ativoCategorias.areaId, procAreas.id))
       .where(eq(ativoCategorias.id, parseInt(id)))
       .limit(1)
 
@@ -62,7 +75,7 @@ export async function PUT(
       .update(ativoCategorias)
       .set({
         nome: parsed.data.nome,
-        setor: parsed.data.setor,
+        areaId: parsed.data.areaId,
         descricao: parsed.data.descricao || null,
         cor: parsed.data.cor || null,
         icone: parsed.data.icone || null,

@@ -19,6 +19,7 @@ interface PlanoVistoria {
   ativoCodigo: string
   tipoVistoriaNome: string
   periodicidade: string
+  responsavelNome?: string | null
   proximaData?: string | null
   ativo: boolean
 }
@@ -122,6 +123,7 @@ export default function AtivosPlanosPage() {
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Ativo</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Tipo de Vistoria</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Periodicidade</th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Responsável</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Próxima Data</th>
                 <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Ações</th>
               </tr>
@@ -140,6 +142,7 @@ export default function AtivosPlanosPage() {
                   </td>
                   <td className="p-4 text-sm text-slate-500">{plano.tipoVistoriaNome}</td>
                   <td className="p-4 text-sm text-slate-500">{plano.periodicidade}</td>
+                  <td className="p-4 text-sm text-slate-500">{plano.responsavelNome || "—"}</td>
                   <td className="p-4 text-sm text-slate-500">{formatarData(plano.proximaData)}</td>
                   <td className="p-4 text-right">
                     <div className="flex items-center justify-end gap-1">

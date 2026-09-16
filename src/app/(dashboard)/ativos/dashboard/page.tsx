@@ -25,7 +25,7 @@ interface DashboardData {
     atrasadas: number
   }
   proximas: ProximaVistoria[]
-  compliancePorSetor: Array<{ setor: string; total: number; conformes: number; percentual: number }>
+  compliancePorArea: Array<{ areaId: number | null; areaNome: string; total: number; conformes: number; percentual: number }>
 }
 
 const STATUS_BADGE: Record<string, string> = {
@@ -63,7 +63,7 @@ export default function AtivosDashboardPage() {
     )
   }
 
-  const { totais, proximas, compliancePorSetor } = data
+  const { totais, proximas, compliancePorArea } = data
 
   const cards = [
     { label: "Total de Ativos", value: totais.ativos, icon: Package },
@@ -82,7 +82,7 @@ export default function AtivosDashboardPage() {
           {info && <InfoButton content={info} />}
         </h1>
         <p className="text-sm text-slate-500 dark:text-slate-400">
-          Visão geral de ativos, vistorias e conformidade por setor.
+          Visão geral de ativos, vistorias e conformidade por área.
         </p>
       </div>
 
@@ -113,24 +113,24 @@ export default function AtivosDashboardPage() {
 
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
         <div className="border-b border-slate-200 dark:border-slate-800 px-4 py-3">
-          <h2 className="font-semibold text-slate-900 dark:text-slate-50">Compliance por Setor</h2>
+          <h2 className="font-semibold text-slate-900 dark:text-slate-50">Compliance por Área</h2>
         </div>
-        {compliancePorSetor.length === 0 ? (
+        {compliancePorArea.length === 0 ? (
           <div className="p-8 text-center text-slate-500">Nenhum dado de compliance</div>
         ) : (
           <table className="w-full">
             <thead className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
               <tr>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Setor</th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Área</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Total</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Conformes</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Percentual</th>
               </tr>
             </thead>
             <tbody>
-              {compliancePorSetor.map((item) => (
-                <tr key={item.setor} className="border-b border-slate-100 dark:border-slate-800">
-                  <td className="p-4 text-sm font-medium text-slate-900 dark:text-slate-50">{item.setor}</td>
+              {compliancePorArea.map((item) => (
+                <tr key={item.areaId ?? item.areaNome} className="border-b border-slate-100 dark:border-slate-800">
+                  <td className="p-4 text-sm font-medium text-slate-900 dark:text-slate-50">{item.areaNome}</td>
                   <td className="p-4 text-sm text-slate-500">{item.total}</td>
                   <td className="p-4 text-sm text-slate-500">{item.conformes}</td>
                   <td className="p-4">

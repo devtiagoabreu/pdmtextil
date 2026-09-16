@@ -4,7 +4,7 @@ export const ativosContent: Record<string, InfoContent> = {
   "/ativos": {
     title: "Ativos e Vistorias",
     description:
-      "Gestão de ativos, vistorias periódicas e conformidade. Cadastre ativos, categorize por setor, crie tipos de vistoria com checklist, planeje vistorias periódicas e acompanhe o status de execução.",
+      "Gestão de ativos, vistorias periódicas e conformidade. Cadastre ativos, categorize por área, crie tipos de vistoria com checklist, planeje vistorias periódicas e acompanhe o status de execução.",
     rules: [
       "Qualquer usuário autenticado pode visualizar ativos, vistorias e dashboard.",
       "Criar e editar ativos, categorias, tipos de vistoria e planos exige perfil de escrita.",
@@ -15,7 +15,7 @@ export const ativosContent: Record<string, InfoContent> = {
     ],
     fields: [
       { name: "Ativo", desc: "Equipamento ou item com código, nome, categoria e status" },
-      { name: "Categoria", desc: "Agrupamento por setor (Segurança, Mecânica, Elétrica, etc.)" },
+      { name: "Categoria", desc: "Agrupamento por área (Segurança, Mecânica, Elétrica, etc.)" },
       { name: "Tipo de Vistoria", desc: "Modelo de inspeção com periodicidade e checklist" },
       { name: "Plano de Vistoria", desc: "Vínculo ativo × tipo, definindo periodicidade e responsável" },
       { name: "Vistoria", desc: "Ocorrência agendada ou manual, com resultado e evidências" },
@@ -34,7 +34,7 @@ export const ativosContent: Record<string, InfoContent> = {
   "/ativos/dashboard": {
     title: "Dashboard de Ativos",
     description:
-      "Visão consolidada: totais de ativos, vistorias pendentes e atrasadas, conclusões no mês e compliance por setor.",
+      "Visão consolidada: totais de ativos, vistorias pendentes e atrasadas, conclusões no mês e compliance por área.",
     rules: [
       "O dashboard é somente leitura — para executar vistorias, acesse a Agenda.",
       "Vistorias atrasadas são aquelas com data programada no passado e status diferente de Concluída ou Cancelada.",
@@ -43,7 +43,7 @@ export const ativosContent: Record<string, InfoContent> = {
   "/ativos/vistorias": {
     title: "Agenda de Vistorias",
     description:
-      "Tela central de uso diário. Filtre por status, setor ou ativo. Vistorias atrasadas aparecem destacadas em vermelho.",
+      "Tela central de uso diário. Filtre por status, área ou ativo. Vistorias atrasadas aparecem destacadas em vermelho.",
     rules: [
       "Vistorias PENDENTE ou EM_ANDAMENTO podem ser executadas via botão 'Executar'.",
       "Ao concluir, o plano de vistoria avança automaticamente para a próxima data.",

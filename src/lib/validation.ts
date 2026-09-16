@@ -295,7 +295,7 @@ const vistoriaRespostaSchema = z.object({
 
 export const ativoCategoriaSchema = z.object({
   nome: z.string().trim().min(1, "Nome é obrigatório").max(100),
-  setor: z.enum(["MECANICA", "ELETRICA", "SEGURANCA", "AMBIENTAL", "PREDIAL", "LOGISTICA", "ADMINISTRATIVO"]),
+  areaId: z.number().int().positive("Área é obrigatória"),
   descricao: z.string().optional().nullable(),
   cor: z.string().trim().max(20).optional().nullable(),
   icone: z.string().trim().max(50).optional().nullable(),
@@ -326,7 +326,7 @@ export const ativoSchema = z.object({
 export const ativoTipoVistoriaSchema = z.object({
   nome: z.string().trim().min(1, "Nome é obrigatório").max(200),
   categoriaId: z.number().int().positive().optional().nullable(),
-  setor: z.enum(["MECANICA", "ELETRICA", "SEGURANCA", "AMBIENTAL", "PREDIAL", "LOGISTICA", "ADMINISTRATIVO"]),
+  areaId: z.number().int().positive("Área é obrigatória"),
   procedimento: z.string().optional().nullable(),
   checklist: z.array(vistoriaItemTemplateSchema).optional(),
   periodicidade: z.enum(["DIARIA", "SEMANAL", "MENSAL", "TRIMESTRAL", "SEMESTRAL", "ANUAL", "BIENAL", "TRIENAL", "QUINQUENAL", "OUTRA"]),

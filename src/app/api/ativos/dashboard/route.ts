@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { ativos, ativoCategorias, ativosPlanosVistoria, ativosVistorias, ativosTiposVistoria } from "@/lib/db/schema/ativos"
+import { procAreas } from "@/lib/db/schema/processos"
 import { count, eq, and, gte, lte, notInArray, inArray, asc } from "drizzle-orm"
 import { handleApiError } from "@/lib/api-error"
 
@@ -63,25 +64,31 @@ export async function GET(req: NextRequest) {
       .orderBy(asc(ativosVistorias.dataProgramada))
       .limit(10)
 
-    const setores: { setor: string }[] = await db
-      .select({ setor: ativosTiposVistoria.setor })
-      .from(ativosTiposVistoria)
-
-    const vistoriasSetor: { setor: string; resultado: string | null }[] = await db
+    const areas: { id: number; nome: string }[] = await db
       .select({
-        setor: ativosTiposVistoria.setor,
+        id: ativosTiposVistoria.areaId,
+        nome: procAreas.nome,
+      })
+      .from(ativosTiposVistoria)
+      .leftJoin(procAreas, eq(ativosTiposVistoria.areaId, procAreas.id))
+
+    const vistoriasArea: { areaId: number | null; resultado: string | null }[] = await db
+      .select({
+        areaId: ativosTiposVistoria.areaId,
         resultado: ativosVistorias.resultado,
       })
       .from(ativosVistorias)
       .leftJoin(ativosTiposVistoria, eq(ativosVistorias.tipoVistoriaId, ativosTiposVistoria.id))
 
-    const compliancePorSetor = [...new Set(setores.map((s) => s.setor))]
-      .map((setor) => {
-        const doSetor: { setor: string; resultado: string | null }[] = vistoriasSetor.filter((v) => v.setor === setor)
-        const total = doSetor.length
-        const conformes = doSetor.filter((v) => v.resultado === "CONFORME").length
+    const compliancePorArea = [...new Set(areas.map((s) => `${s.id}`))]
+      .map((areaKey) => {
+        const area = areas.find((a) => `${a.id}` === areaKey)
+        const daArea = vistoriasArea.filter((v) => v.areaId !== null && `${v.areaId}` === areaKey)
+        const total = daArea.length
+        const conformes = daArea.filter((v) => v.resultado === "CONFORME").length
         return {
-          setor,
+          areaId: area?.id ?? null,
+          areaNome: area?.nome ?? "Sem área",
           total,
           conformes,
           percentual: total > 0 ? Math.round((conformes / total) * 100) : 0,
@@ -99,7 +106,7 @@ export async function GET(req: NextRequest) {
         atrasadas: rAtrasadas.n,
       },
       proximas,
-      compliancePorSetor,
+      compliancePorArea,
     })
   } catch (error) {
     console.error("[GET /api/ativos/dashboard]", error)

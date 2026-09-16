@@ -16,7 +16,8 @@ import { ConfirmModal } from "@/components/ui/confirm-modal"
 interface CategoriaAtivo {
   id: number
   nome: string
-  setor: string
+  areaId: number
+  areaNome?: string | null
   descricao?: string | null
   cor?: string | null
   icone?: string | null
@@ -76,7 +77,7 @@ export default function AtivosCategoriasPage() {
             {info && <InfoButton content={info} />}
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400">
-            Agrupamento de ativos por setor
+            Agrupamento de ativos por área
           </p>
         </div>
         <Link href="/ativos/categorias/novo">
@@ -91,7 +92,7 @@ export default function AtivosCategoriasPage() {
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
           <Input
-            placeholder="Buscar por nome ou setor..."
+            placeholder="Buscar por nome ou área..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-10"
@@ -113,7 +114,7 @@ export default function AtivosCategoriasPage() {
             <thead className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
               <tr>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Nome</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Setor</th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Área</th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Cor</th>
                 <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Ações</th>
               </tr>
@@ -135,7 +136,7 @@ export default function AtivosCategoriasPage() {
                   </td>
                   <td className="p-4">
                     <span className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400">
-                      {categoria.setor}
+                      {categoria.areaNome || "—"}
                     </span>
                   </td>
                   <td className="p-4">

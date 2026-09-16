@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { ativosTiposVistoria, ativoCategorias } from "@/lib/db/schema/ativos"
+import { procAreas } from "@/lib/db/schema/processos"
 import { eq } from "drizzle-orm"
 import { registrarLog, notificarDelecao } from "@/lib/notificar"
 import { handleApiError } from "@/lib/api-error"
@@ -23,7 +24,8 @@ export async function GET(
         nome: ativosTiposVistoria.nome,
         categoriaId: ativosTiposVistoria.categoriaId,
         categoriaNome: ativoCategorias.nome,
-        setor: ativosTiposVistoria.setor,
+        areaId: ativosTiposVistoria.areaId,
+        areaNome: procAreas.nome,
         procedimento: ativosTiposVistoria.procedimento,
         checklist: ativosTiposVistoria.checklist,
         periodicidade: ativosTiposVistoria.periodicidade,
@@ -35,6 +37,7 @@ export async function GET(
       })
       .from(ativosTiposVistoria)
       .leftJoin(ativoCategorias, eq(ativosTiposVistoria.categoriaId, ativoCategorias.id))
+      .leftJoin(procAreas, eq(ativosTiposVistoria.areaId, procAreas.id))
       .where(eq(ativosTiposVistoria.id, parseInt(id)))
       .limit(1)
 
@@ -78,7 +81,7 @@ export async function PUT(
       .set({
         nome: parsed.data.nome,
         categoriaId: parsed.data.categoriaId || null,
-        setor: parsed.data.setor,
+        areaId: parsed.data.areaId,
         procedimento: parsed.data.procedimento || null,
         checklist: parsed.data.checklist,
         periodicidade: parsed.data.periodicidade,
