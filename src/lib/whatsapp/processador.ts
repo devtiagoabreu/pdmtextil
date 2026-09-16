@@ -482,14 +482,12 @@ async function processarConversa(params: {
     await db
       .insert(crmWhatsappMensagens)
       .values({ mensagem, tipo: "RECEBIDA", status: "RECEBIDA", remoteJid })
-    await db
-      .insert(crmWhatsappMensagens)
-      .values({
-        mensagem: "Claro! Vamos comecar novamente. Qual o seu nome?",
-        tipo: "ENVIADA",
-        status: "ENVIADA",
-        remoteJid,
-      })
+    await db.insert(crmWhatsappMensagens).values({
+      mensagem: "Claro! Vamos comecar novamente. Qual o seu nome?",
+      tipo: "ENVIADA",
+      status: "ENVIADA",
+      remoteJid,
+    })
 
     if (evolutionConfigurado()) {
       const envio = await enviarMensagemRastreada(
@@ -531,14 +529,12 @@ async function processarConversa(params: {
     await db
       .insert(crmWhatsappMensagens)
       .values({ mensagem, tipo: "RECEBIDA", status: "RECEBIDA", remoteJid })
-    await db
-      .insert(crmWhatsappMensagens)
-      .values({
-        mensagem: "Entendido! Vou te conectar com um representante comercial. Aguarde um momento.",
-        tipo: "ENVIADA",
-        status: "ENVIADA",
-        remoteJid,
-      })
+    await db.insert(crmWhatsappMensagens).values({
+      mensagem: "Entendido! Vou te conectar com um representante comercial. Aguarde um momento.",
+      tipo: "ENVIADA",
+      status: "ENVIADA",
+      remoteJid,
+    })
     await db
       .insert(crmWhatsappConversas)
       .values({ remoteJid, estado: "AGUARDANDO_REPRESENTANTE", dados: conversa.dados || {} })

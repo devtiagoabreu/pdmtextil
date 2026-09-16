@@ -1,6 +1,4 @@
-export async function consultarCNPJ(
-  cnpj: string
-): Promise<{
+export async function consultarCNPJ(cnpj: string): Promise<{
   razaoSocial: string
   nomeFantasia: string
   situacao: string

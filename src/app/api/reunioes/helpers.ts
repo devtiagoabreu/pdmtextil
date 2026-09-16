@@ -155,16 +155,14 @@ export async function inserirFilhos(
       .values(data.pautas.map((p, i) => ({ reuniaoId, ordem: i + 1, descricao: p.descricao })))
   }
   if (data.participantes.length > 0) {
-    await tx
-      .insert(reuniaoParticipantes)
-      .values(
-        data.participantes.map((p) => ({
-          reuniaoId,
-          nome: p.nome,
-          empresa: p.empresa,
-          papel: p.papel,
-        }))
-      )
+    await tx.insert(reuniaoParticipantes).values(
+      data.participantes.map((p) => ({
+        reuniaoId,
+        nome: p.nome,
+        empresa: p.empresa,
+        papel: p.papel,
+      }))
+    )
   }
   if (data.encaminhamentos.length > 0) {
     await tx.insert(reuniaoEncaminhamentos).values(
@@ -178,17 +176,15 @@ export async function inserirFilhos(
     )
   }
   if (data.links.length > 0) {
-    await tx
-      .insert(reuniaoLinks)
-      .values(
-        data.links.map((l, i) => ({
-          reuniaoId,
-          rotulo: l.rotulo,
-          url: l.url,
-          descricao: l.descricao,
-          ordem: i + 1,
-        }))
-      )
+    await tx.insert(reuniaoLinks).values(
+      data.links.map((l, i) => ({
+        reuniaoId,
+        rotulo: l.rotulo,
+        url: l.url,
+        descricao: l.descricao,
+        ordem: i + 1,
+      }))
+    )
   }
 }
 

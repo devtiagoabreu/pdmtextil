@@ -165,11 +165,9 @@ describe("chamarIA — Gemini", () => {
       return Promise.resolve({
         ok: true,
         status: 200,
-        json: vi
-          .fn()
-          .mockResolvedValue({
-            candidates: [{ content: { parts: [{ text: "resposta gemini" }] } }],
-          }),
+        json: vi.fn().mockResolvedValue({
+          candidates: [{ content: { parts: [{ text: "resposta gemini" }] } }],
+        }),
       })
     })
     vi.stubGlobal("fetch", fetchMock)
@@ -391,16 +389,14 @@ describe("testarChave — Gemini", () => {
       Promise.resolve({
         ok: false,
         status: 404,
-        text: vi
-          .fn()
-          .mockResolvedValue(
-            JSON.stringify({
-              error: {
-                code: 404,
-                message: "models/gemini-1.5-flash is not found for API version v1beta",
-              },
-            })
-          ),
+        text: vi.fn().mockResolvedValue(
+          JSON.stringify({
+            error: {
+              code: 404,
+              message: "models/gemini-1.5-flash is not found for API version v1beta",
+            },
+          })
+        ),
       })
     )
     vi.stubGlobal("fetch", fetchMock)

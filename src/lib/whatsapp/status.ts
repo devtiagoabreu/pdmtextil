@@ -58,9 +58,7 @@ export const RANK_STATUS: Record<string, number> = {
   ERRO: 4,
 }
 
-export async function processarStatusUpdate(
-  rawText: string
-): Promise<{
+export async function processarStatusUpdate(rawText: string): Promise<{
   tratado: boolean
   status?: string
   mensagemId?: number
