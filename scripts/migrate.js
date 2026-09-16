@@ -926,6 +926,9 @@ async function migrate() {
     `
     console.log("✓ Tabela crm_whatsapp_mensagens criada")
 
+    await sql`CREATE UNIQUE INDEX IF NOT EXISTS crm_whatsapp_mensagens_external_id_unique ON crm_whatsapp_mensagens(external_id)`
+    console.log("✓ Índice único external_id em crm_whatsapp_mensagens")
+
     await sql`
       CREATE TABLE IF NOT EXISTS crm_campanhas (
         id SERIAL PRIMARY KEY,

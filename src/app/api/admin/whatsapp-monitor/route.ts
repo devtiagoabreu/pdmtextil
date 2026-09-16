@@ -4,15 +4,29 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { crmWhatsappFlowLogs } from "@/lib/db/schema/crm-whatsapp-flow-logs"
 import { eq, desc, sql, and } from "drizzle-orm"
+import { requireAdmin } from "@/lib/whatsapp/webhook-auth"
 
 export const dynamic = "force-dynamic"
 
-const STEP_ORDER = ["auth", "extract", "filter", "find_conversation", "groq_call", "state_machine", "save_messages", "send_response", "create_lead", "notify"]
+const STEP_ORDER = [
+  "auth",
+  "extract",
+  "filter",
+  "find_conversation",
+  "groq_call",
+  "state_machine",
+  "save_messages",
+  "send_response",
+  "create_lead",
+  "notify",
+]
 
 export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
+    if (!session || !requireAdmin(session)) {
+      return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
+    }
 
     const executionId = req.nextUrl.searchParams.get("executionId")
     const status = req.nextUrl.searchParams.get("status")
@@ -48,7 +62,9 @@ export async function GET(req: NextRequest) {
         pushName: crmWhatsappFlowLogs.pushName,
         startedAt: sql<string>`MIN(${crmWhatsappFlowLogs.createdAt})`.as("started_at"),
         totalSteps: sql<number>`COUNT(*)`.as("total_steps"),
-        errorSteps: sql<number>`COUNT(*) FILTER (WHERE ${crmWhatsappFlowLogs.status} = 'error')`.as("error_steps"),
+        errorSteps: sql<number>`COUNT(*) FILTER (WHERE ${crmWhatsappFlowLogs.status} = 'error')`.as(
+          "error_steps"
+        ),
         lastStep: sql<string>`MAX(${crmWhatsappFlowLogs.step})`.as("last_step"),
       })
       .from(crmWhatsappFlowLogs)
@@ -65,7 +81,12 @@ export async function GET(req: NextRequest) {
     const allSteps = await db
       .select()
       .from(crmWhatsappFlowLogs)
-      .where(sql`${crmWhatsappFlowLogs.executionId} IN (${sql.join(executionIds.map((id: any) => sql`${id}`), sql`, `)})`)
+      .where(
+        sql`${crmWhatsappFlowLogs.executionId} IN (${sql.join(
+          executionIds.map((id: any) => sql`${id}`),
+          sql`, `
+        )})`
+      )
       .orderBy(crmWhatsappFlowLogs.createdAt)
 
     const stepsByExecution = new Map<string, typeof allSteps>()
@@ -88,8 +109,17 @@ export async function GET(req: NextRequest) {
               input: step.input,
               output: step.output,
             }
-          : { step: stepName, status: "skipped", durationMs: 0, error: null, input: null, output: null }
-      }).filter((s: any) => stepsByExecution.get(exec.executionId)?.some((x: any) => x.step === s.step)),
+          : {
+              step: stepName,
+              status: "skipped",
+              durationMs: 0,
+              error: null,
+              input: null,
+              output: null,
+            }
+      }).filter((s: any) =>
+        stepsByExecution.get(exec.executionId)?.some((x: any) => x.step === s.step)
+      ),
     }))
 
     return NextResponse.json({ executions })

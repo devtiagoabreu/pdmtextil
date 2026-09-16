@@ -4,13 +4,14 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { crmWhatsAppCatalogos } from "@/lib/db/schema/crm-whatsapp-catalogos"
 import { eq, and, sql } from "drizzle-orm"
+import { requireAdmin } from "@/lib/whatsapp/webhook-auth"
 
 export const dynamic = "force-dynamic"
 
 export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session) {
+    if (!session || !requireAdmin(session)) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
@@ -21,12 +22,17 @@ export async function GET(req: NextRequest) {
       conditions.push(sql`${crmWhatsAppCatalogos.tipoPessoa} IN (${tipoPessoa}, 'AMBOS')`)
     }
 
-    const catalogos = conditions.length > 0
-      ? await db.select().from(crmWhatsAppCatalogos)
-          .where(and(...conditions))
-          .orderBy(crmWhatsAppCatalogos.linhaNumero, crmWhatsAppCatalogos.titulo)
-      : await db.select().from(crmWhatsAppCatalogos)
-          .orderBy(crmWhatsAppCatalogos.linhaNumero, crmWhatsAppCatalogos.titulo)
+    const catalogos =
+      conditions.length > 0
+        ? await db
+            .select()
+            .from(crmWhatsAppCatalogos)
+            .where(and(...conditions))
+            .orderBy(crmWhatsAppCatalogos.linhaNumero, crmWhatsAppCatalogos.titulo)
+        : await db
+            .select()
+            .from(crmWhatsAppCatalogos)
+            .orderBy(crmWhatsAppCatalogos.linhaNumero, crmWhatsAppCatalogos.titulo)
 
     return NextResponse.json(catalogos)
   } catch (error) {
@@ -46,12 +52,22 @@ export async function POST(req: NextRequest) {
     const { linhaNumero, linhaNome, tipoPessoa, titulo, linkUrl, descricao } = body
 
     if (!linhaNumero || !linhaNome || !titulo || !linkUrl) {
-      return NextResponse.json({ error: "Campos obrigatórios: linhaNumero, linhaNome, titulo, linkUrl" }, { status: 400 })
+      return NextResponse.json(
+        { error: "Campos obrigatórios: linhaNumero, linhaNome, titulo, linkUrl" },
+        { status: 400 }
+      )
     }
 
     const [novo] = await db
       .insert(crmWhatsAppCatalogos)
-      .values({ linhaNumero, linhaNome, tipoPessoa: tipoPessoa || "AMBOS", titulo, linkUrl, descricao: descricao || null })
+      .values({
+        linhaNumero,
+        linhaNome,
+        tipoPessoa: tipoPessoa || "AMBOS",
+        titulo,
+        linkUrl,
+        descricao: descricao || null,
+      })
       .returning()
 
     return NextResponse.json(novo)

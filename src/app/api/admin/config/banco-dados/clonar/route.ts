@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { cloneDatabase } from "@/lib/db-admin"
+import { resolverConnectionString } from "@/lib/db-admin/resolve-conn"
 export const dynamic = "force-dynamic"
 
 export async function POST(req: NextRequest) {
@@ -11,12 +12,25 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
-    const { sourceConnString, targetConnString, sourceDb, targetDb } = await req.json()
-    if (!sourceConnString || !targetConnString || !sourceDb || !targetDb) {
-      return NextResponse.json({ error: "sourceConnString, targetConnString, sourceDb e targetDb são obrigatórios" }, { status: 400 })
+    const { sourceBancoId, targetBancoId, sourceConnString, targetConnString, sourceDb, targetDb } =
+      await req.json()
+    const sourceResolvida = sourceBancoId
+      ? await resolverConnectionString(Number(sourceBancoId))
+      : (sourceConnString ?? null)
+    const targetResolvida = targetBancoId
+      ? await resolverConnectionString(Number(targetBancoId))
+      : (targetConnString ?? null)
+    if (!sourceResolvida || !targetResolvida || !sourceDb || !targetDb) {
+      return NextResponse.json(
+        {
+          error:
+            "sourceBancoId/targetBancoId (ou connection strings), sourceDb e targetDb são obrigatórios",
+        },
+        { status: 400 }
+      )
     }
 
-    const result = await cloneDatabase(sourceConnString, targetConnString, sourceDb, targetDb)
+    const result = await cloneDatabase(sourceResolvida, targetResolvida, sourceDb, targetDb)
     if (!result.success) {
       return NextResponse.json({ error: result.message }, { status: 400 })
     }

@@ -5,20 +5,18 @@ import { db } from "@/lib/db"
 import { crmWhatsAppLinhas } from "@/lib/db/schema/crm-whatsapp-linhas"
 import { crmWhatsAppCatalogos } from "@/lib/db/schema/crm-whatsapp-catalogos"
 import { eq, sql } from "drizzle-orm"
+import { requireAdmin } from "@/lib/whatsapp/webhook-auth"
 
 export const dynamic = "force-dynamic"
 
 export async function GET() {
   try {
     const session = await getServerSession(authOptions)
-    if (!session) {
+    if (!session || !requireAdmin(session)) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
-    const linhas = await db
-      .select()
-      .from(crmWhatsAppLinhas)
-      .orderBy(crmWhatsAppLinhas.numero)
+    const linhas = await db.select().from(crmWhatsAppLinhas).orderBy(crmWhatsAppLinhas.numero)
 
     return NextResponse.json(linhas)
   } catch (error) {
@@ -41,10 +39,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Campos obrigatórios: numero, nome" }, { status: 400 })
     }
 
-    const [novo] = await db
-      .insert(crmWhatsAppLinhas)
-      .values({ numero, nome })
-      .returning()
+    const [novo] = await db.insert(crmWhatsAppLinhas).values({ numero, nome }).returning()
 
     return NextResponse.json(novo)
   } catch (error: any) {
@@ -105,7 +100,12 @@ export async function DELETE(req: NextRequest) {
     const [{ count }] = await db
       .select({ count: sql<number>`count(*)::int` })
       .from(crmWhatsAppCatalogos)
-      .where(eq(crmWhatsAppCatalogos.linhaNumero, sql`(SELECT numero FROM crm_whatsapp_linhas WHERE id = ${Number(id)})`))
+      .where(
+        eq(
+          crmWhatsAppCatalogos.linhaNumero,
+          sql`(SELECT numero FROM crm_whatsapp_linhas WHERE id = ${Number(id)})`
+        )
+      )
 
     if (count > 0) {
       return NextResponse.json(

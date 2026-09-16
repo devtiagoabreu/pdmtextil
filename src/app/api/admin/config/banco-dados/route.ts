@@ -6,6 +6,17 @@ import { bancosDados } from "@/lib/db/schema/banco-dados"
 import { eq } from "drizzle-orm"
 export const dynamic = "force-dynamic"
 
+function mascararConnectionString(conn: string): string {
+  try {
+    return conn.replace(
+      /(postgres(?:ql)?:\/\/)([^:@/]+)(?::[^:@/]*)?(@)/,
+      (_m, prefix: string, user: string, at: string) => `${prefix}${user}:******${at}`
+    )
+  } catch {
+    return "******"
+  }
+}
+
 export async function GET() {
   try {
     const session = await getServerSession(authOptions)
@@ -14,7 +25,13 @@ export async function GET() {
     }
 
     const lista = await db.select().from(bancosDados).orderBy(bancosDados.nome)
-    return NextResponse.json(lista)
+    const mascarada = lista.map((b: typeof bancosDados.$inferSelect) => ({
+      ...b,
+      connectionString: b.connectionString
+        ? mascararConnectionString(b.connectionString)
+        : b.connectionString,
+    }))
+    return NextResponse.json(mascarada)
   } catch (error) {
     console.error("[GET /api/admin/config/banco-dados]", error)
     return NextResponse.json({ error: "Erro interno" }, { status: 500 })
@@ -30,7 +47,10 @@ export async function POST(req: NextRequest) {
 
     const { nome, connectionString } = await req.json()
     if (!nome || !connectionString) {
-      return NextResponse.json({ error: "nome e connectionString são obrigatórios" }, { status: 400 })
+      return NextResponse.json(
+        { error: "nome e connectionString são obrigatórios" },
+        { status: 400 }
+      )
     }
 
     const [item] = await db.insert(bancosDados).values({ nome, connectionString }).returning()

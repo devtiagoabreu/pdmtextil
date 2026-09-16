@@ -13,14 +13,30 @@ import { registrarExternalIdEnviada } from "@/lib/whatsapp/status"
 import { enfileirarRetry } from "@/lib/whatsapp/retry-processor"
 import crypto from "crypto"
 import { buildSystemPrompt } from "@/lib/whatsapp/prompt"
-import { rejeitarNome, negou, confirmou, pareceNome, detectarTipo, extrairDoc, parseLinhas, linhasNomes, ehSaudacao } from "@/lib/whatsapp/validation"
+import {
+  rejeitarNome,
+  negou,
+  confirmou,
+  pareceNome,
+  detectarTipo,
+  extrairDoc,
+  parseLinhas,
+  linhasNomes,
+  ehSaudacao,
+} from "@/lib/whatsapp/validation"
 import { analisarEscalacao, analisarLinhas, temIndicioDeLinhas } from "@/lib/whatsapp/intencao"
 import { prepararHistoricoIA, gerarResumoIA } from "@/lib/whatsapp/resumo"
 import { maquinaEstados, type MaquinaEstadoResult } from "@/lib/whatsapp/state-machine"
 import { calcularLeadScore } from "@/lib/whatsapp/lead-scoring"
 import { chamarGroq, extrairDadosLead } from "@/lib/whatsapp/groq"
 import { consultarCNPJ } from "@/lib/whatsapp/cnpj"
-import { extrairMensagem, extrairNumero, logStep, type EvolutionWebhookBody } from "@/lib/whatsapp/helpers"
+import {
+  extrairMensagem,
+  extrairNumero,
+  logStep,
+  type EvolutionWebhookBody,
+} from "@/lib/whatsapp/helpers"
+import { validarWebhookSecret } from "@/lib/whatsapp/webhook-auth"
 import { adquirirLockConversa, liberarLockConversa } from "@/lib/whatsapp/conversation-lock"
 import { notificarRepresentantes, notificarDestinatariosEmail } from "@/lib/whatsapp/representantes"
 import { registrarLogBot } from "@/lib/whatsapp/bot-log"
@@ -123,30 +139,37 @@ async function executarFluxoInterno(req: NextRequest) {
   let executionId = "no-exec"
   let remoteJidGlobal = ""
   let pushNameGlobal = ""
-  try { executionId = crypto.randomUUID() } catch { executionId = `fallback-${Date.now()}` }
+  try {
+    executionId = crypto.randomUUID()
+  } catch {
+    executionId = `fallback-${Date.now()}`
+  }
 
   try {
-    const webhookSecret = process.env.PDM_WEBHOOK_SECRET
-    if (!webhookSecret) {
-      console.error("[AI-Webhook] PDM_WEBHOOK_SECRET não configurado")
-      return NextResponse.json({ error: "Webhook não configurado" }, { status: 500 })
-    }
+    const authResult = validarWebhookSecret(req)
+    const authValid = "ok" in authResult
 
-    const authHeader = req.headers.get("authorization")
-    const querySecret = req.nextUrl.searchParams.get("secret")
-    const authValid = authHeader === `Bearer ${webhookSecret}` || querySecret === webhookSecret
-
-    await logStep(executionId, remoteJidGlobal, pushNameGlobal, "auth", authValid ? "success" : "error", {
-      method: authHeader ? "bearer" : "query",
-      querySecretLen: querySecret?.length || 0,
-      querySecretLast4: querySecret?.slice(-4) || "",
-      envSecretLen: webhookSecret.length,
-      envSecretLast4: webhookSecret.slice(-4),
-      fullUrl: req.nextUrl.pathname + "?" + req.nextUrl.searchParams.toString(),
-    }, { valid: authValid }, authValid ? null : "Unauthorized", 0)
+    await logStep(
+      executionId,
+      remoteJidGlobal,
+      pushNameGlobal,
+      "auth",
+      authValid ? "success" : "error",
+      {
+        method: req.headers.get("authorization") ? "bearer" : "query",
+        querySecretLen: req.nextUrl.searchParams.get("secret")?.length || 0,
+        querySecretLast4: req.nextUrl.searchParams.get("secret")?.slice(-4) || "",
+        envSecretLen: process.env.PDM_WEBHOOK_SECRET?.length || 0,
+        envSecretLast4: process.env.PDM_WEBHOOK_SECRET?.slice(-4) || "",
+        fullUrl: req.nextUrl.pathname + "?" + req.nextUrl.searchParams.toString(),
+      },
+      { valid: authValid },
+      authValid ? null : "Unauthorized",
+      0
+    )
 
     if (!authValid) {
-      return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
+      return authResult
     }
 
     const rawText = await req.text()
@@ -158,7 +181,17 @@ async function executarFluxoInterno(req: NextRequest) {
         const decoded = Buffer.from(rawText, "base64").toString("utf-8")
         body = JSON.parse(decoded)
       } catch {
-        await logStep(executionId, remoteJidGlobal, pushNameGlobal, "extract", "error", { rawTextLen: rawText.length, rawPreview: rawText.substring(0, 100) }, {}, "Failed to parse body (JSON or base64)", 0)
+        await logStep(
+          executionId,
+          remoteJidGlobal,
+          pushNameGlobal,
+          "extract",
+          "error",
+          { rawTextLen: rawText.length, rawPreview: rawText.substring(0, 100) },
+          {},
+          "Failed to parse body (JSON or base64)",
+          0
+        )
         return NextResponse.json({ error: "Invalid body" }, { status: 400 })
       }
     }
@@ -168,7 +201,23 @@ async function executarFluxoInterno(req: NextRequest) {
     const fromMe = body.data?.key?.fromMe === true
     const mensagem = extrairMensagem(body)
 
-    await logStep(executionId, remoteJid, pushName, "extract", "success", { rawBody: { remoteJid, pushName, fromMe } }, { remoteJid, pushName, fromMe, mensagem: mensagem.substring(0, 100), msgType: body.data?.messageType }, null, 0)
+    await logStep(
+      executionId,
+      remoteJid,
+      pushName,
+      "extract",
+      "success",
+      { rawBody: { remoteJid, pushName, fromMe } },
+      {
+        remoteJid,
+        pushName,
+        fromMe,
+        mensagem: mensagem.substring(0, 100),
+        msgType: body.data?.messageType,
+      },
+      null,
+      0
+    )
 
     // Idempotency check
     const recentSameMsg = await db
@@ -185,39 +234,121 @@ async function executarFluxoInterno(req: NextRequest) {
       .limit(1)
 
     if (recentSameMsg.length > 0) {
-      await logStep(executionId, remoteJid, pushName, "filter", "ignored", { duplicate: true }, { reason: "idempotency_duplicate" }, null, 0)
+      await logStep(
+        executionId,
+        remoteJid,
+        pushName,
+        "filter",
+        "ignored",
+        { duplicate: true },
+        { reason: "idempotency_duplicate" },
+        null,
+        0
+      )
       return NextResponse.json({ status: "ignored", reason: "duplicate" })
     }
 
     if (fromMe) {
-      await logStep(executionId, remoteJid, pushName, "filter", "ignored", { fromMe, mensagem }, { reason: "fromMe" }, null, 0)
+      await logStep(
+        executionId,
+        remoteJid,
+        pushName,
+        "filter",
+        "ignored",
+        { fromMe, mensagem },
+        { reason: "fromMe" },
+        null,
+        0
+      )
       return NextResponse.json({ status: "ignored", reason: "fromMe" })
     }
     if (!mensagem || !mensagem.trim()) {
       const msgType = body.data?.messageType || ""
-      if (msgType && msgType !== "conversation" && msgType !== "extendedTextMessage" && msgType !== "") {
+      if (
+        msgType &&
+        msgType !== "conversation" &&
+        msgType !== "extendedTextMessage" &&
+        msgType !== ""
+      ) {
         if (evolutionConfigurado()) {
-          const envio = await enviarMensagem(remoteJid, "No momento consigo apenas ler mensagens de texto. Por favor, digite sua resposta.")
+          const envio = await enviarMensagem(
+            remoteJid,
+            "No momento consigo apenas ler mensagens de texto. Por favor, digite sua resposta."
+          )
           if (!envio.sucesso) {
-            await enfileirarRetry(remoteJid, "No momento consigo apenas ler mensagens de texto. Por favor, digite sua resposta.", envio.erro || "send_failed")
+            await enfileirarRetry(
+              remoteJid,
+              "No momento consigo apenas ler mensagens de texto. Por favor, digite sua resposta.",
+              envio.erro || "send_failed"
+            )
           }
         }
-        await logStep(executionId, remoteJid, pushName, "filter", "media_detected", { msgType }, { reason: "non_text_message" }, null, 0)
+        await logStep(
+          executionId,
+          remoteJid,
+          pushName,
+          "filter",
+          "media_detected",
+          { msgType },
+          { reason: "non_text_message" },
+          null,
+          0
+        )
         return NextResponse.json({ status: "ignored", reason: "media_detected" })
       }
-      await logStep(executionId, remoteJid, pushName, "filter", "ignored", { mensagem }, { reason: "empty" }, null, 0)
+      await logStep(
+        executionId,
+        remoteJid,
+        pushName,
+        "filter",
+        "ignored",
+        { mensagem },
+        { reason: "empty" },
+        null,
+        0
+      )
       return NextResponse.json({ status: "ignored", reason: "empty" })
     }
     if (!remoteJid) {
-      await logStep(executionId, remoteJid, pushName, "filter", "ignored", { remoteJid }, { reason: "no_sender" }, null, 0)
+      await logStep(
+        executionId,
+        remoteJid,
+        pushName,
+        "filter",
+        "ignored",
+        { remoteJid },
+        { reason: "no_sender" },
+        null,
+        0
+      )
       return NextResponse.json({ status: "ignored", reason: "no_sender" })
     }
 
-    await logStep(executionId, remoteJid, pushName, "filter", "success", { fromMe, mensagem: mensagem.substring(0, 100) }, { reason: "passed" }, null, 0)
+    await logStep(
+      executionId,
+      remoteJid,
+      pushName,
+      "filter",
+      "success",
+      { fromMe, mensagem: mensagem.substring(0, 100) },
+      { reason: "passed" },
+      null,
+      0
+    )
 
     const aquisicao = await adquirirLockConversa(remoteJid)
     if (!aquisicao) {
-      await logStep(executionId, remoteJid, pushName, "lock", "skipped", { remoteJid }, { reason: "conversation_busy" }, null, 0)
+      await logStep(
+        executionId,
+        remoteJid,
+        pushName,
+        "lock",
+        "skipped",
+        { remoteJid },
+        { reason: "conversation_busy" },
+        null,
+        0
+      )
       return NextResponse.json({ status: "retry", reason: "conversation_busy" }, { status: 202 })
     }
     try {
@@ -234,12 +365,21 @@ async function executarFluxoInterno(req: NextRequest) {
     } finally {
       await liberarLockConversa(remoteJid, aquisicao.token)
     }
-
   } catch (error) {
     const errMsg = error instanceof Error ? error.message : "Unknown error"
     const errStack = error instanceof Error ? error.stack : ""
     console.error("[AI-Webhook] Erro:", errMsg, errStack)
-    await logStep(executionId, remoteJidGlobal, pushNameGlobal, "unknown", "error", {}, {}, errMsg, 0)
+    await logStep(
+      executionId,
+      remoteJidGlobal,
+      pushNameGlobal,
+      "unknown",
+      "error",
+      {},
+      {},
+      errMsg,
+      0
+    )
     await registrarLogBot({
       tipo: "ERRO",
       origem: "processador",
@@ -250,9 +390,6 @@ async function executarFluxoInterno(req: NextRequest) {
     return NextResponse.json({ error: "Erro interno", detail: errMsg }, { status: 500 })
   }
 }
-
-
-
 
 async function processarConversa(params: {
   executionId: string
@@ -274,11 +411,26 @@ async function processarConversa(params: {
     .then((r: any) => r[0] || null)
 
   const findConvDuration = Date.now() - t0
-  await logStep(executionId, remoteJid, pushName, "find_conversation", "success", { remoteJid, isNew, leadExists: leadExistente }, { estado: conversa?.estado, conversaId: conversa?.id, dados: conversa?.dados }, null, findConvDuration)
+  await logStep(
+    executionId,
+    remoteJid,
+    pushName,
+    "find_conversation",
+    "success",
+    { remoteJid, isNew, leadExists: leadExistente },
+    { estado: conversa?.estado, conversaId: conversa?.id, dados: conversa?.dados },
+    null,
+    findConvDuration
+  )
 
   const CONVERSATION_TTL_MS = 24 * 60 * 60 * 1000 // 24h
   const lastUpdate = conversa.updatedAt ? new Date(conversa.updatedAt).getTime() : 0
-  if (lastUpdate && (Date.now() - lastUpdate > CONVERSATION_TTL_MS) && conversa.estado !== "SAUDACAO" && conversa.estado !== "HUMANO_ASSUMINDO") {
+  if (
+    lastUpdate &&
+    Date.now() - lastUpdate > CONVERSATION_TTL_MS &&
+    conversa.estado !== "SAUDACAO" &&
+    conversa.estado !== "HUMANO_ASSUMINDO"
+  ) {
     const dadosReset: Record<string, any> = { _processandoEm: lockToken }
     await db
       .insert(crmWhatsappConversas)
@@ -288,12 +440,32 @@ async function processarConversa(params: {
         set: { estado: sql`EXCLUDED.estado`, dados: sql`EXCLUDED.dados`, updatedAt: sql`NOW()` },
       })
     conversa = { ...conversa, estado: "SAUDACAO", dados: dadosReset }
-    await logStep(executionId, remoteJid, pushName, "ttl_reset", "success", { previousState: conversa.estado }, { reason: "conversation_expired_24h" }, null, 0)
+    await logStep(
+      executionId,
+      remoteJid,
+      pushName,
+      "ttl_reset",
+      "success",
+      { previousState: conversa.estado },
+      { reason: "conversation_expired_24h" },
+      null,
+      0
+    )
   }
 
   const intencao = await analisarEscalacao(mensagem, conversa.estado)
   if (intencao.via === "llm") {
-    await logStep(executionId, remoteJid, pushName, "intent", "success", { estado: conversa.estado, msg: mensagem.substring(0, 100) }, { querAtendente: intencao.querAtendente, querReiniciar: intencao.querReiniciar }, null, 0)
+    await logStep(
+      executionId,
+      remoteJid,
+      pushName,
+      "intent",
+      "success",
+      { estado: conversa.estado, msg: mensagem.substring(0, 100) },
+      { querAtendente: intencao.querAtendente, querReiniciar: intencao.querReiniciar },
+      null,
+      0
+    )
   }
 
   if (intencao.querReiniciar && conversa.estado !== "SAUDACAO") {
@@ -307,26 +479,66 @@ async function processarConversa(params: {
       })
     conversa = { ...conversa, estado: "SAUDACAO", dados: dadosReset }
 
-    await db.insert(crmWhatsappMensagens).values({ mensagem, tipo: "RECEBIDA", status: "RECEBIDA", remoteJid })
-    await db.insert(crmWhatsappMensagens).values({ mensagem: "Claro! Vamos comecar novamente. Qual o seu nome?", tipo: "ENVIADA", status: "ENVIADA", remoteJid })
+    await db
+      .insert(crmWhatsappMensagens)
+      .values({ mensagem, tipo: "RECEBIDA", status: "RECEBIDA", remoteJid })
+    await db
+      .insert(crmWhatsappMensagens)
+      .values({
+        mensagem: "Claro! Vamos comecar novamente. Qual o seu nome?",
+        tipo: "ENVIADA",
+        status: "ENVIADA",
+        remoteJid,
+      })
 
     if (evolutionConfigurado()) {
-      const envio = await enviarMensagemRastreada(remoteJid, "Claro! Vamos comecar novamente. Qual o seu nome?")
+      const envio = await enviarMensagemRastreada(
+        remoteJid,
+        "Claro! Vamos comecar novamente. Qual o seu nome?"
+      )
       if (!envio.sucesso) {
-        await enfileirarRetry(remoteJid, "Claro! Vamos comecar novamente. Qual o seu nome?", envio.erro || "send_failed")
+        await enfileirarRetry(
+          remoteJid,
+          "Claro! Vamos comecar novamente. Qual o seu nome?",
+          envio.erro || "send_failed"
+        )
       }
     }
 
-    await logStep(executionId, remoteJid, pushName, "restart", "success", { previousState: conversa.estado }, { reason: "user_requested_restart" }, null, 0)
+    await logStep(
+      executionId,
+      remoteJid,
+      pushName,
+      "restart",
+      "success",
+      { previousState: conversa.estado },
+      { reason: "user_requested_restart" },
+      null,
+      0
+    )
     return NextResponse.json({ ok: true, restarted: true })
   }
 
-  if (intencao.querAtendente && conversa.estado !== "AGUARDANDO_REPRESENTANTE" && conversa.estado !== "ENCERRADO" && conversa.estado !== "HUMANO_ASSUMINDO") {
+  if (
+    intencao.querAtendente &&
+    conversa.estado !== "AGUARDANDO_REPRESENTANTE" &&
+    conversa.estado !== "ENCERRADO" &&
+    conversa.estado !== "HUMANO_ASSUMINDO"
+  ) {
     const nomeFinal = conversa.dados?.nome || pushName || "Anonimo"
     const numero = extrairNumero(remoteJid)
 
-    await db.insert(crmWhatsappMensagens).values({ mensagem, tipo: "RECEBIDA", status: "RECEBIDA", remoteJid })
-    await db.insert(crmWhatsappMensagens).values({ mensagem: "Entendido! Vou te conectar com um representante comercial. Aguarde um momento.", tipo: "ENVIADA", status: "ENVIADA", remoteJid })
+    await db
+      .insert(crmWhatsappMensagens)
+      .values({ mensagem, tipo: "RECEBIDA", status: "RECEBIDA", remoteJid })
+    await db
+      .insert(crmWhatsappMensagens)
+      .values({
+        mensagem: "Entendido! Vou te conectar com um representante comercial. Aguarde um momento.",
+        tipo: "ENVIADA",
+        status: "ENVIADA",
+        remoteJid,
+      })
     await db
       .insert(crmWhatsappConversas)
       .values({ remoteJid, estado: "AGUARDANDO_REPRESENTANTE", dados: conversa.dados || {} })
@@ -336,9 +548,16 @@ async function processarConversa(params: {
       })
 
     if (evolutionConfigurado()) {
-      const envio = await enviarMensagemRastreada(remoteJid, "Entendido! Vou te conectar com um representante comercial. Aguarde um momento.")
+      const envio = await enviarMensagemRastreada(
+        remoteJid,
+        "Entendido! Vou te conectar com um representante comercial. Aguarde um momento."
+      )
       if (!envio.sucesso) {
-        await enfileirarRetry(remoteJid, "Entendido! Vou te conectar com um representante comercial. Aguarde um momento.", envio.erro || "send_failed")
+        await enfileirarRetry(
+          remoteJid,
+          "Entendido! Vou te conectar com um representante comercial. Aguarde um momento.",
+          envio.erro || "send_failed"
+        )
       }
     }
 
@@ -378,8 +597,22 @@ async function processarConversa(params: {
   const maxNumero = linhasAtivas.length > 0 ? linhasAtivas[linhasAtivas.length - 1].numero : 5
 
   if (conversa.estado === "HUMANO_ASSUMINDO") {
-    await logStep(executionId, remoteJid, pushName, "state_machine", "ignored", { estado: conversa.estado }, { reason: "human_mode_active" }, null, 0)
-    return NextResponse.json({ status: "ignored", reason: "human_mode_active", estado: conversa.estado })
+    await logStep(
+      executionId,
+      remoteJid,
+      pushName,
+      "state_machine",
+      "ignored",
+      { estado: conversa.estado },
+      { reason: "human_mode_active" },
+      null,
+      0
+    )
+    return NextResponse.json({
+      status: "ignored",
+      reason: "human_mode_active",
+      estado: conversa.estado,
+    })
   }
 
   if (conversa.estado === "AGUARDANDO_REPRESENTANTE" || conversa.estado === "ENCERRADO") {
@@ -393,16 +626,21 @@ async function processarConversa(params: {
       .limit(1)
       .then((r: any) => r[0] || null)
 
-    const msgEncerrada = conversa.estado === "ENCERRADO"
-      ? "Sua atendimento ja foi finalizado e os catalogos foram enviados. Um representante comercial entrara em contato."
-      : "Voce ja esta sendo atendido por um representante comercial. Aguarde o contato dele."
+    const msgEncerrada =
+      conversa.estado === "ENCERRADO"
+        ? "Sua atendimento ja foi finalizado e os catalogos foram enviados. Um representante comercial entrara em contato."
+        : "Voce ja esta sendo atendido por um representante comercial. Aguarde o contato dele."
     const msgRetorno =
       "Que bom te-lo(a) de volta! Este canal de contato nao realiza atendimento direto. Vou informar seu representante que voce esta precisando falar e ele entrara em contato em breve."
 
     const textoCliente = leadRetorno ? msgRetorno : msgEncerrada
 
-    await db.insert(crmWhatsappMensagens).values({ mensagem, tipo: "RECEBIDA", status: "RECEBIDA", remoteJid })
-    await db.insert(crmWhatsappMensagens).values({ mensagem: textoCliente, tipo: "ENVIADA", status: "ENVIADA", remoteJid })
+    await db
+      .insert(crmWhatsappMensagens)
+      .values({ mensagem, tipo: "RECEBIDA", status: "RECEBIDA", remoteJid })
+    await db
+      .insert(crmWhatsappMensagens)
+      .values({ mensagem: textoCliente, tipo: "ENVIADA", status: "ENVIADA", remoteJid })
 
     if (evolutionConfigurado()) {
       const envio = await enviarMensagemRastreada(remoteJid, textoCliente)
@@ -436,7 +674,12 @@ async function processarConversa(params: {
           tipo: "WHATSAPP_RETORNO",
           titulo: "Cliente antigo retornou",
           mensagem: `${nomeRetorno} (${remoteJid}) entrou em contato novamente. Encaminhado para representante ${tipoLabelRetorno}.`,
-          metadados: { remoteJid, nome: nomeRetorno, tipoPessoa: leadRetorno.tipoPessoa, leadId: leadRetorno.id },
+          metadados: {
+            remoteJid,
+            nome: nomeRetorno,
+            tipoPessoa: leadRetorno.tipoPessoa,
+            leadId: leadRetorno.id,
+          },
           lida: false,
         })
       } catch (notifErr) {
@@ -444,8 +687,23 @@ async function processarConversa(params: {
       }
     }
 
-    await logStep(executionId, remoteJid, pushName, "state_machine", "ignored", { estado: conversa.estado, retorno: !!leadRetorno }, { reason: "conversation_ended" }, null, 0)
-    return NextResponse.json({ status: "ignored", reason: "conversation_ended", estado: conversa.estado, retorno: !!leadRetorno })
+    await logStep(
+      executionId,
+      remoteJid,
+      pushName,
+      "state_machine",
+      "ignored",
+      { estado: conversa.estado, retorno: !!leadRetorno },
+      { reason: "conversation_ended" },
+      null,
+      0
+    )
+    return NextResponse.json({
+      status: "ignored",
+      reason: "conversation_ended",
+      estado: conversa.estado,
+      retorno: !!leadRetorno,
+    })
   }
 
   if (
@@ -463,14 +721,19 @@ async function processarConversa(params: {
       .then((r: any) => r[0] || null)
 
     if (leadRetornando) {
-      const tipoLabelRetorno = leadRetornando.tipoPessoa === "PJ" ? "Pessoa Juridica" : "Pessoa Fisica"
+      const tipoLabelRetorno =
+        leadRetornando.tipoPessoa === "PJ" ? "Pessoa Juridica" : "Pessoa Fisica"
       const tipoPessoaRetorno: "PJ" | "PF" = leadRetornando.tipoPessoa === "PJ" ? "PJ" : "PF"
       const nomeRetorno = leadRetornando.nome || pushName || "Cliente"
       const msgRetornoSaudacao =
         "Que bom te-lo(a) de volta! Este canal de contato nao realiza atendimento direto. Vou informar seu representante que voce esta precisando falar e ele entrara em contato em breve."
 
-      await db.insert(crmWhatsappMensagens).values({ mensagem, tipo: "RECEBIDA", status: "RECEBIDA", remoteJid })
-      await db.insert(crmWhatsappMensagens).values({ mensagem: msgRetornoSaudacao, tipo: "ENVIADA", status: "ENVIADA", remoteJid })
+      await db
+        .insert(crmWhatsappMensagens)
+        .values({ mensagem, tipo: "RECEBIDA", status: "RECEBIDA", remoteJid })
+      await db
+        .insert(crmWhatsappMensagens)
+        .values({ mensagem: msgRetornoSaudacao, tipo: "ENVIADA", status: "ENVIADA", remoteJid })
       await db
         .insert(crmWhatsappConversas)
         .values({ remoteJid, estado: "AGUARDANDO_REPRESENTANTE", dados: conversa.dados || {} })
@@ -506,14 +769,29 @@ async function processarConversa(params: {
           tipo: "WHATSAPP_RETORNO",
           titulo: "Cliente antigo retornou",
           mensagem: `${nomeRetorno} (${remoteJid}) entrou em contato novamente. Encaminhado para representante ${tipoLabelRetorno}.`,
-          metadados: { remoteJid, nome: nomeRetorno, tipoPessoa: leadRetornando.tipoPessoa, leadId: leadRetornando.id },
+          metadados: {
+            remoteJid,
+            nome: nomeRetorno,
+            tipoPessoa: leadRetornando.tipoPessoa,
+            leadId: leadRetornando.id,
+          },
           lida: false,
         })
       } catch (notifErr) {
         console.error("[AI-Webhook] Erro ao criar notificacao de retorno (saudacao):", notifErr)
       }
 
-      await logStep(executionId, remoteJid, pushName, "return_greeting", "success", { estado: conversa.estado, leadId: leadRetornando.id }, { reason: "known_lead_returned" }, null, 0)
+      await logStep(
+        executionId,
+        remoteJid,
+        pushName,
+        "return_greeting",
+        "success",
+        { estado: conversa.estado, leadId: leadRetornando.id },
+        { reason: "known_lead_returned" },
+        null,
+        0
+      )
       return NextResponse.json({ ok: true, retornoSaudacao: true })
     }
   }
@@ -526,15 +804,20 @@ async function processarConversa(params: {
     .limit(30)
     .then((r: any) => r.reverse())
 
-  const historico: Array<{ role: "user" | "assistant"; content: string }> = historicoRows.map((row: any) => ({
-    role: row.tipo === "RECEBIDA" ? "user" : "assistant",
-    content: row.mensagem,
-  }))
+  const historico: Array<{ role: "user" | "assistant"; content: string }> = historicoRows.map(
+    (row: any) => ({
+      role: row.tipo === "RECEBIDA" ? "user" : "assistant",
+      content: row.mensagem,
+    })
+  )
 
   const historicoIA = prepararHistoricoIA(historico, conversa.dados || {})
   if (historicoIA.gerarResumo) {
     const tResumo = Date.now()
-    const novoResumo = await gerarResumoIA(historicoIA.segmentoParaResumo, historicoIA.resumoAnterior)
+    const novoResumo = await gerarResumoIA(
+      historicoIA.segmentoParaResumo,
+      historicoIA.resumoAnterior
+    )
     if (novoResumo) {
       conversa.dados = {
         ...(conversa.dados || {}),
@@ -544,25 +827,74 @@ async function processarConversa(params: {
         { role: "assistant", content: `[Resumo anterior] ${novoResumo}` },
         ...historicoIA.mensagens.filter((m: any) => !m.content.startsWith("[Resumo anterior]")),
       ]
-      await logStep(executionId, remoteJid, pushName, "resumo", "success", { historicoSize: historico.length }, { resumo: novoResumo.slice(0, 150) }, null, Date.now() - tResumo)
+      await logStep(
+        executionId,
+        remoteJid,
+        pushName,
+        "resumo",
+        "success",
+        { historicoSize: historico.length },
+        { resumo: novoResumo.slice(0, 150) },
+        null,
+        Date.now() - tResumo
+      )
     } else {
-      await logStep(executionId, remoteJid, pushName, "resumo", "error", { historicoSize: historico.length }, { } , "IA nao gerou resumo", 0)
+      await logStep(
+        executionId,
+        remoteJid,
+        pushName,
+        "resumo",
+        "error",
+        { historicoSize: historico.length },
+        {},
+        "IA nao gerou resumo",
+        0
+      )
     }
   }
   const historicoParaIA = historicoIA.mensagens
 
   const tGroq = Date.now()
-  const aiResult = await chamarGroq(mensagem, pushName, conversa.estado, conversa.dados || {}, historicoParaIA, linhasAtivas)
+  const aiResult = await chamarGroq(
+    mensagem,
+    pushName,
+    conversa.estado,
+    conversa.dados || {},
+    historicoParaIA,
+    linhasAtivas
+  )
   const groqDuration = Date.now() - tGroq
   const aiResponse = aiResult.conteudo
 
-  const groqError = aiResponse.includes("dificuldades tecnicas") || aiResponse.includes("nao consegui processar")
-  await logStep(executionId, remoteJid, pushName, "groq_call", groqError ? "error" : "success", { model: aiResult.modelo || process.env.GROQ_MODEL || "qwen/qwen3.8-27b", provedor: aiResult.provedor, tentativas: aiResult.tentativas, estado: conversa.estado, historicoSize: historico.length, userMessage: mensagem.substring(0, 100) }, { response: aiResponse.substring(0, 200) }, groqError ? "Todos os provedores de IA falharam" : null, groqDuration)
+  const groqError =
+    aiResponse.includes("dificuldades tecnicas") || aiResponse.includes("nao consegui processar")
+  await logStep(
+    executionId,
+    remoteJid,
+    pushName,
+    "groq_call",
+    groqError ? "error" : "success",
+    {
+      model: aiResult.modelo || process.env.GROQ_MODEL || "qwen/qwen3.8-27b",
+      provedor: aiResult.provedor,
+      tentativas: aiResult.tentativas,
+      estado: conversa.estado,
+      historicoSize: historico.length,
+      userMessage: mensagem.substring(0, 100),
+    },
+    { response: aiResponse.substring(0, 200) },
+    groqError ? "Todos os provedores de IA falharam" : null,
+    groqDuration
+  )
 
   if (groqError) {
     const retryMsg = "Tive uma dificuldade tecnica. Pode repetir sua mensagem, por favor?"
-    await db.insert(crmWhatsappMensagens).values({ mensagem, tipo: "RECEBIDA", status: "RECEBIDA", remoteJid })
-    await db.insert(crmWhatsappMensagens).values({ mensagem: retryMsg, tipo: "ENVIADA", status: "ENVIADA", remoteJid })
+    await db
+      .insert(crmWhatsappMensagens)
+      .values({ mensagem, tipo: "RECEBIDA", status: "RECEBIDA", remoteJid })
+    await db
+      .insert(crmWhatsappMensagens)
+      .values({ mensagem: retryMsg, tipo: "ENVIADA", status: "ENVIADA", remoteJid })
 
     if (evolutionConfigurado()) {
       const envio = await enviarMensagemRastreada(remoteJid, retryMsg)
@@ -584,23 +916,28 @@ async function processarConversa(params: {
         const existente = await db
           .select({ id: crmLeads.id })
           .from(crmLeads)
-          .where(sql`${eq(crmLeads.idIntegracao, `whatsapp:${remoteJid}`)} OR ${eq(crmLeads.celular, numero)}`)
+          .where(
+            sql`${eq(crmLeads.idIntegracao, `whatsapp:${remoteJid}`)} OR ${eq(crmLeads.celular, numero)}`
+          )
           .limit(1)
           .then((r: any) => r[0] || null)
 
         if (!existente) {
           const pfLeadScore = calcularLeadScore({ tipoPessoa: "PF", documento: null })
-          const [novoLead] = await db.insert(crmLeads).values({
-            nome: nomeFinal,
-            celular: numero,
-            tipoPessoa: "PF",
-            origem: "WHATSAPP",
-            status: "NOVO",
-            descricao: `Lead criado via bot (erro tecnico). Motivo: ${motivo}. Bot falhou ${tentativasGroq}x seguidas. | Score: ${pfLeadScore.score}/100 (${pfLeadScore.prioridade})`,
-            idIntegracao: `whatsapp:${remoteJid}`,
-            score: pfLeadScore.score,
-            prioridade: pfLeadScore.prioridade,
-          }).returning()
+          const [novoLead] = await db
+            .insert(crmLeads)
+            .values({
+              nome: nomeFinal,
+              celular: numero,
+              tipoPessoa: "PF",
+              origem: "WHATSAPP",
+              status: "NOVO",
+              descricao: `Lead criado via bot (erro tecnico). Motivo: ${motivo}. Bot falhou ${tentativasGroq}x seguidas. | Score: ${pfLeadScore.score}/100 (${pfLeadScore.prioridade})`,
+              idIntegracao: `whatsapp:${remoteJid}`,
+              score: pfLeadScore.score,
+              prioridade: pfLeadScore.prioridade,
+            })
+            .returning()
           dadosGroq.leadId = novoLead.id
         } else {
           dadosGroq.leadId = existente.id
@@ -609,8 +946,11 @@ async function processarConversa(params: {
         console.error("[AI-Webhook] Erro ao criar lead groq error:", leadErr)
       }
 
-      const encaminharMsg = "Parece que estou com dificuldades tecnicas no momento. Vou te conectar com um representante comercial que podera ajudar voce."
-      await db.insert(crmWhatsappMensagens).values({ mensagem: encaminharMsg, tipo: "ENVIADA", status: "ENVIADA", remoteJid })
+      const encaminharMsg =
+        "Parece que estou com dificuldades tecnicas no momento. Vou te conectar com um representante comercial que podera ajudar voce."
+      await db
+        .insert(crmWhatsappMensagens)
+        .values({ mensagem: encaminharMsg, tipo: "ENVIADA", status: "ENVIADA", remoteJid })
       await db
         .insert(crmWhatsappConversas)
         .values({ remoteJid, estado: "AGUARDANDO_REPRESENTANTE", dados: dadosGroq })
@@ -647,14 +987,29 @@ async function processarConversa(params: {
           tipo: "WHATSAPP_ERRO_TECNICO",
           titulo: "Bot com erro tecnico",
           mensagem: `Cliente ${nomeFinal} (${remoteJid}) - bot falhou ${tentativasGroq}x. Lead criado e encaminhado para representante PF.`,
-          metadados: { remoteJid, nome: nomeFinal, tentativas: tentativasGroq, leadId: dadosGroq.leadId },
+          metadados: {
+            remoteJid,
+            nome: nomeFinal,
+            tentativas: tentativasGroq,
+            leadId: dadosGroq.leadId,
+          },
           lida: false,
         })
       } catch (notifErr) {
         console.error("[AI-Webhook] Erro ao criar notificacao groq:", notifErr)
       }
 
-      await logStep(executionId, remoteJid, pushName, "groq_fallback", "success", { groqError: true, tentativas: tentativasGroq }, { escalated: true, leadId: dadosGroq.leadId }, null, 0)
+      await logStep(
+        executionId,
+        remoteJid,
+        pushName,
+        "groq_fallback",
+        "success",
+        { groqError: true, tentativas: tentativasGroq },
+        { escalated: true, leadId: dadosGroq.leadId },
+        null,
+        0
+      )
       return NextResponse.json({ ok: true, groqEscalated: true })
     }
 
@@ -666,22 +1021,64 @@ async function processarConversa(params: {
         set: { dados: sql`EXCLUDED.dados`, updatedAt: sql`NOW()` },
       })
 
-    await logStep(executionId, remoteJid, pushName, "groq_fallback", "success", { groqError: true, tentativas: tentativasGroq }, { retried: true }, null, 0)
+    await logStep(
+      executionId,
+      remoteJid,
+      pushName,
+      "groq_fallback",
+      "success",
+      { groqError: true, tentativas: tentativasGroq },
+      { retried: true },
+      null,
+      0
+    )
     return NextResponse.json({ ok: true, groqRetry: true })
   }
 
   const tState = Date.now()
   let linhasSugeridas: number[] | undefined
-  if (conversa.estado === "COLETANDO_INTERESSE" && parseLinhas(mensagem, maxNumero).length === 0 && temIndicioDeLinhas(mensagem)) {
+  if (
+    conversa.estado === "COLETANDO_INTERESSE" &&
+    parseLinhas(mensagem, maxNumero).length === 0 &&
+    temIndicioDeLinhas(mensagem)
+  ) {
     linhasSugeridas = await analisarLinhas(mensagem, linhaMap, maxNumero)
     if (linhasSugeridas) {
-      await logStep(executionId, remoteJid, pushName, "intent_linhas", "success", { msg: mensagem.substring(0, 100) }, { linhas: linhasSugeridas, nomes: linhasNomes(linhasSugeridas, linhaMap) }, null, 0)
+      await logStep(
+        executionId,
+        remoteJid,
+        pushName,
+        "intent_linhas",
+        "success",
+        { msg: mensagem.substring(0, 100) },
+        { linhas: linhasSugeridas, nomes: linhasNomes(linhasSugeridas, linhaMap) },
+        null,
+        0
+      )
     }
   }
-  const { nextEstado, dados, finalizado, enviarCatalogo, needsCnpjLookup } = maquinaEstados(conversa.estado, conversa.dados || {}, mensagem, aiResponse, linhaMap, maxNumero, linhasSugeridas)
+  const { nextEstado, dados, finalizado, enviarCatalogo, needsCnpjLookup } = maquinaEstados(
+    conversa.estado,
+    conversa.dados || {},
+    mensagem,
+    aiResponse,
+    linhaMap,
+    maxNumero,
+    linhasSugeridas
+  )
   const stateDuration = Date.now() - tState
 
-  await logStep(executionId, remoteJid, pushName, "state_machine", "success", { curEstado: conversa.estado, msg: mensagem.substring(0, 100) }, { nextEstado, dados, finalizado, enviarCatalogo, needsCnpjLookup }, null, stateDuration)
+  await logStep(
+    executionId,
+    remoteJid,
+    pushName,
+    "state_machine",
+    "success",
+    { curEstado: conversa.estado, msg: mensagem.substring(0, 100) },
+    { nextEstado, dados, finalizado, enviarCatalogo, needsCnpjLookup },
+    null,
+    stateDuration
+  )
 
   if (dados._bloqueado) {
     const motivo = dados._motivoBloqueio || "respostas_invalidas"
@@ -689,42 +1086,58 @@ async function processarConversa(params: {
     const numero = extrairNumero(remoteJid)
     const tipoPessoaFinal = dados.tipoPessoa || "PF"
     const repTipo: "PJ" | "PF" = tipoPessoaFinal === "PJ" ? "PJ" : "PF"
-    const bloqueioMsg = "Parece que nao estou conseguindo entender suas respostas. Um representante comercial entrara em contato para ajudar voce."
+    const bloqueioMsg =
+      "Parece que nao estou conseguindo entender suas respostas. Um representante comercial entrara em contato para ajudar voce."
 
     try {
       const existente = await db
         .select({ id: crmLeads.id })
         .from(crmLeads)
-        .where(sql`${eq(crmLeads.idIntegracao, `whatsapp:${remoteJid}`)} OR ${eq(crmLeads.celular, numero)}`)
+        .where(
+          sql`${eq(crmLeads.idIntegracao, `whatsapp:${remoteJid}`)} OR ${eq(crmLeads.celular, numero)}`
+        )
         .limit(1)
         .then((r: any) => r[0] || null)
 
       if (!existente) {
-        const blockedLeadScore = calcularLeadScore({ tipoPessoa: tipoPessoaFinal, documento: dados.documento || null })
-        const [novoLead] = await db.insert(crmLeads).values({
-          nome: nomeFinal,
-          celular: numero,
+        const blockedLeadScore = calcularLeadScore({
           tipoPessoa: tipoPessoaFinal,
-          origem: "WHATSAPP",
-          status: "NOVO",
-          descricao: `Lead criado automaticamente via bot (bloqueado). Motivo: ${motivo}. Respostas invalidas 3x seguidas. | Score: ${blockedLeadScore.score}/100 (${blockedLeadScore.prioridade})`,
-          idIntegracao: `whatsapp:${remoteJid}`,
-          score: blockedLeadScore.score,
-          prioridade: blockedLeadScore.prioridade,
-        }).returning()
+          documento: dados.documento || null,
+        })
+        const [novoLead] = await db
+          .insert(crmLeads)
+          .values({
+            nome: nomeFinal,
+            celular: numero,
+            tipoPessoa: tipoPessoaFinal,
+            origem: "WHATSAPP",
+            status: "NOVO",
+            descricao: `Lead criado automaticamente via bot (bloqueado). Motivo: ${motivo}. Respostas invalidas 3x seguidas. | Score: ${blockedLeadScore.score}/100 (${blockedLeadScore.prioridade})`,
+            idIntegracao: `whatsapp:${remoteJid}`,
+            score: blockedLeadScore.score,
+            prioridade: blockedLeadScore.prioridade,
+          })
+          .returning()
         dados.leadId = novoLead.id
       } else {
         dados.leadId = existente.id
         if (nomeFinal !== "Anonimo") {
-          await db.update(crmLeads).set({ nome: nomeFinal, tipoPessoa: tipoPessoaFinal, updatedAt: sql`NOW()` }).where(eq(crmLeads.id, existente.id))
+          await db
+            .update(crmLeads)
+            .set({ nome: nomeFinal, tipoPessoa: tipoPessoaFinal, updatedAt: sql`NOW()` })
+            .where(eq(crmLeads.id, existente.id))
         }
       }
     } catch (leadErr) {
       console.error("[AI-Webhook] Erro ao criar lead bloqueado:", leadErr)
     }
 
-    await db.insert(crmWhatsappMensagens).values({ mensagem, tipo: "RECEBIDA", status: "RECEBIDA", remoteJid })
-    await db.insert(crmWhatsappMensagens).values({ mensagem: bloqueioMsg, tipo: "ENVIADA", status: "ENVIADA", remoteJid })
+    await db
+      .insert(crmWhatsappMensagens)
+      .values({ mensagem, tipo: "RECEBIDA", status: "RECEBIDA", remoteJid })
+    await db
+      .insert(crmWhatsappMensagens)
+      .values({ mensagem: bloqueioMsg, tipo: "ENVIADA", status: "ENVIADA", remoteJid })
     await db
       .insert(crmWhatsappConversas)
       .values({ remoteJid, estado: "AGUARDANDO_REPRESENTANTE", dados })
@@ -740,7 +1153,13 @@ async function processarConversa(params: {
       }
     }
 
-    const repData = { remoteJid, motivo, nome: nomeFinal, leadId: dados.leadId, estado: "AGUARDANDO_REPRESENTANTE" }
+    const repData = {
+      remoteJid,
+      motivo,
+      nome: nomeFinal,
+      leadId: dados.leadId,
+      estado: "AGUARDANDO_REPRESENTANTE",
+    }
     try {
       const tipoLabel = tipoPessoaFinal === "PJ" ? "Pessoa Juridica" : "Pessoa Fisica"
       await db.insert(crmNotificacoes).values({
@@ -769,7 +1188,17 @@ async function processarConversa(params: {
       console.error("[AI-Webhook] Erro ao criar notificacao de bloqueio:", notifErr)
     }
 
-    await logStep(executionId, remoteJid, pushName, "blocked_transfer", "success", { motivo, representante: repTipo, nomeFinal, leadId: dados.leadId }, { estadoFinal: "AGUARDANDO_REPRESENTANTE" }, null, 0)
+    await logStep(
+      executionId,
+      remoteJid,
+      pushName,
+      "blocked_transfer",
+      "success",
+      { motivo, representante: repTipo, nomeFinal, leadId: dados.leadId },
+      { estadoFinal: "AGUARDANDO_REPRESENTANTE" },
+      null,
+      0
+    )
 
     return NextResponse.json({ ok: true, blocked: true })
   }
@@ -790,13 +1219,21 @@ async function processarConversa(params: {
         `*Razao Social:* ${cnpjData.razaoSocial || "Nao informado"}`,
         cnpjData.nomeFantasia ? `*Nome Fantasia:* ${cnpjData.nomeFantasia}` : null,
         `*Situacao:* ${cnpjData.situacao || "Nao informado"}`,
-        cnpjData.endereco ? `*Endereco:* ${cnpjData.endereco}${cnpjData.bairro ? `, ${cnpjData.bairro}` : ""}${cnpjData.cidade ? ` - ${cnpjData.cidade}/${cnpjData.uf}` : ""}` : null,
+        cnpjData.endereco
+          ? `*Endereco:* ${cnpjData.endereco}${cnpjData.bairro ? `, ${cnpjData.bairro}` : ""}${cnpjData.cidade ? ` - ${cnpjData.cidade}/${cnpjData.uf}` : ""}`
+          : null,
         "",
         "Esses dados estao corretos? Digite SIM para confirmar ou NAO para prosseguir sem validacao do CNPJ.",
-      ].filter(Boolean).join("\n")
+      ]
+        .filter(Boolean)
+        .join("\n")
 
-      await db.insert(crmWhatsappMensagens).values({ mensagem, tipo: "RECEBIDA", status: "RECEBIDA", remoteJid })
-      await db.insert(crmWhatsappMensagens).values({ mensagem: partesMsg, tipo: "ENVIADA", status: "ENVIADA", remoteJid })
+      await db
+        .insert(crmWhatsappMensagens)
+        .values({ mensagem, tipo: "RECEBIDA", status: "RECEBIDA", remoteJid })
+      await db
+        .insert(crmWhatsappMensagens)
+        .values({ mensagem: partesMsg, tipo: "ENVIADA", status: "ENVIADA", remoteJid })
       await db
         .insert(crmWhatsappConversas)
         .values({ remoteJid, estado: nextEstado, dados })
@@ -812,7 +1249,21 @@ async function processarConversa(params: {
         }
       }
 
-      await logStep(executionId, remoteJid, pushName, "cnpj_lookup", "success", { cnpj: cnpjLimpo }, { razaoSocial: cnpjData.razaoSocial, nomeFantasia: cnpjData.nomeFantasia, situacao: cnpjData.situacao }, null, 0)
+      await logStep(
+        executionId,
+        remoteJid,
+        pushName,
+        "cnpj_lookup",
+        "success",
+        { cnpj: cnpjLimpo },
+        {
+          razaoSocial: cnpjData.razaoSocial,
+          nomeFantasia: cnpjData.nomeFantasia,
+          situacao: cnpjData.situacao,
+        },
+        null,
+        0
+      )
 
       return NextResponse.json({ ok: true, cnpjLookup: true })
     } else {
@@ -822,14 +1273,22 @@ async function processarConversa(params: {
       if (tentativaAtual < 2) {
         const retryMsg = `Nao consegui consultar o CNPJ ${dados.documento} na Receita Federal. Por favor, verifique se o numero esta correto e informe novamente.`
 
-        await db.insert(crmWhatsappMensagens).values({ mensagem, tipo: "RECEBIDA", status: "RECEBIDA", remoteJid })
-        await db.insert(crmWhatsappMensagens).values({ mensagem: retryMsg, tipo: "ENVIADA", status: "ENVIADA", remoteJid })
+        await db
+          .insert(crmWhatsappMensagens)
+          .values({ mensagem, tipo: "RECEBIDA", status: "RECEBIDA", remoteJid })
+        await db
+          .insert(crmWhatsappMensagens)
+          .values({ mensagem: retryMsg, tipo: "ENVIADA", status: "ENVIADA", remoteJid })
         await db
           .insert(crmWhatsappConversas)
           .values({ remoteJid, estado: nextEstado, dados })
           .onConflictDoUpdate({
             target: crmWhatsappConversas.remoteJid,
-            set: { estado: sql`EXCLUDED.estado`, dados: sql`EXCLUDED.dados`, updatedAt: sql`NOW()` },
+            set: {
+              estado: sql`EXCLUDED.estado`,
+              dados: sql`EXCLUDED.dados`,
+              updatedAt: sql`NOW()`,
+            },
           })
 
         if (evolutionConfigurado()) {
@@ -839,7 +1298,17 @@ async function processarConversa(params: {
           }
         }
 
-        await logStep(executionId, remoteJid, pushName, "cnpj_lookup", "retry", { cnpj: cnpjLimpo, tentativa: tentativaAtual }, { fallback: false }, "API lookup failed, asking retry", 0)
+        await logStep(
+          executionId,
+          remoteJid,
+          pushName,
+          "cnpj_lookup",
+          "retry",
+          { cnpj: cnpjLimpo, tentativa: tentativaAtual },
+          { fallback: false },
+          "API lookup failed, asking retry",
+          0
+        )
 
         return NextResponse.json({ ok: true, cnpjLookupRetry: true })
       } else {
@@ -847,14 +1316,22 @@ async function processarConversa(params: {
         dados.tipoPessoa = "PJ"
         const confirmarMsg = `Nao foi possivel consultar o CNPJ ${dados.documento} na Receita Federal. Posso seguir usando esse CNPJ como Pessoa Juridica? Responda SIM para confirmar.`
 
-        await db.insert(crmWhatsappMensagens).values({ mensagem, tipo: "RECEBIDA", status: "RECEBIDA", remoteJid })
-        await db.insert(crmWhatsappMensagens).values({ mensagem: confirmarMsg, tipo: "ENVIADA", status: "ENVIADA", remoteJid })
+        await db
+          .insert(crmWhatsappMensagens)
+          .values({ mensagem, tipo: "RECEBIDA", status: "RECEBIDA", remoteJid })
+        await db
+          .insert(crmWhatsappMensagens)
+          .values({ mensagem: confirmarMsg, tipo: "ENVIADA", status: "ENVIADA", remoteJid })
         await db
           .insert(crmWhatsappConversas)
           .values({ remoteJid, estado: "CONFIRMANDO_DADOS_CNPJ", dados })
           .onConflictDoUpdate({
             target: crmWhatsappConversas.remoteJid,
-            set: { estado: sql`EXCLUDED.estado`, dados: sql`EXCLUDED.dados`, updatedAt: sql`NOW()` },
+            set: {
+              estado: sql`EXCLUDED.estado`,
+              dados: sql`EXCLUDED.dados`,
+              updatedAt: sql`NOW()`,
+            },
           })
 
         if (evolutionConfigurado()) {
@@ -864,7 +1341,17 @@ async function processarConversa(params: {
           }
         }
 
-        await logStep(executionId, remoteJid, pushName, "cnpj_lookup", "fallback_confirm", { cnpj: cnpjLimpo, tentativa: tentativaAtual }, { estado: "CONFIRMANDO_DADOS_CNPJ" }, "API lookup failed twice, asking user to confirm CNPJ", 0)
+        await logStep(
+          executionId,
+          remoteJid,
+          pushName,
+          "cnpj_lookup",
+          "fallback_confirm",
+          { cnpj: cnpjLimpo, tentativa: tentativaAtual },
+          { estado: "CONFIRMANDO_DADOS_CNPJ" },
+          "API lookup failed twice, asking user to confirm CNPJ",
+          0
+        )
 
         return NextResponse.json({ ok: true, cnpjLookupFallback: true })
       }
@@ -872,8 +1359,12 @@ async function processarConversa(params: {
   }
 
   const tSave = Date.now()
-  await db.insert(crmWhatsappMensagens).values({ mensagem, tipo: "RECEBIDA", status: "RECEBIDA", remoteJid })
-  await db.insert(crmWhatsappMensagens).values({ mensagem: aiResponse, tipo: "ENVIADA", status: "ENVIADA", remoteJid })
+  await db
+    .insert(crmWhatsappMensagens)
+    .values({ mensagem, tipo: "RECEBIDA", status: "RECEBIDA", remoteJid })
+  await db
+    .insert(crmWhatsappMensagens)
+    .values({ mensagem: aiResponse, tipo: "ENVIADA", status: "ENVIADA", remoteJid })
   await db
     .insert(crmWhatsappConversas)
     .values({ remoteJid, estado: nextEstado, dados })
@@ -883,7 +1374,17 @@ async function processarConversa(params: {
     })
   const saveDuration = Date.now() - tSave
 
-  await logStep(executionId, remoteJid, pushName, "save_messages", "success", { remoteJid, nextEstado }, { msgsSaved: 2, conversationUpdated: true }, null, saveDuration)
+  await logStep(
+    executionId,
+    remoteJid,
+    pushName,
+    "save_messages",
+    "success",
+    { remoteJid, nextEstado },
+    { msgsSaved: 2, conversationUpdated: true },
+    null,
+    saveDuration
+  )
 
   let envioOk = true
   if (evolutionConfigurado()) {
@@ -891,13 +1392,33 @@ async function processarConversa(params: {
     const envio = await enviarMensagemRastreada(remoteJid, aiResponse)
     const sendDuration = Date.now() - tSend
     envioOk = envio.sucesso
-    await logStep(executionId, remoteJid, pushName, "send_response", envio.sucesso ? "success" : "error", { remoteJid, msgLength: aiResponse.length }, { sucesso: envio.sucesso, externalId: envio.externalId }, envio.erro || null, sendDuration)
+    await logStep(
+      executionId,
+      remoteJid,
+      pushName,
+      "send_response",
+      envio.sucesso ? "success" : "error",
+      { remoteJid, msgLength: aiResponse.length },
+      { sucesso: envio.sucesso, externalId: envio.externalId },
+      envio.erro || null,
+      sendDuration
+    )
     if (!envio.sucesso) {
       console.error("[AI-Webhook] Falha ao enviar:", envio.erro)
       await enfileirarRetry(remoteJid, aiResponse, envio.erro || "send_failed")
     }
   } else {
-    await logStep(executionId, remoteJid, pushName, "send_response", "skipped", { remoteJid }, { reason: "evolution_not_configured" }, null, 0)
+    await logStep(
+      executionId,
+      remoteJid,
+      pushName,
+      "send_response",
+      "skipped",
+      { remoteJid },
+      { reason: "evolution_not_configured" },
+      null,
+      0
+    )
   }
 
   let leadCriado = null
@@ -942,7 +1463,9 @@ async function processarConversa(params: {
 
         const linhasSemCatalogo = enviarCatalogo.filter((n: any) => !linhasAgrupadas[n])
         if (linhasSemCatalogo.length > 0) {
-          const nomesSemCatalogo = linhasSemCatalogo.map((n: any) => linhaMap[n] || `Linha ${n}`).join(", ")
+          const nomesSemCatalogo = linhasSemCatalogo
+            .map((n: any) => linhaMap[n] || `Linha ${n}`)
+            .join(", ")
           const msgSemCatalogo = `As seguintes linhas ainda nao possuem catalogo disponivel: ${nomesSemCatalogo}. Um representante comercial entrara em contato com mais informacoes.`
           const envio = await enviarMensagem(remoteJid, msgSemCatalogo)
           if (!envio.sucesso) {
@@ -950,24 +1473,68 @@ async function processarConversa(params: {
           }
         }
 
-        await logStep(executionId, remoteJid, pushName, "send_catalog", "success", { linhas: enviarCatalogo, totalCatalogos: catalogos.length, linhasSemCatalogo }, { catalogosEnviados: true }, null, Date.now() - tCat)
+        await logStep(
+          executionId,
+          remoteJid,
+          pushName,
+          "send_catalog",
+          "success",
+          { linhas: enviarCatalogo, totalCatalogos: catalogos.length, linhasSemCatalogo },
+          { catalogosEnviados: true },
+          null,
+          Date.now() - tCat
+        )
       } else {
-        const envio = await enviarMensagem(remoteJid, "No momento nao temos catalogos disponiveis para as linhas selecionadas. Um representante comercial entrara em contato com mais informacoes.")
+        const envio = await enviarMensagem(
+          remoteJid,
+          "No momento nao temos catalogos disponiveis para as linhas selecionadas. Um representante comercial entrara em contato com mais informacoes."
+        )
         if (!envio.sucesso) {
-          await enfileirarRetry(remoteJid, "No momento nao temos catalogos disponiveis para as linhas selecionadas. Um representante comercial entrara em contato com mais informacoes.", envio.erro || "send_failed")
+          await enfileirarRetry(
+            remoteJid,
+            "No momento nao temos catalogos disponiveis para as linhas selecionadas. Um representante comercial entrara em contato com mais informacoes.",
+            envio.erro || "send_failed"
+          )
         }
-        await logStep(executionId, remoteJid, pushName, "send_catalog", "empty", { linhas: enviarCatalogo }, { catalogosEnviados: false, reason: "no_active_catalogs" }, null, Date.now() - tCat)
+        await logStep(
+          executionId,
+          remoteJid,
+          pushName,
+          "send_catalog",
+          "empty",
+          { linhas: enviarCatalogo },
+          { catalogosEnviados: false, reason: "no_active_catalogs" },
+          null,
+          Date.now() - tCat
+        )
       }
     } catch (catErr) {
       console.error("[AI-Webhook] Erro ao enviar catalogos:", catErr)
-      await logStep(executionId, remoteJid, pushName, "send_catalog", "error", { linhas: enviarCatalogo }, {}, catErr instanceof Error ? catErr.message : "Unknown error", Date.now() - tCat)
+      await logStep(
+        executionId,
+        remoteJid,
+        pushName,
+        "send_catalog",
+        "error",
+        { linhas: enviarCatalogo },
+        {},
+        catErr instanceof Error ? catErr.message : "Unknown error",
+        Date.now() - tCat
+      )
     }
   }
 
   if (finalizado && evolutionConfigurado()) {
-    const envio = await enviarMensagem(remoteJid, "Um representante comercial entrara em contato em breve.")
+    const envio = await enviarMensagem(
+      remoteJid,
+      "Um representante comercial entrara em contato em breve."
+    )
     if (!envio.sucesso) {
-      await enfileirarRetry(remoteJid, "Um representante comercial entrara em contato em breve.", envio.erro || "send_failed")
+      await enfileirarRetry(
+        remoteJid,
+        "Um representante comercial entrara em contato em breve.",
+        envio.erro || "send_failed"
+      )
     }
   }
 
@@ -992,15 +1559,21 @@ async function processarConversa(params: {
       const descricaoParts: string[] = []
       if (dados.documento) descricaoParts.push(`Documento: ${dados.documento}`)
       if (dados.tipoPessoa) descricaoParts.push(`Tipo: ${dados.tipoPessoa}`)
-      if (dados.linhasInteresseNomes) descricaoParts.push(`Interesse: ${dados.linhasInteresseNomes}`)
-      if (dados._cnpjConsulta) descricaoParts.push(`Razao Social: ${dados._cnpjConsulta.razaoSocial}`)
+      if (dados.linhasInteresseNomes)
+        descricaoParts.push(`Interesse: ${dados.linhasInteresseNomes}`)
+      if (dados._cnpjConsulta)
+        descricaoParts.push(`Razao Social: ${dados._cnpjConsulta.razaoSocial}`)
       if (dados._cnpjSemDados) descricaoParts.push("CNPJ nao consultado na Receita Federal")
-      descricaoParts.push(`Lead finalizado via WhatsApp | Score: ${leadScore.score}/100 (${leadScore.prioridade})`)
+      descricaoParts.push(
+        `Lead finalizado via WhatsApp | Score: ${leadScore.score}/100 (${leadScore.prioridade})`
+      )
       descricaoParts.push(
         `Encaminhado para representante: ${dados.tipoPessoa === "PJ" ? "Pessoa Juridica" : "Pessoa Fisica"} | Atendido pela IA: ${aiResult.nomeChave ? `${aiResult.provedor} (${aiResult.nomeChave})` : `${aiResult.provedor} (${aiResult.modelo})`}`
       )
 
-      const dadosExtraidos = await extrairDadosLead(historico, pushName).catch((): Partial<import("@/lib/whatsapp/groq").DadosLeadExtraidos> => ({}))
+      const dadosExtraidos = await extrairDadosLead(historico, pushName).catch(
+        (): Partial<import("@/lib/whatsapp/groq").DadosLeadExtraidos> => ({})
+      )
 
       let nomeLead: string
       if (dados.tipoPessoa === "PJ" && dados._cnpjConsulta?.razaoSocial) {
@@ -1008,16 +1581,22 @@ async function processarConversa(params: {
       } else {
         nomeLead = dadosExtraidos.nome || dados.nome
       }
-      const ehSaudacao = /^(ola|olá|oi|oe|eai|e aí|cliente|anonimo|bom dia|boa tarde|boa noite)$/i.test((nomeLead || "").trim())
+      const ehSaudacao =
+        /^(ola|olá|oi|oe|eai|e aí|cliente|anonimo|bom dia|boa tarde|boa noite)$/i.test(
+          (nomeLead || "").trim()
+        )
       if (!nomeLead || nomeLead.trim().length === 0 || ehSaudacao) {
         nomeLead = "Anonimo"
       }
 
       const documentoLead = dados.documento || dadosExtraidos.documento || null
-      const tipoPessoaLead = dados.tipoPessoa || (dadosExtraidos.tipoPessoa ? (dadosExtraidos.tipoPessoa === "PJ" ? "PJ" : "PF") : null)
+      const tipoPessoaLead =
+        dados.tipoPessoa ||
+        (dadosExtraidos.tipoPessoa ? (dadosExtraidos.tipoPessoa === "PJ" ? "PJ" : "PF") : null)
       const emailLead = dadosExtraidos.email || null
       const telefoneLead = dadosExtraidos.telefone || null
-      const empresaNomeLead = dados._cnpjConsulta?.razaoSocial || dados.razaoSocial || dadosExtraidos.empresa || null
+      const empresaNomeLead =
+        dados._cnpjConsulta?.razaoSocial || dados.razaoSocial || dadosExtraidos.empresa || null
 
       const [novo] = await db
         .insert(crmLeads)
@@ -1039,12 +1618,35 @@ async function processarConversa(params: {
 
       leadCriado = novo
       const leadDuration = Date.now() - tLead
-      await logStep(executionId, remoteJid, pushName, "create_lead", "success", { nome: dados.nome, numero, tipoPessoa: dados.tipoPessoa, documento: dados.documento, score: leadScore.score, prioridade: leadScore.prioridade }, { leadId: novo.id, idIntegracao: `whatsapp:${remoteJid}`, motivos: leadScore.motivos }, null, leadDuration)
+      await logStep(
+        executionId,
+        remoteJid,
+        pushName,
+        "create_lead",
+        "success",
+        {
+          nome: dados.nome,
+          numero,
+          tipoPessoa: dados.tipoPessoa,
+          documento: dados.documento,
+          score: leadScore.score,
+          prioridade: leadScore.prioridade,
+        },
+        { leadId: novo.id, idIntegracao: `whatsapp:${remoteJid}`, motivos: leadScore.motivos },
+        null,
+        leadDuration
+      )
       await registrarLogBot({
         tipo: "FLUXO",
         origem: "processador",
         status: "ok",
-        detalhe: { leadId: novo.id, remoteJid, tipoPessoa: dados.tipoPessoa, score: leadScore.score, executionId },
+        detalhe: {
+          leadId: novo.id,
+          remoteJid,
+          tipoPessoa: dados.tipoPessoa,
+          score: leadScore.score,
+          executionId,
+        },
       })
 
       const tNotif = Date.now()
@@ -1063,7 +1665,9 @@ async function processarConversa(params: {
         `Tipo: ${tipoLabelLead}`,
         `Documento: ${dados.documento || "Nao informado"}`,
         dados._cnpjConsulta?.razaoSocial ? `Razao Social: ${dados._cnpjConsulta.razaoSocial}` : "",
-        dados._cnpjConsulta?.nomeFantasia ? `Nome Fantasia: ${dados._cnpjConsulta.nomeFantasia}` : "",
+        dados._cnpjConsulta?.nomeFantasia
+          ? `Nome Fantasia: ${dados._cnpjConsulta.nomeFantasia}`
+          : "",
         dados.linhasInteresseNomes ? `Interesse: ${dados.linhasInteresseNomes}` : "",
         "",
         `Encaminhado para representante: ${tipoLabelLead}`,
@@ -1073,14 +1677,24 @@ async function processarConversa(params: {
         leadScore.motivos.length > 0 ? `Motivos: ${leadScore.motivos.join(", ")}` : "",
         "",
         "Dados capturados pelo atendente automatico.",
-      ].filter(Boolean).join("\n")
+      ]
+        .filter(Boolean)
+        .join("\n")
 
       await db.insert(crmNotificacoes).values({
         titulo: "Novo lead cadastrado via WhatsApp",
         mensagem: textoNotificacao,
         tipo: "lead_novo",
         link: "/comercial/crm/leads",
-        metadados: { leadId: novo.id, remoteJid, pushName, representante: tipoLabelLead, iaProvedor: aiResult.provedor, iaModelo: aiResult.modelo, iaNomeChave: aiResult.nomeChave || null },
+        metadados: {
+          leadId: novo.id,
+          remoteJid,
+          pushName,
+          representante: tipoLabelLead,
+          iaProvedor: aiResult.provedor,
+          iaModelo: aiResult.modelo,
+          iaNomeChave: aiResult.nomeChave || null,
+        },
       })
 
       if (evolutionConfigurado()) {
@@ -1093,13 +1707,21 @@ async function processarConversa(params: {
         `<p><strong>WhatsApp:</strong> <a href="https://wa.me/${numero}">${numero}</a></p>`,
         `<p><strong>Tipo:</strong> ${tipoLabelLead}</p>`,
         dados.documento ? `<p><strong>Documento:</strong> ${escapeHtml(dados.documento)}</p>` : "",
-        dados._cnpjConsulta?.razaoSocial ? `<p><strong>Razão Social:</strong> ${escapeHtml(dados._cnpjConsulta.razaoSocial)}</p>` : "",
-        dados._cnpjConsulta?.nomeFantasia ? `<p><strong>Nome Fantasia:</strong> ${escapeHtml(dados._cnpjConsulta.nomeFantasia)}</p>` : "",
-        dados.linhasInteresseNomes ? `<p><strong>Interesse:</strong> ${escapeHtml(dados.linhasInteresseNomes)}</p>` : "",
+        dados._cnpjConsulta?.razaoSocial
+          ? `<p><strong>Razão Social:</strong> ${escapeHtml(dados._cnpjConsulta.razaoSocial)}</p>`
+          : "",
+        dados._cnpjConsulta?.nomeFantasia
+          ? `<p><strong>Nome Fantasia:</strong> ${escapeHtml(dados._cnpjConsulta.nomeFantasia)}</p>`
+          : "",
+        dados.linhasInteresseNomes
+          ? `<p><strong>Interesse:</strong> ${escapeHtml(dados.linhasInteresseNomes)}</p>`
+          : "",
         `<p><strong>Score:</strong> ${leadScore.score}/100 (${leadScore.prioridade})</p>`,
         ``,
         `<p><a href="${BASE_URL}/comercial/crm/leads">Abrir lead no CRM</a></p>`,
-      ].filter(Boolean).join("\n")
+      ]
+        .filter(Boolean)
+        .join("\n")
 
       await notificarDestinatariosEmail({
         tipoPessoa: repTipoNotificacao,
@@ -1107,9 +1729,29 @@ async function processarConversa(params: {
         html: emailHtml,
       })
       const notifDuration = Date.now() - tNotif
-      await logStep(executionId, remoteJid, pushName, "notify", "success", { representante: repTipoNotificacao, tipoPessoa: dados.tipoPessoa }, { notificacaoSalva: true, whatsappEnviado: evolutionConfigurado() }, null, notifDuration)
+      await logStep(
+        executionId,
+        remoteJid,
+        pushName,
+        "notify",
+        "success",
+        { representante: repTipoNotificacao, tipoPessoa: dados.tipoPessoa },
+        { notificacaoSalva: true, whatsappEnviado: evolutionConfigurado() },
+        null,
+        notifDuration
+      )
     } else {
-      await logStep(executionId, remoteJid, pushName, "create_lead", "skipped", { remoteJid }, { reason: "lead_already_exists", existingLeadId: existing.id }, null, 0)
+      await logStep(
+        executionId,
+        remoteJid,
+        pushName,
+        "create_lead",
+        "skipped",
+        { remoteJid },
+        { reason: "lead_already_exists", existingLeadId: existing.id },
+        null,
+        0
+      )
     }
   }
 

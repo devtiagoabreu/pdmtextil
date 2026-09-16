@@ -6,6 +6,7 @@ import { crmContatos } from "@/lib/db/schema/crm-contatos"
 import { crmLeads } from "@/lib/db/schema/crm-leads"
 import { eq } from "drizzle-orm"
 import { inserirTimelineEvento } from "@/lib/crm-timeline"
+import { validarWebhookSecret } from "@/lib/whatsapp/webhook-auth"
 
 export const dynamic = "force-dynamic"
 
@@ -14,45 +15,46 @@ async function criarLeadWhatsApp(remoteJid: string, mensagem: string) {
   const nomeContato = `WhatsApp ${numero}`
 
   const cnpjTemp = `000.000.000-${Date.now().toString().slice(-4)}`
-  const [empresa] = await db.insert(crmPessoas).values({
-    razaoSocial: nomeContato,
-    nomeFantasia: nomeContato,
-    cnpj: cnpjTemp,
-  }).returning()
+  const [empresa] = await db
+    .insert(crmPessoas)
+    .values({
+      razaoSocial: nomeContato,
+      nomeFantasia: nomeContato,
+      cnpj: cnpjTemp,
+    })
+    .returning()
 
-  const [contato] = await db.insert(crmContatos).values({
-    nome: nomeContato,
-    whatsapp: remoteJid,
-    celular: numero,
-    empresaId: empresa.id,
-    principal: true,
-  }).returning()
+  const [contato] = await db
+    .insert(crmContatos)
+    .values({
+      nome: nomeContato,
+      whatsapp: remoteJid,
+      celular: numero,
+      empresaId: empresa.id,
+      principal: true,
+    })
+    .returning()
 
-  const [lead] = await db.insert(crmLeads).values({
-    nome: nomeContato,
-    celular: numero,
-    tipoPessoa: "PF",
-    origem: "WHATSAPP",
-    descricao: `Lead criado automaticamente via WhatsApp. Mensagem: "${mensagem.substring(0, 200)}"`,
-    empresaId: empresa.id,
-    idIntegracao: `whatsapp:${remoteJid}`,
-  }).returning()
+  const [lead] = await db
+    .insert(crmLeads)
+    .values({
+      nome: nomeContato,
+      celular: numero,
+      tipoPessoa: "PF",
+      origem: "WHATSAPP",
+      descricao: `Lead criado automaticamente via WhatsApp. Mensagem: "${mensagem.substring(0, 200)}"`,
+      empresaId: empresa.id,
+      idIntegracao: `whatsapp:${remoteJid}`,
+    })
+    .returning()
 
   return { empresa, contato, lead }
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const webhookSecret = process.env.PDM_WEBHOOK_SECRET
-    if (!webhookSecret) {
-      console.error("[POST /api/crm/whatsapp/webhook] PDM_WEBHOOK_SECRET não configurado")
-      return NextResponse.json({ error: "Webhook não configurado" }, { status: 500 })
-    }
-    const authHeader = req.headers.get("authorization")
-    const querySecret = req.nextUrl.searchParams.get("secret")
-    if (authHeader !== `Bearer ${webhookSecret}` && querySecret !== webhookSecret) {
-      return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
-    }
+    const auth = validarWebhookSecret(req)
+    if (!("ok" in auth)) return auth
 
     const createLead = req.nextUrl.searchParams.get("createLead") === "true"
 
@@ -85,6 +87,27 @@ export async function POST(req: NextRequest) {
       leadCriado = criado.lead
     }
 
+    if (externalId) {
+      const duplicada = await db
+        .select({ id: crmWhatsappMensagens.id })
+        .from(crmWhatsappMensagens)
+        .where(eq(crmWhatsappMensagens.externalId, externalId))
+        .limit(1)
+        .then((r: any) => r[0] || null)
+
+      if (duplicada) {
+        return NextResponse.json({
+          id: duplicada.id,
+          status: "ok",
+          duplicada: true,
+          leadCriado: false,
+          leadId: null,
+          empresaId,
+          contatoId: contato?.id || null,
+        })
+      }
+    }
+
     const [nova] = await db
       .insert(crmWhatsappMensagens)
       .values({
@@ -107,14 +130,17 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    return NextResponse.json({
-      id: nova.id,
-      status: "ok",
-      leadCriado: !!leadCriado,
-      leadId: leadCriado?.id || null,
-      empresaId,
-      contatoId: contato?.id || null,
-    }, { status: 201 })
+    return NextResponse.json(
+      {
+        id: nova.id,
+        status: "ok",
+        leadCriado: !!leadCriado,
+        leadId: leadCriado?.id || null,
+        empresaId,
+        contatoId: contato?.id || null,
+      },
+      { status: 201 }
+    )
   } catch (error) {
     console.error("[POST /api/crm/whatsapp/webhook]", error)
     return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })

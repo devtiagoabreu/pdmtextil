@@ -2,9 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
-import {
-  Loader2, Plus, Database, ArrowLeft,
-} from "lucide-react"
+import { Loader2, Plus, Database, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { usePathname } from "next/navigation"
@@ -69,7 +67,7 @@ export default function BancoDadosPage() {
       })
       if (!res.ok) throw new Error()
       const item = await res.json()
-      setLista(prev => [...prev, item])
+      setLista((prev) => [...prev, item])
       setNome("")
       setConnectionString("")
       setShowForm(false)
@@ -89,7 +87,7 @@ export default function BancoDadosPage() {
         body: JSON.stringify({ id: item.id, ativo: true }),
       })
       if (!res.ok) throw new Error()
-      setLista(prev => prev.map((c: any) => ({ ...c, ativo: c.id === item.id })))
+      setLista((prev) => prev.map((c: any) => ({ ...c, ativo: c.id === item.id })))
       toast.success(`"${item.nome}" definido como ativo`)
     } catch {
       toast.error("Erro ao ativar conexão")
@@ -105,7 +103,7 @@ export default function BancoDadosPage() {
         body: JSON.stringify({ id }),
       })
       if (!res.ok) throw new Error()
-      setLista(prev => prev.filter((c: any) => c.id !== id))
+      setLista((prev) => prev.filter((c: any) => c.id !== id))
       toast.success("Conexão removida")
     } catch {
       toast.error("Erro ao remover conexão")
@@ -122,7 +120,7 @@ export default function BancoDadosPage() {
       const res = await fetch("/api/admin/config/banco-dados/criar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ connectionString: criarModal.connectionString, dbName: criarDbNome }),
+        body: JSON.stringify({ bancoId: criarModal.id, dbName: criarDbNome }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
@@ -160,8 +158,8 @@ export default function BancoDadosPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          sourceConnString: cloneOrigem.connectionString,
-          targetConnString: destino.connectionString,
+          sourceBancoId: cloneOrigem.id,
+          targetBancoId: destino.id,
           sourceDb: cloneSourceDb,
           targetDb: cloneTargetDb,
         }),
@@ -200,7 +198,8 @@ export default function BancoDadosPage() {
       a.href = url
       const disposition = res.headers.get("Content-Disposition") || ""
       const match = disposition.match(/filename="?(.+?)"?$/)
-      a.download = match?.[1] || `backup_pdm_${new Date().toISOString().slice(0, 19).replace(/[:]/g, "-")}.sql`
+      a.download =
+        match?.[1] || `backup_pdm_${new Date().toISOString().slice(0, 19).replace(/[:]/g, "-")}.sql`
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
@@ -218,7 +217,9 @@ export default function BancoDadosPage() {
       toast.error("Preencha todos os campos")
       return
     }
-    const standby = redundStandbyId ? lista.find((c: any) => c.id === Number(redundStandbyId)) : null
+    const standby = redundStandbyId
+      ? lista.find((c: any) => c.id === Number(redundStandbyId))
+      : null
     if (!standby) {
       toast.error("Selecione a conexão standby")
       return
@@ -229,8 +230,8 @@ export default function BancoDadosPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          primaryConnString: redundPrimario.connectionString,
-          standbyConnString: standby.connectionString,
+          primaryBancoId: redundPrimario.id,
+          standbyBancoId: standby.id,
           primaryDb: redundPrimaryDb,
           standbyDb: redundStandbyDb,
         }),
@@ -247,19 +248,28 @@ export default function BancoDadosPage() {
   }
 
   if (loading) {
-    return <div className="flex justify-center p-8"><Loader2 className="animate-spin text-slate-400" size={24} /></div>
+    return (
+      <div className="flex justify-center p-8">
+        <Loader2 className="animate-spin text-slate-400" size={24} />
+      </div>
+    )
   }
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex items-center gap-4">
-        <Link href="/admin/configuracoes" className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+        <Link
+          href="/admin/configuracoes"
+          className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+        >
           <ArrowLeft size={20} />
         </Link>
         <div>
           <div className="flex items-center gap-2">
             <Database className="text-blue-600" size={24} />
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Banco de Dados{info && <InfoButton content={info} />}</h1>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+              Banco de Dados{info && <InfoButton content={info} />}
+            </h1>
           </div>
           <p className="text-sm text-slate-500 mt-1">Gerencie as conexões com banco de dados</p>
         </div>
@@ -282,7 +292,11 @@ export default function BancoDadosPage() {
           setConnectionString={setConnectionString}
           saving={saving}
           onAdd={handleAdd}
-          onCancel={() => { setShowForm(false); setNome(""); setConnectionString("") }}
+          onCancel={() => {
+            setShowForm(false)
+            setNome("")
+            setConnectionString("")
+          }}
         />
       ) : (
         <Button onClick={() => setShowForm(true)} className="gap-2">
@@ -296,7 +310,10 @@ export default function BancoDadosPage() {
         setDbNome={setCriarDbNome}
         loading={criarLoading}
         onConfirm={handleCriarBanco}
-        onClose={() => { setCriarModal(null); setCriarDbNome("") }}
+        onClose={() => {
+          setCriarModal(null)
+          setCriarDbNome("")
+        }}
       />
 
       <CloneDialog

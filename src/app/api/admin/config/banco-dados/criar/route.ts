@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { createDatabase } from "@/lib/db-admin"
+import { resolverConnectionString } from "@/lib/db-admin/resolve-conn"
 export const dynamic = "force-dynamic"
 
 export async function POST(req: NextRequest) {
@@ -11,12 +12,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
-    const { connectionString, dbName } = await req.json()
-    if (!connectionString || !dbName) {
-      return NextResponse.json({ error: "connectionString e dbName são obrigatórios" }, { status: 400 })
+    const { bancoId, connectionString, dbName } = await req.json()
+    const resolvida = bancoId
+      ? await resolverConnectionString(Number(bancoId))
+      : (connectionString ?? null)
+    if (!resolvida || !dbName) {
+      return NextResponse.json(
+        { error: "bancoId (ou connectionString) e dbName são obrigatórios" },
+        { status: 400 }
+      )
     }
 
-    const result = await createDatabase(connectionString, dbName)
+    const result = await createDatabase(resolvida, dbName)
     if (!result.success) {
       return NextResponse.json({ error: result.message }, { status: 400 })
     }
