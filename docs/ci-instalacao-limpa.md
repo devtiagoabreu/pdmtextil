@@ -30,7 +30,7 @@ Validação completa (mesmos passos que o CI):
 ```bash
 npm run format:check   # Prettier
 npx tsc --noEmit       # TypeScript
-npm run test           # Vitest — 281 arquivos / 1.513 testes
+npm run test           # Vitest — 282 arquivos / 1.524 testes
 npm run build          # build de produção (Next.js)
 ```
 
@@ -57,14 +57,29 @@ A cada `push` na `main` (e em PRs), o GitHub Actions executa em runner vazio
 - `workflow_dispatch` permite rodar manualmente ("Run workflow" no GitHub).
 - `concurrency` cancela execuções obsoletas do mesmo branch (PR atualizada).
 
-## Estado do `package-lock.json` (verificado em 16/09/2026)
+## Estado do `package-lock.json` (atualizado em 16/09/2026)
 
 1. **Consistência package.json ↔ lockfile**: 75 dependências em `package.json`,
    75 no root do lockfile — nenhuma faltando, nenhuma extra.
-2. **Estado canônico**: em clone limpo, `npm install --package-lock-only` regenera o
-   arquivo com **hash SHA-256 idêntico** ao versionado (nenhuma alteração pendente).
-3. **`npm ci` em clone novo**: `git clone` + `npm ci` → EXIT 0, 1.308 pacotes
-   (posteriormente 920 entradas de topo em `node_modules`), sem reutilizar `node_modules`.
+2. **Estado canônico**: em clone limpo, `npm install --package-lock-only` (com
+   **npm 10**, mesmo do CI Node 20) regenera o arquivo com **hash SHA-256 idêntico**
+   ao versionado: `2B05EA364B3F18462812A6F3E14B136EAD26F22814992DEA41DEE15F5881C6C2`.
+3. **`npm ci` em clone novo**: passa com **npm@10.9.2 (Node 20 — padrão do CI)** e com
+   **npm 11 (Node 24)** — `git clone` + `npm ci` → EXIT 0 (920 entradas de topo em
+   `node_modules`). Suíte completa e build verdes após a correção (ver mais abaixo), sem
+   reutilizar `node_modules`.
+4. **Correção aplicada em 16/09/2026**: o lockfile anterior falhava `npm ci` com npm 10
+   (CI roda Node 20 → npm 10) com erros de dependências **`Missing`** (`esbuild`,
+   `sass`, `@parcel/watcher*`). O lockfile foi regenerado com
+   `npx -y npm@10.9.2 install --package-lock-only --ignore-scripts` (diff +1.048/−230;
+   +14 referências `@parcel/watcher*`, separação `node_modules/sass@1.51.0` e
+   `node_modules/vitest/node_modules/sass@1.104.1`, `esbuild@0.25.12`). A partir daí,
+   `npm ci` funciona com npm 10 e npm 11.
+
+> Observação: a correção foi validada em **clones limpos** (drive rápido). Um `npm ci`
+> no diretório de trabalho local (HD mecânico) ficou preso por lentidão de I/O e deixou
+> `node_modules` parcial — re-execute `npm ci` em uma máquina/mídia rápida se precisar
+> restaurar a instalação local (o resultado do CI vale como referência).
 
 ## Quando adicionar/remover uma dependência
 

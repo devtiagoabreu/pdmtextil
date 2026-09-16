@@ -16,7 +16,7 @@ A auditoria levantou itens de **segurança** (autenticação de webhooks, contro
 | — | (mesma rodada) | `b7b290a3` | Acessibilidade (WCAG) em componentes globais |
 | 2 | 16/09 | `d3bf9974`, `5c66398d`, `9dd2d67e` | Segurança de webhooks/rotas admin, conexão de banco, idempotência, Prettier |
 
-**Validação final:** `tsc` sem erros, **281 arquivos / 1.513 testes** passando, `npm run build` OK, `npm run format:check` limpo.
+**Validação final:** `tsc` sem erros, **282 arquivos / 1.524 testes** passando, `npm run build` OK, `npm run format:check` limpo.
 
 > **Decisão do gestor:** **Aprovado com ressalva operacional** — contratar, exigindo a
 > correção do `package-lock.json` e uma instalação limpa verificável como primeiro
@@ -52,7 +52,7 @@ A auditoria levantou itens de **segurança** (autenticação de webhooks, contro
 | 5 | **Tipagem** — parâmetros `any` em `schema/crm-whatsapp.ts`, `banco-dados/route.ts` e import incorreto em `redundancia/route.ts` | ✅ Corrigido | Tipos explícitos; `tsc` limpo. |
 | 6 | **Teste flaky** — teste do dashboard de visitas falhava por timeout/assincronismo | ✅ Corrigido | `vi.setConfig({ testTimeout: 30000 })` no arquivo. |
 | 7 | **Formatação Prettier** — ~1.050 arquivos fora do padrão do respositório | ✅ Corrigido | `npm run format` (Prettier, config `.prettierrc.json`) + 5 arquivos remanescentes formatados à parte. `format:check` verde. |
-| 8 | **`npm ci` / `package-lock.json`** — auditoria apontou inconsistência potencial | ⚪ Verificado, sem ação | Ver item "Não alterado de propósito" abaixo. |
+| 8 | **`npm ci` / `package-lock.json`** — auditoria apontou inconsistência potencial | ✅ Corrigido | Lockfile regenerado com npm 10 (ver "Evidências", seção 5): corrige `npm ci` no Node 20 do CI (Missing de `esbuild`/`sass`/`@parcel/watcher*`) e passa a instalar com npm 10 e npm 11. |
 
 ---
 
@@ -70,7 +70,7 @@ A auditoria levantou itens de **segurança** (autenticação de webhooks, contro
 
 ```bash
 npx tsc --noEmit        # EXIT 0 — sem erros de tipo
-npm run test            # 281 arquivos / 1.513 testes OK (inclui 22 novos testes)
+npm run test            # 282 arquivos / 1.524 testes OK (inclui 22 novos testes)
 npm run build           # build de produção OK
 npm run format:check    # Prettier limpo
 git status              # working tree limpo
@@ -137,11 +137,36 @@ Resultado: `npm ci` EXIT 0, lockfileVersion 3 consistente, sem erros. A última 
 
 A verificação da inspeção:
 - **`package.json` ↔ lockfile**: 75 dependências em ambos — nenhuma faltando, nenhuma extra.
-- **Estado canônico**: `npm install --package-lock-only` em clone limpo regenera o lockfile com **SHA-256 idêntico** ao versionado (arquivo já em estado canônico — não havia correção pendente).
+- **Estado canônico atual**: `npm install --package-lock-only` com **npm 10** em clone limpo
+  regenera o lockfile com **SHA-256 idêntico** ao versionado
+  (`2B05EA364B3F18462812A6F3E14B136EAD26F22814992DEA41DEE15F5881C6C2`) — nenhuma correção pendente.
 - **Procedimento documentado**: `docs/ci-instalacao-limpa.md` (pré-requisitos, instalação limpa com `npm ci`, passos de validação e ação ao adicionar dependências).
 - **CI automatizado**: `.github/workflows/ci.yml` roda em runner vazio (Node 20) a cada push/PR: `npm ci` → `.env.local` a partir de `.env.example` → `format:check` → `tsc --noEmit` → `test` → `build`. `workflow_dispatch` permite rodar manualmente.
 - **Build com placeholders validado**: `npm run build` executado com `.env.local` proveniente de `.env.example` → EXIT 0 (equivale ao passo do CI).
 - **`engines`** adicionado ao `package.json` (`node >=20.9.0`) e `.nvmrc` fixando Node 20.
+
+### 5. Correção do lockfile — reprodutível em clones limpos
+
+O CI roda **Node 20 → npm 10**. No lockfile anterior (gerado com npm 11), `npm ci` com
+npm 10 falhava com dependências **`Missing`** (`esbuild`, `sass`, `@parcel/watcher*`).
+
+1. **Regeneração**: `npx -y npm@10.9.2 install --package-lock-only --ignore-scripts` em
+   clone limpo → diff **+1.048/−230** versus o versionado; adiciona 14 referências
+   `@parcel/watcher*`, separa `node_modules/sass@1.51.0` e
+   `node_modules/vitest/node_modules/sass@1.104.1`, atualiza `esbuild` para `0.25.12`.
+2. **Novo hash canônico**: `2B05EA364B3F18462812A6F3E14B136EAD26F22814992DEA41DEE15F5881C6C2`.
+3. **`npm ci` em clone limpo com npm@10.9.2** → EXIT 0.
+4. **`npm ci` em clone limpo com npm 11 (Node 24)** → EXIT 0 (regressão em versões).
+5. **Validação completa pós-correção** (clone limpo, `node_modules` novo):
+   `format:check` limpo, `tsc` EXIT 0, suíte **282 arquivos / 1.524 testes**, build EXIT 0.
+
+```bash
+# reprodução (qualquer máquina rápida)
+git clone https://github.com/devtiagoabreu/pdmtextil.git /tmp/lock-test
+cd /tmp/lock-test
+npx -y npm@10.9.2 ci          # EXIT 0 — mesma instalação do CI (Node 20/npm 10)
+(Get-FileHash package-lock.json -Algorithm SHA256).Hash   # 2B05EA36...
+```
 
 ## Decisão do gestor
 
@@ -152,10 +177,12 @@ foi positivo e **pesa a favor** do candidato mais do que o problema residual do 
 pesa contra. Como **primeiro critério técnico de entrada**, exige-se:
 
 1. **`package-lock.json` corrigido/consistente** — verificado: 75 dependências em
-   `package.json` e no lockfile (nada faltando/extra) e `npm install --package-lock-only`
-   regenera o arquivo com **SHA-256 idêntico** ao versionado (estado canônico).
-2. **Instalação limpa verificável** — `npm ci` em clone novo passou (EXIT 0), e agora é
-   validada **continuamente** pelo `.github/workflows/ci.yml` a cada push/PR.
+   `package.json` e no lockfile (nada faltando/extra), `npm install --package-lock-only`
+   com npm 10 regenera o arquivo com **SHA-256 idêntico** ao versionado
+   (`2B05EA364B3F18462812A6F3E14B136EAD26F22814992DEA41DEE15F5881C6C2`) e `npm ci` passa
+   com **npm@10.9.2** (Node 20 — versão do CI) e **npm 11**.
+2. **Instalação limpa verificável** — `npm ci` em clone novo passa (EXIT 0, npm 10 e npm 11),
+   e agora é validada **continuamente** pelo `.github/workflows/ci.yml` a cada push/PR.
 
 Ambos os critérios já estão atendidos e permanecem **monitoráveis**:
 o CI (`ci.yml`) roda `npm ci` → validações → build em runner vazio, e o resultado fica
