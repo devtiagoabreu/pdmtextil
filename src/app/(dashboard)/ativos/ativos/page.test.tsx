@@ -15,6 +15,10 @@ const ATIVOS_MOCK = [
     maquinaNome: null,
     responsavelNome: "João",
     ativo: true,
+    dataAquisicao: "2015-01-01",
+    valorAquisicao: "12000",
+    valorResidual: "2000",
+    vidaUtilAnos: 5,
   },
   {
     id: 2,
@@ -26,14 +30,18 @@ const ATIVOS_MOCK = [
     maquinaNome: null,
     responsavelNome: null,
     ativo: true,
+    dataAquisicao: null,
+    valorAquisicao: null,
+    valorResidual: null,
+    vidaUtilAnos: null,
   },
 ]
 
 function mountPage(data: unknown[] = ATIVOS_MOCK) {
   navMock.setPathname("/ativos/ativos")
   const fetchMock = createFetchMock(({ method, url }) => {
-    if (method === "GET" && url === "/api/ativos/ativos") return { json: data }
-    if (method === "DELETE" && url === "/api/ativos/ativos/2") {
+    if (method === "GET" && url === "/api/ativos") return { json: data }
+    if (method === "DELETE" && url === "/api/ativos/2") {
       return { status: 400, json: { error: "fk", fkError: true } }
     }
     if (method === "DELETE") return { json: { ok: true } }
@@ -59,6 +67,9 @@ describe("AtivosAtivosPage", () => {
     expect(screen.getByText("Ativo")).toBeInTheDocument()
     expect(screen.getByText("Manutenção")).toBeInTheDocument()
     expect(screen.getByText("João")).toBeInTheDocument()
+    expect(screen.getByText("R$ 2.000,00")).toBeInTheDocument()
+    expect(screen.getByText("100%")).toBeInTheDocument()
+    expect(screen.getByRole("columnheader", { name: "Depreciação" })).toBeInTheDocument()
   })
 
   it("filtra pela busca", async () => {
@@ -98,9 +109,7 @@ describe("AtivosAtivosPage", () => {
     const dialog = screen.getByRole("dialog", { name: "Excluir ativo?" })
     fireEvent.click(within(dialog).getByRole("button", { name: "Excluir" }))
 
-    await waitFor(() =>
-      expect(findCall(fetchMock.calls, "/api/ativos/ativos/1", "DELETE")).toBeDefined()
-    )
+    await waitFor(() => expect(findCall(fetchMock.calls, "/api/ativos/1", "DELETE")).toBeDefined())
     await waitFor(() =>
       expect(toastMock.success).toHaveBeenCalledWith("Ativo excluído com sucesso")
     )
@@ -119,9 +128,7 @@ describe("AtivosAtivosPage", () => {
     fireEvent.click(trash)
 
     fireEvent.click(screen.getByRole("button", { name: "Excluir" }))
-    await waitFor(() =>
-      expect(findCall(fetchMock.calls, "/api/ativos/ativos/2", "DELETE")).toBeDefined()
-    )
+    await waitFor(() => expect(findCall(fetchMock.calls, "/api/ativos/2", "DELETE")).toBeDefined())
     const blockedDialog = await screen.findByRole("dialog", { name: "Exclusão não permitida" })
     expect(blockedDialog).toHaveTextContent(/não pode ser exclu/)
 

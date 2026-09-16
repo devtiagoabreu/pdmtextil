@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input"
 import { matchesSearch } from "@/components/ui/list-filters"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
+import { calcularDepreciacao, formatarMoeda, formatarPercentual } from "@/lib/ativos/depreciacao"
 
 interface Ativo {
   id: number
@@ -23,6 +24,10 @@ interface Ativo {
   maquinaNome?: string | null
   responsavelNome?: string | null
   ativo: boolean
+  dataAquisicao?: string | null
+  valorAquisicao?: string | number | null
+  valorResidual?: string | number | null
+  vidaUtilAnos?: number | null
 }
 
 const STATUS_LABELS: Record<string, string> = {
@@ -54,7 +59,7 @@ export default function AtivosAtivosPage() {
   } = useQuery({
     queryKey: ["ativos-ativos"],
     queryFn: async () => {
-      const res = await fetch("/api/ativos/ativos")
+      const res = await fetch("/api/ativos")
       if (!res.ok) throw new Error("Falha ao carregar ativos")
       return res.json()
     },
@@ -67,7 +72,7 @@ export default function AtivosAtivosPage() {
     setDeleteLoading(true)
     setDeleteBlocked(false)
     try {
-      const res = await fetch(`/api/ativos/ativos/${deleteTarget.id}`, { method: "DELETE" })
+      const res = await fetch(`/api/ativos/${deleteTarget.id}`, { method: "DELETE" })
       const data = await res.json()
       if (!res.ok) {
         if (data.fkError) {
@@ -148,6 +153,9 @@ export default function AtivosAtivosPage() {
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
                   Responsável
                 </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Depreciação
+                </th>
                 <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
                   Ações
                 </th>
@@ -173,6 +181,34 @@ export default function AtivosAtivosPage() {
                     </span>
                   </td>
                   <td className="p-4 text-sm text-slate-500">{ativo.responsavelNome || "—"}</td>
+                  <td className="p-4 text-sm">
+                    {(() => {
+                      const calc = calcularDepreciacao({
+                        valorAquisicao: ativo.valorAquisicao,
+                        valorResidual: ativo.valorResidual,
+                        vidaUtilAnos: ativo.vidaUtilAnos,
+                        dataAquisicao: ativo.dataAquisicao,
+                        dataReferencia: new Date(),
+                      })
+                      if (!calc.deprecia) return <span className="text-slate-400">—</span>
+                      return (
+                        <span className="space-x-2 inline-flex items-center">
+                          <span className="font-medium text-slate-700 dark:text-slate-300">
+                            {formatarMoeda(calc.valorContabil)}
+                          </span>
+                          <span className="text-xs">
+                            {calc.totalmenteDepreciado ? (
+                              <span className="text-red-500 font-medium">100%</span>
+                            ) : (
+                              <span className="text-slate-400">
+                                {formatarPercentual(calc.percentualDepreciado)}
+                              </span>
+                            )}
+                          </span>
+                        </span>
+                      )
+                    })()}
+                  </td>
                   <td className="p-4 text-right">
                     <div className="flex items-center justify-end gap-1">
                       <Link

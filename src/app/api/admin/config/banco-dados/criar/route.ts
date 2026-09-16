@@ -14,10 +14,7 @@ export async function POST(req: NextRequest) {
 
     const { bancoId, dbName } = await req.json()
     if (!bancoId || !dbName) {
-      return NextResponse.json(
-        { error: "bancoId e dbName são obrigatórios" },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: "bancoId e dbName são obrigatórios" }, { status: 400 })
     }
 
     const resolvida = await resolverConnectionString(Number(bancoId))

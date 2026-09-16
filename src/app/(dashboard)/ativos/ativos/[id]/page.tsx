@@ -12,6 +12,12 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
+import {
+  calcularDepreciacao,
+  formatarMoeda,
+  formatarPercentual,
+  formatarDataISO,
+} from "@/lib/ativos/depreciacao"
 
 const STATUS = ["ATIVO", "MANUTENCAO", "INATIVO", "BAIXADO"] as const
 
@@ -36,6 +42,10 @@ type Ativo = {
   modelo: string
   numSerie: string
   anoFabricacao: string
+  dataAquisicao: string
+  valorAquisicao: string
+  valorResidual: string
+  vidaUtilAnos: string
   status: string
   maquinaId: string
   responsavelId: string
@@ -54,6 +64,10 @@ const INITIAL: Ativo = {
   modelo: "",
   numSerie: "",
   anoFabricacao: "",
+  dataAquisicao: "",
+  valorAquisicao: "",
+  valorResidual: "",
+  vidaUtilAnos: "",
   status: "ATIVO",
   maquinaId: "",
   responsavelId: "",
@@ -94,7 +108,7 @@ export default function AtivoFormPage() {
   const { data: ativoData, isLoading: loading } = useQuery<Partial<Ativo>>({
     queryKey: ["ativos-ativo", id],
     queryFn: async () => {
-      const res = await fetch(`/api/ativos/ativos/${id}`)
+      const res = await fetch(`/api/ativos/${id}`)
       return res.json()
     },
     enabled: !!isEditing && !!id,
@@ -112,6 +126,10 @@ export default function AtivoFormPage() {
         modelo: ativoData.modelo || "",
         numSerie: ativoData.numSerie || "",
         anoFabricacao: ativoData.anoFabricacao ? String(ativoData.anoFabricacao) : "",
+        dataAquisicao: ativoData.dataAquisicao || "",
+        valorAquisicao: ativoData.valorAquisicao != null ? String(ativoData.valorAquisicao) : "",
+        valorResidual: ativoData.valorResidual != null ? String(ativoData.valorResidual) : "",
+        vidaUtilAnos: ativoData.vidaUtilAnos != null ? String(ativoData.vidaUtilAnos) : "",
         status: ativoData.status || "ATIVO",
         maquinaId: ativoData.maquinaId ? String(ativoData.maquinaId) : "",
         responsavelId: ativoData.responsavelId ? String(ativoData.responsavelId) : "",
@@ -139,7 +157,7 @@ export default function AtivoFormPage() {
 
     setSaving(true)
     try {
-      const url = isEditing ? `/api/ativos/ativos/${id}` : "/api/ativos/ativos"
+      const url = isEditing ? `/api/ativos/${id}` : "/api/ativos"
       const method = isEditing ? "PUT" : "POST"
 
       const body: Record<string, unknown> = {
@@ -151,6 +169,10 @@ export default function AtivoFormPage() {
         modelo: ativo.modelo || null,
         numSerie: ativo.numSerie || null,
         anoFabricacao: ativo.anoFabricacao ? parseInt(ativo.anoFabricacao) : null,
+        dataAquisicao: ativo.dataAquisicao || null,
+        valorAquisicao: ativo.valorAquisicao ? Number(ativo.valorAquisicao) : null,
+        valorResidual: ativo.valorResidual ? Number(ativo.valorResidual) : null,
+        vidaUtilAnos: ativo.vidaUtilAnos ? parseInt(ativo.vidaUtilAnos, 10) : null,
         status: ativo.status,
         maquinaId: ativo.maquinaId ? parseInt(ativo.maquinaId) : null,
         responsavelId: ativo.responsavelId ? parseInt(ativo.responsavelId) : null,
@@ -371,6 +393,172 @@ export default function AtivoFormPage() {
             ))}
           </select>
         </div>
+
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-4">
+          <div className="space-y-2">
+            <Label htmlFor="dataAquisicao" className="font-medium">
+              Data de Aquisição
+            </Label>
+            <Input
+              id="dataAquisicao"
+              type="date"
+              value={ativo.dataAquisicao}
+              onChange={(e) => handleChange("dataAquisicao", e.target.value)}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="valorAquisicao" className="font-medium">
+              Valor de Aquisição (R$)
+            </Label>
+            <Input
+              id="valorAquisicao"
+              type="number"
+              step="0.01"
+              min="0"
+              value={ativo.valorAquisicao}
+              onChange={(e) => handleChange("valorAquisicao", e.target.value)}
+              placeholder="12.000,00"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="valorResidual" className="font-medium">
+              Valor Residual (R$)
+            </Label>
+            <Input
+              id="valorResidual"
+              type="number"
+              step="0.01"
+              min="0"
+              value={ativo.valorResidual}
+              onChange={(e) => handleChange("valorResidual", e.target.value)}
+              placeholder="2.000,00"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="vidaUtilAnos" className="font-medium">
+              Vida Útil (anos)
+            </Label>
+            <Input
+              id="vidaUtilAnos"
+              type="number"
+              min="1"
+              max="100"
+              value={ativo.vidaUtilAnos}
+              onChange={(e) => handleChange("vidaUtilAnos", e.target.value)}
+              placeholder="5"
+            />
+          </div>
+        </div>
+
+        {ativo.valorAquisicao && ativo.vidaUtilAnos && (() => {
+          const calc = calcularDepreciacao({
+            valorAquisicao: Number(ativo.valorAquisicao),
+            valorResidual: ativo.valorResidual ? Number(ativo.valorResidual) : 0,
+            vidaUtilAnos: parseInt(ativo.vidaUtilAnos, 10) || 0,
+            dataAquisicao: ativo.dataAquisicao || null,
+            dataReferencia: new Date(),
+          })
+          return (
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 p-5 space-y-4">
+              <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+                Controle de Depreciação
+              </h3>
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 text-sm">
+                <div>
+                  <span className="text-slate-500 dark:text-slate-400 block">Base depreciável</span>
+                  <span className="font-medium">{formatarMoeda(calc.baseDepreciavel)}</span>
+                </div>
+                <div>
+                  <span className="text-slate-500 dark:text-slate-400 block">Depreciação mensal</span>
+                  <span className="font-medium">{formatarMoeda(calc.depreciacaoMensal)}</span>
+                </div>
+                <div>
+                  <span className="text-slate-500 dark:text-slate-400 block">Depreciação anual</span>
+                  <span className="font-medium">{formatarMoeda(calc.depreciacaoAnual)}</span>
+                </div>
+                <div>
+                  <span className="text-slate-500 dark:text-slate-400 block">Vida útil</span>
+                  <span className="font-medium">
+                    {calc.mesesVidaUtil} meses ({calc.vidaUtilAnos} anos)
+                  </span>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-5 text-sm border-t border-slate-200 dark:border-slate-700 pt-4">
+                <div>
+                  <span className="text-slate-500 dark:text-slate-400 block">Acumulada</span>
+                  <span className="font-semibold text-blue-700 dark:text-blue-400">
+                    {formatarMoeda(calc.depreciacaoAcumulada)}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-slate-500 dark:text-slate-400 block">Faltante</span>
+                  <span className="font-medium">{formatarMoeda(calc.faltanteDepreciar)}</span>
+                </div>
+                <div>
+                  <span className="text-slate-500 dark:text-slate-400 block">Valor contábil</span>
+                  <span className="font-semibold">{formatarMoeda(calc.valorContabil)}</span>
+                </div>
+                <div>
+                  <span className="text-slate-500 dark:text-slate-400 block">% Depreciado</span>
+                  <span className="font-medium">{formatarPercentual(calc.percentualDepreciado)}</span>
+                </div>
+                <div>
+                  <span className="text-slate-500 dark:text-slate-400 block">Fim da vida útil</span>
+                  <span className="font-medium">{formatarDataISO(calc.dataFim)}</span>
+                </div>
+              </div>
+              {calc.totalmenteDepreciado && (
+                <span className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
+                  Totalmente depreciado
+                </span>
+              )}
+              {calc.deprecia && !calc.totalmenteDepreciado && (
+                <span className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                  Em depreciação — {calc.mesesDecorridos}/{calc.mesesVidaUtil} meses
+                </span>
+              )}
+              {!calc.deprecia && (
+                <span className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400">
+                  Informe valor de aquisição, residual, vida útil e data para calcular
+                </span>
+              )}
+              {calc.lancamentos.length > 0 && (
+                <div className="overflow-x-auto border-t border-slate-200 dark:border-slate-700 pt-3">
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-2">
+                    Projeção anual
+                  </p>
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="border-b border-slate-200 dark:border-slate-700">
+                        <th className="text-left p-1.5 font-medium text-slate-500 dark:text-slate-400">Ano</th>
+                        <th className="text-center p-1.5 font-medium text-slate-500 dark:text-slate-400">Meses</th>
+                        <th className="text-right p-1.5 font-medium text-slate-500 dark:text-slate-400">Depreciação</th>
+                        <th className="text-right p-1.5 font-medium text-slate-500 dark:text-slate-400">Acumulada</th>
+                        <th className="text-right p-1.5 font-medium text-slate-500 dark:text-slate-400">Valor contábil</th>
+                        <th className="text-right p-1.5 font-medium text-slate-500 dark:text-slate-400">%</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {calc.lancamentos.map((l) => (
+                        <tr key={l.ano} className="border-b border-slate-100 dark:border-slate-800">
+                          <td className="p-1.5 font-medium">{l.ano}</td>
+                          <td className="p-1.5 text-center">{l.meses}</td>
+                          <td className="p-1.5 text-right">{formatarMoeda(l.depreciacaoAno)}</td>
+                          <td className="p-1.5 text-right">{formatarMoeda(l.depreciacaoAcumulada)}</td>
+                          <td className="p-1.5 text-right">{formatarMoeda(l.valorContabil)}</td>
+                          <td className="p-1.5 text-right">{formatarPercentual(l.percentualAcumulado)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )
+        })()}
 
         <div className="space-y-2">
           <Label htmlFor="descricao" className="font-medium">
